@@ -2107,7 +2107,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // type-definitions we can revisit the newly added type-definitions and define the fields and members for them.
         populateImmutableTypeFieldsAndMembers(typeDefNodes, pkgEnv);
 
-        // If all the fields of a structure are readonly, mark the structure type itself as readonly.
+        // If all the fields of a structure are readonly or final, mark the structure type itself as readonly.
         // If the type is a `readonly object` validate if all fields are compatible.
         validateFieldsAndSetReadOnlyType(typDefs, pkgEnv);
     }
@@ -2216,7 +2216,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            boolean allReadOnlyFields = true;
+            boolean allReadOnlyOrFinalFields = true;
 
             Collection<BField> fields = structureType.fields.values();
 
@@ -2224,14 +2224,16 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
+            int flagToCheck = nodeKind == NodeKind.RECORD_TYPE ? Flags.READONLY : Flags.FINAL;
+
             for (BField field : fields) {
-                if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
-                    allReadOnlyFields = false;
+                if (!Symbols.isFlagOn(field.symbol.flags, flagToCheck)) {
+                    allReadOnlyOrFinalFields = false;
                     break;
                 }
             }
 
-            if (allReadOnlyFields) {
+            if (allReadOnlyOrFinalFields) {
                 structureType.tsymbol.flags |= Flags.READONLY;
                 structureType.flags |= Flags.READONLY;
             }
@@ -2263,7 +2265,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 }
 
-                field.symbol.flags |= Flags.READONLY;
+                field.symbol.flags |= Flags.FINAL;
             }
         } else {
             Collection<BField> fields = objectType.fields.values();
@@ -2272,7 +2274,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             for (BField field : fields) {
-                if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL)) {
                     return;
                 }
             }
@@ -2288,6 +2290,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineSymbol(invokableNode.name.pos, funcSymbol);
         invokableEnv.scope = funcSymbol.scope;
         defineInvokableSymbolParams(invokableNode, funcSymbol, invokableEnv);
+
+        if (Symbols.isFlagOn(funcSymbol.type.tsymbol.flags, Flags.ISOLATED)) {
+            funcSymbol.type.flags |= Flags.ISOLATED;
+        }
     }
 
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
@@ -2431,6 +2437,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (safeType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, varType,
                                              env.scope.owner, pos, isInternal ? VIRTUAL : SOURCE);
+            if (Symbols.isFlagOn(safeType.flags, Flags.ISOLATED)) {
+                varSymbol.flags |= Flags.ISOLATED;
+            }
             varSymbol.kind = SymbolKind.FUNCTION;
         } else {
             varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, pos,
@@ -2863,9 +2872,17 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void resolveAndSetFunctionTypeFromRHSLambda(BLangSimpleVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
-        variable.type = symResolver.createInvokableType(function.getParameters(),
-                                                        function.restParam, function.returnTypeNode,
-                                                        Flags.asMask(variable.flagSet), env, function.pos);
+        BInvokableType invokableType = symResolver.createInvokableType(function.getParameters(),
+                                                                       function.restParam, function.returnTypeNode,
+                                                                       Flags.asMask(variable.flagSet), env,
+                                                                       function.pos);
+
+        if (function.flagSet.contains(Flag.ISOLATED)) {
+            invokableType.flags |= Flags.ISOLATED;
+            invokableType.tsymbol.flags |= Flags.ISOLATED;
+        }
+
+        variable.type = invokableType;
     }
 
     /**

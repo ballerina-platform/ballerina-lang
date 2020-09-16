@@ -2484,27 +2484,21 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (actualType != symTable.semanticError &&
                         (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar)) {
                     if (isAllReadonlyTypes(varRefType)) {
-                        if (varRefType.tag != TypeTags.OBJECT ||
-                                isInvalidObjectFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
+                        if (varRefType.tag != TypeTags.OBJECT || !isInitializationInInit(varRefType)) {
                             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
                                        varRefType);
                             resultType = symTable.semanticError;
                             return;
                         }
+
                     } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD) &&
                             isInvalidReadonlyFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
                         dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_RECORD_FIELD,
                                    fieldAccessExpr.field.value, varRefType);
                         resultType = symTable.semanticError;
                         return;
-                    } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.OBJECT) &&
-                            isInvalidObjectFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
-                        dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_OBJECT_FIELD,
-                                   fieldAccessExpr.field.value, varRefType);
-                        resultType = symTable.semanticError;
-                        return;
-
                     }
+                    // Object final field updates will be analyzed at dataflow analysis.
                 }
             }
         }
@@ -2523,6 +2517,15 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         return true;
+    }
+
+    private boolean isInitializationInInit(BType type) {
+        BObjectType objectType = (BObjectType) type;
+        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
+        BAttachedFunction initializerFunc = objectTypeSymbol.initializerFunc;
+
+        return env.enclInvokable != null && initializerFunc != null &&
+                env.enclInvokable.symbol == initializerFunc.symbol;
     }
 
     private boolean isInvalidReadonlyFieldUpdate(BType type, String fieldName) {
@@ -2547,43 +2550,6 @@ public class TypeChecker extends BLangNodeVisitor {
         boolean allInvalidUpdates = true;
         for (BType memberType : ((BUnionType) type).getMemberTypes()) {
             if (!isInvalidReadonlyFieldUpdate(memberType, fieldName)) {
-                allInvalidUpdates = false;
-            }
-        }
-        return allInvalidUpdates;
-    }
-
-    private boolean isInvalidObjectFieldUpdate(BType type, String fieldName) {
-        if (type.tag == TypeTags.OBJECT) {
-            BObjectType objectType = (BObjectType) type;
-            BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
-            BAttachedFunction initializerFunc = objectTypeSymbol.initializerFunc;
-
-            if (env.enclInvokable != null && initializerFunc != null &&
-                    env.enclInvokable.symbol == initializerFunc.symbol) {
-                // This is a field update within the initializer. This update is valid.
-                return false;
-            }
-
-            if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
-                return true;
-            }
-
-            for (BField field : objectType.fields.values()) {
-                if (!field.name.value.equals(fieldName)) {
-                    continue;
-                }
-
-                return Symbols.isFlagOn(field.symbol.flags, Flags.READONLY);
-            }
-            return false; // Wouldn't get here.
-        }
-
-        // For unions, we consider this an invalid update only if it is invalid for all member types. If for at least
-        // one member this is valid, we allow this at compile time with the potential to fail at runtime.
-        boolean allInvalidUpdates = true;
-        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-            if (!isInvalidObjectFieldUpdate(memberType, fieldName)) {
                 allInvalidUpdates = false;
             }
         }
@@ -4382,18 +4348,20 @@ public class TypeChecker extends BLangNodeVisitor {
         //checks whether iterable collection's next() method returns an error
         BType nextMethodReturnType = null;
         BType errorType = null;
-        switch (collectionType.tag) {
-            case TypeTags.STREAM:
-                errorType = ((BStreamType) collectionType).error;
-                break;
-            case TypeTags.OBJECT:
-                nextMethodReturnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
-                break;
-            default:
-                BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                        names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
-                nextMethodReturnType =
-                        (BUnionType) types.getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+        if (collectionType.tag != TypeTags.SEMANTIC_ERROR) {
+            switch (collectionType.tag) {
+                case TypeTags.STREAM:
+                    errorType = ((BStreamType) collectionType).error;
+                    break;
+                case TypeTags.OBJECT:
+                    nextMethodReturnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
+                    break;
+                default:
+                    BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
+                            names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+                    nextMethodReturnType =
+                            types.getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+            }
         }
 
         if (nextMethodReturnType != null) {
@@ -5406,10 +5374,24 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
-        BType returnType = keyLambdaFunction.function.type.getReturnType();
+        DiagnosticPos pos;
+        BType returnType;
+
+        if (keyFunction.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            pos = keyFunction.pos;
+            returnType = ((BLangSimpleVarRef) keyFunction).type.getReturnType();
+        } else if (keyFunction.getKind() == NodeKind.ARROW_EXPR) {
+            BLangArrowFunction arrowFunction = ((BLangArrowFunction) keyFunction);
+            pos = arrowFunction.params.get(0).pos;
+            returnType = arrowFunction.params.get(0).type;
+        } else {
+            BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
+            pos = keyLambdaFunction.function.pos;
+            returnType = keyLambdaFunction.function.type.getReturnType();
+        }
+
         if (!types.isOrderedType(returnType)) {
-            dlog.error(keyLambdaFunction.function.pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
+            dlog.error(pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
         }
     }
 

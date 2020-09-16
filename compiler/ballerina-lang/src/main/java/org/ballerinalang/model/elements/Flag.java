@@ -106,6 +106,10 @@ public enum Flag {
      */
     RESOURCE,
     /**
+     * Indicates Flagged node is an isolated node.
+     */
+    ISOLATED,
+    /**
      * Indicates Flagged node is a service node.
      */
     SERVICE,

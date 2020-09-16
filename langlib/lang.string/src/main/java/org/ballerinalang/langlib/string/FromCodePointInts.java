@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -52,7 +53,7 @@ public class FromCodePointInts {
             }
             return builder.toString();
         } catch (IllegalArgumentException e) {
-            return BallerinaErrors.createError("Invalid codepoint: " + codePoint);
+            return BErrorCreator.createError(BStringUtils.fromString("Invalid codepoint: " + codePoint));
         }
     }
 }

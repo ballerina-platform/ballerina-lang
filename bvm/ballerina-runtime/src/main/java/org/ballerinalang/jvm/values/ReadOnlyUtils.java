@@ -65,8 +65,8 @@ public class ReadOnlyUtils {
      * @param moduleName the name of the langlib module for whose values the error occurred
      */
     static void handleInvalidUpdate(String moduleName) {
-        throw new BLangFreezeException(getModulePrefixedReason(moduleName, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
+        throw new BLangFreezeException(getModulePrefixedReason(moduleName, INVALID_UPDATE_ERROR_IDENTIFIER).getValue(),
+                                       BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE).getValue());
     }
 
     public static BType setImmutableTypeAndGetEffectiveType(BType type) {

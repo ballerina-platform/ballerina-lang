@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
@@ -68,7 +69,11 @@ public class Sort {
         Object[][] sortArr = new Object[arr.size()][2];
         Object[][] sortArrClone = new Object[arr.size()][2];
         if (function != null) {
-            elemType = ((BFunctionType) function.getType()).retType;
+            BType elementType = ((BFunctionType) function.getType()).retType;
+            if (!(elementType.getTag() == TypeTags.UNION_TAG &&
+                    ((BUnionType) elementType).getMemberTypes().size() > 2)) {
+                elemType = elementType;
+            }
             for (int i = 0; i < arr.size(); i++) {
                 sortArr[i][0] = function.call(new Object[]{strand, arr.get(i), true});
                 sortArr[i][1] = arr.get(i);
@@ -222,8 +227,9 @@ public class Sort {
             }
             return c;
         }
-        throw BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
-                "expected an ordered type, but found '" + type.toString() + "'");
+        throw BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
+                                        BStringUtils.fromString("expected an ordered type, but found '" +
+                                                                       type.toString() + "'"));
     }
 
     private static int codePointCompare(String str1, String str2) {

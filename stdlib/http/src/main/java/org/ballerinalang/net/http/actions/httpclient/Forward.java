@@ -18,11 +18,11 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -40,7 +40,7 @@ import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAva
  */
 public class Forward extends AbstractHTTPAction {
     @SuppressWarnings("unchecked")
-    public static Object forward(ObjectValue httpClient, BString path, ObjectValue requestObj) {
+    public static Object forward(BObject httpClient, BString path, BObject requestObj) {
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue();
         Strand strand = Scheduler.getStrand();
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, path.getValue(), requestObj);
@@ -52,7 +52,7 @@ public class Forward extends AbstractHTTPAction {
     }
 
     protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, String path,
-                                                                ObjectValue requestObj) {
+                                                                BObject requestObj) {
         if (requestObj.getNativeData(HttpConstants.REQUEST) == null &&
                 !HttpUtil.isEntityDataSourceAvailable(requestObj)) {
             throw new BallerinaException("invalid inbound request parameter");

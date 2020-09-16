@@ -18,6 +18,7 @@
 
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 
@@ -55,7 +56,7 @@ public class BLockStore {
                 continue;
             }
             if (lock.lockedBySameContext(strand)) {
-                throw BallerinaErrors.createError(BallerinaErrorReasons.ASYNC_CALL_INSIDE_LOCK);
+                throw BErrorCreator.createError(BallerinaErrorReasons.ASYNC_CALL_INSIDE_LOCK);
             }
         }
     }

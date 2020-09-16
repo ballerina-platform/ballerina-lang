@@ -18,13 +18,14 @@
 
 package org.ballerinalang.net.http.nativeimpl;
 
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -46,20 +47,20 @@ public class ExternRequest {
 
     private static final BMapType mapType = new BMapType(new BArrayType(BTypes.typeString));
 
-    public static ObjectValue createNewEntity(ObjectValue requestObj) {
+    public static BObject createNewEntity(BObject requestObj) {
         return HttpUtil.createNewEntity(requestObj);
     }
 
-    public static void setEntity(ObjectValue requestObj, ObjectValue entityObj) {
+    public static void setEntity(BObject requestObj, BObject entityObj) {
         HttpUtil.setEntity(requestObj, entityObj, true, true);
     }
 
-    public static void setEntityAndUpdateContentTypeHeader(ObjectValue requestObj, ObjectValue entityObj) {
+    public static void setEntityAndUpdateContentTypeHeader(BObject requestObj, BObject entityObj) {
         HttpUtil.setEntity(requestObj, entityObj, true, false);
     }
 
     @SuppressWarnings("unchecked")
-    public static MapValue<BString, Object> getQueryParams(ObjectValue requestObj) {
+    public static BMap<BString, Object> getQueryParams(BObject requestObj) {
         try {
             Object queryParams = requestObj.getNativeData(QUERY_PARAM_MAP);
             if (queryParams != null) {
@@ -67,7 +68,7 @@ public class ExternRequest {
             }
             HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) requestObj
                     .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
-            MapValue<BString, Object> params = new MapValueImpl<>(mapType);
+            BMap<BString, Object> params = BValueCreator.createMapValue(mapType);
             Object rawQueryString = httpCarbonMessage.getProperty(HttpConstants.RAW_QUERY_STR);
             if (rawQueryString != null) {
                 URIUtil.populateQueryParamMap((String) rawQueryString, params);
@@ -80,29 +81,29 @@ public class ExternRequest {
         }
     }
 
-    public static MapValue<BString, Object> getMatrixParams(ObjectValue requestObj, BString path) {
+    public static BMap<BString, Object> getMatrixParams(BObject requestObj, BString path) {
         HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestObj, null);
         return URIUtil.getMatrixParamsMap(path.getValue(), httpCarbonMessage);
     }
 
-    public static Object getEntity(ObjectValue requestObj) {
+    public static Object getEntity(BObject requestObj) {
         return HttpUtil.getEntity(requestObj, true, true, true);
     }
 
-    public static ObjectValue getEntityWithoutBodyAndHeaders(ObjectValue requestObj) {
+    public static BObject getEntityWithoutBodyAndHeaders(BObject requestObj) {
         return HttpUtil.getEntity(requestObj, true, false, false);
     }
 
-    public static ObjectValue getEntityWithBodyAndWithoutHeaders(ObjectValue requestObj) {
+    public static BObject getEntityWithBodyAndWithoutHeaders(BObject requestObj) {
         return HttpUtil.getEntity(requestObj, true, true, false);
     }
 
-    public static boolean checkEntityBodyAvailability(ObjectValue requestObj) {
-        ObjectValue entityObj = (ObjectValue) requestObj.get(REQUEST_ENTITY_FIELD);
+    public static boolean checkEntityBodyAvailability(BObject requestObj) {
+        BObject entityObj = (BObject) requestObj.get(REQUEST_ENTITY_FIELD);
         return lengthHeaderCheck(requestObj) || EntityBodyHandler.checkEntityBodyAvailability(entityObj);
     }
 
-    private static boolean lengthHeaderCheck(ObjectValue requestObj) {
+    private static boolean lengthHeaderCheck(BObject requestObj) {
         Object outboundMsg = requestObj.getNativeData(TRANSPORT_MESSAGE);
         if (outboundMsg == null) {
             return false;

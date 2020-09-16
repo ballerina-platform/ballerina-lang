@@ -192,9 +192,7 @@ public class GlobalVariableRefAnalyzer {
             return false;
         }
 
-        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) ||
-                ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT);
-
+        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE);
     }
 
     /**

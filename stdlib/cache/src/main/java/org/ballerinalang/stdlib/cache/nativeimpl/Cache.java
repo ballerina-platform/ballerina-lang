@@ -18,10 +18,10 @@
 
 package org.ballerinalang.stdlib.cache.nativeimpl;
 
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,48 +34,48 @@ public class Cache {
 
     public static final String CACHE_MAP = "CACHE_MAP";
 
-    public static void externInit(ObjectValue cache, int capacity) {
+    public static void externInit(BObject cache, int capacity) {
         ConcurrentHashMap<BString, MapValue<BString, Object>> map = new ConcurrentHashMap<>(capacity);
         cache.addNativeData(CACHE_MAP, map);
     }
 
-    public static void externPut(ObjectValue cache, BString key, MapValue<BString, Object> value) {
+    public static void externPut(BObject cache, BString key, MapValue<BString, Object> value) {
         ConcurrentHashMap<BString, MapValue<BString, Object>> map =
                 (ConcurrentHashMap<BString, MapValue<BString, Object>>) cache.getNativeData(CACHE_MAP);
         map.put(key, value);
     }
 
-    public static MapValue<BString, Object> externGet(ObjectValue cache, BString key) {
+    public static MapValue<BString, Object> externGet(BObject cache, BString key) {
         ConcurrentHashMap<BString, MapValue<BString, Object>> map =
                 (ConcurrentHashMap<BString, MapValue<BString, Object>>) cache.getNativeData(CACHE_MAP);
         return map.get(key);
     }
 
-    public static void externRemove(ObjectValue cache, BString key) {
+    public static void externRemove(BObject cache, BString key) {
         ConcurrentHashMap<BString, MapValue<BString, Object>> map =
                 (ConcurrentHashMap<BString, MapValue<BString, Object>>) cache.getNativeData(CACHE_MAP);
         map.remove(key);
     }
 
-    public static void externRemoveAll(ObjectValue cache) {
+    public static void externRemoveAll(BObject cache) {
         ConcurrentHashMap<BString, MapValue<BString, Object>> map =
                 (ConcurrentHashMap<BString, MapValue<BString, Object>>) cache.getNativeData(CACHE_MAP);
         map.clear();
     }
 
-    public static boolean externHasKey(ObjectValue cache, BString key) {
+    public static boolean externHasKey(BObject cache, BString key) {
         ConcurrentHashMap<BString, MapValue<BString, Object>> map =
                 (ConcurrentHashMap<BString, MapValue<BString, Object>>) cache.getNativeData(CACHE_MAP);
         return map.containsKey(key);
     }
 
-    public static ArrayValueImpl externKeys(ObjectValue cache) {
+    public static ArrayValueImpl externKeys(BObject cache) {
         ConcurrentHashMap<BString, MapValue<BString, Object>> map =
                 (ConcurrentHashMap<BString, MapValue<BString, Object>>) cache.getNativeData(CACHE_MAP);
         return new ArrayValueImpl(map.keySet().toArray(new BString[0]));
     }
 
-    public static int externSize(ObjectValue cache) {
+    public static int externSize(BObject cache) {
         ConcurrentHashMap<BString, MapValue<BString, Object>> map =
                 (ConcurrentHashMap<BString, MapValue<BString, Object>>) cache.getNativeData(CACHE_MAP);
         return map.size();

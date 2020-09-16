@@ -460,7 +460,7 @@ public class ImmutableTypeCloner {
             populateImmutableStructureFields(types, symTable, anonymousModelHelper, names,
                                              (BLangObjectTypeNode) immutableTypeDefinition.typeNode,
                                              immutableObjectType, origObjectType,
-                                             pos, env, pkgID, new HashSet<>());
+                                             pos, env, pkgID, new HashSet<>(), Flags.FINAL);
         }
     }
 
@@ -470,6 +470,18 @@ public class ImmutableTypeCloner {
                                                          BStructureType immutableStructureType,
                                                          BStructureType origStructureType, DiagnosticPos pos,
                                                          SymbolEnv env, PackageID pkgID, Set<BType> unresolvedTypes) {
+        populateImmutableStructureFields(types, symTable, anonymousModelHelper, names, immutableStructureTypeNode,
+                                         immutableStructureType, origStructureType, pos, env, pkgID, unresolvedTypes,
+                                         Flags.READONLY);
+    }
+
+    private static void populateImmutableStructureFields(Types types, SymbolTable symTable,
+                                                         BLangAnonymousModelHelper anonymousModelHelper, Names names,
+                                                         BLangStructureTypeNode immutableStructureTypeNode,
+                                                         BStructureType immutableStructureType,
+                                                         BStructureType origStructureType, DiagnosticPos pos,
+                                                         SymbolEnv env, PackageID pkgID, Set<BType> unresolvedTypes,
+                                                         int flag) {
         BTypeSymbol immutableStructureSymbol = immutableStructureType.tsymbol;
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BField origField : origStructureType.fields.values()) {
@@ -478,7 +490,7 @@ public class ImmutableTypeCloner {
                                                         unresolvedTypes);
 
             Name origFieldName = origField.name;
-            BVarSymbol immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | Flags.READONLY,
+            BVarSymbol immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | flag,
                                                              origFieldName, pkgID, immutableFieldType,
                                                              immutableStructureSymbol, origField.pos, SOURCE);
             if (immutableFieldType.tag == TypeTags.INVOKABLE && immutableFieldType.tsymbol != null) {
@@ -621,7 +633,8 @@ public class ImmutableTypeCloner {
         objectTypeNode.flagSet.addAll(flagSet);
 
         populateImmutableStructureFields(types, symTable, anonymousModelHelper, names, objectTypeNode,
-                                         immutableObjectType, origObjectType, pos, env, pkgID, unresolvedTypes);
+                                         immutableObjectType, origObjectType, pos, env, pkgID, unresolvedTypes,
+                                         Flags.FINAL);
 
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(immutableObjectType, objectSymbol,
                                                                                     objectTypeNode, env);

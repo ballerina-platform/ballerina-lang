@@ -100,6 +100,8 @@ public enum Snippet {
 
     DEF_SERVICE_GRPC(SnippetGenerator.getGRPCServiceDefSnippet()),
 
+    DEF_CLASS(SnippetGenerator.getClassDefSnippet()),
+
     DEF_WORKER(SnippetGenerator.getWorkerDeclarationSnippet()),
 
     DEF_REMOTE_FUNCTION(SnippetGenerator.getRemoteFunctionSnippet()),
@@ -186,6 +188,8 @@ public enum Snippet {
 
     KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
 
+    KW_REMOTE(SnippetGenerator.getRemoteKeywordSnippet()),
+
     KW_CONST(SnippetGenerator.getConstKeywordSnippet()),
 
     KW_TYPE(SnippetGenerator.getTypeKeywordSnippet()),
@@ -203,6 +207,10 @@ public enum Snippet {
     KW_ENUM(SnippetGenerator.getEnumKeywordSnippet()),
 
     KW_XMLNS(SnippetGenerator.getXMLNSKeywordSnippet()),
+
+    KW_CLASS(SnippetGenerator.getClassKeywordSnippet()),
+
+    KW_DISTINCT(SnippetGenerator.getDistinctKeywordSnippet()),
 
     KW_LISTENER(SnippetGenerator.getListenerKeywordSnippet()),
 

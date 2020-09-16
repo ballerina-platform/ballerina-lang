@@ -22,7 +22,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -98,7 +98,8 @@ public class VariableUtils {
             Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_STRINGVALUE);
             if (method.isPresent()) {
                 Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
-                        .getThreadReference(), method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+                                .getThreadReference(), method.get(), Collections.singletonList(null),
+                        ObjectReference.INVOKE_SINGLE_THREADED);
                 return VariableUtils.getStringFrom(stringValue);
             }
             return UNKNOWN_VALUE;
