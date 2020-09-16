@@ -812,9 +812,18 @@ public class ASTBuilderUtil {
         dupFuncSymbol.strandName = invokableSymbol.strandName;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
-                                                prevFuncType.restType, prevFuncType.retType, prevFuncType.tsymbol);
+        BInvokableType dupInvokableType = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
+                                                          prevFuncType.restType, prevFuncType.retType,
+                                                          prevFuncType.tsymbol);
+
+        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.ISOLATED)) {
+            dupFuncSymbol.flags |= Flags.ISOLATED;
+            dupInvokableType.flags |= Flags.ISOLATED;
+        }
+
+        dupFuncSymbol.type = dupInvokableType;
         dupFuncSymbol.dependentGlobalVars = invokableSymbol.dependentGlobalVars;
+
         return dupFuncSymbol;
     }
 

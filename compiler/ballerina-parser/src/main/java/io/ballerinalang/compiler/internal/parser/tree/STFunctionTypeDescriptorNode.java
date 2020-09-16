@@ -31,48 +31,58 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STFunctionTypeDescriptorNode extends STTypeDescriptorNode {
+    public final STNode qualifierList;
     public final STNode functionKeyword;
     public final STNode functionSignature;
 
     STFunctionTypeDescriptorNode(
+            STNode qualifierList,
             STNode functionKeyword,
             STNode functionSignature) {
         this(
+                qualifierList,
                 functionKeyword,
                 functionSignature,
                 Collections.emptyList());
     }
 
     STFunctionTypeDescriptorNode(
+            STNode qualifierList,
             STNode functionKeyword,
             STNode functionSignature,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.FUNCTION_TYPE_DESC, diagnostics);
+        this.qualifierList = qualifierList;
         this.functionKeyword = functionKeyword;
         this.functionSignature = functionSignature;
 
         addChildren(
+                qualifierList,
                 functionKeyword,
                 functionSignature);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFunctionTypeDescriptorNode(
+                this.qualifierList,
                 this.functionKeyword,
                 this.functionSignature,
                 diagnostics);
     }
 
     public STFunctionTypeDescriptorNode modify(
+            STNode qualifierList,
             STNode functionKeyword,
             STNode functionSignature) {
         if (checkForReferenceEquality(
+                qualifierList,
                 functionKeyword,
                 functionSignature)) {
             return this;
         }
 
         return new STFunctionTypeDescriptorNode(
+                qualifierList,
                 functionKeyword,
                 functionSignature,
                 diagnostics);

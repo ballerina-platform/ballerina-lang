@@ -46,7 +46,7 @@ public class CompileResult {
         List<Diagnostic> diagnostics = this.diagnosticListener.getDiagnostics();
         diagnostics.sort(Comparator.comparing((Diagnostic d) -> d.getSource().getCompilationUnitName()).
                 thenComparingInt(d -> d.getPosition().getStartLine()));
-        return diagnostics.toArray(new Diagnostic[diagnostics.size()]);
+        return diagnostics.toArray(new Diagnostic[0]);
     }
 
     public int getErrorCount() {

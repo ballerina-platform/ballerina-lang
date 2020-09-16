@@ -1357,6 +1357,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 case RESOURCE_KEYWORD:
                     bLFunction.flagSet.add(Flag.RESOURCE);
                     break;
+                case ISOLATED_KEYWORD:
+                    bLFunction.flagSet.add(Flag.ISOLATED);
+                    break;
                 default:
                     continue;
             }
@@ -1391,6 +1394,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLFunction.addFlag(Flag.LAMBDA);
         bLFunction.addFlag(Flag.ANONYMOUS);
+
+        setFunctionQualifiers(bLFunction, anonFuncExprNode.qualifierList());
+
         addToTop(bLFunction);
 
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
@@ -2940,6 +2946,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         functionTypeNode.flagSet.add(Flag.PUBLIC);
+
+        for (Token token : functionTypeDescriptorNode.qualifierList()) {
+            if (token.kind() == SyntaxKind.ISOLATED_KEYWORD) {
+                functionTypeNode.flagSet.add(Flag.ISOLATED);
+                break;
+            }
+        }
+
         return functionTypeNode;
     }
 
