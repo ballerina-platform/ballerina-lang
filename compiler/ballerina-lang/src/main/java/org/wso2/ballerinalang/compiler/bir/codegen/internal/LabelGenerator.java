@@ -42,4 +42,8 @@ public class LabelGenerator {
             return label;
         }
     }
+
+    public void putLabel(String labelKey, Label label) {
+        this.bbLabels.put(labelKey, label);
+    }
 }
