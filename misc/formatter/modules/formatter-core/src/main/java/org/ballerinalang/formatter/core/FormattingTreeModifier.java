@@ -445,6 +445,10 @@ public class FormattingTreeModifier extends TreeModifier {
             return builtinSimpleNameReferenceNode;
         }
         int startColumn = NodeIndentation.builtinSimpleNameReferenceNode(builtinSimpleNameReferenceNode, options);
+        if (builtinSimpleNameReferenceNode.parent() != null &&
+                builtinSimpleNameReferenceNode.parent().kind() == SyntaxKind.RETURN_TYPE_DESCRIPTOR) {
+            startColumn = 0;
+        }
         int trailingSpaces = 0;
         if (builtinSimpleNameReferenceNode.parent() != null &&
                 (builtinSimpleNameReferenceNode.parent().kind() == SyntaxKind.CONST_DECLARATION ||

@@ -45,6 +45,19 @@ public class ClassDefinitionDeclarationsTest extends FormatterTest {
     }
 
     /**
+     * Specify the file names to be tested during the test execution.
+     *
+     * @return Test scenarios for execution
+     */
+    @Override
+    public Object[][] testSubset() {
+
+        return new Object[][] {
+                {"class_definition_declaration_2.bal", this.getTestResourceDir()}
+        };
+    }
+
+    /**
      * Returns the directory path inside resources which holds the test files.
      *
      * @return Directory path of test files
