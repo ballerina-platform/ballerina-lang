@@ -52,7 +52,7 @@ dependencies {
     dist project(':ballerina-choreo-extension-rt')
 
     distBal project(path: ':ballerina-observability', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-openapi', configuration: 'baloImplementation')
+//    distBal project(path: ':ballerina-openapi', configuration: 'baloImplementation')
 
     // Lang libs
     distBal project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
@@ -77,7 +77,6 @@ dependencies {
     distBal project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-observability', configuration: 'balSource')
-    balSource project(path: ':ballerina-openapi', configuration: 'balSource')
     balSource project(path: ':ballerina-transactions', configuration: 'balSource')
 
     // Lang Libs

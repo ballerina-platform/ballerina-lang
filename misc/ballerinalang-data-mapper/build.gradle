@@ -25,9 +25,9 @@ dependencies {
     implementation project(':language-server:language-server-compiler')
     implementation project(':language-server:language-server-core')
     implementation project(':language-server:language-server-cli')
-    implementation project(':openapi-ballerina:openapi-validator')
-    implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
-    implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
+//    implementation project(':openapi-ballerina:openapi-validator')
+//    implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
+//    implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
 
     // Standard libs
     implementation project(':ballerina-auth')
@@ -42,7 +42,6 @@ dependencies {
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-observability')
-    implementation project(':ballerina-openapi')
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-system')
     implementation project(':ballerina-task')
