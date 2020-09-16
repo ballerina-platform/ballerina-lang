@@ -133,7 +133,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARGUMENT_PARSER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
@@ -146,6 +145,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_M
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULTABLE_ARGS_ANOT_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
@@ -1256,7 +1256,7 @@ public class JvmMethodGen {
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "cancel", "Z");
         Label notCancelledLabel = new Label();
         mv.visitJumpInsn(IFEQ, notCancelledLabel);
-        mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createCancelledFutureError",
+        mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, "createCancelledFutureError",
                            String.format("()L%s;", ERROR_VALUE), false);
         mv.visitInsn(ATHROW);
 

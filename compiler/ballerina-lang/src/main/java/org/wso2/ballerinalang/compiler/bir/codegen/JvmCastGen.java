@@ -68,6 +68,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRIN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE_OF_J_METHOD;
@@ -297,6 +298,8 @@ public class JvmCastGen {
             case TypeTags.HANDLE:
                 mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD,
                         String.format("()L%s;", OBJECT), false);
+                mv.visitTypeInsn(CHECKCAST, LONG_VALUE);
+                mv.visitMethodInsn(INVOKEVIRTUAL, LONG_VALUE, "longValue", "()J", false);
                 break;
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_INT_METHOD, String.format("(L%s;)J", OBJECT),
@@ -652,7 +655,7 @@ public class JvmCastGen {
                 Label afterHandle = new Label();
                 if (((JType.JRefType) sourceType).typeValue.equals(OBJECT)) {
                     mv.visitInsn(DUP);
-                    mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+                    mv.visitTypeInsn(INSTANCEOF, B_ERROR);
                     mv.visitJumpInsn(IFNE, afterHandle);
 
                     mv.visitInsn(DUP);

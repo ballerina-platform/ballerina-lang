@@ -88,13 +88,13 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_OPTIONAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_RUNTIME_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
@@ -432,9 +432,8 @@ class JvmValueGen {
             } else {
                 JvmCastGen.addBoxInsn(mv, retType);
                 if (isService) {
-                    mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "handleResourceError", String.format("(L%s;)L%s;",
-                                                                                                      OBJECT, OBJECT),
-                                       false);
+                    mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, "handleResourceError",
+                                       String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
                 }
             }
             mv.visitInsn(ARETURN);
@@ -1009,8 +1008,8 @@ class JvmValueGen {
 
             // field name as key
             mv.visitLdcInsn(fieldName);
-            mv.visitMethodInsn(INVOKESTATIC, JvmConstants.STRING_UTILS, "fromString",
-                    String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
+            mv.visitMethodInsn(INVOKESTATIC, JvmConstants.B_STRING_UTILS, "fromString",
+                               String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
             // field value as the map-entry value
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
@@ -1297,8 +1296,8 @@ class JvmValueGen {
 
             mv.visitVarInsn(ALOAD, keysVarIndex);
             mv.visitLdcInsn(fieldName);
-                mv.visitMethodInsn(INVOKESTATIC, JvmConstants.STRING_UTILS, "fromString",
-                        String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
+                mv.visitMethodInsn(INVOKESTATIC, JvmConstants.B_STRING_UTILS, "fromString",
+                                   String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
             mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", String.format("(L%s;)Z", OBJECT), true);
             mv.visitInsn(POP);
             mv.visitLabel(ifNotPresent);

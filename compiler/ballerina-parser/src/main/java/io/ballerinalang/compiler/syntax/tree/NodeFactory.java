@@ -1810,12 +1810,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static FunctionTypeDescriptorNode createFunctionTypeDescriptorNode(
+            NodeList<Token> qualifierList,
             Token functionKeyword,
             FunctionSignatureNode functionSignature) {
+        Objects.requireNonNull(qualifierList, "qualifierList must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
         Objects.requireNonNull(functionSignature, "functionSignature must not be null");
 
         STNode stFunctionTypeDescriptorNode = STNodeFactory.createFunctionTypeDescriptorNode(
+                qualifierList.underlyingListNode().internalNode(),
                 functionKeyword.internalNode(),
                 functionSignature.internalNode());
         return stFunctionTypeDescriptorNode.createUnlinkedFacade();
@@ -1840,16 +1843,19 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ExplicitAnonymousFunctionExpressionNode createExplicitAnonymousFunctionExpressionNode(
             NodeList<AnnotationNode> annotations,
+            NodeList<Token> qualifierList,
             Token functionKeyword,
             FunctionSignatureNode functionSignature,
             FunctionBodyNode functionBody) {
         Objects.requireNonNull(annotations, "annotations must not be null");
+        Objects.requireNonNull(qualifierList, "qualifierList must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
         Objects.requireNonNull(functionSignature, "functionSignature must not be null");
         Objects.requireNonNull(functionBody, "functionBody must not be null");
 
         STNode stExplicitAnonymousFunctionExpressionNode = STNodeFactory.createExplicitAnonymousFunctionExpressionNode(
                 annotations.underlyingListNode().internalNode(),
+                qualifierList.underlyingListNode().internalNode(),
                 functionKeyword.internalNode(),
                 functionSignature.internalNode(),
                 functionBody.internalNode());

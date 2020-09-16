@@ -62,7 +62,6 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -421,7 +420,6 @@ public class BCompileUtil {
      */
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
                                         boolean enableExpFeatures) {
-
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
@@ -429,9 +427,6 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
         options.put(OFFLINE, "true");
-
-        options.put(NEW_PARSER_ENABLED, Boolean.TRUE.toString());
-
         return compile(context, packageName, compilerPhase, false);
     }
 
@@ -526,8 +521,6 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
         options.put(OFFLINE, "true");
-
-        options.put(NEW_PARSER_ENABLED, Boolean.TRUE.toString());
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
@@ -638,8 +631,8 @@ public class BCompileUtil {
 
             final Runtime runtime = Runtime.getRuntime();
             final Process process = runtime.exec(actualArgs.toArray(new String[0]));
-            String consoleInput = getConsoleOutput(process.getInputStream());
             String consoleError = getConsoleOutput(process.getErrorStream());
+            String consoleInput = getConsoleOutput(process.getInputStream());
             process.waitFor();
             int exitValue = process.exitValue();
             return new ExitDetails(exitValue, consoleInput, consoleError);
@@ -705,8 +698,6 @@ public class BCompileUtil {
                 options.put(SKIP_TESTS, Boolean.FALSE.toString());
                 options.put(TEST_ENABLED, Boolean.TRUE.toString());
             }
-
-            options.put(NEW_PARSER_ENABLED, Boolean.TRUE.toString());
 
             CompileResult compileResult = compile(context, packageName, CompilerPhase.CODE_GEN, withTests);
             if (compileResult.getErrorCount() > 0) {

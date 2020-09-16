@@ -24,7 +24,6 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j'
-    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     testCompile 'org.testng:testng'
 }
 

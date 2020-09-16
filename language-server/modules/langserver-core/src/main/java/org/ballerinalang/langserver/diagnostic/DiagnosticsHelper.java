@@ -73,9 +73,7 @@ public class DiagnosticsHelper {
                                                        LSDocumentIdentifier lsDoc, WorkspaceDocumentManager docManager)
             throws CompilationFailedException {
         // Compile diagnostics
-        List<BLangPackage> packages =
-                LSModuleCompiler.getBLangPackages(context, docManager, null, true, true, true, true);
-        
+        List<BLangPackage> packages = LSModuleCompiler.getBLangPackages(context, docManager, true, true, true);
         Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
         for (BLangPackage pkg : packages) {
             populateDiagnostics(diagnosticMap, pkg.packageID, pkg.getDiagnostics(), lsDoc);

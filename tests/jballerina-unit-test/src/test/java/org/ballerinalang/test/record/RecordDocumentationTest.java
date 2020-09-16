@@ -91,7 +91,8 @@ public class RecordDocumentationTest {
     @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_documentation_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
+        Assert.assertEquals(compileResult.getErrorCount(), 0,
+                            getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 20);
         int i = 0;
         BAssertUtil.validateWarning(compileResult, i++, "field 'a' already documented", 6, 5);

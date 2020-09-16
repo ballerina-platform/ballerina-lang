@@ -678,10 +678,21 @@ public class TypeParamAnalyzer {
                 .map(type -> getMatchingBoundType(type, env, resolvedTypes))
                 .collect(Collectors.toList());
         BType restType = expType.restType;
-        return new BInvokableType(paramTypes, restType, getMatchingBoundType(expType.retType, env, resolvedTypes),
-                                  Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, expType.flags,
-                                                                    env.enclPkg.symbol.pkgID, expType, env.scope.owner,
-                                                                    expType.tsymbol.pos, VIRTUAL));
+        int flags = expType.flags;
+        BInvokableType invokableType = new BInvokableType(paramTypes, restType,
+                                                          getMatchingBoundType(expType.retType, env, resolvedTypes),
+                                                          Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                                                                                            flags,
+                                                                                            env.enclPkg.symbol.pkgID,
+                                                                                            expType, env.scope.owner,
+                                                                                            expType.tsymbol.pos,
+                                                                                            VIRTUAL));
+
+        if (Symbols.isFlagOn(flags, Flags.ISOLATED)) {
+            invokableType.flags |= Flags.ISOLATED;
+        }
+
+        return invokableType;
     }
 
     private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {

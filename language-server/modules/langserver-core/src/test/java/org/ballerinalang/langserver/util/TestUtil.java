@@ -498,7 +498,7 @@ public class TestUtil {
                 .withCommonParams(null, sourcePath.toUri().toString(), documentManager)
                 .build();
 
-        BLangPackage pkg = LSModuleCompiler.getBLangPackage(context, documentManager, null, true, true, true);
+        BLangPackage pkg = LSModuleCompiler.getBLangPackage(context, documentManager, true, true);
         return pkg.getDiagnostics();
     }
 }

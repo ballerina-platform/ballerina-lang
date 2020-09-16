@@ -61,8 +61,7 @@ public class CodeLensUtil {
                 .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_LENS)
                 .withCommonParams(null, fileUri, documentManager)
                 .build();
-        BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(codeLensContext, documentManager, null,
-                false, false, true);
+        BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(codeLensContext, documentManager, false, false);
         // Source compilation has no errors, continue
         Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                 .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))

@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsolationAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObserverbilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -99,6 +100,7 @@ public class CompilerDriver {
     private final CodeGenerator codeGenerator;
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
+    private final IsolationAnalyzer isolationAnalyzer;
     private boolean isToolingCompilation;
 
 
@@ -132,6 +134,7 @@ public class CompilerDriver {
         this.codeGenerator = CodeGenerator.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
+        this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
         this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
     }
@@ -268,6 +271,11 @@ public class CompilerDriver {
             return;
         }
 
+        isolationAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.ISOLATION_ANALYZE)) {
+            return;
+        }
+
         documentationAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
             return;
@@ -332,6 +340,10 @@ public class CompilerDriver {
 
     private BLangPackage dataflowAnalyze(BLangPackage pkgNode) {
         return this.dataflowAnalyzer.analyze(pkgNode);
+    }
+
+    private BLangPackage isolationAnalyze(BLangPackage pkgNode) {
+        return this.isolationAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage taintAnalyze(BLangPackage pkgNode) {

@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
 import org.ballerinalang.stdlib.io.channels.BlobChannel;
 import org.ballerinalang.stdlib.io.channels.BlobIOChannel;
@@ -64,7 +64,7 @@ public class ByteChannelUtils extends AbstractNativeChannel {
     private ByteChannelUtils() {
     }
 
-    public static Object read(ObjectValue channel, long nBytes) {
+    public static Object read(BObject channel, long nBytes) {
         int arraySize = nBytes <= 0 ? IOConstants.CHANNEL_BUFFER_SIZE : (int) nBytes;
         Channel byteChannel = (Channel) channel.getNativeData(BYTE_CHANNEL_NAME);
         ByteBuffer content = ByteBuffer.wrap(new byte[arraySize]);
@@ -93,15 +93,15 @@ public class ByteChannelUtils extends AbstractNativeChannel {
         return Arrays.copyOfRange(content, startPosition, readPosition);
     }
 
-    public static Object base64Encode(ObjectValue channel) {
+    public static Object base64Encode(BObject channel) {
         return Utils.encodeByteChannel(channel, false);
     }
 
-    public static Object base64Decode(ObjectValue channel) {
+    public static Object base64Decode(BObject channel) {
         return Utils.decodeByteChannel(channel, false);
     }
 
-    public static Object closeByteChannel(ObjectValue channel) {
+    public static Object closeByteChannel(BObject channel) {
         Channel byteChannel = (Channel) channel.getNativeData(BYTE_CHANNEL_NAME);
         try {
             byteChannel.close();
@@ -113,7 +113,7 @@ public class ByteChannelUtils extends AbstractNativeChannel {
         return null;
     }
 
-    public static Object write(ObjectValue channel, ArrayValue content, long offset) {
+    public static Object write(BObject channel, ArrayValue content, long offset) {
         Channel byteChannel = (Channel) channel.getNativeData(BYTE_CHANNEL_NAME);
         ByteBuffer writeBuffer = ByteBuffer.wrap(content.getBytes());
         writeBuffer.position((int) offset);

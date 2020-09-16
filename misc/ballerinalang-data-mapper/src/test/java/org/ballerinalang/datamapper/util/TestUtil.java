@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.DocumentServiceOperationContext;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
@@ -48,13 +47,11 @@ import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -199,7 +196,7 @@ public class TestUtil {
                 .withCommonParams(null, sourcePath.toUri().toString(), documentManager)
                 .build();
 
-        BLangPackage pkg = LSModuleCompiler.getBLangPackage(context, documentManager, null, true, true, true);
+        BLangPackage pkg = LSModuleCompiler.getBLangPackage(context, documentManager, true, true);
         return pkg.getDiagnostics();
     }
 }

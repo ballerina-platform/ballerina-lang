@@ -127,8 +127,8 @@ public function forEach(stream<Type,ErrorType> stm, function(Type val) returns (
 #
 # + stm - the stream
 # + return - a new iterator object that will iterate over the members of `stm`.
-public function iterator(stream<Type,ErrorType> stm) returns object {
-    public function next() returns record {|
+public isolated function iterator(stream<Type,ErrorType> stm) returns object {
+    public isolated function next() returns record {|
         Type value;
     |}|ErrorType?;
 }{
@@ -140,7 +140,7 @@ public function iterator(stream<Type,ErrorType> stm) returns object {
 #
 # + stm - the stream to close
 # + return - () if the close completed successfully, otherwise an error
-public function close(stream<Type,ErrorType> stm) returns ErrorType? {
+public isolated function close(stream<Type,ErrorType> stm) returns ErrorType? {
     var itrObj = internal:getIteratorObj(stm);
     if (itrObj is object {
         public function next() returns record {|Type value;|}|ErrorType?;

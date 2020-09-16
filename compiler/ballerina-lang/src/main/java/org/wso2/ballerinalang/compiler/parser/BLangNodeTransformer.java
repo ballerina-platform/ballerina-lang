@@ -266,11 +266,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
@@ -303,6 +305,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -346,6 +349,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -360,7 +367,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -416,8 +423,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.model.elements.Flag.SERVICE;
-import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
-import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
@@ -1350,6 +1357,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 case RESOURCE_KEYWORD:
                     bLFunction.flagSet.add(Flag.RESOURCE);
                     break;
+                case ISOLATED_KEYWORD:
+                    bLFunction.flagSet.add(Flag.ISOLATED);
+                    break;
                 default:
                     continue;
             }
@@ -1384,6 +1394,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLFunction.addFlag(Flag.LAMBDA);
         bLFunction.addFlag(Flag.ANONYMOUS);
+
+        setFunctionQualifiers(bLFunction, anonFuncExprNode.qualifierList());
+
         addToTop(bLFunction);
 
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
@@ -2933,6 +2946,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         functionTypeNode.flagSet.add(Flag.PUBLIC);
+
+        for (Token token : functionTypeDescriptorNode.qualifierList()) {
+            if (token.kind() == SyntaxKind.ISOLATED_KEYWORD) {
+                functionTypeNode.flagSet.add(Flag.ISOLATED);
+                break;
+            }
+        }
+
         return functionTypeNode;
     }
 
@@ -3257,24 +3278,24 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         int dimensions = 1;
-        List<Integer> sizes = new ArrayList<>();
+        List<BLangExpression> sizes = new ArrayList<>();
         DiagnosticPos position = getPosition(arrayTypeDescriptorNode);
         while (true) {
             if (!arrayTypeDescriptorNode.arrayLength().isPresent()) {
-                sizes.add(UNSEALED_ARRAY_INDICATOR);
+                sizes.add(new BLangLiteral(Integer.valueOf(OPEN_ARRAY_INDICATOR), symTable.intType));
             } else {
                 Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
                 if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
                     BasicLiteralNode numericLiteralNode = (BasicLiteralNode) keyExpr;
                     if (numericLiteralNode.literalToken().kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
-                        sizes.add(Integer.parseInt(keyExpr.toString()));
+                        sizes.add(new BLangLiteral(Integer.parseInt(keyExpr.toString()), symTable.intType));
                     } else {
-                        sizes.add(Integer.parseInt(keyExpr.toString(), 16));
+                        sizes.add(new BLangLiteral(Integer.parseInt(keyExpr.toString(), 16), symTable.intType));
                     }
                 } else if (keyExpr.kind() == SyntaxKind.ASTERISK_LITERAL) {
-                    sizes.add(OPEN_SEALED_ARRAY_INDICATOR);
+                    sizes.add(new BLangLiteral(Integer.valueOf(INFERRED_ARRAY_INDICATOR), symTable.intType));
                 } else {
-                    // TODO : should handle the const-reference-expr
+                    sizes.add(createExpression(keyExpr));
                 }
             }
 
@@ -3290,7 +3311,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         arrayTypeNode.pos = position;
         arrayTypeNode.elemtype = createTypeNode(arrayTypeDescriptorNode.memberTypeDesc());
         arrayTypeNode.dimensions = dimensions;
-        arrayTypeNode.sizes = sizes.stream().mapToInt(val -> val).toArray();
+        arrayTypeNode.sizes = sizes.toArray(new BLangExpression[0]);
         return arrayTypeNode;
     }
 
@@ -3738,53 +3759,102 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(MatchStatementNode matchStatementNode) {
-        BLangMatch bLangMatch = (BLangMatch) TreeBuilder.createMatchStatement();
-        bLangMatch.expr = createExpression(matchStatementNode.condition());
+        BLangMatchStatement matchStatement = (BLangMatchStatement) TreeBuilder.createMatchStatementNode();
+        BLangExpression matchStmtExpr = createExpression(matchStatementNode.condition());
+        matchStatement.setExpression(matchStmtExpr);
 
-        for (Node matchClauseNode : matchStatementNode.matchClauses()) {
-            MatchClauseNode matchClause = (MatchClauseNode) matchClauseNode;
-            BLangMatch.BLangMatchStaticBindingPatternClause patternClause =
-                    (BLangMatch.BLangMatchStaticBindingPatternClause)
-                            TreeBuilder.createMatchStatementStaticBindingPattern();
-            bLangMatch.patternClauses.add(patternClause);
+        for (MatchClauseNode matchClauseNode : matchStatementNode.matchClauses()) {
+            BLangMatchClause bLangMatchClause = (BLangMatchClause) TreeBuilder.createMatchClause();
+            bLangMatchClause.pos = getPosition(matchClauseNode);
+            bLangMatchClause.expr = matchStmtExpr;
+            boolean matchGuardAvailable = false;
 
-            SeparatedNodeList<Node> matchPatterns = matchClause.matchPatterns();
-            Node firstPattern = matchPatterns.get(0);
-            patternClause.pos = getPosition(firstPattern);
-
-            if (matchPatterns.size() == 1) {
-                patternClause.literal = createLiteralOrReference(firstPattern);
-            } else { // spec says atleast one match pattern so this else will mean more than one
-                BLangBinaryExpr expr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-                expr.lhsExpr = createLiteralOrReference(firstPattern);
-                for (int i = 1; i < matchPatterns.size(); i++) {
-                    if (expr.rhsExpr != null) {
-                        BLangBinaryExpr tempExpr = ((BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode());
-                        tempExpr.lhsExpr = expr;
-                        expr = tempExpr;
-                    }
-                    expr.opKind = OperatorKind.BITWISE_OR;
-                    expr.rhsExpr = createLiteralOrReference(matchPatterns.get(i));
-                }
-                patternClause.literal = expr;
+            if (matchClauseNode.matchGuard().isPresent()) {
+                matchGuardAvailable = true;
+                BLangMatchGuard bLangMatchGuard = (BLangMatchGuard) TreeBuilder.createMatchGuard();
+                bLangMatchGuard.expr = createExpression(matchClauseNode.matchGuard().get().expression());
+                bLangMatchClause.setMatchGuard(bLangMatchGuard);
             }
 
-            patternClause.body = (BLangBlockStmt) transform(((MatchClauseNode) matchClause).blockStatement());
+            for (Node matchPattern : matchClauseNode.matchPatterns()) {
+                DiagnosticPos matchPatternPos = getPosition(matchPattern);
+                BLangMatchPattern bLangMatchPattern = transformMatchPattern(matchPattern, matchPatternPos);
+                // TODO : Remove this check after all binding patterns are implemented
+                if (bLangMatchPattern != null) {
+                    bLangMatchPattern.matchExpr = matchStmtExpr;
+                    bLangMatchPattern.matchGuardIsAvailable = matchGuardAvailable;
+                    bLangMatchClause.addMatchPattern(bLangMatchPattern);
+                }
+            }
+            
+            bLangMatchClause.setBlockStatement((BLangBlockStmt) transform(matchClauseNode.blockStatement()));
+            matchStatement.addMatchClause(bLangMatchClause);
         }
 
         matchStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
-            bLangMatch.setOnFailClause(
+            matchStatement.setOnFailClause(
                     (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
         });
 
-        return bLangMatch;
+        return matchStatement;
     }
 
-    public BLangExpression createLiteralOrReference(Node node) {
-        if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            return createExpression(node);
+    private BLangMatchPattern transformMatchPattern(Node matchPattern, DiagnosticPos matchPatternPos) {
+
+        if (matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
+                ((SimpleNameReferenceNode) matchPattern).name().text().equals("_")) {
+            // wildcard match
+            BLangWildCardMatchPattern bLangWildCardMatchPattern =
+                    (BLangWildCardMatchPattern) TreeBuilder.createWildCardMatchPattern();
+            bLangWildCardMatchPattern.pos = matchPatternPos;
+            return bLangWildCardMatchPattern;
+        } else if (matchPattern.kind() == SyntaxKind.NUMERIC_LITERAL ||
+                matchPattern.kind() == SyntaxKind.STRING_LITERAL ||
+                matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                matchPattern.kind() == SyntaxKind.NULL_LITERAL ||
+                matchPattern.kind() == SyntaxKind.NIL_LITERAL ||
+                matchPattern.kind() == SyntaxKind.BOOLEAN_LITERAL) {
+            BLangConstPattern bLangConstMatchPattern =
+                    (BLangConstPattern) TreeBuilder.createConstMatchPattern();
+            bLangConstMatchPattern.setExpression(createExpression(matchPattern));
+            bLangConstMatchPattern.pos = matchPatternPos;
+            return bLangConstMatchPattern;
+        } else if (matchPattern.kind() == SyntaxKind.TYPED_BINDING_PATTERN) { // var a
+            TypedBindingPatternNode typedBindingPatternNode = (TypedBindingPatternNode) matchPattern;
+            BLangVarBindingPatternMatchPattern bLangVarBindingPattern =
+                    (BLangVarBindingPatternMatchPattern) TreeBuilder.createVarBindingPattern();
+            bLangVarBindingPattern.pos = matchPatternPos;
+
+            SyntaxKind patternKind = typedBindingPatternNode.bindingPattern().kind();
+            switch (patternKind) {
+                case CAPTURE_BINDING_PATTERN:
+                    // TODO : check whether why cant we call the existing transform method
+                    CaptureBindingPatternNode captureBindingPattern =
+                            (CaptureBindingPatternNode) typedBindingPatternNode.bindingPattern();
+                    BLangCaptureBindingPattern bLangCaptureBindingPattern =
+                            createCaptureBindingPattern(captureBindingPattern);
+                    bLangVarBindingPattern.setBindingPattern(bLangCaptureBindingPattern);
+                    break;
+                default:
+                    // TODO : Remove this after all binding patterns are implemented
+                    dlog.error(matchPatternPos, DiagnosticCode.MATCH_PATTERN_NOT_SUPPORTED);
+            }
+            return bLangVarBindingPattern;
+        } else {
+            // TODO : Remove this after all binding patterns are implemented
+            dlog.error(matchPatternPos, DiagnosticCode.MATCH_PATTERN_NOT_SUPPORTED);
+            return null;
         }
-        return createSimpleLiteral(node);
+    }
+
+    private BLangCaptureBindingPattern createCaptureBindingPattern(CaptureBindingPatternNode
+                                                                           captureBindingPatternNode) {
+        BLangCaptureBindingPattern bLangCaptureBindingPattern =
+                (BLangCaptureBindingPattern) TreeBuilder.createCaptureBindingPattern();
+        bLangCaptureBindingPattern.setIdentifier(createIdentifier(captureBindingPatternNode
+                .variableName()));
+        bLangCaptureBindingPattern.pos = getPosition(captureBindingPatternNode);
+        return bLangCaptureBindingPattern;
     }
 
     private BLangXMLElementFilter createXMLElementFilter(Node node) {

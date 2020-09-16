@@ -72,9 +72,10 @@ function testRemove() {
 
 function testSort(){
     [int, int, int, int, int, int] arr = [98, 34, 44, 87, 13, 2];
-    int[] sorted = arr.sort(array:ASCENDING, function(int x) returns int {
-        return x;
-    });
+    var sortFunc = isolated function(int x) returns int {
+       return x;
+    };
+    int[] sorted = arr.sort(array:ASCENDING, sortFunc);
 }
 
 function testReduce() returns float {

@@ -15,6 +15,8 @@
 // under the License.
 import ballerina/lang.'int;
 
+const constLength = 2;
+
 // Int Arrays
 
 function createIntSealedArray() {
@@ -436,6 +438,13 @@ function createConstLiteralAutoFilledSealedArray() {
     assertArrayValuePanic(0, sealedArray, 2);
     assertArrayValuePanic(1, sealedArray, 3);
     assertArrayLengthPanic(5, sealedArray);
+}
+
+function testArrayWithConstantSizeReferenceFill() {
+    int[constLength] sealedArray = [1];
+    sealedArray[1] = 2;
+    assertArrayLengthPanic(2, sealedArray);
+    assertArrayValuePanic(2, sealedArray, 1);
 }
 
 // helper methods
