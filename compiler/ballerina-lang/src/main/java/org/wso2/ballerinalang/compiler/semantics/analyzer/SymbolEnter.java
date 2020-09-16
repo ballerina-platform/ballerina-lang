@@ -962,10 +962,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) currentTypeOrClassNode;
                 functionTypeNode.params.forEach(p -> checkErrors(unresolvedType, p.typeNode, visitedNodes));
                 if (functionTypeNode.restParam != null) {
-                    checkErrors(currentTypeOrClassNode, functionTypeNode.restParam.typeNode, visitedNodes);
+                    checkErrors(unresolvedType, functionTypeNode.restParam.typeNode, visitedNodes);
                 }
                 if (functionTypeNode.returnTypeNode != null) {
-                    checkErrors(currentTypeOrClassNode, functionTypeNode.returnTypeNode, visitedNodes);
+                    checkErrors(unresolvedType, functionTypeNode.returnTypeNode, visitedNodes);
                 }
                 break;
             case RECORD_TYPE:
@@ -1061,9 +1061,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private String getTypeOrClassName(BLangNode node) {
-        return node instanceof TypeDefinition
-                ? ((TypeDefinition) node).getName().getValue()
-                : ((BLangClassDefinition) node).getName().getValue();
+        if (node.getKind() == NodeKind.TYPE_DEFINITION) {
+            return ((TypeDefinition) node).getName().getValue();
+        } else  {
+            return ((BLangClassDefinition) node).getName().getValue();
+        }
     }
 
     public boolean isUnknownTypeRef(BLangUserDefinedType bLangUserDefinedType) {
