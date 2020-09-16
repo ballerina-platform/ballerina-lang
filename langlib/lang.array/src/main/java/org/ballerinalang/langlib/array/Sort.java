@@ -73,11 +73,15 @@ public class Sort {
             elemType = ((BFunctionType) function.getType()).retType;
             for (int i = 0; i < arr.size(); i++) {
                 sortArr[i][0] = function.call(new Object[]{strand, arr.get(i), true});
+                // Get the type of the sortArr elements when there is an arrow expression as the key function
+                if (elemType.getTag() == TypeTags.UNION_TAG &&
+                        ((BUnionType) elemType).getMemberTypes().size() > 2) {
+                    BType sortArrElemType = TypeChecker.getType(sortArr[i][0]);
+                    if (sortArrElemType.getTag() != TypeTags.NULL_TAG) {
+                        elemType = sortArrElemType;
+                    }
+                }
                 sortArr[i][1] = arr.get(i);
-            }
-            if (elemType.getTag() == TypeTags.UNION_TAG &&
-                    ((BUnionType) elemType).getMemberTypes().size() > 2) {
-                elemType = TypeChecker.getType(sortArr[0][0]);
             }
         } else {
             for (int i = 0; i < arr.size(); i++) {
