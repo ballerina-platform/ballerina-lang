@@ -5385,13 +5385,13 @@ public class TypeChecker extends BLangNodeVisitor {
             BLangArrowFunction arrowFunction = ((BLangArrowFunction) keyFunction);
             pos = arrowFunction.body.expr.pos;
             returnType = arrowFunction.body.expr.type;
+            if (returnType.tag == TypeTags.SEMANTIC_ERROR) {
+                return;
+            }
         } else {
             BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
             pos = keyLambdaFunction.function.pos;
             returnType = keyLambdaFunction.function.type.getReturnType();
-            if (returnType.tag == TypeTags.SEMANTIC_ERROR) {
-                return;
-            }
         }
 
         if (!types.isOrderedType(returnType)) {

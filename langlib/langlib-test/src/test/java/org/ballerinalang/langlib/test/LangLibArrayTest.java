@@ -484,8 +484,6 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "incompatible types: expected '(boolean|int|float|decimal|string|" +
                         "(boolean|int|float|decimal|string)?[])?', found 'any'", 176, 60);
-        BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid sort key function return type: 'other' is not an ordered type", 176, 60);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
