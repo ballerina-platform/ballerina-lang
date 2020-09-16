@@ -40,14 +40,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -221,21 +219,6 @@ class NodeResolver extends BLangNodeVisitor {
         if (PositionUtil.withinBlock(this.cursorPos, node.pos)) {
             node.accept(this);
         }
-    }
-
-    @Override
-    public void visit(BLangPackage pkgNode) {
-        super.visit(pkgNode);
-    }
-
-    @Override
-    public void visit(BLangTestablePackage testablePkgNode) {
-        super.visit(testablePkgNode);
-    }
-
-    @Override
-    public void visit(BLangCompilationUnit compUnit) {
-        super.visit(compUnit);
     }
 
     @Override

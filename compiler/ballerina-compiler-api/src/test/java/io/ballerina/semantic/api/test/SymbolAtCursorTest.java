@@ -154,10 +154,10 @@ public class SymbolAtCursorTest {
                 {17, 11, "foo"},
                 {17, 17, "foo"},
                 {17, 19, null},
-                {20, 18, "foo"},
+//                {20, 18, "foo"}, // TODO: issue #25841
                 {21, 14, "foo"},
                 {23, 6, "foo"},
-                {27, 13, "foo"},
+//                {27, 13, "foo"}, // TODO: issue #25841
                 {32, 21, "PersonObj.getName"},
         };
     }
