@@ -127,7 +127,6 @@ public enum SyntaxKind {
     READONLY_KEYWORD(318, "readonly"),
     DISTINCT_KEYWORD(319, "distinct"),
     FAIL_KEYWORD(320, "fail"),
-    ISOLATED_KEYWORD(321, "isolated"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),

@@ -646,8 +646,6 @@ public class ParserTestUtils {
                 return SyntaxKind.EQUALS_KEYWORD;
             case "OUTER_KEYWORD":
                 return SyntaxKind.OUTER_KEYWORD;
-            case "ISOLATED_KEYWORD":
-                return SyntaxKind.ISOLATED_KEYWORD;
 
             // Documentation reference
             case "TYPE_DOC_REFERENCE_TOKEN":

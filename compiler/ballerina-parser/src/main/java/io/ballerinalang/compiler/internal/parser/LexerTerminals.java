@@ -106,7 +106,6 @@ public class LexerTerminals {
     public static final String ASCENDING = "ascending";
     public static final String DESCENDING = "descending";
     public static final String CLASS = "class";
-    public static final String ISOLATED = "isolated";
 
     // For BFM only
     public static final String VARIABLE = "variable";
