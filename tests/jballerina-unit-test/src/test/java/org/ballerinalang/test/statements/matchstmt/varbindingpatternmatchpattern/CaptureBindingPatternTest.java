@@ -58,6 +58,11 @@ public class CaptureBindingPatternTest {
     }
 
     @Test
+    public void testCaptureBindingPattern4() {
+        BRunUtil.invoke(result, "testCaptureBindingPattern4");
+    }
+
+    @Test
     public void testCaptureBindingPatternNegative1() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
 

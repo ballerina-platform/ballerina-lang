@@ -28,4 +28,6 @@ public abstract class BLangMatchPattern extends BLangNode implements MatchPatter
     public BLangExpression matchExpr; // TODO : should changed as action or expr
 
     public boolean matchGuardIsAvailable;
+
+    public boolean isLastPattern;
 }
