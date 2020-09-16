@@ -124,11 +124,12 @@ public class SymbolLookupTest {
         return new Object[][]{
                 {20, 51, 6, getSymbolNames(moduleLevelSymbols, "w1", "w2")},
                 {22, 16, 6, getSymbolNames(moduleLevelSymbols, "w1", "w2")},
-                {26, 1, 6, getSymbolNames(moduleLevelSymbols, "w1", "w2")},
+                {26, 1, 7, getSymbolNames(moduleLevelSymbols, "w1", "w2", "i")},
                 {24, 15, 7, getSymbolNames(moduleLevelSymbols, "w1", "w2", "i")},
-                {31, 13, 7, getSymbolNames(moduleLevelSymbols, "w1", "w2", "j")},
-                {34, 23, 7, getSymbolNames(moduleLevelSymbols, "w1", "w2", "ret")},
-                {38, 1, 4, moduleLevelSymbols},
+                {31, 13, 6, getSymbolNames(moduleLevelSymbols, "w1", "w2")},
+                {35, 13, 7, getSymbolNames(moduleLevelSymbols, "w1", "w2", "j")},
+                {40, 23, 7, getSymbolNames(moduleLevelSymbols, "w1", "w2", "ret")},
+                {44, 1, 4, moduleLevelSymbols},
         };
     }
 

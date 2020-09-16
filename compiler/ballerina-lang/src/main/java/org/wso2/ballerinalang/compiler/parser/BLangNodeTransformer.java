@@ -1465,21 +1465,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(NamedWorkerDeclarationNode namedWorkerDeclNode) {
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
-        DiagnosticPos pos = getPosition(namedWorkerDeclNode);
+        DiagnosticPos workerBodyPos = getPosition(namedWorkerDeclNode.workerBody());
 
         // Set function name
-        bLFunction.name = createIdentifier(pos,
+        bLFunction.name = createIdentifier(symTable.builtinPos,
                                            anonymousModelHelper.getNextAnonymousFunctionKey(diagnosticSource.pkgID));
 
         // Set the function body
         BLangBlockStmt blockStmt = (BLangBlockStmt) namedWorkerDeclNode.workerBody().apply(this);
         BLangBlockFunctionBody bodyNode = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         bodyNode.stmts = blockStmt.stmts;
-        bodyNode.pos = pos;
+        bodyNode.pos = workerBodyPos;
         bLFunction.body = bodyNode;
         bLFunction.internal = true;
 
-        bLFunction.pos = pos;
+        bLFunction.pos = workerBodyPos;
 
         bLFunction.addFlag(Flag.LAMBDA);
         bLFunction.addFlag(Flag.ANONYMOUS);
@@ -1513,7 +1513,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = bLFunction;
-        lambdaExpr.pos = pos;
+        lambdaExpr.pos = workerBodyPos;
         lambdaExpr.internal = true;
 
         String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
@@ -1528,8 +1528,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 .build();
 
         BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        lamdaWrkr.pos = pos;
-        var.pos = pos;
+        lamdaWrkr.pos = workerBodyPos;
+        var.pos = workerBodyPos;
         lamdaWrkr.setVariable(var);
         lamdaWrkr.isWorker = true;
         lamdaWrkr.internal = var.internal = true;
@@ -1559,7 +1559,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLInvocation.async = true;
 //            attachAnnotations(invocation, numAnnotations, false);
         } else {
-            dlog.error(pos, DiagnosticCode.START_REQUIRE_INVOCATION);
+            dlog.error(workerBodyPos, DiagnosticCode.START_REQUIRE_INVOCATION);
         }
 
         BLangSimpleVariable invoc = new SimpleVarBuilder()

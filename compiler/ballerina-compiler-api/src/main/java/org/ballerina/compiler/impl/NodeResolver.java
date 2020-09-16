@@ -19,6 +19,7 @@ package org.ballerina.compiler.impl;
 
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.clauses.OrderKeyNode;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.IdentifiableNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -190,7 +191,7 @@ class NodeResolver extends BLangNodeVisitor {
         this.enclosingNode = null;
 
         for (TopLevelNode node : unit.topLevelNodes) {
-            if (!PositionUtil.withinBlock(this.cursorPos, node.getPosition())) {
+            if (!PositionUtil.withinBlock(this.cursorPos, node.getPosition()) || isLambdaFunction(node)) {
                 continue;
             }
 
@@ -562,14 +563,16 @@ class NodeResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        lookupNode(workerSendNode.expr);
-        // TODO: check how to do the rest of the fields
+        if (setEnclosingNode(workerSendNode.expr, workerSendNode.expr.pos)) {
+            return;
+        }
+
+        setEnclosingNode(workerSendNode, workerSendNode.workerIdentifier.pos);
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        lookupNode(workerReceiveNode.sendExpression);
-        // TODO: check how to identify the worker
+        setEnclosingNode(workerReceiveNode, workerReceiveNode.workerIdentifier.pos);
     }
 
     @Override
@@ -818,7 +821,7 @@ class NodeResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        // ignore
+        lookupNode(bLangLambdaFunction.function);
     }
 
     @Override
@@ -1254,7 +1257,11 @@ class NodeResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        super.visit(syncSendExpr);
+        if (setEnclosingNode(syncSendExpr.expr, syncSendExpr.expr.pos)) {
+            return;
+        }
+
+        setEnclosingNode(syncSendExpr, syncSendExpr.workerIdentifier.pos);
     }
 
     @Override
@@ -1315,8 +1322,17 @@ class NodeResolver extends BLangNodeVisitor {
         return false;
     }
 
+    private boolean isLambdaFunction(TopLevelNode node) {
+        if (node.getKind() != NodeKind.FUNCTION) {
+            return false;
+        }
+
+        BLangFunction func = (BLangFunction) node;
+        return func.flagSet.contains(Flag.LAMBDA);
+    }
+
     private static class BLangIdentifiableNode extends BLangNode implements IdentifiableNode {
-        
+
         private BSymbol symbol;
 
         BLangIdentifiableNode(BSymbol symbol) {

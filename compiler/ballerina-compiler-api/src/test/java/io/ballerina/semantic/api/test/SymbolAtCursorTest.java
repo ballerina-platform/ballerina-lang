@@ -162,6 +162,34 @@ public class SymbolAtCursorTest {
         };
     }
 
+    @Test(dataProvider = "WorkerSymbolPosProvider")
+    public void testWorkers(int line, int column, String expSymbolName) {
+        CompilerContext context = new CompilerContext();
+        CompileResult result = compile("test-src/symbol_lookup_with_workers_test.bal", context);
+        BLangPackage pkg = (BLangPackage) result.getAST();
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+
+        Optional<Symbol> symbol = model.symbol("symbol_lookup_with_workers_test.bal", LinePosition.from(line, column));
+        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+
+        if (!symbol.isPresent()) {
+            assertNull(expSymbolName);
+        }
+    }
+
+    @DataProvider(name = "WorkerSymbolPosProvider")
+    public Object[][] getWorkerPos() {
+        return new Object[][]{
+                {22, 13, "w1"},
+                {24, 13, "w2"},
+                {27, 14, "w2"},
+                {29, 24, "w2"},
+                {35, 15, "w1"},
+                {37, 21, "w1"},
+                {40, 21, "w2"},
+        };
+    }
+
     @AfterClass
     public void tearDown() {
         BaloCreator.clearPackageFromRepository("test-src/test_project", "testorg", "foo");
