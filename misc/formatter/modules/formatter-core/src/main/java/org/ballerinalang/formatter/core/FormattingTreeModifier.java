@@ -2776,7 +2776,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token semicolon = this.modifyToken(expressionFunctionBodyNode.semicolon().orElse(null));
         if (semicolon != null) {
             expressionFunctionBodyNode = expressionFunctionBodyNode.modify()
-                    .withSemicolon(formatToken(semicolon, 0, 0, 0, 0)).apply();
+                    .withSemicolon(formatToken(semicolon, 0, 0, 0, 1)).apply();
         }
         return expressionFunctionBodyNode.modify()
                 .withRightDoubleArrow(formatToken(rightDoubleArrow, 1, 1, 0, 0))
@@ -3747,7 +3747,8 @@ public class FormattingTreeModifier extends TreeModifier {
         int startColumn = getStartColumn(token, true);
         if (token.kind() == (SyntaxKind.COMMA_TOKEN)) {
             return formatToken(token, 0, 1, 0, 0);
-        } else if (token.kind() == (SyntaxKind.PUBLIC_KEYWORD) || token.kind() == (SyntaxKind.ABSTRACT_KEYWORD)) {
+        } else if (token.kind() == (SyntaxKind.PUBLIC_KEYWORD) || token.kind() == (SyntaxKind.ABSTRACT_KEYWORD) ||
+                token.kind() == (SyntaxKind.ISOLATED_KEYWORD)) {
             boolean addSpaces = true;
             if (token.parent() != null && token.parent().parent() != null &&
                     token.parent().parent().kind() == (SyntaxKind.RETURN_TYPE_DESCRIPTOR)) {

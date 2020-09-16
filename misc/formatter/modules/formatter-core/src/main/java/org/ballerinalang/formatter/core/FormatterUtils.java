@@ -141,6 +141,10 @@ class FormatterUtils {
                 grandParent.kind() == (SyntaxKind.LOCAL_VAR_DECL)) {
             return grandParent;
         }
+        if (parentKind == (SyntaxKind.TYPE_CAST_PARAM) && grandParent != null &&
+                grandParent.kind() == (SyntaxKind.TYPE_CAST_EXPRESSION)) {
+            return null;
+        }
         if (grandParent != null) {
             return getParent(parent, syntaxKind);
         }
@@ -251,15 +255,15 @@ class FormatterUtils {
         if (token == null) {
             return token;
         }
-        MinutiaeList newLeadingMinutiaeList = preserveComments(token.leadingMinutiae())
+        MinutiaeList newLeadingMinutiaeList = preserveComments(token.leadingMinutiae(), trailingNewLines)
                 .add(createWhitespaceMinutiae(getWhiteSpaces(leadingSpaces, leadingNewLines)));
-        MinutiaeList newTrailingMinutiaeList = preserveComments(token.trailingMinutiae())
+        MinutiaeList newTrailingMinutiaeList = preserveComments(token.trailingMinutiae(), trailingNewLines)
                 .add(createWhitespaceMinutiae(getWhiteSpaces(trailingSpaces, trailingNewLines)));
 
         return token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
     }
 
-    private static MinutiaeList preserveComments(MinutiaeList minutiaeList) {
+    private static MinutiaeList preserveComments(MinutiaeList minutiaeList, int trailingNewLines) {
         MinutiaeList minutiaes = AbstractNodeFactory.createEmptyMinutiaeList();
         if (minutiaeList.size() > 0) {
             int count = commentCount(minutiaeList);
@@ -271,8 +275,10 @@ class FormatterUtils {
                     if (minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE) {
                         processedCount++;
                         if (processedCount == count) {
-                            minutiaes = minutiaes.add(AbstractNodeFactory
-                                    .createEndOfLineMinutiae(System.getProperty(LINE_SEPARATOR)));
+                            if (trailingNewLines == 0) {
+                                minutiaes = minutiaes.add(AbstractNodeFactory
+                                        .createEndOfLineMinutiae(System.getProperty(LINE_SEPARATOR)));
+                            }
                             break;
                         }
                     }
