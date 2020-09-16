@@ -96,9 +96,6 @@ public class JvmCodeGenUtil {
 
     public static final String SCOPE_PREFIX = "_SCOPE_";
 
-    private JvmCodeGenUtil() {
-    }
-
     static void visitInvokeDynamic(MethodVisitor mv, String currentClass, String lambdaName, int size) {
         String mapDesc = getMapsDesc(size);
         Handle handle = new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory",

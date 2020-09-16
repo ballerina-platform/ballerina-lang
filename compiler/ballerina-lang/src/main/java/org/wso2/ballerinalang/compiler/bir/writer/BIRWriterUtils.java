@@ -31,9 +31,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  */
 public class BIRWriterUtils {
 
-    public BIRWriterUtils() {
-    }
-
     public static void writePosition(DiagnosticPos pos, ByteBuf buf, ConstantPool cp) {
         int sLine = Integer.MIN_VALUE;
         int eLine = Integer.MIN_VALUE;
