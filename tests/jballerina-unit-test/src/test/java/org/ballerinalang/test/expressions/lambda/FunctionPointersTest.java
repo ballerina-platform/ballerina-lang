@@ -217,6 +217,11 @@ public class FunctionPointersTest {
     }
 
     @Test
+    public void testClassTypeAsParamtype() {
+        BRunUtil.invoke(structProgram, "testClassTypeAsParamtype");
+    }
+
+    @Test
     public void testFunctionPointerNative() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/function-pointer-native.bal");
         BValue[] returns = BRunUtil.invoke(result, "test1");

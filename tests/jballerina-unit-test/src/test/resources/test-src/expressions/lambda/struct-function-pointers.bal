@@ -48,15 +48,15 @@ function getPersonNameFullName (Person p) returns (string){
 }
 
 function test3() returns (string){
-    Person bob = {fname:"bob", lname:"white", getPersonName : getPersonNameFullName };
+    Person bob = {fname:"bob", lname:"white", getPersonName : getPersonNameFullName};
     string x = bob.getPersonName(bob);
     return x;
 }
 
 class Context {
     function getJsonVal(anydata a) returns json|error {
-        json j = { j: a.toString() };
-        return ;
+        json j = {j: a.toString()};
+        return j;
     }
 }
 
