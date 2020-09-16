@@ -163,7 +163,7 @@ public class ReferencesUtil {
         Path compilationPath = getUntitledFilePath(defFilePath.toString()).orElse(defFilePath.get());
         Optional<Lock> lock = docManager.lockFile(compilationPath);
         try {
-            return LSModuleCompiler.getBLangPackages(context, docManager, null, compileProject, false, false, true);
+            return LSModuleCompiler.getBLangPackages(context, docManager, compileProject, false, false);
         } finally {
             lock.ifPresent(Lock::unlock);
         }

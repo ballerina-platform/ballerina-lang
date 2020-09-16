@@ -19,7 +19,6 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation 'com.moandjiezana.toml:toml4j'
-    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.slf4j:slf4j-api'
     implementation 'org.apache.commons:commons-lang3'
 }
