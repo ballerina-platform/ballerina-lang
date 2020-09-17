@@ -192,6 +192,8 @@ public enum Snippet {
 
     KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
 
+    KW_FAIL(SnippetGenerator.getFailKeywordSnippet()),
+
     KW_REMOTE(SnippetGenerator.getRemoteKeywordSnippet()),
 
     KW_CONST(SnippetGenerator.getConstKeywordSnippet()),
@@ -275,12 +277,16 @@ public enum Snippet {
 
     STMT_WHILE(SnippetGenerator.getWhileStatementSnippet()),
 
+    STMT_DO(SnippetGenerator.getDoStatementSnippet()),
+
     // Snippets related to various clauses such as from, where and etc
     CLAUSE_FROM(SnippetGenerator.getFromClauseSnippet()),
     
     CLAUSE_LET(SnippetGenerator.getLetClauseSnippet()),
     
-    CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet());
+    CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),
+    
+    CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet());
 
     private final String snippetName;
     private final SnippetBlock snippetBlock;
