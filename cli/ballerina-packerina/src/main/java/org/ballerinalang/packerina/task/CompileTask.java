@@ -49,6 +49,7 @@ public class CompileTask implements Task {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         Compiler compiler = Compiler.getInstance(context);
         compiler.setOutStream(buildContext.out());
+        compiler.setErrorStream(buildContext.err());
         BallerinaDiagnosticLog dlog = BallerinaDiagnosticLog.getInstance(context);
         if (buildContext.getSourceType() == SourceType.SINGLE_BAL_FILE) {
             SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);

@@ -247,12 +247,14 @@ public class LSStdLibCacheUtil {
     public static Compiler getCompiler(String projectDir) throws UnsupportedEncodingException {
         Compiler compiler = Compiler.getInstance(createNewCompilerContext(projectDir));
         compiler.setOutStream(new LSCompilerUtil.EmptyPrintStream());
+        compiler.setErrorStream(new LSCompilerUtil.EmptyPrintStream());
         return compiler;
     }
 
     public static Compiler getCompiler(CompilerContext compilerContext) throws UnsupportedEncodingException {
         Compiler compiler = Compiler.getInstance(compilerContext);
         compiler.setOutStream(new LSCompilerUtil.EmptyPrintStream());
+        compiler.setErrorStream(new LSCompilerUtil.EmptyPrintStream());
         return compiler;
     }
 }

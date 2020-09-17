@@ -216,6 +216,7 @@ public class LSCompilerUtil {
         BallerinaDiagnosticLog.getInstance(compilerContext).resetErrorCount();
         Compiler compiler = Compiler.getInstance(compilerContext);
         compiler.setOutStream(emptyPrintStream);
+        compiler.setErrorStream(emptyPrintStream);
         return compiler;
     }
 

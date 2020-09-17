@@ -151,7 +151,7 @@ public class Parser {
             LineRange lineRange = syntaxLocation.lineRange();
             LinePosition startLine = lineRange.startLine();
             LinePosition endLine = lineRange.startLine();
-            Location location = new BallerinaDiagnosticLocation(lineRange.filePath(), startLine.line() + 1,
+            Location location = new BallerinaDiagnosticLocation(diagnosticSource.cUnitName, startLine.line() + 1,
                     endLine.line() + 1, startLine.offset() + 1, endLine.offset() + 1);
             BallerinaDiagnostic diag =
                     new BallerinaDiagnostic(location, syntaxDiagnostic.message(), syntaxDiagnostic.diagnosticInfo());
