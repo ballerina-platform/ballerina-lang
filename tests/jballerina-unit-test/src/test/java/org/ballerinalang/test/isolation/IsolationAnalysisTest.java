@@ -26,7 +26,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
-import static org.ballerinalang.test.util.BAssertUtil.validateWarning;
 
 /**
  * Test cases related to isolation analysis.
