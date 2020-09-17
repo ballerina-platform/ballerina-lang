@@ -164,12 +164,10 @@ public class JDIEventProcessor {
     }
 
     void sendStepRequest(long threadId, int stepType) {
-        switch (stepType) {
-            case StepRequest.STEP_OVER:
-                configureDynamicBreakPoints(threadId);
-            case StepRequest.STEP_INTO:
-            case StepRequest.STEP_OUT:
-                createStepRequest(threadId, stepType);
+        if (stepType == StepRequest.STEP_OVER) {
+            configureDynamicBreakPoints(threadId);
+        } else if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
+            createStepRequest(threadId, stepType);
         }
         context.getDebuggee().resume();
         // Notifies the debug client that the execution is resumed.
