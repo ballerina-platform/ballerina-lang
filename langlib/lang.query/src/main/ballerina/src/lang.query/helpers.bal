@@ -15,7 +15,6 @@
 // under the License.
 import ballerina/lang.__internal as internal;
 import ballerina/lang.'xml;
-import ballerina/lang.'value as lang_value;
 
 function createPipeline(
         (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection,
@@ -210,9 +209,9 @@ class IterHelper {
             Type v = <Type>f["$value$"];
             // Add orderKey and orderDirection values to respective arrays.
             if ((!(f["$orderKey$"] is ())) && (!(f["$orderDirection$"] is ()))) {
-                lang_value:Cloneable[] orKey = <lang_value:Cloneable[]>f["$orderKey$"];
+                anydata[] orKey = <anydata[]>f["$orderKey$"];
                 // Need to keep the stream value to sort the stream.
-                orKey.push(<lang_value:Cloneable>v);
+                orKey.push(<anydata>v);
                 orderFieldValsArr.push(orKey);
                 orderDirectionsArr = <boolean[]>f["$orderDirection$"];
             }
