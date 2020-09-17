@@ -49,4 +49,8 @@ public class BallerinaDiagnosticLocation implements Location {
         return textRange;
     }
 
+    @Override
+    public String toString() {
+        return lineRange.toString() + textRange.toString();
+    }
 }

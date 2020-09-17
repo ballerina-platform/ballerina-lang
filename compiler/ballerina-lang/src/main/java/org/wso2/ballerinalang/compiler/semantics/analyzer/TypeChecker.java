@@ -883,12 +883,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
             boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
             this.nonErrorLoggingCheck = true;
-
+            int errorCount = this.dlog.errorCount();
             this.dlog.mute();
 
             List<BType> matchingTypes = new ArrayList<>();
             BUnionType expectedType = (BUnionType) applicableExpType;
             for (BType memType : expectedType.getMemberTypes()) {
+                dlog.resetErrorCount();
 
                 BLangTableConstructorExpr clonedTableExpr = tableConstructorExpr;
                 if (this.nonErrorLoggingCheck) {
@@ -901,11 +902,13 @@ public class TypeChecker extends BLangNodeVisitor {
                         isUniqueType(matchingTypes, resultType)) {
                     matchingTypes.add(resultType);
                 }
-                dlog.resetErrorCount();
             }
 
-            this.dlog.unmute();
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+            this.dlog.setErrorCount(errorCount);
+            if (!prevNonErrorLoggingCheck) {
+                this.dlog.unmute();
+            }
 
             if (matchingTypes.isEmpty()) {
                 BLangTableConstructorExpr exprToLog = tableConstructorExpr;
@@ -1284,8 +1287,8 @@ public class TypeChecker extends BLangNodeVisitor {
         int tag = bType.tag;
         if (tag == TypeTags.UNION) {
             boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+            int errorCount = this.dlog.errorCount();
             this.nonErrorLoggingCheck = true;
-
             this.dlog.mute();
 
             List<BType> compatibleTypes = new ArrayList<>();
@@ -1298,24 +1301,24 @@ public class TypeChecker extends BLangNodeVisitor {
                     continue;
                 }
 
-
                 BType listCompatibleMemType = getListConstructorCompatibleNonUnionType(memberType);
-
                 if (listCompatibleMemType == symTable.semanticError) {
                     continue;
                 }
 
+                dlog.resetErrorCount();
                 BType memCompatibiltyType = checkListConstructorCompatibility(listCompatibleMemType, listConstructor);
-
                 if (memCompatibiltyType != symTable.semanticError && dlog.errorCount() == 0 &&
                         isUniqueType(compatibleTypes, memCompatibiltyType)) {
                     compatibleTypes.add(memCompatibiltyType);
                 }
-                dlog.resetErrorCount();
             }
 
-            this.dlog.unmute();
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+            this.dlog.setErrorCount(errorCount);
+            if (!prevNonErrorLoggingCheck) {
+                this.dlog.unmute();
+            }
 
             if (compatibleTypes.isEmpty()) {
                 BLangListConstructorExpr exprToLog = listConstructor;
@@ -1720,7 +1723,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (tag == TypeTags.UNION) {
             boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
             this.nonErrorLoggingCheck = true;
-
+            int errorCount = this.dlog.errorCount();
             this.dlog.mute();
 
             List<BType> compatibleTypes = new ArrayList<>();
@@ -1734,11 +1737,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BType listCompatibleMemType = getMappingConstructorCompatibleNonUnionType(memberType);
-
                 if (listCompatibleMemType == symTable.semanticError) {
                     continue;
                 }
 
+                dlog.resetErrorCount();
                 BType memCompatibiltyType = checkMappingConstructorCompatibility(listCompatibleMemType,
                                                                                  mappingConstructor);
 
@@ -1746,11 +1749,13 @@ public class TypeChecker extends BLangNodeVisitor {
                         isUniqueType(compatibleTypes, memCompatibiltyType)) {
                     compatibleTypes.add(memCompatibiltyType);
                 }
-                dlog.resetErrorCount();
             }
 
-            this.dlog.unmute();
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+            dlog.setErrorCount(errorCount);
+            if (!prevNonErrorLoggingCheck) {
+                this.dlog.unmute();
+            }
 
             if (compatibleTypes.isEmpty()) {
                 if (!erroredExpType) {

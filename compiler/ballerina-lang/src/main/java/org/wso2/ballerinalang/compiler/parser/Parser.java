@@ -18,6 +18,10 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -26,6 +30,8 @@ import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnostic;
+import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -140,7 +146,16 @@ public class Parser {
 
     private void reportSyntaxDiagnostics(BDiagnosticSource diagnosticSource, SyntaxTree tree) {
         for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
-            dlog.logDiagnostic(diagnosticSource.pkgID, syntaxDiagnostic);
+            // This conversion is needed because the compiler diagnostic locations starting index 
+            // is 1, where as syntax diagnostics locations starting index is 0.
+            Location syntaxLocation = syntaxDiagnostic.location();
+            LineRange lineRange = syntaxLocation.lineRange();
+            LinePosition startLine = lineRange.startLine();
+            LinePosition endLine = lineRange.startLine();
+            Location location = new BallerinaDiagnosticLocation(lineRange.filePath(), startLine.line() + 1,
+                    endLine.line() + 1, startLine.offset() + 1, endLine.offset() + 1);
+            BallerinaDiagnostic diag = new BallerinaDiagnostic(location, syntaxDiagnostic.message(), syntaxDiagnostic.diagnosticInfo());
+            dlog.logDiagnostic(diagnosticSource.pkgID, diag);
         }
     }
 }
