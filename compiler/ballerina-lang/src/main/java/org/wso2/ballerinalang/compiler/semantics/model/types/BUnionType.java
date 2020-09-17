@@ -136,6 +136,10 @@ public class BUnionType extends BType implements UnionType {
     public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
 
+        if (types.isEmpty()) {
+            return new BUnionType(tsymbol, memberTypes, false, false);
+        }
+
         boolean isImmutable = true;
 
         for (BType memBType : toFlatTypeSet(types)) {

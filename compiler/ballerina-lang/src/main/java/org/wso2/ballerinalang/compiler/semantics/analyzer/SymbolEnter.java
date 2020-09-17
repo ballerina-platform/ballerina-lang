@@ -1250,9 +1250,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             unionType.tsymbol.name = names.fromIdNode(typeDef.name);
             unionType.flags |= Flags.asMask(EnumSet.of(Flag.ANONYMOUS));
             unionType.flags |= typeDefSymbol.flags;
-            for (BType memberType : definedUnionType.getMemberTypes()) {
-                unionType.add(memberType);
-            }
             unionType.addAll(definedUnionType.getMemberTypes());
         }
 
