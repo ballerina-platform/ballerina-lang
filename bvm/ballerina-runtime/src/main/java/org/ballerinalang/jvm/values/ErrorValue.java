@@ -105,7 +105,8 @@ public class ErrorValue extends BError implements RefValue {
     public String stringValue(BLink parent) {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
-            return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent) + ")";
+            return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent)
+                    + ")";
         }
         return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent) +
                 getCauseToString(linkParent) + getDetailsToString(linkParent) + ")";
