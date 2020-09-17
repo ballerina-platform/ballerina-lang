@@ -1,58 +1,58 @@
 {{#partial "sidebarName" }}
-    Objects
+    Classes
 {{/partial}}
 
 {{#partial "sidebarLists" }}
-    {{#each module.objects}}
-        <li {{#equals object.name name}}class="active"{{/equals}}>
+    {{#each module.classes}}
+        <li {{#equals bClass.name name}}class="active"{{/equals}}>
             <a href="{{name}}.html" onclick="menuLinkClick()">{{name}}</a>
         </li>
     {{/each}}
 {{/partial}}
 
 {{#partial "titleType" }}
-    Object
+    Class
 {{/partial}}
 {{#partial "title" }}
-    <span class="objects {{#if object.isDeprecated}}strike{{/if}}">{{ object.name }}</span>
+    <span class="classes {{#if bClass.isDeprecated}}strike{{/if}}">{{ bClass.name }}</span>
 {{/partial}}
 
 {{#partial "content" }}
     <p>
-        {{#if object.isDeprecated}}
+        {{#if bClass.isDeprecated}}
             <span class="stab">Deprecated</span>
         {{/if}}
-        {{{ object.description }}}
+        {{{ bClass.description }}}
     </p>
 
     <div class="constants">
         <div class="method-sum">
-            {{#if object.initMethod}}
-                {{#object.initMethod}}
+            {{#if bClass.initMethod}}
+                {{#bClass.initMethod}}
                 {{> initMethod }}
-                {{/object.initMethod}}
+                {{/bClass.initMethod}}
             {{/if}}
 
         
-            {{#if object.otherMethods}}
+            {{#if bClass.otherMethods}}
                 <h2>Methods</h2>
                 <div class="method-list">
-                    {{#each object.otherMethods}}
+                    {{#each bClass.otherMethods}}
                         {{> methodSignature }}
                     {{/each}}
                 </div>
             {{/if}}
 
-            {{#if object.fields}}
-                {{#object}}
+            {{#if bClass.fields}}
+                {{#bClass}}
                     <h2>Fields</h2>
                         {{> fields }}
-                {{/object}}
+                {{/bClass}}
             {{/if}}
         </div>
 
-        {{#if object.otherMethods }}
-            {{#each object.otherMethods }}
+        {{#if bClass.otherMethods }}
+            {{#each bClass.otherMethods }}
                 {{> method }}
             {{/each}}
         {{/if}}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,17 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
-import com.google.gson.annotations.Expose;
-
-import java.util.List;
-
 /**
- * Represent documentation for a Record.
+ * Page context for the Abstract Object page.
+ *
+ * @since 2.0
  */
-public class Record extends Construct {
+public class AbstractObjectPageContext extends ModulePageContext {
+    public BAbstractObject abstractObject;
 
-    @Expose
-    public List<DefaultableVariable> fields;
-    @Expose
-    public boolean isClosed;
-
-    public Record(String name, String description, boolean isDeprecated, boolean isClosed,
-                  List<DefaultableVariable> fields) {
-        super(name, description, isDeprecated);
-        this.isClosed = isClosed;
-        this.fields = fields;
+    public AbstractObjectPageContext(BAbstractObject abstractObject, Module module, Project project, String rootPath,
+                                     String title, boolean excludeIndex) {
+        super(module, project, rootPath, title, excludeIndex);
+        this.abstractObject = abstractObject;
     }
 }

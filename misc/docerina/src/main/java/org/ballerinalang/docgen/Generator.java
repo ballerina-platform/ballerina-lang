@@ -20,6 +20,8 @@ package org.ballerinalang.docgen;
 
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Annotation;
+import org.ballerinalang.docgen.generator.model.BAbstractObject;
+import org.ballerinalang.docgen.generator.model.BClass;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.Constant;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
@@ -28,7 +30,6 @@ import org.ballerinalang.docgen.generator.model.FiniteType;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.Module;
-import org.ballerinalang.docgen.generator.model.Object;
 import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.Type;
 import org.ballerinalang.docgen.generator.model.UnionType;
@@ -40,6 +41,7 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -63,12 +65,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * Generates the Page objects for bal packages.
+ * Generates the Page bClasses for bal packages.
  */
 public class Generator {
 
@@ -93,29 +93,19 @@ public class Generator {
                 hasPublicConstructs = true;
             }
         }
-
+        // Check for class definitions in the package
+        for (BLangClassDefinition classDefinition : balPackage.classDefinitions) {
+            if (classDefinition.getFlags().contains(Flag.PUBLIC) &&
+                    !classDefinition.getFlags().contains(Flag.ANONYMOUS)) {
+                addDocForClassType(classDefinition, module);
+                hasPublicConstructs = true;
+            }
+        }
         // Check for functions in the package
         for (BLangFunction function : balPackage.getFunctions()) {
             if (function.getFlags().contains(Flag.PUBLIC) && !function.getFlags().contains(Flag.ATTACHED)) {
                 module.functions.add(createDocForFunction(function, module));
                 hasPublicConstructs = true;
-            }
-        }
-
-        // Create the anon types
-        while (!module.linkedAnonObjects.isEmpty()) {
-            String typeName = module.linkedAnonObjects.remove();
-            BLangTypeDefinition typeDef = null;
-            for (BLangTypeDefinition typeDefinition : balPackage.getTypeDefinitions()) {
-                if (typeDefinition.name != null) {
-                    if (typeDefinition.name.value.equals(typeName)) {
-                        typeDef = typeDefinition;
-                        break;
-                    }
-                }
-            }
-            if (typeDef != null) {
-                createTypeDefModels(typeDef, module);
             }
         }
 
@@ -152,7 +142,7 @@ public class Generator {
         boolean added = false;
         if (kind == NodeKind.OBJECT_TYPE) {
             BLangObjectTypeNode objectType = (BLangObjectTypeNode) typeNode;
-            addDocForObjectType(objectType, typeDefinition, module);
+            addDocForAbstractObjectType(objectType, typeDefinition, module);
             added = true;
         } else if (kind == NodeKind.FINITE_TYPE_NODE) {
             if (!typeDefinition.getFlags().contains(Flag.ANONYMOUS)) {
@@ -252,10 +242,6 @@ public class Generator {
         if (functionNode.getParameters().size() > 0) {
             for (BLangSimpleVariable param : functionNode.getParameters()) {
                 DefaultableVariable variable = getVariable(functionNode, param, module);
-                if (param.typeNode instanceof BLangUserDefinedType &&
-                        ((BLangUserDefinedType) param.typeNode).typeName.value.contains("$anonType$")) {
-                    module.linkedAnonObjects.add(((BLangUserDefinedType) param.typeNode).typeName.value);
-                }
                 parameters.add(variable);
             }
         }
@@ -276,14 +262,6 @@ public class Generator {
             BLangType returnType = functionNode.getReturnTypeNode();
             String dataType = getTypeName(returnType);
             if (!dataType.equals("null")) {
-                // add anonymous type to be created
-                if (dataType.contains("$anonType$")) {
-                    Pattern pattern = Pattern.compile("\\$anonType\\$\\d\\d?\\d?");
-                    Matcher match = pattern.matcher(dataType);
-                    if (match.find()) {
-                        module.linkedAnonObjects.add(match.group(0));
-                    }
-                }
                 String desc = returnParamAnnotation(functionNode);
                 Variable variable = new Variable(EMPTY_STRING, desc, false, Type.fromTypeNode(returnType, module.id));
                 returnParams.add(variable);
@@ -319,15 +297,11 @@ public class Generator {
     private static void addDocForRecordType(BLangTypeDefinition typeDefinition, BLangRecordTypeNode recordType,
                                             Module module) {
         String recordName = typeDefinition.getName().getValue();
-        // Check if its an anonymous struct
-        if (recordType.isAnonymous) {
-            recordName = "T" + recordName.substring(recordName.lastIndexOf('$') + 1);
-        }
+
         BLangMarkdownDocumentation documentationNode = typeDefinition.getMarkdownDocumentationAttachment();
         List<DefaultableVariable> fields = getFields(recordType, recordType.fields, documentationNode, module);
         module.records.add(new Record(recordName, description(typeDefinition),
-                isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.isAnonymous, recordType.sealed,
-                fields));
+                isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.sealed, fields));
     }
 
     private static List<DefaultableVariable> getFields(BLangNode node, List<BLangSimpleVariable> allFields,
@@ -381,7 +355,7 @@ public class Generator {
         if (paramDocAttach != null) {
             return BallerinaDocUtils.mdToHtml(paramDocAttach.getDocumentation(), false);
         } else {
-            // Get field documentation from object/record def documentation
+            // Get field documentation from bClass/record def documentation
             BLangMarkdownParameterDocumentation parameter = parameterDocumentations.get(name);
             if (parameter != null) {
                 return BallerinaDocUtils.mdToHtml(parameter.getParameterDocumentation(), false);
@@ -391,18 +365,11 @@ public class Generator {
         }
     }
 
-    private static void addDocForObjectType(BLangObjectTypeNode objectType,
-                                            BLangTypeDefinition parent,
-                                            Module module) {
+    private static void addDocForAbstractObjectType(BLangObjectTypeNode objectType,
+                                                    BLangTypeDefinition parent,
+                                                    Module module) {
         List<Function> functions = new ArrayList<>();
         String name = parent.getName().getValue();
-        boolean isAnonymous = false;
-        // handle anonymous names
-        if (name != null && name.contains("$anonType$")) {
-            name = "T" + name.substring(name.lastIndexOf('$') + 1);
-            isAnonymous = true;
-        }
-
         String description = description(parent);
         boolean isDeprecated = isDeprecated(parent.getAnnotationAttachments());
 
@@ -410,35 +377,53 @@ public class Generator {
                     parent.getMarkdownDocumentationAttachment(), module);
 
         // Iterate through the functions
-        if (objectType.getFunctions().size() > 0) {
-            for (BLangFunction function : objectType.getFunctions()) {
-                if (function.flagSet.contains(Flag.PUBLIC)) {
-                    functions.add(createDocForFunction(function, module));
-                }
+        for (BLangFunction function : objectType.getFunctions()) {
+            if (function.flagSet.contains(Flag.PUBLIC)) {
+                functions.add(createDocForFunction(function, module));
             }
         }
 
-        if (isEndpoint(objectType)) {
-            module.clients.add(new Client(name, description, isDeprecated, fields, functions, isAnonymous));
-        } else if (isListener(objectType)) {
-            module.listeners.add(new Listener(name, description, isDeprecated, fields, functions, isAnonymous));
+        module.abstractObjects.add(new BAbstractObject(name, description, isDeprecated, fields, functions));
+    }
+
+    private static void addDocForClassType(BLangClassDefinition classDefinition, Module module) {
+        List<Function> functions = new ArrayList<>();
+        String name = classDefinition.getName().getValue();
+        String description = description(classDefinition);
+        boolean isDeprecated = isDeprecated(classDefinition.getAnnotationAttachments());
+
+        List<DefaultableVariable> fields = getFields(classDefinition, classDefinition.fields,
+                classDefinition.getMarkdownDocumentationAttachment(), module);
+
+        // Iterate through the functions
+        for (BLangFunction function : classDefinition.getFunctions()) {
+            if (function.flagSet.contains(Flag.PUBLIC)) {
+                functions.add(createDocForFunction(function, module));
+            }
+        }
+
+
+        if (isEndpoint(classDefinition)) {
+            module.clients.add(new Client(name, description, isDeprecated, fields, functions));
+        } else if (isListener(classDefinition)) {
+            module.listeners.add(new Listener(name, description, isDeprecated, fields, functions));
         } else {
-            module.objects.add(new Object(name, description, isDeprecated(parent.getAnnotationAttachments()), fields,
-                    functions, isAnonymous));
+            module.classes.add(new BClass(name, description, isDeprecated(classDefinition.getAnnotationAttachments()),
+                    fields, functions));
         }
     }
 
-    private static boolean isListener(BLangObjectTypeNode objectType) {
+    private static boolean isListener(BLangClassDefinition classDefinition) {
         AtomicBoolean isListener = new AtomicBoolean(false);
-        objectType.typeRefs.forEach((type) -> {
+        classDefinition.typeRefs.forEach((type) -> {
             isListener.set((type instanceof BLangUserDefinedType)
                     && ((BLangUserDefinedType) type).typeName.value.equals("Listener"));
         });
         return isListener.get();
     }
 
-    private static boolean isEndpoint(BLangObjectTypeNode objectType) {
-        return objectType.flagSet.contains(Flag.CLIENT);
+    private static boolean isEndpoint(BLangClassDefinition classDefinition) {
+        return classDefinition.flagSet.contains(Flag.CLIENT);
     }
 
     /**

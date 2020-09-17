@@ -1,0 +1,56 @@
+{{#partial "sidebarName" }}
+    Abstract Objects
+{{/partial}}
+
+{{#partial "sidebarLists" }}
+    {{#each module.abstractObjects}}
+        <li {{#equals abstractObject.name name}}class="active"{{/equals}}>
+            <a href="{{name}}.html" onclick="menuLinkClick()">{{name}}</a>
+        </li>
+    {{/each}}
+{{/partial}}
+
+{{#partial "titleType" }}
+    Abstract Object
+{{/partial}}
+{{#partial "title" }}
+    <span class="objects {{#if abstractObject.isDeprecated}}strike{{/if}}">{{ abstractObject.name }}</span>
+{{/partial}}
+
+{{#partial "content" }}
+    <p>
+        {{#if abstractObject.isDeprecated}}
+            <span class="stab">Deprecated</span>
+        {{/if}}
+        {{{ abstractObject.description }}}
+    </p>
+
+    <div class="constants">
+        <div class="method-sum">
+
+            {{#if abstractObject.methods}}
+                <h2>Methods</h2>
+                <div class="method-list">
+                    {{#each abstractObject.methods}}
+                        {{> methodSignature }}
+                    {{/each}}
+                </div>
+            {{/if}}
+
+            {{#if abstractObject.fields}}
+                {{#abstractObject}}
+                    <h2>Fields</h2>
+                        {{> fields }}
+                {{/abstractObject}}
+            {{/if}}
+        </div>
+
+        {{#if abstractObject.methods }}
+            {{#each abstractObject.methods }}
+                {{> method }}
+            {{/each}}
+        {{/if}}
+    </div>
+{{/partial}}
+
+{{> layout}}
