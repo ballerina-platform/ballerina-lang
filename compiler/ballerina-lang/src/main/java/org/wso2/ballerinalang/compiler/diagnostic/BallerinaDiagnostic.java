@@ -68,7 +68,15 @@ public class BallerinaDiagnostic extends Diagnostic implements Comparable<Baller
         int value = ((BallerinaDiagnosticLocation) this.location)
                 .compareTo((BallerinaDiagnosticLocation) otherDiagnostic.location);
         if (value == 0) {
-            return message().compareTo(otherDiagnostic.message());
+            value = message().compareTo(otherDiagnostic.message());
+            if (value == 0) {
+                if (diagnosticInfo.hashCode() == otherDiagnostic.hashCode()) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+            return value;
         }
         return value;
     }

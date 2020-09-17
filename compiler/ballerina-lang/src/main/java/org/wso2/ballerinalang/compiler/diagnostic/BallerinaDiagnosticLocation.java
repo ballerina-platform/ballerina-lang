@@ -55,15 +55,11 @@ public class BallerinaDiagnosticLocation implements Location, Comparable<Balleri
 
     @Override
     public int compareTo(BallerinaDiagnosticLocation otherDiagnosticLocation) {
-        int value = getCompilationUnitName().compareTo(otherDiagnosticLocation.getCompilationUnitName());
-        if (value == 0) {
-            if (lineRange.compareTo(otherDiagnosticLocation.lineRange) == 0) {
-                return textRange.compareTo(otherDiagnosticLocation.textRange);
-            } else {
-                return lineRange.compareTo(otherDiagnosticLocation.lineRange);
-            }
-        } else {
-            return value;
+        int compValOnStartLine = lineRange.startLine().line() - otherDiagnosticLocation.lineRange.startLine().line();
+        int compValOnStartCol = textRange.startOffset() - otherDiagnosticLocation.textRange.startOffset();
+        if (compValOnStartLine == 0) {
+            return compValOnStartCol;
         }
+        return compValOnStartLine;
     }
 }

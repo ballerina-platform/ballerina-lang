@@ -24,7 +24,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class LineRange implements Comparable<LineRange> {
+public class LineRange {
     private final String filePath;
     private final LinePosition startLine;
     private final LinePosition endLine;
@@ -74,13 +74,4 @@ public class LineRange implements Comparable<LineRange> {
         return "(" + startLine + "," + endLine + ")";
     }
 
-    @Override
-    public int compareTo(LineRange otherLineRange) {
-        if (startLine.line() < otherLineRange.startLine.line()) {
-            return -1;
-        } else if (startLine.line() > otherLineRange.startLine.line()) {
-            return 1;
-        }
-        return 0;
-    }
 }

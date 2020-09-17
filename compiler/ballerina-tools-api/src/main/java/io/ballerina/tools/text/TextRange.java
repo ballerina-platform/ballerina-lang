@@ -24,7 +24,7 @@ import java.util.Objects;
  *
  * @since 1.3.0
  */
-public class TextRange implements Comparable<TextRange> {
+public class TextRange {
     private final int startOffset;
     private final int endOffset;
     private final int length;
@@ -90,15 +90,5 @@ public class TextRange implements Comparable<TextRange> {
     @Override
     public int hashCode() {
         return Objects.hash(startOffset, endOffset);
-    }
-
-    @Override
-    public int compareTo(TextRange otherTextRange) {
-        if (startOffset < otherTextRange.startOffset) {
-            return -1;
-        } else if (startOffset > otherTextRange.startOffset) {
-            return 1;
-        }
-        return 0;
     }
 }

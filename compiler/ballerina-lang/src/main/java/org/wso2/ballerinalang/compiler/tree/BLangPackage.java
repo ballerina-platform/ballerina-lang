@@ -22,15 +22,31 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.*;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnostic;
+import org.ballerinalang.model.tree.AnnotationNode;
+import org.ballerinalang.model.tree.ClassDefinition;
+import org.ballerinalang.model.tree.CompilationUnitNode;
+import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.ImportPackageNode;
+import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.PackageNode;
+import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.TypeDefinition;
+import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @since 0.94
@@ -251,7 +267,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
      *
      * @param diagnostic Diagnostic to be added
      */
-    public void addDiagnostic(BallerinaDiagnostic diagnostic) {
+    public void addDiagnostic(Diagnostic diagnostic) {
         boolean isAdded = this.diagnostics.add(diagnostic);
         if (!isAdded) {
             return;
