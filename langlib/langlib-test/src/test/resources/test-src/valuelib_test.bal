@@ -25,6 +25,12 @@ type Address1 record {|
     json...;
 |};
 
+type UndergradStudent record {|
+    readonly int id;
+    readonly string name;
+    int grade;
+|};
+
 function testToJsonString() returns map<string> {
     json aNil = ();
     json aString = "aString";
@@ -480,15 +486,20 @@ function testToBalString() returns string[] {
     decimal varDecimal = 345.2425341;
     map<any|error> varMap = {};
     json varJson = {a: "STRING", b: 12, c: 12.4, d: true, e: {x:"x", y: ()}};
-    any[] varArr = ["str", 23, 23.4, true];
+    error varSimpleErr = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
+        val3 = varDecimal, val4={"x":"AA","y":(1.0/0.0),"z":1.23});
+    xml varXml = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`;
+    table<UndergradStudent> undergradStudentTable = table key(id,name) [
+            { id: 1, name: "Mary", grade: 12 },
+            { id: 2, name: "John", grade: 13 }
+        ];
+    (any|error)[] varArr = ["str", 23, 23.4, true, {"x":"AA","y":(1.0/0.0),"z":1.23}, varDecimal, ["X", (0.0/0.0),
+    varDecimal],undergradStudentTable,varSimpleErr,varXml];
     FirstError varErr = FirstError(REASON_1, message = "Test passing error union to a function");
     Student varObj = new("Alaa", "MMV");
     Teacher varObj2 = new("Rola", "MMV");
     any[] varObjArr = [varObj, varObj2];
     [float, string][] varTupleArr = [[(0.0/0.0), "ABC"], [(1.0/0.0), "LMN"]];
-    error varSimpleErr = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
-    val3 = varDecimal, val4={"x":"AA","y":(1.0/0.0),"z":1.23});
-    xml varXml = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`;
 
     varMap["varInt"] = varInt;
     varMap["varFloat"] = varFloat;

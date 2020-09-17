@@ -260,7 +260,15 @@ public class LangLibValueTest {
                         "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
                         "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
                         "</CATALOG>`");
-        Assert.assertEquals(array.getString(i++), "[\"str\",23,23.4,true]");
+        Assert.assertEquals(array.getString(i++), "[\"str\",23,23.4,true," +
+                "{\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23},345.2425341d," +
+                "[\"X\",float:NaN,345.2425341d],table key(id,name) [{\"id\":1,\"name\":\"Mary\",\"grade\":12}," +
+                "{\"id\":2,\"name\":\"John\",\"grade\":13}]," +
+                "error(\"Failed to get account balance\",details=true,val1=float:NaN,val2=\"This Error\"," +
+                "val3=345.2425341d,val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23})," +
+                "xml`<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD>" +
+                "<TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
+                "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`]");
         Assert.assertEquals(array.getString(i++), "error FirstError (\"Reason1\",message=\"Test passing error " +
                 "union to a function\")");
         Assert.assertEquals(array.getString(i++), "object Student -214492645");
@@ -287,7 +295,15 @@ public class LangLibValueTest {
                         "<ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE>" +
                         "<ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
                         "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`," +
-                        "\"varArr\":[\"str\",23,23.4,true]," +
+                        "\"varArr\":[\"str\",23,23.4,true,{\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23}," +
+                        "345.2425341d,[\"X\",float:NaN,345.2425341d],table key(id,name) " +
+                        "[{\"id\":1,\"name\":\"Mary\",\"grade\":12}," +
+                        "{\"id\":2,\"name\":\"John\",\"grade\":13}],error(\"Failed to get account balance\"," +
+                        "details=true,val1=float:NaN,val2=\"This Error\",val3=345.2425341d," +
+                        "val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23}),xml`<CATALOG>" +
+                        "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD>" +
+                        "<TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD>" +
+                        "<TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`]," +
                         "\"varErr\":error FirstError (\"Reason1\"," +
                         "message=\"Test passing error union to a function\")," +
                         "\"varObj\":object Student -214492645," +
@@ -296,7 +312,8 @@ public class LangLibValueTest {
                         "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
                         "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}," +
                         "\"varTupleArr\":[float:NaN \"ABC\",float:Infinity \"LMN\"]," +
-                        "\"varSimpleErr\":error(\"Failed to get account balance\",details=true,val1=float:NaN,val2=\"This Error\"," +
+                        "\"varSimpleErr\":error(\"Failed to get account balance\",details=true," +
+                        "val1=float:NaN,val2=\"This Error\"," +
                         "val3=345.2425341d,val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23})}");
     }
 

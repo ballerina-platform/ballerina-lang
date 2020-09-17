@@ -20,7 +20,6 @@ import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BValue;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BObjectType;
@@ -34,7 +33,6 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.NonBmpStringValue;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.TupleValueImpl;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
