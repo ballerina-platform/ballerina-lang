@@ -148,7 +148,6 @@ public class JDIEventProcessor {
 
         projectRoot = findProjectRoot(Paths.get(path));
         if (projectRoot == null) {
-            // calculate projectRoot for single file
             File file = new File(path);
             File parentDir = file.getParentFile();
             projectRoot = parentDir.toPath();
@@ -224,8 +223,14 @@ public class JDIEventProcessor {
             if (!firstLocation.isPresent()) {
                 return;
             }
+            // If the debug flow is in the last line of the method and the user wants to step over, the expected
+            // behavior would be stepping out to the parent/caller function.
+            if (currentLocation.lineNumber() == lastLocation.get().lineNumber()) {
+                createStepRequest(threadId, StepRequest.STEP_OUT);
+                return;
+            }
 
-            int nextStepPoint = firstLocation.get().lineNumber();
+            int nextStepPoint = currentLocation.lineNumber();
             context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
             do {
                 List<Location> locations = referenceType.locationsOfLine(nextStepPoint);
