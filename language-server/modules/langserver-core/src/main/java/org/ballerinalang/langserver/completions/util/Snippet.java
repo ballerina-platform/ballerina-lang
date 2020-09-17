@@ -100,6 +100,8 @@ public enum Snippet {
 
     DEF_SERVICE_GRPC(SnippetGenerator.getGRPCServiceDefSnippet()),
 
+    DEF_CLASS(SnippetGenerator.getClassDefSnippet()),
+
     DEF_WORKER(SnippetGenerator.getWorkerDeclarationSnippet()),
 
     DEF_REMOTE_FUNCTION(SnippetGenerator.getRemoteFunctionSnippet()),
@@ -121,6 +123,8 @@ public enum Snippet {
     EXPR_MATCH(SnippetGenerator.getMatchExpressionSnippet()),
 
     EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),
+
+    EXPR_OBJECT_CONSTRUCTOR(SnippetGenerator.getObjectConstructorSnippet()),
 
 
     // Keyword Snippets
@@ -182,9 +186,13 @@ public enum Snippet {
 
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
 
+    KW_ISOLATED(SnippetGenerator.getIsolatedKeywordSnippet()),
+
     KW_PRIVATE(SnippetGenerator.getPrivateKeywordSnippet()),
 
     KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
+
+    KW_REMOTE(SnippetGenerator.getRemoteKeywordSnippet()),
 
     KW_CONST(SnippetGenerator.getConstKeywordSnippet()),
 
@@ -203,6 +211,10 @@ public enum Snippet {
     KW_ENUM(SnippetGenerator.getEnumKeywordSnippet()),
 
     KW_XMLNS(SnippetGenerator.getXMLNSKeywordSnippet()),
+
+    KW_CLASS(SnippetGenerator.getClassKeywordSnippet()),
+
+    KW_DISTINCT(SnippetGenerator.getDistinctKeywordSnippet()),
 
     KW_LISTENER(SnippetGenerator.getListenerKeywordSnippet()),
 

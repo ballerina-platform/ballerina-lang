@@ -632,6 +632,20 @@ types:
         type: taint_table
       - id: doc
         type: markdown
+      - id: dependent_global_var_length
+        type: s4
+      - id: dependent_global_var_cp_entry
+        type: s4
+        repeat: expr
+        repeat-expr: dependent_global_var_length
+      - id: scope_table_length
+        type: s8
+      - id: scope_entry_count
+        type: s4
+      - id: scope_entries
+        type: scope_entry
+        repeat: expr
+        repeat-expr: scope_entry_count
       - id: function_body_length
         type: s8
       - id: function_body
@@ -751,6 +765,17 @@ types:
         type: s1
         repeat: expr
         repeat-expr: taint_record_size
+  scope_entry:
+    seq:
+      - id: current_scope_index
+        type: s4
+      - id: instruction_offset
+        type: s4
+      - id: has_parent
+        type: u1
+      - id: parent_scope_index
+        type: s4
+        if: has_parent == 1
   function_body:
     seq:
       - id: args_count

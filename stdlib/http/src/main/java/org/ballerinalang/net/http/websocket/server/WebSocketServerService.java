@@ -18,10 +18,10 @@
 
 package org.ballerinalang.net.http.websocket.server;
 
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
@@ -40,12 +40,12 @@ public class WebSocketServerService extends WebSocketService {
     private int idleTimeoutInSeconds = 0;
     private HttpResource upgradeResource;
 
-    public WebSocketServerService(ObjectValue service, Scheduler scheduler) {
+    public WebSocketServerService(BObject service, Scheduler scheduler) {
         super(service, scheduler);
         populateConfigs();
     }
 
-    public WebSocketServerService(String httpBasePath, HttpResource upgradeResource, ObjectValue service,
+    public WebSocketServerService(String httpBasePath, HttpResource upgradeResource, BObject service,
                                   Scheduler scheduler) {
         this(service, scheduler);
         setBasePathWithUpgradePath(httpBasePath, upgradeResource);

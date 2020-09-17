@@ -34,6 +34,8 @@ public enum CompilerPhase {
 
     DATAFLOW_ANALYZE("dataflowAnalyze"),
 
+    ISOLATION_ANALYZE("isolationAnalyze"),
+
     DOCUMENTATION_ANALYZE("documentationAnalyze"),
 
     TAINT_ANALYZE("taintAnalyze"),

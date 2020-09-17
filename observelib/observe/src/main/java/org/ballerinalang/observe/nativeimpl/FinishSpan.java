@@ -19,7 +19,8 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -48,6 +49,7 @@ public class FinishSpan {
             return null;
         }
 
-        return BallerinaErrors.createError("Can not finish span with id " + spanId + ". Span already finished");
+        return BErrorCreator.createError(BStringUtils.fromString(("Can not finish span with id " + spanId + ". Span " +
+                "already finished")));
     }
 }

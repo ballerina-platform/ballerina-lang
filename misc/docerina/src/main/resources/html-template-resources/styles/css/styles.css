@@ -76,6 +76,9 @@ body .content-wrapper .main-wrapper span.records {
 body .content-wrapper .main-wrapper span.objects {
   color: #265C9E;
 }
+body .content-wrapper .main-wrapper span.classes {
+  color: #265C9E;
+}
 body .content-wrapper .main-wrapper span.clients {
   color: #FD5618;
 }
@@ -131,6 +134,9 @@ body .content-wrapper a.records {
   color: #2A9988;
 }
 body .content-wrapper a.objects {
+  color: #265C9E;
+}
+body .content-wrapper a.classes {
   color: #265C9E;
 }
 body .content-wrapper a.clients {
@@ -249,6 +255,10 @@ body .content-wrapper .ui.table tr td td.records {
 }
 body .content-wrapper .ui.table td.objects,
 body .content-wrapper .ui.table tr td td.objects {
+  color: #265C9E;
+}
+body .content-wrapper .ui.table td.classes,
+body .content-wrapper .ui.table tr td td.classes {
   color: #265C9E;
 }
 body .content-wrapper .ui.table td.clients,
@@ -492,6 +502,9 @@ body .content-wrapper .module-title.records {
 body .content-wrapper .module-title.objects {
   color: #265C9E;
 }
+body .content-wrapper .module-title.classes {
+  color: #265C9E;
+}
 body .content-wrapper .module-title.clients {
   color: #FD5618;
 }
@@ -517,6 +530,9 @@ body .content-wrapper .module-title a.records {
   color: #2A9988;
 }
 body .content-wrapper .module-title a.objects {
+  color: #265C9E;
+}
+body .content-wrapper .module-title a.classes {
   color: #265C9E;
 }
 body .content-wrapper .module-title a.clients {
@@ -562,6 +578,16 @@ body .content-wrapper .module-desc {
 }
 body .content-wrapper .function-desc p {
   display: block;
+  color: #333;
+}
+body .content-wrapper .function-desc .isolated-lbl {
+  margin-bottom: 5px;
+}
+body .content-wrapper table td.module-desc p {
+  display: inline;
+}
+body .content-wrapper table td .function-desc p {
+  display: inline;
   color: #333;
 }
 body .content-wrapper .stab {

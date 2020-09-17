@@ -23,6 +23,18 @@ function testOnFailStatement() {
     string nestedDoWithLessOnFailsRestult = testNestedDoWithLessOnFails();
         assertEquality("-> Before error 1 is thrown -> Before error 2 is thrown -> Error caught !" +
         "-> Execution continues...", nestedDoWithLessOnFailsRestult);
+
+    error? errorReturnWithinOnFailResult = testReturnErrorWithinOnFail();
+    if(errorReturnWithinOnFailResult is error) {
+         assertEquality("custom error", errorReturnWithinOnFailResult.message());
+    } else {
+          panic error("Expected error to be caught. Hence, test failed.");
+    }
+
+    string appendOnFailErrorResult = testAppendOnFailError();
+    assertEquality("Before failure throw -> Error caught: custom error -> Execution continues...", appendOnFailErrorResult);
+
+    assertEquality(44, testArrowFunctionInsideOnFail());
 }
 
 function testOnFail () returns string {
@@ -94,7 +106,6 @@ function testNestedDoWithOnFail () returns string {
    return str;
 }
 
-//todo @chiran improve to append error message
 function testNestedDoWithLessOnFails () returns string {
    string str = "";
    do {
@@ -114,35 +125,49 @@ function testNestedDoWithLessOnFails () returns string {
    return str;
 }
 
-//todo @chiran check type conversion with return type
-//function testReturnErrorWithinOnFail() returns error?  {
-//   string str = "";
-//   do {
-//     error err = error("custom error", message = "error value");
-//     str += "Before failure throw";
-//     fail err;
-//   }
-//   on fail error e {
-//      str += "-> Error caught ! ";
-//      return e;
-//   }
-//}
+function testReturnErrorWithinOnFail() returns error?  {
+   string str = "";
+   do {
+     error err = error("custom error", message = "error value");
+     str += "Before failure throw";
+     fail err;
+   }
+   on fail error e {
+      str += "-> Error caught ! ";
+      return e;
+   }
+}
 
-//function testOnFail () returns string {
-//   string str = "";
-//   do {
-//     error err = error("custom error", message = "error value");
-//     str += "Before failure throw";
-//     fail err;
-//   }
-//   on fail error e {
-//      str += "-> Error caught: ";
-//      str = str.concat("-> Error caught: ", e.message());
-//   }
-//   str += "-> Execution continues";
-//   io:println(str);
-//   return str;
-//}
+function testAppendOnFailError () returns string {
+   string str = "";
+   do {
+     error err = error("custom error", message = "error value");
+     str += "Before failure throw";
+     fail err;
+   }
+   on fail error e {
+      str += " -> Error caught: ";
+      str = str.concat(e.message());
+   }
+   str += " -> Execution continues...";
+   return str;
+}
+
+public function testArrowFunctionInsideOnFail() returns int {
+    int a = 10;
+    int b = 11;
+    int c = 0;
+    do {
+      error err = error("custom error", message = "error value");
+      c = a + b;
+      fail err;
+    }
+    on fail error e {
+       function (int, int) returns int arrow = (x, y) => x + y + a + b + c;
+       a = arrow(1, 1);
+    }
+    return a;
+}
 
 
 function assertEquality(any|error expected, any|error actual) {
