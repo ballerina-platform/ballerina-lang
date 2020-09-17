@@ -76,7 +76,7 @@ dependencies {
     distBal project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-observability', configuration: 'balSource')
-    balSource project(path: ':ballerina-transactions', configuration: 'balSource')
+//    balSource project(path: ':ballerina-transactions', configuration: 'balSource')
 
     // Lang Libs
     balSource project(path: ':ballerina-lang:internal', configuration: 'balSource')

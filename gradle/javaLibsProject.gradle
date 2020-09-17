@@ -91,7 +91,7 @@ dependencies {
     dist project(':ballerina-logging')
     dist project(':ballerina-observability')
     dist project(':ballerina-tool')
-    dist project(':ballerina-transactions')
+//    dist project(':ballerina-transactions')
     dist project(':ballerina-java')
     dist project(':metrics-extensions:ballerina-metrics-extension')
     dist project(':metrics-extensions:ballerina-prometheus-extension')

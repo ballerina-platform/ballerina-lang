@@ -149,7 +149,7 @@ dependencies {
     balxBir project(path: ':ballerina-java', configuration: 'bir')
 
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
+//    balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
 
     // Lang Libs
     balDoc project(path: ':ballerina-lang:internal', configuration: 'balDoc')
