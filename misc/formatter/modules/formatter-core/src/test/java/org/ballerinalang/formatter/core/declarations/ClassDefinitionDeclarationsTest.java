@@ -24,6 +24,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 public class ClassDefinitionDeclarationsTest extends FormatterTest {
 
@@ -45,16 +47,13 @@ public class ClassDefinitionDeclarationsTest extends FormatterTest {
     }
 
     /**
-     * Specify the file names to be tested during the test execution.
+     * Specify the file names to be skipped during the test execution.
      *
-     * @return Test scenarios for execution
+     * @return Skipping test scenarios for execution
      */
     @Override
-    public Object[][] testSubset() {
-
-        return new Object[][] {
-                {"class_definition_declaration_2.bal", this.getTestResourceDir()}
-        };
+    public List<String> skipList() {
+        return Arrays.asList("class_definition_declaration_5.bal", "class_definition_declaration_8.bal");
     }
 
     /**

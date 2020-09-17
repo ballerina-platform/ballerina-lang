@@ -59,7 +59,8 @@ class NodeIndentation {
                 (parent.kind() == (SyntaxKind.UNION_TYPE_DESC) &&
                         grandParent.kind() == (SyntaxKind.PARAMETERIZED_TYPE_DESC)) ||
                 (parent.kind() == (SyntaxKind.OBJECT_FIELD) &&
-                        ((ObjectFieldNode) parent).visibilityQualifier().isPresent()) ||
+                        (((ObjectFieldNode) parent).visibilityQualifier().isPresent() ||
+                        ((ObjectFieldNode) parent).finalKeyword().isPresent())) ||
                 (grandParent.kind() == (SyntaxKind.LOCAL_VAR_DECL) &&
                         grandParent.children().get(1).equals(parent)) ||
                 (parent.kind() == (SyntaxKind.RECORD_FIELD) &&

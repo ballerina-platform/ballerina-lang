@@ -2280,10 +2280,11 @@ public class FormattingTreeModifier extends TreeModifier {
         if (visibilityQualifier != null) {
             objectFieldNode = objectFieldNode.modify()
                     .withVisibilityQualifier(formatToken(visibilityQualifier, startColumn, 1, 0, 0)).apply();
+            startColumn = 0;
         }
         if (finalKeyword != null) {
             objectFieldNode = objectFieldNode.modify()
-                    .withFinalKeyword(formatToken(finalKeyword, 0, 1, 0, 0)).apply();
+                    .withFinalKeyword(formatToken(finalKeyword, startColumn, 1, 0, 0)).apply();
         }
         if (equalsToken != null) {
             objectFieldNode = objectFieldNode.modify()
@@ -3702,6 +3703,7 @@ public class FormattingTreeModifier extends TreeModifier {
             return classDefinitionNode;
         }
 
+        Token visibilityQualifier = getToken(classDefinitionNode.visibilityQualifier().orElse(null));
         MetadataNode metadata = this.modifyNode(classDefinitionNode.metadata().orElse(null));
         NodeList<Token> qualifierList = this.modifyNodeList(classDefinitionNode.classTypeQualifiers());
         Token classKeyword = getToken(classDefinitionNode.classKeyword());
@@ -3709,13 +3711,22 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<Node> members = this.modifyNodeList(classDefinitionNode.members());
         Token openBrace = getToken(classDefinitionNode.openBrace());
         Token closeBrace = getToken(classDefinitionNode.closeBrace());
+        int startColumn = getStartColumn(classDefinitionNode, true);
+
         if (metadata != null) {
             classDefinitionNode = classDefinitionNode.modify()
                     .withMetadata(metadata).apply();
         }
 
+        if (visibilityQualifier != null && !visibilityQualifier.isMissing()) {
+            classDefinitionNode = classDefinitionNode.modify()
+                    .withVisibilityQualifier(formatToken(visibilityQualifier, startColumn, 1, 0, 0))
+                    .apply();
+            startColumn = 0;
+        }
+
         return classDefinitionNode.modify()
-                .withClassKeyword(formatToken(classKeyword, 0, 0, 0, 0))
+                .withClassKeyword(formatToken(classKeyword, startColumn, 0, 0, 0))
                 .withClassName(formatToken(className, 1, 0, 0, 0))
                 .withOpenBrace(formatToken(openBrace, 1, 0, 0, 1))
                 .withCloseBrace(formatToken(closeBrace, 0, 0, 0, 1))
@@ -3729,7 +3740,8 @@ public class FormattingTreeModifier extends TreeModifier {
         int startColumn = getStartColumn(token, true);
         if (token.kind() == (SyntaxKind.COMMA_TOKEN)) {
             return formatToken(token, 0, 1, 0, 0);
-        } else if (token.kind() == (SyntaxKind.PUBLIC_KEYWORD) || token.kind() == (SyntaxKind.ABSTRACT_KEYWORD)) {
+        } else if (token.kind() == (SyntaxKind.PUBLIC_KEYWORD) || token.kind() == (SyntaxKind.ABSTRACT_KEYWORD) ||
+                token.kind() == (SyntaxKind.PRIVATE_KEYWORD)) {
             boolean addSpaces = true;
             if (token.parent() != null && token.parent().parent() != null &&
                     token.parent().parent().kind() == (SyntaxKind.RETURN_TYPE_DESCRIPTOR)) {
@@ -3741,6 +3753,11 @@ public class FormattingTreeModifier extends TreeModifier {
             return formatToken(token, 0, 0, 0, 0);
         } else if (token.kind() == (SyntaxKind.RESOURCE_KEYWORD)) {
             return formatToken(token, startColumn, 1, 0, 0);
+        } else if (token.kind() == (SyntaxKind.REMOTE_KEYWORD)) {
+            return formatToken(token, 0, 1, 0,0);
+        }
+        else if (token.parent() != null && token.parent().kind() == (SyntaxKind.CLASS_DEFINITION)) {
+            return formatToken(token, 0, 1, 0, 0);
         }
         return token;
     }
