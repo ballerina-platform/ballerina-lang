@@ -72,6 +72,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static org.ballerinalang.jvm.IdentifierEncoder.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -113,6 +114,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_V
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
@@ -612,11 +614,11 @@ class JvmTypeGen {
             int tempResultIndex = indexMap.addToMapIfNotFoundAndGetIndex(tempResult);
             mv.visitVarInsn(ASTORE, tempResultIndex);
             mv.visitVarInsn(ALOAD, tempResultIndex);
-            mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+            mv.visitTypeInsn(INSTANCEOF, B_ERROR);
             Label noErrorLabel = new Label();
             mv.visitJumpInsn(IFEQ, noErrorLabel);
             mv.visitVarInsn(ALOAD, tempResultIndex);
-            mv.visitTypeInsn(CHECKCAST, ERROR_VALUE);
+            mv.visitTypeInsn(CHECKCAST, B_ERROR);
             mv.visitInsn(ATHROW);
             mv.visitLabel(noErrorLabel);
             mv.visitVarInsn(ALOAD, tempVarIndex);
@@ -694,7 +696,7 @@ class JvmTypeGen {
             mv.visitInsn(DUP);
 
             // Load field name
-            mv.visitLdcInsn(optionalField.name.value);
+            mv.visitLdcInsn(decodeIdentifier(optionalField.name.value));
 
             // create and load field type
             createRecordField(mv, optionalField);
@@ -773,8 +775,7 @@ class JvmTypeGen {
 
         // Load type name
         BTypeSymbol typeSymbol = objectType.tsymbol;
-        String name = typeSymbol.name.getValue();
-        mv.visitLdcInsn(name);
+        mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
 
         // Load package path
         mv.visitTypeInsn(NEW, PACKAGE_TYPE);
@@ -809,8 +810,8 @@ class JvmTypeGen {
 
         // Load type name
         BTypeSymbol typeSymbol = objectType.tsymbol;
-        String name = typeSymbol.name.getValue();
-        mv.visitLdcInsn(name);
+
+        mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
 
         // Load package path
         mv.visitTypeInsn(NEW, PACKAGE_TYPE);
@@ -930,7 +931,7 @@ class JvmTypeGen {
             mv.visitInsn(DUP);
 
             // Load field name
-            mv.visitLdcInsn(optionalField.name.value);
+            mv.visitLdcInsn(decodeIdentifier(optionalField.name.value));
 
             // create and load field type
             createObjectField(mv, optionalField);
@@ -963,7 +964,7 @@ class JvmTypeGen {
         loadType(mv, field.type);
 
         // Load field name
-        mv.visitLdcInsn(field.name.value);
+        mv.visitLdcInsn(decodeIdentifier(field.name.value));
 
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
@@ -1052,7 +1053,7 @@ class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load function name
-        mv.visitLdcInsn(attachedFunc.funcName.value);
+        mv.visitLdcInsn(decodeIdentifier(attachedFunc.funcName.value));
 
         // Load the parent object type
         loadType(mv, objType);
@@ -1593,7 +1594,7 @@ class JvmTypeGen {
      */
     private static String getTypeFieldName(String typeName) {
 
-        return String.format("$type$%s", JvmCodeGenUtil.cleanupTypeName(typeName));
+        return String.format("$type$%s", JvmCodeGenUtil.cleanupReadOnlyTypeName(typeName));
     }
 
     private static void loadFutureType(MethodVisitor mv, BFutureType bType) {

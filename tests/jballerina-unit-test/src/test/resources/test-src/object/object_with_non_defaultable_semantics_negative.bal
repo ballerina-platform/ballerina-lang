@@ -9,7 +9,7 @@ public class Person {
     public int age = 10;
     string month = "february";
 
-    function init (int age) {
+    isolated function init (int age) {
         self.age = age;
     }
 }

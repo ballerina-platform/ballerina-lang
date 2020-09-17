@@ -227,6 +227,65 @@ isolated function testIsolatedArrowFunctions() {
     assertEquality(103, sum);
 }
 
+class ClassWithDefaultsWithoutInitFunc {
+    int i = recI;
+    int j = recJ();
+    object {
+        string k;
+    } ob = object {
+        string k = <string> ms["first"];
+    };
+}
+
+class ClassWithDefaultsWithInitFunc {
+    int i;
+    int j;
+    object {
+        string k;
+    } ob;
+
+    isolated function init(int i) {
+        self.i = i;
+        self.j = af1(1);
+        self.ob = object {
+            string k;
+
+            isolated function init() {
+                self.k = <string> ms["second"];
+            }
+        };
+    }
+}
+
+isolated function testIsolatedObjectFieldInitializers() {
+    ClassWithDefaultsWithoutInitFunc c1 = new;
+    assertEquality(111222, c1.i);
+    assertEquality(234, c1.j);
+    assertEquality("hello", c1.ob.k);
+
+    ClassWithDefaultsWithInitFunc c2 = new (123);
+    assertEquality(123, c2.i);
+    assertEquality(2, c2.j);
+    assertEquality("world", c2.ob.k);
+
+    ClassWithDefaultsWithInitFunc c3 = object {
+        int i = 21212;
+        int j = 999;
+        object {
+            string k;
+        } ob = object {
+            string k;
+
+            isolated function init() {
+                self.k = "ballerina";
+            }
+        };
+    };
+    assertEquality(21212, c3.i);
+    assertEquality(999, c3.j);
+    assertEquality("ballerina", c3.ob.k);
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

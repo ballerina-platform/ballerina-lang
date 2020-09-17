@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.values.api.BTypedesc;
+import org.ballerinalang.jvm.api.values.BTypedesc;
 
 /**
  * <p>

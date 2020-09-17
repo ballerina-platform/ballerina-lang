@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
@@ -59,13 +59,13 @@ public class HttpService implements Cloneable {
 
     private static final Logger log = LoggerFactory.getLogger(HttpService.class);
 
-    protected static final BString BASE_PATH_FIELD = StringUtils.fromString("basePath");
+    protected static final BString BASE_PATH_FIELD = BStringUtils.fromString("basePath");
     private static final String COMPRESSION_FIELD = "compression";
-    private static final BString CORS_FIELD = StringUtils.fromString("cors");
-    private static final BString VERSIONING_FIELD = StringUtils.fromString("versioning");
-    private static final BString HOST_FIELD = StringUtils.fromString("host");
+    private static final BString CORS_FIELD = BStringUtils.fromString("cors");
+    private static final BString VERSIONING_FIELD = BStringUtils.fromString("versioning");
+    private static final BString HOST_FIELD = BStringUtils.fromString("host");
 
-    private ObjectValue balService;
+    private BObject balService;
     private List<HttpResource> resources;
     private List<HttpResource> upgradeToWebSocketResources;
     private List<String> allAllowedMethods;
@@ -78,7 +78,7 @@ public class HttpService implements Cloneable {
     private boolean interruptible;
     private String chunkingConfig;
 
-    protected HttpService(ObjectValue service) {
+    protected HttpService(BObject service) {
         this.balService = service;
     }
 
@@ -118,7 +118,7 @@ public class HttpService implements Cloneable {
         return balService.getType().getPackage().getName();
     }
 
-    public ObjectValue getBalService() {
+    public BObject getBalService() {
         return balService;
     }
 
@@ -199,7 +199,7 @@ public class HttpService implements Cloneable {
         return uriTemplate;
     }
 
-    public static List<HttpService> buildHttpService(ObjectValue service) {
+    public static List<HttpService> buildHttpService(BObject service) {
         List<HttpService> serviceList = new ArrayList<>();
         List<String> basePathList = new ArrayList<>();
         HttpService httpService = new HttpService(service);
@@ -327,17 +327,17 @@ public class HttpService implements Cloneable {
                                               "," + HttpConstants.MINOR_VERSION + "\" elements");
     }
 
-    private static MapValue getHttpServiceConfigAnnotation(ObjectValue service) {
+    private static MapValue getHttpServiceConfigAnnotation(BObject service) {
         return getServiceConfigAnnotation(service, PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
     }
 
-    protected static MapValue getServiceConfigAnnotation(ObjectValue service, String packagePath,
+    protected static MapValue getServiceConfigAnnotation(BObject service, String packagePath,
                                                          String annotationName) {
         return (MapValue) service.getType().getAnnotation(packagePath.replaceAll(HttpConstants.REGEX,
                 HttpConstants.SINGLE_SLASH), annotationName);
     }
 
-    private static boolean hasInterruptibleAnnotation(ObjectValue service) {
+    private static boolean hasInterruptibleAnnotation(BObject service) {
         return service.getType().getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE) != null;
     }
 

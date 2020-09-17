@@ -562,6 +562,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code isolated} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getIsolatedKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ISOLATED_KEYWORD, "isolated ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
      * Get Private Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1056,6 +1066,17 @@ public class SnippetGenerator {
     public static SnippetBlock getErrorConstructorSnippet() {
         String snippet = "error(\"${1}\")";
         return new SnippetBlock("error constructor", snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get Object Constructor expression Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getObjectConstructorSnippet() {
+        String snippet = "object {" + CommonUtil.LINE_SEPARATOR + "\t" + CommonUtil.LINE_SEPARATOR + "};";
+        return new SnippetBlock("object constructor", snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }
 

@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BXML;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.XMLComment;
@@ -25,8 +28,6 @@ import org.ballerinalang.jvm.values.XMLPi;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BXML;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -186,8 +187,8 @@ public class XMLTreeBuilder {
         int count = xmlStreamReader.getAttributeCount();
         for (int i = 0; i < count; i++) {
             QName attributeName = xmlStreamReader.getAttributeName(i);
-            attributesMap.put(StringUtils.fromString(attributeName.toString()),
-                              StringUtils.fromString(xmlStreamReader.getAttributeValue(i)));
+            attributesMap.put(BStringUtils.fromString(attributeName.toString()),
+                              BStringUtils.fromString(xmlStreamReader.getAttributeValue(i)));
             if (!attributeName.getPrefix().isEmpty()) {
                 usedNS.add(attributeName);
             }
@@ -203,8 +204,8 @@ public class XMLTreeBuilder {
                 namespaceURI = namespaces.getOrDefault(prefix, "");
             }
 
-            BString xmlnsPrefix = StringUtils.fromString(XMLItem.XMLNS_URL_PREFIX + prefix);
-            attributesMap.put(xmlnsPrefix, StringUtils.fromString(namespaceURI));
+            BString xmlnsPrefix = BStringUtils.fromString(XMLItem.XMLNS_URL_PREFIX + prefix);
+            attributesMap.put(xmlnsPrefix, BStringUtils.fromString(namespaceURI));
         }
 
         int namespaceCount = xmlStreamReader.getNamespaceCount();
@@ -212,11 +213,11 @@ public class XMLTreeBuilder {
             String uri = xmlStreamReader.getNamespaceURI(i);
             String prefix = xmlStreamReader.getNamespacePrefix(i);
             if (prefix == null || prefix.isEmpty()) {
-                attributesMap.put(StringUtils.fromString(XMLItem.XMLNS_URL_PREFIX + "xmlns"),
-                                  StringUtils.fromString(uri));
+                attributesMap.put(BStringUtils.fromString(XMLItem.XMLNS_URL_PREFIX + "xmlns"),
+                                  BStringUtils.fromString(uri));
             } else {
-                attributesMap.put(StringUtils.fromString(XMLItem.XMLNS_URL_PREFIX + prefix),
-                                  StringUtils.fromString(uri));
+                attributesMap.put(BStringUtils.fromString(XMLItem.XMLNS_URL_PREFIX + prefix),
+                                  BStringUtils.fromString(uri));
             }
         }
     }

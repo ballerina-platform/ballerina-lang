@@ -30,6 +30,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -189,7 +190,7 @@ public class BCompileUtil {
 
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler) {
 
-        String funcName = cleanupFunctionName(name);
+        String funcName = JvmCodeGenUtil.cleanupFunctionName(name.value);
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
@@ -227,11 +228,6 @@ public class BCompileUtil {
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         }
-    }
-
-    private static String cleanupFunctionName(BLangIdentifier name) {
-
-        return name.value.replaceAll("[.:/<>]", "_");
     }
 
     public static CompileResult compileWithoutExperimentalFeatures(String sourceFilePath) {
@@ -645,8 +641,8 @@ public class BCompileUtil {
 
             final Runtime runtime = Runtime.getRuntime();
             final Process process = runtime.exec(actualArgs.toArray(new String[0]));
-            String consoleInput = getConsoleOutput(process.getInputStream());
             String consoleError = getConsoleOutput(process.getErrorStream());
+            String consoleInput = getConsoleOutput(process.getInputStream());
             process.waitFor();
             int exitValue = process.exitValue();
             return new ExitDetails(exitValue, consoleInput, consoleError);

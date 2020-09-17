@@ -19,9 +19,10 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -52,6 +53,7 @@ public class AddTagToSpan {
             return null;
         }
 
-        return BallerinaErrors.createError("Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}");
+        return BErrorCreator.createError(
+                BStringUtils.fromString(("Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}")));
     }
 }

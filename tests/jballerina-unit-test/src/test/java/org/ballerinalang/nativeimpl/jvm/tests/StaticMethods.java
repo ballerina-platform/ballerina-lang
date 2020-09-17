@@ -17,12 +17,19 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.BalEnv;
 import org.ballerinalang.jvm.api.BalFuture;
+import org.ballerinalang.jvm.api.values.BDecimal;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BFuture;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BTypedesc;
+import org.ballerinalang.jvm.api.values.BXML;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -46,13 +53,6 @@ import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BDecimal;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BFuture;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BTypedesc;
-import org.ballerinalang.jvm.values.api.BValueCreator;
-import org.ballerinalang.jvm.values.api.BXML;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -114,16 +114,16 @@ public class StaticMethods {
         return arrayValue;
     }
 
-    public static MapValue acceptRefTypesAndReturnMap(ObjectValue a, ArrayValue b, Object c,
-                                                      ErrorValue d, Object e, Object f, MapValue g) {
-        MapValue<BString, Object> mapValue = new MapValueImpl<>();
-        mapValue.put(StringUtils.fromString("a"), a);
-        mapValue.put(StringUtils.fromString("b"), b);
-        mapValue.put(StringUtils.fromString("c"), c);
+    public static BMap<BString, Object> acceptRefTypesAndReturnMap(ObjectValue a, ArrayValue b, Object c,
+                                                                   ErrorValue d, Object e, Object f, MapValue g) {
+        BMap<BString, Object> mapValue = BValueCreator.createMapValue();
+        mapValue.put(BStringUtils.fromString("a"), a);
+        mapValue.put(BStringUtils.fromString("b"), b);
+        mapValue.put(BStringUtils.fromString("c"), c);
 //        mapValue.put("d", d);
-        mapValue.put(StringUtils.fromString("e"), e);
-        mapValue.put(StringUtils.fromString("f"), f);
-        mapValue.put(StringUtils.fromString("g"), g);
+        mapValue.put(BStringUtils.fromString("e"), e);
+        mapValue.put(BStringUtils.fromString("f"), f);
+        mapValue.put(BStringUtils.fromString("g"), g);
         return mapValue;
     }
 
@@ -131,8 +131,8 @@ public class StaticMethods {
         return TypeTags.SERVICE_TAG == serviceObject.getType().getTag();
     }
 
-    public static ErrorValue acceptStringErrorReturn(BString msg) {
-        return BallerinaErrors.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
+    public static BError acceptStringErrorReturn(BString msg) {
+        return BErrorCreator.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     public static Object acceptIntUnionReturn(int flag) {
@@ -149,16 +149,16 @@ public class StaticMethods {
     }
 
     public static ObjectValue acceptObjectAndObjectReturn(ObjectValue p, int newVal) {
-        p.set(StringUtils.fromString("age"), newVal);
+        p.set(BStringUtils.fromString("age"), newVal);
         return p;
     }
 
     public static int acceptObjectAndReturnField(ObjectValue p) {
-        return ((Long) p.get(StringUtils.fromString("age"))).intValue();
+        return ((Long) p.get(BStringUtils.fromString("age"))).intValue();
     }
 
     public static MapValue acceptRecordAndRecordReturn(MapValue e, BString newVal) {
-        e.put(StringUtils.fromString("name"), newVal);
+        e.put(BStringUtils.fromString("name"), newVal);
         return e;
     }
 
@@ -236,23 +236,25 @@ public class StaticMethods {
         return arrayValue;
     }
 
-    public static MapValue acceptRefTypesAndReturnMapWhichThrowsCheckedException(ObjectValue a, ArrayValue b, Object c,
-                                                                                 ErrorValue d, Object e, Object f,
-                                                                                 MapValue g)
+    public static BMap<BString, Object> acceptRefTypesAndReturnMapWhichThrowsCheckedException(ObjectValue a,
+                                                                                              ArrayValue b, Object c,
+                                                                                              ErrorValue d, Object e,
+                                                                                              Object f,
+                                                                                              MapValue g)
             throws JavaInteropTestCheckedException {
-        MapValue<BString, Object> mapValue = new MapValueImpl<>();
-        mapValue.put(StringUtils.fromString("a"), a);
-        mapValue.put(StringUtils.fromString("b"), b);
-        mapValue.put(StringUtils.fromString("c"), c);
-        mapValue.put(StringUtils.fromString("e"), e);
-        mapValue.put(StringUtils.fromString("f"), f);
-        mapValue.put(StringUtils.fromString("g"), g);
+        BMap<BString, Object> mapValue = BValueCreator.createMapValue();
+        mapValue.put(BStringUtils.fromString("a"), a);
+        mapValue.put(BStringUtils.fromString("b"), b);
+        mapValue.put(BStringUtils.fromString("c"), c);
+        mapValue.put(BStringUtils.fromString("e"), e);
+        mapValue.put(BStringUtils.fromString("f"), f);
+        mapValue.put(BStringUtils.fromString("g"), g);
         return mapValue;
     }
 
-    public static ErrorValue acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
+    public static BError acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
             throws JavaInteropTestCheckedException {
-        return BallerinaErrors.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
+        return BErrorCreator.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
@@ -271,30 +273,30 @@ public class StaticMethods {
 
     public static ObjectValue acceptObjectAndObjectReturnWhichThrowsCheckedException(ObjectValue p, int newVal)
             throws JavaInteropTestCheckedException {
-        p.set(StringUtils.fromString("age"), newVal);
+        p.set(BStringUtils.fromString("age"), newVal);
         return p;
     }
 
     public static MapValue acceptRecordAndRecordReturnWhichThrowsCheckedException(
             MapValue<BString, Object> e, BString newVal) throws JavaInteropTestCheckedException {
-        e.put(StringUtils.fromString("name"), newVal);
+        e.put(BStringUtils.fromString("name"), newVal);
         return e;
     }
 
-    public static MapValue getMapOrError(BString swaggerFilePath, MapValue apiDef)
+    public static BMap getMapOrError(BString swaggerFilePath, MapValue apiDef)
             throws JavaInteropTestCheckedException {
-        BString finalBasePath = StringUtils.fromString("basePath");
+        BString finalBasePath = BStringUtils.fromString("basePath");
         AtomicLong runCount = new AtomicLong(0L);
-        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BallerinaValues.createRecordValue(new BPackage(
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BValueCreator.createRecordValue(new BPackage(
                 "", "."), "ResourceDefinition").getType()));
-        MapValue apiDefinitions = BallerinaValues.createRecordValue(new BPackage("",
-                                                                                 "."), "ApiDefinition");
-        MapValue resource = BallerinaValues.createRecordValue(new BPackage("",
-                                                                           "."), "ResourceDefinition");
-        resource.put(StringUtils.fromString("path"), finalBasePath);
-        resource.put(StringUtils.fromString("method"), StringUtils.fromString("Method string"));
+        BMap apiDefinitions = BValueCreator.createRecordValue(new BPackage("",
+                                                                           "."), "ApiDefinition");
+        BMap resource = BValueCreator.createRecordValue(new BPackage("",
+                                                                             "."), "ResourceDefinition");
+        resource.put(BStringUtils.fromString("path"), finalBasePath);
+        resource.put(BStringUtils.fromString("method"), BStringUtils.fromString("Method string"));
         arrayValue.add(runCount.getAndIncrement(), resource);
-        apiDefinitions.put(StringUtils.fromString("resources"), arrayValue);
+        apiDefinitions.put(BStringUtils.fromString("resources"), arrayValue);
         return apiDefinitions;
     }
 
@@ -361,13 +363,13 @@ public class StaticMethods {
 
     public static Object getJson() {
         MapValueImpl<BString, Object> map = new MapValueImpl<>(BTypes.typeJSON);
-        map.put(StringUtils.fromString("name"), StringUtils.fromString("John"));
+        map.put(BStringUtils.fromString("name"), BStringUtils.fromString("John"));
         return map;
     }
 
     public static MapValueImpl<BString, Object> getJsonObject() {
         MapValueImpl<BString, Object> map = new MapValueImpl<>(BTypes.typeJSON);
-        map.put(StringUtils.fromString("name"), StringUtils.fromString("Doe"));
+        map.put(BStringUtils.fromString("name"), BStringUtils.fromString("Doe"));
         return map;
     }
 
@@ -496,9 +498,9 @@ public class StaticMethods {
                 return value;
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
-                return ((MapValue) value).get(StringUtils.fromString("first"));
+                return ((MapValue) value).get(BStringUtils.fromString("first"));
         }
-        return StringUtils.fromString("other");
+        return BStringUtils.fromString("other");
     }
 
     public static void getNilAsReadOnly() {

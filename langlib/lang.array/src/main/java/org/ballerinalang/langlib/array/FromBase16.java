@@ -18,10 +18,11 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -47,9 +48,11 @@ public class FromBase16 {
 
     public static Object fromBase16(Strand strand, BString str) {
         if (str.length() % 2 != 0) {
-            return BallerinaErrors
-                    .createError("Invalid base16 string",
-                                 "Expected an even length string, but the length of the string was: " + str.length());
+            return BErrorCreator
+                    .createError(BStringUtils.fromString("Invalid base16 string"),
+                                 BStringUtils
+                                         .fromString("Expected an even length string, but the length of the string" +
+                                                             " was: " + str.length()));
         }
 
         char[] chars = str.getValue().toCharArray();
@@ -72,8 +75,9 @@ public class FromBase16 {
         }
 
         if (!invalidChars.isEmpty()) {
-            return BallerinaErrors.createError("Invalid base16 string",
-                                               "Invalid character(s): " + invalidChars.toString());
+            return BErrorCreator.createError(BStringUtils.fromString("Invalid base16 string"),
+                                             BStringUtils
+                                                     .fromString("Invalid character(s): " + invalidChars.toString()));
         }
 
         return new ArrayValueImpl(bytes);

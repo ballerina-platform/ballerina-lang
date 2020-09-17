@@ -1397,7 +1397,6 @@ public class Types {
             BField rhsField = rhsType.fields.get(lhsField.name.value);
             if (rhsField == null ||
                     !isInSameVisibilityRegion(lhsField.symbol, rhsField.symbol) ||
-                    hasIncompatibleReadOnlyFlags(lhsField.symbol.flags, rhsField.symbol.flags) ||
                     !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }

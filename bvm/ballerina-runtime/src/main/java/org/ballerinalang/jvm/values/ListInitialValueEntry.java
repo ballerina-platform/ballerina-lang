@@ -18,7 +18,7 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.values.api.BInitialValueEntry;
+import org.ballerinalang.jvm.api.values.BInitialValueEntry;
 
 /**
  * Represents an initial value entry in a list constructor expression.
