@@ -3852,6 +3852,10 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBrace = getToken(classDefinitionNode.openBrace());
         Token closeBrace = getToken(classDefinitionNode.closeBrace());
         int startColumn = getStartColumn(classDefinitionNode, true);
+        int openBraceTrailingNewLines = 1;
+        if (members.isEmpty()) {
+            openBraceTrailingNewLines = 2;
+        }
 
         if (metadata != null) {
             classDefinitionNode = classDefinitionNode.modify()
@@ -3868,7 +3872,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return classDefinitionNode.modify()
                 .withClassKeyword(formatToken(classKeyword, startColumn, 0, 0, 0))
                 .withClassName(formatToken(className, 1, 0, 0, 0))
-                .withOpenBrace(formatToken(openBrace, 1, 0, 0, 1))
+                .withOpenBrace(formatToken(openBrace, 1, 0, 0, openBraceTrailingNewLines))
                 .withCloseBrace(formatToken(closeBrace, 0, 0, 0, 2))
                 .withClassTypeQualifiers(qualifierList)
                 .withMembers(members)
