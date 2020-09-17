@@ -61,6 +61,12 @@ public class ObjectConstructorExpressionTest extends AbstractExpressionsTest {
                 "object-constructor/object-constructor-with-type-reference.json");
     }
 
+    @Test
+    public void testObjectFieldsWithFinalQualifier() {
+        testFile("object-constructor/object_constructor_source_08.bal",
+                "object-constructor/object_constructor_assert_08.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -91,5 +97,11 @@ public class ObjectConstructorExpressionTest extends AbstractExpressionsTest {
     public void testObjectConstructorTypeReferenceRecovery() {
         testFile("object-constructor/object_constructor_source_05.bal",
                 "object-constructor/object_constructor_assert_05.json");
+    }
+
+    @Test
+    public void testMethodDefinitionWithFinalQualifier() {
+        testFile("object-constructor/object_constructor_source_09.bal",
+                "object-constructor/object_constructor_assert_09.json");
     }
 }

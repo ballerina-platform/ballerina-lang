@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.jvm.util;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -42,8 +42,11 @@ public class BLangConstants {
     public static final String TEST_INIT_FUNCTION_SUFFIX = ".<testinit>";
     public static final String TEST_START_FUNCTION_SUFFIX = ".<teststart>";
     public static final String TEST_STOP_FUNCTION_SUFFIX = ".<teststop>"; 
-    public static final String MODULE_INIT_CLASS_NAME = "___init";
-    
+    public static final String MODULE_INIT_CLASS_NAME = "$_init";
+    public static final String GENERATE_PKG_INIT = "___init_";
+    public static final String GENERATE_PKG_START = "___start_";
+    public static final String GENERATE_PKG_STOP = "___stop_";
+
     // Configs
     public static final String BALLERINA_ARGS_INIT_PREFIX = "--";
     public static final int BALLERINA_ARGS_INIT_PREFIX_LENGTH = BALLERINA_ARGS_INIT_PREFIX.length();
@@ -119,7 +122,7 @@ public class BLangConstants {
     public static final BString BSTRING_NULL_VALUE = null;
 
     // Empty value for string
-    public static final BString STRING_EMPTY_VALUE = StringUtils.fromString("");
+    public static final BString STRING_EMPTY_VALUE = BStringUtils.fromString("");
 
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;

@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,7 +38,7 @@ public class BehaviouralTypesTest extends FormatterTest {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList("object_initialization_type_1.bal", "object_method_type_1.bal", "service_type_1.bal");
+        return Collections.singletonList("service_type_1.bal");
     }
 
     @DataProvider(name = "test-file-provider")

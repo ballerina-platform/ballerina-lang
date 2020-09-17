@@ -72,13 +72,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TEST_TYPE",
-      "kind": "Unit",
-      "detail": "Other",
-      "insertText": "TEST_TYPE",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "string",
       "kind": "Unit",
       "detail": "String",

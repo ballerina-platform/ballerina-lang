@@ -338,6 +338,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeNode(expr, env);
+
+        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.WORKER)) {
+            inferredIsolated = false;
+
+            if (isInIsolatedFunction(env.enclInvokable)) {
+                dlog.error(varNode.pos, DiagnosticCode.INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION);
+            }
+        }
     }
 
     @Override
@@ -1030,16 +1038,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        if (Symbols.isFlagOn(bLangLambdaFunction.function.symbol.flags, Flags.WORKER)) {
-            inferredIsolated = false;
-
-            if (isInIsolatedFunction(env.enclInvokable)) {
-                dlog.error(bLangLambdaFunction.pos, DiagnosticCode.INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION);
-            }
-
-            return;
-        }
-
         // TODO: 8/21/20 add analysis
     }
 

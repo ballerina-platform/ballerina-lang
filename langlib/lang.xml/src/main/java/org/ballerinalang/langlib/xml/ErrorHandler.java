@@ -131,16 +131,16 @@ public class ErrorHandler {
         // here local message of the cause is logged whenever possible, to avoid java class being logged 
         // along with the error message.
         if (e instanceof BallerinaException && ((BallerinaException) e).getDetail() != null) {
-            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR, "Failed to " + operation + ": " +
-                    ((BallerinaException) e).getDetail());
+            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR.getValue(),
+                                         "Failed to " + operation + ": " + ((BallerinaException) e).getDetail());
         } else if (e instanceof BLangFreezeException) {
-            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR, "Failed to " + operation + ": " +
-                    ((BLangFreezeException) e).getDetail());
+            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR.getValue(),
+                                         "Failed to " + operation + ": " + ((BLangFreezeException) e).getDetail());
         } else if (e.getCause() != null) {
-            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR,
+            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR.getValue(),
                                          "Failed to " + operation + ": " + e.getCause().getMessage());
         } else {
-            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR,
+            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR.getValue(),
                                          "Failed to " + operation + ": " + e.getMessage());
         }
     }

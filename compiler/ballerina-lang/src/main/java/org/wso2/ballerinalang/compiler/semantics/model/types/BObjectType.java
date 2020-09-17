@@ -85,8 +85,8 @@ public class BObjectType extends BStructureType implements ObjectType {
                     sb.append(SPACE).append(PRIVATE);
                 }
 
-                if (Symbols.isFlagOn(flags, Flags.READONLY)) {
-                    sb.append(SPACE).append(READONLY);
+                if (Symbols.isFlagOn(flags, Flags.FINAL)) {
+                    sb.append(SPACE).append("final");
                 }
 
                 sb.append(SPACE).append(field.type).append(SPACE).append(field.name).append(";");

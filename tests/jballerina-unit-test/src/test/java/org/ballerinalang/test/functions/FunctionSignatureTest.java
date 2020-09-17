@@ -433,8 +433,8 @@ public class FunctionSignatureTest {
     }
 
     public static ArrayValue mockedNativeFuncWithOptionalParams(long a, double b,
-                                                                org.ballerinalang.jvm.values.api.BString c, long d,
-                                                                org.ballerinalang.jvm.values.api.BString e) {
+                                                                org.ballerinalang.jvm.api.values.BString c, long d,
+                                                                org.ballerinalang.jvm.api.values.BString e) {
         BTupleType tupleType = new BTupleType(
                 Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
         ArrayValue tuple = new TupleValueImpl(tupleType);
