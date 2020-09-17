@@ -44,7 +44,7 @@ public class RecordFieldsAccessNegativeTest {
         BAssertUtil.validateError(result, i, "unknown type 'PrivatePerson'", 20, 5);
     }
 
-    @Test(description = "Test private fields access in record 02")
+    @Test(enabled = false, description = "Test private fields access in record 02")
     public void testRecordPrivateFieldsAccess2() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record-project", "access-neg-2");
 
