@@ -27,7 +27,7 @@ import io.ballerina.tools.diagnostics.Location;
  *
  * @since 2.0.0
  */
-public class BallerinaDiagnostic extends Diagnostic implements Comparable<BallerinaDiagnostic> {
+public class BallerinaDiagnostic extends Diagnostic {
 
     private Location location;
     private String msg;
@@ -61,24 +61,6 @@ public class BallerinaDiagnostic extends Diagnostic implements Comparable<Baller
     @Override
     public String message() {
         return msg;
-    }
-
-    @Override
-    public int compareTo(BallerinaDiagnostic otherDiagnostic) {
-        int value = ((BallerinaDiagnosticLocation) this.location)
-                .compareTo((BallerinaDiagnosticLocation) otherDiagnostic.location);
-        if (value == 0) {
-            value = message().compareTo(otherDiagnostic.message());
-            if (value == 0) {
-                if (diagnosticInfo.hashCode() == otherDiagnostic.hashCode()) {
-                    return 0;
-                } else {
-                    return 1;
-                }
-            }
-            return value;
-        }
-        return value;
     }
 
     public String toString() {

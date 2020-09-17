@@ -20,12 +20,10 @@ package org.wso2.ballerinalang.compiler;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
-import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnostic;
 import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
@@ -48,7 +46,6 @@ import org.wso2.ballerinalang.compiler.util.Constants;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.TreeSet;
 
 import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
 import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
@@ -106,9 +103,6 @@ public class CompilerDriver {
     private final IsolationAnalyzer isolationAnalyzer;
     private boolean isToolingCompilation;
 
-    private TreeSet<Diagnostic> diagnosticTreeSet;
-
-
     public static CompilerDriver getInstance(CompilerContext context) {
         CompilerDriver compilerDriver = context.get(COMPILER_DRIVER_KEY);
         if (compilerDriver == null) {
@@ -142,8 +136,6 @@ public class CompilerDriver {
         this.isolationAnalyzer = IsolationAnalyzer.getInstance(context);
         this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
-
-        diagnosticTreeSet = new TreeSet<>();
     }
 
     public BLangPackage compilePackage(BLangPackage packageNode) {
@@ -253,11 +245,9 @@ public class CompilerDriver {
         for (BLangImportPackage pkg : importPkgList) {
             if (pkg.symbol != null) {
                 this.compilePackageSymbol(pkg.symbol);
-                addDiagnosticToPackageNode(pkgNode);
             }
         }
         compile(pkgNode);
-        diagnosticTreeSet.addAll(pkgNode.getDiagnostics());
     }
 
     private void compile(BLangPackage pkgNode) {
@@ -399,12 +389,4 @@ public class CompilerDriver {
 
         return codeGen(birGen(desugar(pkg))).symbol;
     }
-
-    private void addDiagnosticToPackageNode(BLangPackage pkgNode) {
-        for (Diagnostic d : diagnosticTreeSet) {
-            pkgNode.addDiagnostic((BallerinaDiagnostic) d);
-        }
-        diagnosticTreeSet.clear();
-    }
-
 }
