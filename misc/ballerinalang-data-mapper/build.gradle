@@ -37,7 +37,7 @@ dependencies {
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-java')
     implementation project(':ballerina-file')
-    implementation project(':ballerina-http')
+//    implementation project(':ballerina-http')
     implementation project(':ballerina-io')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-mime')

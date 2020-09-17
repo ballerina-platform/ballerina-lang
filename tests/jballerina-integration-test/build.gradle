@@ -50,7 +50,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-tool')
-    implementation project(':ballerina-http')
+//    implementation project(':ballerina-http')
     implementation project(':ballerina-transactions')
     implementation project(':ballerina-packerina')
     implementation project(':ballerina-transactions')
@@ -67,7 +67,7 @@ dependencies {
 
     balRuntime project(':ballerina-runtime')
 
-    baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
+//    baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')

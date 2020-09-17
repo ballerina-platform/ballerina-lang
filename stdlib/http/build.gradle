@@ -98,7 +98,7 @@ dependencies {
     testCompile project(path: ':ballerina-mime', configuration: 'tests')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(':ballerina-http')
+//    testCompile project(':ballerina-http')
     testCompile project(':ballerina-core')
     testCompile 'org.apache.ws.commons.axiom:axiom-api'
     testCompile 'org.testng:testng'
@@ -118,15 +118,3 @@ configurations {
 }
 
 description = 'Ballerina - Http/WS'
-
-//ext.moduleName = 'http'
-//
-//compileJava {
-//    inputs.property("moduleName", moduleName)
-//    doFirst {
-//        options.compilerArgs = [
-//                '--module-path', classpath.asPath,
-//        ]
-//        classpath = files()
-//    }
-//}
