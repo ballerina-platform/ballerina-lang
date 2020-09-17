@@ -43,7 +43,6 @@ import java.util.regex.Matcher;
  * @since 1.1.1
  */
 public class PullModuleCodeAction implements DiagBasedCodeAction {
-
     @Override
     public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
             throws LSCodeActionProviderException {

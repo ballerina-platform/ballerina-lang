@@ -42,7 +42,6 @@ import static org.ballerinalang.langserver.codeaction.builder.NodeBasedCodeActio
  * @since 1.2.0
  */
 public class CreateServiceTestCodeAction implements NodeBasedCodeAction {
-
     @Override
     public List<CodeAction> get(CodeActionNodeType nodeType, List<Diagnostic> allDiagnostics, LSContext context) {
         try {
@@ -68,6 +67,6 @@ public class CreateServiceTestCodeAction implements NodeBasedCodeAction {
         } catch (WorkspaceDocumentException | CompilationFailedException | TokenOrSymbolNotFoundException e) {
             // ignore
         }
-        return null;
+        return new ArrayList<>();
     }
 }

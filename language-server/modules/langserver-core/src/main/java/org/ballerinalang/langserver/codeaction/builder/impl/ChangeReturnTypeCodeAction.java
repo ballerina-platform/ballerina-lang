@@ -75,7 +75,6 @@ import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActi
 
 
 public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
-
     @Override
     public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();

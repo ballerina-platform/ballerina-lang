@@ -84,7 +84,6 @@ public class CreateVariableCodeAction implements DiagBasedCodeAction {
                                             hasDefaultInitFunction, hasCustomInitFunction, isAsync);
     }
 
-
     private static List<CodeAction> getCreateVariableCodeActions(LSContext context, String uri,
                                                                  BLangFunction enclosedFunc, Position position,
                                                                  Reference referenceAtCursor,
@@ -112,8 +111,8 @@ public class CreateVariableCodeAction implements DiagBasedCodeAction {
             String name = names.get(i);
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
             if (types.size() > 1) {
-                String typeLabel = (type.startsWith("[") && type.endsWith("]") && !type.endsWith("[]") &&
-                        type.length() > 10) ? "Tuple" : type;
+                boolean isTuple = type.startsWith("[") && type.endsWith("]") && !type.endsWith("[]");
+                String typeLabel = isTuple && type.length() > 10 ? "Tuple" : type;
                 commandTitle = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", typeLabel);
             }
             Position insertPos = new Position(position.getLine(), position.getCharacter());

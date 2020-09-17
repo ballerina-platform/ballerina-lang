@@ -42,6 +42,11 @@ import java.util.Map;
 public class NoImplFoundCodeActionProvider extends AbstractCodeActionProvider {
     private static final String NO_IMPL_FOUND_FOR_FUNCTION = "no implementation found for the function";
 
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
+
     /**
      * {@inheritDoc}
      */

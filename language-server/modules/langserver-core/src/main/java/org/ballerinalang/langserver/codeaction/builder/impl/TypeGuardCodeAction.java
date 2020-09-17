@@ -131,7 +131,7 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
         String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
         String content = CommandUtil.getContentOfRange(docManager, uri, new Range(startPos, endPos));
         // Remove last line feed
-        while (content.endsWith("\n")) {
+        while (content.endsWith(LINE_SEPARATOR)) {
             content = content.substring(0, content.length() - 1);
         }
 

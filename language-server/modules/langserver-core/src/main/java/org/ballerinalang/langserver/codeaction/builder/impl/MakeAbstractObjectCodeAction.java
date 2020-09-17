@@ -44,7 +44,6 @@ import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActi
  * @since 1.2.0
  */
 public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
-
     @Override
     public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
             throws LSCodeActionProviderException {
