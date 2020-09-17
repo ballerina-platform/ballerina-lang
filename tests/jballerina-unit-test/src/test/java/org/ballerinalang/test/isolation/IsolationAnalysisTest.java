@@ -87,6 +87,14 @@ public class IsolationAnalysisTest {
     }
 
     @Test
+    public void testAccessingImmutableModuleLevelDefinitionsInIsolatedContexts() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/isolation-analysis/immutable_module_def_access_in_isolated_contexts.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        Assert.assertEquals(result.getWarnCount(), 0);
+    }
+
+    @Test
     public void testIsolatedFunctionsSemanticNegative() {
         CompileResult result =
                 BCompileUtil.compile("test-src/isolation-analysis/isolation_analysis_semantic_negative.bal");
@@ -160,16 +168,15 @@ public class IsolationAnalysisTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/isolation-analysis/isolated_record_field_default_negative.bal");
         int i = 0;
-        validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 22, 13);
-        validateWarning(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 23, 13);
-        validateWarning(result, i++, INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_FIELD_DEFAULT, 24, 13);
-        validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 31, 17);
-        validateWarning(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 32, 20);
-        validateWarning(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 33, 20);
-        validateWarning(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 33, 24);
-        validateError(result, i, INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT, 39, 25);
-        Assert.assertEquals(result.getWarnCount(), i);
-        Assert.assertEquals(result.getErrorCount(), 1);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 22, 13);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 23, 13);
+        validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_FIELD_DEFAULT, 24, 13);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 31, 17);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 32, 20);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_RECORD_FIELD_DEFAULT, 33, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_RECORD_FIELD_DEFAULT, 33, 24);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_AS_OBJECT_FIELD_DEFAULT, 39, 25);
+        Assert.assertEquals(result.getErrorCount(), i);
 
     }
 
@@ -187,6 +194,5 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_AS_OBJECT_FIELD_DEFAULT, 68, 14);
         validateError(result, i++, INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_FIELD_DEFAULT, 74, 12);
         Assert.assertEquals(result.getErrorCount(), i);
-
     }
 }

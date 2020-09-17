@@ -1,4 +1,4 @@
-string child = "Bob";
+final string child = "Bob";
 
 type Person record {|
     string name = "default first name";
