@@ -115,6 +115,7 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
 
         try {
             compiler.setOutStream(new LSCompilerUtil.EmptyPrintStream());
+            compiler.setErrorStream(new LSCompilerUtil.EmptyPrintStream());
         } catch (UnsupportedEncodingException e) {
             logger.error("Unable to create the empty stream.");
         }
