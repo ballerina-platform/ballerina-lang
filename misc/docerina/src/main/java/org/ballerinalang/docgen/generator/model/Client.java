@@ -23,14 +23,14 @@ import java.util.stream.Collectors;
 /**
  * Represent documentation for a Client.
  */
-public class Client extends Object {
+public class Client extends BClass {
 
     @Expose
     public List<Function> remoteMethods;
 
     public Client(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-            List<Function> methods, boolean isAnonymous) {
-        super(name, description, isDeprecated, fields, methods, isAnonymous);
+            List<Function> methods) {
+        super(name, description, isDeprecated, fields, methods);
         this.remoteMethods = getRemoteMethods();
         this.otherMethods = getOtherMethods(methods);
     }

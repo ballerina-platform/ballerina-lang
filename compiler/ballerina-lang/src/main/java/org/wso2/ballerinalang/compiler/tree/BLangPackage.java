@@ -19,8 +19,6 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -36,6 +34,7 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
+import org.wso2.ballerinalang.compiler.diagnostic.DiagnosticComparator;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -44,7 +43,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Queue;
@@ -306,61 +304,5 @@ public class BLangPackage extends BLangNode implements PackageNode {
      */
     public boolean hasErrors() {
         return this.errorCount > 0;
-    }
-
-    /**
-     * A comparator for sorting diagnostics. Diagnostics are sorted by:
-     * 1) File name
-     * 2) Line number
-     * 3) Column number
-     * 4) Message
-     * 5) By the hash code - to allow duplicates
-     * This comparator does not use the package ID info for sorting, since the diagnostics
-     * are collected per package.
-     *
-     * @since 2.0.0
-     */
-    private static class DiagnosticComparator implements Comparator<Diagnostic> {
-
-        @Override
-        public int compare(Diagnostic d1, Diagnostic d2) {
-            Location l1 = d1.location();
-            Location l2 = d2.location();
-            LineRange lineRange1 = l1.lineRange();
-            LineRange lineRange2 = l2.lineRange();
-
-            // Compare file name
-            // TODO: handle if one is null and other is not
-            String file1 = lineRange1.filePath();
-            String file2 = lineRange2.filePath();
-            if (file1 != null && file2 != null) {
-                int fileComparison = file1.compareTo(file2);
-                if (fileComparison != 0) {
-                    return fileComparison;
-                }
-            }
-
-            // Compare line number
-            int lineComparison = lineRange1.startLine().line() - lineRange2.startLine().line();
-            if (lineComparison != 0) {
-                return lineComparison;
-            }
-
-            // Compare column number
-            int columnComparison = l1.textRange().startOffset() - l2.textRange().startOffset();
-            if (columnComparison != 0) {
-                return columnComparison;
-            }
-
-            // Compare message
-            int msgComparison = d1.message().compareTo(d2.message());
-            if (msgComparison != 0) {
-                return msgComparison;
-            }
-
-            // If everything is identical, check the instance equality (hash code), so that we can
-            // allow duplicates in the diagnostics.
-            return d1.hashCode() - d2.hashCode();
-        }
     }
 }

@@ -64,18 +64,18 @@ public class AnnotationUtils {
                                                         globalAnnotMap.get(annotationKey));
             }
         }
-
     }
 
     public static void processServiceAnnotations(MapValue globalAnnotMap, BServiceType bType, Strand strand) {
         BString annotationKey = BStringUtils.fromString(bType.getAnnotationKey());
+
         if (globalAnnotMap.containsKey(annotationKey)) {
             bType.setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
                     .call(new Object[]{strand}));
         }
-
         for (AttachedFunction attachedFunction : bType.getAttachedFunctions()) {
             annotationKey = BStringUtils.fromString(attachedFunction.getAnnotationKey());
+
             if (globalAnnotMap.containsKey(annotationKey)) {
                 attachedFunction.setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(
                         annotationKey)).call(new Object[]{strand}));

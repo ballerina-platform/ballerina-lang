@@ -19,7 +19,7 @@ function captureBindingPatternNegative1(any v) returns string {
         var a => {
             return "Matched";
         }
-        _ => {
+        _ => { // unreachable pattern
             return "Not matched";
         }
     }

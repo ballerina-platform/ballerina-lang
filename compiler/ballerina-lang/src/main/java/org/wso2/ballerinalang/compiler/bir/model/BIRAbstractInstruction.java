@@ -28,6 +28,7 @@ public abstract class BIRAbstractInstruction extends BIRNode implements BIRInstr
 
     public InstructionKind kind;
     public BIROperand lhsOp;
+    public BirScope scope;
 
     BIRAbstractInstruction(DiagnosticPos pos, InstructionKind kind) {
         super(pos);

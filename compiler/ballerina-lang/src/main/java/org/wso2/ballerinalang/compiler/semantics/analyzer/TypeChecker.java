@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.jvm.IdentifierEncoder;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -1999,6 +2000,11 @@ public class TypeChecker extends BLangNodeVisitor {
             String workerName = workerFlushExpr.workerIdentifier.getValue();
             if (!this.workerExists(this.env, workerName)) {
                 this.dlog.error(workerFlushExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+            } else {
+                BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, names.fromString(workerName));
+                if (symbol != symTable.notFoundSymbol) {
+                    workerFlushExpr.workerSymbol = symbol;
+                }
             }
         }
         BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
@@ -2013,6 +2019,7 @@ public class TypeChecker extends BLangNodeVisitor {
             syncSendExpr.workerType = symTable.semanticError;
         } else {
             syncSendExpr.workerType = symbol.type;
+            syncSendExpr.workerSymbol = symbol;
         }
 
         // TODO Need to remove this cached env
@@ -2052,6 +2059,7 @@ public class TypeChecker extends BLangNodeVisitor {
             workerReceiveExpr.workerType = symTable.semanticError;
         } else {
             workerReceiveExpr.workerType = symbol.type;
+            workerReceiveExpr.workerSymbol = symbol;
         }
         // The receive expression cannot be assigned to var, since we cannot infer the type.
         if (symTable.noType == this.expType) {
@@ -2485,27 +2493,21 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (actualType != symTable.semanticError &&
                         (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar)) {
                     if (isAllReadonlyTypes(varRefType)) {
-                        if (varRefType.tag != TypeTags.OBJECT ||
-                                isInvalidObjectFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
+                        if (varRefType.tag != TypeTags.OBJECT || !isInitializationInInit(varRefType)) {
                             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
                                        varRefType);
                             resultType = symTable.semanticError;
                             return;
                         }
+
                     } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD) &&
                             isInvalidReadonlyFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
                         dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_RECORD_FIELD,
                                    fieldAccessExpr.field.value, varRefType);
                         resultType = symTable.semanticError;
                         return;
-                    } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.OBJECT) &&
-                            isInvalidObjectFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
-                        dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_OBJECT_FIELD,
-                                   fieldAccessExpr.field.value, varRefType);
-                        resultType = symTable.semanticError;
-                        return;
-
                     }
+                    // Object final field updates will be analyzed at dataflow analysis.
                 }
             }
         }
@@ -2524,6 +2526,15 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         return true;
+    }
+
+    private boolean isInitializationInInit(BType type) {
+        BObjectType objectType = (BObjectType) type;
+        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
+        BAttachedFunction initializerFunc = objectTypeSymbol.initializerFunc;
+
+        return env.enclInvokable != null && initializerFunc != null &&
+                env.enclInvokable.symbol == initializerFunc.symbol;
     }
 
     private boolean isInvalidReadonlyFieldUpdate(BType type, String fieldName) {
@@ -2548,43 +2559,6 @@ public class TypeChecker extends BLangNodeVisitor {
         boolean allInvalidUpdates = true;
         for (BType memberType : ((BUnionType) type).getMemberTypes()) {
             if (!isInvalidReadonlyFieldUpdate(memberType, fieldName)) {
-                allInvalidUpdates = false;
-            }
-        }
-        return allInvalidUpdates;
-    }
-
-    private boolean isInvalidObjectFieldUpdate(BType type, String fieldName) {
-        if (type.tag == TypeTags.OBJECT) {
-            BObjectType objectType = (BObjectType) type;
-            BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
-            BAttachedFunction initializerFunc = objectTypeSymbol.initializerFunc;
-
-            if (env.enclInvokable != null && initializerFunc != null &&
-                    env.enclInvokable.symbol == initializerFunc.symbol) {
-                // This is a field update within the initializer. This update is valid.
-                return false;
-            }
-
-            if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
-                return true;
-            }
-
-            for (BField field : objectType.fields.values()) {
-                if (!field.name.value.equals(fieldName)) {
-                    continue;
-                }
-
-                return Symbols.isFlagOn(field.symbol.flags, Flags.READONLY);
-            }
-            return false; // Wouldn't get here.
-        }
-
-        // For unions, we consider this an invalid update only if it is invalid for all member types. If for at least
-        // one member this is valid, we allow this at compile time with the potential to fail at runtime.
-        boolean allInvalidUpdates = true;
-        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-            if (!isInvalidObjectFieldUpdate(memberType, fieldName)) {
                 allInvalidUpdates = false;
             }
         }
@@ -4758,7 +4732,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void markAndRegisterClosureVariable(BSymbol symbol, DiagnosticPos pos) {
         BLangInvokableNode encInvokable = env.enclInvokable;
-        if (symbol.owner instanceof BPackageSymbol) {
+        if (symbol.owner instanceof BPackageSymbol && env.node.getKind() != NodeKind.ARROW_EXPR) {
             return;
         }
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
@@ -6701,7 +6675,7 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (currentType.tag) {
             case TypeTags.STRING:
                 if (isConst(indexExpr)) {
-                    String fieldName = getConstFieldName(indexExpr);
+                    String fieldName = IdentifierEncoder.escapeSpecialCharacters(getConstFieldName(indexExpr));
                     actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);
                     if (actualType != symTable.semanticError) {
                         return actualType;

@@ -522,7 +522,7 @@ public class JvmPackageGen {
 
     /**
      * Java Class will be generate for each source file. This method add class mappings to globalVar and filters the
-     * unctions based on their source file name and then returns map of associated java class contents.
+     * functions based on their source file name and then returns map of associated java class contents.
      *
      * @param module           bir module
      * @param pkgName          module name

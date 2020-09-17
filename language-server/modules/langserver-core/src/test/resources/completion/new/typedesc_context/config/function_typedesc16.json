@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 5,
+    "character": 13
+  },
+  "source": "typedesc_context/source/function_typedesc16.bal",
+  "items": [
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
