@@ -71,6 +71,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static org.ballerinalang.jvm.IdentifierEncoder.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -679,7 +680,7 @@ class JvmTypeGen {
             mv.visitInsn(DUP);
 
             // Load field name
-            mv.visitLdcInsn(optionalField.name.value);
+            mv.visitLdcInsn(decodeIdentifier(optionalField.name.value));
 
             // create and load field type
             createRecordField(mv, optionalField);
@@ -756,8 +757,7 @@ class JvmTypeGen {
 
         // Load type name
         BTypeSymbol typeSymbol = objectType.tsymbol;
-        String name = typeSymbol.name.getValue();
-        mv.visitLdcInsn(name);
+        mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
 
         // Load package path
         mv.visitTypeInsn(NEW, PACKAGE_TYPE);
@@ -792,8 +792,8 @@ class JvmTypeGen {
 
         // Load type name
         BTypeSymbol typeSymbol = objectType.tsymbol;
-        String name = typeSymbol.name.getValue();
-        mv.visitLdcInsn(name);
+
+        mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
 
         // Load package path
         mv.visitTypeInsn(NEW, PACKAGE_TYPE);
@@ -866,7 +866,7 @@ class JvmTypeGen {
             mv.visitInsn(DUP);
 
             // Load field name
-            mv.visitLdcInsn(optionalField.name.value);
+            mv.visitLdcInsn(decodeIdentifier(optionalField.name.value));
 
             // create and load field type
             createObjectField(mv, optionalField);
@@ -899,7 +899,7 @@ class JvmTypeGen {
         loadType(mv, field.type);
 
         // Load field name
-        mv.visitLdcInsn(field.name.value);
+        mv.visitLdcInsn(decodeIdentifier(field.name.value));
 
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
@@ -988,7 +988,7 @@ class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load function name
-        mv.visitLdcInsn(attachedFunc.funcName.value);
+        mv.visitLdcInsn(decodeIdentifier(attachedFunc.funcName.value));
 
         // Load the parent object type
         loadType(mv, objType);
@@ -1521,7 +1521,7 @@ class JvmTypeGen {
      */
     private static String getTypeFieldName(String typeName) {
 
-        return String.format("$type$%s", JvmCodeGenUtil.cleanupTypeName(typeName));
+        return String.format("$type$%s", JvmCodeGenUtil.cleanupReadOnlyTypeName(typeName));
     }
 
     private static void loadFutureType(MethodVisitor mv, BFutureType bType) {

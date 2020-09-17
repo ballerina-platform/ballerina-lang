@@ -709,8 +709,9 @@ public class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangWildCardMatchPattern source) {
         BLangWildCardMatchPattern clone = new BLangWildCardMatchPattern();
-        clone.matchExpr = source.matchExpr;
         source.cloneRef = clone;
+        clone.matchExpr = source.matchExpr;
+        clone.isLastPattern = source.isLastPattern;
     }
 
     @Override
@@ -728,6 +729,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.matchExpr = source.matchExpr;
         clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
         clone.setBindingPattern(source.getBindingPattern());
+        clone.isLastPattern = source.isLastPattern;
     }
 
     @Override

@@ -650,7 +650,7 @@ public class TypeChecker {
         int targetTypeTag = targetType.getTag();
 
         // If the source type is neither a record type nor an object type, check `is` type by looking only at the types.
-        // Else, since records and objects may have `readonly` fields, need to use the value also.
+        // Else, since records and objects may have `readonly` or `final` fields, need to use the value also.
         // e.g.,
         //      const HUNDRED = 100;
         //
@@ -1421,8 +1421,18 @@ public class TypeChecker {
                 return false;
             }
 
-            if (Flags.isFlagOn(rhsField.flags, Flags.READONLY)) {
-                if (!checkIsLikeType(sourceObjVal.get(BStringUtils.fromString(name)), lhsField.type)) {
+            if (Flags.isFlagOn(rhsField.flags, Flags.FINAL)) {
+                Object fieldValue = sourceObjVal.get(BStringUtils.fromString(name));
+                BType fieldValueType = getType(fieldValue);
+
+                if (fieldValueType.isReadOnly()) {
+                    if (!checkIsLikeType(fieldValue, lhsField.type)) {
+                        return false;
+                    }
+                    continue;
+                }
+
+                if (!checkIsType(fieldValueType, lhsField.type, unresolvedTypes)) {
                     return false;
                 }
             } else if (!checkIsType(rhsField.type, lhsField.type, unresolvedTypes)) {

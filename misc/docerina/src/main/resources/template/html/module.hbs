@@ -5,17 +5,15 @@
     {{{ module.description }}}
 
     {{#if module.records}}
-        {{#unless (areAllAnonymous module.records) }}
-            <section class="method-content" id="records">
-                <div class="main-method-title here">
-                    <a class="url-link" href="#records">
-                        <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
-                    </a>
-                    <h2> Records </h2>
-                </div>
-                <table>
-                    {{#each module.records}}
-                    {{#unless isAnonymous}}
+        <section class="method-content" id="records">
+            <div class="main-method-title here">
+                <a class="url-link" href="#records">
+                    <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
+                </a>
+                <h2> Records </h2>
+            </div>
+            <table>
+                {{#each module.records}}
                     <tr>
                         <td class="module-title truncate records" id="{{name}}" title="{{name}}">
                             <a class="records {{#if isDeprecated}}strike{{/if}}" href="records/{{name}}.html">{{name}}</a>
@@ -27,28 +25,24 @@
                             {{{ editDescription description }}}
                         </td>
                     </tr>
-                    {{/unless}}
-                    {{/each}}
-                </table>
-            </section>
-        {{/unless}}
+                {{/each}}
+            </table>
+        </section>
     {{/if}}
 
-    {{#if module.objects}}
-        {{#unless (areAllAnonymous module.objects) }}
-            <section class="method-content" id="objects">
-                <div class="main-method-title here">
-                    <a class="url-link" href="#objects">
-                        <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
-                    </a>
-                    <h2> Objects </h2>
-                </div>
-                <table>
-                    {{#each module.objects}}
-                    {{#unless isAnonymous}}
+    {{#if module.classes}}
+        <section class="method-content" id="classes">
+            <div class="main-method-title here">
+                <a class="url-link" href="#classes">
+                    <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
+                </a>
+                <h2> Classes </h2>
+            </div>
+            <table>
+                {{#each module.classes}}
                     <tr>
-                        <td class="module-title truncate objects" id="{{name}}" title="{{name}}">
-                            <a class="objects {{#if isDeprecated}}strike{{/if}}" href="objects/{{name}}.html">{{name}}</a>
+                        <td class="module-title truncate classes" id="{{name}}" title="{{name}}">
+                            <a class="classes {{#if isDeprecated}}strike{{/if}}" href="classes/{{name}}.html">{{name}}</a>
                         </td>
                         <td class="module-desc">
                             {{#if isDeprecated}}
@@ -57,11 +51,35 @@
                             {{{ editDescription description }}}
                         </td>
                     </tr>
-                    {{/unless}}
-                    {{/each}}
-                </table>
-            </section>
-        {{/unless}}
+                {{/each}}
+            </table>
+        </section>
+    {{/if}}
+
+    {{#if module.abstractObjects}}
+        <section class="method-content" id="absobjects">
+            <div class="main-method-title here">
+                <a class="url-link" href="#absobjects">
+                    <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
+                </a>
+                <h2> Abstract Objects </h2>
+            </div>
+            <table>
+                {{#each module.abstractObjects}}
+                <tr>
+                    <td class="module-title truncate objects" id="{{name}}" title="{{name}}">
+                        <a class="objects {{#if isDeprecated}}strike{{/if}}" href="abstractobjects/{{name}}.html">{{name}}</a>
+                    </td>
+                    <td class="module-desc">
+                        {{#if isDeprecated}}
+                        <span class="stab">Deprecated</span>
+                        {{/if}}
+                        {{{ editDescription description }}}
+                    </td>
+                </tr>
+                {{/each}}
+            </table>
+        </section>
     {{/if}}
 
     {{#if module.clients}}

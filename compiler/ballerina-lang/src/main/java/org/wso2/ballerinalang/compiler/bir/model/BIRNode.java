@@ -129,6 +129,9 @@ public abstract class BIRNode {
         public BIRBasicBlock startBB;
         public int insOffset;
 
+        // Stores the scope of the current instruction with respect to local variables.
+        public BirScope insScope;
+
         public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope,
                               VarKind kind, String metaVarName) {
             super(pos);
