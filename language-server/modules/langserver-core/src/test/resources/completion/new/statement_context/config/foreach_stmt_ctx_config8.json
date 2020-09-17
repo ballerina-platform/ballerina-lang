@@ -83,6 +83,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "fail",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "fail ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "if",
       "kind": "Snippet",
       "detail": "Statement",

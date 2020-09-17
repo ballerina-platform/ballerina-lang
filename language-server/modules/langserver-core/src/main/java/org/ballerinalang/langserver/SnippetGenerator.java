@@ -1111,6 +1111,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code fail} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getFailKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.FAIL_KEYWORD, "fail ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
      * Get {@code remote} Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

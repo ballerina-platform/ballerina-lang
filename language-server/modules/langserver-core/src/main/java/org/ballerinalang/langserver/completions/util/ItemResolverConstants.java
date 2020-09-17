@@ -142,6 +142,7 @@ public class ItemResolverConstants {
     public static final String ISOLATED_KEYWORD = "isolated";
     public static final String PRIVATE_KEYWORD = "private";
     public static final String FINAL_KEYWORD = "final";
+    public static final String FAIL_KEYWORD = "fail";
     public static final String REMOTE_KEYWORD = "remote";
     public static final String CONST_KEYWORD = "const";
     public static final String RECORD_KEYWORD = "record";
