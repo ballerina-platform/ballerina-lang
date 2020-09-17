@@ -89,6 +89,7 @@ class NodeIndentation {
                         SyntaxKind.FIELD_ACCESS,
                         SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE,
                         SyntaxKind.RECORD_FIELD,
+                        SyntaxKind.MATCH_CLAUSE,
                         SyntaxKind.OPTIONAL_TYPE_DESC,
                         SyntaxKind.ARRAY_TYPE_DESC));
         if (parent != null && ((parentNodes.contains(parent.kind())) || grandParent != null &&

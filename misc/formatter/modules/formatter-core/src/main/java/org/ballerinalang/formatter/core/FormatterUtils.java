@@ -60,7 +60,8 @@ class FormatterUtils {
         LinePosition endPos = range.endLine();
         int startOffset = startPos.offset();
         if (node.kind() == (SyntaxKind.FUNCTION_DEFINITION) || node.kind() == (SyntaxKind.TYPE_DEFINITION) ||
-                node.kind() == (SyntaxKind.CONST_DECLARATION) || node.kind() == (SyntaxKind.OBJECT_TYPE_DESC)) {
+                node.kind() == (SyntaxKind.CONST_DECLARATION) || node.kind() == (SyntaxKind.OBJECT_TYPE_DESC) ||
+                node.kind() == (SyntaxKind.MATCH_STATEMENT)) {
             startOffset = (startOffset / 4) * 4;
         }
         return new DiagnosticPos(null, startPos.line() + 1, endPos.line() + 1,
@@ -95,6 +96,15 @@ class FormatterUtils {
                 parentKind == (SyntaxKind.METHOD_DECLARATION) ||
                 parentKind == (SyntaxKind.TYPE_DEFINITION)) {
             return parent;
+        }
+        if (parentKind == SyntaxKind.MATCH_CLAUSE && grandParent != null &&
+                grandParent.kind() == SyntaxKind.MATCH_STATEMENT) {
+            int previousToken = getChildLocation((NonTerminalNode) parent, node) - 1;
+            if (previousToken > 0 && node.parent().children().size() > previousToken &&
+                    node.parent().children().get(previousToken).kind() == SyntaxKind.PIPE_TOKEN) {
+                return null;
+            }
+            return grandParent;
         }
         if (syntaxKind == (SyntaxKind.SIMPLE_NAME_REFERENCE)) {
             if (parentKind == (SyntaxKind.REQUIRED_PARAM) ||
@@ -168,6 +178,7 @@ class FormatterUtils {
             if (parentKind == SyntaxKind.BLOCK_STATEMENT ||
                     parentKind == SyntaxKind.FUNCTION_BODY_BLOCK ||
                     parentKind == SyntaxKind.LIST_CONSTRUCTOR ||
+                    parentKind == SyntaxKind.MATCH_STATEMENT ||
                     parentKind == SyntaxKind.TYPE_DEFINITION ||
                     parentKind == SyntaxKind.METHOD_DECLARATION ||
                     parentKind == SyntaxKind.MAPPING_CONSTRUCTOR) {
@@ -487,6 +498,7 @@ class FormatterUtils {
                 Arrays.asList(
                         SyntaxKind.NAMED_WORKER_DECLARATION,
                         SyntaxKind.LOCAL_VAR_DECL,
+                        SyntaxKind.MATCH_CLAUSE,
                         SyntaxKind.DO_STATEMENT,
                         SyntaxKind.FOREACH_STATEMENT));
 

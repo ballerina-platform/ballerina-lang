@@ -578,6 +578,7 @@ public class FormattingTreeModifier extends TreeModifier {
             return basicLiteralNode;
         }
         NonTerminalNode parent = basicLiteralNode.parent();
+        int startColumn = getStartColumn(basicLiteralNode, true);
         Token literalToken = getToken(basicLiteralNode.literalToken());
         int leadingSpaces = 0;
         if (parent != null && parent.kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
@@ -590,12 +591,15 @@ public class FormattingTreeModifier extends TreeModifier {
                 SyntaxKind variableType = ((VariableDeclarationNode) grandParent).typedBindingPattern()
                         .typeDescriptor().kind();
                 if (variableType == SyntaxKind.JSON_TYPE_DESC) {
-                    leadingSpaces = getStartColumn(basicLiteralNode, true);
+                    leadingSpaces = startColumn;
                     if (getChildLocation(parent, basicLiteralNode) > 0) {
                         leadingNewLines = 1;
                     }
                 }
             }
+        }
+        if (parent != null && parent.kind() == SyntaxKind.MATCH_CLAUSE) {
+            leadingSpaces = startColumn;
         }
         return basicLiteralNode.modify()
                 .withLiteralToken(formatToken(literalToken, leadingSpaces, 0, leadingNewLines, 0))
@@ -1062,11 +1066,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (blockStatementNode.parent() != null &&
                 (parentKind == (SyntaxKind.FUNCTION_BODY_BLOCK) ||
                         parentKind == (SyntaxKind.IF_ELSE_STATEMENT) ||
+                        parentKind == (SyntaxKind.MATCH_CLAUSE) ||
                         parentKind == (SyntaxKind.ELSE_BLOCK))) {
             if (blockStatementNode.children().size() <= 2) {
                 trailingOpeningLines = 2;
             }
-            if (parentKind == (SyntaxKind.FUNCTION_BODY_BLOCK)) {
+            if (parentKind == SyntaxKind.FUNCTION_BODY_BLOCK) {
                 leadingSpaces = startColumn;
             }
         }
@@ -3438,17 +3443,19 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(matchStatementNode, lineRange)) {
             return matchStatementNode;
         }
+        int startColumn = getStartColumn(matchStatementNode, true);
         Token matchKeyword = getToken(matchStatementNode.matchKeyword());
         ExpressionNode condition = this.modifyNode(matchStatementNode.condition());
         Token openBrace = getToken(matchStatementNode.openBrace());
-        NodeList<MatchClauseNode> matchClauses = this.modifyNodeList(matchStatementNode.matchClauses());
         Token closeBrace = getToken(matchStatementNode.closeBrace());
+        matchStatementNode = matchStatementNode.modify()
+                .withMatchKeyword(formatToken(matchKeyword, startColumn, 1, 0, 0)).apply();
+        NodeList<MatchClauseNode> matchClauses = this.modifyNodeList(matchStatementNode.matchClauses());
         return matchStatementNode.modify()
-                .withMatchKeyword(formatToken(matchKeyword, 1, 1, 0, 0))
                 .withCondition(condition)
-                .withOpenBrace(formatToken(openBrace, 0, 0, 0, 0))
+                .withOpenBrace(formatToken(openBrace, 1, 0, 0, 1))
                 .withMatchClauses(matchClauses)
-                .withCloseBrace(formatToken(closeBrace, 0, 0, 0, 0))
+                .withCloseBrace(formatToken(closeBrace, startColumn, 0, 0, 1))
                 .apply();
     }
 
@@ -3460,14 +3467,15 @@ public class FormattingTreeModifier extends TreeModifier {
         SeparatedNodeList<Node> matchPatterns = this.modifySeparatedNodeList(matchClauseNode.matchPatterns());
         MatchGuardNode matchGuard = this.modifyNode(matchClauseNode.matchGuard().orElse(null));
         Token rightDoubleArrow = getToken(matchClauseNode.rightDoubleArrow());
-        BlockStatementNode blockStatement = this.modifyNode(matchClauseNode.blockStatement());
         if (matchGuard != null) {
             matchClauseNode = matchClauseNode.modify()
                     .withMatchGuard(matchGuard).apply();
         }
+        matchClauseNode = matchClauseNode.modify()
+                .withMatchPatterns(matchPatterns).apply();
+        BlockStatementNode blockStatement = this.modifyNode(matchClauseNode.blockStatement());
         return matchClauseNode.modify()
-                .withMatchPatterns(matchPatterns)
-                .withRightDoubleArrow(formatToken(rightDoubleArrow, 1, 1, 0, 0))
+                .withRightDoubleArrow(formatToken(rightDoubleArrow, 1, 0, 0, 0))
                 .withBlockStatement(blockStatement)
                 .apply();
     }
@@ -3789,7 +3797,8 @@ public class FormattingTreeModifier extends TreeModifier {
             }
             startColumn = getStartColumn(token.parent(), addSpaces);
             return formatToken(token, addSpaces ? startColumn : 0, 1, 0, 0);
-        } else if (token.parent() != null && token.parent().kind() == (SyntaxKind.IMPORT_DECLARATION)) {
+        } else if (token.parent() != null && (token.parent().kind() == (SyntaxKind.IMPORT_DECLARATION) ||
+                token.kind() == SyntaxKind.PIPE_TOKEN)) {
             return formatToken(token, 0, 0, 0, 0);
         } else if (token.kind() == (SyntaxKind.RESOURCE_KEYWORD)) {
             return formatToken(token, startColumn, 1, 0, 0);
