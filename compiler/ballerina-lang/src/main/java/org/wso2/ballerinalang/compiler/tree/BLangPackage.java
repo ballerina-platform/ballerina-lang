@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Queue;
@@ -99,7 +101,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
         this.testablePkgs = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
-        this.diagnostics = new TreeSet<>();
+        this.diagnostics = new TreeSet<>(new DiagnosticComparator());
     }
 
     @Override
@@ -303,5 +305,47 @@ public class BLangPackage extends BLangNode implements PackageNode {
      */
     public boolean hasErrors() {
         return this.errorCount > 0;
+    }
+
+    /**
+     * A comparator for sorting diagnostics. Diagnostics are sorted by:
+     * 1) Line number
+     * 2) Column number
+     * 3) Message
+     * 4) By the hash code - to allow duplicates
+     * This comparator does not use the package ID info for sorting, since the diagnostics
+     * are collected per package.
+     * 
+     * @since 2.0.0
+     */
+    private static class DiagnosticComparator implements Comparator<Diagnostic> {
+
+        @Override
+        public int compare(Diagnostic d1, Diagnostic d2) {
+            Location l1 = d1.location();
+            Location l2 = d2.location();
+
+            // Compare line number
+            int lineComparison = l1.lineRange().startLine().line() - l2.lineRange().startLine().line();
+            if (lineComparison != 0) {
+                return lineComparison;
+            }
+
+            // Compare column number
+            int columnComparison = l1.textRange().startOffset() - l2.textRange().startOffset();
+            if (columnComparison != 0) {
+                return columnComparison;
+            }
+
+            // Compare message
+            int msgComparison = d1.message().compareTo(d2.message());
+            if (msgComparison != 0) {
+                return msgComparison;
+            }
+
+            // If everything is identical, check the instance equality (hash code), so that we can
+            // allow duplicates in the diagnostics.
+            return d1.hashCode() - d2.hashCode();
+        }
     }
 }
