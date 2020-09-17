@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 # Test file to test the test execution behavior when a @AfterGroups function
 # fails. The expected behavior is that none other function should be exectuted
 # subsequently other than the @AfterSuite function.
-
-import ballerina/test;
 
 string a = "";
 
