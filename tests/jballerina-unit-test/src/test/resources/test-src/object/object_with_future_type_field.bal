@@ -16,6 +16,9 @@
 
 public class Foo {
     public future<int> intFuture = getFuture();
+
+    function init() {
+    }
 }
 
 Foo globalFoo = new;

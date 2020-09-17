@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.api.values.BLink;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BXMLQName;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.api.BLink;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BXMLQName;
 
 import java.util.Map;
 import java.util.Objects;

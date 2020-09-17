@@ -62,6 +62,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -72,7 +74,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -127,14 +128,17 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -740,7 +744,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        /* ignore */
+        retryNode.retryBody.accept(this);
+
+        if (retryNode.onFailClause != null) {
+            analyzeNode(retryNode.onFailClause, env);
+        }
     }
 
     @Override
@@ -800,6 +808,26 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangMatchStatement matchStatement) {
+        matchStatement.expr.accept(this);
+        TaintedStatus observedTaintedStatusOfMatchExpr = getCurrentAnalysisState().taintedStatus;
+
+        for (BLangMatchClause matchClause : matchStatement.matchClauses) {
+            getCurrentAnalysisState().taintedStatus = observedTaintedStatusOfMatchExpr;
+            matchClause.accept(this);
+        }
+
+        if (matchStatement.onFailClause != null) {
+            analyzeNode(matchStatement.onFailClause, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatchClause matchClause) {
+        matchClause.blockStmt.accept(this);
+    }
+
+    @Override
     public void visit(BLangMatch matchStmt) {
         matchStmt.expr.accept(this);
         TaintedStatus observedTaintedStatusOfMatchExpr = getCurrentAnalysisState().taintedStatus;
@@ -807,6 +835,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             getCurrentAnalysisState().taintedStatus = observedTaintedStatusOfMatchExpr;
             clause.accept(this);
         });
+
+        if (matchStmt.onFailClause != null) {
+            analyzeNode(matchStmt.onFailClause, env);
+        }
     }
 
     @Override
@@ -829,6 +861,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     getCurrentAnalysisState().taintedStatus);
         }
         analyzeNode(foreach.body, blockEnv);
+
+        if (foreach.onFailClause != null) {
+            analyzeNode(foreach.onFailClause, env);
+        }
+    }
+
+    public void visit(BLangOnFailClause onFailClause) {
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(onFailClause.body, env);
+        analyzeNode(onFailClause.body, blockEnv);
     }
 
     @Override
@@ -840,16 +881,46 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(whileNode.body, env);
         analyzeNode(whileNode.body, blockEnv);
+
+        if (whileNode.onFailClause != null) {
+            analyzeNode(whileNode.onFailClause, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangDo doNode) {
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(doNode.body, env);
+        analyzeNode(doNode.body, blockEnv);
+
+        if (doNode.onFailClause != null) {
+            analyzeNode(doNode.onFailClause, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangFail failNode) {
+        failNode.expr.accept(this);
+        if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+            getCurrentAnalysisState().returnTaintedStatus = TaintedStatus.TAINTED;
+        }
     }
 
     @Override
     public void visit(BLangLock lockNode) {
         lockNode.body.accept(this);
+
+        if (lockNode.onFailClause != null) {
+            analyzeNode(lockNode.onFailClause, env);
+        }
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody.accept(this);
+        if (transactionNode.onFailClause != null) {
+            analyzeNode(transactionNode.onFailClause, env);
+        }
+
         overridingAnalysis = false;
         overridingAnalysis = true;
     }
@@ -1451,14 +1522,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckPanickedExpr checkPanicExpr) {
         checkPanicExpr.expr.accept(this);
-    }
-
-    @Override
-    public void visit(BLangFailExpr failExpr) {
-        failExpr.expr.accept(this);
-        if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-            getCurrentAnalysisState().returnTaintedStatus = TaintedStatus.TAINTED;
-        }
     }
 
     @Override

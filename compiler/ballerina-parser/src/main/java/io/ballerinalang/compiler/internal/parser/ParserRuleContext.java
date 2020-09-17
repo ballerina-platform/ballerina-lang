@@ -85,6 +85,9 @@ public enum ParserRuleContext {
     OBJECT_METHOD_START("object-method-start"),
     OBJECT_METHOD_WITHOUT_REMOTE("object.method.without.remote"),
     OBJECT_METHOD_WITHOUT_TRANSACTIONAL("object.method.without.transactional"),
+    OBJECT_METHOD_WITHOUT_ISOLATED("object.method.without.isolated"),
+    OBJECT_FIELD_START("object-field-start"),
+    OBJECT_FIELD_QUALIFIER("object-field-qualifier"),
     OBJECT_FIELD_RHS("object-field-rhs"),
     OPTIONAL_FIELD_INITIALIZER("optional-field-initializer"),
     OBJECT_TYPE_QUALIFIER("object-type-qualifier"),
@@ -110,6 +113,7 @@ public enum ParserRuleContext {
     RESOURCE_DEF("resource-def"),
     RESOURCE_DEF_QUALIFIERS("resource-def-qualifiers"),
     RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL("resource-def-start-without-transactional"),
+    RESOURCE_DEF_START_WITHOUT_ISOLATED("resource-def-start-without-isolated"),
     RESOURCE_DEF_START_WITHOUT_RESOURCE("resource-def-start-without-resource"),
     LISTENER_DECL("listener-decl"),
     CONSTANT_DECL("const-decl"),
@@ -148,6 +152,7 @@ public enum ParserRuleContext {
     LET_CLAUSE_LET_VAR_DECL("let-clause-let-var-decl"),
     LET_VAR_DECL_START("let-var-decl-start"),
     FUNC_TYPE_DESC("func-type-desc"),
+    FUNC_TYPE_DESC_START("func-type-desc-start"),
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
     INFERRED_TYPE_DESC("*"),
@@ -235,6 +240,7 @@ public enum ParserRuleContext {
     LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER("list-bp-or-list-cons-member"),
     VAR_REF_OR_TYPE_REF("var-ref"),
     FUNC_TYPE_DESC_OR_ANON_FUNC("func-desc-type-or-anon-func"),
+    FUNC_TYPE_DESC_OR_ANON_FUNC_START("func-desc-type-or-anon-func-start"),
     FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY("func-type-desc-rhs-or-anon-func-body"),
     STMT_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS("stmt-level-func-type-desc-rhs"),
     RECORD_FIELD_NAME_OR_TYPE_NAME("record-field-name-or-type-name"),
@@ -272,6 +278,8 @@ public enum ParserRuleContext {
     ON_CLAUSE("on-clause"),
     INTERMEDIATE_CLAUSE("intermediate-clause"),
     INTERMEDIATE_CLAUSE_START("intermediate-clause-start"),
+    ON_FAIL_CLAUSE("on_fail_clause"),
+    ON_FA("on_fail_clause"),
 
     // Statements
     STATEMENT("statement"),
@@ -287,6 +295,7 @@ public enum ParserRuleContext {
     ELSE_BLOCK("else-block"),
     ELSE_BODY("else-body"),
     WHILE_BLOCK("while-block"),
+    DO_BLOCK("do-block"),
     CALL_STMT("call-statement"),
     CALL_STMT_START("call-statement-start"),
     CONTINUE_STATEMENT("continue-statement"),
@@ -294,7 +303,7 @@ public enum ParserRuleContext {
     PANIC_STMT("panic-statement"),
     RETURN_STMT("return-stmt"),
     RETURN_STMT_RHS("return-stmt-rhs"),
-    COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
+    REGULAR_COMPOUND_STMT_RHS("regular-compound-statement-rhs"),
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
     BINDING_PATTERN_OR_EXPR_RHS("binding-pattern-or-expr-rhs"),
     TYPE_DESC_OR_EXPR_RHS("type-desc-or-expr-rhs"),
@@ -311,6 +320,7 @@ public enum ParserRuleContext {
     ROLLBACK_STMT("rollback-stmt"),
     AMBIGUOUS_STMT("ambiguous-stmt"),
     MATCH_STMT("match-stmt"),
+    FAIL_STATEMENT("fail-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -352,6 +362,7 @@ public enum ParserRuleContext {
     SOURCE_KEYWORD("source"),
     XMLNS_KEYWORD("xmlns"),
     WORKER_KEYWORD("worker"),
+    ISOLATED_KEYWORD("isolated"),
     FORK_KEYWORD("fork"),
     TRAP_KEYWORD("trap"),
     IN_KEYWORD("in"),
@@ -502,6 +513,7 @@ public enum ParserRuleContext {
     IMPLICIT_NEW("implicit-new"),
     LET_EXPRESSION("let-expr"),
     ANON_FUNC_EXPRESSION("anon-func-expression"),
+    ANON_FUNC_EXPRESSION_START("anon-func-expression-start"),
     TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION("table-constructor-or-query-expr"),
     TABLE_CONSTRUCTOR_OR_QUERY_START("table-constructor-or-query-start"),
     TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
@@ -589,6 +601,8 @@ public enum ParserRuleContext {
     ENUM_MEMBER_START("enum-member-start"),
     TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER("tuple-type-desc-or-list-cont-member"),
     TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC("top.level.func.def.or.func.type.desc"),
+    FUNC_DEF_OR_FUNC_TYPE_WITHOUT_TRANSACTIONAL("func-def-or-func-type-without-transactional"),
+    FUNC_DEF_OR_FUNC_TYPE_WITHOUT_ISOLATED("func-def-or-func-type-without-isolated"),
     ;
 
     private String value;

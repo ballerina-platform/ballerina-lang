@@ -34,7 +34,7 @@ class IntRange {
         return (self.iStart <= self.iCurrent) && (self.iCurrent <= self.iEnd);
     }
 
-    public function next() returns record {|
+    public isolated function next() returns record {|
         int value;
     |}? {
 
@@ -47,7 +47,7 @@ class IntRange {
         return ();
     }
 
-    public function __iterator() returns object {public function next() returns record {|int value;|}?;} {
+    public function __iterator() returns object {public isolated function next() returns record {|int value;|}?;} {
             return new IntRange(self.iStart, self.iEnd);
     }
 }
@@ -62,7 +62,7 @@ public function createIntRange(int s, int e) returns
         object {
             public function __iterator() returns
                 object {
-                    public function next() returns
+                    public isolated function next() returns
                         record {|int value;|}?;
                 };
         } {

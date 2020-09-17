@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.observability.metrics.Gauge;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -47,7 +48,7 @@ public class GaugeRegister {
             Gauge registeredCounter = gauge.register();
             guageObj.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, registeredCounter);
         } catch (Exception e) {
-            return BallerinaErrors.createError(e.getMessage());
+            return BErrorCreator.createError(BStringUtils.fromString((e.getMessage())));
         }
         return null;
     }

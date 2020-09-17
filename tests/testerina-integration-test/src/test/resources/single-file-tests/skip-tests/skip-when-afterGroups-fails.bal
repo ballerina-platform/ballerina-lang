@@ -18,7 +18,6 @@
 # fails. The expected behavior is that none other function should be exectuted
 # subsequently other than the @AfterSuite function.
 
-import ballerina/io;
 import ballerina/test;
 
 string a = "";
@@ -72,5 +71,5 @@ function testFunction5() {
 # After Suite Function
 @test:AfterSuite {}
 function afterSuiteFunc() {
-    io:println("Value of a is " + a);
+    test:assertEquals(a, "123456");
 }

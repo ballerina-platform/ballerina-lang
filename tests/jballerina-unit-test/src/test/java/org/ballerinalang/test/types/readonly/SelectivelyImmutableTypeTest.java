@@ -102,7 +102,7 @@ public class SelectivelyImmutableTypeTest {
 
         validateError(result, index++, "cannot update 'readonly' value of type " +
                 "'record {| readonly int i; (anydata & readonly)...; |} & readonly'", 259, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'object { readonly int j; } & readonly'",
+        validateError(result, index++, "cannot update 'readonly' value of type 'object { final int j; } & readonly'",
                       262, 5);
 
         assertEquals(result.getErrorCount(), index);

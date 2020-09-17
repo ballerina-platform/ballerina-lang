@@ -71,6 +71,8 @@ public class ItemResolverConstants {
     public static final String SERVICE_GRPC = "service/gRPC";
     public static final String ANNOTATION = "annotation";
     public static final String XMLNS = "xmlns";
+    public static final String CLASS = "class";
+    public static final String DISTINCT = "distinct";
     public static final String HTTP_RESOURCE = "http resource";
     public static final String RESOURCE = "resource";
     
@@ -136,8 +138,10 @@ public class ItemResolverConstants {
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
     public static final String PUBLIC_KEYWORD = "public";
+    public static final String ISOLATED_KEYWORD = "isolated";
     public static final String PRIVATE_KEYWORD = "private";
     public static final String FINAL_KEYWORD = "final";
+    public static final String REMOTE_KEYWORD = "remote";
     public static final String CONST_KEYWORD = "const";
     public static final String RECORD_KEYWORD = "record";
     public static final String OBJECT_KEYWORD = "object";

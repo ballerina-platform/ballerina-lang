@@ -56,7 +56,7 @@ import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.FailExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.FailStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternFullNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternNode;
@@ -1919,6 +1919,21 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
+    public FailStatementNode transform(FailStatementNode failStatementNode) {
+        if (!isInLineRange(failStatementNode, lineRange)) {
+            return failStatementNode;
+        }
+        Token failKeyword = getToken(failStatementNode.failKeyword());
+        ExpressionNode expression = this.modifyNode(failStatementNode.expression());
+        Token semicolonToken = getToken(failStatementNode.semicolonToken());
+        return failStatementNode.modify()
+                .withFailKeyword(formatToken(failKeyword, 0, 0, 0, 0))
+                .withExpression(expression)
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
     public BreakStatementNode transform(BreakStatementNode breakStatementNode) {
         if (!isInLineRange(breakStatementNode, lineRange)) {
             return breakStatementNode;
@@ -2046,19 +2061,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withInKeyword(formatToken(inKeyword, 1, 1, 0, 0))
                 .withActionOrExpressionNode(actionOrExpressionNode)
                 .withBlockStatement(blockStatement)
-                .apply();
-    }
-
-    @Override
-    public FailExpressionNode transform(FailExpressionNode failExpressionNode) {
-        if (!isInLineRange(failExpressionNode, lineRange)) {
-            return failExpressionNode;
-        }
-        Token failKeyword = getToken(failExpressionNode.failKeyword());
-        ExpressionNode expression = this.modifyNode(failExpressionNode.expression());
-        return failExpressionNode.modify()
-                .withFailKeyword(formatToken(failKeyword, 0, 0, 0, 0))
-                .withExpression(expression)
                 .apply();
     }
 
@@ -2265,7 +2267,7 @@ public class FormattingTreeModifier extends TreeModifier {
         int startColumn = getStartColumn(objectFieldNode, true);
         MetadataNode metadata = this.modifyNode(objectFieldNode.metadata().orElse(null));
         Token visibilityQualifier = getToken(objectFieldNode.visibilityQualifier().orElse(null));
-        Token readonlyKeyword = getToken(objectFieldNode.readonlyKeyword().orElse(null));
+        Token finalKeyword = getToken(objectFieldNode.finalKeyword().orElse(null));
         Node typeName = this.modifyNode(objectFieldNode.typeName());
         Token fieldName = getToken(objectFieldNode.fieldName());
         Token equalsToken = getToken(objectFieldNode.equalsToken().orElse(null));
@@ -2279,9 +2281,9 @@ public class FormattingTreeModifier extends TreeModifier {
             objectFieldNode = objectFieldNode.modify()
                     .withVisibilityQualifier(formatToken(visibilityQualifier, startColumn, 1, 0, 0)).apply();
         }
-        if (readonlyKeyword != null) {
+        if (finalKeyword != null) {
             objectFieldNode = objectFieldNode.modify()
-                    .withReadonlyKeyword(formatToken(readonlyKeyword, 0, 1, 0, 0)).apply();
+                    .withFinalKeyword(formatToken(finalKeyword, 0, 1, 0, 0)).apply();
         }
         if (equalsToken != null) {
             objectFieldNode = objectFieldNode.modify()

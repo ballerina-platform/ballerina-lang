@@ -56,6 +56,15 @@ public class BasicCasesTest extends BaseTestCase {
     }
 
     @Test(dependsOnMethods = "testAssertTrue")
+    public void testAssertionsErrorMessages() throws BallerinaTestException {
+        String msg = "9 passing";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"assertions-error-messages"}, null,
+                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(40000);
+    }
+
+    @Test(dependsOnMethods = "testAssertTrue")
     public void testAssertionsBehavioralTypes() throws BallerinaTestException {
         String msg = "12 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -141,6 +150,15 @@ public class BasicCasesTest extends BaseTestCase {
         String msg = "15 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"annotations"}, null,
+                new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(40000);
+    }
+
+    @Test
+    public void testIsolatedFunctions() throws BallerinaTestException {
+        String msg = "2 passing";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"isolated-functions"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
         clientLeecher.waitForText(40000);
     }

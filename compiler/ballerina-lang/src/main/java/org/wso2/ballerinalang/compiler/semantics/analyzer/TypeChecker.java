@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.jvm.IdentifierEncoder;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -94,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -109,7 +111,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -163,6 +164,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -1997,6 +1999,11 @@ public class TypeChecker extends BLangNodeVisitor {
             String workerName = workerFlushExpr.workerIdentifier.getValue();
             if (!this.workerExists(this.env, workerName)) {
                 this.dlog.error(workerFlushExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+            } else {
+                BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, names.fromString(workerName));
+                if (symbol != symTable.notFoundSymbol) {
+                    workerFlushExpr.workerSymbol = symbol;
+                }
             }
         }
         BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
@@ -2011,6 +2018,7 @@ public class TypeChecker extends BLangNodeVisitor {
             syncSendExpr.workerType = symTable.semanticError;
         } else {
             syncSendExpr.workerType = symbol.type;
+            syncSendExpr.workerSymbol = symbol;
         }
 
         // TODO Need to remove this cached env
@@ -2050,6 +2058,7 @@ public class TypeChecker extends BLangNodeVisitor {
             workerReceiveExpr.workerType = symTable.semanticError;
         } else {
             workerReceiveExpr.workerType = symbol.type;
+            workerReceiveExpr.workerSymbol = symbol;
         }
         // The receive expression cannot be assigned to var, since we cannot infer the type.
         if (symTable.noType == this.expType) {
@@ -2412,8 +2421,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (env.enclEnv.node != null && ((env.enclEnv.node.getKind() == NodeKind.TRANSACTION) ||
-                (env.enclEnv.node.getKind() == NodeKind.RETRY))) {
-            // if enclosing env's node is a transaction or retry
+                (env.enclEnv.node.getKind() == NodeKind.RETRY) || (env.enclEnv.node.getKind() == NodeKind.ON_FAIL))) {
+            // if enclosing env's node is a transaction, retry or a on-fail
             return env.enclEnv;
         }
 
@@ -2430,8 +2439,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (env.enclEnv.node != null && ((env.enclEnv.node.getKind() == NodeKind.TRANSACTION) ||
-                (env.enclEnv.node.getKind() == NodeKind.RETRY))) {
-            // if enclosing env's node is a transaction or retry
+                (env.enclEnv.node.getKind() == NodeKind.RETRY) || (env.enclEnv.node.getKind() == NodeKind.ON_FAIL))) {
+            // if enclosing env's node is a transaction, retry or on-fail
             return env.enclEnv;
         }
 
@@ -2483,27 +2492,21 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (actualType != symTable.semanticError &&
                         (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar)) {
                     if (isAllReadonlyTypes(varRefType)) {
-                        if (varRefType.tag != TypeTags.OBJECT ||
-                                isInvalidObjectFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
+                        if (varRefType.tag != TypeTags.OBJECT || !isInitializationInInit(varRefType)) {
                             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
                                        varRefType);
                             resultType = symTable.semanticError;
                             return;
                         }
+
                     } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD) &&
                             isInvalidReadonlyFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
                         dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_RECORD_FIELD,
                                    fieldAccessExpr.field.value, varRefType);
                         resultType = symTable.semanticError;
                         return;
-                    } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.OBJECT) &&
-                            isInvalidObjectFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
-                        dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_OBJECT_FIELD,
-                                   fieldAccessExpr.field.value, varRefType);
-                        resultType = symTable.semanticError;
-                        return;
-
                     }
+                    // Object final field updates will be analyzed at dataflow analysis.
                 }
             }
         }
@@ -2522,6 +2525,15 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         return true;
+    }
+
+    private boolean isInitializationInInit(BType type) {
+        BObjectType objectType = (BObjectType) type;
+        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
+        BAttachedFunction initializerFunc = objectTypeSymbol.initializerFunc;
+
+        return env.enclInvokable != null && initializerFunc != null &&
+                env.enclInvokable.symbol == initializerFunc.symbol;
     }
 
     private boolean isInvalidReadonlyFieldUpdate(BType type, String fieldName) {
@@ -2546,43 +2558,6 @@ public class TypeChecker extends BLangNodeVisitor {
         boolean allInvalidUpdates = true;
         for (BType memberType : ((BUnionType) type).getMemberTypes()) {
             if (!isInvalidReadonlyFieldUpdate(memberType, fieldName)) {
-                allInvalidUpdates = false;
-            }
-        }
-        return allInvalidUpdates;
-    }
-
-    private boolean isInvalidObjectFieldUpdate(BType type, String fieldName) {
-        if (type.tag == TypeTags.OBJECT) {
-            BObjectType objectType = (BObjectType) type;
-            BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
-            BAttachedFunction initializerFunc = objectTypeSymbol.initializerFunc;
-
-            if (env.enclInvokable != null && initializerFunc != null &&
-                    env.enclInvokable.symbol == initializerFunc.symbol) {
-                // This is a field update within the initializer. This update is valid.
-                return false;
-            }
-
-            if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
-                return true;
-            }
-
-            for (BField field : objectType.fields.values()) {
-                if (!field.name.value.equals(fieldName)) {
-                    continue;
-                }
-
-                return Symbols.isFlagOn(field.symbol.flags, Flags.READONLY);
-            }
-            return false; // Wouldn't get here.
-        }
-
-        // For unions, we consider this an invalid update only if it is invalid for all member types. If for at least
-        // one member this is valid, we allow this at compile time with the potential to fail at runtime.
-        boolean allInvalidUpdates = true;
-        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-            if (!isInvalidObjectFieldUpdate(memberType, fieldName)) {
                 allInvalidUpdates = false;
             }
         }
@@ -4201,37 +4176,6 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFailExpr failExpr) {
-        BLangExpression errorExpression = failExpr.expr;
-        BType errorExpressionType = checkExpr(errorExpression, env);
-
-        if (errorExpressionType == symTable.semanticError) {
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        if (!types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
-            dlog.error(errorExpression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, errorExpression.toString());
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        BType exprExpType;
-        if (expType == symTable.noType) {
-            exprExpType = symTable.noType;
-        } else if (types.isAssignable(errorExpressionType, expType)) {
-            exprExpType = errorExpressionType;
-        } else {
-            dlog.error(failExpr.pos, DiagnosticCode.ERROR_TYPE_EXPECTED,
-                    symTable.errorType, expType);
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        resultType = exprExpType;
-    }
-
-    @Override
     public void visit(BLangCheckPanickedExpr checkedExpr) {
         visitCheckAndCheckPanicExpr(checkedExpr);
     }
@@ -4412,18 +4356,20 @@ public class TypeChecker extends BLangNodeVisitor {
         //checks whether iterable collection's next() method returns an error
         BType nextMethodReturnType = null;
         BType errorType = null;
-        switch (collectionType.tag) {
-            case TypeTags.STREAM:
-                errorType = ((BStreamType) collectionType).error;
-                break;
-            case TypeTags.OBJECT:
-                nextMethodReturnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
-                break;
-            default:
-                BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                        names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
-                nextMethodReturnType =
-                        (BUnionType) types.getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+        if (collectionType.tag != TypeTags.SEMANTIC_ERROR) {
+            switch (collectionType.tag) {
+                case TypeTags.STREAM:
+                    errorType = ((BStreamType) collectionType).error;
+                    break;
+                case TypeTags.OBJECT:
+                    nextMethodReturnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
+                    break;
+                default:
+                    BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
+                            names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+                    nextMethodReturnType =
+                            types.getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+            }
         }
 
         if (nextMethodReturnType != null) {
@@ -4453,6 +4399,17 @@ public class TypeChecker extends BLangNodeVisitor {
             return BUnionType.create(null, actualType, errorType);
         }
         return actualType;
+    }
+
+    @Override
+    public void visit(BLangDo doNode) {
+        if (doNode.onFailClause != null) {
+            doNode.onFailClause.accept(this);
+        }
+    }
+
+    public void visit(BLangOnFailClause onFailClause) {
+        onFailClause.body.stmts.forEach(stmt -> stmt.accept(this));
     }
 
     private void handleFilterClauses (BLangExpression filterExpression) {
@@ -4774,7 +4731,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void markAndRegisterClosureVariable(BSymbol symbol, DiagnosticPos pos) {
         BLangInvokableNode encInvokable = env.enclInvokable;
-        if (symbol.owner instanceof BPackageSymbol) {
+        if (symbol.owner instanceof BPackageSymbol && env.node.getKind() != NodeKind.ARROW_EXPR) {
             return;
         }
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
@@ -4809,7 +4766,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangNode node = env.node;
         SymbolEnv cEnv = env;
         while (node != null && node.getKind() != NodeKind.FUNCTION) {
-            if (node.getKind() == NodeKind.TRANSACTION || node.getKind() == NodeKind.RETRY) {
+            if (node.getKind() == NodeKind.TRANSACTION || node.getKind() == NodeKind.RETRY ||
+                    node.getKind() == NodeKind.ON_FAIL) {
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                         SymTag.VARIABLE);
@@ -5037,8 +4995,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private List<BLangNamedArgsExpression> getProvidedErrorDetails(BLangInvocation iExpr) {
         List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
-        // First 2 positional arguemnts to error ctor are,
-        // mandatory error message and optional error cause in that order.
         for (int i = 0; i < iExpr.argExprs.size(); i++) {
             BLangExpression argExpr = iExpr.argExprs.get(i);
             checkExpr(argExpr, env);
@@ -5426,10 +5382,24 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
-        BType returnType = keyLambdaFunction.function.type.getReturnType();
+        DiagnosticPos pos;
+        BType returnType;
+
+        if (keyFunction.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            pos = keyFunction.pos;
+            returnType = ((BLangSimpleVarRef) keyFunction).type.getReturnType();
+        } else if (keyFunction.getKind() == NodeKind.ARROW_EXPR) {
+            BLangArrowFunction arrowFunction = ((BLangArrowFunction) keyFunction);
+            pos = arrowFunction.params.get(0).pos;
+            returnType = arrowFunction.params.get(0).type;
+        } else {
+            BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
+            pos = keyLambdaFunction.function.pos;
+            returnType = keyLambdaFunction.function.type.getReturnType();
+        }
+
         if (!types.isOrderedType(returnType)) {
-            dlog.error(keyLambdaFunction.function.pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
+            dlog.error(pos, DiagnosticCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
         }
     }
 
@@ -6704,7 +6674,7 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (currentType.tag) {
             case TypeTags.STRING:
                 if (isConst(indexExpr)) {
-                    String fieldName = getConstFieldName(indexExpr);
+                    String fieldName = IdentifierEncoder.escapeSpecialCharacters(getConstFieldName(indexExpr));
                     actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);
                     if (actualType != symTable.semanticError) {
                         return actualType;

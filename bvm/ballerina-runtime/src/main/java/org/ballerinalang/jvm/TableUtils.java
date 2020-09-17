@@ -17,6 +17,7 @@
 
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -59,9 +60,8 @@ public class TableUtils {
             Node node = new Node(obj, parent);
 
             if (node.hasCyclesSoFar()) {
-                throw BallerinaErrors.createError(TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR,
-                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE,
-                                TypeChecker.getType(obj)));
+                throw BErrorCreator.createError(TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper
+                        .getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, TypeChecker.getType(obj)));
             }
 
             RefValue refValue = (RefValue) obj;

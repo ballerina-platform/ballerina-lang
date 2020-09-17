@@ -17,10 +17,10 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -42,7 +42,7 @@ import static org.ballerinalang.net.http.websocket.WebSocketConstants.ErrorCode;
 public class Close {
     private static final Logger log = LoggerFactory.getLogger(Close.class);
 
-    public static Object externClose(ObjectValue wsConnection, long statusCode, BString reason, long timeoutInSecs) {
+    public static Object externClose(BObject wsConnection, long statusCode, BString reason, long timeoutInSecs) {
         Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection

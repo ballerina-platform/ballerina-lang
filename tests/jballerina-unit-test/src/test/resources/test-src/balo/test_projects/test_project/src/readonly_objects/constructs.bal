@@ -50,7 +50,7 @@ public type Config record {|
 |};
 
 public readonly class DefaultController {
-    public readonly string id = "default";
+    public final string id = "default";
     public map<int>? & readonly mp = ();
 
     public function getValue() returns int {

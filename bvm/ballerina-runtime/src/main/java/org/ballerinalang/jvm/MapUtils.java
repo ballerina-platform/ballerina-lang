@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -25,9 +29,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 
@@ -52,8 +54,7 @@ public class MapUtils {
                 mapValue.put(fieldName, value);
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType,
-                                                        false);
+                handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false);
                 mapValue.put(fieldName, value);
                 break;
         }
@@ -67,9 +68,9 @@ public class MapUtils {
         BType expType = mapType.getConstrainedType();
         BType valuesType = TypeChecker.getType(value);
 
-        throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                                                                  INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                          BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
+        throw BErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
+                                                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
                                                                                expType, valuesType));
     }
 
@@ -85,7 +86,7 @@ public class MapUtils {
             // expression.
             if (!initialValue && Flags.isFlagOn(recField.flags, Flags.READONLY)) {
 
-                throw BallerinaErrors.createError(
+                throw BErrorCreator.createError(
                         getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE,
                                                              fieldName, recType));
@@ -99,8 +100,8 @@ public class MapUtils {
         } else {
             // If both of the above conditions fail, the implication is that this is an attempt to insert a
             // value to a non-existent field in a closed record.
-            throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR,
-                                              BLangExceptionHelper.getErrorMessage(
+            throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
+                                            BLangExceptionHelper.getErrorMessage(
                                                       RuntimeErrors.INVALID_RECORD_FIELD_ACCESS, fieldName, recType));
         }
 
@@ -109,17 +110,18 @@ public class MapUtils {
         }
         BType valuesType = TypeChecker.getType(value);
 
-        throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                                                                  INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                          BLangExceptionHelper.getErrorMessage(
+        throw BErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
+                                                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                                        BLangExceptionHelper.getErrorMessage(
                                                   RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType,
                                                   valuesType));
     }
 
-    public static ErrorValue createOpNotSupportedError(BType type, String op) {
-        return BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                                                                   OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                                           String.format("%s not supported on type '%s'", op, type.getQualifiedName()));
+    public static BError createOpNotSupportedError(BType type, String op) {
+        return BErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
+                                                                 OPERATION_NOT_SUPPORTED_IDENTIFIER),
+                                         BStringUtils.fromString(String.format("%s not supported on type '%s'", op,
+                                                                               type.getQualifiedName())));
     }
 
     public static void checkIsMapOnlyOperation(BType mapType, String op) {
@@ -160,9 +162,10 @@ public class MapUtils {
         return (field != null && Flags.isFlagOn(field.flags, Flags.REQUIRED));
     }
 
-    private static ErrorValue createOpNotSupportedErrorForRecord(BType type, String field) {
-        return BallerinaErrors.createError(getModulePrefixedReason(
-                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), String.format(
-                "failed to remove field: '%s' is a required field in '%s'", field, type.getQualifiedName()));
+    private static BError createOpNotSupportedErrorForRecord(BType type, String field) {
+        return BErrorCreator.createError(getModulePrefixedReason(
+                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), BStringUtils.fromString(
+                String.format("failed to remove field: '%s' is a required field in '%s'", field,
+                              type.getQualifiedName())));
     }
 }
