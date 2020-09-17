@@ -52,7 +52,6 @@ dependencies {
     dist project(':ballerina-choreo-extension-rt')
 
     distBal project(path: ':ballerina-observability', configuration: 'baloImplementation')
-//    distBal project(path: ':ballerina-openapi', configuration: 'baloImplementation')
 
     // Lang libs
     distBal project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
