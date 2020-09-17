@@ -3880,7 +3880,8 @@ public class FormattingTreeModifier extends TreeModifier {
         int startColumn = getStartColumn(token, true);
         if (token.kind() == (SyntaxKind.COMMA_TOKEN)) {
             return formatToken(token, 0, 1, 0, 0);
-        } else if (token.kind() == (SyntaxKind.PUBLIC_KEYWORD) || token.kind() == (SyntaxKind.ABSTRACT_KEYWORD) ||
+        }
+        if (token.kind() == (SyntaxKind.PUBLIC_KEYWORD) || token.kind() == (SyntaxKind.ABSTRACT_KEYWORD) ||
                 token.kind() == (SyntaxKind.ISOLATED_KEYWORD) || token.kind() == (SyntaxKind.PRIVATE_KEYWORD)) {
             boolean addSpaces = true;
             if (token.parent() != null && token.parent().parent() != null &&
@@ -3889,14 +3890,18 @@ public class FormattingTreeModifier extends TreeModifier {
             }
             startColumn = getStartColumn(token.parent(), addSpaces);
             return formatToken(token, addSpaces ? startColumn : 0, 1, 0, 0);
-        } else if (token.parent() != null && (token.parent().kind() == (SyntaxKind.IMPORT_DECLARATION) ||
+        }
+        if (token.parent() != null && (token.parent().kind() == (SyntaxKind.IMPORT_DECLARATION) ||
                 token.kind() == SyntaxKind.PIPE_TOKEN)) {
             return formatToken(token, 0, 0, 0, 0);
-        } else if (token.kind() == (SyntaxKind.RESOURCE_KEYWORD)) {
+        }
+        if (token.kind() == (SyntaxKind.RESOURCE_KEYWORD)) {
             return formatToken(token, startColumn, 1, 0, 0);
-        } else if (token.kind() == (SyntaxKind.REMOTE_KEYWORD)) {
+        }
+        if (token.kind() == (SyntaxKind.REMOTE_KEYWORD)) {
             return formatToken(token, 0, 1, 0, 0);
-        } else if (token.parent() != null && token.parent().kind() == (SyntaxKind.CLASS_DEFINITION)) {
+        }
+        if (token.parent() != null && token.parent().kind() == (SyntaxKind.CLASS_DEFINITION)) {
             return formatToken(token, 0, 1, 0, 0);
         }
         return token;
