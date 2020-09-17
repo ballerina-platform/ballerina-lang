@@ -62,3 +62,12 @@ function testUnreachableInOnFail () returns string {
    str += "-> Execution continues...";
    return str;
 }
+
+function testReturnWitihinDo() returns string {
+  string str = "";
+  do {
+      str = str + "do statement start";
+      return str;
+  }
+  str = str + "do statemtnt finished";
+}

@@ -169,7 +169,6 @@ public function testArrowFunctionInsideOnFail() returns int {
     return a;
 }
 
-
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
