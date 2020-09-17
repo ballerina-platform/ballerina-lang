@@ -24,7 +24,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -197,7 +197,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private SymbolEnv env;
     private SymbolTable symTable;
     private Types types;
-    private BallerinaDiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
 
     private boolean inferredIsolated = true;
 
@@ -205,7 +205,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         context.put(ISOLATION_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BallerinaDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static IsolationAnalyzer getInstance(CompilerContext context) {

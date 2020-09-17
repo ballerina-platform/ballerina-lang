@@ -28,7 +28,7 @@ import org.ballerinalang.repository.PackageSource;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -165,7 +165,7 @@ public class WorkspacePackageRepositoryTest {
 
     private BLangPackage compileFile(String packageName, CompilerContext context) {
         BLangPackage bLangPackage = null;
-        BallerinaDiagnosticLog.getInstance(context).resetErrorCount();
+        BLangDiagnosticLog.getInstance(context).resetErrorCount();
         Compiler compiler = Compiler.getInstance(context);
         bLangPackage = compiler.compile(packageName);
         LSPackageCache.getInstance(context).invalidate(bLangPackage.packageID);

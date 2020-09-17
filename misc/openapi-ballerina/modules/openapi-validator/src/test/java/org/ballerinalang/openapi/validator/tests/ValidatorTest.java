@@ -22,7 +22,7 @@ import org.ballerinalang.openapi.validator.ResourceMethod;
 import org.ballerinalang.openapi.validator.ResourcePathSummary;
 import org.ballerinalang.openapi.validator.ResourceWithOperationId;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -88,6 +88,6 @@ public class ValidatorTest {
         Path balFpath = Paths.get(balfile);
         Path programDir = balFpath.toAbsolutePath().getParent();
         CompilerContext context =  OpenApiValidatorUtil.getCompilerContext(programDir);
-        return BallerinaDiagnosticLog.getInstance(context);
+        return BLangDiagnosticLog.getInstance(context);
     }
 }

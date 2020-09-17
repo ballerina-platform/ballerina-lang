@@ -39,9 +39,9 @@ import java.util.ResourceBundle;
  * 
  * @since 2.0.0
  */
-public class BallerinaDiagnosticLog implements DiagnosticLog {
+public class BLangDiagnosticLog implements DiagnosticLog {
 
-    private static final CompilerContext.Key<BallerinaDiagnosticLog> DIAGNOSTIC_LOG_KEY = new CompilerContext.Key<>();
+    private static final CompilerContext.Key<BLangDiagnosticLog> DIAGNOSTIC_LOG_KEY = new CompilerContext.Key<>();
     private static final String ERROR_PREFIX = "error";
     private static final String WARNING_PREFIX = "warning";
     private static final String NOTE_PREFIX = "note";
@@ -51,15 +51,15 @@ public class BallerinaDiagnosticLog implements DiagnosticLog {
     private PackageCache packageCache;
     private boolean isMute = false;
 
-    private BallerinaDiagnosticLog(CompilerContext context) {
+    private BLangDiagnosticLog(CompilerContext context) {
         context.put(DIAGNOSTIC_LOG_KEY, this);
         this.packageCache = PackageCache.getInstance(context);
     }
 
-    public static BallerinaDiagnosticLog getInstance(CompilerContext context) {
-        BallerinaDiagnosticLog dLogger = context.get(DIAGNOSTIC_LOG_KEY);
+    public static BLangDiagnosticLog getInstance(CompilerContext context) {
+        BLangDiagnosticLog dLogger = context.get(DIAGNOSTIC_LOG_KEY);
         if (dLogger == null) {
-            dLogger = new BallerinaDiagnosticLog(context);
+            dLogger = new BLangDiagnosticLog(context);
         }
 
         return dLogger;
@@ -193,9 +193,9 @@ public class BallerinaDiagnosticLog implements DiagnosticLog {
         // TODO: Add 'code' and 'messageTemplate' to the DiagnosticInfo
         DiagnosticInfo diagInfo = new DiagnosticInfo(null, msg, severity);
 
-        BallerinaDiagnosticLocation diagnosticLocation =
-                new BallerinaDiagnosticLocation(pos.getSource().cUnitName, pos.sLine, pos.eLine, pos.sCol, pos.eCol);
-        BallerinaDiagnostic diagnostic = new BallerinaDiagnostic(diagnosticLocation, msg, diagInfo);
+        BLangDiagnosticLocation diagnosticLocation =
+                new BLangDiagnosticLocation(pos.getSource().cUnitName, pos.sLine, pos.eLine, pos.sCol, pos.eCol);
+        BLangDiagnostic diagnostic = new BLangDiagnostic(diagnosticLocation, msg, diagInfo);
         storeDiagnosticInPackage(pos.src.pkgID, diagnostic);
 
     }

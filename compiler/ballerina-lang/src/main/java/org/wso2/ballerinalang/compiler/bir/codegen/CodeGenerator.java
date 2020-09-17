@@ -24,7 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -63,7 +63,7 @@ public class CodeGenerator {
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
     private SymbolTable symbolTable;
     private PackageCache packageCache;
-    private BallerinaDiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
     private BIREmitter birEmitter;
     private boolean baloGen;
     private CompilerContext compilerContext;
@@ -78,7 +78,7 @@ public class CodeGenerator {
         compilerContext.put(CODE_GEN, this);
         this.symbolTable = SymbolTable.getInstance(compilerContext);
         this.packageCache = PackageCache.getInstance(compilerContext);
-        this.dlog = BallerinaDiagnosticLog.getInstance(compilerContext);
+        this.dlog = BLangDiagnosticLog.getInstance(compilerContext);
         this.birEmitter = BIREmitter.getInstance(compilerContext);
         this.compilerContext = compilerContext;
         CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);

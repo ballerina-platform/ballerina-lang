@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -106,7 +106,7 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
         options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
-        BallerinaDiagnosticLog.getInstance(context).resetErrorCount();
+        BLangDiagnosticLog.getInstance(context).resetErrorCount();
         Compiler compiler = Compiler.getInstance(context);
         LSContext lsContext = new LSCompilerOperationContext
                 .CompilerOperationContextBuilder(CompileFileContextOperation.COMPILE_FILE)

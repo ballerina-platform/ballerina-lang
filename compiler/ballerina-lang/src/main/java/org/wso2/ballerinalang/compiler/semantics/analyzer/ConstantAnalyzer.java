@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -45,13 +45,13 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<ConstantAnalyzer> CONSTANT_ANALYZER_KEY =
             new CompilerContext.Key<>();
-    private BallerinaDiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
     private Stack<BLangExpression> expressions = new Stack<>();
 
     private ConstantAnalyzer(CompilerContext context) {
 
         context.put(CONSTANT_ANALYZER_KEY, this);
-        this.dlog = BallerinaDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static ConstantAnalyzer getInstance(CompilerContext context) {

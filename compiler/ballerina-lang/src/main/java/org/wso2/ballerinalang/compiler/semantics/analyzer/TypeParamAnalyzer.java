@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -87,7 +87,7 @@ public class TypeParamAnalyzer {
     private SymbolTable symTable;
     private Types types;
     private Names names;
-    private BallerinaDiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
 
     public static TypeParamAnalyzer getInstance(CompilerContext context) {
 
@@ -106,7 +106,7 @@ public class TypeParamAnalyzer {
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
-        this.dlog = BallerinaDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     static boolean isTypeParam(BType expType) {

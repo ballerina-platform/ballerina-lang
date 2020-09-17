@@ -29,9 +29,9 @@ import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnostic;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLocation;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnostic;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -56,7 +56,7 @@ public class Parser {
     private PackageCache pkgCache;
     private ParserCache parserCache;
     private NodeCloner nodeCloner;
-    private BallerinaDiagnosticLog dlog;
+    private BLangDiagnosticLog dlog;
 
     public static Parser getInstance(CompilerContext context) {
         Parser parser = context.get(PARSER_KEY);
@@ -73,7 +73,7 @@ public class Parser {
         this.pkgCache = PackageCache.getInstance(context);
         this.parserCache = ParserCache.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
-        this.dlog = BallerinaDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath) {
@@ -151,10 +151,10 @@ public class Parser {
             LineRange lineRange = syntaxLocation.lineRange();
             LinePosition startLine = lineRange.startLine();
             LinePosition endLine = lineRange.startLine();
-            Location location = new BallerinaDiagnosticLocation(diagnosticSource.cUnitName, startLine.line() + 1,
+            Location location = new BLangDiagnosticLocation(diagnosticSource.cUnitName, startLine.line() + 1,
                     endLine.line() + 1, startLine.offset() + 1, endLine.offset() + 1);
-            BallerinaDiagnostic diag =
-                    new BallerinaDiagnostic(location, syntaxDiagnostic.message(), syntaxDiagnostic.diagnosticInfo());
+            BLangDiagnostic diag =
+                    new BLangDiagnostic(location, syntaxDiagnostic.message(), syntaxDiagnostic.diagnosticInfo());
             dlog.logDiagnostic(diagnosticSource.pkgID, diag);
         }
     }

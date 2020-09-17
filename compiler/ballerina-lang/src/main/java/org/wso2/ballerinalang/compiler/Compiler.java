@@ -25,7 +25,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -48,7 +48,7 @@ public class Compiler {
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
     private final DependencyTree dependencyTree;
-    private final BallerinaDiagnosticLog dlog;
+    private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
     private final Manifest manifest;
     private boolean langLibsLoaded;
@@ -61,7 +61,7 @@ public class Compiler {
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
         this.dependencyTree = DependencyTree.getInstance(context);
-        this.dlog = BallerinaDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
         this.outStream = System.out;

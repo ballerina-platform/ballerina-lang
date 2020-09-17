@@ -27,13 +27,13 @@ import io.ballerina.tools.diagnostics.Location;
  *
  * @since 2.0.0
  */
-public class BallerinaDiagnostic extends Diagnostic {
+public class BLangDiagnostic extends Diagnostic {
 
     private Location location;
     private String msg;
     private DiagnosticInfo diagnosticInfo;
 
-    public BallerinaDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo) {
+    public BLangDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo) {
         this.location = location;
         this.msg = msg;
         this.diagnosticInfo = diagnosticInfo;

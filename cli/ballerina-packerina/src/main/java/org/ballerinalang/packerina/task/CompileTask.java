@@ -28,7 +28,7 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.packerina.model.DependencyJar;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.diagnostic.BallerinaDiagnosticLog;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -50,7 +50,7 @@ public class CompileTask implements Task {
         Compiler compiler = Compiler.getInstance(context);
         compiler.setOutStream(buildContext.out());
         compiler.setErrorStream(buildContext.err());
-        BallerinaDiagnosticLog dlog = BallerinaDiagnosticLog.getInstance(context);
+        BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(context);
         if (buildContext.getSourceType() == SourceType.SINGLE_BAL_FILE) {
             SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             Path balFile = singleFileContext.getBalFile().getFileName();
