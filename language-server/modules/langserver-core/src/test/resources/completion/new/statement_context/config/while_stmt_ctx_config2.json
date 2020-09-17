@@ -97,6 +97,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "do",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "insertText": "do {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "lock",
       "kind": "Snippet",
       "detail": "Statement",

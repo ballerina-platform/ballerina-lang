@@ -275,6 +275,8 @@ public enum Snippet {
 
     STMT_WHILE(SnippetGenerator.getWhileStatementSnippet()),
 
+    STMT_DO(SnippetGenerator.getDoStatementSnippet()),
+
     // Snippets related to various clauses such as from, where and etc
     CLAUSE_FROM(SnippetGenerator.getFromClauseSnippet()),
     

@@ -98,6 +98,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -925,6 +926,15 @@ public class TreeVisitor extends LSNodeVisitor {
                 this.symbolEnv, this.lsContext, this);
     }
 
+    @Override
+    public void visit(BLangDo doNode) {
+        CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
+        if (cpr.isCursorBeforeNode(doNode.getPosition(), this, this.lsContext, doNode, null)) {
+            return;
+        }
+        this.acceptNode(doNode.body, this.symbolEnv);
+    }
+    
     ///////////////////////////////////
     /////   Other Public Methods  /////
     ///////////////////////////////////

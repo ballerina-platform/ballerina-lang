@@ -1239,6 +1239,17 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code do} Statement Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getDoStatementSnippet() {
+        String snippet = "do {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.DO, snippet, ItemResolverConstants.STATEMENT_TYPE,
+                Kind.STATEMENT);
+    }
+
+    /**
      * Get From clause Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
