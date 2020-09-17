@@ -69,16 +69,18 @@ public class Sort {
 
         Object[][] sortArr = new Object[arr.size()][2];
         Object[][] sortArrClone = new Object[arr.size()][2];
+        boolean elementTypeIdentified = false;
         if (function != null) {
             elemType = ((BFunctionType) function.getType()).retType;
             for (int i = 0; i < arr.size(); i++) {
                 sortArr[i][0] = function.call(new Object[]{strand, arr.get(i), true});
                 // Get the type of the sortArr elements when there is an arrow expression as the key function
-                if (elemType.getTag() == TypeTags.UNION_TAG &&
+                if (!elementTypeIdentified && elemType.getTag() == TypeTags.UNION_TAG &&
                         ((BUnionType) elemType).getMemberTypes().size() > 2) {
                     BType sortArrElemType = TypeChecker.getType(sortArr[i][0]);
                     if (sortArrElemType.getTag() != TypeTags.NULL_TAG) {
                         elemType = sortArrElemType;
+                        elementTypeIdentified = true;
                     }
                 }
                 sortArr[i][1] = arr.get(i);
