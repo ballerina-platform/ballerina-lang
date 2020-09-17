@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.formatter.core.types;
+package org.ballerinalang.formatter.core.statements;
 
 import org.ballerinalang.formatter.core.FormatterTest;
 import org.testng.annotations.DataProvider;
@@ -21,24 +21,17 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
 
 /**
- * Test the formatting of behavioural type descriptors.
+ * Test the formatting of assignment statements.
  *
  * @since 2.0.0
  */
-public class BehaviouralTypesTest extends FormatterTest {
+public class DoStatementsTest extends FormatterTest {
 
     @Test(dataProvider = "test-file-provider")
     public void test(String source, String sourcePath) throws IOException {
         super.test(source, sourcePath);
-    }
-
-    @Override
-    public List<String> skipList() {
-        return Collections.singletonList("service_type_1.bal");
     }
 
     @DataProvider(name = "test-file-provider")
@@ -49,6 +42,6 @@ public class BehaviouralTypesTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("types", "behavioural").toString();
+        return Paths.get("statements", "do").toString();
     }
 }
