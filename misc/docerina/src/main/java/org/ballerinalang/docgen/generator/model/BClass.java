@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Represent documentation for an Object.
+ * Represent documentation for an BClass.
+ *
+ * @since 2.0
  */
-public class Object extends Construct {
+public class BClass extends Construct {
 
     @Expose
     public List<DefaultableVariable> fields;
@@ -34,18 +36,16 @@ public class Object extends Construct {
     public Function initMethod;
     @Expose
     public List<Function> otherMethods;
-    @Expose
-    public boolean isAnonymous;
 
-    public Object(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-            List<Function> methods, boolean isAnonymous) {
+
+    public BClass(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
+                  List<Function> methods) {
         super(name, description, isDeprecated);
         this.fields = fields;
         this.methods = methods;
         Optional<Function> initMethod = getInitMethod(methods);
         this.initMethod = initMethod.isPresent() ? getInitMethod(methods).get() : null;
         this.otherMethods = getOtherMethods(methods);
-        this.isAnonymous = isAnonymous;
     }
 
     public Optional<Function> getInitMethod(List<Function> methods) {
