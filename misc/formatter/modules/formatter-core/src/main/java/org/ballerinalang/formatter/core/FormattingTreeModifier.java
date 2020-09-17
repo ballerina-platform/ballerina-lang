@@ -42,6 +42,7 @@ import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerinalang.compiler.syntax.tree.DistinctTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.DoStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DocumentationReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.DoubleGTTokenNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
@@ -127,10 +128,12 @@ import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
+import io.ballerinalang.compiler.syntax.tree.OnFailClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OrderByClauseNode;
@@ -229,11 +232,13 @@ import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
 import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 
+import static org.ballerinalang.formatter.core.FormatterUtils.addNewTrailingLine;
 import static org.ballerinalang.formatter.core.FormatterUtils.formatToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.getChildLocation;
 import static org.ballerinalang.formatter.core.FormatterUtils.getParent;
 import static org.ballerinalang.formatter.core.FormatterUtils.getPosition;
 import static org.ballerinalang.formatter.core.FormatterUtils.getToken;
+import static org.ballerinalang.formatter.core.FormatterUtils.getTrailingNewLines;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
 import static org.ballerinalang.formatter.core.FormatterUtils.preserveNewLine;
 import static org.ballerinalang.formatter.core.NodeIndentation.blockStatementNode;
@@ -258,6 +263,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(importDeclarationNode, lineRange)) {
             return importDeclarationNode;
         }
+        boolean addNewTrailingLine = addNewTrailingLine(importDeclarationNode.parent(), importDeclarationNode);
         int trailingNewLines = 1;
         NodeList importStatements = ((ModulePartNode) importDeclarationNode.parent()).imports();
         if (importStatements.get(importStatements.size() - 1).equals(importDeclarationNode)) {
@@ -285,7 +291,8 @@ public class FormattingTreeModifier extends TreeModifier {
         return importDeclarationNode.modify()
                 .withImportKeyword(formatToken(importKeyword, 0, 0, 0, 0))
                 .withModuleName(moduleNames)
-                .withSemicolon(formatToken(semicolon, 0, 0, 0, trailingNewLines))
+                .withSemicolon(formatToken(semicolon, 0, 0, 0,
+                        addNewTrailingLine ? trailingNewLines : trailingNewLines - 1))
                 .apply();
     }
 
@@ -334,11 +341,11 @@ public class FormattingTreeModifier extends TreeModifier {
             return identifier;
         }
         boolean addSpaces = false;
-        if (identifier.parent() != null && identifier.parent().kind() == (SyntaxKind.SPECIFIC_FIELD)) {
+        if (identifier.parent() != null && identifier.parent().kind() == SyntaxKind.SPECIFIC_FIELD) {
             addSpaces = true;
         }
         int trailingSpaces = 0;
-        if (identifier.parent().kind() == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) {
+        if (identifier.parent() != null && identifier.parent().kind() == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) {
             trailingSpaces = 1;
         }
         int startColumn = getStartColumn(identifier, addSpaces);
@@ -361,12 +368,15 @@ public class FormattingTreeModifier extends TreeModifier {
             functionDefinitionNode = functionDefinitionNode.modify()
                     .withMetadata(metadata).apply();
         }
-
-        int startColumn = qualifierList.size() == 0 ? getStartColumn(functionDefinitionNode, true) : 0;
-
+        boolean addSpaces = false;
+        if (functionDefinitionNode.parent() != null &&
+                functionDefinitionNode.parent().kind().equals(SyntaxKind.OBJECT_CONSTRUCTOR)) {
+            addSpaces = true;
+        }
+        int startColumn = getStartColumn(functionDefinitionNode, addSpaces);
         return functionDefinitionNode.modify()
-                .withFunctionKeyword(formatToken(functionKeyword, startColumn, 0, 0, 0))
-                .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0, 0))
+                .withFunctionKeyword(formatToken(functionKeyword, startColumn, 1, 0, 0))
+                .withFunctionName((IdentifierToken) formatToken(functionName, 0, 0, 0, 0))
                 .withFunctionSignature(functionSignatureNode)
                 .withQualifierList(qualifierList)
                 .withFunctionBody(functionBodyNode)
@@ -450,18 +460,21 @@ public class FormattingTreeModifier extends TreeModifier {
             startColumn = 0;
         }
         int trailingSpaces = 0;
-        if (builtinSimpleNameReferenceNode.parent() != null &&
-                (builtinSimpleNameReferenceNode.parent().kind() == SyntaxKind.CONST_DECLARATION ||
-                (builtinSimpleNameReferenceNode.parent().kind() == SyntaxKind.TYPED_BINDING_PATTERN &&
-                        ((TypedBindingPatternNode) builtinSimpleNameReferenceNode.parent())
-                                .bindingPattern().kind() == SyntaxKind.LIST_BINDING_PATTERN))) {
+        NonTerminalNode parent = builtinSimpleNameReferenceNode.parent();
+        if (parent != null && (parent.kind() == SyntaxKind.CONST_DECLARATION ||
+                parent.kind() == SyntaxKind.ON_FAIL_CLAUSE || (parent.kind() == SyntaxKind.TYPED_BINDING_PATTERN &&
+                ((TypedBindingPatternNode) parent).bindingPattern().kind() == SyntaxKind.LIST_BINDING_PATTERN))) {
             trailingSpaces = 1;
         }
-        if (builtinSimpleNameReferenceNode.parent() != null &&
-                builtinSimpleNameReferenceNode.parent().kind() == (SyntaxKind.CONST_DECLARATION)) {
+        if (parent != null && parent.kind() == (SyntaxKind.CONST_DECLARATION)) {
             trailingSpaces = 1;
         }
         Token name = getToken(builtinSimpleNameReferenceNode.name());
+        if (builtinSimpleNameReferenceNode.parent().kind() == SyntaxKind.OBJECT_FIELD) {
+            if (((ObjectFieldNode) parent).visibilityQualifier().isPresent()) {
+                startColumn = 0;
+            }
+        }
         return builtinSimpleNameReferenceNode.modify()
                 .withName(formatToken(name, startColumn, trailingSpaces, 0, 0))
                 .apply();
@@ -491,8 +504,16 @@ public class FormattingTreeModifier extends TreeModifier {
                 functionBodyBlockNode.parent().parent().kind() == (SyntaxKind.SERVICE_BODY)) {
             trailingNewLines = 1;
         }
+        if (functionBodyBlockNode.parent() != null &&
+                functionBodyBlockNode.parent().kind() == (SyntaxKind.OBJECT_METHOD_DEFINITION)) {
+            trailingNewLines = 1;
+        }
+        int openingTrailingNewLines = 1;
+        if (statements.size() == 0 && namedWorkerDeclarator == null) {
+            openingTrailingNewLines = 2;
+        }
         return functionBodyBlockNode.modify()
-                .withOpenBraceToken(formatToken(functionBodyOpenBrace, 1, 0, 0, 1))
+                .withOpenBraceToken(formatToken(functionBodyOpenBrace, 1, 0, 0, openingTrailingNewLines))
                 .withCloseBraceToken(formatToken(functionBodyCloseBrace, startColumn, 0, 0, trailingNewLines))
                 .withStatements(statements)
                 .apply();
@@ -567,6 +588,7 @@ public class FormattingTreeModifier extends TreeModifier {
             return basicLiteralNode;
         }
         NonTerminalNode parent = basicLiteralNode.parent();
+        int startColumn = getStartColumn(basicLiteralNode, true);
         Token literalToken = getToken(basicLiteralNode.literalToken());
         int leadingSpaces = 0;
         if (parent != null && parent.kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
@@ -579,12 +601,15 @@ public class FormattingTreeModifier extends TreeModifier {
                 SyntaxKind variableType = ((VariableDeclarationNode) grandParent).typedBindingPattern()
                         .typeDescriptor().kind();
                 if (variableType == SyntaxKind.JSON_TYPE_DESC) {
-                    leadingSpaces = getStartColumn(basicLiteralNode, true);
+                    leadingSpaces = startColumn;
                     if (getChildLocation(parent, basicLiteralNode) > 0) {
                         leadingNewLines = 1;
                     }
                 }
             }
+        }
+        if (parent != null && parent.kind() == SyntaxKind.MATCH_CLAUSE) {
+            leadingSpaces = startColumn;
         }
         return basicLiteralNode.modify()
                 .withLiteralToken(formatToken(literalToken, leadingSpaces, 0, leadingNewLines, 0))
@@ -624,9 +649,10 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBraceToken = getToken(serviceBodyNode.openBraceToken());
         Token closeBraceToken = getToken(serviceBodyNode.closeBraceToken());
         NodeList<Node> resources = this.modifyNodeList(serviceBodyNode.resources());
+        int trailing = getTrailingNewLines(serviceBodyNode, serviceBodyNode.openBraceToken());
         return serviceBodyNode.modify()
-                .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 2))
-                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, 1))
+                .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, trailing))
+                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, trailing))
                 .withResources(resources)
                 .apply();
     }
@@ -1050,11 +1076,13 @@ public class FormattingTreeModifier extends TreeModifier {
         if (blockStatementNode.parent() != null &&
                 (parentKind == (SyntaxKind.FUNCTION_BODY_BLOCK) ||
                         parentKind == (SyntaxKind.IF_ELSE_STATEMENT) ||
+                        parentKind == (SyntaxKind.MATCH_CLAUSE) ||
+                        parentKind == (SyntaxKind.FOREACH_STATEMENT) ||
                         parentKind == (SyntaxKind.ELSE_BLOCK))) {
             if (blockStatementNode.children().size() <= 2) {
                 trailingOpeningLines = 2;
             }
-            if (parentKind == (SyntaxKind.FUNCTION_BODY_BLOCK)) {
+            if (parentKind == SyntaxKind.FUNCTION_BODY_BLOCK) {
                 leadingSpaces = startColumn;
             }
         }
@@ -1242,7 +1270,8 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         boolean addSpaces = false;
         if (checkExpressionNode.parent() != null &&
-                checkExpressionNode.parent().kind() == (SyntaxKind.ACTION_STATEMENT)) {
+                (checkExpressionNode.parent().kind() == (SyntaxKind.ACTION_STATEMENT) ||
+                checkExpressionNode.parent().kind() == (SyntaxKind.CALL_STATEMENT))) {
             addSpaces = true;
         }
         int startColumn = getStartColumn(checkExpressionNode, addSpaces);
@@ -1262,9 +1291,14 @@ public class FormattingTreeModifier extends TreeModifier {
         int startColumn = getStartColumn(whileStatementNode, true);
         Token whileKeyword = getToken(whileStatementNode.whileKeyword());
         ExpressionNode condition = this.modifyNode(whileStatementNode.condition());
+        OnFailClauseNode onFailClause = this.modifyNode(whileStatementNode.onFailClause().orElse(null));
         whileStatementNode = whileStatementNode.modify()
                 .withWhileKeyword(formatToken(whileKeyword, startColumn, 0, 0, 0)).apply();
         BlockStatementNode whileBody = this.modifyNode(whileStatementNode.whileBody());
+        if (onFailClause != null) {
+            whileStatementNode = whileStatementNode.modify()
+                    .withOnFailClause(onFailClause).apply();
+        }
         return whileStatementNode.modify()
                 .withCondition(condition)
                 .withWhileBody(whileBody)
@@ -2018,10 +2052,17 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(lockStatementNode, lineRange)) {
             return lockStatementNode;
         }
+        int startColumn = getStartColumn(lockStatementNode, true);
         Token lockKeyword = getToken(lockStatementNode.lockKeyword());
+        lockStatementNode = lockStatementNode.modify()
+                .withLockKeyword(formatToken(lockKeyword, startColumn, 0, 0, 0)).apply();
+        OnFailClauseNode onFailClause = this.modifyNode(lockStatementNode.onFailClause().orElse(null));
+        if (onFailClause != null) {
+            lockStatementNode = lockStatementNode.modify()
+                    .withOnFailClause(onFailClause).apply();
+        }
         StatementNode blockStatement = this.modifyNode(lockStatementNode.blockStatement());
         return lockStatementNode.modify()
-                .withLockKeyword(formatToken(lockKeyword, 0, 1, 0, 0))
                 .withBlockStatement(blockStatement)
                 .apply();
     }
@@ -2055,6 +2096,11 @@ public class FormattingTreeModifier extends TreeModifier {
         Token inKeyword = getToken(forEachStatementNode.inKeyword());
         Node actionOrExpressionNode = this.modifyNode(forEachStatementNode.actionOrExpressionNode());
         StatementNode blockStatement = this.modifyNode(forEachStatementNode.blockStatement());
+        OnFailClauseNode onFailClause = this.modifyNode(forEachStatementNode.onFailClause().orElse(null));
+        if (onFailClause != null) {
+            forEachStatementNode = forEachStatementNode.modify()
+                    .withOnFailClause(onFailClause).apply();
+        }
         return forEachStatementNode.modify()
                 .withForEachKeyword(formatToken(forEachKeyword, startColumn, 1, 0, 0))
                 .withTypedBindingPattern(typedBindingPattern)
@@ -2232,6 +2278,37 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOpenBrace(formatToken(openBrace, 0, 0, 0, 1))
                 .withMembers(members)
                 .withCloseBrace(formatToken(closeBrace, startColumn, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public ObjectConstructorExpressionNode transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        NodeList<AnnotationNode> annotations = this.modifyNodeList(objectConstructorExpressionNode.annotations());
+        NodeList<Token> objectTypeQualifiers = this.modifyNodeList(objectConstructorExpressionNode
+                .objectTypeQualifiers());
+        Token objectKeyword = getToken(objectConstructorExpressionNode.objectKeyword());
+        TypeDescriptorNode typeReference = this.modifyNode(objectConstructorExpressionNode
+                .typeReference().orElse(null));
+        Token openBraceToken = getToken(objectConstructorExpressionNode.openBraceToken());
+        NodeList<Node> members = this.modifyNodeList(objectConstructorExpressionNode.members());
+        Token closeBraceToken = getToken(objectConstructorExpressionNode.closeBraceToken());
+        if (typeReference != null) {
+            objectConstructorExpressionNode = objectConstructorExpressionNode.modify()
+                    .withTypeReference(typeReference).apply();
+        }
+        int trailingNewLines = 1;
+        if (objectConstructorExpressionNode.parent() != null &&
+                objectConstructorExpressionNode.parent().kind() == SyntaxKind.LOCAL_VAR_DECL) {
+            trailingNewLines = 0;
+        }
+        int startColumn = getStartColumn(objectConstructorExpressionNode, false);
+        return objectConstructorExpressionNode.modify()
+                .withAnnotations(annotations)
+                .withObjectTypeQualifiers(objectTypeQualifiers)
+                .withObjectKeyword(formatToken(objectKeyword, 0, 0, 0, 0))
+                .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 1))
+                .withMembers(members)
+                .withCloseBraceToken(formatToken(closeBraceToken, startColumn, 0, 0, trailingNewLines))
                 .apply();
     }
 
@@ -2697,9 +2774,11 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(functionTypeDescriptorNode, lineRange)) {
             return functionTypeDescriptorNode;
         }
+        NodeList<Token> qualifierList = this.modifyNodeList(functionTypeDescriptorNode.qualifierList());
         Token functionKeyword = getToken(functionTypeDescriptorNode.functionKeyword());
         FunctionSignatureNode functionSignature = this.modifyNode(functionTypeDescriptorNode.functionSignature());
         return functionTypeDescriptorNode.modify()
+                .withQualifierList(qualifierList)
                 .withFunctionKeyword(formatToken(functionKeyword, 0, 1, 0, 0))
                 .withFunctionSignature(functionSignature)
                 .apply();
@@ -2713,11 +2792,13 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         NodeList<AnnotationNode> annotations =
                 this.modifyNodeList(explicitAnonymousFunctionExpressionNode.annotations());
+        NodeList<Token> qualifierList = this.modifyNodeList(explicitAnonymousFunctionExpressionNode.qualifierList());
         Token functionKeyword = getToken(explicitAnonymousFunctionExpressionNode.functionKeyword());
         FunctionSignatureNode functionSignature =
                 this.modifyNode(explicitAnonymousFunctionExpressionNode.functionSignature());
         FunctionBodyNode functionBody = this.modifyNode(explicitAnonymousFunctionExpressionNode.functionBody());
         return explicitAnonymousFunctionExpressionNode.modify()
+                .withQualifierList(qualifierList)
                 .withAnnotations(annotations)
                 .withFunctionKeyword(formatToken(functionKeyword, 0, 1, 0, 0))
                 .withFunctionSignature(functionSignature)
@@ -2735,7 +2816,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token semicolon = this.modifyToken(expressionFunctionBodyNode.semicolon().orElse(null));
         if (semicolon != null) {
             expressionFunctionBodyNode = expressionFunctionBodyNode.modify()
-                    .withSemicolon(formatToken(semicolon, 0, 0, 0, 0)).apply();
+                    .withSemicolon(formatToken(semicolon, 0, 0, 0, 1)).apply();
         }
         return expressionFunctionBodyNode.modify()
                 .withRightDoubleArrow(formatToken(rightDoubleArrow, 1, 1, 0, 0))
@@ -2967,6 +3048,10 @@ public class FormattingTreeModifier extends TreeModifier {
             methodDeclarationNode = methodDeclarationNode.modify()
                     .withQualifierList(qualifierList).apply();
             addSpaces = false;
+        }
+        if (methodDeclarationNode.parent() != null && methodDeclarationNode.parent().parent() != null &&
+                methodDeclarationNode.parent().parent().kind() == SyntaxKind.TYPE_DEFINITION) {
+            addSpaces = true;
         }
         int startColumn = getStartColumn(methodDeclarationNode, addSpaces);
         FunctionSignatureNode methodSignature = this.modifyNode(methodDeclarationNode.methodSignature());
@@ -3289,8 +3374,13 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(transactionStatementNode, lineRange)) {
             return transactionStatementNode;
         }
+        OnFailClauseNode onFailClause = this.modifyNode(transactionStatementNode.onFailClause().orElse(null));
         Token transactionKeyword = getToken(transactionStatementNode.transactionKeyword());
         BlockStatementNode blockStatement = this.modifyNode(transactionStatementNode.blockStatement());
+        if (onFailClause != null) {
+            transactionStatementNode = transactionStatementNode.modify()
+                    .withOnFailClause(onFailClause).apply();
+        }
         return transactionStatementNode.modify()
                 .withTransactionKeyword(formatToken(transactionKeyword, 1, 1, 0, 0))
                 .withBlockStatement(blockStatement)
@@ -3324,6 +3414,7 @@ public class FormattingTreeModifier extends TreeModifier {
         TypeParameterNode typeParameter = this.modifyNode(retryStatementNode.typeParameter().orElse(null));
         ParenthesizedArgList arguments = this.modifyNode(retryStatementNode.arguments().orElse(null));
         StatementNode retryBody = this.modifyNode(retryStatementNode.retryBody());
+        OnFailClauseNode onFailClause = this.modifyNode(retryStatementNode.onFailClause().orElse(null));
         if (typeParameter != null) {
             retryStatementNode = retryStatementNode.modify()
                     .withTypeParameter(typeParameter).apply();
@@ -3331,6 +3422,10 @@ public class FormattingTreeModifier extends TreeModifier {
         if (arguments != null) {
             retryStatementNode = retryStatementNode.modify()
                     .withArguments(arguments).apply();
+        }
+        if (onFailClause != null) {
+            retryStatementNode = retryStatementNode.modify()
+                    .withOnFailClause(onFailClause).apply();
         }
         return retryStatementNode.modify()
                 .withRetryKeyword(formatToken(retryKeyword, 1, 1, 0, 0))
@@ -3392,17 +3487,24 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(matchStatementNode, lineRange)) {
             return matchStatementNode;
         }
+        int startColumn = getStartColumn(matchStatementNode, true);
         Token matchKeyword = getToken(matchStatementNode.matchKeyword());
         ExpressionNode condition = this.modifyNode(matchStatementNode.condition());
         Token openBrace = getToken(matchStatementNode.openBrace());
-        NodeList<MatchClauseNode> matchClauses = this.modifyNodeList(matchStatementNode.matchClauses());
         Token closeBrace = getToken(matchStatementNode.closeBrace());
+        OnFailClauseNode onFailClause = this.modifyNode(matchStatementNode.onFailClause().orElse(null));
+        matchStatementNode = matchStatementNode.modify()
+                .withMatchKeyword(formatToken(matchKeyword, startColumn, 1, 0, 0)).apply();
+        NodeList<MatchClauseNode> matchClauses = this.modifyNodeList(matchStatementNode.matchClauses());
+        if (onFailClause != null) {
+            matchStatementNode = matchStatementNode.modify()
+                    .withOnFailClause(onFailClause).apply();
+        }
         return matchStatementNode.modify()
-                .withMatchKeyword(formatToken(matchKeyword, 1, 1, 0, 0))
                 .withCondition(condition)
-                .withOpenBrace(formatToken(openBrace, 0, 0, 0, 0))
+                .withOpenBrace(formatToken(openBrace, 1, 0, 0, 1))
                 .withMatchClauses(matchClauses)
-                .withCloseBrace(formatToken(closeBrace, 0, 0, 0, 0))
+                .withCloseBrace(formatToken(closeBrace, startColumn, 0, 0, 1))
                 .apply();
     }
 
@@ -3414,14 +3516,15 @@ public class FormattingTreeModifier extends TreeModifier {
         SeparatedNodeList<Node> matchPatterns = this.modifySeparatedNodeList(matchClauseNode.matchPatterns());
         MatchGuardNode matchGuard = this.modifyNode(matchClauseNode.matchGuard().orElse(null));
         Token rightDoubleArrow = getToken(matchClauseNode.rightDoubleArrow());
-        BlockStatementNode blockStatement = this.modifyNode(matchClauseNode.blockStatement());
         if (matchGuard != null) {
             matchClauseNode = matchClauseNode.modify()
                     .withMatchGuard(matchGuard).apply();
         }
+        matchClauseNode = matchClauseNode.modify()
+                .withMatchPatterns(matchPatterns).apply();
+        BlockStatementNode blockStatement = this.modifyNode(matchClauseNode.blockStatement());
         return matchClauseNode.modify()
-                .withMatchPatterns(matchPatterns)
-                .withRightDoubleArrow(formatToken(rightDoubleArrow, 1, 1, 0, 0))
+                .withRightDoubleArrow(formatToken(rightDoubleArrow, 1, 0, 0, 0))
                 .withBlockStatement(blockStatement)
                 .apply();
     }
@@ -3697,6 +3800,38 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+
+    @Override
+    public OnFailClauseNode transform(OnFailClauseNode onFailClauseNode) {
+        Token onKeyword = getToken(onFailClauseNode.onKeyword());
+        int startColumn = getStartColumn(onFailClauseNode, false);
+        onFailClauseNode = onFailClauseNode.modify()
+                .withOnKeyword(formatToken(onKeyword, startColumn, 1, 0, 0)).apply();
+        Token failKeyword = getToken(onFailClauseNode.failKeyword());
+        TypeDescriptorNode typeDescriptor = this.modifyNode(onFailClauseNode.typeDescriptor());
+        IdentifierToken failErrorName = this.modifyNode(onFailClauseNode.failErrorName());
+        BlockStatementNode blockStatement = this.modifyNode(onFailClauseNode.blockStatement());
+        return onFailClauseNode.modify()
+                .withFailKeyword(formatToken(failKeyword, 0, 1, 0, 0))
+                .withTypeDescriptor(typeDescriptor)
+                .withFailErrorName(failErrorName)
+                .withBlockStatement(blockStatement)
+                .apply();
+    }
+
+    @Override
+    public DoStatementNode transform(DoStatementNode doStatementNode) {
+        Token doKeyword = getToken(doStatementNode.doKeyword());
+        BlockStatementNode blockStatement = this.modifyNode(doStatementNode.blockStatement());
+        OnFailClauseNode onFailClause = this.modifyNode(doStatementNode.onFailClause().orElse(null));
+        int startColumn = getStartColumn(doStatementNode, true);
+        return doStatementNode.modify()
+                .withDoKeyword(formatToken(doKeyword, startColumn, 0, 0, 0))
+                .withBlockStatement(blockStatement)
+                .withOnFailClause(onFailClause)
+                .apply();
+    }
+
     @Override
     public ClassDefinitionNode transform(ClassDefinitionNode classDefinitionNode) {
         if (!isInLineRange(classDefinitionNode, lineRange)) {
@@ -3741,7 +3876,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (token.kind() == (SyntaxKind.COMMA_TOKEN)) {
             return formatToken(token, 0, 1, 0, 0);
         } else if (token.kind() == (SyntaxKind.PUBLIC_KEYWORD) || token.kind() == (SyntaxKind.ABSTRACT_KEYWORD) ||
-                token.kind() == (SyntaxKind.PRIVATE_KEYWORD)) {
+                token.kind() == (SyntaxKind.ISOLATED_KEYWORD)) {
             boolean addSpaces = true;
             if (token.parent() != null && token.parent().parent() != null &&
                     token.parent().parent().kind() == (SyntaxKind.RETURN_TYPE_DESCRIPTOR)) {
@@ -3749,7 +3884,8 @@ public class FormattingTreeModifier extends TreeModifier {
             }
             startColumn = getStartColumn(token.parent(), addSpaces);
             return formatToken(token, addSpaces ? startColumn : 0, 1, 0, 0);
-        } else if (token.parent() != null && token.parent().kind() == (SyntaxKind.IMPORT_DECLARATION)) {
+        } else if (token.parent() != null && (token.parent().kind() == (SyntaxKind.IMPORT_DECLARATION) ||
+                token.kind() == SyntaxKind.PIPE_TOKEN)) {
             return formatToken(token, 0, 0, 0, 0);
         } else if (token.kind() == (SyntaxKind.RESOURCE_KEYWORD)) {
             return formatToken(token, startColumn, 1, 0, 0);
@@ -3771,8 +3907,7 @@ public class FormattingTreeModifier extends TreeModifier {
     private int getStartColumn(Node node, boolean addSpaces) {
         Node parent = getParent(node, node.kind());
         if (parent != null) {
-            return getPosition(parent).sCol + (addSpaces ? FormatterUtils
-                    .getIndentation(node, 0, options) : 0);
+            return getPosition(parent).sCol + (addSpaces ? FormatterUtils.getIndentation(node, 0, options) : 0);
         }
         return 0;
     }

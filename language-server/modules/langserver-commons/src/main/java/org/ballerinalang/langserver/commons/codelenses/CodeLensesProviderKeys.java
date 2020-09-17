@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver.commons.codelenses;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
