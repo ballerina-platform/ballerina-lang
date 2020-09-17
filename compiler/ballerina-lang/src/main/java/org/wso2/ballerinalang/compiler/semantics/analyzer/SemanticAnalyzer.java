@@ -2354,13 +2354,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             matchExprType = getMatchPatternType(varBindingPattern);
         }
 
-        analyzeNode(varBindingPattern.getBindingPattern(), env);
         switch (patternKind) {
             case CAPTURE_BINDING_PATTERN:
                 varBindingPattern.type = matchExprType;
-                ((BLangCaptureBindingPattern) varBindingPattern.getBindingPattern()).symbol.type = matchExprType;
                 defineSymbolForCaptureBindingPattern((BLangCaptureBindingPattern) varBindingPattern.getBindingPattern(),
                         matchExprType);
+                ((BLangCaptureBindingPattern) varBindingPattern.getBindingPattern()).symbol.type = matchExprType;
                 varBindingPattern.declaredVars.putAll(this.declaredVarsInMatchPattern);
                 break;
         }
@@ -2431,8 +2430,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        captureBindingPattern.symbol = new BVarSymbol(0, new Name(captureBindingPattern.getIdentifier().getValue()),
-                env.enclPkg.packageID, symTable.anyType, env.scope.owner, captureBindingPattern.pos, SOURCE);
+        captureBindingPattern.symbol = new BVarSymbol(0, new Name(captureBindingPatternIdentifier),
+                env.enclPkg.packageID, identifierType, env.scope.owner, captureBindingPattern.pos, SOURCE);
 
         declaredVarsInMatchPattern.put(captureBindingPatternIdentifier, captureBindingPattern.symbol);
 

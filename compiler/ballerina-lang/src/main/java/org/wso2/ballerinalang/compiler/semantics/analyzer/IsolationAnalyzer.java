@@ -143,7 +143,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -630,6 +632,22 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
+    }
+
+    @Override
+    public void visit(BLangListMatchPattern listMatchPattern) {
+        for (BLangMatchPattern matchPattern : listMatchPattern.matchPatterns) {
+            analyzeNode(matchPattern, env);
+        }
+
+        if (listMatchPattern.restMatchPattern != null) {
+            analyzeNode(listMatchPattern.restMatchPattern, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangRestMatchPattern restMatchPattern) {
+
     }
 
     @Override

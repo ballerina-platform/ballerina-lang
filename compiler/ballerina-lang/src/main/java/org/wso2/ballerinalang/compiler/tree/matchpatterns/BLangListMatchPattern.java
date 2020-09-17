@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public class BLangListMatchPattern extends BLangMatchPattern implements ListMatchPatternNode {
     public List<BLangMatchPattern> matchPatterns = new ArrayList<>();
-    BLangRestMatchPattern restMatchPattern;
+    public BLangRestMatchPattern restMatchPattern;
     public Map<String, BVarSymbol> declaredVars = new HashMap<>();
 
     @Override
@@ -59,12 +59,11 @@ public class BLangListMatchPattern extends BLangMatchPattern implements ListMatc
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
-//        visitor.visit(this);
+        visitor.visit(this);
     }
 
     @Override
     public NodeKind getKind() {
-//        return NodeKind.LIST_MATCH_PATTERN;
-        return null;
+        return NodeKind.LIST_MATCH_PATTERN;
     }
 }

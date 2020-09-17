@@ -27,8 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 2.0.0
  */
 public class BLangRestMatchPattern extends BLangMatchPattern implements RestMatchPattern {
-
-    BLangIdentifier variableName;
+    public BLangIdentifier variableName;
 
     @Override
     public IdentifierNode getIdentifier() {
@@ -42,12 +41,11 @@ public class BLangRestMatchPattern extends BLangMatchPattern implements RestMatc
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
-//        visitor.visit(this);
+        visitor.visit(this);
     }
 
     @Override
     public NodeKind getKind() {
-//        return NodeKind.REST_MATCH_PATTERN;
-        return null;
+        return NodeKind.REST_MATCH_PATTERN;
     }
 }

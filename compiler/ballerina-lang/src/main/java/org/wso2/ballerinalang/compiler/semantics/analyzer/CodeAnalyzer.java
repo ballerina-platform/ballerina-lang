@@ -884,7 +884,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             case LIST_MATCH_PATTERN:
                 varsInCurrentMatchPattern = ((BLangListMatchPattern) matchPattern).declaredVars;
                 break;
-
             default:
                 return true;
         }
