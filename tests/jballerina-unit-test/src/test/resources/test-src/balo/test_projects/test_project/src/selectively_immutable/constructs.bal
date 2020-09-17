@@ -122,7 +122,7 @@ public type Owner object {
 };
 
 public class OwnerA {
-    readonly int id;
+    final int id;
 
     public function init(int id) {
         self.id = id;
@@ -134,7 +134,7 @@ public class OwnerA {
 }
 
 public class OwnerB {
-    readonly int id;
+    final int id;
     string name;
 
     public function init(int id, string name) {
@@ -221,7 +221,7 @@ public type Config object {
 };
 
 public class MyConfig {
-    public readonly string name;
+    public final string name;
 
     public function init(string name) {
         self.name = name;

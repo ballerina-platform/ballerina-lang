@@ -17,10 +17,13 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.symbols.Symbol;
+import org.ballerinalang.model.tree.IdentifiableNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.WorkerReceiveNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -30,9 +33,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  *
  * @since 0.94
  */
-public class BLangWorkerReceive extends BLangExpression implements WorkerReceiveNode {
+public class BLangWorkerReceive extends BLangExpression implements WorkerReceiveNode, IdentifiableNode {
 
     public BLangIdentifier workerIdentifier;
+    public BSymbol workerSymbol;
     public BLangExpression keyExpr;
     public boolean isChannel = false;
     public SymbolEnv env;
@@ -64,7 +68,17 @@ public class BLangWorkerReceive extends BLangExpression implements WorkerReceive
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
-    
+
+    @Override
+    public Symbol getSymbol() {
+        return this.workerSymbol;
+    }
+
+    @Override
+    public void setSymbol(Symbol symbol) {
+        this.workerSymbol = (BSymbol) symbol;
+    }
+
     public String toActionString() {
         return " <- " + this.workerIdentifier;
     }

@@ -74,6 +74,33 @@ function testCaptureBindingPattern3() {
     assertEquals(captureBindingPattern3("Not matched"), "Not matched.");
 }
 
+function captureBindingPattern4(int v) returns string {
+    string s;
+
+    match v {
+        1 => {
+            s = "ONE";
+        }
+        2 => {
+            s = "TWO";
+        }
+        3 => {
+            s = "THREE";
+        }
+        var a => {
+            s = "OTHER";
+        }
+    }
+    return s;
+}
+
+function testCaptureBindingPattern4() {
+    assertEquals("ONE", captureBindingPattern4(1));
+    assertEquals("TWO", captureBindingPattern4(2));
+    assertEquals("THREE", captureBindingPattern4(3));
+    assertEquals("OTHER", captureBindingPattern4(4));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

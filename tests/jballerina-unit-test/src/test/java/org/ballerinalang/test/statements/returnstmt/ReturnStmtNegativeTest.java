@@ -123,7 +123,7 @@ public class ReturnStmtNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/missing-return-forkjoin-1.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "this function must return a result", 1, 1);
-        BAssertUtil.validateError(result, 1, "this function must return a result", 4, 9);
+        BAssertUtil.validateError(result, 1, "this function must return a result", 4, 32);
     }
 
     @Test
@@ -140,8 +140,8 @@ public class ReturnStmtNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/missing-return-forkjoin-2.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0, "this function must return a result", 1, 1);
-        BAssertUtil.validateError(result, 1, "this function must return a result", 4, 9);
-        BAssertUtil.validateError(result, 2, "this function must return a result", 8, 9);
+        BAssertUtil.validateError(result, 1, "this function must return a result", 4, 32);
+        BAssertUtil.validateError(result, 2, "this function must return a result", 8, 32);
     }
 
     @Test(description = "Test unreachable return statement")

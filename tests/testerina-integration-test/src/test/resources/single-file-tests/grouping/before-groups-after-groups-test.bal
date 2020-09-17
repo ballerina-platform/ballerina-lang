@@ -19,7 +19,6 @@
 # test of that group is executed and each @AfterGroups function will execute after the
 # last test of that group is executed.
 
-import ballerina/io;
 import ballerina/test;
 
 string a = "";
@@ -77,5 +76,5 @@ function afterFunc() {
 # After Suite Function
 @test:AfterSuite {}
 function afterSuiteFunc() {
-    io:println("Value of a is " + a);
+    test:assertEquals(a, "12345672869");
 }

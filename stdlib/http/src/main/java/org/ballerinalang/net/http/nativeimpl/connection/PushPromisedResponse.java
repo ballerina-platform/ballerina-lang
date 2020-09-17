@@ -20,10 +20,10 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BalEnv;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
@@ -42,11 +42,11 @@ import static org.ballerinalang.net.http.HttpUtil.extractEntity;
  */
 public class PushPromisedResponse extends ConnectionAction {
 
-    public static Object pushPromisedResponse(BObject connectionObj, BObject pushPromiseObj,
+    public static Object pushPromisedResponse(BalEnv env, BObject connectionObj, BObject pushPromiseObj,
                                               BObject outboundResponseObj) {
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
         Strand strand = Scheduler.getStrand();
-        DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, env.markAsync(), inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);

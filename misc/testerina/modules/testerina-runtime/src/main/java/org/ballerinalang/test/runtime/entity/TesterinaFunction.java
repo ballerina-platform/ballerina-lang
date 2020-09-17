@@ -29,6 +29,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * TesterinaFunction entity class.
@@ -39,6 +41,7 @@ public class TesterinaFunction {
 
     private String bFunctionName;
     private Class<?> programFile;
+    private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
 
     // Annotation info
     private List<String> groups = new ArrayList<>();
@@ -133,7 +136,7 @@ public class TesterinaFunction {
     }
 
     private static String cleanupFunctionName(String name) {
-        return name.replaceAll("[.:/<>]", "_");
+        Matcher matcher = JVM_RESERVED_CHAR_SET.matcher(name);
+        return matcher.find() ? "$" + matcher.replaceAll("_") : name;
     }
-
 }
