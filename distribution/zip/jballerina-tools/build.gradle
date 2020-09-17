@@ -115,10 +115,6 @@ dependencies {
     dist project(':language-server:language-server-compiler')
     dist project(':language-server:language-server-commons')
     dist project(':ballerina-packerina')
-    dist project(':openapi-ballerina:ballerina-to-openapi-generator')
-    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
-    dist project(':openapi-ballerina:openapi-validator')
-    dist project(':openapi-ballerina:ballerina-client-generator')
     dist project(':docerina')
     dist project(':observerability-symbol-collector')
     dist project(':testerina:testerina-runtime')
@@ -153,7 +149,6 @@ dependencies {
     balxBir project(path: ':ballerina-java', configuration: 'bir')
 
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-openapi', configuration: 'balDoc')
     balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
 
     // Lang Libs
