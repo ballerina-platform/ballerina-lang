@@ -423,7 +423,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public String expressionStringValue(BLink parent) {
         return createStringValueInStyle(parent, true);
-
     }
 
     private String createStringValueInStyle(BLink parent, Boolean isExpressionStyle) {

@@ -133,7 +133,6 @@ public class JSONParser {
      * Parses the contents in the given {@link Reader} and returns a json.
      *
      * @param reader reader which contains the JSON content
-     * @param mode mode which contains the JSON content
      * @return JSON structure
      * @throws BallerinaException for any parsing error
      */

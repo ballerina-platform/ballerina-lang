@@ -259,7 +259,6 @@ public class BStringUtils {
                 return mapValue.expressionStringValue(parent);
             }
             return mapValue.stringValue(parent);
-
         }
 
         if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
@@ -287,7 +286,6 @@ public class BStringUtils {
                         return "object " + objectValue.call(Scheduler.getStrand(), "toString").toString();
                     }
                     return objectValue.call(Scheduler.getStrand(), "toString").toString();
-
                 }
             }
         }
@@ -338,4 +336,5 @@ public class BStringUtils {
         RefValue refValue = (RefValue) value;
         return refValue.stringValue(null);
     }
+
 }

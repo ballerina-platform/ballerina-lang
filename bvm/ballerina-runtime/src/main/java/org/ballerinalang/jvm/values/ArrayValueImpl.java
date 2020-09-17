@@ -649,7 +649,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
         return "[" + sj.toString() + "]";
     }
 
-
     @Override
     public BType getType() {
         return this.arrayType;
