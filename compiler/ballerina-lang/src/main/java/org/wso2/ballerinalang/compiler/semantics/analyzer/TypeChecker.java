@@ -1999,6 +1999,11 @@ public class TypeChecker extends BLangNodeVisitor {
             String workerName = workerFlushExpr.workerIdentifier.getValue();
             if (!this.workerExists(this.env, workerName)) {
                 this.dlog.error(workerFlushExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+            } else {
+                BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, names.fromString(workerName));
+                if (symbol != symTable.notFoundSymbol) {
+                    workerFlushExpr.workerSymbol = symbol;
+                }
             }
         }
         BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
@@ -2013,6 +2018,7 @@ public class TypeChecker extends BLangNodeVisitor {
             syncSendExpr.workerType = symTable.semanticError;
         } else {
             syncSendExpr.workerType = symbol.type;
+            syncSendExpr.workerSymbol = symbol;
         }
 
         // TODO Need to remove this cached env
@@ -2052,6 +2058,7 @@ public class TypeChecker extends BLangNodeVisitor {
             workerReceiveExpr.workerType = symTable.semanticError;
         } else {
             workerReceiveExpr.workerType = symbol.type;
+            workerReceiveExpr.workerSymbol = symbol;
         }
         // The receive expression cannot be assigned to var, since we cannot infer the type.
         if (symTable.noType == this.expType) {

@@ -3701,8 +3701,8 @@ public class Desugar extends BLangNodeVisitor {
             fieldAccessExpr.expr = addConversionExprIfRequired(fieldAccessExpr.expr, varRefType);
         }
 
-        BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos,
-                StringEscapeUtils.unescapeJava(fieldAccessExpr.field.value));
+        BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.field.pos,
+                                                     StringEscapeUtils.unescapeJava(fieldAccessExpr.field.value));
         int varRefTypeTag = varRefType.tag;
         if (varRefTypeTag == TypeTags.OBJECT ||
                 (varRefTypeTag == TypeTags.UNION &&

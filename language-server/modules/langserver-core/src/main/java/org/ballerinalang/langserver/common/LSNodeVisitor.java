@@ -1113,7 +1113,7 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRawTemplateLiteral stringTemplateLiteral) {
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
         // no implementation
     }
 

@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -163,5 +164,15 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     @Override
     public void setPrecedence(int precedence) {
         this.precedence = precedence;
+    }
+
+    @Override
+    public Symbol getSymbol() {
+        return this.symbol;
+    }
+
+    @Override
+    public void setSymbol(Symbol symbol) {
+        this.symbol = (BTypeSymbol) symbol;
     }
 }

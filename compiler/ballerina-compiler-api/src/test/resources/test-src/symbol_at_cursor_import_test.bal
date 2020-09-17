@@ -14,32 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-string aString = "foo";
-int anInt = 10;
+import testorg/foo;
 
-public function workerSendToWorker() returns int {
-    @strand{thread:"any"}
-    worker w1 {
-      int i = 40;
-      i -> w2;
+function testImports() {
+    string s = foo:TRUE;
+    int x = foo:add(10, 20);
 
-      float x = 12.34;
-      x ->> w2;
-
-      var res = flush w2;
-    }
-
-    @strand{thread:"any"}
-    worker w2 returns int {
-      int j = 25;
-      j = <- w1;
-
-      float y = <- w1;
-      return j;
-    }
-    int ret = wait w2;
-
-    return ret + 1;
+    foo:Person p = {name: "John Doe", age: 20};
 }
 
-const HELLO = "Hello";
+function area(float radius) returns float {
+    return foo:PI * radius * radius;
+}
+
+function testMethodUsage() {
+    foo:PersonObj p = new("John", 20);
+    string s = p.getName();
+}

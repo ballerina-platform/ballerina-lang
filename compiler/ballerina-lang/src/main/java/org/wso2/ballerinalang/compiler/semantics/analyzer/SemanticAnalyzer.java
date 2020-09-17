@@ -2733,6 +2733,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             workerSendNode.type = symTable.semanticError;
         } else {
             workerSendNode.type = symbol.type;
+            workerSendNode.workerSymbol = symbol;
         }
 
         if (workerSendNode.isChannel) {

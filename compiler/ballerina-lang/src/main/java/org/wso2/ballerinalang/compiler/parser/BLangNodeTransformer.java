@@ -576,14 +576,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         NodeList<IdentifierToken> names = importDeclaration.moduleName();
         DiagnosticPos position = getPosition(importDeclaration);
-        names.forEach(name -> pkgNameComps.add(this.createIdentifier(position, name.text(), null)));
+        names.forEach(name -> pkgNameComps.add(this.createIdentifier(getPosition(name), name.text(), null)));
 
         BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
         importDcl.pos = position;
         importDcl.pkgNameComps = pkgNameComps;
-        importDcl.orgName = this.createIdentifier(position, orgName);
+        importDcl.orgName = this.createIdentifier(getPosition(orgNameNode), orgName);
         importDcl.version = this.createIdentifier(getPosition(versionNode), version);
-        importDcl.alias = (prefixNode != null) ? this.createIdentifier(position, prefixNode.prefix())
+        importDcl.alias = (prefixNode != null) ? this.createIdentifier(getPosition(prefixNode), prefixNode.prefix())
                                                : pkgNameComps.get(pkgNameComps.size() - 1);
 
         return importDcl;
@@ -1465,21 +1465,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(NamedWorkerDeclarationNode namedWorkerDeclNode) {
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
-        DiagnosticPos pos = getPosition(namedWorkerDeclNode);
+        DiagnosticPos workerBodyPos = getPosition(namedWorkerDeclNode.workerBody());
 
         // Set function name
-        bLFunction.name = createIdentifier(pos,
+        bLFunction.name = createIdentifier(symTable.builtinPos,
                                            anonymousModelHelper.getNextAnonymousFunctionKey(diagnosticSource.pkgID));
 
         // Set the function body
         BLangBlockStmt blockStmt = (BLangBlockStmt) namedWorkerDeclNode.workerBody().apply(this);
         BLangBlockFunctionBody bodyNode = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         bodyNode.stmts = blockStmt.stmts;
-        bodyNode.pos = pos;
+        bodyNode.pos = workerBodyPos;
         bLFunction.body = bodyNode;
         bLFunction.internal = true;
 
-        bLFunction.pos = pos;
+        bLFunction.pos = workerBodyPos;
 
         bLFunction.addFlag(Flag.LAMBDA);
         bLFunction.addFlag(Flag.ANONYMOUS);
@@ -1513,7 +1513,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = bLFunction;
-        lambdaExpr.pos = pos;
+        lambdaExpr.pos = workerBodyPos;
         lambdaExpr.internal = true;
 
         String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
@@ -1528,8 +1528,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 .build();
 
         BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        lamdaWrkr.pos = pos;
-        var.pos = pos;
+        lamdaWrkr.pos = workerBodyPos;
+        var.pos = workerBodyPos;
         lamdaWrkr.setVariable(var);
         lamdaWrkr.isWorker = true;
         lamdaWrkr.internal = var.internal = true;
@@ -1559,7 +1559,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLInvocation.async = true;
 //            attachAnnotations(invocation, numAnnotations, false);
         } else {
-            dlog.error(pos, DiagnosticCode.START_REQUIRE_INVOCATION);
+            dlog.error(workerBodyPos, DiagnosticCode.START_REQUIRE_INVOCATION);
         }
 
         BLangSimpleVariable invoc = new SimpleVarBuilder()
@@ -3338,8 +3338,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         bLangTypeDefinition.setName((BLangIdentifier) transform(enumDeclarationNode.identifier()));
+        bLangTypeDefinition.pos = getPosition(enumDeclarationNode);
 
         BLangUnionTypeNode bLangUnionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        bLangUnionTypeNode.pos = bLangTypeDefinition.pos;
         for (Node member : enumDeclarationNode.enumMemberList()) {
             bLangUnionTypeNode.memberTypeNodes.add(createTypeNode(((EnumMemberNode) member).identifier()));
         }
@@ -4621,8 +4623,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 IdentifierToken identifier = iNode.identifier();
                 BLangIdentifier pkgAlias = this.createIdentifier(getPosition(modulePrefix), modulePrefix);
                 DiagnosticPos namePos = getPosition(identifier);
-                namePos.sCol = namePos.sCol - modulePrefix.text().length() - 1; // 1 = length of colon
-                pkgAlias.pos.eCol = namePos.eCol;
                 BLangIdentifier name = this.createIdentifier(namePos, identifier);
                 return new BLangNameReference(getPosition(node), null, pkgAlias, name);
             case ERROR_TYPE_DESC:

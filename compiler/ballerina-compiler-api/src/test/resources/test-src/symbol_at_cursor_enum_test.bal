@@ -14,32 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-string aString = "foo";
-int anInt = 10;
-
-public function workerSendToWorker() returns int {
-    @strand{thread:"any"}
-    worker w1 {
-      int i = 40;
-      i -> w2;
-
-      float x = 12.34;
-      x ->> w2;
-
-      var res = flush w2;
-    }
-
-    @strand{thread:"any"}
-    worker w2 returns int {
-      int j = 25;
-      j = <- w1;
-
-      float y = <- w1;
-      return j;
-    }
-    int ret = wait w2;
-
-    return ret + 1;
+enum Colour {
+    RED, GREEN, BLUE
 }
 
-const HELLO = "Hello";
+function testEnum() {
+    string red = RED;
+    Colour c = GREEN;
+    c = toColour("BLUE");
+}
+
+function toColour(string colour) returns Colour {
+    if (colour == RED) {
+        return RED;
+    } else if (colour == GREEN) {
+        return GREEN;
+    } else if (colour == BLUE) {
+        return BLUE;
+    }
+
+    panic error("Invalid colour: " + colour);
+}
