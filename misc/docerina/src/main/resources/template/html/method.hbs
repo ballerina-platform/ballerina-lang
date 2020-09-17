@@ -15,6 +15,9 @@
         {{#if isDeprecated}}
             <span class="stab">Deprecated</span>
         {{/if}}
+        {{#if isIsolated}}
+        <div class="isolated-lbl ui horizontal label">Isolated Function</div>
+        {{/if}}
         {{{ setStyles description }}}
     </div>
     {{#if parameters}}

@@ -273,6 +273,7 @@ public class Generator {
                         functionNode.getFlags().contains(Flag.REMOTE),
                         functionNode.getFlags().contains(Flag.NATIVE),
                         isDeprecated(functionNode.getAnnotationAttachments()),
+                        functionNode.getFlags().contains(Flag.ISOLATED),
                         parameters, returnParams);
     }
 
