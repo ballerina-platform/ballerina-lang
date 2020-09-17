@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.formatter.core.Formatter;
+import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.codeaction.CodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
@@ -531,7 +532,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 Range range = new Range(new Position(0, 0), new Position(eofPos.line(), eofPos.offset()));
                 textEdit = new TextEdit(range, formattedSource);
                 return Collections.singletonList(textEdit);
-            } catch (UserErrorException e) {
+            } catch (UserErrorException | FormatterException e) {
                 notifyUser("Formatting", e);
                 return Collections.singletonList(textEdit);
             } catch (Throwable e) {

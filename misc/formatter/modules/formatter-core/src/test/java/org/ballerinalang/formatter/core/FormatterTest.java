@@ -53,7 +53,7 @@ public abstract class FormatterTest {
      * @param sourcePath Resources directory for the test type
      */
     @Test(dataProvider = "test-file-provider")
-    public void test(String source, String sourcePath) throws IOException {
+    public void test(String source, String sourcePath) throws IOException, FormatterException {
         Path assertFilePath = Paths.get(resourceDirectory.toString(), sourcePath, ASSERT_DIR, source);
         Path sourceFilePath = Paths.get(resourceDirectory.toString(), sourcePath, SOURCE_DIR, source);
         String content = getSourceText(sourceFilePath);

@@ -15,9 +15,11 @@
  */
 package org.ballerinalang.formatter.cli;
 
+import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -29,6 +31,7 @@ import java.util.List;
 @CommandLine.Command(name = "format", description = "format given Ballerina source file")
 public class FormatCmd implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
+    private static final PrintStream outStream = System.err;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -43,7 +46,11 @@ public class FormatCmd implements BLauncherCmd {
     public void execute() {
         // Get source root path.
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
-        FormatUtil.execute(argList, helpFlag, dryRun, sourceRootPath);
+        try {
+            FormatUtil.execute(argList, helpFlag, dryRun, sourceRootPath);
+        } catch (FormatterException e) {
+            outStream.println(e.getMessage());
+        }
     }
 
     @Override
