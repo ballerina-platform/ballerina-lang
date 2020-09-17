@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.builder.impl;
 
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
-import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -60,76 +58,42 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 
+import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
+
 /**
- * Code Action provider for incompatible types.
+ * Code Action for incompatible return types.
  *
  * @since 1.1.1
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class IncompatibleTypesCodeAction extends AbstractCodeActionProvider {
 
-    /**
-     * {@inheritDoc}
-     */
+
+public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
+
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
-        List<CodeAction> actions = new ArrayList<>();
-        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
-        LSDocumentIdentifier document = null;
-        try {
-            document = documentManager.getLSDocument(filePath.get());
-        } catch (WorkspaceDocumentException e) {
-            // ignore
-        }
-
-        if (document == null) {
-            return actions;
-        }
-
-        for (Diagnostic diagnostic : diagnosticsOfRange) {
-            if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
-                CodeAction codeAction = getIncompatibleTypesCommand(document, diagnostic, lsContext);
-                if (codeAction != null) {
-                    actions.add(codeAction);
-                }
-            }
-        }
-        return actions;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> allDiagnostics) {
-        throw new UnsupportedOperationException("Not supported");
-    }
-
-    private static CodeAction getIncompatibleTypesCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
-                                                          LSContext context) {
+    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
+        if (!filePath.isPresent()) {
+            return new ArrayList<>();
+        }
 
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
         if (matcher.find() && matcher.groupCount() > 1) {
             String foundType = matcher.group(2);
             WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
             try {
-                BLangFunction func = getFunctionNode(line, column, document, documentManager, context);
+                BLangFunction func = getFunctionNode(line, column, documentManager, context);
                 if (func != null && !BLangConstants.MAIN_FUNCTION_NAME.equals(func.name.value)) {
                     BLangStatement statement = getStatementByLocation(((BLangBlockFunctionBody) func.body).stmts,
                                                                       line + 1, column + 1);
@@ -146,7 +110,7 @@ public class IncompatibleTypesCodeAction extends AbstractCodeActionProvider {
                         if (func.returnTypeNode instanceof BLangValueType
                                 && TypeKind.NIL.equals(((BLangValueType) func.returnTypeNode).getTypeKind())
                                 && !hasReturnKeyword(func.returnTypeNode,
-                                                     documentManager.getTree(document.getPath()))) {
+                                                     documentManager.getTree(filePath.get()))) {
                             // eg. function test() {...}
                             start = new Position(func.returnTypeNode.pos.sLine - 1,
                                                  func.returnTypeNode.pos.eCol - 1);
@@ -162,14 +126,14 @@ public class IncompatibleTypesCodeAction extends AbstractCodeActionProvider {
 
                         // Add code action
                         String commandTitle = CommandConstants.CHANGE_RETURN_TYPE_TITLE + foundType + "'";
-                        return createQuickFixCodeAction(commandTitle, edits, uri);
+                        return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
                     }
                 }
             } catch (WorkspaceDocumentException | CompilationFailedException e) {
                 // ignore
             }
         }
-        return null;
+        return new ArrayList<>();
     }
 
     private static boolean hasReturnKeyword(BLangType returnTypeNode, SyntaxTree tree) {
@@ -180,10 +144,10 @@ public class IncompatibleTypesCodeAction extends AbstractCodeActionProvider {
         return false;
     }
 
-    private static BLangFunction getFunctionNode(int line, int column, LSDocumentIdentifier document,
+    private static BLangFunction getFunctionNode(int line, int column,
                                                  WorkspaceDocumentManager docManager, LSContext context)
             throws CompilationFailedException {
-        String uri = document.getURIString();
+        String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Position position = new Position();
         position.setLine(line);
         position.setCharacter(column + 1);

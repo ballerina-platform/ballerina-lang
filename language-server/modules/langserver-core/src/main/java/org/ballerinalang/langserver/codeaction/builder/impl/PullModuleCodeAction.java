@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.builder.impl;
 
-import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.toml.model.Dependency;
@@ -32,47 +32,21 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
 /**
- * Code Action provider for pulling a package from central.
+ * Code Action for pulling a package from central.
  *
  * @since 1.1.1
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class PullModuleCodeAction extends AbstractCodeActionProvider {
-    private static final String UNRESOLVED_MODULE = "cannot resolve module";
+public class PullModuleCodeAction implements DiagBasedCodeAction {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
-
-        List<CodeAction> actions = new ArrayList<>();
-
-        for (Diagnostic diagnostic : diagnosticsOfRange) {
-            if (diagnostic.getMessage().startsWith(UNRESOLVED_MODULE)) {
-                actions.add(getUnresolvedPackageCommand(diagnostic, lsContext));
-            }
-        }
-        return actions;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> allDiagnostics) {
-        throw new UnsupportedOperationException("Not supported");
-    }
-
-    private static CodeAction getUnresolvedPackageCommand(Diagnostic diagnostic, LSContext context) {
+    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
+            throws LSCodeActionProviderException {
         String diagnosticMessage = diagnostic.getMessage();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -93,9 +67,9 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
             action.setKind(CodeActionKind.QuickFix);
             action.setCommand(new Command(commandTitle, PullModuleExecutor.COMMAND, args));
             action.setDiagnostics(diagnostics);
-            return action;
+            return Collections.singletonList(action);
         }
-        return null;
+        return new ArrayList<>();
     }
 
     private static String getVersion(LSContext context, String pkgName, Matcher matcher) {
