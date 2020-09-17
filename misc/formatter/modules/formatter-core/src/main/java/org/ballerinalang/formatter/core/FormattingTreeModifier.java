@@ -370,10 +370,11 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         boolean addSpaces = false;
         if (functionDefinitionNode.parent() != null &&
-                functionDefinitionNode.parent().kind().equals(SyntaxKind.OBJECT_CONSTRUCTOR)) {
+                (functionDefinitionNode.parent().kind().equals(SyntaxKind.OBJECT_CONSTRUCTOR) ||
+                        functionDefinitionNode.parent().kind() == (SyntaxKind.CLASS_DEFINITION))) {
             addSpaces = true;
         }
-        int startColumn = getStartColumn(functionDefinitionNode, addSpaces);
+        int startColumn = qualifierList.isEmpty() ? getStartColumn(functionDefinitionNode, addSpaces) : 0;
         return functionDefinitionNode.modify()
                 .withFunctionKeyword(formatToken(functionKeyword, startColumn, 1, 0, 0))
                 .withFunctionName((IdentifierToken) formatToken(functionName, 0, 0, 0, 0))
@@ -507,6 +508,10 @@ public class FormattingTreeModifier extends TreeModifier {
         if (functionBodyBlockNode.parent() != null &&
                 functionBodyBlockNode.parent().kind() == (SyntaxKind.OBJECT_METHOD_DEFINITION)) {
             trailingNewLines = 1;
+        }
+        if (functionBodyBlockNode.parent() != null && functionBodyBlockNode.parent().parent() != null &&
+                functionBodyBlockNode.parent().parent().kind() == (SyntaxKind.CLASS_DEFINITION)) {
+            trailingNewLines = 2;
         }
         int openingTrailingNewLines = 1;
         if (statements.size() == 0 && namedWorkerDeclarator == null) {
@@ -3876,7 +3881,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (token.kind() == (SyntaxKind.COMMA_TOKEN)) {
             return formatToken(token, 0, 1, 0, 0);
         } else if (token.kind() == (SyntaxKind.PUBLIC_KEYWORD) || token.kind() == (SyntaxKind.ABSTRACT_KEYWORD) ||
-                token.kind() == (SyntaxKind.ISOLATED_KEYWORD)) {
+                token.kind() == (SyntaxKind.ISOLATED_KEYWORD) || token.kind() == (SyntaxKind.PRIVATE_KEYWORD)) {
             boolean addSpaces = true;
             if (token.parent() != null && token.parent().parent() != null &&
                     token.parent().parent().kind() == (SyntaxKind.RETURN_TYPE_DESCRIPTOR)) {

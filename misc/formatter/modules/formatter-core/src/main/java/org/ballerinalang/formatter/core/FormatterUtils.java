@@ -96,7 +96,8 @@ class FormatterUtils {
                 parentKind == SyntaxKind.LOCK_STATEMENT ||
                 parentKind == SyntaxKind.CONST_DECLARATION ||
                 parentKind == SyntaxKind.METHOD_DECLARATION ||
-                parentKind == SyntaxKind.TYPE_DEFINITION) {
+                parentKind == SyntaxKind.TYPE_DEFINITION ||
+                parentKind == (SyntaxKind.CLASS_DEFINITION)) {
             return parent;
         }
         if (parentKind == SyntaxKind.MATCH_CLAUSE && grandParent != null &&
