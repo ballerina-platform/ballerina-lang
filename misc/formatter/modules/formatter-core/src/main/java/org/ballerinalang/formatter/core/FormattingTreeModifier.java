@@ -3754,9 +3754,8 @@ public class FormattingTreeModifier extends TreeModifier {
         } else if (token.kind() == (SyntaxKind.RESOURCE_KEYWORD)) {
             return formatToken(token, startColumn, 1, 0, 0);
         } else if (token.kind() == (SyntaxKind.REMOTE_KEYWORD)) {
-            return formatToken(token, 0, 1, 0,0);
-        }
-        else if (token.parent() != null && token.parent().kind() == (SyntaxKind.CLASS_DEFINITION)) {
+            return formatToken(token, 0, 1, 0, 0);
+        } else if (token.parent() != null && token.parent().kind() == (SyntaxKind.CLASS_DEFINITION)) {
             return formatToken(token, 0, 1, 0, 0);
         }
         return token;
