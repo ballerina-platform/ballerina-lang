@@ -465,6 +465,11 @@ public class FormattingTreeModifier extends TreeModifier {
             trailingSpaces = 1;
         }
         Token name = getToken(builtinSimpleNameReferenceNode.name());
+        if (builtinSimpleNameReferenceNode.parent().kind() == SyntaxKind.OBJECT_FIELD) {
+            if (((ObjectFieldNode) parent).visibilityQualifier().isPresent()) {
+                startColumn = 0;
+            }
+        }
         return builtinSimpleNameReferenceNode.modify()
                 .withName(formatToken(name, startColumn, trailingSpaces, 0, 0))
                 .apply();
@@ -2762,9 +2767,11 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(functionTypeDescriptorNode, lineRange)) {
             return functionTypeDescriptorNode;
         }
+        NodeList<Token> qualifierList = this.modifyNodeList(functionTypeDescriptorNode.qualifierList());
         Token functionKeyword = getToken(functionTypeDescriptorNode.functionKeyword());
         FunctionSignatureNode functionSignature = this.modifyNode(functionTypeDescriptorNode.functionSignature());
         return functionTypeDescriptorNode.modify()
+                .withQualifierList(qualifierList)
                 .withFunctionKeyword(formatToken(functionKeyword, 0, 1, 0, 0))
                 .withFunctionSignature(functionSignature)
                 .apply();
@@ -2778,11 +2785,13 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         NodeList<AnnotationNode> annotations =
                 this.modifyNodeList(explicitAnonymousFunctionExpressionNode.annotations());
+        NodeList<Token> qualifierList = this.modifyNodeList(explicitAnonymousFunctionExpressionNode.qualifierList());
         Token functionKeyword = getToken(explicitAnonymousFunctionExpressionNode.functionKeyword());
         FunctionSignatureNode functionSignature =
                 this.modifyNode(explicitAnonymousFunctionExpressionNode.functionSignature());
         FunctionBodyNode functionBody = this.modifyNode(explicitAnonymousFunctionExpressionNode.functionBody());
         return explicitAnonymousFunctionExpressionNode.modify()
+                .withQualifierList(qualifierList)
                 .withAnnotations(annotations)
                 .withFunctionKeyword(formatToken(functionKeyword, 0, 1, 0, 0))
                 .withFunctionSignature(functionSignature)
@@ -3358,8 +3367,13 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(transactionStatementNode, lineRange)) {
             return transactionStatementNode;
         }
+        OnFailClauseNode onFailClause = this.modifyNode(transactionStatementNode.onFailClause().orElse(null));
         Token transactionKeyword = getToken(transactionStatementNode.transactionKeyword());
         BlockStatementNode blockStatement = this.modifyNode(transactionStatementNode.blockStatement());
+        if (onFailClause != null) {
+            transactionStatementNode = transactionStatementNode.modify()
+                    .withOnFailClause(onFailClause).apply();
+        }
         return transactionStatementNode.modify()
                 .withTransactionKeyword(formatToken(transactionKeyword, 1, 1, 0, 0))
                 .withBlockStatement(blockStatement)
@@ -3393,6 +3407,7 @@ public class FormattingTreeModifier extends TreeModifier {
         TypeParameterNode typeParameter = this.modifyNode(retryStatementNode.typeParameter().orElse(null));
         ParenthesizedArgList arguments = this.modifyNode(retryStatementNode.arguments().orElse(null));
         StatementNode retryBody = this.modifyNode(retryStatementNode.retryBody());
+        OnFailClauseNode onFailClause = this.modifyNode(retryStatementNode.onFailClause().orElse(null));
         if (typeParameter != null) {
             retryStatementNode = retryStatementNode.modify()
                     .withTypeParameter(typeParameter).apply();
@@ -3400,6 +3415,10 @@ public class FormattingTreeModifier extends TreeModifier {
         if (arguments != null) {
             retryStatementNode = retryStatementNode.modify()
                     .withArguments(arguments).apply();
+        }
+        if (onFailClause != null) {
+            retryStatementNode = retryStatementNode.modify()
+                    .withOnFailClause(onFailClause).apply();
         }
         return retryStatementNode.modify()
                 .withRetryKeyword(formatToken(retryKeyword, 1, 1, 0, 0))
@@ -3839,8 +3858,7 @@ public class FormattingTreeModifier extends TreeModifier {
     private int getStartColumn(Node node, boolean addSpaces) {
         Node parent = getParent(node, node.kind());
         if (parent != null) {
-            return getPosition(parent).sCol + (addSpaces ? FormatterUtils
-                    .getIndentation(node, 0, options) : 0);
+            return getPosition(parent).sCol + (addSpaces ? FormatterUtils.getIndentation(node, 0, options) : 0);
         }
         return 0;
     }
