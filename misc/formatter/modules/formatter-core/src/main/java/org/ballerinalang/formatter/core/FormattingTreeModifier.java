@@ -41,6 +41,7 @@ import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerinalang.compiler.syntax.tree.DistinctTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.DoStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DocumentationReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.DoubleGTTokenNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
@@ -131,6 +132,7 @@ import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
+import io.ballerinalang.compiler.syntax.tree.OnFailClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OrderByClauseNode;
@@ -338,11 +340,11 @@ public class FormattingTreeModifier extends TreeModifier {
             return identifier;
         }
         boolean addSpaces = false;
-        if (identifier.parent() != null && identifier.parent().kind() == (SyntaxKind.SPECIFIC_FIELD)) {
+        if (identifier.parent() != null && identifier.parent().kind() == SyntaxKind.SPECIFIC_FIELD) {
             addSpaces = true;
         }
         int trailingSpaces = 0;
-        if (identifier.parent().kind() == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) {
+        if (identifier.parent() != null && identifier.parent().kind() == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) {
             trailingSpaces = 1;
         }
         int startColumn = getStartColumn(identifier, addSpaces);
@@ -453,15 +455,13 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         int startColumn = NodeIndentation.builtinSimpleNameReferenceNode(builtinSimpleNameReferenceNode, options);
         int trailingSpaces = 0;
-        if (builtinSimpleNameReferenceNode.parent() != null &&
-                (builtinSimpleNameReferenceNode.parent().kind() == SyntaxKind.CONST_DECLARATION ||
-                (builtinSimpleNameReferenceNode.parent().kind() == SyntaxKind.TYPED_BINDING_PATTERN &&
-                        ((TypedBindingPatternNode) builtinSimpleNameReferenceNode.parent())
-                                .bindingPattern().kind() == SyntaxKind.LIST_BINDING_PATTERN))) {
+        NonTerminalNode parent = builtinSimpleNameReferenceNode.parent();
+        if (parent != null && (parent.kind() == SyntaxKind.CONST_DECLARATION ||
+                parent.kind() == SyntaxKind.ON_FAIL_CLAUSE || (parent.kind() == SyntaxKind.TYPED_BINDING_PATTERN &&
+                ((TypedBindingPatternNode) parent).bindingPattern().kind() == SyntaxKind.LIST_BINDING_PATTERN))) {
             trailingSpaces = 1;
         }
-        if (builtinSimpleNameReferenceNode.parent() != null &&
-                builtinSimpleNameReferenceNode.parent().kind() == (SyntaxKind.CONST_DECLARATION)) {
+        if (parent != null && parent.kind() == (SyntaxKind.CONST_DECLARATION)) {
             trailingSpaces = 1;
         }
         Token name = getToken(builtinSimpleNameReferenceNode.name());
@@ -1254,7 +1254,8 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         boolean addSpaces = false;
         if (checkExpressionNode.parent() != null &&
-                checkExpressionNode.parent().kind() == (SyntaxKind.ACTION_STATEMENT)) {
+                (checkExpressionNode.parent().kind() == (SyntaxKind.ACTION_STATEMENT) ||
+                checkExpressionNode.parent().kind() == (SyntaxKind.CALL_STATEMENT))) {
             addSpaces = true;
         }
         int startColumn = getStartColumn(checkExpressionNode, addSpaces);
@@ -3739,6 +3740,38 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         return orderKeyNode.modify()
                 .withExpression(expression)
+                .apply();
+    }
+
+
+    @Override
+    public OnFailClauseNode transform(OnFailClauseNode onFailClauseNode) {
+        Token onKeyword = getToken(onFailClauseNode.onKeyword());
+        int startColumn = getStartColumn(onFailClauseNode, false);
+        onFailClauseNode = onFailClauseNode.modify()
+                .withOnKeyword(formatToken(onKeyword, startColumn, 1, 0, 0)).apply();
+        Token failKeyword = getToken(onFailClauseNode.failKeyword());
+        TypeDescriptorNode typeDescriptor = this.modifyNode(onFailClauseNode.typeDescriptor());
+        IdentifierToken failErrorName = this.modifyNode(onFailClauseNode.failErrorName());
+        BlockStatementNode blockStatement = this.modifyNode(onFailClauseNode.blockStatement());
+        return onFailClauseNode.modify()
+                .withFailKeyword(formatToken(failKeyword, 0, 1, 0, 0))
+                .withTypeDescriptor(typeDescriptor)
+                .withFailErrorName(failErrorName)
+                .withBlockStatement(blockStatement)
+                .apply();
+    }
+
+    @Override
+    public DoStatementNode transform(DoStatementNode doStatementNode) {
+        Token doKeyword = getToken(doStatementNode.doKeyword());
+        BlockStatementNode blockStatement = this.modifyNode(doStatementNode.blockStatement());
+        OnFailClauseNode onFailClause = this.modifyNode(doStatementNode.onFailClause().orElse(null));
+        int startColumn = getStartColumn(doStatementNode, true);
+        return doStatementNode.modify()
+                .withDoKeyword(formatToken(doKeyword, startColumn, 0, 0, 0))
+                .withBlockStatement(blockStatement)
+                .withOnFailClause(onFailClause)
                 .apply();
     }
 

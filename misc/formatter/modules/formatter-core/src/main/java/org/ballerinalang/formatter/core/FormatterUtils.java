@@ -90,6 +90,7 @@ class FormatterUtils {
                 parentKind == (SyntaxKind.IF_ELSE_STATEMENT) ||
                 parentKind == (SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) ||
                 parentKind == (SyntaxKind.WHILE_STATEMENT) ||
+                parentKind == (SyntaxKind.DO_STATEMENT) ||
                 parentKind == (SyntaxKind.CONST_DECLARATION) ||
                 parentKind == (SyntaxKind.METHOD_DECLARATION) ||
                 parentKind == (SyntaxKind.TYPE_DEFINITION)) {
@@ -104,7 +105,8 @@ class FormatterUtils {
                     parentKind == (SyntaxKind.REMOTE_METHOD_CALL_ACTION) ||
                     parentKind == (SyntaxKind.FIELD_ACCESS) ||
                     (parentKind == (SyntaxKind.FUNCTION_CALL) && grandParent != null &&
-                            grandParent.kind() == (SyntaxKind.ASSIGNMENT_STATEMENT))) {
+                            (grandParent.kind() == (SyntaxKind.ASSIGNMENT_STATEMENT) ||
+                            grandParent.kind() == (SyntaxKind.CHECK_EXPRESSION)))) {
                 return null;
             }
             return getParent(parent, syntaxKind);
@@ -116,6 +118,12 @@ class FormatterUtils {
         }
         if (syntaxKind == (SyntaxKind.OBJECT_CONSTRUCTOR) &&
                 parentKind == (SyntaxKind.LOCAL_VAR_DECL)) {
+            return parent;
+        }
+        if (parentKind == SyntaxKind.ON_FAIL_CLAUSE) {
+            if (syntaxKind == SyntaxKind.VAR_TYPE_DESC) {
+                return null;
+            }
             return parent;
         }
         if (parentKind == (SyntaxKind.SERVICE_DECLARATION) ||
@@ -164,6 +172,10 @@ class FormatterUtils {
                     parentKind == SyntaxKind.METHOD_DECLARATION ||
                     parentKind == SyntaxKind.MAPPING_CONSTRUCTOR) {
                 indentation += formattingOptions.getTabSize();
+                Node grandParent = node.parent().parent();
+                if (grandParent != null && grandParent.kind() == SyntaxKind.DO_STATEMENT) {
+                    indentation -= formattingOptions.getTabSize();
+                }
             }
         }
         return getIndentation(node.parent(), indentation, formattingOptions);
@@ -469,11 +481,13 @@ class FormatterUtils {
         ArrayList<SyntaxKind> parentWithSpaces = new ArrayList<>(
                 Arrays.asList(
                         SyntaxKind.WHILE_STATEMENT,
+                        SyntaxKind.ON_FAIL_CLAUSE,
                         SyntaxKind.FUNCTION_DEFINITION));
         ArrayList<SyntaxKind> parentWithoutSpaces = new ArrayList<>(
                 Arrays.asList(
                         SyntaxKind.NAMED_WORKER_DECLARATION,
                         SyntaxKind.LOCAL_VAR_DECL,
+                        SyntaxKind.DO_STATEMENT,
                         SyntaxKind.FOREACH_STATEMENT));
 
         if (parentWithSpaces.contains(parent.kind())) {

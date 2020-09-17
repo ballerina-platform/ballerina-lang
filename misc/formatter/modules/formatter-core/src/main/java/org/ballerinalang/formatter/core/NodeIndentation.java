@@ -46,6 +46,7 @@ class NodeIndentation {
         boolean addSpaces = true;
         List<SyntaxKind> parentNodes = Arrays.asList(
                         SyntaxKind.FUNCTION_CALL,
+                        SyntaxKind.ON_FAIL_CLAUSE,
                         SyntaxKind.TYPE_TEST_EXPRESSION,
                         SyntaxKind.TYPE_PARAMETER,
                         SyntaxKind.TUPLE_TYPE_DESC,
@@ -105,6 +106,9 @@ class NodeIndentation {
             } else if (((MethodCallExpressionNode) parent).methodName().equals(node)) {
                 addSpaces = false;
             }
+        }
+        if (parent != null && parent.kind() == SyntaxKind.FUNCTION_CALL) {
+            addSpaces = false;
         }
         if (parent != null && grandParent != null && parent.kind() == SyntaxKind.INTERSECTION_TYPE_DESC &&
                 grandParent.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
