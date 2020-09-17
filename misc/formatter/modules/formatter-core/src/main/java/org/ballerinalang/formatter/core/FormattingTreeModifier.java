@@ -1067,6 +1067,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 (parentKind == (SyntaxKind.FUNCTION_BODY_BLOCK) ||
                         parentKind == (SyntaxKind.IF_ELSE_STATEMENT) ||
                         parentKind == (SyntaxKind.MATCH_CLAUSE) ||
+                        parentKind == (SyntaxKind.FOREACH_STATEMENT) ||
                         parentKind == (SyntaxKind.ELSE_BLOCK))) {
             if (blockStatementNode.children().size() <= 2) {
                 trailingOpeningLines = 2;
