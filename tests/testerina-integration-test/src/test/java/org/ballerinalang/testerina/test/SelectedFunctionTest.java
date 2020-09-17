@@ -39,7 +39,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         projectPath = singleFilesProjectPath.resolve("single-test-execution").toString();
     }
 
-    @Test(enabled = true)
+    @Test
     public void testSingleFunctionExecution() throws BallerinaTestException {
         String msg = "1 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -48,7 +48,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test(enabled = true)
+    @Test
     public void testDependentFunctionExecution() throws BallerinaTestException {
         String msg = "2 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -57,7 +57,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test(enabled = true)
+    @Test
     public void testMultipleFunctionExecution() throws BallerinaTestException {
         String msg = "2 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -66,7 +66,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test(enabled = true)
+    @Test
     public void testNonExistingFunctionExecution() throws BallerinaTestException {
         String msg = "No tests found with the given name/s";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -75,7 +75,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test(enabled = true)
+    @Test
     public void testDisabledFunctionExecution() throws BallerinaTestException {
         String msg = "No tests found with the given name/s";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -84,7 +84,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test(enabled = true)
+    @Test
     public void testDependentDisabledFunctionExecution() throws BallerinaTestException {
         String errMsg = "error: Test [testDependentDisabledFunc] depends on function [testDisabledFunc], " +
                 "but it couldn't be found.";

@@ -16,36 +16,12 @@
 
 import ballerina/test;
 
-// afterEach function that fails. All test functions except for the first should be skipped.
-
-string a = "before";
-
-@test:BeforeEach
-public function beforeEach() {
-    a = a + "beforeEach";
-}
-
-@test:AfterEach
-public function afterEach() {
-    int i = 12/0;
+@test:Config {}
+function testCallingIsolatedFunction() {
+    test:assertEquals(bar(), 34);
 }
 
 @test:Config {}
-public function test1() {
-    a = a + "test";
-}
-
-@test:Config {}
-public function test2() {
-    a = a + "test";
-}
-
-@test:Config {}
-public function test3() {
-    a = a + "test";
-}
-
-@test:AfterSuite {}
-public function afterSuite() {
-    test:assertEquals(a, "beforebeforeEachtest");
+isolated function testIsolatedTestFunction() {
+    test:assertTrue(true);
 }
