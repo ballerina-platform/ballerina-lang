@@ -53,7 +53,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-http')
+//    implementation project(':ballerina-http')
     implementation project(':ballerina-config')
     implementation project(':ballerina-mime')
     implementation 'info.picocli:picocli'
@@ -65,7 +65,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.7'
     implementation 'org.slf4j:slf4j-api'
     distBal project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-http', configuration: 'baloImplementation')
+//    distBal project(path: ':ballerina-http', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-io', configuration: 'baloImplementation')
     
     testCompile 'org.testng:testng'

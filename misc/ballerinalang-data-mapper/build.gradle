@@ -34,7 +34,7 @@ dependencies {
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-java')
     implementation project(':ballerina-file')
-    implementation project(':ballerina-http')
+//    implementation project(':ballerina-http')
     implementation project(':ballerina-io')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-mime')
@@ -43,7 +43,7 @@ dependencies {
     implementation project(':ballerina-system')
     implementation project(':ballerina-task')
     implementation project(':ballerina-time')
-    implementation project(':ballerina-transactions')
+//    implementation project(':ballerina-transactions')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-tool')
 

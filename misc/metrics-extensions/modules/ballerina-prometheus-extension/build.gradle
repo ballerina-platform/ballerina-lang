@@ -30,7 +30,7 @@ configurations {
 
 dependencies {
     baloCreat project(':lib-creator')
-    baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-config-api", configuration: 'baloImplementation')
 
@@ -52,7 +52,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-config-api')
-    interopImports project(':ballerina-http')
+//    interopImports project(':ballerina-http')
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-system')
@@ -69,7 +69,7 @@ dependencies {
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-logging')
     implementation project(':lib-creator')
-    implementation project(':ballerina-http')
+//    implementation project(':ballerina-http')
     implementation project(':ballerina-observability')
     implementation project(":ballerina-config-api")
     implementation project(':ballerina-time')
