@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.model.TreeBuilder;
@@ -3700,7 +3701,8 @@ public class Desugar extends BLangNodeVisitor {
             fieldAccessExpr.expr = addConversionExprIfRequired(fieldAccessExpr.expr, varRefType);
         }
 
-        BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
+        BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.field.pos,
+                                                     StringEscapeUtils.unescapeJava(fieldAccessExpr.field.value));
         int varRefTypeTag = varRefType.tag;
         if (varRefTypeTag == TypeTags.OBJECT ||
                 (varRefTypeTag == TypeTags.UNION &&
@@ -7430,17 +7432,22 @@ public class Desugar extends BLangNodeVisitor {
 
                 BLangRecordLiteral.BLangRecordKey key = keyValueField.key;
                 BLangExpression origKey = key.expr;
-                BLangExpression keyExpr = key.computedKey ? origKey :
-                        origKey.getKind() == NodeKind.SIMPLE_VARIABLE_REF ?
-                                createStringLiteral(pos, ((BLangSimpleVarRef) origKey).variableName.value) :
-                                ((BLangLiteral) origKey);
+                BLangExpression keyExpr;
+                if (key.computedKey) {
+                    keyExpr = origKey;
+                } else {
+                    keyExpr = origKey.getKind() == NodeKind.SIMPLE_VARIABLE_REF ? createStringLiteral(pos,
+                            StringEscapeUtils.unescapeJava(((BLangSimpleVarRef) origKey).variableName.value)) :
+                            ((BLangLiteral) origKey);
+                }
 
                 rewrittenFields.add(ASTBuilderUtil.createBLangRecordKeyValue(rewriteExpr(keyExpr),
                                                                              rewriteExpr(keyValueField.valueExpr)));
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRefField = (BLangSimpleVarRef) field;
                 rewrittenFields.add(ASTBuilderUtil.createBLangRecordKeyValue(
-                        rewriteExpr(createStringLiteral(pos, varRefField.variableName.value)),
+                        rewriteExpr(createStringLiteral(pos,
+                                StringEscapeUtils.unescapeJava(varRefField.variableName.value))),
                         rewriteExpr(varRefField)));
             } else {
                 BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =

@@ -408,6 +408,8 @@ public class BIRPackageSymbolEnter {
 
         defineGlobalVarDependencies(invokableSymbol, dataInStream);
 
+        dataInStream.skip(dataInStream.readLong()); // read and skip scope table info
+
         dataInStream.skip(dataInStream.readLong()); // read and skip method body
 
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);

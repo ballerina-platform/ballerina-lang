@@ -209,9 +209,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 validateReferences(field);
             }
         }
-
-        validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
-                Symbols.isFlagOn(typeDefinition.symbol.flags, Flags.DEPRECATED), typeDefinition.pos);
+        if (typeDefinition.symbol != null) {
+            validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
+                    Symbols.isFlagOn(typeDefinition.symbol.flags, Flags.DEPRECATED), typeDefinition.pos);
+        }
         validateDeprecatedParametersDocumentation(typeDefinition.markdownDocumentationAttachment, typeDefinition.pos);
     }
 

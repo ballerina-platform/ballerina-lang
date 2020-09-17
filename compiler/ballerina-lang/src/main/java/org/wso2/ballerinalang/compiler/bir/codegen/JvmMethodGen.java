@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
+import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
@@ -77,8 +78,10 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -338,6 +341,7 @@ public class JvmMethodGen {
         // Add strand variable to LVT
         mv.visitLocalVariable("__strand", String.format("L%s;", STRAND_CLASS), null, methodStartLabel, methodEndLabel,
                               localVarOffset);
+        BIRBasicBlock endBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         for (int i = localVarOffset; i < func.localVars.size(); i++) {
             BIRVariableDcl localVar = func.localVars.get(i);
             Label startLabel = methodStartLabel;
@@ -347,12 +351,11 @@ public class JvmMethodGen {
             }
             // local vars have visible range information
             if (localVar.kind == VarKind.LOCAL) {
-                int insOffset = localVar.insOffset;
                 if (localVar.startBB != null) {
-                    startLabel = labelGen.getLabel(funcName + localVar.startBB.id.value + "ins" + insOffset);
+                    startLabel = labelGen.getLabel(funcName + JvmCodeGenUtil.SCOPE_PREFIX + localVar.insScope.id);
                 }
                 if (localVar.endBB != null) {
-                    endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
+                    endLabel = labelGen.getLabel(funcName + endBB.id.value + "beforeTerm");
                 }
             }
             String metaVarName = localVar.metaVarName;
@@ -1229,7 +1232,7 @@ public class JvmMethodGen {
         String frameClassName = pkgName;
         if (attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType instanceof BServiceType ||
                 attachedType.tag == TypeTags.RECORD)) {
-            frameClassName += JvmCodeGenUtil.cleanupTypeName(JvmCodeGenUtil.toNameString(attachedType)) + "_";
+            frameClassName += JvmCodeGenUtil.cleanupReadOnlyTypeName(JvmCodeGenUtil.toNameString(attachedType)) + "_";
         }
 
         return frameClassName + JvmCodeGenUtil.cleanupFunctionName(funcName) + "Frame";
@@ -1283,6 +1286,9 @@ public class JvmMethodGen {
                                     BType attachedType, String moduleClassName, AsyncDataCollector asyncDataCollector) {
 
         String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
+        BirScope lastScope = null;
+        Set<BirScope> visitedScopesSet = new HashSet<>();
+
         int caseIndex = 0;
         for (int i = 0; i < func.basicBlocks.size(); i++) {
             BIRBasicBlock bb = func.basicBlocks.get(i);
@@ -1295,8 +1301,9 @@ public class JvmMethodGen {
             }
 
             // generate instructions
-            JvmCodeGenUtil.generateBbInstructions(mv, labelGen, instGen, localVarOffset, asyncDataCollector,
-                                                  funcName, bb);
+            lastScope = JvmCodeGenUtil
+                    .getLastScopeFromBBInsGen(mv, labelGen, instGen, localVarOffset, asyncDataCollector, funcName, bb,
+                                              visitedScopesSet, lastScope);
 
             Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
             mv.visitLabel(bbEndLabel);
@@ -1325,7 +1332,7 @@ public class JvmMethodGen {
                 terminator instanceof Return) {
             generateAnnotLoad(mv, module.typeDefs, JvmCodeGenUtil.getPackageName(module));
         }
-        //set module start success to true for ___init class
+        //set module start success to true for $_init class
         if (isModuleStartFunction(module, funcName) && terminator.kind == InstructionKind.RETURN) {
             mv.visitInsn(ICONST_1);
             mv.visitFieldInsn(PUTSTATIC,

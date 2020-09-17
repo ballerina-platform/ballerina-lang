@@ -64,6 +64,8 @@ dependencies {
 
 kaitai {
     packageName = 'org.ballerinalang.build.kaitai'
+    cacheDir = new File("${project.gradle.gradleUserHomeDir}/kaitai-cache")
+    executionTimeout = 10_000
 }
 
 sourceSets.main.java.srcDirs += 'build/generated/kaitai/src'

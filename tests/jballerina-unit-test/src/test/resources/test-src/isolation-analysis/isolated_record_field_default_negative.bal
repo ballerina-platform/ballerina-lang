@@ -14,13 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+boolean w = true;
 int x = 1;
-
 function foo() returns int => 1;
 
 type Foo record {|
     int i = x;
     int j = foo();
+    Bar k = new;
 |};
 
 function testInvalidNonIsolatedRecordDefaultValues() {
@@ -30,6 +31,15 @@ function testInvalidNonIsolatedRecordDefaultValues() {
         int i = y;
         string j = bar(1);
         string k = bar(x);
+        object {
+            boolean b;
+
+            function getB() returns boolean;
+        } ob = object {
+            boolean b = w;
+
+            isolated function getB() returns boolean => self.b;
+        };
     } rec = {"oth": 2.34};
 }
 
@@ -40,3 +50,11 @@ function (int i) returns string bar = function (int i) returns string {
 
     return "oth";
 };
+
+class Bar {
+    int i;
+
+    function init() { // not marked `isolated`
+        self.i = 1;
+    }
+}
