@@ -2045,6 +2045,11 @@ public class FormattingTreeModifier extends TreeModifier {
         Token lockKeyword = getToken(lockStatementNode.lockKeyword());
         lockStatementNode = lockStatementNode.modify()
                 .withLockKeyword(formatToken(lockKeyword, startColumn, 0, 0, 0)).apply();
+        OnFailClauseNode onFailClause = this.modifyNode(lockStatementNode.onFailClause().orElse(null));
+        if (onFailClause != null) {
+            lockStatementNode = lockStatementNode.modify()
+                    .withOnFailClause(onFailClause).apply();
+        }
         StatementNode blockStatement = this.modifyNode(lockStatementNode.blockStatement());
         return lockStatementNode.modify()
                 .withBlockStatement(blockStatement)
