@@ -3869,7 +3869,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withClassKeyword(formatToken(classKeyword, startColumn, 0, 0, 0))
                 .withClassName(formatToken(className, 1, 0, 0, 0))
                 .withOpenBrace(formatToken(openBrace, 1, 0, 0, 1))
-                .withCloseBrace(formatToken(closeBrace, 0, 0, 0, 1))
+                .withCloseBrace(formatToken(closeBrace, 0, 0, 0, 2))
                 .withClassTypeQualifiers(qualifierList)
                 .withMembers(members)
                 .apply();
