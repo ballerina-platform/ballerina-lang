@@ -18,11 +18,11 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.BalEnv;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -37,11 +37,10 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
  */
 public class GetNextPromise extends AbstractHTTPAction {
 
-    public static Object getNextPromise(BObject clientObj, BObject handleObj) {
+    public static Object getNextPromise(BalEnv env, BObject clientObj, BObject handleObj) {
         Strand strand = Scheduler.getStrand();
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
-        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), handleObj,
-                                                  null);
+        DataContext dataContext = new DataContext(strand, clientConnector, env.markAsync(), handleObj, null);
         ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
             throw new BallerinaException("invalid http handle");

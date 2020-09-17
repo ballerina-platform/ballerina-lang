@@ -595,6 +595,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 methodDeclarationNode.qualifierList(), methodDeclarationNode.methodSignature(), null);
 
         bLFunction.annAttachments = applyAll(getAnnotations(methodDeclarationNode.metadata()));
+        bLFunction.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(getDocumentationString(methodDeclarationNode.metadata()));
         bLFunction.pos = getPositionWithoutMetadata(methodDeclarationNode);
         return bLFunction;
     }

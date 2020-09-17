@@ -580,6 +580,16 @@ body .content-wrapper .function-desc p {
   display: block;
   color: #333;
 }
+body .content-wrapper .function-desc .isolated-lbl {
+  margin-bottom: 5px;
+}
+body .content-wrapper table td.module-desc p {
+  display: inline;
+}
+body .content-wrapper table td .function-desc p {
+  display: inline;
+  color: #333;
+}
 body .content-wrapper .stab {
   background: #FFF5D6;
   border-color: #FFC600;
