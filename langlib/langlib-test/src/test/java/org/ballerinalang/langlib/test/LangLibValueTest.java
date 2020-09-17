@@ -91,11 +91,6 @@ public class LangLibValueTest {
     }
 
     @Test
-    public void testToStringOnCycles() {
-        BRunUtil.invokeFunction(compileResult, "testToStringOnCycles");
-    }
-
-    @Test
     public void testFromJsonString() {
 
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonString");
@@ -223,8 +218,8 @@ public class LangLibValueTest {
     }
 
     @Test
-    public void testToStringForTable() {
-        BRunUtil.invokeFunction(compileResult, "testToStringMethodForTable");
+    public void testToStringAndToBalStringForTable() {
+        BRunUtil.invokeFunction(compileResult, "testToStringAndToBalStringForTable");
     }
 
     @Test(dataProvider = "mergeJsonFunctions")
@@ -243,10 +238,10 @@ public class LangLibValueTest {
     public void testToBalString() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testToBalStringMethod");
         BValueArray array = (BValueArray) returns[0];
-        assertEquals(array.getRefValue(0).stringValue(), "4");
-        assertEquals(array.getRefValue(1).stringValue(), "4");
-        assertEquals(array.getRefValue(2).stringValue(), "4");
-        assertEquals(array.getRefValue(3).stringValue(), "4");
+        assertEquals(array.getRefValue(0).stringValue(), "\"Tom\"");
+        assertEquals(array.getRefValue(1).stringValue(), "\"Tom\"");
+        assertEquals(array.getRefValue(2).stringValue(), "\"Tom\"");
+        assertEquals(array.getRefValue(3).stringValue(), "\"Tom\"");
 
         returns = BRunUtil.invokeFunction(compileResult, "testToBalString");
         array = (BValueArray) returns[0];
@@ -274,6 +269,8 @@ public class LangLibValueTest {
         Assert.assertEquals(array.getString(i++),
                 "{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\",\"city\":\"Colombo\"," +
                         "\"street\":\"Palm Grove\"},\"age\":12}");
+        Assert.assertEquals(array.getString(i++),
+                "[float:NaN \"ABC\",float:Infinity \"LMN\"]");
         Assert.assertEquals(array.getString(i),
                 "{\"varInt\":6," +
                         "\"varFloat\":6.0," +
@@ -294,18 +291,19 @@ public class LangLibValueTest {
                         "\"varObj2\":object Rola from MMV," +
                         "\"varObjArr\":[object Student -214492645,object Rola from MMV]," +
                         "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
-                        "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}}");
+                        "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}}" +
+                        "\"varTupleArr\":[float:NaN \"ABC\",float:Infinity \"LMN\"],");
     }
 
     @Test
-    public void testToBalStringMethodForTable() {
-        BRunUtil.invokeFunction(compileResult, "testToBalStringMethodForTable");
-    }
-
-    @Test
-    public void xmlSequenceFragmentToBalString() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "xmlSequenceFragmentToBalString");
+    public void testXmlSequenceFragmentToBalString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testXmlSequenceFragmentToBalString");
         Assert.assertEquals((returns[0]).stringValue(), "xml`<def>DEF</def><ghi>1</ghi>`");
+    }
+
+    @Test
+    public void testToStringAndToBalStringOnCycles() {
+        BRunUtil.invokeFunction(compileResult, "testToStringAndToBalStringOnCycles");
     }
 
     @DataProvider(name = "mergeJsonFunctions")

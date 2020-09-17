@@ -443,7 +443,7 @@ function testToString() returns string[] {
             varObj.toString(), varObj2.toString(), varObjArr.toString(), p.toString(), varMap.toString()];
 }
 
-function testToStringMethodForTable() {
+function testToStringAndToBalStringForTable() {
     table<Employee> employeeTable = table key(id) [
             { id: 1, age: 30,  salary: 300.5, name: "Mary", married: true },
             { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
@@ -451,6 +451,8 @@ function testToStringMethodForTable() {
 
     assertEquality("[{\"id\":1,\"age\":30,\"salary\":300.5,\"name\":\"Mary\",\"married\":true},"
     + "{\"id\":2,\"age\":20,\"salary\":300.5,\"name\":\"John\",\"married\":true}]", employeeTable.toString());
+    assertEquality("table key(id) [{\"id\":1,\"age\":30,\"salary\":300.5d,\"name\":\"Mary\",\"married\":true},"
+    + "{\"id\":2,\"age\":20,\"salary\":300.5d,\"name\":\"John\",\"married\":true}]", employeeTable.toBalString());
 }
 
 public function xmlSequenceFragmentToString() returns string {
@@ -460,10 +462,10 @@ public function xmlSequenceFragmentToString() returns string {
 }
 
 function testToBalStringMethod() returns [string, string, string, string] {
-    int a = 4;
+    string a = "Tom";
     anydata b = a;
     any c = b;
-    var d = c.toString();
+    var d = c.toBalString();
     return [a.toBalString(), b.toBalString(), c.toBalString(), d];
 }
 
@@ -483,6 +485,7 @@ function testToBalString() returns string[] {
     Student varObj = new("Alaa", "MMV");
     Teacher varObj2 = new("Rola", "MMV");
     any[] varObjArr = [varObj, varObj2];
+    [float, string][] varTupleArr = [[(0.0/0.0), "ABC"], [(1.0/0.0), "LMN"]];
     xml varXml = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`;
 
     varMap["varInt"] = varInt;
@@ -499,27 +502,30 @@ function testToBalString() returns string[] {
     varMap["varObj2"] = varObj2;
     varMap["varObjArr"] = varObjArr;
     varMap["varRecord"] = p;
+    varMap["varTupleArr"] = varTupleArr;
 
     return [varInt.toBalString(), varFloat.toBalString(), varStr.toBalString(), varNil.toBalString(),
     varBool.toBalString(), varDecimal.toBalString(), varJson.toBalString(), varXml.toBalString(), varArr.toBalString(),
     varErr.toBalString(), varObj.toBalString(), varObj2.toBalString(), varObjArr.toBalString(), p.toBalString(),
-    varMap.toBalString()];
+    varTupleArr.toBalString(), varMap.toBalString()];
 }
 
-function testToBalStringMethodForTable() {
-    table<Employee> employeeTable = table key(id) [
-            { id: 1, age: 30,  salary: 300.5, name: "Mary", married: true },
-            { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
-        ];
-
-    assertEquality("table key(id) [{\"id\":1,\"age\":30,\"salary\":300.5d,\"name\":\"Mary\",\"married\":true},"
-    + "{\"id\":2,\"age\":20,\"salary\":300.5d,\"name\":\"John\",\"married\":true}]", employeeTable.toBalString());
-}
-
-public function xmlSequenceFragmentToBalString() returns string {
+function testXmlSequenceFragmentToBalString() returns string {
    xml x = xml `<abc><def>DEF</def><ghi>1</ghi></abc>`;
 
    return (x/*).toBalString();
+}
+
+function testToStringAndToBalStringOnCycles() {
+     map<anydata> x = {"ee" : 3};
+     map<anydata> y = {"qq" : 5};
+     anydata[] arr = [2 , 3, 5];
+     x["1"] = y;
+     y["1"] = x;
+     y["2"] = arr;
+     arr.push(x);
+     assert(x.toString(), "{\"ee\":3,\"1\":{\"qq\":5,\"1\":...,\"2\":[2,3,5,...]}}");
+     assert(x.toBalString(), "{\"ee\":3,\"1\":{\"qq\":5,\"1\":...[1],\"2\":[2,3,5,...[1]]}}");
 }
 
 type AssertionError distinct error;
@@ -1090,17 +1096,6 @@ function testToJsonWithTable() {
     ];
     json j = tb.toJson();
     assert(j.toJsonString(), "[{\"id\":12, \"str\":\"abc\"}, {\"id\":34, \"str\":\"def\"}]");
-}
-
-function testToStringOnCycles() {
-     map<anydata> x = {"ee" : 3};
-     map<anydata> y = {"qq" : 5};
-     anydata[] arr = [2 , 3, 5];
-     x["1"] = y;
-     y["1"] = x;
-     y["2"] = arr;
-     arr.push(x);
-     assert(x.toString(), "{\"ee\":3,\"1\":{\"qq\":5,\"1\":...,\"2\":[2,3,5,...]}}");
 }
 
 function assert(anydata actual, anydata expected) {

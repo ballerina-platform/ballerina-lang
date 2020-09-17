@@ -34,6 +34,7 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.NonBmpStringValue;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -228,8 +229,17 @@ public class BStringUtils {
             if (isExpressionStyle) {
                 return decimalValue.expressionStringValue(parent);
             }
-            return String.valueOf(decimalValue);
+        }
 
+        if (type.getTag() == TypeTags.FLOAT_TAG) {
+            if (isExpressionStyle) {
+                if (Double.isNaN((Double) value)) {
+                    return "float:" + Double.toString((Double) value);
+                }
+                if (Double.isInfinite((Double) value)) {
+                    return "float:" + Double.toString((Double) value);
+                }
+            }
         }
 
         if (type.getTag() < TypeTags.JSON_TAG) {

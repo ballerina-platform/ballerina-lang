@@ -616,7 +616,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
                     } else {
                         BType type = TypeChecker.getType(refValues[i]);
                         switch (type.getTag()) {
-                            case TypeTags.DECIMAL_TAG:
                             case TypeTags.STRING_TAG:
                             case TypeTags.XML_TAG:
                             case TypeTags.XML_ELEMENT_TAG:
@@ -631,19 +630,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
                                 } else {
                                     sj.add(((BValue) (refValues[i])).informalStringValue(new CycleUtils
                                             .Node(this, parent)));
-                                }
-                                break;
-                            case TypeTags.FLOAT_TAG:
-                                if (isExpressionStyle) {
-                                    if (Double.isNaN((Double) refValues[i])) {
-                                        sj.add("float:" + refValues[i].toString());
-                                    } else if (Double.isInfinite((Double) refValues[i])) {
-                                        sj.add("float:" + refValues[i].toString());
-                                    } else {
-                                        sj.add(refValues[i].toString());
-                                    }
-                                } else {
-                                    sj.add(refValues[i].toString());
                                 }
                                 break;
                             default:

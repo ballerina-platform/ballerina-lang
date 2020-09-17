@@ -159,10 +159,6 @@ public class ErrorValue extends BError implements RefValue {
                             sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
                         }
                         break;
-                    case TypeTags.DECIMAL_TAG:
-                        if (isExpressionStyle) {
-                            sj.add(key + "=" + ((BValue) value).expressionStringValue(parent));
-                        }
                     default:
                         if (isExpressionStyle) {
                             sj.add(key + "=" + BStringUtils.getExpressionStringValue(value, parent));
