@@ -316,7 +316,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     public String stringValue(BLink parent) {
-        return createStringValueDataEntry(parent, false);
+        Iterator<Map.Entry<Long, V>> itr = values.entrySet().iterator();
+        return createStringValueDataEntry(itr, parent);
     }
 
     @Override
@@ -326,33 +327,36 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     @Override
     public String expressionStringValue(BLink parent) {
-        return createStringValueDataEntry(parent, true);
+        Iterator<Map.Entry<Long, V>> itr = values.entrySet().iterator();
+        return createExpressionStringValueDataEntry(itr, parent);
     }
 
-    private String createStringValueDataEntry(BLink parent, boolean isExpressionStyle) {
-        Iterator<Map.Entry<Long, V>> itr = values.entrySet().iterator();
-        String tableToStringVal = "";
+    private String createStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr, BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         while (itr.hasNext()) {
             Map.Entry<Long, V> struct = itr.next();
-            if (isExpressionStyle) {
-                StringJoiner keyJoiner = new StringJoiner(",");
-                String[] keysList = type.getFieldNames();
-                if (keysList.length > 0) {
-                    for (int i = 0; i < keysList.length; i++) {
-                        keyJoiner.add(keysList[i]);
-                    }
-                }
-                sj.add(BStringUtils.getExpressionStringValue(struct.getValue(),
-                        new CycleUtils.Node(this, parent)));
-                tableToStringVal = "table key(" + keyJoiner.toString() + ") [" + sj.toString() + "]";
-            } else {
-                sj.add(BStringUtils.getStringValue(struct.getValue(),
-                        new CycleUtils.Node(this, parent)));
-                tableToStringVal = "[" + sj.toString() + "]";
+            sj.add(BStringUtils.getStringValue(struct.getValue(),
+                    new CycleUtils.Node(this, parent)));
+        }
+        return "[" + sj.toString() + "]";
+    }
+
+    private String createExpressionStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr, BLink parent) {
+        StringJoiner sj = new StringJoiner(",");
+        StringJoiner keyJoiner = new StringJoiner(",");
+        if (type.getFieldNames() != null) {
+            String[] keysList = type.getFieldNames();
+            for (int i = 0; i < keysList.length; i++) {
+                keyJoiner.add(keysList[i]);
             }
         }
-        return tableToStringVal;
+        while (itr.hasNext()) {
+            Map.Entry<Long, V> struct = itr.next();
+            sj.add(BStringUtils.getExpressionStringValue(struct.getValue(),
+                    new CycleUtils.Node(this, parent)));
+        }
+        return keyJoiner.length() == 0 ? "table [" + sj.toString() + "]" : "table " +
+                "key(" + keyJoiner.toString() + ") [" + sj.toString() + "]";
     }
 
     private BType getTableConstraintField(BType constraintType, String fieldName) {

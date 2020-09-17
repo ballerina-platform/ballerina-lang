@@ -417,25 +417,12 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public String stringValue(BLink parent) {
-        return createStringValueInStyle(parent, false);
-    }
-
-    @Override
-    public String expressionStringValue(BLink parent) {
-        return createStringValueInStyle(parent, true);
-    }
-
-    private String createStringValueInStyle(BLink parent, Boolean isExpressionStyle) {
         StringJoiner sj = new StringJoiner(",");
         for (Map.Entry<K, V> kvEntry : this.entrySet()) {
             K key = kvEntry.getKey();
             V value = kvEntry.getValue();
             if (value == null) {
-                if (isExpressionStyle) {
-                    sj.add("\"" + key + "\":()");
-                } else {
-                    sj.add("\"" + key + "\":null");
-                }
+                sj.add("\"" + key + "\":null");
             } else {
                 BType type = TypeChecker.getType(value);
                 CycleUtils.Node mapParent = new CycleUtils.Node(this, parent);
@@ -448,21 +435,25 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                     case TypeTags.XML_PI_TAG:
                     case TypeTags.XMLNS_TAG:
                     case TypeTags.XML_TEXT_TAG:
-                        if (isExpressionStyle) {
-                            sj.add("\"" + key + "\":" + ((BValue) value).expressionStringValue(mapParent));
-                        } else {
-                            sj.add("\"" + key + "\":" + ((BValue) value).informalStringValue(mapParent));
-                        }
+                        sj.add("\"" + key + "\":" + ((BValue) value).informalStringValue(mapParent));
                         break;
                     default:
-                        if (isExpressionStyle) {
-                            sj.add("\"" + key + "\":" + BStringUtils.getExpressionStringValue(value, mapParent));
-                        } else {
-                            sj.add("\"" + key + "\":" + BStringUtils.getStringValue(value, mapParent));
-                        }
+                        sj.add("\"" + key + "\":" + BStringUtils.getStringValue(value, mapParent));
                         break;
                 }
             }
+        }
+        return "{" + sj.toString() + "}";
+    }
+
+    @Override
+    public String expressionStringValue(BLink parent) {
+        StringJoiner sj = new StringJoiner(",");
+        for (Map.Entry<K, V> kvEntry : this.entrySet()) {
+            K key = kvEntry.getKey();
+            V value = kvEntry.getValue();
+            CycleUtils.Node mapParent = new CycleUtils.Node(this, parent);
+            sj.add("\"" + key + "\":" + BStringUtils.getExpressionStringValue(value, mapParent));
         }
         return "{" + sj.toString() + "}";
     }

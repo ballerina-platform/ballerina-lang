@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
- * Returns a simple, human-readable expression style representation of the given value as a String.
+ * Returns expression style representation of the given value as a String.
  *
  * @since Swan Lake
  */

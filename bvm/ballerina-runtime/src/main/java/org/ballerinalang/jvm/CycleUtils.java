@@ -38,13 +38,13 @@ public class CycleUtils {
         public Node(Object obj, BLink parent) {
             this.obj = obj;
             this.parent = parent;
+            this.index++;
         }
 
         public boolean hasCyclesSoFar() {
             Node parent = (Node) this.parent;
             while (parent != null) {
                 if (parent.obj == obj) {
-                    index++;
                     return true;
                 }
                 parent = (Node) parent.parent;

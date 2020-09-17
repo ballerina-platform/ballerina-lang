@@ -105,43 +105,36 @@ public class ErrorValue extends BError implements RefValue {
     public String stringValue(BLink parent) {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
-            return "error" + getModuleName(false) + "(" + ((StringValue) message).informalStringValue(linkParent) + ")";
+            return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent) + ")";
         }
-        return "error" + getModuleName(false) + "(" + ((StringValue) message).informalStringValue(linkParent) +
-                getCauseToString(linkParent, false) + getDetailsToString(linkParent, false) + ")";
+        return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent) +
+                getCauseToString(linkParent) + getDetailsToString(linkParent) + ")";
     }
 
     @Override
     public String expressionStringValue(BLink parent) {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
-            return "error" + getModuleName(true) + "(" + ((StringValue) message)
+            return "error" + getModuleNameToBalString() + "(" + ((StringValue) message)
                     .informalStringValue(linkParent) + ")";
         }
-        return "error" + getModuleName(true) + "(" + ((StringValue) message).expressionStringValue(linkParent) +
-                getCauseToString(linkParent, true) + getDetailsToString(linkParent, true) + ")";
+        return "error" + getModuleNameToBalString() + "(" + ((StringValue) message).expressionStringValue(linkParent) +
+                getCauseToBalString(linkParent) + getDetailsToBalString(linkParent) + ")";
     }
 
-    private String getCauseToString(BLink parent, boolean isExpressionStyle) {
+    private String getCauseToString(BLink parent) {
         if (cause != null) {
-            if (isExpressionStyle) {
-                return "," + cause.expressionStringValue(parent);
-            }
             return "," + cause.informalStringValue(parent);
         }
         return "";
     }
 
-    private String getDetailsToString(BLink parent, boolean isExpressionStyle) {
+    private String getDetailsToString(BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         for (Object key : ((MapValue) details).getKeys()) {
             Object value = ((MapValue) details).get(key);
             if (value == null) {
-                if (isExpressionStyle) {
-                    sj.add(key + "=()");
-                } else {
-                    sj.add(key + "=null");
-                }
+                sj.add(key + "=null");
             } else {
                 BType type = TypeChecker.getType(value);
                 switch (type.getTag()) {
@@ -153,18 +146,10 @@ public class ErrorValue extends BError implements RefValue {
                     case TypeTags.XML_PI_TAG:
                     case TypeTags.XMLNS_TAG:
                     case TypeTags.XML_TEXT_TAG:
-                        if (isExpressionStyle) {
-                            sj.add(key + "=" + ((BValue) value).expressionStringValue(parent));
-                        } else {
-                            sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
-                        }
+                        sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
                         break;
                     default:
-                        if (isExpressionStyle) {
-                            sj.add(key + "=" + BStringUtils.getExpressionStringValue(value, parent));
-                        } else {
-                            sj.add(key + "=" + BStringUtils.getStringValue(value, parent));
-                        }
+                        sj.add(key + "=" + BStringUtils.getStringValue(value, parent));
                         break;
                 }
             }
@@ -172,10 +157,27 @@ public class ErrorValue extends BError implements RefValue {
         return "," + sj.toString();
     }
 
-    private String getModuleName(boolean isInformal) {
-        if (isInformal) {
-            return type.getPackage().name == null ? "" : " " + type.getName() + " ";
+    private String getModuleNameToString() {
+        return type.getPackage().name == null ? "" : " " + type.getName() + " ";
+    }
+
+    private String getDetailsToBalString(BLink parent) {
+        StringJoiner sj = new StringJoiner(",");
+        for (Object key : ((MapValue) details).getKeys()) {
+            Object value = ((MapValue) details).get(key);
+            sj.add(key + "=" + BStringUtils.getExpressionStringValue(value, parent));
         }
+        return "," + sj.toString();
+    }
+
+    private String getCauseToBalString(BLink parent) {
+        if (cause != null) {
+            return "," + cause.expressionStringValue(parent);
+        }
+        return "";
+    }
+
+    private String getModuleNameToBalString() {
         return (type.getPackage().org != null && type.getPackage().org.equals("$anon")) ||
                 type.getPackage().name == null ? " " + type.getName() + " " :
                 String.valueOf(BallerinaErrorReasons.getModulePrefixedReason(type.getPackage().name, type.getName()));

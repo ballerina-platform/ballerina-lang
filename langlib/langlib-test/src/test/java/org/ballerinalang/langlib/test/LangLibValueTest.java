@@ -264,7 +264,7 @@ public class LangLibValueTest {
                 "{\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23},345.2425341d," +
                 "[\"X\",float:NaN,345.2425341d],table key(id,name) [{\"id\":1,\"name\":\"Mary\",\"grade\":12}," +
                 "{\"id\":2,\"name\":\"John\",\"grade\":13}]," +
-                "error(\"Failed to get account balance\",details=true,val1=float:NaN,val2=\"This Error\"," +
+                "error error (\"Failed to get account balance\",details=true,val1=float:NaN,val2=\"This Error\"," +
                 "val3=345.2425341d,val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23})," +
                 "xml`<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD>" +
                 "<TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
@@ -280,7 +280,7 @@ public class LangLibValueTest {
         Assert.assertEquals(array.getString(i++),
                 "[float:NaN \"ABC\",float:Infinity \"LMN\"]");
         Assert.assertEquals(array.getString(i++),
-                "error(\"Failed to get account balance\",details=true,val1=float:NaN,val2=\"This Error\"," +
+                "error error (\"Failed to get account balance\",details=true,val1=float:NaN,val2=\"This Error\"," +
                         "val3=345.2425341d,val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23})");
         Assert.assertEquals(array.getString(i),
                 "{\"varInt\":6," +
@@ -298,7 +298,7 @@ public class LangLibValueTest {
                         "\"varArr\":[\"str\",23,23.4,true,{\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23}," +
                         "345.2425341d,[\"X\",float:NaN,345.2425341d],table key(id,name) " +
                         "[{\"id\":1,\"name\":\"Mary\",\"grade\":12}," +
-                        "{\"id\":2,\"name\":\"John\",\"grade\":13}],error(\"Failed to get account balance\"," +
+                        "{\"id\":2,\"name\":\"John\",\"grade\":13}],error error (\"Failed to get account balance\"," +
                         "details=true,val1=float:NaN,val2=\"This Error\",val3=345.2425341d," +
                         "val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23}),xml`<CATALOG>" +
                         "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD>" +
@@ -312,9 +312,9 @@ public class LangLibValueTest {
                         "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
                         "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}," +
                         "\"varTupleArr\":[float:NaN \"ABC\",float:Infinity \"LMN\"]," +
-                        "\"varSimpleErr\":error(\"Failed to get account balance\",details=true," +
-                        "val1=float:NaN,val2=\"This Error\"," +
-                        "val3=345.2425341d,val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23})}");
+                        "\"varSimpleErr\":error error (\"Failed to get account balance\",details=true," +
+                        "val1=float:NaN,val2=\"This Error\",val3=345.2425341d," +
+                        "val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23})}");
     }
 
     @Test

@@ -548,17 +548,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public String stringValue(BLink parent) {
-        return createStringValueInStyle(this.elementType.getTag(), parent, false);
-    }
-
-    @Override
-    public String expressionStringValue(BLink parent) {
-        return createStringValueInStyle(this.elementType.getTag(), parent, true);
-    }
-
-    private String createStringValueInStyle(int tag, BLink parent, Boolean isExpressionStyle) {
         StringJoiner sj = new StringJoiner(",");
-        switch (tag) {
+        switch (this.elementType.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.SIGNED32_INT_TAG:
             case TypeTags.SIGNED16_INT_TAG:
@@ -582,37 +573,19 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             case TypeTags.FLOAT_TAG:
                 for (int i = 0; i < size; i++) {
-                    if (isExpressionStyle) {
-                        if (Double.isNaN(floatValues[i])) {
-                            sj.add("float:" + Double.toString(floatValues[i]));
-                        } else if (Double.isInfinite(floatValues[i])) {
-                            sj.add("float:" + Double.toString(floatValues[i]));
-                        } else {
-                            sj.add(Double.toString(floatValues[i]));
-                        }
-                    } else {
-                        sj.add(Double.toString(floatValues[i]));
-                    }
+                    sj.add(Double.toString(floatValues[i]));
                 }
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
                 for (int i = 0; i < size; i++) {
-                    if (isExpressionStyle) {
-                        sj.add(((BValue) (bStringValues[i])).expressionStringValue(parent));
-                    } else {
-                        sj.add(((BValue) (bStringValues[i])).informalStringValue(parent));
-                    }
+                    sj.add(((BValue) (bStringValues[i])).informalStringValue(parent));
                 }
                 break;
             default:
                 for (int i = 0; i < size; i++) {
                     if (refValues[i] == null) {
-                        if (isExpressionStyle) {
-                            sj.add("()");
-                        } else {
-                            sj.add("null");
-                        }
+                        sj.add("null");
                     } else {
                         BType type = TypeChecker.getType(refValues[i]);
                         switch (type.getTag()) {
@@ -624,25 +597,66 @@ public class ArrayValueImpl extends AbstractArrayValue {
                             case TypeTags.XML_PI_TAG:
                             case TypeTags.XMLNS_TAG:
                             case TypeTags.XML_TEXT_TAG:
-                                if (isExpressionStyle) {
-                                    sj.add(((BValue) (refValues[i])).expressionStringValue(new CycleUtils
-                                            .Node(this, parent)));
-                                } else {
-                                    sj.add(((BValue) (refValues[i])).informalStringValue(new CycleUtils
-                                            .Node(this, parent)));
-                                }
+                                sj.add(((BValue) (refValues[i])).informalStringValue(new CycleUtils
+                                        .Node(this, parent)));
                                 break;
                             default:
-                                if (isExpressionStyle) {
-                                    sj.add(BStringUtils.getExpressionStringValue(refValues[i],
-                                            new CycleUtils.Node(this, parent)));
-                                } else {
-                                    sj.add(BStringUtils.getStringValue(refValues[i],
-                                            new CycleUtils.Node(this, parent)));
-                                }
+                                sj.add(BStringUtils.getStringValue(refValues[i], new CycleUtils.Node(this, parent)));
                                 break;
                         }
                     }
+                }
+                break;
+        }
+        return "[" + sj.toString() + "]";
+    }
+
+    @Override
+    public String expressionStringValue(BLink parent) {
+        StringJoiner sj = new StringJoiner(",");
+        switch (this.elementType.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
+                for (int i = 0; i < size; i++) {
+                    sj.add(Long.toString(intValues[i]));
+                }
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                for (int i = 0; i < size; i++) {
+                    sj.add(Boolean.toString(booleanValues[i]));
+                }
+                break;
+            case TypeTags.BYTE_TAG:
+                for (int i = 0; i < size; i++) {
+                    sj.add(Long.toString(Byte.toUnsignedLong(byteValues[i])));
+                }
+                break;
+            case TypeTags.FLOAT_TAG:
+                for (int i = 0; i < size; i++) {
+                    if (Double.isNaN(floatValues[i])) {
+                        sj.add("float:" + Double.toString(floatValues[i]));
+                    } else if (Double.isInfinite(floatValues[i])) {
+                        sj.add("float:" + Double.toString(floatValues[i]));
+                    } else {
+                        sj.add(Double.toString(floatValues[i]));
+                    }
+                }
+                break;
+            case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
+                for (int i = 0; i < size; i++) {
+                    sj.add(((BValue) (bStringValues[i])).expressionStringValue(parent));
+                }
+                break;
+            default:
+                for (int i = 0; i < size; i++) {
+                    sj.add(BStringUtils.getExpressionStringValue(refValues[i],
+                            new CycleUtils.Node(this, parent)));
                 }
                 break;
         }
