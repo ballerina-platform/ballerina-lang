@@ -97,7 +97,7 @@ public class Compiler {
         }
         this.outStream.println("Compiling source");
         BLangPackage bLangPackage = compile(sourcePackage, true);
-        if (this.dlog.errorCount() > 0) {
+        if (bLangPackage.getErrorCount() > 0) {
             throw new BLangCompilerException("compilation contains errors");
         }
         return bLangPackage;

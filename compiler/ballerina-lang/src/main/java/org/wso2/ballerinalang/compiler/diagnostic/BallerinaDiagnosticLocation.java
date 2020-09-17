@@ -29,7 +29,7 @@ import io.ballerina.tools.text.TextRange;
  *
  * @since 2.0.0
  */
-public class BallerinaDiagnosticLocation implements Location {
+public class BallerinaDiagnosticLocation implements Location, Comparable<BallerinaDiagnosticLocation> {
 
     private LineRange lineRange;
     private TextRange textRange;
@@ -37,6 +37,10 @@ public class BallerinaDiagnosticLocation implements Location {
     public BallerinaDiagnosticLocation(String filePath, int startLine, int endLine, int startColumn, int endColumn) {
         this.lineRange = LineRange.from(filePath, LinePosition.from(startLine, 0), LinePosition.from(endLine, 0));
         this.textRange = TextRange.from(startColumn, endColumn - startColumn);
+    }
+
+    public String getCompilationUnitName() {
+        return lineRange.filePath();
     }
 
     @Override
@@ -47,5 +51,15 @@ public class BallerinaDiagnosticLocation implements Location {
     @Override
     public TextRange textRange() {
         return textRange;
+    }
+
+    @Override
+    public int compareTo(BallerinaDiagnosticLocation otherDiagnosticLocation) {
+        int compValOnStartLine = lineRange.startLine().line() - otherDiagnosticLocation.lineRange.startLine().line();
+        int compValOnStartCol = textRange.startOffset() - otherDiagnosticLocation.textRange.startOffset();
+        if (compValOnStartLine == 0) {
+            return compValOnStartCol;
+        }
+        return compValOnStartLine;
     }
 }

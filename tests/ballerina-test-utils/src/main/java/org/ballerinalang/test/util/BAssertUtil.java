@@ -58,7 +58,7 @@ public class BAssertUtil {
                 expectedErrMsg.replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "incorrect error message:");
         Assert.assertEquals(diag.location().lineRange().startLine().line(), expectedErrLine, "incorrect line number:");
         Assert.assertEquals(diag.location().textRange().startOffset(), expectedErrCol, "incorrect column position:");
-        Assert.assertEquals(result.getAST().getPosition().getSource().getCompilationUnitName(),
+        Assert.assertEquals(diag.location().lineRange().filePath(),
                 fileName, "incorrect file name:");
     }
 
