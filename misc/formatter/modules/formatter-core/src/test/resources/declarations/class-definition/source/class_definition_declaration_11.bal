@@ -3,5 +3,5 @@ distinct
     Foo
         {
     string      name
- ;            }
- 
+ ;
+}
