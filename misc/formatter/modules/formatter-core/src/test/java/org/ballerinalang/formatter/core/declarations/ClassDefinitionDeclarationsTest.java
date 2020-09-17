@@ -27,6 +27,11 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Test the formatting of class definition declarations.
+ *
+ * @since 2.0.0
+ */
 public class ClassDefinitionDeclarationsTest extends FormatterTest {
 
 
