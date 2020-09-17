@@ -19,6 +19,7 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerinalang.compiler.syntax.tree.ChildNodeList;
+import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.Node;
@@ -92,6 +93,7 @@ class FormatterUtils {
                 parentKind == (SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) ||
                 parentKind == (SyntaxKind.WHILE_STATEMENT) ||
                 parentKind == (SyntaxKind.DO_STATEMENT) ||
+                parentKind == (SyntaxKind.LOCK_STATEMENT) ||
                 parentKind == (SyntaxKind.CONST_DECLARATION) ||
                 parentKind == (SyntaxKind.METHOD_DECLARATION) ||
                 parentKind == (SyntaxKind.TYPE_DEFINITION)) {
@@ -117,6 +119,12 @@ class FormatterUtils {
                     (parentKind == (SyntaxKind.FUNCTION_CALL) && grandParent != null &&
                             (grandParent.kind() == (SyntaxKind.ASSIGNMENT_STATEMENT) ||
                             grandParent.kind() == (SyntaxKind.CHECK_EXPRESSION)))) {
+                if (parentKind == SyntaxKind.FIELD_ACCESS &&
+                        ((FieldAccessExpressionNode) parent).expression() == node && grandParent != null &&
+                        grandParent.kind() == SyntaxKind.ASSIGNMENT_STATEMENT && grandParent.parent() != null &&
+                        grandParent.parent().kind() == SyntaxKind.BLOCK_STATEMENT) {
+                    return getParent(grandParent.parent(), syntaxKind);
+                }
                 return null;
             }
             return getParent(parent, syntaxKind);
@@ -496,6 +504,7 @@ class FormatterUtils {
         ArrayList<SyntaxKind> parentWithSpaces = new ArrayList<>(
                 Arrays.asList(
                         SyntaxKind.WHILE_STATEMENT,
+                        SyntaxKind.LOCK_STATEMENT,
                         SyntaxKind.ON_FAIL_CLAUSE,
                         SyntaxKind.FUNCTION_DEFINITION));
         ArrayList<SyntaxKind> parentWithoutSpaces = new ArrayList<>(

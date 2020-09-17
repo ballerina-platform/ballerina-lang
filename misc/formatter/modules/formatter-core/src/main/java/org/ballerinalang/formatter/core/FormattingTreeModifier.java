@@ -2041,10 +2041,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(lockStatementNode, lineRange)) {
             return lockStatementNode;
         }
+        int startColumn = getStartColumn(lockStatementNode, true);
         Token lockKeyword = getToken(lockStatementNode.lockKeyword());
+        lockStatementNode = lockStatementNode.modify()
+                .withLockKeyword(formatToken(lockKeyword, startColumn, 0, 0, 0)).apply();
         StatementNode blockStatement = this.modifyNode(lockStatementNode.blockStatement());
         return lockStatementNode.modify()
-                .withLockKeyword(formatToken(lockKeyword, 0, 1, 0, 0))
                 .withBlockStatement(blockStatement)
                 .apply();
     }

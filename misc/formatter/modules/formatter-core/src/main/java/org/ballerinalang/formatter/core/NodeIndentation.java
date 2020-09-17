@@ -87,6 +87,7 @@ class NodeIndentation {
                 Arrays.asList(
                         SyntaxKind.TYPED_BINDING_PATTERN,
                         SyntaxKind.FIELD_ACCESS,
+                        SyntaxKind.LOCK_STATEMENT,
                         SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE,
                         SyntaxKind.RECORD_FIELD,
                         SyntaxKind.MATCH_CLAUSE,
