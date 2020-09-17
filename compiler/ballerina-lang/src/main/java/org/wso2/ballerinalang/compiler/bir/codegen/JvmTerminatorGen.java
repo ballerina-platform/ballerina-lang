@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.jvm.IdentifierEncoder;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -92,6 +93,7 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
@@ -100,6 +102,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTRUCTOR_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -424,6 +427,7 @@ public class JvmTerminatorGen {
         String orgName = calleePkgId.orgName.value;
         String moduleName = calleePkgId.name.value;
         String version = calleePkgId.version.value;
+
         // invoke the function
         this.genCall(callIns, orgName, moduleName, version, localVarOffset);
 
@@ -531,6 +535,17 @@ public class JvmTerminatorGen {
             argIndex += 1;
         }
 
+        String jMethodVMSig = callIns.jMethodVMSig;
+        boolean hasBalEnvParam = jMethodVMSig.startsWith(String.format("(L%s;", BAL_ENV));
+
+        if (hasBalEnvParam) {
+            mv.visitTypeInsn(NEW, BAL_ENV);
+            mv.visitInsn(DUP);
+            this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
+            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, CONSTRUCTOR_INIT_METHOD, String.format("(L%s;)V", STRAND_CLASS),
+                               false);
+        }
+
         int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();
         while (argIndex < argsCount) {
             BIROperand arg = callIns.args.get(argIndex);
@@ -545,11 +560,27 @@ public class JvmTerminatorGen {
 
         String jClassName = callIns.jClassName;
         String jMethodName = callIns.name;
-        String jMethodVMSig = callIns.jMethodVMSig;
         this.mv.visitMethodInsn(callIns.invocationType, jClassName, jMethodName, jMethodVMSig, isInterface);
 
+        boolean isVoidMethod = jMethodVMSig.endsWith(")V");
         if (callIns.lhsOp != null && callIns.lhsOp.variableDcl != null) {
-            this.storeToVar(callIns.lhsOp.variableDcl);
+            if (hasBalEnvParam && isVoidMethod) {
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
+                this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "returnValue", "Ljava/lang/Object;");
+
+                Label doNotStoreReturn = new Label();
+                mv.visitJumpInsn(IFNULL, doNotStoreReturn);
+
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
+                this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "returnValue", "Ljava/lang/Object;");
+                BIROperand lhsOpVarDcl = callIns.lhsOp;
+                addJUnboxInsn(this.mv, ((JType) lhsOpVarDcl.variableDcl.type));
+                this.storeToVar(lhsOpVarDcl.variableDcl);
+
+                mv.visitLabel(doNotStoreReturn);
+            } else {
+                this.storeToVar(callIns.lhsOp.variableDcl);
+            }
         }
 
         this.mv.visitLabel(notBlockedOnExternLabel);
@@ -633,6 +664,7 @@ public class JvmTerminatorGen {
         }
     }
 
+
     private void genCall(BIRTerminator.Call callIns, String orgName, String moduleName,
                              String version, int localVarOffset) {
 
@@ -653,7 +685,7 @@ public class JvmTerminatorGen {
     private void genFuncCall(BIRTerminator.Call callIns, String orgName, String moduleName, String version,
                              int localVarOffset) {
 
-        String methodName = callIns.name.value;
+        String methodName = IdentifierEncoder.encodeIdentifier(callIns.name.value);
         this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodName);
     }
 
@@ -726,7 +758,7 @@ public class JvmTerminatorGen {
         this.mv.visitVarInsn(ALOAD, localVarOffset);
 
         // load the function name as the second argument
-        this.mv.visitLdcInsn(JvmCodeGenUtil.cleanupObjectTypeName(callIns.name.value));
+        this.mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(callIns.name.value));
 
         // create an Object[] for the rest params
         int argsCount = callIns.args.size() - 1;
@@ -1205,7 +1237,8 @@ public class JvmTerminatorGen {
     }
 
     static String getStrandMetadataVarName(String typeName, String parentFunction) {
-        return STRAND_METADATA_VAR_PREFIX + JvmCodeGenUtil.cleanupTypeName(typeName) + "$" + parentFunction + "$";
+        return STRAND_METADATA_VAR_PREFIX + JvmCodeGenUtil.cleanupReadOnlyTypeName(typeName) + "$" + parentFunction +
+                "$";
     }
 
     private void loadFpReturnType(BIROperand lhsOp) {

@@ -72,9 +72,10 @@ public function getReturnType(any func) returns typedesc<Type> = external;
 #
 # + strm - The stream
 # + return - An abstract object which is iterable
-public function getIteratorObj(stream<Type, ErrorType> strm) returns object { public function next() returns
-    record {|Type value;|}|ErrorType?;} |
+public function getIteratorObj(stream<Type, ErrorType> strm) returns
     object {
-        public function next() returns record {|Type value;|}|ErrorType?;
+        public isolated function next() returns record {|Type value;|}|ErrorType?;} |
+    object {
+        public isolated function next() returns record {|Type value;|}|ErrorType?;
         public function close() returns ErrorType?;
     } = external;

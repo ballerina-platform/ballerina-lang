@@ -562,6 +562,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code isolated} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getIsolatedKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ISOLATED_KEYWORD, "isolated ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
      * Get Private Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1037,6 +1047,18 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code class}  Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getClassDefSnippet() {
+        String snippet = "class ${1:className} {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.CLASS, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
      * Get Error Constructor expression Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1044,6 +1066,17 @@ public class SnippetGenerator {
     public static SnippetBlock getErrorConstructorSnippet() {
         String snippet = "error(\"${1}\")";
         return new SnippetBlock("error constructor", snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get Object Constructor expression Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getObjectConstructorSnippet() {
+        String snippet = "object {" + CommonUtil.LINE_SEPARATOR + "\t" + CommonUtil.LINE_SEPARATOR + "};";
+        return new SnippetBlock("object constructor", snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }
 
@@ -1074,6 +1107,16 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getFinalKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.FINAL_KEYWORD, "final ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get {@code remote} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRemoteKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.REMOTE_KEYWORD, "remote", ItemResolverConstants.KEYWORD_TYPE,
                 Kind.KEYWORD);
     }
 
@@ -1149,6 +1192,26 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getXMLNSKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.XMLNS, "xmlns ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get {@code class} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getClassKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.CLASS, "class ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get {@code distinct} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getDistinctKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.DISTINCT, "distinct", ItemResolverConstants.KEYWORD_TYPE,
                 Kind.KEYWORD);
     }
 

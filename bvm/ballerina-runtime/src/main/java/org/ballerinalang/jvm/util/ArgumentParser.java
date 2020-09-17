@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.jvm.util;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BStructureType;
@@ -116,7 +116,8 @@ public class ArgumentParser {
                 String paramName = getParamName(arg);
                 ParamInfo info = namedArgs.get(paramName);
                 if (info == null) {
-                    throw BallerinaErrors.createError("undefined parameter: '" + paramName + "'");
+                    throw BErrorCreator.createError(
+                            BStringUtils.fromString("undefined parameter: '" + paramName + "'"));
                 }
                 bValueArgs[info.index * 2 + 1] = getBValue(info.type, getValueString(arg));
                 bValueArgs[info.index * 2 + 2] = true;
@@ -125,9 +126,9 @@ public class ArgumentParser {
                 }
             } else {
                 if (isNamedArgFound) {
-                    throw BallerinaErrors
-                            .createError("positional argument not allowed after named arguments when "
-                                                      + "calling the 'main' function");
+                    throw BErrorCreator.createError(BStringUtils.fromString(
+                            "positional argument not allowed after named arguments when " +
+                                    "calling the 'main' function"));
                 }
                 // handle positional args
                 if (i < argsCountExceptRestArgs) {
@@ -145,11 +146,12 @@ public class ArgumentParser {
         }
 
         if (providedRequiredArgsCount < requiredParamsCount) {
-            throw BallerinaErrors.createError("insufficient arguments to call the 'main' function");
+            throw BErrorCreator.createError(BStringUtils.fromString("insufficient arguments to call the 'main' " +
+                                                                           "function"));
         }
 
         if (!hasRestParam && !restArgs.isEmpty()) {
-            throw BallerinaErrors.createError("too many arguments to call the 'main' function");
+            throw BErrorCreator.createError(BStringUtils.fromString("too many arguments to call the 'main' function"));
         }
 
         // populate var args
@@ -185,7 +187,7 @@ public class ArgumentParser {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.ANY_TAG:
-                return StringUtils.fromString(value);
+                return BStringUtils.fromString(value);
             case TypeTags.INT_TAG:
                 return getIntegerValue(value);
             case TypeTags.FLOAT_TAG:
@@ -200,46 +202,48 @@ public class ArgumentParser {
                 try {
                     return XMLFactory.parse(value);
                 } catch (RuntimeException e) {
-                    throw BallerinaErrors.createError("invalid argument '" + value + "', expected XML value");
+                    throw BErrorCreator.createError(BStringUtils.fromString("invalid argument '" + value + "', " +
+                                                                                   "expected XML value"));
                 }
             case TypeTags.JSON_TAG:
                 try {
                     return JSONParser.parse(value);
                 } catch (BallerinaException e) {
-                    throw BallerinaErrors.createError("invalid argument '" + value + "', expected JSON value");
+                    throw BErrorCreator.createError(BStringUtils.fromString("invalid argument '" + value + "', " +
+                                                                                   "expected JSON value"));
                 }
             case TypeTags.RECORD_TYPE_TAG:
                 try {
                     return JSONUtils.convertJSONToRecord(JSONParser.parse(value), (BStructureType) type);
                 } catch (BallerinaException e) {
-                    throw BallerinaErrors.createError("invalid argument '" + value
+                    throw BErrorCreator.createError(BStringUtils.fromString("invalid argument '" + value
                             + "', error constructing record of type: " + type + ": "
-                            + e.getLocalizedMessage().split(JSON_PARSER_ERROR)[0]);
+                            + e.getLocalizedMessage().split(JSON_PARSER_ERROR)[0]));
                 }
             case TypeTags.TUPLE_TAG:
                 if (!value.startsWith("[") || !value.endsWith("]")) {
-                    throw BallerinaErrors.createError("invalid argument '"
-                            + value + "', " + "expected tuple notation [\"[]\"] with tuple arg");
+                    throw BErrorCreator.createError(BStringUtils.fromString("invalid argument '"
+                            + value + "', " + "expected tuple notation [\"[]\"] with tuple arg"));
                 }
                 return parseTupleArg((BTupleType) type, value.substring(1, value.length() - 1));
             case TypeTags.ARRAY_TAG:
                 try {
                     return JSONUtils.convertJSONToBArray(JSONParser.parse(value), (BArrayType) type);
                 } catch (BallerinaException | ErrorValue e) {
-                    throw BallerinaErrors.createError("invalid argument '" + value
-                            + "', expected array elements of " + "type: " + ((BArrayType) type).getElementType());
+                    throw BErrorCreator.createError(BStringUtils.fromString("invalid argument '" + value
+                            + "', expected array elements of " + "type: " + ((BArrayType) type).getElementType()));
                 }
             case TypeTags.MAP_TAG:
                 try {
                     return JSONUtils.jsonToMap(JSONParser.parse(value), (BMapType) type);
                 } catch (ErrorValue | BallerinaException e) {
-                    throw BallerinaErrors.createError("invalid argument '" + value
-                            + "', expected map argument of element type: " + ((BMapType) type).getConstrainedType());
+                    throw BErrorCreator.createError(BStringUtils.fromString("invalid argument '" + value
+                            + "', expected map argument of element type: " + ((BMapType) type).getConstrainedType()));
                 }
             case TypeTags.UNION_TAG:
                 return parseUnionArg((BUnionType) type, value);
             default:
-                throw BallerinaErrors.createError(UNSUPPORTED_TYPE_PREFIX + " '" + type + "'");
+                throw BErrorCreator.createError(BStringUtils.fromString(UNSUPPORTED_TYPE_PREFIX + " '" + type + "'"));
         }
     }
 
@@ -264,7 +268,8 @@ public class ArgumentParser {
             }
             return Long.parseLong(argument);
         } catch (NumberFormatException e) {
-            throw BallerinaErrors.createError("invalid argument '" + argument + "', expected integer value");
+            throw BErrorCreator.createError(BStringUtils.fromString("invalid argument '" + argument + "', expected " +
+                                                                           "integer value"));
         }
     }
 
@@ -272,7 +277,8 @@ public class ArgumentParser {
         try {
             return Double.parseDouble(argument);
         } catch (NumberFormatException e) {
-            throw BallerinaErrors.createError("invalid argument '" + argument + "', expected float value");
+            throw BErrorCreator.createError(BStringUtils.fromString("invalid argument '" + argument + "', expected " +
+                                                                           "float value"));
         }
     }
 
@@ -280,14 +286,15 @@ public class ArgumentParser {
         try {
             return new DecimalValue(argument);
         } catch (NumberFormatException e) {
-            throw BallerinaErrors.createError("invalid argument '" + argument + "', expected decimal value");
+            throw BErrorCreator.createError(BStringUtils.fromString("invalid argument '" + argument + "', expected " +
+                                                                           "decimal value"));
         }
     }
 
     private static boolean getBooleanValue(String argument) {
         if (!TRUE.equalsIgnoreCase(argument) && !FALSE.equalsIgnoreCase(argument)) {
-            throw BallerinaErrors.createError("invalid argument '" + argument
-                    + "', expected boolean value 'true' or " + "'false'");
+            throw BErrorCreator.createError(BStringUtils.fromString("invalid argument '" + argument
+                    + "', expected boolean value 'true' or " + "'false'"));
         }
         return Boolean.parseBoolean(argument);
     }
@@ -297,12 +304,13 @@ public class ArgumentParser {
         try {
             byteValue = Integer.parseInt(argument);
         } catch (NumberFormatException e) {
-            throw BallerinaErrors.createError("invalid argument '" + argument + "', expected byte value");
+            throw BErrorCreator.createError(BStringUtils.fromString("invalid argument '" + argument + "', expected " +
+                                                                           "byte value"));
         }
 
         if (!RuntimeUtils.isByteLiteral(byteValue)) {
-            throw BallerinaErrors.createError("invalid argument '" + argument +
-                    "', expected byte value, found int");
+            throw BErrorCreator.createError(BStringUtils.fromString("invalid argument '" + argument +
+                    "', expected byte value, found int"));
         }
 
         return byteValue;
@@ -351,10 +359,13 @@ public class ArgumentParser {
                     return refValueArray;
             }
         } catch (BallerinaException e) {
-            throw BallerinaErrors.createError(e.getLocalizedMessage().replace(INVALID_ARG, INVALID_ARG_AS_REST_ARG));
+            throw BErrorCreator
+                    .createError(BStringUtils.fromString(e.getLocalizedMessage().replace(INVALID_ARG,
+                                                                                         INVALID_ARG_AS_REST_ARG)));
         } catch (Exception e) {
             //Ideally shouldn't reach here
-            throw BallerinaErrors.createError("error parsing rest arg: " + e.getLocalizedMessage());
+            throw BErrorCreator
+                    .createError(BStringUtils.fromString("error parsing rest arg: " + e.getLocalizedMessage()));
         }
     }
 
@@ -364,8 +375,8 @@ public class ArgumentParser {
         String[] tupleElements = tupleArg.split(COMMA);
 
         if (tupleElements.length != type.getTupleTypes().size()) {
-            throw BallerinaErrors.createError("invalid argument '[" + tupleArg
-                    + "]', element count mismatch for tuple " + "type: '" + type + "'");
+            throw BErrorCreator.createError(BStringUtils.fromString("invalid argument '[" + tupleArg
+                    + "]', element count mismatch for tuple " + "type: '" + type + "'"));
         }
 
         ArrayValue tupleValues = new TupleValueImpl(type);
@@ -375,8 +386,9 @@ public class ArgumentParser {
             try {
                 if (elementType.getTag() == TypeTags.STRING_TAG) {
                     if (!tupleElement.startsWith("\"") || !tupleElement.endsWith("\"")) {
-                        throw BallerinaErrors.createError("invalid tuple element argument '" + tupleElement
-                                + stringSpecificationErrorSuffix);
+                        throw BErrorCreator.createError(
+                                BStringUtils.fromString("invalid tuple element argument '" + tupleElement
+                                + stringSpecificationErrorSuffix));
                     }
                     tupleElement = tupleElement.substring(1, tupleElement.length() - 1);
                 }
@@ -385,11 +397,14 @@ public class ArgumentParser {
             } catch (BallerinaException | ErrorValue e) {
                 String localizedMessage = e.getLocalizedMessage();
                 if (localizedMessage.startsWith(UNSUPPORTED_TYPE_PREFIX)) {
-                    throw BallerinaErrors.createError(
-                            "unsupported element type for tuple as entry function argument: " + elementType);
+                    throw BErrorCreator.createError(BStringUtils.fromString(
+                            "unsupported element type for tuple as entry function argument: " + elementType));
                 } else if (!localizedMessage.endsWith(stringSpecificationErrorSuffix)) {
-                    throw BallerinaErrors.createError("invalid tuple member argument '" + tupleElement + "', "
-                            + "expected value of type '" + elementType + "'");
+                    throw BErrorCreator
+                            .createError(
+                                    BStringUtils.fromString("invalid tuple member argument '" + tupleElement + "', "
+                                                                        + "expected value of type '" + elementType +
+                                                                        "'"));
                 }
                 throw e;
             }
@@ -420,7 +435,8 @@ public class ArgumentParser {
                 memberTypeIndex++;
             }
         }
-        throw BallerinaErrors.createError("invalid argument '" + unionArg + "' specified for union type: "
-                + (type.isNilable() ? type.toString().replace("|null", "|()") : type));
+        throw BErrorCreator.createError(
+                BStringUtils.fromString("invalid argument '" + unionArg + "' specified for union type: "
+                + (type.isNilable() ? type.toString().replace("|null", "|()") : type)));
     }
 }

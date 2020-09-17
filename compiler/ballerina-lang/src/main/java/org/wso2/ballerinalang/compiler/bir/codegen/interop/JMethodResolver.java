@@ -17,19 +17,19 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.ballerinalang.jvm.api.values.BArray;
+import org.ballerinalang.jvm.api.values.BDecimal;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BFunctionPointer;
+import org.ballerinalang.jvm.api.values.BFuture;
+import org.ballerinalang.jvm.api.values.BHandle;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BStream;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BTypedesc;
+import org.ballerinalang.jvm.api.values.BXML;
 import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.jvm.values.api.BArray;
-import org.ballerinalang.jvm.values.api.BDecimal;
-import org.ballerinalang.jvm.values.api.BError;
-import org.ballerinalang.jvm.values.api.BFunctionPointer;
-import org.ballerinalang.jvm.values.api.BFuture;
-import org.ballerinalang.jvm.values.api.BHandle;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BObject;
-import org.ballerinalang.jvm.values.api.BStream;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BTypedesc;
-import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -138,19 +138,25 @@ class JMethodResolver {
                 .collect(Collectors.toList());
     }
 
-    private List<JMethod> resolveByParamCount(List<JMethod> jMethods, int paramCount, BType receiverType) {
-
-        return jMethods.stream()
-                .filter(jMethod -> {
-                    if (jMethod.getParamTypes().length == paramCount) {
-                        return true;
-                    } else if (receiverType != null && jMethod.getParamTypes().length == paramCount + 1) {
+    private List<JMethod> resolveByParamCount(List<JMethod> jMethods, int expectedCount, BType receiverType) {
+        return jMethods.stream().filter(jMethod -> {
+            int count = jMethod.getParamTypes().length;
+            if (count == expectedCount) {
+                return true;
+            } else {
+                boolean hasOneExtraParam = count == expectedCount + 1;
+                if (hasOneExtraParam) {
+                    boolean hasReceiver = receiverType != null;
+                    if (hasReceiver) {
                         jMethod.setReceiverType(receiverType);
                         return true;
+                    } else if (jMethod.isBalEnvAcceptingMethod()) {
+                        return true;
                     }
-                    return false;
-                })
-                .collect(Collectors.toList());
+                }
+            }
+            return false;
+        }).collect(Collectors.toList());
     }
 
     private JMethod resolve(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
@@ -264,9 +270,11 @@ class JMethodResolver {
             if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, isLastParam,
                     jMethodRequest.restParamExist)) {
                 throw getNoSuchMethodError(jMethodRequest.methodName, jParamTypes[0], receiverType,
-                        jMethodRequest.declaringClass);
+                                           jMethodRequest.declaringClass);
             }
             i++;
+        } else if (jMethod.isBalEnvAcceptingMethod()) {
+            j++;
         } else if (bParamCount != jParamTypes.length) {
             throw getParamCountMismatchError(jMethodRequest);
         }
@@ -286,7 +294,9 @@ class JMethodResolver {
 
         Class<?> jReturnType = jMethod.getReturnType();
         BType bReturnType = jMethodRequest.bReturnType;
-        if (!isValidReturnBType(jReturnType, bReturnType, jMethodRequest)) {
+        //!(jMethod.isBalEnvAcceptingMethod() && )
+        if (!isValidReturnBType(jReturnType, bReturnType, jMethodRequest) &&
+            !(jMethod.isBalEnvAcceptingMethod() && jReturnType.equals(void.class))) {
             throw new JInteropException(DiagnosticCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                     "Incompatible return type for method '" + jMethodRequest.methodName + "' in class '" +
                             jMethodRequest.declaringClass.getName() + "': Java type '" + jReturnType.getName() +
