@@ -35,6 +35,8 @@ function testOnFailStatement() {
     assertEquality("Before failure throw -> Error caught: custom error -> Execution continues...", appendOnFailErrorResult);
 
     assertEquality(44, testArrowFunctionInsideOnFail());
+
+    assertEquality(44, testLambdaFunctionWithOnFail());
 }
 
 function testOnFail () returns string {
@@ -167,6 +169,25 @@ public function testArrowFunctionInsideOnFail() returns int {
        a = arrow(1, 1);
     }
     return a;
+}
+
+public function testLambdaFunctionWithOnFail() returns int {
+    var lambdaFunc = function () returns int {
+          int a = 10;
+          int b = 11;
+          int c = 0;
+          do {
+              error err = error("custom error", message = "error value");
+              c = a + b;
+              fail err;
+          }
+          on fail error e {
+              function (int, int) returns int arrow = (x, y) => x + y + a + b + c;
+              a = arrow(1, 1);
+          }
+          return a;
+    };
+    return lambdaFunc();
 }
 
 function assertEquality(any|error expected, any|error actual) {
