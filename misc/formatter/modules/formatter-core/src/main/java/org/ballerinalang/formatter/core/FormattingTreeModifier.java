@@ -2072,6 +2072,11 @@ public class FormattingTreeModifier extends TreeModifier {
         Token inKeyword = getToken(forEachStatementNode.inKeyword());
         Node actionOrExpressionNode = this.modifyNode(forEachStatementNode.actionOrExpressionNode());
         StatementNode blockStatement = this.modifyNode(forEachStatementNode.blockStatement());
+        OnFailClauseNode onFailClause = this.modifyNode(forEachStatementNode.onFailClause().orElse(null));
+        if (onFailClause != null) {
+            forEachStatementNode = forEachStatementNode.modify()
+                    .withOnFailClause(onFailClause).apply();
+        }
         return forEachStatementNode.modify()
                 .withForEachKeyword(formatToken(forEachKeyword, startColumn, 1, 0, 0))
                 .withTypedBindingPattern(typedBindingPattern)

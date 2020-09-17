@@ -130,7 +130,8 @@ class FormatterUtils {
                 parentKind == (SyntaxKind.LOCAL_VAR_DECL)) {
             return parent;
         }
-        if (syntaxKind == SyntaxKind.ON_FAIL_CLAUSE && parentKind == SyntaxKind.MATCH_STATEMENT) {
+        if (syntaxKind == SyntaxKind.ON_FAIL_CLAUSE && (parentKind == SyntaxKind.MATCH_STATEMENT ||
+                parentKind == SyntaxKind.FOREACH_STATEMENT)) {
             return parent;
         }
         if (parentKind == SyntaxKind.ON_FAIL_CLAUSE) {
