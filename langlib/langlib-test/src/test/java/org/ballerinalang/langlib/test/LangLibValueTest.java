@@ -271,6 +271,9 @@ public class LangLibValueTest {
                         "\"street\":\"Palm Grove\"},\"age\":12}");
         Assert.assertEquals(array.getString(i++),
                 "[float:NaN \"ABC\",float:Infinity \"LMN\"]");
+        Assert.assertEquals(array.getString(i++),
+                "error(\"Failed to get account balance\",details=true,val1=float:NaN,val2=\"This Error\"," +
+                        "val3=345.2425341d,val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23})");
         Assert.assertEquals(array.getString(i),
                 "{\"varInt\":6," +
                         "\"varFloat\":6.0," +
@@ -291,8 +294,10 @@ public class LangLibValueTest {
                         "\"varObj2\":object Rola from MMV," +
                         "\"varObjArr\":[object Student -214492645,object Rola from MMV]," +
                         "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
-                        "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}}" +
-                        "\"varTupleArr\":[float:NaN \"ABC\",float:Infinity \"LMN\"],");
+                        "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}," +
+                        "\"varTupleArr\":[float:NaN \"ABC\",float:Infinity \"LMN\"]," +
+                        "\"varSimpleErr\":error(\"Failed to get account balance\",details=true,val1=float:NaN,val2=\"This Error\"," +
+                        "val3=345.2425341d,val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23})}");
     }
 
     @Test

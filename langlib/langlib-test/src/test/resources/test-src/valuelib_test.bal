@@ -486,6 +486,8 @@ function testToBalString() returns string[] {
     Teacher varObj2 = new("Rola", "MMV");
     any[] varObjArr = [varObj, varObj2];
     [float, string][] varTupleArr = [[(0.0/0.0), "ABC"], [(1.0/0.0), "LMN"]];
+    error varSimpleErr = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
+    val3 = varDecimal, val4={"x":"AA","y":(1.0/0.0),"z":1.23});
     xml varXml = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`;
 
     varMap["varInt"] = varInt;
@@ -503,11 +505,12 @@ function testToBalString() returns string[] {
     varMap["varObjArr"] = varObjArr;
     varMap["varRecord"] = p;
     varMap["varTupleArr"] = varTupleArr;
+    varMap["varSimpleErr"] = varSimpleErr;
 
     return [varInt.toBalString(), varFloat.toBalString(), varStr.toBalString(), varNil.toBalString(),
     varBool.toBalString(), varDecimal.toBalString(), varJson.toBalString(), varXml.toBalString(), varArr.toBalString(),
     varErr.toBalString(), varObj.toBalString(), varObj2.toBalString(), varObjArr.toBalString(), p.toBalString(),
-    varTupleArr.toBalString(), varMap.toBalString()];
+    varTupleArr.toBalString(), varSimpleErr.toBalString(), varMap.toBalString()];
 }
 
 function testXmlSequenceFragmentToBalString() returns string {

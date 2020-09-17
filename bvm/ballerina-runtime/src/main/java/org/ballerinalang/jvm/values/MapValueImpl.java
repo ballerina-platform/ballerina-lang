@@ -442,7 +442,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 CycleUtils.Node mapParent = new CycleUtils.Node(this, parent);
                 switch (type.getTag()) {
                     case TypeTags.STRING_TAG:
-                    case TypeTags.DECIMAL_TAG:
                     case TypeTags.XML_TAG:
                     case TypeTags.XML_ELEMENT_TAG:
                     case TypeTags.XML_ATTRIBUTES_TAG:
