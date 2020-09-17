@@ -111,6 +111,15 @@ public class BallerinaDiagnosticLog implements DiagnosticLog {
     }
 
     /**
+     * Set the error count.
+     * 
+     * @param errorCount Error count
+     */
+    public void setErrorCount(int errorCount) {
+        this.errorCount = errorCount;
+    }
+
+    /**
      * Reset error count.
      */
     public void resetErrorCount() {
