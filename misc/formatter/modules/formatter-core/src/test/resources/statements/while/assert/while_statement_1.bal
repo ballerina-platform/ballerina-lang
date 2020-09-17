@@ -7,4 +7,3 @@ public function foo() {
         i = 6;
     }
 }
-

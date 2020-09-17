@@ -16,4 +16,3 @@ public function foo() {
         return e;
     }
 }
-

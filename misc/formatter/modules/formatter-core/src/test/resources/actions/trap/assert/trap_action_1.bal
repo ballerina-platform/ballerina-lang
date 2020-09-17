@@ -5,4 +5,3 @@ function divide(int a, int b) returns int {
 public function foo() {
     int|error result = trap divide(1, 0);
 }
-

@@ -124,6 +124,17 @@ public class SyntaxTree {
         return rootNode.toSourceCode();
     }
 
+    /**
+     * Converts the syntax tree into source code, remove superfluous spaces and newlines at the ending and returns it
+     * as a string.
+     *
+     * @return source code as a string
+     */
+    public String toFormatterSourceCode() {
+        return rootNode.toSourceCode().trim() +
+                System.getProperty("line.separator");
+    }
+
     private <T extends Node> T modifyWithMe(T node, boolean clone) {
         T clonedNode = clone ? node.internalNode().createUnlinkedFacade() : node;
         clonedNode.setSyntaxTree(this);
