@@ -21,7 +21,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -154,7 +153,8 @@ public class Parser {
             LinePosition endLine = lineRange.startLine();
             Location location = new BallerinaDiagnosticLocation(lineRange.filePath(), startLine.line() + 1,
                     endLine.line() + 1, startLine.offset() + 1, endLine.offset() + 1);
-            BallerinaDiagnostic diag = new BallerinaDiagnostic(location, syntaxDiagnostic.message(), syntaxDiagnostic.diagnosticInfo());
+            BallerinaDiagnostic diag =
+                    new BallerinaDiagnostic(location, syntaxDiagnostic.message(), syntaxDiagnostic.diagnosticInfo());
             dlog.logDiagnostic(diagnosticSource.pkgID, diag);
         }
     }
