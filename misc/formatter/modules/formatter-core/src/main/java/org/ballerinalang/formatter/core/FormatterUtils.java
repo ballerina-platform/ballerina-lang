@@ -60,9 +60,9 @@ class FormatterUtils {
         LinePosition startPos = range.startLine();
         LinePosition endPos = range.endLine();
         int startOffset = startPos.offset();
-        if (node.kind() == (SyntaxKind.FUNCTION_DEFINITION) || node.kind() == (SyntaxKind.TYPE_DEFINITION) ||
-                node.kind() == (SyntaxKind.CONST_DECLARATION) || node.kind() == (SyntaxKind.OBJECT_TYPE_DESC) ||
-                node.kind() == (SyntaxKind.MATCH_STATEMENT)) {
+        if (node.kind() == SyntaxKind.FUNCTION_DEFINITION || node.kind() == SyntaxKind.TYPE_DEFINITION ||
+                node.kind() == SyntaxKind.CONST_DECLARATION || node.kind() == SyntaxKind.OBJECT_TYPE_DESC ||
+                node.kind() == SyntaxKind.MATCH_STATEMENT) {
             startOffset = (startOffset / 4) * 4;
         }
         return new DiagnosticPos(null, startPos.line() + 1, endPos.line() + 1,
@@ -77,9 +77,9 @@ class FormatterUtils {
         }
         Node grandParent = parent.parent();
         SyntaxKind parentKind = parent.kind();
-        if (parentKind == (SyntaxKind.MODULE_VAR_DECL)) {
-            if (grandParent != null && grandParent.kind() == (SyntaxKind.MODULE_PART) &&
-                    syntaxKind == (SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
+        if (parentKind == SyntaxKind.MODULE_VAR_DECL) {
+            if (grandParent != null && grandParent.kind() == SyntaxKind.MODULE_PART &&
+                    syntaxKind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 return null;
             }
             return parent;
@@ -88,15 +88,15 @@ class FormatterUtils {
                 grandParent.kind() == SyntaxKind.PANIC_STATEMENT) {
             return null;
         }
-        if (parentKind == (SyntaxKind.FUNCTION_DEFINITION) ||
-                parentKind == (SyntaxKind.IF_ELSE_STATEMENT) ||
-                parentKind == (SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) ||
-                parentKind == (SyntaxKind.WHILE_STATEMENT) ||
-                parentKind == (SyntaxKind.DO_STATEMENT) ||
-                parentKind == (SyntaxKind.LOCK_STATEMENT) ||
-                parentKind == (SyntaxKind.CONST_DECLARATION) ||
-                parentKind == (SyntaxKind.METHOD_DECLARATION) ||
-                parentKind == (SyntaxKind.TYPE_DEFINITION)) {
+        if (parentKind == SyntaxKind.FUNCTION_DEFINITION ||
+                parentKind == SyntaxKind.IF_ELSE_STATEMENT ||
+                parentKind == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT ||
+                parentKind == SyntaxKind.WHILE_STATEMENT ||
+                parentKind == SyntaxKind.DO_STATEMENT ||
+                parentKind == SyntaxKind.LOCK_STATEMENT ||
+                parentKind == SyntaxKind.CONST_DECLARATION ||
+                parentKind == SyntaxKind.METHOD_DECLARATION ||
+                parentKind == SyntaxKind.TYPE_DEFINITION) {
             return parent;
         }
         if (parentKind == SyntaxKind.MATCH_CLAUSE && grandParent != null &&
@@ -108,17 +108,17 @@ class FormatterUtils {
             }
             return grandParent;
         }
-        if (syntaxKind == (SyntaxKind.SIMPLE_NAME_REFERENCE)) {
+        if (syntaxKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             if (parentKind == (SyntaxKind.REQUIRED_PARAM) ||
-                    parentKind == (SyntaxKind.POSITIONAL_ARG) ||
-                    parentKind == (SyntaxKind.BINARY_EXPRESSION) ||
-                    parentKind == (SyntaxKind.BRACED_EXPRESSION) ||
-                    parentKind == (SyntaxKind.RETURN_STATEMENT) ||
-                    parentKind == (SyntaxKind.REMOTE_METHOD_CALL_ACTION) ||
-                    parentKind == (SyntaxKind.FIELD_ACCESS) ||
-                    (parentKind == (SyntaxKind.FUNCTION_CALL) && grandParent != null &&
-                            (grandParent.kind() == (SyntaxKind.ASSIGNMENT_STATEMENT) ||
-                            grandParent.kind() == (SyntaxKind.CHECK_EXPRESSION)))) {
+                    parentKind == SyntaxKind.POSITIONAL_ARG ||
+                    parentKind == SyntaxKind.BINARY_EXPRESSION ||
+                    parentKind == SyntaxKind.BRACED_EXPRESSION ||
+                    parentKind == SyntaxKind.RETURN_STATEMENT ||
+                    parentKind == SyntaxKind.REMOTE_METHOD_CALL_ACTION ||
+                    parentKind == SyntaxKind.FIELD_ACCESS ||
+                    (parentKind == SyntaxKind.FUNCTION_CALL && grandParent != null &&
+                            (grandParent.kind() == SyntaxKind.ASSIGNMENT_STATEMENT ||
+                            grandParent.kind() == SyntaxKind.CHECK_EXPRESSION))) {
                 if (parentKind == SyntaxKind.FIELD_ACCESS &&
                         ((FieldAccessExpressionNode) parent).expression() == node && grandParent != null &&
                         grandParent.kind() == SyntaxKind.ASSIGNMENT_STATEMENT && grandParent.parent() != null &&
@@ -129,13 +129,13 @@ class FormatterUtils {
             }
             return getParent(parent, syntaxKind);
         }
-        if (syntaxKind == (SyntaxKind.STRING_TYPE_DESC) &&
-                parentKind == (SyntaxKind.RECORD_FIELD) && grandParent != null &&
-                grandParent.kind() == (SyntaxKind.RECORD_TYPE_DESC)) {
+        if (syntaxKind == SyntaxKind.STRING_TYPE_DESC &&
+                parentKind == SyntaxKind.RECORD_FIELD && grandParent != null &&
+                grandParent.kind() == SyntaxKind.RECORD_TYPE_DESC) {
             return getParent(parent, syntaxKind);
         }
-        if (syntaxKind == (SyntaxKind.OBJECT_CONSTRUCTOR) &&
-                parentKind == (SyntaxKind.LOCAL_VAR_DECL)) {
+        if (syntaxKind == SyntaxKind.OBJECT_CONSTRUCTOR &&
+                parentKind == SyntaxKind.LOCAL_VAR_DECL) {
             return parent;
         }
         if (syntaxKind == SyntaxKind.ON_FAIL_CLAUSE && (parentKind == SyntaxKind.MATCH_STATEMENT ||
@@ -148,31 +148,31 @@ class FormatterUtils {
             }
             return parent;
         }
-        if (parentKind == (SyntaxKind.SERVICE_DECLARATION) ||
-                parentKind == (SyntaxKind.BINARY_EXPRESSION)) {
-            if (syntaxKind == (SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
+        if (parentKind == SyntaxKind.SERVICE_DECLARATION ||
+                parentKind == SyntaxKind.BINARY_EXPRESSION) {
+            if (syntaxKind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 return null;
             }
             return parent;
         }
-        if (parentKind == (SyntaxKind.REQUIRED_PARAM) || parentKind == (SyntaxKind.TYPE_TEST_EXPRESSION)) {
+        if (parentKind == (SyntaxKind.REQUIRED_PARAM) || parentKind == SyntaxKind.TYPE_TEST_EXPRESSION) {
             return null;
         }
         if (parentKind == (SyntaxKind.OBJECT_TYPE_DESC)) {
-            if (grandParent != null && grandParent.kind() == (SyntaxKind.RETURN_TYPE_DESCRIPTOR)) {
+            if (grandParent != null && grandParent.kind() == SyntaxKind.RETURN_TYPE_DESCRIPTOR) {
                 return grandParent.parent().parent();
-            } else if (grandParent != null && grandParent.kind() == (SyntaxKind.TYPE_DEFINITION)) {
+            } else if (grandParent != null && grandParent.kind() == SyntaxKind.TYPE_DEFINITION) {
                 return getParent(parent, syntaxKind);
             } else {
                 return parent;
             }
         }
-        if (parentKind == (SyntaxKind.OBJECT_CONSTRUCTOR) && grandParent != null &&
-                grandParent.kind() == (SyntaxKind.LOCAL_VAR_DECL)) {
+        if (parentKind == SyntaxKind.OBJECT_CONSTRUCTOR && grandParent != null &&
+                grandParent.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             return grandParent;
         }
-        if (parentKind == (SyntaxKind.TYPE_CAST_PARAM) && grandParent != null &&
-                grandParent.kind() == (SyntaxKind.TYPE_CAST_EXPRESSION)) {
+        if (parentKind == SyntaxKind.TYPE_CAST_PARAM && grandParent != null &&
+                grandParent.kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return null;
         }
         if (grandParent != null) {
@@ -335,20 +335,22 @@ class FormatterUtils {
 
     private static int leadingNewLines(NonTerminalNode parent, Token node) {
         int count = 0;
-        if (parent != null) {
-            int childLocation = getChildLocation(parent, node);
-            if (parent.children().size() > childLocation + 1) {
-                Token nextToken = getFirstToken(parent.children().get(childLocation + 1));
-                if (nextToken != null && nextToken.containsLeadingMinutiae()) {
-                    MinutiaeList minutiaes = nextToken.leadingMinutiae();
-                    if (commentCount(minutiaes) > 0) {
-                        for (Minutiae minutiae : minutiaes) {
-                            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
-                                count++;
-                            } else {
-                                break;
-                            }
-                        }
+        if (parent == null) {
+            return count;
+        }
+        int childLocation = getChildLocation(parent, node);
+        if (parent.children().size() <= childLocation + 1) {
+            return count;
+        }
+        Token nextToken = getFirstToken(parent.children().get(childLocation + 1));
+        if (nextToken != null && nextToken.containsLeadingMinutiae()) {
+            MinutiaeList minutiaes = nextToken.leadingMinutiae();
+            if (commentCount(minutiaes) > 0) {
+                for (Minutiae minutiae : minutiaes) {
+                    if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                        count++;
+                    } else {
+                        break;
                     }
                 }
             }
@@ -536,13 +538,14 @@ class FormatterUtils {
     }
 
     static boolean addNewTrailingLine(NonTerminalNode parent, NonTerminalNode node) {
-        if (parent != null) {
-            int childLocation = getChildLocation(parent, node);
-            if (parent.children().size() > childLocation + 1) {
-                Token nextToken = getFirstToken(parent.children().get(childLocation + 1));
-                if (nextToken != null && nextToken.containsLeadingMinutiae()) {
-                    return (nextToken.leadingMinutiae().get(0).kind() != SyntaxKind.END_OF_LINE_MINUTIAE);
-                }
+        if (parent == null) {
+            return true;
+        }
+        int childLocation = getChildLocation(parent, node);
+        if (parent.children().size() > childLocation + 1) {
+            Token nextToken = getFirstToken(parent.children().get(childLocation + 1));
+            if (nextToken != null && nextToken.containsLeadingMinutiae()) {
+                return (nextToken.leadingMinutiae().get(0).kind() != SyntaxKind.END_OF_LINE_MINUTIAE);
             }
         }
         return true;
