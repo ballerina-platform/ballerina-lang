@@ -1,14 +1,20 @@
 {
     "position": {
-        "line": 211,
-        "character": 15
+        "line": 201,
+        "character": 74
     },
     "source": "expressions/expressions.bal",
     "expected": {
         "result": {
             "signatures": [
                 {
-                    "label": "fooV(float a, boolean b)",
+                    "label": "foo(float a, boolean b)",
+                    "documentation": {
+                        "right": {
+                            "kind": "markdown",
+                            "value": "**Description**  \nFunction Foo"
+                        }
+                    },
                     "parameters": [
                         {
                             "label": {
@@ -17,7 +23,7 @@
                             "documentation": {
                                 "right": {
                                     "kind": "markdown",
-                                    "value": "**Parameter**  \n**`float`a**: "
+                                    "value": "**Parameter**  \n**`float`a**: a float"
                                 }
                             }
                         },
@@ -28,7 +34,7 @@
                             "documentation": {
                                 "right": {
                                     "kind": "markdown",
-                                    "value": "**Parameter**  \n**`boolean`b**: "
+                                    "value": "**Parameter**  \n**`boolean`b**: b bool"
                                 }
                             }
                         }
