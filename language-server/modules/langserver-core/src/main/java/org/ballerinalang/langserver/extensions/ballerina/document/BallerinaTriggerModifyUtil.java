@@ -118,7 +118,7 @@ public class BallerinaTriggerModifyUtil {
         documentManager.updateFile(compilationPath, Collections
                 .singletonList(new TextDocumentContentChangeEvent(newTextDoc.toString())));
 
-        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SOURCE, newTextDoc.toString());
+//        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SOURCE, newTextDoc.toString());
         return astContext;
     }
 
