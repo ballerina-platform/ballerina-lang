@@ -15,8 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerinalang.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
@@ -100,5 +103,21 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         Optional<Token> equalsToken = node.equalsToken();
 
         return equalsToken.isPresent() && equalsToken.get().textRange().endOffset() <= cursor;
+    }
+
+    @Override
+    public boolean onPreValidation(LSContext context, ObjectFieldNode node) {
+        /*
+        This validation is added in order to avoid identifying the following context as object field node context.
+        This is happened due to the parser recovery strategy.
+        Eg: type TestType client o<cursor>
+         */
+        NonTerminalNode parent = node.parent();
+        return (parent.kind() == SyntaxKind.CLASS_DEFINITION
+                && !((ClassDefinitionNode) parent).openBrace().isMissing()) ||
+                (parent.kind() == SyntaxKind.OBJECT_TYPE_DESC
+                        && !((ObjectTypeDescriptorNode) parent).openBrace().isMissing()) ||
+                (parent.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+                        && !((ObjectConstructorExpressionNode) parent).openBraceToken().isMissing());
     }
 }

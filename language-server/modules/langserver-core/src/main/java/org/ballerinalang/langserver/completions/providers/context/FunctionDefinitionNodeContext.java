@@ -58,6 +58,7 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
             /*
             This is to cover the following within the service body node
             (1) resource <cursor>
+            (2) public remote <cursor>
             Suggest the function keyword and the function snippet
              */
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
