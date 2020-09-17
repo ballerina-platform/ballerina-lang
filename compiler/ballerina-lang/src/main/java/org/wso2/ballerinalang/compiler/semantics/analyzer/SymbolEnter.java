@@ -965,12 +965,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case FUNCTION_TYPE:
                 BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) currentTypeOrClassNode;
-                functionTypeNode.params.forEach(p -> checkErrors(unresolvedType, p.typeNode, visitedNodes));
+                functionTypeNode.params.forEach(p -> checkErrors(unresolvedType, p.typeNode, visitedNodes, fromStructuredType));
                 if (functionTypeNode.restParam != null) {
-                    checkErrors(unresolvedType, functionTypeNode.restParam.typeNode, visitedNodes);
+                    checkErrors(unresolvedType, functionTypeNode.restParam.typeNode, visitedNodes, fromStructuredType);
                 }
                 if (functionTypeNode.returnTypeNode != null) {
-                    checkErrors(unresolvedType, functionTypeNode.returnTypeNode, visitedNodes);
+                    checkErrors(unresolvedType, functionTypeNode.returnTypeNode, visitedNodes, fromStructuredType);
                 }
                 break;
             case RECORD_TYPE:
