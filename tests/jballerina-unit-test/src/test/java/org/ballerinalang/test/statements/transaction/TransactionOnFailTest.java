@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.test.statements.transaction;
 
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -29,15 +31,25 @@ import org.testng.annotations.Test;
 
 public class TransactionOnFailTest {
 
-    private CompileResult programFile;
+    private CompileResult programFile, negativeFile;
 
     @BeforeClass
     public void setup() {
         programFile = BCompileUtil.compile("test-src/statements/transaction/transaction_on_fail.bal");
+        negativeFile = BCompileUtil.compile("test-src/statements/transaction/transaction_on_fail_negative.bal");
     }
 
     @Test
     public void testRollback2() {
-        BRunUtil.invoke(programFile, "testTrxReturnVal");
+        BRunUtil.invoke(programFile, "testOnFailStatement");
+    }
+
+    @Test(description = "Check not incompatible types and reachable statements.")
+    public void testNegative1() {
+        Assert.assertEquals(negativeFile.getErrorCount(), 3);
+        BAssertUtil.validateError(negativeFile, 0, "unreachable code", 16, 6);
+        BAssertUtil.validateError(negativeFile, 1, "incompatible error definition type: " +
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 32, 4);
+        BAssertUtil.validateError(negativeFile, 2, "unreachable code", 64, 7);
     }
 }
