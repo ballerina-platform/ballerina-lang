@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.formatter.core.types;
 
+import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.FormatterTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -30,7 +31,7 @@ import java.nio.file.Paths;
 public class SequenceTypesTest extends FormatterTest {
 
     @Test(dataProvider = "test-file-provider")
-    public void test(String config, String configPath) throws IOException {
+    public void test(String config, String configPath) throws IOException, FormatterException {
         super.test(config, configPath);
     }
 

@@ -17,6 +17,7 @@ package org.ballerinalang.formatter.cli;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.formatter.core.Formatter;
+import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -66,7 +67,8 @@ class FormatUtil {
      * @param dryRun         run the whole formatting
      * @param sourceRootPath execution path
      */
-    static void execute(List<String> argList, boolean helpFlag, boolean dryRun, Path sourceRootPath) {
+    static void execute(List<String> argList, boolean helpFlag, boolean dryRun, Path sourceRootPath)
+            throws FormatterException {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CMD_NAME);
             outStream.println(commandUsageInfo);
@@ -213,7 +215,7 @@ class FormatUtil {
     }
 
     private static void formatAndWrite(BLangCompilationUnit compilationUnit, Path sourceRootPath,
-                                       List<String> formattedFiles, boolean dryRun) throws IOException {
+                               List<String> formattedFiles, boolean dryRun) throws IOException, FormatterException {
         String fileName = Paths.get(sourceRootPath.toString()).resolve("src")
                 .resolve(compilationUnit.getPosition().getSource().getPackageName())
                 .resolve(compilationUnit.getPosition().getSource().getCompilationUnitName()).toString();
@@ -232,7 +234,7 @@ class FormatUtil {
     }
 
     private static List<String> iterateAndFormat(BLangPackage bLangPackage, Path sourceRootPath, boolean dryRun)
-            throws IOException {
+            throws IOException, FormatterException {
         List<String> formattedFiles = new ArrayList<>();
 
         // Iterate compilation units and format.
