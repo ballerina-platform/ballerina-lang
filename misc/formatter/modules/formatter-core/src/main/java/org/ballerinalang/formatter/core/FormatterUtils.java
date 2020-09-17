@@ -97,7 +97,7 @@ class FormatterUtils {
                 parentKind == SyntaxKind.CONST_DECLARATION ||
                 parentKind == SyntaxKind.METHOD_DECLARATION ||
                 parentKind == SyntaxKind.TYPE_DEFINITION ||
-                parentKind == (SyntaxKind.CLASS_DEFINITION)) {
+                parentKind == SyntaxKind.CLASS_DEFINITION) {
             return parent;
         }
         if (parentKind == SyntaxKind.MATCH_CLAUSE && grandParent != null &&
@@ -110,7 +110,7 @@ class FormatterUtils {
             return grandParent;
         }
         if (syntaxKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            if (parentKind == (SyntaxKind.REQUIRED_PARAM) ||
+            if (parentKind == SyntaxKind.REQUIRED_PARAM ||
                     parentKind == SyntaxKind.POSITIONAL_ARG ||
                     parentKind == SyntaxKind.BINARY_EXPRESSION ||
                     parentKind == SyntaxKind.BRACED_EXPRESSION ||
@@ -156,10 +156,10 @@ class FormatterUtils {
             }
             return parent;
         }
-        if (parentKind == (SyntaxKind.REQUIRED_PARAM) || parentKind == SyntaxKind.TYPE_TEST_EXPRESSION) {
+        if (parentKind == SyntaxKind.REQUIRED_PARAM || parentKind == SyntaxKind.TYPE_TEST_EXPRESSION) {
             return null;
         }
-        if (parentKind == (SyntaxKind.OBJECT_TYPE_DESC)) {
+        if (parentKind == SyntaxKind.OBJECT_TYPE_DESC) {
             if (grandParent != null && grandParent.kind() == SyntaxKind.RETURN_TYPE_DESCRIPTOR) {
                 return grandParent.parent().parent();
             } else if (grandParent != null && grandParent.kind() == SyntaxKind.TYPE_DEFINITION) {
@@ -209,7 +209,7 @@ class FormatterUtils {
     private static MinutiaeList getCommentMinutiae(MinutiaeList minutiaeList, boolean isLeading) {
         MinutiaeList minutiaes = AbstractNodeFactory.createEmptyMinutiaeList();
         for (int i = 0; i < minutiaeList.size(); i++) {
-            if (minutiaeList.get(i).kind() == (SyntaxKind.COMMENT_MINUTIAE)) {
+            if (minutiaeList.get(i).kind() == SyntaxKind.COMMENT_MINUTIAE) {
                 if (i > 0) {
                     minutiaes = minutiaes.add(minutiaeList.get(i - 1));
                 }
@@ -466,11 +466,11 @@ class FormatterUtils {
      */
     static int getStartColumn(Node node, boolean addSpaces, FormattingOptions formattingOptions) {
         Node parent;
-        if (node.kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
+        if (node.kind() == SyntaxKind.IF_ELSE_STATEMENT) {
             Indentation indent = getIfElseParent((NonTerminalNode) node);
             parent = indent.getParent();
             addSpaces = indent.getAddSpaces();
-        } else if (node.kind() == (SyntaxKind.BLOCK_STATEMENT)) {
+        } else if (node.kind() == SyntaxKind.BLOCK_STATEMENT) {
             Indentation indent = getBlockParent(node);
             parent = indent.getParent();
             addSpaces = indent.getAddSpaces();
@@ -492,7 +492,7 @@ class FormatterUtils {
         if (parent == null) {
             parent = node;
         }
-        if (parent.kind() == (SyntaxKind.FUNCTION_DEFINITION)) {
+        if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION) {
             return new Indentation(parent, true);
         } else if (parent.parent() != null) {
             return getIfElseParent(parent);
@@ -522,7 +522,7 @@ class FormatterUtils {
         if (parentWithSpaces.contains(parent.kind())) {
             return new Indentation(parent, true);
         }
-        if (parent.kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
+        if (parent.kind() == SyntaxKind.IF_ELSE_STATEMENT) {
             ArrayList nestedBlock = nestedIfBlock((NonTerminalNode) parent);
             if (!nestedBlock.isEmpty()) {
                 NonTerminalNode nestedIfParent = (NonTerminalNode) nestedBlock.get(0);
