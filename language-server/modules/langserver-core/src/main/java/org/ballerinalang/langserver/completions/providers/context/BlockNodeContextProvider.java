@@ -104,6 +104,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_NAMESPACE_DECLARATION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_FAIL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_WAIT.get()));

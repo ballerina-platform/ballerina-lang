@@ -80,6 +80,7 @@ public class ItemResolverConstants {
     public static final String FROM_CLAUSE = "from clause";
     public static final String LET_CLAUSE = "let clause";
     public static final String JOIN_CLAUSE = "join clause";
+    public static final String ON_FAIL_CLAUSE = "on fail clause";
 
     // End of Basic Constructs
 

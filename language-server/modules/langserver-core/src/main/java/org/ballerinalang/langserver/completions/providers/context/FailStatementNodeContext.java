@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FailStatementNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -47,10 +46,10 @@ public class FailStatementNodeContext extends AbstractCompletionProvider<FailSta
         NonTerminalNode symbolAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
         if (symbolAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qRef = (QualifiedNameReferenceNode) symbolAtCursor;
-            
-            return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(context, qRef),context);
+
+            return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(context, qRef), context);
         }
-        
+
         return this.expressionCompletions(context);
     }
 }

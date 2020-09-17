@@ -13,6 +13,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "on fail clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "on fail ${1:var} ${2:varName} {\n\t${3}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "xmlns",
       "kind": "Keyword",
       "detail": "Keyword",

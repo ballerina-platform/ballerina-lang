@@ -1296,6 +1296,19 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get on fail clause Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getOnFailClauseSnippet() {
+        String snippet = "on fail ${1:var} ${2:varName} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+
+        return new SnippetBlock(ItemResolverConstants.ON_FAIL_CLAUSE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
      * Get Worker Declaration Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
