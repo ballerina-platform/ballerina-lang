@@ -3448,9 +3448,14 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode condition = this.modifyNode(matchStatementNode.condition());
         Token openBrace = getToken(matchStatementNode.openBrace());
         Token closeBrace = getToken(matchStatementNode.closeBrace());
+        OnFailClauseNode onFailClause = this.modifyNode(matchStatementNode.onFailClause().orElse(null));
         matchStatementNode = matchStatementNode.modify()
                 .withMatchKeyword(formatToken(matchKeyword, startColumn, 1, 0, 0)).apply();
         NodeList<MatchClauseNode> matchClauses = this.modifyNodeList(matchStatementNode.matchClauses());
+        if (onFailClause != null) {
+            matchStatementNode = matchStatementNode.modify()
+                    .withOnFailClause(onFailClause).apply();
+        }
         return matchStatementNode.modify()
                 .withCondition(condition)
                 .withOpenBrace(formatToken(openBrace, 1, 0, 0, 1))
