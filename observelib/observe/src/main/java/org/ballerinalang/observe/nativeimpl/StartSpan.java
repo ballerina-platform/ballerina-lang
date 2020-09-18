@@ -46,12 +46,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 public class StartSpan {
+    private static final OpenTracerBallerinaWrapper otWrapperInstance = OpenTracerBallerinaWrapper.getInstance();
+
     public static Object startSpan(Strand strand, BString spanName, Object tags, long parentSpanId) {
         if (parentSpanId < -1) {
             return BErrorCreator.createError(
                     BStringUtils.fromString(("The given parent span ID " + parentSpanId + " " + "is invalid.")));
         } else {
-            long spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(
+            long spanId = otWrapperInstance.startSpan(
                     (String) strand.getProperty(ObservabilityConstants.SERVICE_NAME), spanName.getValue(),
                     Utils.toStringMap((MapValue<BString, ?>) tags), parentSpanId, strand);
             if (spanId == -1) {
