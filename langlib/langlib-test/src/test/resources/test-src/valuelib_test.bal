@@ -536,12 +536,21 @@ function testXmlSequenceFragmentToBalString() returns string {
 function testToBalStringOnCycles() {
      map<anydata> x = {"ee" : 3};
      map<anydata> y = {"qq" : 5};
+     map<anydata> z = {"mm" : 5};
      anydata[] arr = [2 , 3, 5];
-     x["1"] = y;
-     y["1"] = x;
-     y["2"] = arr;
+     x["1"] = z;
+     x["2"] = y;
+     x["3"] = x;
+     y["1"] = arr;
+     y["2"] = x;
+     y["3"] = y;
+     y["4"] = z;
+     z["1"] = x;
+     z["2"] = y;
      arr.push(x);
-     assert(x.toBalString(), "{\"ee\":3,\"1\":{\"qq\":5,\"1\":...[1],\"2\":[2,3,5,...[1]]}}");
+     assert(x.toBalString(), "{\"ee\":3,\"1\":{\"mm\":5,\"1\":...[1],\"2\":{\"qq\":5,\"1\":[2,3,5,...[1]]," +
+     "\"2\":...[1],\"3\":...[1],\"4\":...[1]}},\"2\":{\"qq\":5,\"1\":[2,3,5,...[1]],\"2\":...[1],\"3\":...[1]," +
+     "\"4\":{\"mm\":5,\"1\":...[1],\"2\":...[1]}},\"3\":...[1]}");
 }
 
 type AssertionError distinct error;

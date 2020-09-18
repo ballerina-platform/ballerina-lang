@@ -355,8 +355,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             sj.add(BStringUtils.getExpressionStringValue(struct.getValue(),
                     new CycleUtils.Node(this, parent)));
         }
-        return keyJoiner.length() == 0 ? "table [" + sj.toString() + "]" : "table " +
-                "key(" + keyJoiner.toString() + ") [" + sj.toString() + "]";
+        return "table key(" + keyJoiner.toString() + ") [" + sj.toString() + "]";
     }
 
     private BType getTableConstraintField(BType constraintType, String fieldName) {
