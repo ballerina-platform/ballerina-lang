@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.builder.impl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CodeAction;
@@ -38,59 +38,26 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
+
 /**
- * Code Action provider for implementing functions of an object.
+ * Code Action for implementing functions of an object.
  *
  * @since 1.2.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
-    private static final String NO_IMPL_FOUND_FOR_FUNCTION = "no implementation found for the function";
 
-    /**
-     * {@inheritDoc}
-     */
+public class ImplementFunctionsCodeAction implements DiagBasedCodeAction {
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
-        List<CodeAction> actions = new ArrayList<>();
-        List<DiagnosticPos> addedObjPosition = new ArrayList<>();
-        BLangPackage bLangPackage = lsContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        if (bLangPackage == null) {
-            return actions;
-        }
-        for (Diagnostic diagnostic : diagnosticsOfRange) {
-            if (diagnostic.getMessage().startsWith(NO_IMPL_FOUND_FOR_FUNCTION)) {
-                CodeAction codeAction = getNoImplementationFoundCommand(diagnostic, addedObjPosition,
-                                                                        bLangPackage, lsContext);
-                if (codeAction != null) {
-                    actions.add(codeAction);
-                }
-            }
-        }
-        return actions;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> allDiagnostics) {
-        throw new UnsupportedOperationException("Not supported");
-    }
-
-    private static CodeAction getNoImplementationFoundCommand(Diagnostic diagnostic,
-                                                              List<DiagnosticPos> addedObjPosition,
-                                                              BLangPackage bLangPackage, LSContext context) {
+    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
+            throws LSCodeActionProviderException {
+        BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
@@ -110,11 +77,12 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
         List<TextEdit> edits = new ArrayList<>();
         if (objType.isPresent()) {
             BLangTypeDefinition typeDefinition = objType.get();
-            if (addedObjPosition.contains(typeDefinition.pos)) {
-                // Skip, CodeAction for typeDefinition is already added
-                return null;
-            }
-            addedObjPosition.add(typeDefinition.pos);
+            //TODO: Fix this
+//            if (addedObjPosition.contains(typeDefinition.pos)) {
+//                 Skip, CodeAction for typeDefinition is already added
+//                return null;
+//            }
+//            addedObjPosition.add(typeDefinition.pos);
 
             BSymbol symbol = typeDefinition.symbol;
             if (symbol instanceof BObjectTypeSymbol) {
@@ -128,7 +96,7 @@ public class ImplementFunctionsCodeAction extends AbstractCodeActionProvider {
 
         if (!edits.isEmpty()) {
             String commandTitle = CommandConstants.IMPLEMENT_FUNCS_TITLE;
-            return createQuickFixCodeAction(commandTitle, edits, uri);
+            return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
         }
         return null;
     }

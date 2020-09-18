@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.builder.impl;
 
-import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -30,50 +30,23 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 
+import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
+
 /**
- * Code Action provider for tainted parameters.
+ * Code Action for marking as untainted.
  *
- * @since 1.1.1
+ * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class TaintedParamCodeAction extends AbstractCodeActionProvider {
-
-    /**
-     * {@inheritDoc}
-     */
+public class MarkAsUntaintedCodeAction implements DiagBasedCodeAction {
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
-        List<CodeAction> actions = new ArrayList<>();
-        for (Diagnostic diagnostic : diagnosticsOfRange) {
-            if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.TAINTED_PARAM_PASSED)) {
-                CodeAction codeAction = getTaintedParamCommand(diagnostic, lsContext);
-                if (codeAction != null) {
-                    actions.add(codeAction);
-                }
-            }
-        }
-        return actions;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> allDiagnostics) {
-        throw new UnsupportedOperationException("Not supported");
-    }
-
-    private static CodeAction getTaintedParamCommand(Diagnostic diagnostic, LSContext context) {
+    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
+            throws LSCodeActionProviderException {
         String diagnosticMessage = diagnostic.getMessage();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-
         try {
             Matcher matcher = CommandConstants.TAINTED_PARAM_PATTERN.matcher(diagnosticMessage);
             if (matcher.find() && matcher.groupCount() > 0) {
@@ -89,11 +62,11 @@ public class TaintedParamCodeAction extends AbstractCodeActionProvider {
                 // Create text-edit
                 List<TextEdit> edits = new ArrayList<>();
                 edits.add(new TextEdit(range, editText));
-                return createQuickFixCodeAction(commandTitle, edits, uri);
+                return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
             }
         } catch (WorkspaceDocumentException | IOException e) {
             //do nothing
         }
-        return null;
+        return new ArrayList<>();
     }
 }
