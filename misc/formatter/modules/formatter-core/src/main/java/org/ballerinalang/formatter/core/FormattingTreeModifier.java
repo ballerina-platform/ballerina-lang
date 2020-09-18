@@ -73,7 +73,6 @@ import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionalMatchPatternNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
