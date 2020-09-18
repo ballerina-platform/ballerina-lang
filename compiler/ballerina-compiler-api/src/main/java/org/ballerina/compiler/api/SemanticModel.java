@@ -51,6 +51,13 @@ public interface SemanticModel {
     Optional<Symbol> symbol(String srcFile, LinePosition position);
 
     /**
+     * Retrieves the symbols of module-scoped constructs in the semantic model.
+     *
+     * @return A list of module-scoped symbols
+     */
+    List<Symbol> moduleLevelSymbols();
+
+    /**
      * Get the diagnostics within the given text Span.
      *
      * @param textRange Text range to filter the diagnostics

@@ -124,6 +124,25 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
+    public List<Symbol> moduleLevelSymbols() {
+        List<Symbol> compiledSymbols = new ArrayList<>();
+
+        for (Map.Entry<Name, Scope.ScopeEntry> e : bLangPackage.symbol.scope.entries.entrySet()) {
+            Name key = e.getKey();
+            Scope.ScopeEntry value = e.getValue();
+
+            if (value.symbol.origin == SOURCE) {
+                compiledSymbols.add(SymbolFactory.getBCompiledSymbol(value.symbol, key.value));
+            }
+        }
+
+        return compiledSymbols;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public List<Diagnostic> diagnostics(TextRange range) {
         return new ArrayList<>();
     }
