@@ -28,16 +28,15 @@ import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -130,10 +129,6 @@ public class LSCompilerUtil {
         options.put(SKIP_TESTS, String.valueOf(false));
         options.put(TOOLING_COMPILATION, String.valueOf(stopOnSemanticErrors));
 
-        if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-            ((CollectDiagnosticListener) context.get(DiagnosticListener.class)).clearAll();
-        }
-
         LangServerFSProjectDirectory projectDirectory =
                 LangServerFSProjectDirectory.getInstance(Paths.get(sourceRoot), documentManager);
         context.put(SourceDirectory.class, projectDirectory);
@@ -218,9 +213,10 @@ public class LSCompilerUtil {
      */
     static Compiler getCompiler(LSContext context, CompilerContext compilerContext) {
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
-        BLangDiagnosticLogHelper.getInstance(compilerContext).resetErrorCount();
+        BLangDiagnosticLog.getInstance(compilerContext).resetErrorCount();
         Compiler compiler = Compiler.getInstance(compilerContext);
         compiler.setOutStream(emptyPrintStream);
+        compiler.setErrorStream(emptyPrintStream);
         return compiler;
     }
 

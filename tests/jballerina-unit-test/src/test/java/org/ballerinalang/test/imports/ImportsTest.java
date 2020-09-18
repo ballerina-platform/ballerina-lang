@@ -41,7 +41,7 @@ public class ImportsTest {
                 1);
     }
 
-    @Test(description = "Test cyclic imports")
+    @Test(enabled = false, description = "Test cyclic imports")
     public void testCyclicImports() {
         CompileResult result = BCompileUtil.compile("test-src/imports/cyclic-imports", "abc");
         assertEquals(result.getErrorCount(), 3);

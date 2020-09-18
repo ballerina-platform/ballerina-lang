@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.builder.impl;
 
-import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.builder.NodeBasedCodeAction;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -33,29 +33,16 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Code Action provider for adding single documentation.
+ * Code Action for adding single documentation.
  *
  * @since 1.1.1
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
-    public AddDocumentationCodeAction() {
-        super(Arrays.asList(CodeActionNodeType.FUNCTION,
-                            CodeActionNodeType.OBJECT,
-                            CodeActionNodeType.SERVICE,
-                            CodeActionNodeType.RESOURCE,
-                            CodeActionNodeType.RECORD,
-                            CodeActionNodeType.OBJECT_FUNCTION));
-    }
 
-    /**
-     * {@inheritDoc}
-     */
+public class AddDocumentationCodeAction implements NodeBasedCodeAction {
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> allDiagnostics) {
-        String docUri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
-        int line = lsContext.get(CodeActionKeys.POSITION_START_KEY).getLine();
+    public List<CodeAction> get(CodeActionNodeType nodeType, List<Diagnostic> allDiagnostics, LSContext context) {
+        String docUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        int line = context.get(CodeActionKeys.POSITION_START_KEY).getLine();
 
         CommandArgument nodeTypeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, nodeType.name());
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
@@ -66,15 +53,5 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
         Command command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE, AddDocumentationExecutor.COMMAND, args);
         action.setCommand(command);
         return Collections.singletonList(action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
-        throw new UnsupportedOperationException("Not supported");
     }
 }

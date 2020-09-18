@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -29,8 +28,10 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnostic;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -38,7 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
@@ -56,7 +56,7 @@ public class Parser {
     private PackageCache pkgCache;
     private ParserCache parserCache;
     private NodeCloner nodeCloner;
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
 
     public static Parser getInstance(CompilerContext context) {
         Parser parser = context.get(PARSER_KEY);
@@ -73,7 +73,7 @@ public class Parser {
         this.pkgCache = PackageCache.getInstance(context);
         this.parserCache = ParserCache.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath) {
@@ -145,31 +145,17 @@ public class Parser {
 
     private void reportSyntaxDiagnostics(BDiagnosticSource diagnosticSource, SyntaxTree tree) {
         for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
-            DiagnosticPos pos = getPosition(syntaxDiagnostic.location(), diagnosticSource);
-
-            // TODO This is the temporary mechanism
-            // We need to merge the diagnostic reporting mechanisms of the new parser and the semantic analyzer
-            DiagnosticCode code;
-
-            DiagnosticSeverity severity = syntaxDiagnostic.diagnosticInfo().severity();
-            if (severity == DiagnosticSeverity.WARNING) {
-                code = DiagnosticCode.SYNTAX_WARNING;
-                dlog.warning(pos, code, syntaxDiagnostic.message());
-            } else {
-                code = DiagnosticCode.SYNTAX_ERROR;
-                dlog.error(pos, code, syntaxDiagnostic.message());
-            }
+            // This conversion is needed because the compiler diagnostic locations starting index 
+            // is 1, where as syntax diagnostics locations starting index is 0.
+            Location syntaxLocation = syntaxDiagnostic.location();
+            LineRange lineRange = syntaxLocation.lineRange();
+            LinePosition startLine = lineRange.startLine();
+            LinePosition endLine = lineRange.startLine();
+            Location location = new BLangDiagnosticLocation(diagnosticSource.cUnitName, startLine.line() + 1,
+                    endLine.line() + 1, startLine.offset() + 1, endLine.offset() + 1);
+            BLangDiagnostic diag =
+                    new BLangDiagnostic(location, syntaxDiagnostic.message(), syntaxDiagnostic.diagnosticInfo());
+            dlog.logDiagnostic(diagnosticSource.pkgID, diag);
         }
-    }
-
-    private DiagnosticPos getPosition(Location location, BDiagnosticSource diagnosticSource) {
-        if (location == null) {
-            return null;
-        }
-        LineRange lineRange = location.lineRange();
-        LinePosition startPos = lineRange.startLine();
-        LinePosition endPos = lineRange.endLine();
-        return new DiagnosticPos(diagnosticSource, startPos.line() + 1, endPos.line() + 1,
-                startPos.offset() + 1, endPos.offset() + 1);
     }
 }

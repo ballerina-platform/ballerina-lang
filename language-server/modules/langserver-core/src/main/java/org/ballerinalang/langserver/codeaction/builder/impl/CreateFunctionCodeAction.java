@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.builder.impl;
 
-import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
@@ -40,71 +41,31 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 
+import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.getDiagnosedContent;
+import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.offsetPositionToInvocation;
 import static org.ballerinalang.langserver.util.references.ReferencesUtil.getReferenceAtCursor;
 
 /**
- * Code Action provider for importing a package.
+ * Code Action for creating undefined function.
  *
  * @since 1.2.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
-    private static final String UNDEFINED_FUNCTION = "undefined function";
-
-    /**
-     * {@inheritDoc}
-     */
+public class CreateFunctionCodeAction implements DiagBasedCodeAction {
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
-        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
-        LSDocumentIdentifier document = null;
-        try {
-            document = documentManager.getLSDocument(filePath.get());
-        } catch (WorkspaceDocumentException e) {
-            // ignore
-        }
-        List<CodeAction> actions = new ArrayList<>();
-
-        if (document == null) {
-            return actions;
-        }
-        for (Diagnostic diagnostic : diagnosticsOfRange) {
-            if (diagnostic.getMessage().startsWith(UNDEFINED_FUNCTION)) {
-                CodeAction codeAction = getFunctionCreateCommand(document, diagnostic, lsContext);
-                if (codeAction != null) {
-                    actions.add(codeAction);
-                }
-            }
-        }
-        return actions;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> allDiagnostics) {
-        throw new UnsupportedOperationException("Not supported");
-    }
-
-    private static CodeAction getFunctionCreateCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
-                                                       LSContext context) {
+    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
+            throws LSCodeActionProviderException {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        LSDocumentIdentifier document = new LSDocumentIdentifierImpl(uri);
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
         CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -120,6 +81,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
             context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
             context.put(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS, true);
             Position afterAliasPos = offsetPositionToInvocation(diagnosedContent, position);
+            // TODO: Try to use referenceAtCursor
             SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, lsDocument, afterAliasPos);
             BLangNode bLangNode = refAtCursor.getbLangNode();
             BLangInvocation node = null;
@@ -141,12 +103,12 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
                     action.setKind(CodeActionKind.QuickFix);
                     action.setCommand(new Command(commandTitle, CreateFunctionExecutor.COMMAND, args));
                     action.setDiagnostics(diagnostics);
-                    return action;
+                    return Collections.singletonList(action);
                 }
             }
         } catch (CompilationFailedException | WorkspaceDocumentException | TokenOrSymbolNotFoundException e) {
             // ignore
         }
-        return null;
+        return new ArrayList<>();
     }
 }

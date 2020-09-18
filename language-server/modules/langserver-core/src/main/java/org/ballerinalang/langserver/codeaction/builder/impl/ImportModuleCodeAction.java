@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.builder.impl;
 
-import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
@@ -44,72 +42,23 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Code Action provider for importing a package.
+ * Code Action for importing a module.
  *
  * @since 1.2.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ImportModuleCodeAction extends AbstractCodeActionProvider {
-    private static final String UNDEFINED_FUNCTION = "undefined function";
-    private static final String UNDEFINED_MODULE = "undefined module";
-    private static final String UNRESOLVED_MODULE = "cannot resolve module";
-
-    /**
-     * {@inheritDoc}
-     */
+public class ImportModuleCodeAction implements DiagBasedCodeAction {
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
-        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
-        LSDocumentIdentifier document = null;
-        try {
-            document = documentManager.getLSDocument(filePath.get());
-        } catch (WorkspaceDocumentException e) {
-            // ignore
-        }
-        List<CodeAction> actions = new ArrayList<>();
-
-        if (document == null) {
-            return actions;
-        }
-        // Avoid duplicate import commands
-        HashMap<String, Diagnostic> missingImports = new HashMap<>();
-        for (Diagnostic diagnostic : diagnosticsOfRange) {
-            missingImports.put(diagnostic.getMessage(), diagnostic);
-        }
-        for (Diagnostic diagnostic : missingImports.values()) {
-            if (diagnostic.getMessage().startsWith(UNDEFINED_MODULE)) {
-                List<CodeAction> codeActions = getModuleImportCommand(diagnostic.getMessage(), lsContext);
-                actions.addAll(codeActions);
-            }
-        }
-        return actions;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> allDiagnostics) {
-        throw new UnsupportedOperationException("Not supported");
-    }
-
-    private static List<CodeAction> getModuleImportCommand(String diagnosticMessage, LSContext context) {
+    public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
+            throws LSCodeActionProviderException {
         List<CodeAction> actions = new ArrayList<>();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         List<Diagnostic> diagnostics = new ArrayList<>();
-
+        String diagnosticMessage = diagnostic.getMessage();
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                                                           diagnosticMessage.lastIndexOf("'"));
         LSDocumentIdentifier sourceDocument = new LSDocumentIdentifierImpl(uri);
