@@ -47,7 +47,7 @@ public class BAssertUtil {
         Assert.assertEquals(diag.message().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
                 expectedErrMsg.replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "incorrect error message:");
         Assert.assertEquals(diag.location().lineRange().startLine().line(), expectedErrLine, "incorrect line number:");
-        Assert.assertEquals(diag.location().textRange().startOffset(), expectedErrCol, "incorrect column position:");
+        Assert.assertEquals(diag.location().lineRange().startLine().offset(), expectedErrCol, "incorrect column position:");
     }
 
     /**
@@ -62,7 +62,7 @@ public class BAssertUtil {
         Diagnostic diag = result.getDiagnostics()[errorIndex];
         Assert.assertEquals(diag.diagnosticInfo().severity(), DiagnosticSeverity.ERROR, "incorrect diagnostic type");
         Assert.assertEquals(diag.location().lineRange().startLine().line(), expectedErrLine, "incorrect line number:");
-        Assert.assertEquals(diag.location().textRange().startOffset(), expectedErrCol, "incorrect column position:");
+        Assert.assertEquals(diag.location().lineRange().startLine().offset(), expectedErrCol, "incorrect column position:");
     }
 
     /**
@@ -115,6 +115,6 @@ public class BAssertUtil {
         Assert.assertEquals(diag.diagnosticInfo().severity(), DiagnosticSeverity.WARNING, "incorrect diagnostic type");
         Assert.assertEquals(diag.message(), expectedWarnMsg, "incorrect warning message:");
         Assert.assertEquals(diag.location().lineRange().startLine().line(), expectedWarnLine, "incorrect line number:");
-        Assert.assertEquals(diag.location().textRange().startOffset(), expectedWarnCol, "incorrect column position:");
+        Assert.assertEquals(diag.location().lineRange().startLine().offset(), expectedWarnCol, "incorrect column position:");
     }
 }
