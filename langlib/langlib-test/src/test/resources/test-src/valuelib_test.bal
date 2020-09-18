@@ -490,7 +490,7 @@ function testToBalString() returns string[] {
     table<UndergradStudent> underGradTable = table key(id,name) [
             { id: 1, name: "Mary", grade: 12 },
             { id: 2, name: "John", grade: 13 }
-        ];
+    ];
     (any|error)[] varArr = ["str", 23, 23.4, true, {"x":"AA","y":(1.0/0.0),"z":1.23}, varDecimal, ["X", (0.0/0.0),
     varDecimal],underGradTable,varSimpleErr,varXml];
     FirstError varErr = FirstError(REASON_1, message = "Test passing error union to a function");
@@ -501,7 +501,7 @@ function testToBalString() returns string[] {
     table<Employee> varTable = table key(id) [
                 { id: 1, age: 30,  salary: 300.5, name: "Mary", married: true },
                 { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
-            ];
+    ];
 
     varMap["varInt"] = varInt;
     varMap["varFloat"] = varFloat;
