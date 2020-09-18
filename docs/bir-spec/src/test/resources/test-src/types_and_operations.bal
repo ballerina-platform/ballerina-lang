@@ -536,6 +536,31 @@ function greet(string name) returns string {
     return "Hello " + name + "!!";
 }
 
+function functionWithTableType() {
+    table<UndergradStudentRec> underGradTable = table key(id,name) [
+            { id: 1, name: "Mary", grade: 12 },
+            { id: 2, name: "John", grade: 13 }
+        ];
+    table<EmployeeRec> varTable = table key(id) [
+                { id: 1, age: 30,  salary: 300.5, name: "Mary", married: true },
+                { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
+            ];
+}
+
+type EmployeeRec record {
+    readonly int id;
+    int age;
+    decimal salary;
+    string name;
+    boolean married;
+};
+
+type UndergradStudentRec record {|
+    readonly int id;
+    readonly string name;
+    int grade;
+|};
+
 function squarePlusCube(future<int> f) returns int {
     worker w1 {
         int n = wait f;
