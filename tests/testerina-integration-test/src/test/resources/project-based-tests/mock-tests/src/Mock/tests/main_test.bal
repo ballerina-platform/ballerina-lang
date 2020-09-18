@@ -169,8 +169,6 @@ public function call_Test8() {
     test:assertEquals(intAdd3(1, 3, 5), -9);
 }
 
-
-
 @test:Config {
 }
 public function thenReturn_Test1() {
