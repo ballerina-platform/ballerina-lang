@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.stdlib.utils;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
@@ -24,13 +25,11 @@ import org.ballerinalang.docgen.model.ModuleDoc;
 import org.ballerinalang.packerina.utils.EmptyPrintStream;
 import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.ballerinalang.repository.CompiledPackage;
-import org.ballerinalang.tool.util.CompileResult;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -39,6 +38,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -66,6 +66,8 @@ import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE_PRO
 public class GenerateBalo {
 
     private static final String LOG_ISOLATION_WARNINGS_PROP = "BALLERINA_DEV_LOG_ISOLATION_WARNINGS";
+    private static int errorCount = 0;
+    private static int warnCount = 0;
 
     public static void main(String[] args) throws IOException {
         String isBuiltinFlag = args[0];
@@ -111,8 +113,8 @@ public class GenerateBalo {
         Files.createDirectories(Paths.get(targetDir));
 
         CompilerContext context = new CompilerContext();
-        CompileResult.CompileResultDiagnosticListener diagListner = new CompileResult.CompileResultDiagnosticListener();
-        context.put(DiagnosticListener.class, diagListner);
+//        CompileResult.CompileResultDiagnosticListener diagListner = new CompileResult.CompileResultDiagnosticListener();
+//        context.put(DiagnosticListener.class, diagListner);
         context.put(SourceDirectory.class, new MvnSourceDirectory(sourceRootDir, targetDir));
 
         CompilerOptions options = CompilerOptions.getInstance(context);
@@ -127,8 +129,15 @@ public class GenerateBalo {
         List<BLangPackage> buildPackages = compiler.compilePackages(false);
         BallerinaDocGenerator.setPrintStream(new EmptyPrintStream());
 
-        List<Diagnostic> diagnostics = diagListner.getDiagnostics();
-        printErrors(reportWarnings, diagListner, diagnostics, logIsolationWarnings);
+        List<Diagnostic> diagnostics = new ArrayList<>();
+
+        for (BLangPackage buildPackage : buildPackages) {
+            diagnostics.addAll(buildPackage.getDiagnostics());
+            errorCount += buildPackage.getErrorCount();
+            warnCount += buildPackage.getWarnCount();
+        }
+
+        printErrors(reportWarnings, diagnostics, logIsolationWarnings);
 
         compiler.write(buildPackages);
 
@@ -159,23 +168,23 @@ public class GenerateBalo {
         BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap, apiDocPath, false);
     }
 
-    private static void printErrors(boolean reportWarnings, CompileResult.CompileResultDiagnosticListener diagListner,
+    private static void printErrors(boolean reportWarnings,
                                     List<Diagnostic> diagnostics, boolean logIsolationWarnings) {
         int deprecatedWarnCount = 0;
-        if (reportWarnings && diagListner.getWarnCount() > 0) {
-            for (Diagnostic diagnostic : diagListner.getDiagnostics()) {
-                DiagnosticCode code = diagnostic.getCode();
+        if (reportWarnings && warnCount > 0) {
+            for (Diagnostic diagnostic : diagnostics) {
+                DiagnosticCode code = ((BLangDiagnostic) diagnostic).getCode();
                 if (code == USAGE_OF_DEPRECATED_CONSTRUCT || (!logIsolationWarnings && isIsolatedWarningLog(code))) {
                     deprecatedWarnCount++;
                 }
             }
         }
-        if (diagListner.getErrorCount() > 0 ||
-                (reportWarnings && (diagListner.getWarnCount() - deprecatedWarnCount) > 0)) {
+        if (errorCount > 0 ||
+                (reportWarnings && (warnCount - deprecatedWarnCount) > 0)) {
             StringJoiner sj = new StringJoiner("\n  ");
             diagnostics.forEach(e -> sj.add(e.toString()));
-            String warnMsg = reportWarnings ? " and " + diagListner.getWarnCount() + " warning(s)" : "";
-            throw new BLangCompilerException("Compilation failed with " + diagListner.getErrorCount() +
+            String warnMsg = reportWarnings ? " and " + warnCount + " warning(s)" : "";
+            throw new BLangCompilerException("Compilation failed with " + errorCount +
                                              " error(s)" + warnMsg + " " + "\n  " + sj.toString());
         }
     }

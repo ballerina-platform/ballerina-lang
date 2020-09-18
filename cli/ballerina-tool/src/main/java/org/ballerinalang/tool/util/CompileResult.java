@@ -16,9 +16,8 @@
  */
 package org.ballerinalang.tool.util;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.DiagnosticComparator;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -26,7 +25,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,7 +37,7 @@ public class CompileResult {
 
     private PackageNode pkgNode;
     private CompilerContext context;
-    private io.ballerina.tools.diagnostics.Diagnostic[] diagnostics = null;
+    private Diagnostic[] diagnostics = null;
     private int errorCount = 0;
     private int warnCount = 0;
 
@@ -121,48 +119,5 @@ public class CompileResult {
 
         Collections.sort(diagList, new DiagnosticComparator());
         this.diagnostics = diagList.toArray(new io.ballerina.tools.diagnostics.Diagnostic[diagList.size()]);
-    }
-
-    /**
-     * Diagnostic listener implementation for module compilation.
-     *
-     * @since 0.990.4
-     */
-    public static class CompileResultDiagnosticListener implements DiagnosticListener {
-        private List<Diagnostic> diagnostics;
-        private int errorCount = 0;
-        private int warnCount = 0;
-
-        public CompileResultDiagnosticListener() {
-            this.diagnostics = new ArrayList<>();
-        }
-
-        @Override
-        public void received(Diagnostic diagnostic) {
-            this.diagnostics.add(diagnostic);
-            switch (diagnostic.getKind()) {
-                case ERROR:
-                    errorCount++;
-                    break;
-                case WARNING:
-                    warnCount++;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public int getErrorCount() {
-            return errorCount;
-        }
-
-        public int getWarnCount() {
-            return warnCount;
-        }
-
-        public List<Diagnostic> getDiagnostics() {
-            Collections.sort(diagnostics);
-            return diagnostics;
-        }
     }
 }
