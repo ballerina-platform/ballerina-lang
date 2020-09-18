@@ -189,9 +189,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private boolean withinRange(LineRange range, LineRange specifiedRange) {
         int startLine = range.startLine().line();
-        int endLine = range.endLine().line();
         int startOffset = range.startLine().offset();
-        int endOffset = range.endLine().offset();
 
         int specifiedStartLine = specifiedRange.startLine().line();
         int specifiedEndLine = specifiedRange.endLine().line();
