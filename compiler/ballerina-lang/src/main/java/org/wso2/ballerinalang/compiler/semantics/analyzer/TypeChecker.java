@@ -443,6 +443,11 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
+    private boolean isNonStructureJsonType(BType expType) {
+        return expType.tag == TypeTags.INT || expType.tag == TypeTags.FLOAT || expType.tag == TypeTags.DECIMAL
+                || expType.tag == TypeTags.NIL || expType.tag == TypeTags.STRING || expType.tag == TypeTags.JSON;
+    }
+
     private BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType) {
         // Get the type matching to the tag from the symbol table.
         BType literalType = symTable.getTypeFromTag(literalExpr.type.tag);
@@ -4455,6 +4460,9 @@ public class TypeChecker extends BLangNodeVisitor {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         boolean firstVisit = checkedExpr.expr.type == null;
         BType exprExpType;
+        if (checkedExpr.expr instanceof BLangFieldBasedAccess) {
+            ((BLangFieldBasedAccess) checkedExpr.expr).isWithCheckExpr = true;
+        }
         if (expType == symTable.noType) {
             exprExpType = symTable.noType;
         } else {
@@ -6111,7 +6119,25 @@ public class TypeChecker extends BLangNodeVisitor {
             if (fieldAccessExpr.fieldKind == FieldKind.WITH_NS) {
                 resolveXMLNamespace((BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) fieldAccessExpr);
             }
-            BType laxFieldAccessType = getLaxFieldAccessType(varRefType);
+
+            BType laxFieldAccessType;
+            if (fieldAccessExpr.isWithCheckExpr && fieldAccessExpr.expectedType.tag != TypeTags.NONE) {
+                BUnionType unionType = (BUnionType) fieldAccessExpr.expectedType;
+                // Filter out the list of types which are not equivalent with the error type.
+                List<BType> expectedTypes = unionType.getMemberTypes().stream()
+                        .filter(type -> !symTable.errorType.equals(type)).collect(Collectors.toList());
+                boolean isCovertible = expectedTypes.stream().allMatch(this::isNonStructureJsonType);
+                BUnionType expectType = BUnionType.create(null, new LinkedHashSet<>(expectedTypes));
+                if (isCovertible) {
+                    laxFieldAccessType = expectType;
+                } else {
+                    dlog.error(fieldAccessExpr.pos,
+                            DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_ASSIGNMENT, expectType);
+                    return symTable.semanticError;
+                }
+            } else {
+                laxFieldAccessType = getLaxFieldAccessType(varRefType);
+            }
             actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
             fieldAccessExpr.originalType = laxFieldAccessType;
         } else if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&

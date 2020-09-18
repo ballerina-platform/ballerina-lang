@@ -39,6 +39,7 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
 
     // Only used at Desugar and after.
     public boolean isStoreOnCreation = false;
+    public boolean isWithCheckExpr;
 
     @Override
     public BLangExpression getExpression() {
