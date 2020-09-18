@@ -342,4 +342,14 @@ public class LangLibValueTest {
                 { "testToJsonWithTable" }
         };
     }
+
+    @Test
+    public void testRequireType() {
+        BRunUtil.invokeFunction(compileResult, "testRequireType");
+    }
+
+    @Test
+    public void testRequireTypeNegative() {
+        BRunUtil.invokeFunction(compileResult, "testRequireTypeNegative");
+    }
 }

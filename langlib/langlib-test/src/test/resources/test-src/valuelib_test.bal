@@ -1050,3 +1050,181 @@ function assert(anydata actual, anydata expected) {
         panic e;
     }
 }
+
+///////////////////////// Tests for `requireType()` ///////////////////////////
+
+json  p = {name: "Chiran", age: 24, email: "chirans", height: 178.5, weight: 72.5, property: (), address: [125.0/3, "xyz street",
+{province: "southern", Country: "Sri Lanka"}, 81000], married: false, bloodType: {group: "O", RHD: "+"}};
+
+function testRequireTypeWithInt() returns int|error {
+    int age = check p.age;
+    return age;
+}
+
+function testRequireTypeWithInt2() returns int|error {
+    int height = check p.height;
+    return height;
+}
+
+function testRequireTypeWithInt3() returns int|error {
+    int married = check p.married;
+    return married;
+}
+
+function testRequireTypeWithDecimal() returns decimal|error {
+    decimal height = check p.height;
+    return height;
+}
+
+function testRequireTypeWithDecimal2() returns decimal|error {
+    decimal age = check p.age;
+    return age;
+}
+
+function testRequireTypeWithNil() returns ()|error {
+    () property = check p.property;
+    return property;
+}
+
+function testRequireTypeWithString() returns string|error {
+    string name = check p.name;
+    return name;
+}
+
+function testRequireTypeWithFloat() returns float|error {
+    float weight = check p.weight;
+    return weight;
+}
+
+function testRequireTypeWithUnion1() returns float|int|error {
+    float|int weight = check p.weight;
+    return weight;
+}
+
+function testRequireTypeWithUnion2() returns float|string|error {
+    float|string name = check p.name;
+    return name;
+}
+
+function testRequireTypeWithJson1() returns json|error {
+    json age = check p.age;
+    return age;
+}
+
+function testRequireTypeWithJson2() returns json|error {
+    json height = check p.height;
+    return height;
+}
+
+function testRequireTypeWithJson3() returns json|error {
+    json bloodType = check p.bloodType;
+    return bloodType;
+}
+
+function testRequireTypeWithJson4() returns json|error {
+    json address = check p.address;
+    return address;
+}
+
+function testRequireTypeWithJson5() returns json|error {
+    json weight = check p.weight;
+    return weight;
+}
+
+function testRequireTypeWithJson6() returns json|error {
+    json isMarried = check p.married;
+    return isMarried;
+}
+
+function testRequireTypeWithCast1() returns boolean|error {
+    boolean isMarried = <boolean> check p.married;
+    return isMarried;
+}
+
+function testRequireTypeWithCast2() returns json[]|error {
+    json[] address = <json[]> check p.address;
+    return address;
+}
+
+function testRequireTypeWithCast3() returns map<json>|error {
+    map<json> bloodType = <map<json>> check p.bloodType;
+    return bloodType;
+}
+
+function testRequireType() {
+    decimal h = 178.5;
+    float h1 = 178.5;
+    decimal w = 72.5;
+    json name = "Chiran";
+    json w1 = 72.5;
+    float|int w2 = 72.5;
+    float|string name2 = "Chiran";
+    assert(<int> testRequireTypeWithInt(), 24);
+    assert(<int> testRequireTypeWithInt2(), 178);
+    assert(<int> testRequireTypeWithInt3(), 0);
+    assert(<decimal> testRequireTypeWithDecimal(), h);
+    assert(<decimal> testRequireTypeWithDecimal2(), 24);
+    assert(<()> testRequireTypeWithNil(), ());
+    assert( <string> testRequireTypeWithString(), "Chiran");
+    assert(<float> testRequireTypeWithFloat(), w1);
+    assert(<float|int> testRequireTypeWithUnion1(), w2);
+    assert(<float|string> testRequireTypeWithUnion2(), name2);
+    assert(<json> testRequireTypeWithJson1(), 24);
+    assert(<json> testRequireTypeWithJson2(),h1);
+    assert(<json> testRequireTypeWithJson3(), {group: "O", RHD: "+"});
+    assert(<json> testRequireTypeWithJson4(), [125.0/3, "xyz street",
+    {province: "southern", Country: "Sri Lanka"}, 81000]);
+    assert(<json> testRequireTypeWithJson5(), 72.5);
+    assert(<json> testRequireTypeWithJson6(), false);
+    assert(<boolean> testRequireTypeWithCast1(), false);
+    assert(<json[]> testRequireTypeWithCast2(), [125.0/3, "xyz street",
+    {province: "southern", Country: "Sri Lanka"}, 81000]);
+    assert(<map<json>> testRequireTypeWithJson3(), {group: "O", RHD: "+"});
+}
+
+function testRequiredTypeWithInvalidCast1() returns error? {
+    int age = check p.name;
+}
+
+function testRequiredTypeWithInvalidCast2() returns error? {
+    decimal name = check p.name;
+}
+
+function testRequiredTypeWithInvalidCast3() returns error? {
+    float price = check p.name;
+}
+
+function testRequiredTypeWithInvalidCast4() returns error? {
+    float[] quality = <float[]> check p.name;
+}
+
+function testRequiredTypeWithInvalidCast5() returns error? {
+    int property = check p.property;
+}
+
+function testRequiredTypeWithInvalidCast6() returns error? {
+    int property = check p.children;
+}
+
+function testRequireTypeNegative() {
+    error? err1 = testRequiredTypeWithInvalidCast1();
+    error? err2 = testRequiredTypeWithInvalidCast2();
+    error? err3 = testRequiredTypeWithInvalidCast3();
+    error? err4 = trap testRequiredTypeWithInvalidCast4();
+    error? err5 = testRequiredTypeWithInvalidCast5();
+    error? err6 = testRequiredTypeWithInvalidCast6();
+
+    error e1 = <error> err1;
+    error e2 = <error> err2;
+    error e3 = <error> err3;
+    error e4 = <error> err4;
+    error e5 = <error> err5;
+    error e6 = <error> err6;
+
+    assertEquality("error {ballerina}TypeCastError message=incompatible types: 'string' cannot be cast to 'int'", e1.toString());
+    assertEquality("error {ballerina}TypeCastError message=incompatible types: 'string' cannot be cast to 'decimal'", e2.toString());
+    assertEquality("error {ballerina}TypeCastError message=incompatible types: 'string' cannot be cast to 'float'", e3.toString());
+    assertEquality("error {ballerina}TypeCastError message=incompatible types: 'string' cannot be cast to 'float[]'", e4.toString());
+    assertEquality("error {ballerina}TypeCastError message=incompatible types: '()' cannot be cast to 'int'", e5.toString());
+    assertEquality("error {ballerina/lang.map}KeyNotFound message=Key 'children' not found in JSON mapping", e6.toString());
+}
