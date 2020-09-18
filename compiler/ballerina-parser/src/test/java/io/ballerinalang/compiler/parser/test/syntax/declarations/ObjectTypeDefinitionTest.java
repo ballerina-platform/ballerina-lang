@@ -70,6 +70,7 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     public void testObjectTypeQualifiers() {
         testFile("object-type-def/object_type_def_source_14.bal", "object-type-def/object_type_def_assert_14.json");
         testFile("object-type-def/object_type_def_source_16.bal", "object-type-def/object_type_def_assert_16.json");
+        testFile("object-type-def/object_type_def_source_24.bal", "object-type-def/object_type_def_assert_24.json");
     }
 
     @Test
