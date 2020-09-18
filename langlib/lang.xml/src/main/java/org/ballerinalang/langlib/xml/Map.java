@@ -64,10 +64,10 @@ public class Map {
         Strand parentStrand = Scheduler.getStrand();
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
-                                                       () -> new Object[]{parentStrand, x.getItem(index.incrementAndGet()),
-                                                               true},
-                                                       result -> elements.add((XMLValue) result),
-                                                       () -> new XMLSequence(elements));
+                        () -> new Object[]{parentStrand, x.getItem(index.incrementAndGet()),
+                                true},
+                        result -> elements.add((XMLValue) result),
+                        () -> new XMLSequence(elements));
         return new XMLSequence(elements);
     }
 }

@@ -58,14 +58,14 @@ public class Filter {
         Strand parentStrand = Scheduler.getStrand();
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{parentStrand, arr.get(index.incrementAndGet()),
-                                                               true},
-                                                       result -> {
-                                                           if ((Boolean) result) {
-                                                               newArr.add(newArraySize.incrementAndGet(),
-                                                                          arr.get(index.get()));
-                                                           }
-                                                       }, () -> newArr);
+                        () -> new Object[]{parentStrand, arr.get(index.incrementAndGet()),
+                                true},
+                        result -> {
+                            if ((Boolean) result) {
+                                newArr.add(newArraySize.incrementAndGet(),
+                                        arr.get(index.get()));
+                            }
+                        }, () -> newArr);
         return newArr;
     }
 }

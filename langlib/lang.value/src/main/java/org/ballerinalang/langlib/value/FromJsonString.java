@@ -23,8 +23,6 @@ import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BString;
 
-import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
-
 /**
  * Parse a string in JSON format and return the the value that it represents.
  *

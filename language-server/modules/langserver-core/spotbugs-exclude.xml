@@ -121,4 +121,16 @@
     <Match>
         <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTModifyRequest"/>
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.langserver.command.testgen.template"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.BallerinaLanguageServer"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.LSClientCapabilitiesImpl"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.langserver"/>
+    </Match>
 </FindBugsFilter>

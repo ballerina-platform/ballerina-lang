@@ -17,8 +17,10 @@
  */
 package org.ballerinalang.test.types.xml;
 
+import org.ballerinalang.core.model.values.*;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;

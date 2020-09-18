@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -17,13 +17,6 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Package name="org.ballerinalang.tool.util" />
-    </Match>
-    <Match>
-        <Class name="org.ballerinalang.tool.LauncherUtils"/>
-        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
-    </Match>
-    <Match>>
-        <Package name="org.ballerinalang.tool"/>
+        <Package name="io.ballerinalang.compiler.internal.treegen" />
     </Match>
 </FindBugsFilter>
