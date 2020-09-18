@@ -16,29 +16,27 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
-import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.codeaction.builder.NodeBasedCodeAction;
+import org.ballerinalang.langserver.codeaction.builder.impl.AddAllDocumentationCodeAction;
+import org.ballerinalang.langserver.codeaction.builder.impl.AddDocumentationCodeAction;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.command.CommandArgument;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
- * Code Action provider for adding all documentation for top level items.
+ * Code Action provider for adding documentation.
  *
  * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
-    public AddAllDocumentationCodeAction() {
+public class AddDocumentationCodeActionProvider extends AbstractCodeActionProvider {
+    public AddDocumentationCodeActionProvider() {
         super(Arrays.asList(CodeActionNodeType.FUNCTION,
                             CodeActionNodeType.OBJECT,
                             CodeActionNodeType.SERVICE,
@@ -51,24 +49,18 @@ public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
                                                     List<Diagnostic> allDiagnostics) {
-        String docUri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
-        CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
-        List<Object> args = new ArrayList<>(Collections.singletonList(docUriArg));
+        NodeBasedCodeAction addAllDocumentationCodeAction = new AddAllDocumentationCodeAction();
+        NodeBasedCodeAction addDocumentationCodeAction = new AddDocumentationCodeAction();
 
-        CodeAction action = new CodeAction(CommandConstants.ADD_ALL_DOC_TITLE);
-        action.setCommand(new Command(CommandConstants.ADD_ALL_DOC_TITLE, AddAllDocumentationExecutor.COMMAND, args));
-        return Collections.singletonList(action);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
-        throw new UnsupportedOperationException("Not supported");
+        List<CodeAction> actions = new ArrayList<>();
+        try {
+            actions.addAll(addDocumentationCodeAction.get(nodeType, allDiagnostics, context));
+            actions.addAll(addAllDocumentationCodeAction.get(nodeType, allDiagnostics, context));
+        } catch (LSCodeActionProviderException e) {
+            // ignore
+        }
+        return actions;
     }
 }

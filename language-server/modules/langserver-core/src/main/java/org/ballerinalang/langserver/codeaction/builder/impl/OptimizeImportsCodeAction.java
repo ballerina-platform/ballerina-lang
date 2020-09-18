@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.providers;
+package org.ballerinalang.langserver.codeaction.builder.impl;
 
-import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.builder.NodeBasedCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -31,7 +32,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.StringJoiner;
@@ -39,29 +39,23 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
+
 /**
- * Code Action provider for optimizing all imports.
+ * Code Action for optimizing all imports.
  *
  * @since 1.2.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class OptimizeAllImportsCodeAction extends AbstractCodeActionProvider {
+public class OptimizeImportsCodeAction implements NodeBasedCodeAction {
     private static final String UNUSED_IMPORT_MODULE = "unused import module";
     private static final String IMPORT_KW = "import";
     private static final String VERSION_KW = "version";
     private static final String ORG_SEPARATOR = "/";
     private static final String ALIAS_SEPARATOR = "as";
 
-    public OptimizeAllImportsCodeAction() {
-        super(Collections.singletonList(CodeActionNodeType.IMPORTS));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                                    List<Diagnostic> allDiagnostics) {
+    public List<CodeAction> get(CodeActionNodeType nodeType, List<Diagnostic> allDiagnostics, LSContext context)
+            throws LSCodeActionProviderException {
         List<CodeAction> actions = new ArrayList<>();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
@@ -73,9 +67,9 @@ public class OptimizeAllImportsCodeAction extends AbstractCodeActionProvider {
         List<String[]> toBeRemovedImports = new ArrayList<>();
 
         // Filter unused imports
-        for (Diagnostic diagnostic : allDiagnostics) {
-            if (diagnostic.getMessage().startsWith(UNUSED_IMPORT_MODULE)) {
-                Matcher matcher = CommandConstants.UNUSED_IMPORT_MODULE_PATTERN.matcher(diagnostic.getMessage());
+        for (Diagnostic diag : allDiagnostics) {
+            if (diag.getMessage().startsWith(UNUSED_IMPORT_MODULE)) {
+                Matcher matcher = CommandConstants.UNUSED_IMPORT_MODULE_PATTERN.matcher(diag.getMessage());
                 if (matcher.find()) {
                     String pkgName = matcher.group(1).trim();
                     String version = matcher.groupCount() > 1 && matcher.group(2) != null ? matcher.group(2) : "";
@@ -175,15 +169,5 @@ public class OptimizeAllImportsCodeAction extends AbstractCodeActionProvider {
         edits.add(new TextEdit(new Range(position, position), editText.toString()));
         actions.add(createQuickFixCodeAction(CommandConstants.OPTIMIZE_IMPORTS_TITLE, edits, uri));
         return actions;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                                    List<Diagnostic> diagnosticsOfRange,
-                                                    List<Diagnostic> allDiagnostics) {
-        throw new UnsupportedOperationException("Not supported");
     }
 }
