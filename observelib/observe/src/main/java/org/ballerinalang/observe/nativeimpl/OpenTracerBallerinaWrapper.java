@@ -27,9 +27,9 @@ import org.ballerinalang.jvm.observability.TracingUtils;
 import org.ballerinalang.jvm.observability.tracer.TracersStore;
 import org.ballerinalang.jvm.scheduling.Strand;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
@@ -44,7 +44,7 @@ public class OpenTracerBallerinaWrapper {
     private static final OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
     private final TracersStore tracerStore;
     private final boolean enabled;
-    private final Map<Long, ObserverContext> observerContextMap = new ConcurrentHashMap<>();
+    private final Map<Long, ObserverContext> observerContextMap = new HashMap<>();
     private final AtomicLong spanIdCounter = new AtomicLong();
 
     private static final int SYSTEM_TRACE_INDICATOR = -1;

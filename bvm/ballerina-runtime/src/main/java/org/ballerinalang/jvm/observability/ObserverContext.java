@@ -20,11 +20,11 @@ package org.ballerinalang.jvm.observability;
 import org.ballerinalang.jvm.observability.metrics.Tag;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Context object used for observation purposes.
@@ -73,9 +73,9 @@ public class ObserverContext {
     private boolean isSystemSpan;
 
     public ObserverContext() {
-        this.properties = new ConcurrentHashMap<>();
-        this.mainTags = new ConcurrentHashMap<>();
-        this.additionalTags = new ConcurrentHashMap<>();
+        this.properties = new HashMap<>();
+        this.mainTags = new HashMap<>();
+        this.additionalTags = new HashMap<>();
     }
 
     public void addProperty(String key, Object value) {
