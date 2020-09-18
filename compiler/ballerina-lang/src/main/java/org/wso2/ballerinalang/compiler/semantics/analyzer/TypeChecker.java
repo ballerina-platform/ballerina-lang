@@ -4460,7 +4460,7 @@ public class TypeChecker extends BLangNodeVisitor {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         boolean firstVisit = checkedExpr.expr.type == null;
         BType exprExpType;
-        if (checkedExpr.expr instanceof BLangFieldBasedAccess) {
+        if (checkedExpr.expr instanceof BLangFieldBasedAccess && checkedExpr.getKind() == NodeKind.CHECK_EXPR) {
             ((BLangFieldBasedAccess) checkedExpr.expr).isWithCheckExpr = true;
         }
         if (expType == symTable.noType) {
