@@ -200,23 +200,20 @@ public class LangLibValueTest {
                 "{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\",\"city\":\"Colombo\"," +
                         "\"street\":\"Palm Grove\"},\"age\":12}");
         Assert.assertEquals(array.getString(i),
-                            "{\"varInt\":6," +
-                                    "\"varFloat\":6.0," +
+                            "{\"varInt\":6,\"varFloat\":6.0," +
                                     "\"varStr\":\"toString\"," +
                                     "\"varNil\":null," +
                                     "\"varBool\":true," +
                                     "\"varDecimal\":345.2425341," +
-                                    "\"varjson\":{\"a\":\"STRING\",\"b\":12,\"c\":12.4,\"d\":true," +
-                                    "\"e\":{\"x\":\"x\",\"y\":null}}," +
+                                    "\"varjson\":{\"a\":\"STRING\",\"b\":12,\"c\":12.4," +
+                                    "\"d\":true,\"e\":{\"x\":\"x\",\"y\":null}}," +
                                     "\"varXml\":`<CATALOG><CD><TITLE>Empire Burlesque</TITLE>" +
-                                    "<ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE>" +
-                                    "<ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
+                                    "<ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart" +
+                                    "</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
                                     "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`," +
-                                    "\"varArr\":[\"str\",23,23.4,true]," +
-                                    "\"varErr\":error FirstError (\"Reason1\"," +
+                                    "\"varArr\":[\"str\",23,23.4,true],\"varErr\":error FirstError (\"Reason1\"," +
                                     "message=\"Test passing error union to a function\")," +
-                                    "\"varObj\":object Student," +
-                                    "\"varObj2\":Rola from MMV," +
+                                    "\"varObj\":object Student,\"varObj2\":Rola from MMV," +
                                     "\"varObjArr\":[object Student,Rola from MMV]," +
                                     "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
                                     "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}}");
@@ -270,7 +267,7 @@ public class LangLibValueTest {
                 "[\"X\",float:NaN,345.2425341d],table key(id,name) [{\"id\":1,\"name\":\"Mary\",\"grade\":12}," +
                 "{\"id\":2,\"name\":\"John\",\"grade\":13}]," +
                 "error error (\"Failed to get account balance\",details=true,val1=float:NaN,val2=\"This Error\"," +
-                "val3=345.2425341d,val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23})," +
+                "val3=345.2425341d,val4={\"x\":\"AA\",\"y\":float:Infinity})," +
                 "xml`<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD>" +
                 "<TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
                 "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`]");
@@ -289,7 +286,7 @@ public class LangLibValueTest {
                         "{\"id\":2,\"age\":20,\"salary\":300.5d,\"name\":\"John\",\"married\":true}]");
         Assert.assertEquals(array.getString(i++),
                 "error error (\"Failed to get account balance\",details=true,val1=float:NaN,val2=\"This Error\"," +
-                        "val3=345.2425341d,val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23})");
+                        "val3=345.2425341d,val4={\"x\":\"AA\",\"y\":float:Infinity})");
         Assert.assertEquals(array.getString(i),
                 "{\"varInt\":6," +
                         "\"varFloat\":6.0," +
@@ -297,35 +294,31 @@ public class LangLibValueTest {
                         "\"varNil\":()," +
                         "\"varBool\":true," +
                         "\"varDecimal\":345.2425341d," +
-                        "\"varjson\":{\"a\":\"STRING\",\"b\":12,\"c\":12.4,\"d\":true," +
-                        "\"e\":{\"x\":\"x\",\"y\":()}}," +
+                        "\"varjson\":{\"a\":\"STRING\",\"b\":12,\"c\":12.4," +
+                        "\"d\":true,\"e\":{\"x\":\"x\",\"y\":()}}," +
                         "\"varXml\":xml`<CATALOG><CD><TITLE>Empire Burlesque</TITLE>" +
                         "<ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE>" +
                         "<ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
-                        "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`," +
-                        "\"varArr\":[\"str\",23,23.4,true,{\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23}," +
-                        "345.2425341d,[\"X\",float:NaN,345.2425341d],table key(id,name) " +
-                        "[{\"id\":1,\"name\":\"Mary\",\"grade\":12}," +
-                        "{\"id\":2,\"name\":\"John\",\"grade\":13}],error error (\"Failed to get account balance\"," +
-                        "details=true,val1=float:NaN,val2=\"This Error\",val3=345.2425341d," +
-                        "val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23}),xml`<CATALOG>" +
-                        "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD>" +
-                        "<TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD>" +
-                        "<TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`]," +
-                        "\"varErr\":error FirstError (\"Reason1\"," +
-                        "message=\"Test passing error union to a function\")," +
-                        "\"varObj\":object Student -214492645," +
-                        "\"varObj2\":object Rola from MMV," +
+                        "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`,\"varArr\":[\"str\",23,23.4,true," +
+                        "{\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23},345.2425341d," +
+                        "[\"X\",float:NaN,345.2425341d],table key(id,name) [{\"id\":1,\"name\":\"Mary\"," +
+                        "\"grade\":12},{\"id\":2,\"name\":\"John\",\"grade\":13}]," +
+                        "error error (\"Failed to get account balance\",details=true,val1=float:NaN," +
+                        "val2=\"This Error\",val3=345.2425341d,val4={\"x\":\"AA\",\"y\":float:Infinity})," +
+                        "xml`<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST>" +
+                        "</CD><CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
+                        "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`]," +
+                        "\"varErr\":error FirstError (\"Reason1\",message=\"Test passing error union " +
+                        "to a function\"),\"varObj\":object Student -214492645,\"varObj2\":object Rola from MMV," +
                         "\"varObjArr\":[object Student -214492645,object Rola from MMV]," +
-                        "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
-                        "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}," +
-                        "\"varTupleArr\":[float:NaN \"ABC\",float:Infinity \"LMN\"]," +
-                        "\"varTable\":table key(id) [{\"id\":1,\"age\":30,\"salary\":300.5d,\"name\":\"Mary\"," +
-                        "\"married\":true},{\"id\":2,\"age\":20,\"salary\":300.5d,\"name\":\"John\"," +
-                        "\"married\":true}]," +
+                        "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\",\"city\":" +
+                        "\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12},\"varTupleArr\":[float:NaN \"ABC\"," +
+                        "float:Infinity \"LMN\"],\"varTable\":table key(id) [{\"id\":1,\"age\":30," +
+                        "\"salary\":300.5d,\"name\":\"Mary\",\"married\":true},{\"id\":2,\"age\":20," +
+                        "\"salary\":300.5d,\"name\":\"John\",\"married\":true}]," +
                         "\"varSimpleErr\":error error (\"Failed to get account balance\",details=true," +
                         "val1=float:NaN,val2=\"This Error\",val3=345.2425341d," +
-                        "val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23})}");
+                        "val4={\"x\":\"AA\",\"y\":float:Infinity})}");
     }
 
     @Test
