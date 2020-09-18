@@ -5,4 +5,3 @@ function foo() {
     final int status = 1;
     boolean available = false;
 }
-

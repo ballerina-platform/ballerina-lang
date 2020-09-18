@@ -6,4 +6,3 @@ public function foo() {
         int h = 89;
     }
 }
-
