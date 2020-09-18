@@ -392,4 +392,13 @@ public class CompilerDriver {
         return codeGen(birGen(desugar(pkg))).symbol;
     }
 
+    // Public methods
+
+    public BLangPackage desugar(BLangPackage pkgNode) {
+        return this.desugar.perform(pkgNode);
+    }
+
+    public BLangPackage birGen(BLangPackage pkgNode) {
+        return this.birGenerator.genBIR(pkgNode);
+    }
 }
