@@ -53,3 +53,12 @@ public function intAdd3((any|error)... intValues) returns (int) {
 
     return  sum;
 }
+
+// Class calling mocked function
+public class TestClass {
+    function init() {}
+
+    function add(int a, int b) returns (int) {
+        return intAdd(a, b);
+    }
+}

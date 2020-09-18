@@ -148,6 +148,15 @@ public function call_Test5() {
     test:assertEquals(intAdd(10, 6), 4);
 }
 
+@test:Config {
+}
+public function call_Test6() {
+    TestClass testClass = new();
+    test:when(mock_intAdd).call("mockIntAdd1");
+    int value = testClass.add(10, 4);
+    test:assertEquals(value, 6);
+}
+
 @test:Config {}
 public function call_Test7() {
     test:when(mock2_intAdd).call("mockIntAdd2");
@@ -159,6 +168,8 @@ public function call_Test8() {
     test:when(mock_intAdd3).call("mockIntAdd5");
     test:assertEquals(intAdd3(1, 3, 5), -9);
 }
+
+
 
 @test:Config {
 }
