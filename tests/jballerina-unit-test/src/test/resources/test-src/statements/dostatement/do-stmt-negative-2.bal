@@ -1,3 +1,17 @@
+function testNonErrorTypeWithOnFail () returns string {
+   string str = "";
+   do {
+     error err = error("custom error", message = "error value");
+     str += "Before failure throw";
+     fail str;
+   }
+   on fail string e {
+      str += "-> Error caught ! ";
+   }
+   str += "-> Execution continues...";
+   return str;
+}
+
 public function checkOnFailScope() returns int {
     int a = 10;
     int b = 11;

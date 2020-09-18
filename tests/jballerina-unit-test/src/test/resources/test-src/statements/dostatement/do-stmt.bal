@@ -2,6 +2,14 @@ type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
+type ErrorTypeA distinct error;
+
+const TYPE_A_ERROR_REASON = "TypeA_Error";
+
+type ErrorTypeB distinct error;
+
+const TYPE_B_ERROR_REASON = "TypeB_Error";
+
 function testOnFailStatement() {
     string onFailResult = testOnFail();
     assertEquality("Before failure throw-> Error caught ! -> Execution continues...", onFailResult);
@@ -36,7 +44,8 @@ function testOnFailStatement() {
 
     assertEquality(44, testArrowFunctionInsideOnFail());
 
-    assertEquality(44, testLambdaFunctionWithOnFail());
+    string testOnFailWithUnionRes = testOnFailWithUnion();
+    assertEquality("Before failure throw-> Error caught : TypeA_Error-> Execution continues...", testOnFailWithUnionRes);
 }
 
 function testOnFail () returns string {
@@ -188,6 +197,29 @@ public function testLambdaFunctionWithOnFail() returns int {
           return a;
     };
     return lambdaFunc();
+}
+
+function testOnFailWithUnion () returns string {
+   string str = "";
+   var getTypeAError = function () returns int|ErrorTypeA{
+       ErrorTypeA errorA = ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
+       return errorA;
+   };
+   var getTypeBError = function () returns int|ErrorTypeB{
+       ErrorTypeB errorB = ErrorTypeB(TYPE_B_ERROR_REASON, message = "Error Type B");
+       return errorB;
+   };
+   do {
+     str += "Before failure throw";
+     int resA = check getTypeAError();
+     int resB = check getTypeBError();
+   }
+   on fail ErrorTypeA|ErrorTypeB e {
+      str += "-> Error caught : ";
+      str = str.concat(e.message());
+   }
+   str += "-> Execution continues...";
+   return str;
 }
 
 function assertEquality(any|error expected, any|error actual) {
