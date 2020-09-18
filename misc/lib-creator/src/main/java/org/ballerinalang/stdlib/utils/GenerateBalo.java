@@ -44,7 +44,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringJoiner;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BALO_GENERATION;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -113,8 +112,6 @@ public class GenerateBalo {
         Files.createDirectories(Paths.get(targetDir));
 
         CompilerContext context = new CompilerContext();
-//        CompileResult.CompileResultDiagnosticListener diagListner = new CompileResult.CompileResultDiagnosticListener();
-//        context.put(DiagnosticListener.class, diagListner);
         context.put(SourceDirectory.class, new MvnSourceDirectory(sourceRootDir, targetDir));
 
         CompilerOptions options = CompilerOptions.getInstance(context);
@@ -173,19 +170,21 @@ public class GenerateBalo {
         int deprecatedWarnCount = 0;
         if (reportWarnings && warnCount > 0) {
             for (Diagnostic diagnostic : diagnostics) {
+                if (!(diagnostic instanceof BLangDiagnostic)) {
+                    continue;
+                }
                 DiagnosticCode code = ((BLangDiagnostic) diagnostic).getCode();
-                if (code == USAGE_OF_DEPRECATED_CONSTRUCT || (!logIsolationWarnings && isIsolatedWarningLog(code))) {
+                if (code != null && (code == USAGE_OF_DEPRECATED_CONSTRUCT ||
+                        (!logIsolationWarnings && isIsolatedWarningLog(code)))) {
                     deprecatedWarnCount++;
                 }
             }
         }
         if (errorCount > 0 ||
                 (reportWarnings && (warnCount - deprecatedWarnCount) > 0)) {
-            StringJoiner sj = new StringJoiner("\n  ");
-            diagnostics.forEach(e -> sj.add(e.toString()));
             String warnMsg = reportWarnings ? " and " + warnCount + " warning(s)" : "";
             throw new BLangCompilerException("Compilation failed with " + errorCount +
-                                             " error(s)" + warnMsg + " " + "\n  " + sj.toString());
+                                             " error(s)" + warnMsg + " " + "\n  ");
         }
     }
 

@@ -46,7 +46,7 @@ public class CompileResult {
         this.context = context;
     }
 
-    public io.ballerina.tools.diagnostics.Diagnostic[] getDiagnostics() {
+    public Diagnostic[] getDiagnostics() {
         if (this.diagnostics == null) {
             populateDiagnostics();
         }
@@ -85,7 +85,7 @@ public class CompileResult {
             builder.append("Compilation Successful");
         } else {
             builder.append("Compilation Failed:\n");
-            for (io.ballerina.tools.diagnostics.Diagnostic diag : this.getDiagnostics()) {
+            for (Diagnostic diag : this.getDiagnostics()) {
                 builder.append(diag + "\n");
             }
         }
@@ -98,7 +98,7 @@ public class CompileResult {
         this.warnCount = bLangPkg.getWarnCount();
 
         // Get diagnostics for imported packages
-        List<io.ballerina.tools.diagnostics.Diagnostic> diagList = bLangPkg.getDiagnostics();
+        List<Diagnostic> diagList = bLangPkg.getDiagnostics();
         PackageCache packageCache = PackageCache.getInstance(context);
 
         for (BLangImportPackage importedPackage : bLangPkg.getImports()) {
@@ -118,6 +118,6 @@ public class CompileResult {
         }
 
         Collections.sort(diagList, new DiagnosticComparator());
-        this.diagnostics = diagList.toArray(new io.ballerina.tools.diagnostics.Diagnostic[diagList.size()]);
+        this.diagnostics = diagList.toArray(new Diagnostic[diagList.size()]);
     }
 }
