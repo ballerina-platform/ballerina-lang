@@ -485,7 +485,7 @@ function testToBalString() returns string[] {
     map<any|error> varMap = {};
     json varJson = {a: "STRING", b: 12, c: 12.4, d: true, e: {x:"x", y: ()}};
     error varSimpleErr = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
-        val3 = varDecimal, val4={"x":"AA","y":(1.0/0.0),"z":1.23});
+        val3 = varDecimal, val4={"x":"AA","y":(1.0/0.0)});
     xml varXml = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`;
     table<UndergradStudent> underGradTable = table key(id,name) [
             { id: 1, name: "Mary", grade: 12 },
