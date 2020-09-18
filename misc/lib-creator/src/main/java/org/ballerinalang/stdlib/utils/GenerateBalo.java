@@ -204,9 +204,9 @@ public class GenerateBalo {
     private static boolean isIsolatedWarningLog(DiagnosticCode code) {
         switch (code) {
             case FUNCTION_CAN_BE_MARKED_ISOLATED:
-            case INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT:
-            case INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT:
-            case INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT:
+            case WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT:
+            case WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT:
+            case WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT:
                 return true;
         }
         return false;

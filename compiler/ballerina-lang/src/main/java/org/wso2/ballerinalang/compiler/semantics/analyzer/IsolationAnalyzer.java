@@ -24,9 +24,11 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -180,7 +182,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -197,7 +198,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private SymbolEnv env;
     private SymbolTable symTable;
     private Types types;
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
 
     private boolean inferredIsolated = true;
 
@@ -205,7 +206,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         context.put(ISOLATION_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static IsolationAnalyzer getInstance(CompilerContext context) {
@@ -743,8 +744,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         boolean inIsolatedFunction = isInIsolatedFunction(enclInvokable);
         boolean recordFieldDefaultValue = isRecordFieldDefaultValue(enclType);
-        boolean objectFieldDefaultValue = recordFieldDefaultValue ? false :
-                isObjectFieldDefaultValueRequiringIsolation(env);
+        boolean objectFieldDefaultValue = !recordFieldDefaultValue && isObjectFieldDefaultValueRequiringIsolation(env);
 
         if (inIsolatedFunction) {
             if (enclInvokable == null) {
@@ -772,6 +772,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        if (isDefinitionReference(symbol)) {
+            return;
+        }
+
+
         inferredIsolated = false;
 
         if (inIsolatedFunction) {
@@ -780,8 +785,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (recordFieldDefaultValue) {
-            // TODO: 9/13/20 make this error once stdlibs are migrated
-            dlog.warning(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
+            if (isBallerinaModule(env.enclPkg)) {
+                // TODO: 9/13/20 remove this error once stdlibs are migrated
+                dlog.warning(varRefExpr.pos, DiagnosticCode.WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
+            } else {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
+            }
         }
 
         if (objectFieldDefaultValue) {
@@ -821,8 +830,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isRecordFieldDefaultValue(env.enclType)) {
-            // TODO: 9/13/20 make this error once stdlibs are migrated
-            dlog.warning(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
+            if (isBallerinaModule(env.enclPkg)) {
+                // TODO: 9/13/20 remove this once stdlibs are migrated
+                dlog.warning(invocationExpr.pos,
+                             DiagnosticCode.WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
+            } else {
+                dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
+            }
         }
 
         if (isObjectFieldDefaultValueRequiringIsolation(env)) {
@@ -856,8 +870,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             if (isInIsolatedFunction(env.enclInvokable)) {
                 dlog.error(typeInitExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_ISOLATED_FUNCTION);
             } else if (isRecordFieldDefaultValue(env.enclType)) {
-                // TODO: 9/16/20 make this error once stdlibs are migrated
-                dlog.warning(typeInitExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
+                if (isBallerinaModule(env.enclPkg)) {
+                    // TODO: 9/16/20 remove this once stdlibs are migrated
+                    dlog.warning(typeInitExpr.pos,
+                                 DiagnosticCode.WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
+                } else {
+                    dlog.error(typeInitExpr.pos,
+                               DiagnosticCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
+                }
+
             } else if (isObjectFieldDefaultValueRequiringIsolation(env)) {
                 dlog.error(typeInitExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_DEFAULT);
             }
@@ -1394,6 +1415,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         return isIsolated(initFunction.symbol);
+    }
+
+    private boolean isDefinitionReference(BSymbol symbol) {
+        return Symbols.isTagOn(symbol, SymTag.SERVICE) ||
+                Symbols.isTagOn(symbol, SymTag.TYPE_DEF) ||
+                Symbols.isTagOn(symbol, SymTag.FUNCTION) ||
+                Symbols.isFlagOn(symbol.flags, Flags.LISTENER);
     }
 
     private boolean isIsolated(BSymbol symbol) {
