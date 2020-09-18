@@ -1,0 +1,4 @@
+[package]
+org = "foo"
+name = "winery"
+version = "0.1.0"

@@ -98,4 +98,6 @@ public class ProjectDirConstants {
 
     public static final String BLANG_PKG_DEFAULT_VERSION = "0.0.0";
 
+    public static final String MODULES_ROOT = "modules";
+
 }
