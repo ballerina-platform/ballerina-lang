@@ -25,6 +25,7 @@ import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -551,6 +552,18 @@ class FormatterUtils {
             }
         }
         return true;
+    }
+
+    /**
+     * Converts the syntax tree into source code, remove superfluous spaces and newlines at the ending and returns it
+     * as a string.
+     *
+     * @param syntaxTree       syntaxTree
+     * @return source code as a string
+     */
+    public static String toFormattedSourceCode(SyntaxTree syntaxTree) {
+        return syntaxTree.toSourceCode().trim() +
+                System.getProperty(LINE_SEPARATOR);
     }
 
     private static final class Indentation {
