@@ -40,9 +40,9 @@ public class MockTest extends BaseTestCase {
         projectPath2 = mockProjectPath2.toString();
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testFunctionMocking() throws BallerinaTestException {
-        String msg1 = "11 passing";
+        String msg1 = "8 passing";
         String msg2 = "3 failing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
