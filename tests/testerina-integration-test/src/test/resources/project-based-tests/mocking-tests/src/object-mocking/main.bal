@@ -14,20 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
+import TestHttpClient;
 
-# Test function
+TestHttpClient:HttpClient clientEndpoint = new ("http://realurl.com");
 
-@test:Config {}
-function testMain() {
-    main();
-    test:assertTrue(false, msg = "Failed!");
+function doGet() returns string {
+    string result = clientEndpoint->get("/path1");
+    return result;
 }
 
-@test:Config {
-    dependsOn: ["testMain"]
-}
-function testFunction() {
-    test:assertTrue(true, msg = "Failed!");
+function doGetRepeat() returns string {
+    string result = clientEndpoint->get("/path2");
+
+    if (result == "response1") {
+        result = clientEndpoint->get("/path1");
+    }
+
+    return result;
 }
 
+function getClientUrl() returns string {
+    return clientEndpoint.url;
+}

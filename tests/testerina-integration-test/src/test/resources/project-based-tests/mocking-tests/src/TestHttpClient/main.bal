@@ -14,20 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
+public client class HttpClient {
 
-# Test function
+    public string url;
 
-@test:Config {}
-function testMain() {
-    main();
-    test:assertTrue(false, msg = "Failed!");
+    public function init(string url) {
+        self.url = url;
+    }
+
+    public remote function get(string path) returns string {
+        return self.url + path;
+    }
+
 }
-
-@test:Config {
-    dependsOn: ["testMain"]
-}
-function testFunction() {
-    test:assertTrue(true, msg = "Failed!");
-}
-
