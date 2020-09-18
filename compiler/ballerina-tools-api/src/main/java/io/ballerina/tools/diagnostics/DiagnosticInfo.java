@@ -27,6 +27,7 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class DiagnosticInfo {
+
     private final String code;
     private final String messageTemplate;
     private final DiagnosticSeverity severity;

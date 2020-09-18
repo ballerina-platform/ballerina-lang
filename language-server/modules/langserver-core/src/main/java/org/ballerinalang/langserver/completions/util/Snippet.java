@@ -124,6 +124,8 @@ public enum Snippet {
 
     EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),
 
+    EXPR_OBJECT_CONSTRUCTOR(SnippetGenerator.getObjectConstructorSnippet()),
+
 
     // Keyword Snippets
     KW_ON(SnippetGenerator.getOnSnippet()),
@@ -184,9 +186,13 @@ public enum Snippet {
 
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
 
+    KW_ISOLATED(SnippetGenerator.getIsolatedKeywordSnippet()),
+
     KW_PRIVATE(SnippetGenerator.getPrivateKeywordSnippet()),
 
     KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
+
+    KW_FAIL(SnippetGenerator.getFailKeywordSnippet()),
 
     KW_REMOTE(SnippetGenerator.getRemoteKeywordSnippet()),
 
@@ -271,12 +277,16 @@ public enum Snippet {
 
     STMT_WHILE(SnippetGenerator.getWhileStatementSnippet()),
 
+    STMT_DO(SnippetGenerator.getDoStatementSnippet()),
+
     // Snippets related to various clauses such as from, where and etc
     CLAUSE_FROM(SnippetGenerator.getFromClauseSnippet()),
     
     CLAUSE_LET(SnippetGenerator.getLetClauseSnippet()),
     
-    CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet());
+    CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),
+    
+    CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet());
 
     private final String snippetName;
     private final SnippetBlock snippetBlock;

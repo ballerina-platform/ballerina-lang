@@ -14,12 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 # Test file to test the test execution behavior when a @BeforeGroups function
 # fails. The expected behavior is that none other function should be exectuted
-# subsequently other than the @AfterSuite function.
-
-import ballerina/io;
-import ballerina/test;
+# subsequently other than the @AfterSuite function
 
 string a = "";
 
@@ -67,5 +66,5 @@ function testFunction5() {
 # After Suite Function
 @test:AfterSuite {}
 function afterSuiteFunc() {
-    io:println("Value of a is " + a);
+    test:assertEquals(a, "123");
 }

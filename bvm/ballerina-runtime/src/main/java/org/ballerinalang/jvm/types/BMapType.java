@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * {@code BMapType} represents a type of a map in Ballerina.

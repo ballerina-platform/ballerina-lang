@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class SearchJson {
     private List<ModuleSearchJson> modules;
-    private List<ConstructSearchJson> objects;
+    private List<ConstructSearchJson> classes;
     private List<ConstructSearchJson> functions;
     private List<ConstructSearchJson> records;
     private List<ConstructSearchJson> constants;
@@ -34,9 +34,11 @@ public class SearchJson {
     private List<ConstructSearchJson> clients;
     private List<ConstructSearchJson> listeners;
     private List<ConstructSearchJson> annotations;
+    private List<ConstructSearchJson> abstractObjects;
+
 
     public SearchJson(List<ModuleSearchJson> modules,
-                      List<ConstructSearchJson> objects,
+                      List<ConstructSearchJson> classes,
                       List<ConstructSearchJson> functions,
                       List<ConstructSearchJson> records,
                       List<ConstructSearchJson> constants,
@@ -44,9 +46,10 @@ public class SearchJson {
                       List<ConstructSearchJson> types,
                       List<ConstructSearchJson> clients,
                       List<ConstructSearchJson> listeners,
-                      List<ConstructSearchJson> annotations) {
+                      List<ConstructSearchJson> annotations,
+                      List<ConstructSearchJson> abstractObjects) {
         this.modules = modules;
-        this.objects = objects;
+        this.classes = classes;
         this.functions = functions;
         this.records = records;
         this.constants = constants;
@@ -55,11 +58,12 @@ public class SearchJson {
         this.clients = clients;
         this.listeners = listeners;
         this.annotations = annotations;
+        this.abstractObjects = abstractObjects;
     }
 
     public SearchJson() {
         this.modules = new ArrayList<>();
-        this.objects = new ArrayList<>();
+        this.classes = new ArrayList<>();
         this.functions = new ArrayList<>();
         this.records = new ArrayList<>();
         this.constants = new ArrayList<>();
@@ -68,6 +72,7 @@ public class SearchJson {
         this.clients = new ArrayList<>();
         this.listeners = new ArrayList<>();
         this.annotations = new ArrayList<>();
+        this.abstractObjects = new ArrayList<>();
     }
 
     public List<ModuleSearchJson> getModules() {
@@ -78,12 +83,12 @@ public class SearchJson {
         this.modules = modules;
     }
 
-    public List<ConstructSearchJson> getObjects() {
-        return objects;
+    public List<ConstructSearchJson> getClasses() {
+        return classes;
     }
 
-    public void setObjects(List<ConstructSearchJson> objects) {
-        this.objects = objects;
+    public void setClasses(List<ConstructSearchJson> classes) {
+        this.classes = classes;
     }
 
     public List<ConstructSearchJson> getFunctions() {
@@ -148,5 +153,13 @@ public class SearchJson {
 
     public void setAnnotations(List<ConstructSearchJson> annotations) {
         this.annotations = annotations;
+    }
+
+    public List<ConstructSearchJson> getAbstractObjects() {
+        return abstractObjects;
+    }
+
+    public void setAbstractObjects(List<ConstructSearchJson> abstractObjects) {
+        this.abstractObjects = abstractObjects;
     }
 }

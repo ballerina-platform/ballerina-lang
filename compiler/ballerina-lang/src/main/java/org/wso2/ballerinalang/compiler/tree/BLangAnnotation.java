@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -118,6 +119,16 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.ANNOTATION;
+    }
+
+    @Override
+    public Symbol getSymbol() {
+        return this.symbol;
+    }
+
+    @Override
+    public void setSymbol(Symbol symbol) {
+        this.symbol = (BSymbol) symbol;
     }
 
     @Override

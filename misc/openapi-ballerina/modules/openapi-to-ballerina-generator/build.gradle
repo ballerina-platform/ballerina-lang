@@ -36,6 +36,7 @@ dependencies {
     implementation 'com.github.jknack:handlebars:4.0.6'
     implementation 'info.picocli:picocli:4.0.1'
     implementation 'javax.ws.rs:javax.ws.rs-api:2.0'
+    implementation project(':ballerina-tools-api')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')
     implementation project(':language-server:language-server-compiler')

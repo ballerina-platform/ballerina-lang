@@ -20,6 +20,7 @@ package org.ballerinalang.util.diagnostic;
 /**
  * @since 0.94
  */
+@Deprecated
 public interface DiagnosticListener {
 
     void received(Diagnostic diagnostic);

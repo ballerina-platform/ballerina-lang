@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.api.values.BArray;
 
 /**
  * <p>

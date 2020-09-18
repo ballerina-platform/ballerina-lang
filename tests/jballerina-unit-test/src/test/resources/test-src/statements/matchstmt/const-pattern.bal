@@ -297,6 +297,33 @@ function testConstPattern8() {
     assertEquals("null", result);
 }
 
+function constPattern9(int v) returns string {
+    string s;
+
+    match v {
+        1 => {
+            s = "ONE";
+        }
+        2 => {
+            s = "TWO";
+        }
+        3 => {
+            s = "THREE";
+        }
+        _ => {
+            s = "OTHER";
+        }
+    }
+    return s;
+}
+
+function testConstPattern9() {
+    assertEquals("ONE", constPattern9(1));
+    assertEquals("TWO", constPattern9(2));
+    assertEquals("THREE", constPattern9(3));
+    assertEquals("OTHER", constPattern9(4));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

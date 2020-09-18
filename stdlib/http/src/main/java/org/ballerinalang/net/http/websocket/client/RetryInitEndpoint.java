@@ -18,10 +18,10 @@
 
 package org.ballerinalang.net.http.websocket.client;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -38,12 +38,12 @@ import org.slf4j.LoggerFactory;
 public class RetryInitEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(RetryInitEndpoint.class);
-    private static final BString INTERVAL_IN_MILLIS = StringUtils.fromString("intervalInMillis");
-    private static final BString MAX_WAIT_INTERVAL = StringUtils.fromString("maxWaitIntervalInMillis");
-    private static final BString MAX_COUNT = StringUtils.fromString("maxCount");
-    private static final BString BACK_OF_FACTOR = StringUtils.fromString("backOffFactor");
+    private static final BString INTERVAL_IN_MILLIS = BStringUtils.fromString("intervalInMillis");
+    private static final BString MAX_WAIT_INTERVAL = BStringUtils.fromString("maxWaitIntervalInMillis");
+    private static final BString MAX_COUNT = BStringUtils.fromString("maxCount");
+    private static final BString BACK_OF_FACTOR = BStringUtils.fromString("backOffFactor");
 
-    public static void initEndpoint(ObjectValue retryClient) {
+    public static void initEndpoint(BObject retryClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<BString, Object> clientEndpointConfig = (MapValue<BString, Object>) retryClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);

@@ -24,10 +24,25 @@ package io.ballerina.tools.diagnostics;
  */
 public abstract class Diagnostic {
 
+    /**
+     * Get the location of the diagnostic.
+     *
+     * @return {@link Location} of the diagnostic
+     */
     public abstract Location location();
 
+    /**
+     * Get additional info associated with he diagnostic.
+     *
+     * @return Additional {@link DiagnosticInfo}
+     */
     public abstract DiagnosticInfo diagnosticInfo();
 
+    /**
+     * Get the diagnostic message.
+     *
+     * @return diagnostic message
+     */
     public abstract String message();
 
     @Override

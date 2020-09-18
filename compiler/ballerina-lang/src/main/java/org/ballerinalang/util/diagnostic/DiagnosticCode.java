@@ -258,11 +258,12 @@ public enum DiagnosticCode {
     INVALID_VARIABLE_ASSIGNMENT("invalid.variable.assignment"),
     INVALID_ASSIGNMENT_DECLARATION_FINAL("invalid.variable.assignment.declaration.final"),
     CANNOT_ASSIGN_VALUE_FINAL("cannot.assign.value.to.final.field"),
+    CANNOT_ASSIGN_VALUE_TO_POTENTIALLY_INITIALIZED_FINAL("cannot.assign.value.to.potentially.initialized.final"),
     CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT("cannot.assign.value.to.function.argument"),
     CANNOT_ASSIGN_VALUE_ENDPOINT("cannot.assign.value.to.endpoint"),
     CANNOT_UPDATE_READONLY_VALUE_OF_TYPE("cannot.update.readonly.value.of.type"),
     CANNOT_UPDATE_READONLY_RECORD_FIELD("cannot.update.readonly.record.field"),
-    CANNOT_UPDATE_READONLY_OBJECT_FIELD("cannot.update.readonly.object.field"),
+    CANNOT_UPDATE_FINAL_OBJECT_FIELD("cannot.update.final.object.field"),
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
@@ -312,6 +313,7 @@ public enum DiagnosticCode {
     LIST_INDEX_OUT_OF_RANGE("list.index.out.of.range"),
     ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range"),
     TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range"),
+    INVALID_ARRAY_SIZE_REFERENCE("invalid.array.size.reference"),
     INVALID_TYPE_FOR_REST_DESCRIPTOR("invalid.type.for.rest.descriptor"),
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
     INVALID_USAGE_OF_KEYWORD("invalid.usage.of.keyword"),
@@ -576,8 +578,22 @@ public enum DiagnosticCode {
 
     INVALID_MUTABLE_ACCESS_IN_ISOLATED_FUNCTION("invalid.mutable.access.in.isolated.function"),
     INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT("invalid.mutable.access.as.record.default"),
+    WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT("warning.invalid.mutable.access.as.record.default"),
+    INVALID_MUTABLE_ACCESS_AS_OBJECT_DEFAULT("invalid.mutable.access.as.object.default"),
+
     INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION("invalid.non.isolated.invocation.in.isolated.function"),
     INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT("invalid.non.isolated.invocation.as.record.default"),
+    WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT(
+            "warning.invalid.non.isolated.invocation.as.record.default"),
+    INVALID_NON_ISOLATED_INVOCATION_AS_OBJECT_DEFAULT("invalid.non.isolated.invocation.as.object.default"),
+
+    INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_ISOLATED_FUNCTION(
+            "invalid.non.isolated.init.expression.in.isolated.function"),
+    INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT("invalid.non.isolated.init.expression.as.record.default"),
+    WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT(
+            "warning.invalid.non.isolated.init.expression.as.record.default"),
+    INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_DEFAULT("invalid.non.isolated.init.expression.as.object.default"),
+
     INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION("invalid.async.invocation.in.isolated.function"),
     INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION("invalid.worker.declaration.in.isolated.function"),
     FUNCTION_CAN_BE_MARKED_ISOLATED("function.can.be.marked.isolated"),

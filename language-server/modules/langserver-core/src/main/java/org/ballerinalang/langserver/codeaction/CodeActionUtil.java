@@ -15,6 +15,10 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -23,7 +27,6 @@ import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
@@ -34,8 +37,6 @@ import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -52,7 +53,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
@@ -87,17 +87,10 @@ public class CodeActionUtil {
         }
 
         try {
-            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                    null, false, false, true);
+            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, false, false);
             String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
             BLangPackage evalPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
-
-            List<Diagnostic> diagnostics = new ArrayList<>();
-            CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-            if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-                diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class))
-                        .getDiagnostics();
-            }
+            List<Diagnostic> diagnostics = bLangPackage.getDiagnostics();
             context.put(CodeActionKeys.DIAGNOSTICS_KEY, CodeActionUtil.toDiagnostics(diagnostics));
 
             Optional<BLangCompilationUnit> filteredCUnit = evalPkg.compUnits.stream()
@@ -172,19 +165,21 @@ public class CodeActionUtil {
      * @param ballerinaDiags a list of {@link org.ballerinalang.util.diagnostic.Diagnostic}
      * @return a list of {@link Diagnostic}
      */
-    public static List<org.eclipse.lsp4j.Diagnostic> toDiagnostics(
-            List<org.ballerinalang.util.diagnostic.Diagnostic> ballerinaDiags) {
+    public static List<org.eclipse.lsp4j.Diagnostic> toDiagnostics(List<Diagnostic> ballerinaDiags) {
         List<org.eclipse.lsp4j.Diagnostic> lsDiagnostics = new ArrayList<>();
         ballerinaDiags.forEach(diagnostic -> {
             org.eclipse.lsp4j.Diagnostic lsDiagnostic = new org.eclipse.lsp4j.Diagnostic();
             lsDiagnostic.setSeverity(DiagnosticSeverity.Error);
-            lsDiagnostic.setMessage(diagnostic.getMessage());
+            lsDiagnostic.setMessage(diagnostic.message());
             Range range = new Range();
 
-            int startLine = diagnostic.getPosition().getStartLine() - 1; // LSP diagnostics range is 0 based
-            int startChar = diagnostic.getPosition().getStartColumn() - 1;
-            int endLine = diagnostic.getPosition().getEndLine() - 1;
-            int endChar = diagnostic.getPosition().getEndColumn() - 1;
+            Location location = diagnostic.location();
+            LineRange lineRange = location.lineRange();
+            TextRange textRange = location.textRange();
+            int startLine = lineRange.startLine().line(); // LSP diagnostics range is 0 based
+            int startChar = textRange.startOffset();
+            int endLine = lineRange.endLine().line();
+            int endChar = textRange.endOffset();
 
             if (endLine <= 0) {
                 endLine = startLine;

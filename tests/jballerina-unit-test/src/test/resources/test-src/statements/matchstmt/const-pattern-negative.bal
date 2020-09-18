@@ -95,3 +95,14 @@ function invalidConstTypes(CONST_1|CONST_2 a) returns string {
     }
     return "Default";
 }
+
+function testNegative(int v) returns string {
+    string s;
+
+    match v {
+        1 => {
+            s = "ONE";
+        }
+    }
+    return s; // variable 's' may not have been initialized
+}

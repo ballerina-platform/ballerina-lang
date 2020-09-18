@@ -24,9 +24,11 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -180,7 +182,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -197,7 +198,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private SymbolEnv env;
     private SymbolTable symTable;
     private Types types;
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
 
     private boolean inferredIsolated = true;
 
@@ -205,7 +206,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         context.put(ISOLATION_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static IsolationAnalyzer getInstance(CompilerContext context) {
@@ -275,7 +276,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         analyzeNode(funcNode.body, funcEnv);
 
-        if (isBallerinaModule(env.enclPkg) && !Symbols.isFlagOn(funcNode.symbol.flags, Flags.ISOLATED) &&
+        if (isBallerinaModule(env.enclPkg) && !isIsolated(funcNode.symbol) &&
                 this.inferredIsolated && !Symbols.isFlagOn(funcNode.symbol.flags, Flags.WORKER)) {
             dlog.warning(funcNode.pos, DiagnosticCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
         }
@@ -337,6 +338,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeNode(expr, env);
+
+        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.WORKER)) {
+            inferredIsolated = false;
+
+            if (isInIsolatedFunction(env.enclInvokable)) {
+                dlog.error(varNode.pos, DiagnosticCode.INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION);
+            }
+        }
     }
 
     @Override
@@ -735,6 +744,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         boolean inIsolatedFunction = isInIsolatedFunction(enclInvokable);
         boolean recordFieldDefaultValue = isRecordFieldDefaultValue(enclType);
+        boolean objectFieldDefaultValue = !recordFieldDefaultValue && isObjectFieldDefaultValueRequiringIsolation(env);
 
         if (inIsolatedFunction) {
             if (enclInvokable == null) {
@@ -745,9 +755,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                         return;
                     }
                 }
-            } else if (symbol.owner == enclInvokable.symbol) {
-                return;
             }
+        }
+
+        if (!recordFieldDefaultValue && !objectFieldDefaultValue && enclInvokable != null &&
+                symbol.owner == enclInvokable.symbol) {
+            return;
         }
 
         if (Symbols.isFlagOn(symbol.flags, Flags.CONSTANT)) {
@@ -759,6 +772,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        if (isDefinitionReference(symbol)) {
+            return;
+        }
+
+
         inferredIsolated = false;
 
         if (inIsolatedFunction) {
@@ -767,8 +785,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (recordFieldDefaultValue) {
-            // TODO: 9/13/20 make this error once stdlibs are migrated
-            dlog.warning(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
+            if (isBallerinaModule(env.enclPkg)) {
+                // TODO: 9/13/20 remove this error once stdlibs are migrated
+                dlog.warning(varRefExpr.pos, DiagnosticCode.WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
+            } else {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
+            }
+        }
+
+        if (objectFieldDefaultValue) {
+            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_ACCESS_AS_OBJECT_DEFAULT);
         }
     }
 
@@ -792,8 +818,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         BSymbol symbol = invocationExpr.symbol;
-        if (symbol == null || symbol.getKind() == SymbolKind.ERROR_CONSTRUCTOR ||
-                Symbols.isFlagOn(symbol.flags, Flags.ISOLATED)) {
+        if (symbol == null || symbol.getKind() == SymbolKind.ERROR_CONSTRUCTOR || isIsolated(symbol)) {
             return;
         }
 
@@ -805,8 +830,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isRecordFieldDefaultValue(env.enclType)) {
-            // TODO: 9/13/20 make this error once stdlibs are migrated
-            dlog.warning(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
+            if (isBallerinaModule(env.enclPkg)) {
+                // TODO: 9/13/20 remove this once stdlibs are migrated
+                dlog.warning(invocationExpr.pos,
+                             DiagnosticCode.WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
+            } else {
+                dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
+            }
+        }
+
+        if (isObjectFieldDefaultValueRequiringIsolation(env)) {
+            dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_OBJECT_DEFAULT);
         }
     }
 
@@ -829,6 +863,27 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
+        BSymbol initInvocationSymbol = typeInitExpr.initInvocation.symbol;
+        if (initInvocationSymbol != null && !isIsolated(initInvocationSymbol)) {
+            inferredIsolated = false;
+
+            if (isInIsolatedFunction(env.enclInvokable)) {
+                dlog.error(typeInitExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_ISOLATED_FUNCTION);
+            } else if (isRecordFieldDefaultValue(env.enclType)) {
+                if (isBallerinaModule(env.enclPkg)) {
+                    // TODO: 9/16/20 remove this once stdlibs are migrated
+                    dlog.warning(typeInitExpr.pos,
+                                 DiagnosticCode.WARNING_INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
+                } else {
+                    dlog.error(typeInitExpr.pos,
+                               DiagnosticCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_RECORD_DEFAULT);
+                }
+
+            } else if (isObjectFieldDefaultValueRequiringIsolation(env)) {
+                dlog.error(typeInitExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_DEFAULT);
+            }
+        }
+
         for (BLangExpression expression : typeInitExpr.argsExpr) {
             analyzeNode(expression, env);
         }
@@ -983,16 +1038,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        if (Symbols.isFlagOn(bLangLambdaFunction.function.symbol.flags, Flags.WORKER)) {
-            inferredIsolated = false;
-
-            if (isInIsolatedFunction(env.enclInvokable)) {
-                dlog.error(bLangLambdaFunction.pos, DiagnosticCode.INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION);
-            }
-
-            return;
-        }
-
         // TODO: 8/21/20 add analysis
     }
 
@@ -1328,7 +1373,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isBallerinaModule(BLangPackage module) {
-        return module.packageID.orgName.value.equals("ballerina");
+        String orgName = module.packageID.orgName.value;
+        return orgName.equals("ballerina") || orgName.equals("ballerinax");
     }
 
     private boolean isInIsolatedFunction(BLangInvokableNode enclInvokable) {
@@ -1342,7 +1388,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return Symbols.isFlagOn(((BLangArrowFunction) env.enclEnv.node).funcType.flags, Flags.ISOLATED);
         }
 
-        return Symbols.isFlagOn(enclInvokable.symbol.flags, Flags.ISOLATED);
+        return isIsolated(enclInvokable.symbol);
     }
 
     private boolean isRecordFieldDefaultValue(BLangType enclType) {
@@ -1351,5 +1397,34 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         return enclType.getKind() == NodeKind.RECORD_TYPE;
+    }
+
+    private boolean isObjectFieldDefaultValueRequiringIsolation(SymbolEnv env) {
+        BLangNode node = env.node;
+        NodeKind kind = node.getKind();
+
+        if (kind != NodeKind.CLASS_DEFN) {
+            return false;
+        }
+
+        BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+
+        BLangFunction initFunction = classDefinition.initFunction;
+        if (initFunction == null) {
+            return true;
+        }
+
+        return isIsolated(initFunction.symbol);
+    }
+
+    private boolean isDefinitionReference(BSymbol symbol) {
+        return Symbols.isTagOn(symbol, SymTag.SERVICE) ||
+                Symbols.isTagOn(symbol, SymTag.TYPE_DEF) ||
+                Symbols.isTagOn(symbol, SymTag.FUNCTION) ||
+                Symbols.isFlagOn(symbol.flags, Flags.LISTENER);
+    }
+
+    private boolean isIsolated(BSymbol symbol) {
+        return Symbols.isFlagOn(symbol.flags, Flags.ISOLATED);
     }
 }
