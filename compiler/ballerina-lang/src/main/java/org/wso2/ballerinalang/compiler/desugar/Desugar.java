@@ -316,6 +316,7 @@ public class Desugar extends BLangNodeVisitor {
     public static final String XML_INTERNAL_GET_ATTRIBUTE = "getAttribute";
     public static final String XML_INTERNAL_GET_ELEMENTS = "getElements";
     public static final String XML_GET_CONTENT_OF_TEXT = "getContent";
+    public static final String VALUE_REQUIRE_TYPE = "requireType";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -3763,9 +3764,14 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         targetVarRef.lhsVar = fieldAccessExpr.lhsVar;
-        targetVarRef.type = fieldAccessExpr.type;
         targetVarRef.optionalFieldAccess = fieldAccessExpr.optionalFieldAccess;
-        result = targetVarRef;
+        if (fieldAccessExpr.isWithCheckExpr) {
+            targetVarRef.type = fieldAccessExpr.originalType;
+            result = rewriteExpr(generateRequireTypeLangLibFunction(targetVarRef));
+        } else {
+            targetVarRef.type = fieldAccessExpr.type;
+            result = targetVarRef;
+        }
     }
 
     private BLangStatementExpression rewriteLaxMapAccess(BLangFieldBasedAccess fieldAccessExpr) {
@@ -5031,6 +5037,19 @@ public class Desugar extends BLangNodeVisitor {
         BLangInvocation invocationNode = createLanglibXMLInvocation(xmlElementAccess.pos, XML_INTERNAL_GET_ELEMENTS,
                 xmlElementAccess.expr, new ArrayList<>(), filters);
         result = rewriteExpr(invocationNode);
+    }
+
+    private BLangInvocation generateRequireTypeLangLibFunction(BLangAccessExpression fieldAccessExpr) {
+        ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
+        BType typedescType = new BTypedescType(fieldAccessExpr.type, null);
+        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+        typedescExpr.resolvedType = fieldAccessExpr.type;
+        typedescExpr.type = typedescType;
+        requiredArgs.add(typedescExpr);
+        fieldAccessExpr.desugared = true;
+        BLangInvocation invocationNode = createLangLibInvocationNode(VALUE_REQUIRE_TYPE, fieldAccessExpr,
+                requiredArgs, null, fieldAccessExpr.pos);
+        return invocationNode;
     }
 
     private ArrayList<BLangExpression> expandFilters(List<BLangXMLElementFilter> filters) {
