@@ -449,7 +449,7 @@ function testToString() returns string[] {
             varObj.toString(), varObj2.toString(), varObjArr.toString(), p.toString(), varMap.toString()];
 }
 
-function testToStringAndToBalStringForTable() {
+function testToStringMethodForTable() {
     table<Employee> employeeTable = table key(id) [
             { id: 1, age: 30,  salary: 300.5, name: "Mary", married: true },
             { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
@@ -457,8 +457,6 @@ function testToStringAndToBalStringForTable() {
 
     assertEquality("[{\"id\":1,\"age\":30,\"salary\":300.5,\"name\":\"Mary\",\"married\":true},"
     + "{\"id\":2,\"age\":20,\"salary\":300.5,\"name\":\"John\",\"married\":true}]", employeeTable.toString());
-    assertEquality("table key(id) [{\"id\":1,\"age\":30,\"salary\":300.5d,\"name\":\"Mary\",\"married\":true},"
-    + "{\"id\":2,\"age\":20,\"salary\":300.5d,\"name\":\"John\",\"married\":true}]", employeeTable.toBalString());
 }
 
 public function xmlSequenceFragmentToString() returns string {
@@ -489,17 +487,21 @@ function testToBalString() returns string[] {
     error varSimpleErr = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
         val3 = varDecimal, val4={"x":"AA","y":(1.0/0.0),"z":1.23});
     xml varXml = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`;
-    table<UndergradStudent> undergradStudentTable = table key(id,name) [
+    table<UndergradStudent> underGradTable = table key(id,name) [
             { id: 1, name: "Mary", grade: 12 },
             { id: 2, name: "John", grade: 13 }
         ];
     (any|error)[] varArr = ["str", 23, 23.4, true, {"x":"AA","y":(1.0/0.0),"z":1.23}, varDecimal, ["X", (0.0/0.0),
-    varDecimal],undergradStudentTable,varSimpleErr,varXml];
+    varDecimal],underGradTable,varSimpleErr,varXml];
     FirstError varErr = FirstError(REASON_1, message = "Test passing error union to a function");
     Student varObj = new("Alaa", "MMV");
     Teacher varObj2 = new("Rola", "MMV");
     any[] varObjArr = [varObj, varObj2];
     [float, string][] varTupleArr = [[(0.0/0.0), "ABC"], [(1.0/0.0), "LMN"]];
+    table<Employee> varTable = table key(id) [
+                { id: 1, age: 30,  salary: 300.5, name: "Mary", married: true },
+                { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
+            ];
 
     varMap["varInt"] = varInt;
     varMap["varFloat"] = varFloat;
@@ -516,12 +518,13 @@ function testToBalString() returns string[] {
     varMap["varObjArr"] = varObjArr;
     varMap["varRecord"] = p;
     varMap["varTupleArr"] = varTupleArr;
+    varMap["varTable"] = varTable;
     varMap["varSimpleErr"] = varSimpleErr;
 
     return [varInt.toBalString(), varFloat.toBalString(), varStr.toBalString(), varNil.toBalString(),
     varBool.toBalString(), varDecimal.toBalString(), varJson.toBalString(), varXml.toBalString(), varArr.toBalString(),
     varErr.toBalString(), varObj.toBalString(), varObj2.toBalString(), varObjArr.toBalString(), p.toBalString(),
-    varTupleArr.toBalString(), varSimpleErr.toBalString(), varMap.toBalString()];
+    varTupleArr.toBalString(), varTable.toBalString(), varSimpleErr.toBalString(), varMap.toBalString()];
 }
 
 function testXmlSequenceFragmentToBalString() returns string {
@@ -530,7 +533,7 @@ function testXmlSequenceFragmentToBalString() returns string {
    return (x/*).toBalString();
 }
 
-function testToStringAndToBalStringOnCycles() {
+function testToBalStringOnCycles() {
      map<anydata> x = {"ee" : 3};
      map<anydata> y = {"qq" : 5};
      anydata[] arr = [2 , 3, 5];
@@ -538,7 +541,6 @@ function testToStringAndToBalStringOnCycles() {
      y["1"] = x;
      y["2"] = arr;
      arr.push(x);
-     assert(x.toString(), "{\"ee\":3,\"1\":{\"qq\":5,\"1\":...,\"2\":[2,3,5,...]}}");
      assert(x.toBalString(), "{\"ee\":3,\"1\":{\"qq\":5,\"1\":...[1],\"2\":[2,3,5,...[1]]}}");
 }
 
@@ -1110,6 +1112,17 @@ function testToJsonWithTable() {
     ];
     json j = tb.toJson();
     assert(j.toJsonString(), "[{\"id\":12, \"str\":\"abc\"}, {\"id\":34, \"str\":\"def\"}]");
+}
+
+function testToStringOnCycles() {
+     map<anydata> x = {"ee" : 3};
+     map<anydata> y = {"qq" : 5};
+     anydata[] arr = [2 , 3, 5];
+     x["1"] = y;
+     y["1"] = x;
+     y["2"] = arr;
+     arr.push(x);
+     assert(x.toString(), "{\"ee\":3,\"1\":{\"qq\":5,\"1\":...,\"2\":[2,3,5,...]}}");
 }
 
 function assert(anydata actual, anydata expected) {

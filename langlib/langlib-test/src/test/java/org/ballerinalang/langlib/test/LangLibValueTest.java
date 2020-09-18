@@ -91,6 +91,11 @@ public class LangLibValueTest {
     }
 
     @Test
+    public void testToStringOnCycles() {
+        BRunUtil.invokeFunction(compileResult, "testToStringOnCycles");
+    }
+
+    @Test
     public void testFromJsonString() {
 
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonString");
@@ -218,8 +223,8 @@ public class LangLibValueTest {
     }
 
     @Test
-    public void testToStringAndToBalStringForTable() {
-        BRunUtil.invokeFunction(compileResult, "testToStringAndToBalStringForTable");
+    public void testToStringForTable() {
+        BRunUtil.invokeFunction(compileResult, "testToStringMethodForTable");
     }
 
     @Test(dataProvider = "mergeJsonFunctions")
@@ -280,6 +285,9 @@ public class LangLibValueTest {
         Assert.assertEquals(array.getString(i++),
                 "[float:NaN \"ABC\",float:Infinity \"LMN\"]");
         Assert.assertEquals(array.getString(i++),
+                "table key(id) [{\"id\":1,\"age\":30,\"salary\":300.5d,\"name\":\"Mary\",\"married\":true}," +
+                        "{\"id\":2,\"age\":20,\"salary\":300.5d,\"name\":\"John\",\"married\":true}]");
+        Assert.assertEquals(array.getString(i++),
                 "error error (\"Failed to get account balance\",details=true,val1=float:NaN,val2=\"This Error\"," +
                         "val3=345.2425341d,val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23})");
         Assert.assertEquals(array.getString(i),
@@ -312,6 +320,9 @@ public class LangLibValueTest {
                         "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
                         "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}," +
                         "\"varTupleArr\":[float:NaN \"ABC\",float:Infinity \"LMN\"]," +
+                        "\"varTable\":table key(id) [{\"id\":1,\"age\":30,\"salary\":300.5d,\"name\":\"Mary\"," +
+                        "\"married\":true},{\"id\":2,\"age\":20,\"salary\":300.5d,\"name\":\"John\"," +
+                        "\"married\":true}]," +
                         "\"varSimpleErr\":error error (\"Failed to get account balance\",details=true," +
                         "val1=float:NaN,val2=\"This Error\",val3=345.2425341d," +
                         "val4={\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23})}");
@@ -324,8 +335,8 @@ public class LangLibValueTest {
     }
 
     @Test
-    public void testToStringAndToBalStringOnCycles() {
-        BRunUtil.invokeFunction(compileResult, "testToStringAndToBalStringOnCycles");
+    public void testToBalStringOnCycles() {
+        BRunUtil.invokeFunction(compileResult, "testToBalStringOnCycles");
     }
 
     @DataProvider(name = "mergeJsonFunctions")
