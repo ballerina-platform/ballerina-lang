@@ -5,4 +5,3 @@ function getVal(int v) returns any {
 public function foo() {
     boolean f = getVal(8) is float;
 }
-

@@ -42,11 +42,13 @@ public enum Snippet {
 
     DEF_CLOSED_RECORD(SnippetGenerator.getClosedRecordDefinitionSnippet()),
 
+    DEF_ERROR_TYPE(SnippetGenerator.getErrorTypeDefinitionSnippet()),
+
     DEF_RECORD_TYPE_DESC(SnippetGenerator.getRecordTypeDescSnippet()),
 
     DEF_CLOSED_RECORD_TYPE_DESC(SnippetGenerator.getClosedRecordTypeDescSnippet()),
 
-    DEF_ERROR_TYPE_DESC(SnippetGenerator.getErrorTypeDefinitionSnippet()),
+    DEF_ERROR_TYPE_DESC(SnippetGenerator.getErrorTypeDescSnippet()),
 
     DEF_RESOURCE_HTTP(SnippetGenerator.getResourceDefinitionSnippet()),
 
@@ -192,6 +194,8 @@ public enum Snippet {
 
     KW_FINAL(SnippetGenerator.getFinalKeywordSnippet()),
 
+    KW_FAIL(SnippetGenerator.getFailKeywordSnippet()),
+
     KW_REMOTE(SnippetGenerator.getRemoteKeywordSnippet()),
 
     KW_CONST(SnippetGenerator.getConstKeywordSnippet()),
@@ -275,12 +279,16 @@ public enum Snippet {
 
     STMT_WHILE(SnippetGenerator.getWhileStatementSnippet()),
 
+    STMT_DO(SnippetGenerator.getDoStatementSnippet()),
+
     // Snippets related to various clauses such as from, where and etc
     CLAUSE_FROM(SnippetGenerator.getFromClauseSnippet()),
     
     CLAUSE_LET(SnippetGenerator.getLetClauseSnippet()),
     
-    CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet());
+    CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),
+    
+    CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet());
 
     private final String snippetName;
     private final SnippetBlock snippetBlock;

@@ -155,7 +155,7 @@ public isolated function fromJsonString(string str) returns json|error = externa
 #
 # + str - string representation of json
 # + return - `str` parsed to json or error
-public function fromJsonFloatString(string str) returns json|error = external;
+public isolated function fromJsonFloatString(string str) returns json|error = external;
 
 # Parses a string in JSON format and returns the value that it represents.
 # All numbers in the JSON will be represented as decimal values.
@@ -163,7 +163,7 @@ public function fromJsonFloatString(string str) returns json|error = external;
 #
 # + str - string representation of json
 # + return - `str` parsed to json or error
-public function fromJsonDecimalString(string str) returns json|error = external;
+public isolated function fromJsonDecimalString(string str) returns json|error = external;
 
 # Converts a value of type json to a user-specified type.
 # This works the same as `cloneWithType`,

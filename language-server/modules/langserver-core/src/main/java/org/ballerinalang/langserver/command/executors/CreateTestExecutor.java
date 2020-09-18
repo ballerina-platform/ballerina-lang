@@ -185,7 +185,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
         }
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
         try {
-            if (builtSourceFile == null || builtSourceFile.diagCollector.hasErrors()) {
+            if (builtSourceFile == null || builtSourceFile.hasErrors()) {
                 String message = "Test generation failed due to compilation errors!";
                 if (client != null) {
                     client.showMessage(new MessageParams(MessageType.Error, message));

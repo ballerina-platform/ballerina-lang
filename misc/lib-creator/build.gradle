@@ -28,6 +28,7 @@ configurations {
 }
 
 dependencies {
+    implementation project(':ballerina-tools-api')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-packerina')

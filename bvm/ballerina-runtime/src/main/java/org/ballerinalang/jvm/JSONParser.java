@@ -57,15 +57,26 @@ public class JSONParser {
     };
 
     /**
-     * Represents the modes which process numeric values.
-     * FROM_JSON_STRING convert numeric values that starts with minus(-) and numerically equal zero(0) to -0.0f, numeric
-     * values that is syntactically an integer to int and all other numeric values to decimal while converting a string
-     * to JSON
-     * FROM_JSON_FLOAT_STRING convert all numerical values to float while converting a string to JSON
-     * FROM_JSON_DECIMAL_STRING convert all numerical values to decimal while converting a string to JSON
+     * Represents the modes which process numeric values while converting a string to JSON.
      */
     public enum NonStringValueProcessingMode {
-        FROM_JSON_STRING, FROM_JSON_FLOAT_STRING, FROM_JSON_DECIMAL_STRING
+        /**
+         * FROM_JSON_STRING converts a numeric value that
+         * - starts with the negative sign (-) and is numerically equal to zero (0) to `-0.0f`
+         * - is syntactically an integer to an `int`
+         * - doesn't belong to the above to decimal.
+         */
+        FROM_JSON_STRING,
+
+        /**
+         * FROM_JSON_FLOAT_STRING converts all numerical values to float.
+         */
+        FROM_JSON_FLOAT_STRING,
+
+        /**
+         * FROM_JSON_DECIMAL_STRING converts all numerical values to decimal.
+         */
+        FROM_JSON_DECIMAL_STRING
     }
 
     /**
@@ -133,6 +144,7 @@ public class JSONParser {
      * Parses the contents in the given {@link Reader} and returns a json.
      *
      * @param reader reader which contains the JSON content
+     * @param mode   the mode to use when processing numeric values
      * @return JSON structure
      * @throws BallerinaException for any parsing error
      */

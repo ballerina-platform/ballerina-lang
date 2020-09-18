@@ -4,4 +4,3 @@ public function foo() {
     byte[] byteArray2 = base16 `aeeecdefabcd12345567888822`;
     byte[] byteArray3 = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
 }
-

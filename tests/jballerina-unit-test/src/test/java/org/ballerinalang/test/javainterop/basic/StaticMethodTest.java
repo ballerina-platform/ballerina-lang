@@ -194,4 +194,10 @@ public class StaticMethodTest {
     public void testBalEnvFastAsync() {
         BRunUtil.invoke(result, "testBalEnvFastAsync");
     }
+
+    @Test(description = "When instance and static methods have the same name resolve static method based on the " +
+            "parameter type")
+    public void testStaticResolve() {
+        BRunUtil.invoke(result, "testStaticResolve");
+    }
 }

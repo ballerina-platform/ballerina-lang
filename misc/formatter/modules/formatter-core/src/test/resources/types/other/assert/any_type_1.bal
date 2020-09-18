@@ -9,4 +9,3 @@ public function foo() {
     int[] intArray = [1, 3, 5, 6];
     any anyArray = intArray;
 }
-

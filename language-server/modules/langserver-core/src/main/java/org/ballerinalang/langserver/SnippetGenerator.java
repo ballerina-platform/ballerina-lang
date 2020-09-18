@@ -659,6 +659,18 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Error Type Descriptor Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getErrorTypeDescSnippet() {
+        String snippet = "error<${1:map<anydata>}>;";
+
+        return new SnippetBlock(ItemResolverConstants.ERROR_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
      * Get Closed Record Type Descriptor Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1111,6 +1123,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code fail} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getFailKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.FAIL_KEYWORD, "fail ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
      * Get {@code remote} Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1239,6 +1261,17 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code do} Statement Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getDoStatementSnippet() {
+        String snippet = "do {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.DO, snippet, ItemResolverConstants.STATEMENT_TYPE,
+                Kind.STATEMENT);
+    }
+
+    /**
      * Get From clause Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1271,6 +1304,19 @@ public class SnippetGenerator {
         String snippet = "join ${1:var} ${2:varName} in ${3:expr} on ${3:onExpr} equals ${3:equalsExpr}";
 
         return new SnippetBlock(ItemResolverConstants.JOIN_CLAUSE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get on fail clause Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getOnFailClauseSnippet() {
+        String snippet = "on fail ${1:var} ${2:varName} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+
+        return new SnippetBlock(ItemResolverConstants.ON_FAIL_CLAUSE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }
 

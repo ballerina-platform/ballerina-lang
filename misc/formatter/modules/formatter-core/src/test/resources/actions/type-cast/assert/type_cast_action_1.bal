@@ -16,4 +16,3 @@ public function foo() {
     float f = <float>value;
     float|boolean u = <float|boolean>value;
 }
-

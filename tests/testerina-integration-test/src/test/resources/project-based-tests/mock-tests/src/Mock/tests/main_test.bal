@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/io;
-import ballerina/math;
 import Mock2;
 
 (any|error)[] outputs = [];
@@ -42,12 +40,6 @@ test:MockFunction mock_stringAdd = new();
 test:MockFunction mock_floatAdd = new();
 
 @test:Mock {
-    moduleName : "ballerina/math",
-    functionName : "absInt"
-}
-test:MockFunction mock_absInt = new();
-
-@test:Mock {
     moduleName : "mock-tests/Mock2",
     functionName : "intAdd2"
 }
@@ -57,12 +49,6 @@ test:MockFunction mock2_intAdd = new();
     functionName : "intAdd3"
 }
 test:MockFunction mock_intAdd3 = new();
-
-@test:Mock {
-    moduleName: "ballerina/io",
-    functionName: "print"
-}
-test:MockFunction mock_print = new();
 
 //
 //  MOCK FUNCTIONS
@@ -104,15 +90,6 @@ public function mockFloatAdd(float a, float b) returns (float) {
     return a - b;
 }
 
-public function mockAbsInt(int value) returns (int) {
-    return 100;
-}
-
-public function mockPrint((any|error)... s) {
-    outputs[counter] = s[0];
-    counter += 1;
-}
-
 //
 // TESTS
 //
@@ -120,8 +97,6 @@ public function mockPrint((any|error)... s) {
 @test:Config {
 }
 public function call_Test1() {
-    io:println("\t[call_Test1] Testing .call function with different types of mock functions");
-
     // IntAdd
     test:when(mock_intAdd).call("mockIntAdd1");
     test:assertEquals(intAdd(10, 6), 4);
@@ -139,8 +114,6 @@ public function call_Test1() {
 @test:Config {
 }
 public function call_Test2() {
-    io:println("\t[call_Test2] Test switching mock functions");
-
     // Set which function to call
     test:when(mock_intAdd).call("mockIntAdd1");
     test:assertEquals(intAdd(10, 6), 4);
@@ -157,7 +130,6 @@ public function call_Test2() {
 @test:Config {
 }
 public function call_Test3() {
-    io:println("\t[call_Test3] Test invalid mock function");
     test:when(mock_intAdd).call("invalidMockFunction");
     test:assertEquals(intAdd(10, 6), 4);
 }
@@ -165,7 +137,6 @@ public function call_Test3() {
 @test:Config {
 }
 public function call_Test4() {
-    io:println("\t[call_Test4] Test mock function with invalid return type");
     test:when(mock_intAdd).call("mockIntAdd3");
     test:assertEquals(intAdd(10, 6), 4);
 }
@@ -173,49 +144,34 @@ public function call_Test4() {
 @test:Config {
 }
 public function call_Test5() {
-    io:println("\t[call_Test5] Test mock function with invalid parameters");
     test:when(mock_intAdd).call("mockIntAdd4");
     test:assertEquals(intAdd(10, 6), 4);
 }
 
-@test:Config {}
+@test:Config {
+}
 public function call_Test6() {
-    io:println("\t[call_Test6] Test mock function in import package");
-    test:when(mock_absInt).call("mockAbsInt");
-    test:assertEquals(math:absInt(-5), 100);
+    TestClass testClass = new();
+    test:when(mock_intAdd).call("mockIntAdd1");
+    int value = testClass.add(10, 4);
+    test:assertEquals(value, 6);
 }
 
 @test:Config {}
 public function call_Test7() {
-    io:println("\t[call_Test7] Test mock function in import package in same project");
     test:when(mock2_intAdd).call("mockIntAdd2");
     test:assertEquals(Mock2:intAdd2(10, 5), 50);
 }
 
 @test:Config {}
 public function call_Test8() {
-    io:println("\t[call_Test8] Test calling the mock function with varargs");
     test:when(mock_intAdd3).call("mockIntAdd5");
     test:assertEquals(intAdd3(1, 3, 5), -9);
-}
-
-@test:Config {}
-public function call_Test9() {
-    io:println("\t[call_Test9] Test calling the import mock function with varargs");
-    test:when(mock_print).call("mockPrint");
-    main();
-    if (outputs[0] is anydata) {
-        test:assertEquals(<anydata>outputs[0], "FunctionMocking Tests");
-    } else {
-        test:assertExactEquals(outputs[0], "FunctionMocking Tests");
-    }
 }
 
 @test:Config {
 }
 public function thenReturn_Test1() {
-    io:println("\t[thenReturn_Test1] Test thenReturns");
-
     test:when(mock_intAdd).thenReturn(5);
     test:assertEquals(intAdd(10, 4), 5);
 
@@ -229,8 +185,6 @@ public function thenReturn_Test1() {
 @test:Config {
 }
 public function withArguments_Test1() {
-    io:println("\t[withArguments_Test1] Test withArguments");
-
     test:when(mock_intAdd).withArguments(20, 14).thenReturn(100);
     test:assertEquals(intAdd(20, 14), 100);
 
@@ -241,8 +195,6 @@ public function withArguments_Test1() {
 @test:Config {
 }
 public function callOriginal_Test1() {
-    io:println("\t[callOriginal_Test1] Testing .callOriginal function");
-
     // IntAdd
     test:when(mock_intAdd).callOriginal();
     test:assertEquals(intAdd(10, 6), 16);
@@ -258,15 +210,7 @@ public function callOriginal_Test1() {
 }
 
 @test:Config {}
-public function callOriginal_Test2() {
-    io:println("\t[callOriginal_Test2] Test callOriginal function in import package");
-    test:when(mock_absInt).callOriginal();
-    test:assertEquals(math:absInt(-5), 5);
-}
-
-@test:Config {}
 public function callOriginal_Test3() {
-    io:println("\t[callOriginal_Test3] Test callOriginal with import package in same project");
     test:when(mock2_intAdd).callOriginal();
     test:assertEquals(Mock2:intAdd2(10, 5), 15);
 }
