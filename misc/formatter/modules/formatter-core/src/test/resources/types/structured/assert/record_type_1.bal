@@ -11,4 +11,3 @@ type Grades record {|
     int maths;
     int...;
 |};
-

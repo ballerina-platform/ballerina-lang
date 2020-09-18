@@ -72,7 +72,7 @@ public class Formatter {
     public static String format(String source, FormattingOptions options) {
         TextDocument textDocument = TextDocuments.from(source);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        return modifyTree(syntaxTree, options, null).toSourceCode();
+        return FormatterUtils.toFormattedSourceCode(modifyTree(syntaxTree, options, null));
     }
 
     /**

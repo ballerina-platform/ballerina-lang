@@ -4,4 +4,3 @@ function foo() {
         int x;
     } parent;
 }
-
