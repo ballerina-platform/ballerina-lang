@@ -45,7 +45,7 @@ class FormatterUtils {
 
     }
 
-    private static final String LINE_SEPARATOR = "line.separator";
+    private static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
 
     /**
      * Get the node position.
@@ -226,7 +226,7 @@ class FormatterUtils {
     private static String getWhiteSpaces(int column, int newLines) {
         StringBuilder whiteSpaces = new StringBuilder();
         for (int i = 0; i <= (newLines - 1); i++) {
-            whiteSpaces.append(System.getProperty(LINE_SEPARATOR));
+            whiteSpaces.append(NEWLINE_SYMBOL);
         }
         for (int i = 0; i <= (column - 1); i++) {
             whiteSpaces.append(" ");
@@ -314,8 +314,7 @@ class FormatterUtils {
                         processedCount++;
                         if (processedCount == count) {
                             if (trailingNewLines == 0) {
-                                minutiaes = minutiaes.add(AbstractNodeFactory
-                                        .createEndOfLineMinutiae(System.getProperty(LINE_SEPARATOR)));
+                                minutiaes = minutiaes.add(AbstractNodeFactory.createEndOfLineMinutiae(NEWLINE_SYMBOL));
                             }
                             break;
                         }
@@ -427,14 +426,14 @@ class FormatterUtils {
                         SyntaxKind.CLOSE_PAREN_TOKEN));
         boolean preserve = false;
         MinutiaeList nodeEnd = getEndingToken(node).trailingMinutiae();
-        if (nodeEnd.toString().contains(System.getProperty(LINE_SEPARATOR))) {
+        if (nodeEnd.toString().contains(NEWLINE_SYMBOL)) {
             int childIndex = getChildLocation(node.parent(), node);
             if (childIndex != -1) {
                 Node nextNode = node.parent().children().get(childIndex + 1);
                 if (nextNode != null && !endTokens.contains(nextNode.kind())) {
                     MinutiaeList siblingStart = getStartingToken(nextNode).leadingMinutiae();
-                    int newLines = regexCount(nodeEnd.toString(), System.getProperty(LINE_SEPARATOR));
-                    if (siblingStart.toString().contains(System.getProperty(LINE_SEPARATOR)) || newLines > 1) {
+                    int newLines = regexCount(nodeEnd.toString(), NEWLINE_SYMBOL);
+                    if (siblingStart.toString().contains(NEWLINE_SYMBOL) || newLines > 1) {
                         preserve = true;
                     }
                 }
@@ -562,8 +561,7 @@ class FormatterUtils {
      * @return source code as a string
      */
     public static String toFormattedSourceCode(SyntaxTree syntaxTree) {
-        return syntaxTree.toSourceCode().trim() +
-                System.getProperty(LINE_SEPARATOR);
+        return syntaxTree.toSourceCode().trim() + NEWLINE_SYMBOL;
     }
 
     private static final class Indentation {
