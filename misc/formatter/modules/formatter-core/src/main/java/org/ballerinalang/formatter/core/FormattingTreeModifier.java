@@ -1082,6 +1082,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 (parentKind == SyntaxKind.FUNCTION_BODY_BLOCK ||
                         parentKind == SyntaxKind.IF_ELSE_STATEMENT ||
                         parentKind == SyntaxKind.MATCH_CLAUSE ||
+                        parentKind == SyntaxKind.DO_STATEMENT ||
                         parentKind == SyntaxKind.FOREACH_STATEMENT ||
                         parentKind == SyntaxKind.ELSE_BLOCK)) {
             if (blockStatementNode.children().size() <= 2) {
@@ -3830,10 +3831,14 @@ public class FormattingTreeModifier extends TreeModifier {
         BlockStatementNode blockStatement = this.modifyNode(doStatementNode.blockStatement());
         OnFailClauseNode onFailClause = this.modifyNode(doStatementNode.onFailClause().orElse(null));
         int startColumn = getStartColumn(doStatementNode, true);
+        if (onFailClause != null) {
+            doStatementNode = doStatementNode.modify()
+                    .withOnFailClause(onFailClause)
+                    .apply();
+        }
         return doStatementNode.modify()
                 .withDoKeyword(formatToken(doKeyword, startColumn, 0, 0, 0))
                 .withBlockStatement(blockStatement)
-                .withOnFailClause(onFailClause)
                 .apply();
     }
 
