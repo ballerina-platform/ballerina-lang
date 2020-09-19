@@ -460,6 +460,13 @@ public class FormattingTreeModifier extends TreeModifier {
                 builtinSimpleNameReferenceNode.parent().kind() == SyntaxKind.RETURN_TYPE_DESCRIPTOR) {
             startColumn = 0;
         }
+        if (builtinSimpleNameReferenceNode.parent() != null &&
+                builtinSimpleNameReferenceNode.parent().parent() != null &&
+                (builtinSimpleNameReferenceNode.parent().parent().kind() == SyntaxKind.LET_VAR_DECL ||
+                builtinSimpleNameReferenceNode.parent().parent().kind() == SyntaxKind.JOIN_CLAUSE ||
+                builtinSimpleNameReferenceNode.parent().parent().kind() == SyntaxKind.FROM_CLAUSE)) {
+            startColumn = 0;
+        }
         int trailingSpaces = 0;
         NonTerminalNode parent = builtinSimpleNameReferenceNode.parent();
         if (parent != null && (parent.kind() == SyntaxKind.CONST_DECLARATION ||
@@ -1112,6 +1119,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (parent != null &&
                 (parent.kind() == SyntaxKind.LOCAL_VAR_DECL ||
                     parent.kind() == SyntaxKind.CONST_DECLARATION ||
+                    parent.kind() == SyntaxKind.SELECT_CLAUSE ||
                     parent.kind() == SyntaxKind.SPECIFIC_FIELD ||
                     parent.kind() == SyntaxKind.TABLE_CONSTRUCTOR)) {
             addSpaces = false;
@@ -1130,7 +1138,7 @@ public class FormattingTreeModifier extends TreeModifier {
         SeparatedNodeList<MappingFieldNode> fields = this.modifySeparatedNodeList(
                 mappingConstructorExpressionNode.fields());
         return mappingConstructorExpressionNode.modify()
-                .withOpenBrace(formatToken(openBrace, startOpenBrace, 0, openingLeadingNewLines, 0))
+                .withOpenBrace(formatToken(openBrace, addSpaces ? startOpenBrace : 0, 0, openingLeadingNewLines, 0))
                 .withCloseBrace(formatToken(closeBrace, startCloseBrace, 0, leadingNewLines, 0))
                 .withFields(fields)
                 .apply();
@@ -2902,10 +2910,11 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(whereClauseNode, lineRange)) {
             return whereClauseNode;
         }
+        int startColumn = getStartColumn(whereClauseNode, true);
         Token whereKeyword = getToken(whereClauseNode.whereKeyword());
         ExpressionNode expression = this.modifyNode(whereClauseNode.expression());
         return whereClauseNode.modify()
-                .withWhereKeyword(formatToken(whereKeyword, 0, 1, 0, 0))
+                .withWhereKeyword(formatToken(whereKeyword, startColumn, 1, 1, 0))
                 .withExpression(expression)
                 .apply();
     }
@@ -2915,11 +2924,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(letClauseNode, lineRange)) {
             return letClauseNode;
         }
+        int startColumn = getStartColumn(letClauseNode, true);
         Token letKeyword = getToken(letClauseNode.letKeyword());
         SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
                 this.modifySeparatedNodeList(letClauseNode.letVarDeclarations());
         return letClauseNode.modify()
-                .withLetKeyword(formatToken(letKeyword, 0, 1, 0, 0))
+                .withLetKeyword(formatToken(letKeyword, startColumn, 1, 1, 0))
                 .withLetVarDeclarations(letVarDeclarations)
                 .apply();
     }
@@ -2943,10 +2953,11 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(selectClauseNode, lineRange)) {
             return selectClauseNode;
         }
+        int startColumn = getStartColumn(selectClauseNode, true);
         Token selectKeyword = getToken(selectClauseNode.selectKeyword());
         ExpressionNode expression = this.modifyNode(selectClauseNode.expression());
         return selectClauseNode.modify()
-                .withSelectKeyword(formatToken(selectKeyword, 0, 1, 0, 0))
+                .withSelectKeyword(formatToken(selectKeyword, startColumn, 1, 1, 0))
                 .withExpression(expression)
                 .apply();
     }
@@ -3604,8 +3615,9 @@ public class FormattingTreeModifier extends TreeModifier {
             joinClauseNode = joinClauseNode.modify()
                     .withOuterKeyword(formatToken(outerKeyword, 1, 1, 0, 0)).apply();
         }
+        int startColumn = getStartColumn(joinClauseNode, true);
         return joinClauseNode.modify()
-                .withJoinKeyword(formatToken(joinKeyword, 1, 1, 0, 0))
+                .withJoinKeyword(formatToken(joinKeyword, startColumn, 1, 1, 0))
                 .withTypedBindingPattern(typedBindingPattern)
                 .withInKeyword(formatToken(inKeyword, 1, 1, 0, 0))
                 .withExpression(expression)
@@ -3618,12 +3630,13 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(onClauseNode, lineRange)) {
             return onClauseNode;
         }
+        int startColumn = getStartColumn(onClauseNode, true);
         Token onKeyword = getToken(onClauseNode.onKeyword());
         Token equalsKeyword = getToken(onClauseNode.equalsKeyword());
         ExpressionNode lhsExpr = this.modifyNode(onClauseNode.lhsExpression());
         ExpressionNode rhsExpr = this.modifyNode(onClauseNode.rhsExpression());
         return onClauseNode.modify()
-                .withOnKeyword(formatToken(onKeyword, 1, 1, 0, 0))
+                .withOnKeyword(formatToken(onKeyword, startColumn, 1, 1, 0))
                 .withLhsExpression(lhsExpr)
                 .withEqualsKeyword(formatToken(equalsKeyword, 1, 1, 0, 0))
                 .withRhsExpression(rhsExpr)

@@ -140,6 +140,10 @@ class FormatterUtils {
                 parentKind == SyntaxKind.LOCAL_VAR_DECL) {
             return parent;
         }
+        if (parentKind == SyntaxKind.QUERY_EXPRESSION && parent.parent() != null &&
+                parent.parent().kind() == SyntaxKind.LOCAL_VAR_DECL) {
+            return parent.parent();
+        }
         if (syntaxKind == SyntaxKind.ON_FAIL_CLAUSE && (parentKind == SyntaxKind.MATCH_STATEMENT ||
                 parentKind == SyntaxKind.FOREACH_STATEMENT)) {
             return parent;
