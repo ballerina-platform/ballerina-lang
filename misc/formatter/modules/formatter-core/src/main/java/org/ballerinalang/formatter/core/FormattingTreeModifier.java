@@ -1993,11 +1993,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(breakStatementNode, lineRange)) {
             return breakStatementNode;
         }
+        int startColumn = getStartColumn(breakStatementNode, true);
         Token breakToken = getToken(breakStatementNode.breakToken());
         Token semicolonToken = getToken(breakStatementNode.semicolonToken());
         return breakStatementNode.modify()
-                .withBreakToken(formatToken(breakToken, 0, 0, 0, 0))
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withBreakToken(formatToken(breakToken, startColumn, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
