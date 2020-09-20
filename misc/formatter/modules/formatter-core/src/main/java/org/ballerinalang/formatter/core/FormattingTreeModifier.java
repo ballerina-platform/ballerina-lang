@@ -409,12 +409,18 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(returnTypeDescriptorNode, lineRange)) {
             return returnTypeDescriptorNode;
         }
+        boolean addSpaces = false;
+        if (returnTypeDescriptorNode.parent() != null &&
+                returnTypeDescriptorNode.parent().kind() == SyntaxKind.BLOCK_STATEMENT) {
+            addSpaces = true;
+        }
+        int startColumn = getStartColumn(returnTypeDescriptorNode, addSpaces);
         Token returnsKeyword = getToken(returnTypeDescriptorNode.returnsKeyword());
         NodeList<AnnotationNode> annotations = this.modifyNodeList(returnTypeDescriptorNode.annotations());
         Node type = this.modifyNode(returnTypeDescriptorNode.type());
         return returnTypeDescriptorNode.modify()
                 .withAnnotations(annotations)
-                .withReturnsKeyword(formatToken(returnsKeyword, 1, 1, 0, 0))
+                .withReturnsKeyword(formatToken(returnsKeyword, addSpaces ? startColumn : 1, 1, 0, 0))
                 .withType(type)
                 .apply();
     }
@@ -1904,6 +1910,8 @@ public class FormattingTreeModifier extends TreeModifier {
         int startColumn = getStartColumn(namedWorkerDeclarationNode, true);
         NodeList<AnnotationNode> annotations = this.modifyNodeList(namedWorkerDeclarationNode.annotations());
         Token workerKeyword = getToken(namedWorkerDeclarationNode.workerKeyword());
+        namedWorkerDeclarationNode = namedWorkerDeclarationNode.modify()
+                .withWorkerKeyword(formatToken(workerKeyword, startColumn, 1, 0, 0)).apply();
         IdentifierToken workerName = this.modifyNode(namedWorkerDeclarationNode.workerName());
         Node returnTypeDesc =
                 this.modifyNode(namedWorkerDeclarationNode.returnTypeDesc().orElse(null));
@@ -1914,7 +1922,6 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         return namedWorkerDeclarationNode.modify()
                 .withAnnotations(annotations)
-                .withWorkerKeyword(formatToken(workerKeyword, startColumn, 1, 0, 0))
                 .withWorkerName(workerName)
                 .withWorkerBody(workerBody)
                 .apply();
@@ -2086,16 +2093,17 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(forkStatementNode, lineRange)) {
             return forkStatementNode;
         }
+        int startColumn = getStartColumn(forkStatementNode, true);
         Token forkKeyword = getToken(forkStatementNode.forkKeyword());
         Token openBraceToken = getToken(forkStatementNode.openBraceToken());
         NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations =
                 this.modifyNodeList(forkStatementNode.namedWorkerDeclarations());
         Token closeBraceToken = getToken(forkStatementNode.closeBraceToken());
         return forkStatementNode.modify()
-                .withForkKeyword(formatToken(forkKeyword, 1, 1, 0, 0))
-                .withOpenBraceToken(formatToken(openBraceToken, 0, 0, 0, 0))
+                .withForkKeyword(formatToken(forkKeyword, startColumn, 1, 0, 0))
+                .withOpenBraceToken(formatToken(openBraceToken, 0, 0, 0, 1))
                 .withNamedWorkerDeclarations(namedWorkerDeclarations)
-                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, 0))
+                .withCloseBraceToken(formatToken(closeBraceToken, startColumn, 0, 0, 1))
                 .apply();
     }
 

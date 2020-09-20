@@ -18,6 +18,7 @@ package org.ballerinalang.formatter.core;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
+import io.ballerinalang.compiler.syntax.tree.AsyncSendActionNode;
 import io.ballerinalang.compiler.syntax.tree.ChildNodeList;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
@@ -63,7 +64,7 @@ class FormatterUtils {
         int startOffset = startPos.offset();
         if (node.kind() == SyntaxKind.FUNCTION_DEFINITION || node.kind() == SyntaxKind.TYPE_DEFINITION ||
                 node.kind() == SyntaxKind.CONST_DECLARATION || node.kind() == SyntaxKind.OBJECT_TYPE_DESC ||
-                node.kind() == SyntaxKind.MATCH_STATEMENT) {
+                node.kind() == SyntaxKind.MATCH_STATEMENT || node.kind() == SyntaxKind.NAMED_WORKER_DECLARATION) {
             startOffset = (startOffset / 4) * 4;
         }
         return new DiagnosticPos(null, startPos.line() + 1, endPos.line() + 1,
@@ -93,7 +94,9 @@ class FormatterUtils {
                 parentKind == SyntaxKind.IF_ELSE_STATEMENT ||
                 parentKind == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT ||
                 parentKind == SyntaxKind.WHILE_STATEMENT ||
+                parentKind == SyntaxKind.FORK_STATEMENT ||
                 parentKind == SyntaxKind.DO_STATEMENT ||
+                parentKind == SyntaxKind.NAMED_WORKER_DECLARATION ||
                 parentKind == SyntaxKind.LOCK_STATEMENT ||
                 parentKind == SyntaxKind.CONST_DECLARATION ||
                 parentKind == SyntaxKind.METHOD_DECLARATION ||
@@ -115,6 +118,10 @@ class FormatterUtils {
                     parentKind == SyntaxKind.POSITIONAL_ARG ||
                     parentKind == SyntaxKind.BINARY_EXPRESSION ||
                     parentKind == SyntaxKind.BRACED_EXPRESSION ||
+                    parentKind == SyntaxKind.ASYNC_SEND_ACTION ||
+                    parentKind == SyntaxKind.SYNC_SEND_ACTION ||
+                    parentKind == SyntaxKind.RECEIVE_ACTION ||
+                    parentKind == SyntaxKind.FLUSH_ACTION ||
                     parentKind == SyntaxKind.RETURN_STATEMENT ||
                     parentKind == SyntaxKind.REMOTE_METHOD_CALL_ACTION ||
                     parentKind == SyntaxKind.FIELD_ACCESS ||
@@ -126,6 +133,9 @@ class FormatterUtils {
                         grandParent.kind() == SyntaxKind.ASSIGNMENT_STATEMENT && grandParent.parent() != null &&
                         grandParent.parent().kind() == SyntaxKind.BLOCK_STATEMENT) {
                     return getParent(grandParent.parent(), syntaxKind);
+                }
+                if (parentKind == SyntaxKind.ASYNC_SEND_ACTION && ((AsyncSendActionNode) parent).expression() == node) {
+                    return getParent(parent.parent(), syntaxKind);
                 }
                 return null;
             }
@@ -139,6 +149,10 @@ class FormatterUtils {
         if (syntaxKind == SyntaxKind.OBJECT_CONSTRUCTOR &&
                 parentKind == SyntaxKind.LOCAL_VAR_DECL) {
             return parent;
+        }
+        if (parentKind == SyntaxKind.BLOCK_STATEMENT && parent.parent() != null &&
+                parent.parent().kind() == SyntaxKind.NAMED_WORKER_DECLARATION) {
+            return parent.parent();
         }
         if (parentKind == SyntaxKind.QUERY_EXPRESSION && parent.parent() != null &&
                 parent.parent().kind() == SyntaxKind.LOCAL_VAR_DECL) {
