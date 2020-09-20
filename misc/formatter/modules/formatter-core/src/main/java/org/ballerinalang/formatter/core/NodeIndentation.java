@@ -89,6 +89,7 @@ class NodeIndentation {
                         SyntaxKind.TYPED_BINDING_PATTERN,
                         SyntaxKind.FIELD_ACCESS,
                         SyntaxKind.LOCK_STATEMENT,
+                        SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT,
                         SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE,
                         SyntaxKind.RECORD_FIELD,
                         SyntaxKind.MATCH_CLAUSE,

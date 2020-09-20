@@ -1975,10 +1975,10 @@ public class FormattingTreeModifier extends TreeModifier {
         Token semicolonToken = getToken(compoundAssignmentStatementNode.semicolonToken());
         return compoundAssignmentStatementNode.modify()
                 .withLhsExpression(lhsExpression)
-                .withBinaryOperator(formatToken(binaryOperator, 1, 1, 0, 0))
-                .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0))
+                .withBinaryOperator(formatToken(binaryOperator, 1, 0, 0, 0))
+                .withEqualsToken(formatToken(equalsToken, 0, 1, 0, 0))
                 .withRhsExpression(rhsExpression)
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
