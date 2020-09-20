@@ -513,7 +513,7 @@ class FormatterUtils {
         if (parent == null) {
             parent = node;
         }
-        if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+        if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION || parent.kind() == SyntaxKind.WHILE_STATEMENT) {
             return new Indentation(parent, true);
         } else if (parent.parent() != null) {
             return getIfElseParent(parent);

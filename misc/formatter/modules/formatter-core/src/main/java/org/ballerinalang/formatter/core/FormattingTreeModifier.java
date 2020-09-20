@@ -2006,11 +2006,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(continueStatementNode, lineRange)) {
             return continueStatementNode;
         }
+        int startColumn = getStartColumn(continueStatementNode, true);
         Token continueToken = getToken(continueStatementNode.continueToken());
         Token semicolonToken = getToken(continueStatementNode.semicolonToken());
         return continueStatementNode.modify()
-                .withContinueToken(formatToken(continueToken, 0, 0, 0, 0))
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withContinueToken(formatToken(continueToken, startColumn, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
