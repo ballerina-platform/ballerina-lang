@@ -96,6 +96,7 @@ class FormatterUtils {
                 parentKind == SyntaxKind.WHILE_STATEMENT ||
                 parentKind == SyntaxKind.FORK_STATEMENT ||
                 parentKind == SyntaxKind.DO_STATEMENT ||
+                parentKind == SyntaxKind.ENUM_DECLARATION ||
                 parentKind == SyntaxKind.NAMED_WORKER_DECLARATION ||
                 parentKind == SyntaxKind.LOCK_STATEMENT ||
                 parentKind == SyntaxKind.CONST_DECLARATION ||
@@ -211,6 +212,7 @@ class FormatterUtils {
                     parentKind == SyntaxKind.FUNCTION_BODY_BLOCK ||
                     parentKind == SyntaxKind.LIST_CONSTRUCTOR ||
                     parentKind == SyntaxKind.MATCH_STATEMENT ||
+                    parentKind == SyntaxKind.ENUM_DECLARATION ||
                     parentKind == SyntaxKind.TYPE_DEFINITION ||
                     parentKind == SyntaxKind.METHOD_DECLARATION ||
                     parentKind == SyntaxKind.MAPPING_CONSTRUCTOR ||

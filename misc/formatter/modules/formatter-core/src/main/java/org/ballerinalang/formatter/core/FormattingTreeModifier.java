@@ -344,13 +344,22 @@ public class FormattingTreeModifier extends TreeModifier {
         if (identifier.parent() != null && identifier.parent().kind() == SyntaxKind.SPECIFIC_FIELD) {
             addSpaces = true;
         }
+        int leadingNewLines = 0;
+        if (identifier.parent() != null && identifier.parent().kind() == SyntaxKind.ENUM_MEMBER) {
+            EnumDeclarationNode grandparent = (EnumDeclarationNode) identifier.parent().parent();
+            if (!grandparent.enumMemberList().get(0).equals(identifier.parent())) {
+                leadingNewLines = 1;
+            }
+            addSpaces = true;
+        }
         int trailingSpaces = 0;
         if (identifier.parent() != null && identifier.parent().kind() == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) {
             trailingSpaces = 1;
         }
         int startColumn = getStartColumn(identifier, addSpaces);
         Token identifierToken = getToken(identifier);
-        return (IdentifierToken) formatToken(identifierToken, addSpaces ? startColumn : 0, trailingSpaces, 0, 0);
+        return (IdentifierToken) formatToken(identifierToken, addSpaces ? startColumn : 0, trailingSpaces,
+                leadingNewLines, 0);
     }
 
     @Override
@@ -3355,6 +3364,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(enumDeclarationNode, lineRange)) {
             return enumDeclarationNode;
         }
+        int startColumn = getStartColumn(enumDeclarationNode, false);
         MetadataNode metadata = this.modifyNode(enumDeclarationNode.metadata().orElse(null));
         Token qualifier = getToken(enumDeclarationNode.qualifier());
         Token enumKeywordToken = getToken(enumDeclarationNode.enumKeywordToken());
@@ -3366,13 +3376,17 @@ public class FormattingTreeModifier extends TreeModifier {
             enumDeclarationNode = enumDeclarationNode.modify()
                     .withMetadata(metadata).apply();
         }
+        if (metadata != null) {
+            enumDeclarationNode = enumDeclarationNode.modify()
+                    .withMetadata(metadata).apply();
+        }
         return enumDeclarationNode.modify()
-                .withQualifier(formatToken(qualifier, 1, 1, 0, 0))
+                .withQualifier(formatToken(qualifier, 0, 1, 0, 0))
                 .withEnumKeywordToken(formatToken(enumKeywordToken, 0, 1, 0, 0))
                 .withIdentifier(identifier)
-                .withOpenBraceToken(formatToken(openBraceToken, 0, 0, 0, 0))
+                .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 1))
                 .withEnumMemberList(enumMemberList)
-                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, 0))
+                .withCloseBraceToken(formatToken(closeBraceToken, startColumn, 0, 1, 2))
                 .apply();
     }
 
@@ -3389,10 +3403,16 @@ public class FormattingTreeModifier extends TreeModifier {
             enumMemberNode = enumMemberNode.modify()
                     .withMetadata(metadata).apply();
         }
+        if (equalToken != null) {
+            enumMemberNode = enumMemberNode.modify()
+                    .withEqualToken(formatToken(equalToken, 1, 1, 0, 0)).apply();
+        }
+        if (constExprNode != null) {
+            enumMemberNode = enumMemberNode.modify()
+                    .withConstExprNode(constExprNode).apply();
+        }
         return enumMemberNode.modify()
-                .withEqualToken(formatToken(equalToken, 1, 1, 0, 0))
                 .withIdentifier(identifier)
-                .withConstExprNode(constExprNode)
                 .apply();
     }
 
