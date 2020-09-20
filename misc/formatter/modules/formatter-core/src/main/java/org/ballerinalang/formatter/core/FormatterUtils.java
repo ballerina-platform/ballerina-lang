@@ -217,7 +217,9 @@ class FormatterUtils {
                     parentKind == SyntaxKind.CLASS_DEFINITION) {
                 indentation += formattingOptions.getTabSize();
                 Node grandParent = node.parent().parent();
-                if (grandParent != null && grandParent.kind() == SyntaxKind.DO_STATEMENT) {
+                if (grandParent != null && (grandParent.kind() == SyntaxKind.DO_STATEMENT ||
+                        grandParent.kind() == SyntaxKind.ELSE_BLOCK ||
+                        grandParent.kind() == SyntaxKind.IF_ELSE_STATEMENT)) {
                     indentation -= formattingOptions.getTabSize();
                 }
             }

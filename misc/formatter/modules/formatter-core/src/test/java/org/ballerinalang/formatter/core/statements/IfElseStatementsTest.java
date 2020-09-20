@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,7 +45,7 @@ public class IfElseStatementsTest extends FormatterTest {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList("if_else_statement_1.bal", "if_else_statement_2.bal", "if_else_statement_3.bal");
+        return Collections.singletonList("if_else_statement_2.bal");
     }
 
     @Override
