@@ -39,7 +39,7 @@ class Baz {
     string x;
     Qux q;
 
-    function init() {
+    isolated function init() {
         self.x = "string value";
         self.q = new;
     }

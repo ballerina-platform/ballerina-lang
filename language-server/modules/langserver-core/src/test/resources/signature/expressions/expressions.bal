@@ -193,10 +193,13 @@ public function expressions() returns error? {
     int|error e1 = trap fooErr(1, false);
 
     // -- expression, query-expr
-    int[] intArray = [1, 2, 3, 4, 5];
-    stream<int> numberStream = intArray.toStream();
-    //int[]|error integers = from var num in getIterableObject(numberStream.iterator())
-    //                 select <int>num;
+    // query-expr := query-pipeline select-clause
+    // query-pipeline := from-clause intermediate-clause*
+    // intermediate-clause := from-clause | where-clause | let-clause
+    Child[] children = [];
+    Child[] filtered1 = from var child in fooObjA(1, false) select new();
+    Child[] filtered2 = from var child in children where fooB(1, false) select new();
+    Child[] filtered3 = from var child in children let int newAge = foo(1, false) select new();
 
     // -- expression, xml-navigate-expr
 
@@ -216,6 +219,14 @@ service negativeTemplateURI on ep {
 # + return - an integer
 function foo(float a, boolean b) returns int {
     return 1;
+}
+
+# Function Foo
+# + a - a float
+# + b - b bool
+# + return - a list of children
+function fooObjA(float a, boolean b) returns Child[] {
+    return [];
 }
 
 # Function Foo or Error
@@ -285,7 +296,7 @@ public class Child {
     public function foo(float a, boolean b) {
 
     }
-};
+}
 
 public client class Stub {
 
@@ -318,7 +329,7 @@ public client class Stub {
     public function bar2(float a, boolean b) returns Annot2? {
         return {foo: new Child()};
     }
-};
+}
 
 public type Annot2 record {
     Child foo;
@@ -376,6 +387,6 @@ public class MockListener {
     public function __immediateStop() returns error? {
         return error("");
     }
-};
+}
 
 listener MockListener ep = new MockListener();

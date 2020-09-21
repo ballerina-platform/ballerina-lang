@@ -623,6 +623,7 @@ public class OpenApiConverterUtils {
 
         try {
             compiler.setOutStream(new EmptyPrintStream());
+            compiler.setErrorStream(new EmptyPrintStream());
         } catch (UnsupportedEncodingException e) {
             // Ignore the exception as not setting OutStream won't break the functionality.
         }

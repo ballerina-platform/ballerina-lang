@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.jvm.IdentifierEncoder;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -48,10 +49,15 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FPLoad;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.AsyncCall;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
@@ -180,11 +186,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FPLoad;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
 
 /**
  * BIR function to JVM byte code generation class.
@@ -1491,7 +1492,8 @@ public class JvmMethodGen {
             mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
         } else {
             String jvmClass;
-            String lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + funcName;
+            String encodedFuncName = IdentifierEncoder.encodeIdentifier(funcName);
+            String lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + encodedFuncName;
             BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
             String methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
             if (functionWrapper != null) {
@@ -1517,7 +1519,7 @@ public class JvmMethodGen {
                         .cleanupPathSeparators(balFileName));
             }
 
-            mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, methodDesc, false);
+            mv.visitMethodInsn(INVOKESTATIC, jvmClass, encodedFuncName, methodDesc, false);
         }
 
         if (!isVirtual) {
@@ -1576,7 +1578,7 @@ public class JvmMethodGen {
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
 
-        mv.visitLdcInsn(JvmCodeGenUtil.cleanupObjectTypeName(ins.name.value));
+        mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(ins.name.value));
         int objectArrayLength = paramTypes.size() - 1;
         if (!isBuiltinModule) {
             mv.visitIntInsn(BIPUSH, objectArrayLength * 2);

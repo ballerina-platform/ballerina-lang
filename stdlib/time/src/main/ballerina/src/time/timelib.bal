@@ -51,7 +51,8 @@ public type Time record {|
 # + return - The ISO 8601-formatted string of the given time
 public function toString(Time time) returns string = @java:Method {
     name: "toString",
-    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods",
+    paramTypes: ["org.ballerinalang.jvm.values.MapValue"]
 } external;
 
 # Returns the formatted string representation of the given time.
