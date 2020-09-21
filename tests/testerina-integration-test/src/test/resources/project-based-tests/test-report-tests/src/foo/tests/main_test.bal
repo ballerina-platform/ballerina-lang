@@ -14,14 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/test;
 
 # Test function
 
 @test:Config {}
 function testMain() {
-    io:println("I'm calling the main function in source file!");
     main();
     test:assertTrue(false, msg = "Failed!");
 }
@@ -30,7 +28,6 @@ function testMain() {
     dependsOn: ["testMain"]
 }
 function testFunction() {
-    io:println("I'm in test function!");
     test:assertTrue(true, msg = "Failed!");
 }
 

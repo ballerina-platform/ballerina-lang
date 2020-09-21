@@ -62,7 +62,7 @@ public class DiagnosticComparator implements Comparator<Diagnostic> {
         }
 
         // Compare column number
-        int columnComparison = l1.textRange().startOffset() - l2.textRange().startOffset();
+        int columnComparison = lineRange1.startLine().offset() - lineRange2.startLine().offset();
         if (columnComparison != 0) {
             return columnComparison;
         }

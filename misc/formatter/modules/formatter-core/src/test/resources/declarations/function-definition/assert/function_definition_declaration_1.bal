@@ -5,4 +5,3 @@ function add(int a, int b) returns int {
 public function foo() {
     int result = add(5, 6);
 }
-

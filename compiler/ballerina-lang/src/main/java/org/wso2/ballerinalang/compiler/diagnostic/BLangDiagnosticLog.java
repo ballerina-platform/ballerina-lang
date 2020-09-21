@@ -74,7 +74,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      */
     public void error(DiagnosticPos pos, DiagnosticCode code, Object... args) {
         String msg = formatMessage(ERROR_PREFIX, code, args);
-        reportDiagnostic(pos, msg, DiagnosticSeverity.ERROR);
+        reportDiagnostic(code, pos, msg, DiagnosticSeverity.ERROR);
     }
 
     /**
@@ -86,7 +86,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      */
     public void warning(DiagnosticPos pos, DiagnosticCode code, Object... args) {
         String msg = formatMessage(WARNING_PREFIX, code, args);
-        reportDiagnostic(pos, msg, DiagnosticSeverity.WARNING);
+        reportDiagnostic(code, pos, msg, DiagnosticSeverity.WARNING);
     }
 
     /**
@@ -98,7 +98,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      */
     public void note(DiagnosticPos pos, DiagnosticCode code, Object... args) {
         String msg = formatMessage(NOTE_PREFIX, code, args);
-        reportDiagnostic(pos, msg, DiagnosticSeverity.INFO);
+        reportDiagnostic(code, pos, msg, DiagnosticSeverity.INFO);
     }
 
     /**
@@ -157,14 +157,14 @@ public class BLangDiagnosticLog implements DiagnosticLog {
                 break;
         }
 
-        reportDiagnostic((DiagnosticPos) pos, message.toString(), severity);
+        reportDiagnostic(null, (DiagnosticPos) pos, message.toString(), severity);
     }
 
     /**
      * Report a diagnostic for a given package.
      * 
      * @param pkgId Package ID of the diagnostic associated with
-     * @param diagnostic
+     * @param diagnostic the diagnostic to be logged
      */
     public void logDiagnostic(PackageID pkgId, Diagnostic diagnostic) {
         if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
@@ -181,7 +181,8 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         return MessageFormat.format(msgKey, args);
     }
 
-    private void reportDiagnostic(DiagnosticPos pos, String msg, DiagnosticSeverity severity) {
+    private void reportDiagnostic(DiagnosticCode diagnosticCode, DiagnosticPos pos, String msg,
+                                  DiagnosticSeverity severity) {
         if (severity == DiagnosticSeverity.ERROR) {
             this.errorCount++;
         }
@@ -195,7 +196,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
 
         BLangDiagnosticLocation diagnosticLocation =
                 new BLangDiagnosticLocation(pos.getSource().cUnitName, pos.sLine, pos.eLine, pos.sCol, pos.eCol);
-        BLangDiagnostic diagnostic = new BLangDiagnostic(diagnosticLocation, msg, diagInfo);
+        BLangDiagnostic diagnostic = new BLangDiagnostic(diagnosticLocation, msg, diagInfo, diagnosticCode);
         storeDiagnosticInPackage(pos.src.pkgID, diagnostic);
 
     }
