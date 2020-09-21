@@ -218,7 +218,7 @@ class FormatUtil {
                 .resolve(compilationUnit.getPosition().getSource().getPackageName())
                 .resolve(compilationUnit.getPosition().getSource().getCompilationUnitName()).toString();
 
-        String originalSource = new String(Files.readAllBytes(Paths.get(fileName)),StandardCharsets.UTF_8);
+        String originalSource = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
         // Format and get the formatted source.
         String formattedSource = Formatter.format(originalSource);
 
