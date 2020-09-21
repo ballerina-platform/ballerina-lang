@@ -6,4 +6,3 @@ service hello on new http:Listener(9090) {
         check caller -> respond("Hello");
     }
 }
-

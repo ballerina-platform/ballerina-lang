@@ -258,7 +258,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean failureHandled;
     private boolean matchClauseReturns;
     private boolean lastStatement;
-    private boolean hasLastPattern = false;
+    private boolean hasLastPatternInClause = false;
     private boolean withinLockBlock;
     private SymbolTable symTable;
     private Types types;
@@ -794,21 +794,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         matchExprType = matchStatement.expr.type;
 
-        boolean matchStmtReturns = false;
         this.matchClauseReturns = false;
+        this.hasLastPatternInClause = false;
+        boolean containsLastPatternInStatement = false;
+        boolean allClausesReturns = true;
         for (BLangMatchClause matchClause : matchStatement.matchClauses) {
             analyzeNode(matchClause, env);
-            matchStmtReturns = this.matchClauseReturns && matchClause.matchGuard == null && hasLastPattern;
+            allClausesReturns = allClausesReturns && this.matchClauseReturns;
+            containsLastPatternInStatement =
+                    containsLastPatternInStatement || (matchClause.matchGuard == null && this.hasLastPatternInClause);
         }
-        this.statementReturns = matchStmtReturns;
-        hasLastPattern = false;
+        this.statementReturns = allClausesReturns && containsLastPatternInStatement;
         analyzeOnFailClause(matchStatement.onFailClause);
     }
 
     @Override
     public void visit(BLangMatchClause matchClause) {
         for (BLangMatchPattern matchPattern : matchClause.matchPatterns) {
-            if (hasLastPattern && matchClause.matchGuard == null) {
+            if (this.hasLastPatternInClause && matchClause.matchGuard == null) {
                 dlog.error(matchPattern.pos, DiagnosticCode.MATCH_STMT_PATTERN_UNREACHABLE);
             }
             if (matchPattern.type == symTable.noType) {
@@ -817,7 +820,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             this.isJSONContext = types.isJSONContext(matchExprType);
             analyzeNode(matchPattern, env);
-            matchPattern.isLastPattern = hasLastPattern;
+            matchPattern.isLastPattern = this.hasLastPatternInClause;
         }
 
         analyzeNode(matchClause.blockStmt, env);
@@ -831,20 +834,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
-        hasLastPattern = wildCardMatchPattern.matchesAll = types.isAssignable(wildCardMatchPattern.matchExpr.type,
-                symTable.anyType);
+        this.hasLastPatternInClause = wildCardMatchPattern.matchesAll =
+                types.isAssignable(wildCardMatchPattern.matchExpr.type, symTable.anyType);
     }
 
     @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         BLangBindingPattern bindingPattern = varBindingPattern.getBindingPattern();
         analyzeNode(bindingPattern, env);
-        hasLastPattern = hasLastPattern && !varBindingPattern.matchGuardIsAvailable;
+        this.hasLastPatternInClause = this.hasLastPatternInClause && !varBindingPattern.matchGuardIsAvailable;
     }
 
     @Override
     public void visit(BLangCaptureBindingPattern captureBindingPattern) {
-        hasLastPattern = true;
+        this.hasLastPatternInClause = true;
     }
 
     @Override

@@ -9,4 +9,3 @@ function foo() {
         sum = sum + i;
     }
 }
-
