@@ -117,10 +117,11 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         try {
             Position diagnosticPosition;
             if (endingPosition.getCharacter() - startingPosition.getCharacter() > 1) {
-                diagnosticPosition = new Position(startingPosition.getLine(),
+                diagnosticPosition = new Position(startingPosition.getLine() - 1,
                         (startingPosition.getCharacter() + endingPosition.getCharacter()) / 2);
             } else {
-                diagnosticPosition = startingPosition;
+                diagnosticPosition = new Position(startingPosition.getLine() - 1,
+                        startingPosition.getCharacter() - 1);
             }
             SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, diagnosticPosition);
             BType symbolAtCursorType = refAtCursor.getSymbol().type;
