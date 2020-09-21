@@ -177,9 +177,9 @@ public class CodeActionUtil {
             LineRange lineRange = location.lineRange();
             TextRange textRange = location.textRange();
             int startLine = lineRange.startLine().line() - 1; // LSP diagnostics range is 0 based
-            int startChar = textRange.startOffset() - 1;
+            int startChar = lineRange.startLine().offset() - 1;
             int endLine = lineRange.endLine().line() - 1;
-            int endChar = textRange.endOffset() - 1;
+            int endChar = lineRange.endLine().offset() - 1;
 
             if (endLine <= 0) {
                 endLine = startLine;
