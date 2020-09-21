@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.diagnostic;
 
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
@@ -113,11 +112,10 @@ public class DiagnosticsHelper {
             diagnosticsMap.putIfAbsent(fileURI, new ArrayList<>());
 
             LineRange lineRange = location.lineRange();
-            TextRange textRange = location.textRange();
             int startLine = lineRange.startLine().line() - 1; // LSP diagnostics range is 0 based
-            int startChar = textRange.startOffset() - 1;
+            int startChar = lineRange.startLine().offset() - 1;
             int endLine = lineRange.endLine().line() - 1;
-            int endChar = textRange.endOffset() - 1;
+            int endChar = lineRange.endLine().offset() - 1;
 
             endLine = (endLine <= 0) ? startLine : endLine;
             endChar = (endChar <= 0) ? startChar + 1 : endChar;
