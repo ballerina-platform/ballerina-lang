@@ -122,6 +122,7 @@ class FormatterUtils {
                     parentKind == SyntaxKind.ASYNC_SEND_ACTION ||
                     parentKind == SyntaxKind.SYNC_SEND_ACTION ||
                     parentKind == SyntaxKind.RECEIVE_ACTION ||
+                    parentKind == SyntaxKind.MAPPING_BINDING_PATTERN ||
                     parentKind == SyntaxKind.FLUSH_ACTION ||
                     parentKind == SyntaxKind.RETURN_STATEMENT ||
                     parentKind == SyntaxKind.REMOTE_METHOD_CALL_ACTION ||
@@ -137,6 +138,10 @@ class FormatterUtils {
                 }
                 if (parentKind == SyntaxKind.ASYNC_SEND_ACTION && ((AsyncSendActionNode) parent).expression() == node) {
                     return getParent(parent.parent(), syntaxKind);
+                }
+                if (parentKind == SyntaxKind.MAPPING_BINDING_PATTERN && grandParent != null &&
+                        grandParent.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
+                    return grandParent;
                 }
                 return null;
             }
@@ -178,6 +183,12 @@ class FormatterUtils {
         }
         if (parentKind == SyntaxKind.REQUIRED_PARAM || parentKind == SyntaxKind.TYPE_TEST_EXPRESSION) {
             return null;
+        }
+        if (parentKind == SyntaxKind.TUPLE_TYPE_DESC) {
+            return null;
+        }
+        if (parentKind == SyntaxKind.LET_VAR_DECL) {
+            return parent;
         }
         if (parentKind == SyntaxKind.OBJECT_TYPE_DESC) {
             if (grandParent != null && grandParent.kind() == SyntaxKind.RETURN_TYPE_DESCRIPTOR) {

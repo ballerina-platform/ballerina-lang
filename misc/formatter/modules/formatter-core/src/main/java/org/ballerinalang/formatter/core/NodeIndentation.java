@@ -114,6 +114,14 @@ class NodeIndentation {
         if (parent != null && parent.kind() == SyntaxKind.FUNCTION_CALL) {
             addSpaces = false;
         }
+        if (parent != null && parent.kind() == SyntaxKind.TYPED_BINDING_PATTERN && parent.parent() != null &&
+                parent.parent().kind() == SyntaxKind.LET_VAR_DECL) {
+            addSpaces = false;
+        }
+        if (parent != null && parent.kind() == SyntaxKind.FIELD_BINDING_PATTERN && parent.parent() != null &&
+                parent.parent().kind() == SyntaxKind.MAPPING_BINDING_PATTERN) {
+            addSpaces = true;
+        }
         if (parent != null && grandParent != null && parent.kind() == SyntaxKind.INTERSECTION_TYPE_DESC &&
                 grandParent.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
             addSpaces = true;
