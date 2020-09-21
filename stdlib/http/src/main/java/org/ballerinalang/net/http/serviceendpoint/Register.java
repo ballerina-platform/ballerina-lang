@@ -18,11 +18,11 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -38,7 +38,7 @@ import org.ballerinalang.net.http.websocket.server.WebSocketServicesRegistry;
  * @since 0.966
  */
 public class Register extends AbstractHttpNativeFunction {
-    public static Object register(ObjectValue serviceEndpoint, ObjectValue service,
+    public static Object register(BObject serviceEndpoint, BObject service,
                                   Object annotationData) {
 
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);

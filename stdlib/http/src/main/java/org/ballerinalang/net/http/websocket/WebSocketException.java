@@ -18,13 +18,16 @@
 
 package org.ballerinalang.net.http.websocket;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
 
 /**
  * Exceptions that could occur in WebSocket.
@@ -34,28 +37,28 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 public class WebSocketException extends ErrorValue {
     private final String message;
 
-    public WebSocketException(Throwable ex) {
+    public WebSocketException(Throwable ex, String typeIdName) {
         this(WebSocketConstants.ErrorCode.WsGenericError.errorCode().substring(2) + ":" +
-                WebSocketUtil.getErrorMessage(ex));
+                     WebSocketUtil.getErrorMessage(ex), typeIdName);
     }
 
-    public WebSocketException(String message) {
-        this(message, new MapValueImpl<>(BTypes.typeErrorDetail));
-       }
-
-    public WebSocketException(String message, ErrorValue cause) {
-        this(message, cause, new MapValueImpl<>(BTypes.typeErrorDetail));
+    public WebSocketException(String message, String typeIdName) {
+        this(message, BValueCreator.createMapValue(BTypes.typeErrorDetail), typeIdName);
     }
 
-    public WebSocketException(String message, MapValueImpl<Object, Object> details) {
+    public WebSocketException(String message, BError cause, String typeIdName) {
+        this(message, cause, BValueCreator.createMapValue(BTypes.typeErrorDetail), typeIdName);
+    }
+
+    public WebSocketException(String message, BMap<BString, Object> details, String typeIdName) {
         super(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker.getType(details)),
-                StringUtils.fromString(message), null, details);
+              BStringUtils.fromString(message), null, details, typeIdName, WebSocketConstants.PROTOCOL_HTTP_PKG_ID);
         this.message = message;
     }
 
-    public WebSocketException(String message, ErrorValue cause, MapValueImpl<Object, Object> details) {
+    public WebSocketException(String message, BError cause, BMap<BString, Object> details, String typeIdName) {
         super(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker.getType(details)),
-                StringUtils.fromString(message), cause, details);
+              BStringUtils.fromString(message), cause, details, typeIdName, WebSocketConstants.PROTOCOL_HTTP_PKG_ID);
         this.message = message;
     }
 

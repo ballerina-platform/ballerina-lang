@@ -3,4 +3,3 @@ public function foo() {
     int[] intArray = [1, 3, 5, 6];
     anydata dataArray = intArray;
 }
-

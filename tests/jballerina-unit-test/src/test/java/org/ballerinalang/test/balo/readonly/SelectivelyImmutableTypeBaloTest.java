@@ -33,6 +33,7 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 2.0.0
  */
+@Test(groups = { "brokenOnOldParser" })
 public class SelectivelyImmutableTypeBaloTest {
 
     private CompileResult result;
@@ -62,10 +63,10 @@ public class SelectivelyImmutableTypeBaloTest {
         validateError(result, index++, "incompatible types: expected 'map<(json & readonly)> & readonly', " +
                               "found 'map<json>'", 23, 31);
         validateError(result, index++, "incompatible types: expected '(testorg/selectively_immutable:1.0.0:Details & " +
-                              "readonly)', found 'testorg/selectively_immutable:1.0.0:Details'", 31, 18);
+                "readonly)', found 'testorg/selectively_immutable:1.0.0:Details'", 31, 18);
         validateError(result, index++,
-                      "incompatible types: expected 'testorg/selectively_immutable:1.0.0:(" +
-                              "testorg/selectively_immutable:1.0.0:Student & readonly)', " +
+                "incompatible types: expected 'testorg/selectively_immutable:1.0.0:(" +
+                        "testorg/selectively_immutable:1.0.0:Student & readonly)', " +
                               "found 'testorg/selectively_immutable:1.0.0:Student'", 43, 29);
         validateError(result, index++, "incompatible types: expected '(A|B|(any & readonly))', found 'Obj'", 57, 26);
 

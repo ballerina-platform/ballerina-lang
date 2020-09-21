@@ -349,7 +349,7 @@ const string HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
 const string UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
 
 // code generation related constants.
-const string MODULE_INIT_CLASS_NAME = "___init";
+const string MODULE_INIT_CLASS_NAME = "$_init";
 const string CURRENT_MODULE_INIT = "$currentModuleInit";
 const string MODULE_INIT = "$moduleInit";
 const string MODULE_START = "$moduleStart";

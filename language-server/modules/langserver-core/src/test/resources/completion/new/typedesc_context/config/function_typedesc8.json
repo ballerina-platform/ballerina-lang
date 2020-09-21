@@ -467,17 +467,17 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap3",
-      "kind": "Unit",
-      "detail": "Map",
-      "insertText": "TestMap3",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "stream",
       "kind": "Unit",
       "detail": "Stream",
       "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "Unit",
+      "detail": "Map",
+      "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -530,13 +530,6 @@
       "kind": "Struct",
       "detail": "Record",
       "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "FuncType1",
-      "kind": "Unit",
-      "detail": "Other",
-      "insertText": "FuncType1",
       "insertTextFormat": "Snippet"
     },
     {

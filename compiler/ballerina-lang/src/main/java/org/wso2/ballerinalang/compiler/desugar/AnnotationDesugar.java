@@ -16,6 +16,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
@@ -767,7 +768,8 @@ public class AnnotationDesugar {
 
         BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexAccessNode.pos = targetPos;
-        indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(targetPos, symTable.stringType, identifier);
+        indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(targetPos, symTable.stringType,
+                StringEscapeUtils.unescapeJava(identifier));
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(targetPos, mapVar.symbol);
         indexAccessNode.type = ((BMapType) mapVar.type).constraint;
         assignmentStmt.varRef = indexAccessNode;

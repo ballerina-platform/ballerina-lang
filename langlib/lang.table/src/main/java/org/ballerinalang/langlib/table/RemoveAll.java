@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
@@ -43,7 +44,9 @@ public class RemoveAll {
         try {
             tbl.clear();
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-            throw BallerinaErrors.createError(e.getMessage(), "Failed to remove all from table: " + e.getDetail());
+            throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
+                                            BStringUtils
+                                                    .fromString("Failed to remove all from table: " + e.getDetail()));
         }
     }
 }

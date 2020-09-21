@@ -29,11 +29,11 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.util.internal.StringUtil;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityHeaderHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
@@ -85,10 +85,10 @@ public class MultipartUtils {
      */
     public static Map<String, Object> createPrerequisiteMessages(String path, String topLevelContentType) {
         Map<String, Object> messageMap = new HashMap<>();
-        ObjectValue request = createRequestObject();
+        BObject request = createRequestObject();
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessageForMultiparts(path, HttpConstants.HTTP_METHOD_POST);
         HttpUtil.addCarbonMsg(request, cMsg);
-        ObjectValue entity = createEntityObject();
+        BObject entity = createEntityObject();
         MimeUtil.setContentType(createMediaTypeObject(), entity, topLevelContentType);
         messageMap.put(CARBON_MESSAGE, cMsg);
         messageMap.put(BALLERINA_REQUEST, request);
@@ -105,8 +105,8 @@ public class MultipartUtils {
      */
     public static HTTPTestRequest getCarbonMessageWithBodyParts(Map<String, Object> messageMap, ArrayValue bodyParts) {
         HTTPTestRequest cMsg = (HTTPTestRequest) messageMap.get(CARBON_MESSAGE);
-        ObjectValue request = (ObjectValue) messageMap.get(BALLERINA_REQUEST);
-        ObjectValue entity = (ObjectValue) messageMap.get(MULTIPART_ENTITY);
+        BObject request = (BObject) messageMap.get(BALLERINA_REQUEST);
+        BObject entity = (BObject) messageMap.get(MULTIPART_ENTITY);
         entity.addNativeData(BODY_PARTS, bodyParts);
         request.set(REQUEST_ENTITY_FIELD, entity);
         setCarbonMessageWithMultiparts(request, cMsg);
@@ -119,7 +119,7 @@ public class MultipartUtils {
      * @param request Ballerina request struct
      * @param cMsg    Represent carbon message
      */
-    private static void setCarbonMessageWithMultiparts(ObjectValue request, HTTPTestRequest cMsg) {
+    private static void setCarbonMessageWithMultiparts(BObject request, HTTPTestRequest cMsg) {
         prepareRequestWithMultiparts(cMsg, request);
         try {
             HttpPostRequestEncoder nettyEncoder = (HttpPostRequestEncoder) request.getNativeData(MULTIPART_ENCODER);
@@ -151,9 +151,9 @@ public class MultipartUtils {
      * @param outboundRequest Represent outbound carbon request
      * @param requestStruct   Ballerina request struct which contains multipart data
      */
-    private static void prepareRequestWithMultiparts(HttpCarbonMessage outboundRequest, ObjectValue requestStruct) {
-        ObjectValue entityStruct = requestStruct.get(REQUEST_ENTITY_FIELD) != null ?
-                (ObjectValue) requestStruct.get(REQUEST_ENTITY_FIELD) : null;
+    private static void prepareRequestWithMultiparts(HttpCarbonMessage outboundRequest, BObject requestStruct) {
+        BObject entityStruct = requestStruct.get(REQUEST_ENTITY_FIELD) != null ?
+                (BObject) requestStruct.get(REQUEST_ENTITY_FIELD) : null;
         if (entityStruct != null) {
             ArrayValue bodyParts = entityStruct.getNativeData(BODY_PARTS) != null ?
                     (ArrayValue) entityStruct.getNativeData(BODY_PARTS) : null;
@@ -164,7 +164,7 @@ public class MultipartUtils {
                     HttpPostRequestEncoder nettyEncoder =
                             new HttpPostRequestEncoder(dataFactory, outboundRequest.getNettyHttpRequest(), true);
                     for (int i = 0; i < bodyParts.size(); i++) {
-                        ObjectValue bodyPart = (ObjectValue) bodyParts.getRefValue(i);
+                        BObject bodyPart = (BObject) bodyParts.getRefValue(i);
                         encodeBodyPart(nettyEncoder, outboundRequest.getNettyHttpRequest(), bodyPart);
                     }
                     nettyEncoder.finalizeRequest();
@@ -228,7 +228,7 @@ public class MultipartUtils {
      * @throws HttpPostRequestEncoder.ErrorDataEncoderException when an error occurs while encoding
      */
     private static void encodeBodyPart(HttpPostRequestEncoder nettyEncoder, HttpRequest httpRequest,
-                                       ObjectValue bodyPart)
+                                       BObject bodyPart)
             throws HttpPostRequestEncoder.ErrorDataEncoderException {
         try {
             InterfaceHttpData encodedData;
@@ -294,13 +294,13 @@ public class MultipartUtils {
      * @param bodyPart Represent a ballerina body part
      * @return A string denoting the body part's name
      */
-    private static String getBodyPartName(ObjectValue bodyPart) {
+    private static String getBodyPartName(BObject bodyPart) {
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
         if (!contentDisposition.isEmpty()) {
-            MapValue paramMap = HeaderUtil.getParamMap(contentDisposition);
+            BMap paramMap = HeaderUtil.getParamMap(contentDisposition);
             if (paramMap != null) {
-                BString bodyPartName = paramMap.get(StringUtils.fromString(CONTENT_DISPOSITION_NAME)) != null ?
-                        (BString) paramMap.get(StringUtils.fromString(CONTENT_DISPOSITION_NAME)) : null;
+                BString bodyPartName = paramMap.get(BStringUtils.fromString(CONTENT_DISPOSITION_NAME)) != null ?
+                        (BString) paramMap.get(BStringUtils.fromString(CONTENT_DISPOSITION_NAME)) : null;
                 if (bodyPartName != null) {
                     return bodyPartName.toString();
                 } else {
@@ -318,7 +318,7 @@ public class MultipartUtils {
         return UUID.randomUUID().toString();
     }
 
-    public static ObjectValue getByteChannelStruct() {
-        return BallerinaValues.createObjectValue(PROTOCOL_IO_PKG_ID, READABLE_BYTE_CHANNEL_STRUCT);
+    public static BObject getByteChannelStruct() {
+        return BValueCreator.createObjectValue(PROTOCOL_IO_PKG_ID, READABLE_BYTE_CHANNEL_STRUCT);
     }
 }

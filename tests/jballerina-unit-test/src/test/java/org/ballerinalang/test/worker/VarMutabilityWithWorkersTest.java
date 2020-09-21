@@ -40,7 +40,8 @@ public class VarMutabilityWithWorkersTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/workers/var-mutability-with-workers.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 0, Arrays.asList(compileResult.getDiagnostics()).toString());
+        Assert.assertEquals(compileResult.getErrorCount(), 0,
+                            Arrays.asList(compileResult.getDiagnostics()).toString());
     }
 
     @Test(description = "Test variable mutability with basic types")

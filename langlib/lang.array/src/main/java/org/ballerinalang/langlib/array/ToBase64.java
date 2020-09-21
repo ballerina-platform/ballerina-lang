@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -51,14 +51,17 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 )
 public class ToBase64 {
 
+    private static final BString NOT_SUPPORT_DETAIL_ERROR = BStringUtils
+            .fromString("toBase64() is only supported on 'byte[]'");
+
     public static BString toBase64(Strand strand, ArrayValue arr) {
         BType arrType = arr.getType();
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
-            throw BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
-                                                                      OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                                              "toBase64() is only supported on 'byte[]'");
+            throw BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                                                    OPERATION_NOT_SUPPORTED_IDENTIFIER),
+                                            NOT_SUPPORT_DETAIL_ERROR);
         }
-        return StringUtils.fromString(Base64.getEncoder().encodeToString(arr.getBytes()));
+        return BStringUtils.fromString(Base64.getEncoder().encodeToString(arr.getBytes()));
     }
 }

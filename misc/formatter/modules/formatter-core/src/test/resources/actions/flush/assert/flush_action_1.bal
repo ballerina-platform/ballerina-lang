@@ -9,4 +9,3 @@ public function foo() {
         mw = <- w1;
     }
 }
-

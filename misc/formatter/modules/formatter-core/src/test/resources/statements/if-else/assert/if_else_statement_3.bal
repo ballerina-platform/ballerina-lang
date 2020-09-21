@@ -3,4 +3,3 @@ public function foo() {
         int x = 6;
     }
 }
-

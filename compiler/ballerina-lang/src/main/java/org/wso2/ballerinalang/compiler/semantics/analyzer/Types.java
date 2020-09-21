@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -65,7 +66,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -73,7 +76,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
@@ -121,7 +123,7 @@ public class Types {
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
-    private BLangDiagnosticLogHelper dlogHelper;
+    private BLangDiagnosticLog dlog;
     private Names names;
     private int finiteTypeCount = 0;
     private BUnionType expandedXMLBuiltinSubtypes;
@@ -140,7 +142,7 @@ public class Types {
 
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.dlogHelper = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
         this.expandedXMLBuiltinSubtypes = BUnionType.create(null,
                                                             symTable.xmlElementType, symTable.xmlCommentType,
@@ -194,7 +196,7 @@ public class Types {
         }
 
         // e.g. incompatible types: expected 'int', found 'string'
-        dlogHelper.error(pos, diagCode, expType, actualType);
+        dlog.error(pos, diagCode, expType, actualType);
         return symTable.semanticError;
     }
 
@@ -281,6 +283,73 @@ public class Types {
         }
 
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BLangConstPattern constMatchPattern) {
+        BLangExpression constPatternExpr = constMatchPattern.expr;
+        BType constMatchPatternExprType = constPatternExpr.type;
+
+        if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef constVarRef = (BLangSimpleVarRef) constPatternExpr;
+            if (constVarRef.symbol == null) {
+                return symTable.noType;
+            }
+            BType constVarRefSymbolType = constVarRef.symbol.type;
+            if (isAssignable(constVarRefSymbolType, matchExprType)) {
+                return constVarRefSymbolType;
+            }
+            return symTable.noType;
+        }
+
+        // After the above check, according to spec all other const-patterns should be literals.
+        BLangLiteral constPatternLiteral = (BLangLiteral) constPatternExpr;
+
+        if (containsAnyType(constMatchPatternExprType)) {
+            return matchExprType;
+        } else if (containsAnyType(matchExprType)) {
+            return constMatchPatternExprType;
+        }
+
+        // This should handle specially
+        if (matchExprType.tag == TypeTags.BYTE && constMatchPatternExprType.tag == TypeTags.INT) {
+            return matchExprType;
+        }
+
+        if (isAssignable(constMatchPatternExprType, matchExprType)) {
+            return constMatchPatternExprType;
+        }
+
+        if (matchExprType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) matchExprType).getMemberTypes()) {
+                if (memberType.tag == TypeTags.FINITE) {
+                    if (isAssignableToFiniteType(memberType, constPatternLiteral)) {
+                        return memberType;
+                    }
+                } else {
+                    if (isAssignable(constMatchPatternExprType, matchExprType)) {
+                        return constMatchPatternExprType;
+                    }
+                }
+            }
+        } else if (matchExprType.tag == TypeTags.FINITE) {
+            if (isAssignableToFiniteType(matchExprType, constPatternLiteral)) {
+                return matchExprType;
+            }
+        }
+        return symTable.noType;
+    }
+
+    public boolean containsAnyType(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return type.tag == TypeTags.ANY;
+        }
+
+        for (BType memberTypes : ((BUnionType) type).getMemberTypes()) {
+            if (memberTypes.tag == TypeTags.ANY) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isSubTypeOfMapping(BType type) {
@@ -913,6 +982,10 @@ public class Types {
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
                                              Set<TypePair> unresolvedTypes) {
+        if (hasIncompatibleIsolatedFlags(source, target)) {
+            return false;
+        }
+
         // For invokable types with typeParam parameters, we have to check whether the source param types are
         // covariant with the target param types.
         if (containsTypeParams(target)) {
@@ -1117,6 +1190,10 @@ public class Types {
 
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
                                               Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
+        if (hasIncompatibleIsolatedFlags(source, target)) {
+            return false;
+        }
+
         if (source.paramTypes.size() != target.paramTypes.size()) {
             return false;
         }
@@ -1142,6 +1219,10 @@ public class Types {
 
         // Source return type should be covariant with target return type
         return isAssignable(source.retType, target.retType, unresolvedTypes);
+    }
+
+    private boolean hasIncompatibleIsolatedFlags(BInvokableType source, BInvokableType target) {
+        return Symbols.isFlagOn(target.flags, Flags.ISOLATED) && !Symbols.isFlagOn(source.flags, Flags.ISOLATED);
     }
 
     public boolean isSameArrayType(BType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -1217,7 +1298,6 @@ public class Types {
             BField rhsField = rhsType.fields.get(lhsField.name.value);
             if (rhsField == null ||
                     !isInSameVisibilityRegion(lhsField.symbol, rhsField.symbol) ||
-                    hasIncompatibleReadOnlyFlags(lhsField.symbol.flags, rhsField.symbol.flags) ||
                     !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
@@ -1312,7 +1392,7 @@ public class Types {
                 varType = streamType.constraint;
                 if (streamType.error != null) {
                     BType actualType = BUnionType.create(null, varType, streamType.error);
-                    dlogHelper.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                    dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
                             varType, actualType);
                 }
                 break;
@@ -1326,14 +1406,14 @@ public class Types {
                     BType errorType = getErrorType(nextMethodReturnType);
                     if (errorType != null) {
                         BType actualType = BUnionType.create(null, valueType, errorType);
-                        dlogHelper.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                        dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
                                 valueType, actualType);
                     }
                     foreachNode.nillableResultType = nextMethodReturnType;
                     foreachNode.varType = valueType;
                     return;
                 }
-                dlogHelper.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 foreachNode.varType = symTable.semanticError;
@@ -1344,7 +1424,7 @@ public class Types {
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;
                 foreachNode.nillableResultType = symTable.semanticError;
-                dlogHelper.error(foreachNode.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                dlog.error(foreachNode.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
                 return;
         }
@@ -1416,7 +1496,7 @@ public class Types {
                     bLangInputClause.varType = ((BRecordType) bLangInputClause.resultType).fields.get("value").type;
                     return;
                 }
-                dlogHelper.error(bLangInputClause.collection.pos,
+                dlog.error(bLangInputClause.collection.pos,
                         DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
@@ -1428,7 +1508,7 @@ public class Types {
                 bLangInputClause.varType = symTable.semanticError;
                 bLangInputClause.resultType = symTable.semanticError;
                 bLangInputClause.nillableResultType = symTable.semanticError;
-                dlogHelper.error(bLangInputClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                dlog.error(bLangInputClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
                                  collectionType);
                 return;
         }
@@ -3189,7 +3269,7 @@ public class Types {
             }
         }
 
-        dlogHelper.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.type.toString());
+        dlog.error(function.returnTypeNode.pos, diagnosticCode, function.returnTypeNode.type.toString());
     }
 
     /**

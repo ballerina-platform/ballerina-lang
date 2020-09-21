@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.file.service;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.wso2.transport.localfilesystem.server.util.Constants;
 
 /**
@@ -31,13 +31,13 @@ public class DirectoryListenerConstants {
     public static final String MODULE_VERSION = "0.5.0";
 
     //Annotation
-    public static final BString ANNOTATION_PATH = StringUtils.fromString("path");
-    public static final BString ANNOTATION_DIRECTORY_RECURSIVE = StringUtils.fromString(
+    public static final BString ANNOTATION_PATH = BStringUtils.fromString("path");
+    public static final BString ANNOTATION_DIRECTORY_RECURSIVE = BStringUtils.fromString(
             Constants.DIRECTORY_WATCH_RECURSIVE);
 
     public static final String FILE_SYSTEM_EVENT = "FileEvent";
     public static final String FS_SERVER_CONNECTOR = "serverConnector";
-    public static final BString SERVICE_ENDPOINT_CONFIG = StringUtils.fromString("config");
+    public static final BString SERVICE_ENDPOINT_CONFIG = BStringUtils.fromString("config");
 
     public static final String EVENT_CREATE = Constants.EVENT_CREATE;
     public static final String EVENT_DELETE = Constants.EVENT_DELETE;

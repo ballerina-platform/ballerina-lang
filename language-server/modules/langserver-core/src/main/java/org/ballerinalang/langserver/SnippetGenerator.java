@@ -562,6 +562,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code isolated} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getIsolatedKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ISOLATED_KEYWORD, "isolated ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
      * Get Private Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -643,6 +653,18 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getErrorTypeDefinitionSnippet() {
         String snippet = "type ${1:ErrorName} error<${2:map<anydata>}>;";
+
+        return new SnippetBlock(ItemResolverConstants.ERROR_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get Error Type Descriptor Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getErrorTypeDescSnippet() {
+        String snippet = "error<${1:map<anydata>}>;";
 
         return new SnippetBlock(ItemResolverConstants.ERROR_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
@@ -1037,6 +1059,18 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code class}  Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getClassDefSnippet() {
+        String snippet = "class ${1:className} {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.CLASS, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
      * Get Error Constructor expression Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1044,6 +1078,17 @@ public class SnippetGenerator {
     public static SnippetBlock getErrorConstructorSnippet() {
         String snippet = "error(\"${1}\")";
         return new SnippetBlock("error constructor", snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get Object Constructor expression Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getObjectConstructorSnippet() {
+        String snippet = "object {" + CommonUtil.LINE_SEPARATOR + "\t" + CommonUtil.LINE_SEPARATOR + "};";
+        return new SnippetBlock("object constructor", snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }
 
@@ -1074,6 +1119,26 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getFinalKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.FINAL_KEYWORD, "final ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get {@code fail} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getFailKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.FAIL_KEYWORD, "fail ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get {@code remote} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRemoteKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.REMOTE_KEYWORD, "remote", ItemResolverConstants.KEYWORD_TYPE,
                 Kind.KEYWORD);
     }
 
@@ -1153,6 +1218,26 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get {@code class} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getClassKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.CLASS, "class ", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
+     * Get {@code distinct} Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getDistinctKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.DISTINCT, "distinct", ItemResolverConstants.KEYWORD_TYPE,
+                Kind.KEYWORD);
+    }
+
+    /**
      * Get Rollback Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1172,6 +1257,17 @@ public class SnippetGenerator {
         return new SnippetBlock(ItemResolverConstants.WHILE,
                 snippet,
                 ItemResolverConstants.STATEMENT_TYPE,
+                Kind.STATEMENT);
+    }
+
+    /**
+     * Get {@code do} Statement Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getDoStatementSnippet() {
+        String snippet = "do {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.DO, snippet, ItemResolverConstants.STATEMENT_TYPE,
                 Kind.STATEMENT);
     }
 
@@ -1208,6 +1304,19 @@ public class SnippetGenerator {
         String snippet = "join ${1:var} ${2:varName} in ${3:expr} on ${3:onExpr} equals ${3:equalsExpr}";
 
         return new SnippetBlock(ItemResolverConstants.JOIN_CLAUSE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                Kind.SNIPPET);
+    }
+
+    /**
+     * Get on fail clause Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getOnFailClauseSnippet() {
+        String snippet = "on fail ${1:var} ${2:varName} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+
+        return new SnippetBlock(ItemResolverConstants.ON_FAIL_CLAUSE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }
 

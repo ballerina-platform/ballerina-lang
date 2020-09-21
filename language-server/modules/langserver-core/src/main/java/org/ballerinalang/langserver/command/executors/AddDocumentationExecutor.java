@@ -75,7 +75,7 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
         BLangPackage bLangPackage;
         try {
             WorkspaceDocumentManager documentManager = ctx.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-            bLangPackage = LSModuleCompiler.getBLangPackage(ctx, documentManager, null, false, false, true);
+            bLangPackage = LSModuleCompiler.getBLangPackage(ctx, documentManager, false, false);
         } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }

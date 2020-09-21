@@ -32,6 +32,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -80,6 +81,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -92,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
@@ -101,6 +105,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -119,6 +126,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -146,7 +154,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
@@ -193,7 +200,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private TypeChecker typeChecker;
     private Types types;
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
     private TypeNarrower typeNarrower;
     private ConstantAnalyzer constantAnalyzer;
     private ConstantValueResolver constantValueResolver;
@@ -226,7 +233,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.constantAnalyzer = ConstantAnalyzer.getInstance(context);
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
@@ -1799,7 +1806,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorDestructure errorDeStmt) {
         BLangErrorVarRef varRef = errorDeStmt.varRef;
-        if (varRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
+        if (varRef.message == null) {
+            dlog.error(varRef.pos, DiagnosticCode.MISSING_REQUIRED_ARG_BINDING_PATTERN_ERROR_MESSAGE);
+        } else if (varRef.message.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
                 names.fromIdNode(((BLangSimpleVarRef) varRef.message).variableName) != Names.IGNORE) {
             setTypeOfVarRefInErrorBindingAssignment(varRef.message);
         } else {
@@ -2212,8 +2221,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     dlog.error(varRef.pos, DiagnosticCode.INVALID_ASSIGNMENT_DECLARATION_FINAL, Names.SERVICE);
                 } else if ((simpleVarRef.symbol.flags & Flags.LISTENER) == Flags.LISTENER) {
                     dlog.error(varRef.pos, DiagnosticCode.INVALID_ASSIGNMENT_DECLARATION_FINAL, LISTENER_NAME);
-                } else {
-                    dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
                 }
             } else if ((simpleVarRef.symbol.flags & Flags.CONSTANT) == Flags.CONSTANT) {
                 dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_CONSTANT);
@@ -2291,9 +2298,73 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangMatchStatement matchStatement) {
+        typeChecker.checkExpr(matchStatement.expr, env, symTable.noType);
+        for (BLangMatchClause matchClause : matchStatement.matchClauses) {
+            analyzeNode(matchClause, env);
+        }
+
+        if (matchStatement.onFailClause != null) {
+            this.analyzeNode(matchStatement.onFailClause, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatchClause matchClause) {
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(matchClause.blockStmt, env);
+
+        SymbolEnv finalBlockEnv = blockEnv;
+        matchClause.matchPatterns.forEach(matchPattern -> analyzeNode(matchPattern, finalBlockEnv));
+
+        if (matchClause.matchGuard != null) {
+            typeChecker.checkExpr(matchClause.matchGuard.expr, blockEnv);
+            blockEnv = typeNarrower.evaluateTruth(matchClause.matchGuard.expr, matchClause.blockStmt, blockEnv);
+        }
+        analyzeStmt(matchClause.blockStmt, blockEnv);
+    }
+
+    @Override
+    public void visit(BLangMatchGuard matchGuard) {
+        matchGuard.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
+        NodeKind patternKind = varBindingPattern.getBindingPattern().getKind();
+        BType matchExprType = varBindingPattern.matchExpr.type;
+
+        analyzeNode(varBindingPattern.getBindingPattern(), env);
+        switch (patternKind) {
+            case CAPTURE_BINDING_PATTERN:
+                varBindingPattern.type = matchExprType;
+                ((BLangCaptureBindingPattern) varBindingPattern.getBindingPattern()).symbol.type = matchExprType;
+                break;
+        }
+    }
+
+    @Override
+    public void visit(BLangConstPattern constMatchPattern) {
+        BLangExpression constPatternExpr = constMatchPattern.expr;
+        typeChecker.checkExpr(constPatternExpr, env);
+        constMatchPattern.type = types.resolvePatternTypeFromMatchExpr(constMatchPattern.matchExpr.type,
+                constMatchPattern);
+    }
+
+    @Override
+    public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
+    }
+
+    @Override
     public void visit(BLangMatchStaticBindingPatternClause patternClause) {
         checkStaticMatchPatternLiteralType(patternClause.literal);
         analyzeStmt(patternClause.body, this.env);
+    }
+
+    @Override
+    public void visit(BLangCaptureBindingPattern captureBindingPattern) {
+        captureBindingPattern.symbol = new BVarSymbol(0, new Name(captureBindingPattern.getIdentifier().getValue()),
+                env.enclPkg.packageID, symTable.anyType, env.scope.owner, captureBindingPattern.pos, SOURCE);
+        symbolEnter.defineSymbol(captureBindingPattern.pos, captureBindingPattern.symbol, env);
     }
 
     private BType checkStaticMatchPatternLiteralType(BLangExpression expression) {
@@ -2662,6 +2733,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             workerSendNode.type = symTable.semanticError;
         } else {
             workerSendNode.type = symbol.type;
+            workerSendNode.workerSymbol = symbol;
         }
 
         if (workerSendNode.isChannel) {
@@ -2968,7 +3040,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return;
             case ERROR_VARIABLE_REF:
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) expr;
-                setTypeOfVarRefForBindingPattern(errorVarRef.message);
+                if (errorVarRef.message != null) {
+                    setTypeOfVarRefForBindingPattern(errorVarRef.message);
+                }
                 if (errorVarRef.cause != null) {
                     setTypeOfVarRefForBindingPattern(errorVarRef.cause);
                     if (!types.isAssignable(symTable.errorOrNilType, errorVarRef.cause.type)) {
