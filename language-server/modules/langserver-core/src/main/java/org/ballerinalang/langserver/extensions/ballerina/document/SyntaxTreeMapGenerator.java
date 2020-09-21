@@ -20,6 +20,8 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.ChildNodeEntry;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
@@ -49,6 +51,22 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeJson.add(childNodeEntry.name(), apply(childNodeEntry.node().get()));
             }
         }
+        nodeJson.addProperty("source", node.toSourceCode());
+        nodeJson.addProperty("kind", prettifyKind(node.kind().toString()));
+
+        if (node.lineRange() != null) {
+            LineRange lineRange = node.lineRange();
+            LinePosition startLine = lineRange.startLine();
+            LinePosition endLine = lineRange.endLine();
+            JsonObject position = new JsonObject();
+            position.addProperty("startLine", startLine.line());
+            position.addProperty("startColumn", startLine.offset());
+            position.addProperty("endLine", endLine.line());
+            position.addProperty("endColumn", endLine.offset());
+
+            nodeJson.add("position", position);
+        }
+
         return nodeJson;
     }
 
