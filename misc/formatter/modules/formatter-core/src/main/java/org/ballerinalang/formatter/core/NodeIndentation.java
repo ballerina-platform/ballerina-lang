@@ -112,7 +112,11 @@ class NodeIndentation {
             }
         }
         if (parent != null && parent.kind() == SyntaxKind.FUNCTION_CALL) {
-            addSpaces = false;
+            if (grandParent != null && grandParent.kind() == SyntaxKind.CALL_STATEMENT) {
+                addSpaces = true;
+            } else {
+                addSpaces = false;
+            }
         }
         if (parent != null && parent.kind() == SyntaxKind.TYPED_BINDING_PATTERN && parent.parent() != null &&
                 parent.parent().kind() == SyntaxKind.LET_VAR_DECL) {
