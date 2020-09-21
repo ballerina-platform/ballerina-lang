@@ -250,8 +250,8 @@ import static org.ballerinalang.formatter.core.NodeIndentation.blockStatementNod
  */
 public class FormattingTreeModifier extends TreeModifier {
 
-    private FormattingOptions options;
-    private LineRange lineRange;
+    protected FormattingOptions options;
+    protected LineRange lineRange;
 
     FormattingTreeModifier(FormattingOptions options, LineRange lineRange) {
         this.options = options;

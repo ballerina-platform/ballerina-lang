@@ -100,9 +100,10 @@ public class Formatter {
     }
 
     private static SyntaxTree modifyTree(SyntaxTree syntaxTree, FormattingOptions options, LineRange range) {
-        FormattingTreeModifier treeModifier = new FormattingTreeModifier(options, range);
+        FormattingTreeModifier treeModifier = new NewFormattingTreeModifier(options, range);
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         try {
+            // FIXME: Why transform twice?
             SyntaxTree newSyntaxTree = syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
             return newSyntaxTree.modifyWith(treeModifier.transform((ModulePartNode) newSyntaxTree.rootNode()));
         } catch (Exception e) {

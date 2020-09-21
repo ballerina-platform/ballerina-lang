@@ -46,7 +46,7 @@ class FormatterUtils {
 
     }
 
-    private static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
+    public static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
 
     /**
      * Get the node position.
@@ -257,7 +257,7 @@ class FormatterUtils {
         return minutiaes;
     }
 
-    private static String getWhiteSpaces(int column, int newLines) {
+    static String getWhiteSpaces(int column, int newLines) {
         StringBuilder whiteSpaces = new StringBuilder();
         for (int i = 0; i <= (newLines - 1); i++) {
             whiteSpaces.append(NEWLINE_SYMBOL);
@@ -335,7 +335,7 @@ class FormatterUtils {
         return token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
     }
 
-    private static MinutiaeList preserveComments(MinutiaeList minutiaeList, int trailingNewLines) {
+    static MinutiaeList preserveComments(MinutiaeList minutiaeList, int trailingNewLines) {
         MinutiaeList minutiaes = AbstractNodeFactory.createEmptyMinutiaeList();
         if (minutiaeList.size() > 0) {
             int count = commentCount(minutiaeList);
