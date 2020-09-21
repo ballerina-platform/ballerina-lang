@@ -79,7 +79,6 @@ public class ReferencesUtil {
         context.put(DocumentServiceKeys.POSITION_KEY, pos);
         context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
         context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
-        System.out.println(position);
         Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
         List<BLangPackage> modules = ReferencesUtil.compileModules(context);
         SymbolReferencesModel referencesModel = findReferencesForCurrentCUnit(tokenAtCursor, modules, context);

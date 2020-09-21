@@ -57,9 +57,7 @@ public class TokensUtil {
         SyntaxTree syntaxTree = docManager.getTree(filePath.get());
         TextDocument textDocument = syntaxTree.textDocument();
 
-        System.out.println("textPositionFrom- Before");
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
-        System.out.println("textPositionFrom- After");
         Token tokenAtPosition =
                 ((ModulePartNode) syntaxTree.rootNode()).findToken(
                         txtPos);
