@@ -42,6 +42,7 @@ function testOnFailStatement() {
     string appendOnFailErrorResult = testAppendOnFailError();
     assertEquality("Before failure throw -> Error caught: custom error -> Execution continues...", appendOnFailErrorResult);
 
+    assertEquality(44, testLambdaFunctionWithOnFail());
     assertEquality(44, testArrowFunctionInsideOnFail());
 
     string testOnFailWithUnionRes = testOnFailWithUnion();

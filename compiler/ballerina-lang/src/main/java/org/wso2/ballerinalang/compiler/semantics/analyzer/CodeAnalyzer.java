@@ -301,6 +301,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void resetFunction() {
         this.resetStatementReturns();
+        this.resetErrorThrown();
     }
 
     private void resetStatementReturns() {
@@ -656,6 +657,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithinLambdaWrappingCheckStack.push(false);
         this.errorTypes.push(new LinkedHashSet<>());
         boolean failureHandled = this.failureHandled;
+        boolean currentStmtReturns = this.statementReturns;
         this.checkStatementExecutionValidity(retryNode);
         if (!this.failureHandled) {
             this.failureHandled = retryNode.onFailClause != null;
@@ -663,6 +665,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         retryNode.retrySpec.accept(this);
         retryNode.retryBody.accept(this);
         this.failureHandled = failureHandled;
+        this.statementReturns = currentStmtReturns;
         retryNode.retryBodyReturns = this.returnWithinLambdaWrappingCheckStack.peek();
         this.returnWithinLambdaWrappingCheckStack.pop();
         this.resetLastStatement();
@@ -763,7 +766,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.withinTransactionScope = prevTxMode;
         }
         boolean ifStmtReturns = this.statementReturns;
+        boolean currentErrorThrown = this.errorThrown;
         this.resetStatementReturns();
+        this.resetErrorThrown();
         if (ifStmt.elseStmt != null) {
             if (independentBlocks) {
                 commitRollbackAllowed = true;
@@ -774,6 +779,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 commitRollbackAllowed = false;
             }
             this.statementReturns = ifStmtReturns && this.statementReturns;
+            this.errorThrown = currentErrorThrown && this.errorThrown;
         }
         analyzeExpr(ifStmt.expr);
     }
@@ -809,6 +815,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeNode(patternClause.matchExpr, env);
         analyzeNode(patternClause.body, env);
         resetStatementReturns();
+        resetErrorThrown();
     }
 
     @Override
@@ -816,6 +823,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeNode(patternClause.matchExpr, env);
         analyzeNode(patternClause.body, env);
         resetStatementReturns();
+        resetErrorThrown();
     }
 
     private void analyzeMatchedPatterns(BLangMatch matchStmt, boolean staticLastPattern,
@@ -834,6 +842,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 analyzeNode(patternClause.body, env);
                 matchStmtReturns = matchStmtReturns && this.statementReturns;
                 this.resetStatementReturns();
+                this.resetErrorThrown();
             }
             this.statementReturns = matchStmtReturns;
         }
