@@ -249,6 +249,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean statementReturns;
     private boolean failureHandled;
     private boolean lastStatement;
+    private boolean errorThrown;
     private boolean withinLockBlock;
     private SymbolTable symTable;
     private Types types;
@@ -308,6 +309,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void resetLastStatement() {
         this.lastStatement = false;
+    }
+
+    private void resetErrorThrown() {
+        this.errorThrown = false;
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -693,6 +698,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (lastStatement) {
             this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
             this.resetLastStatement();
+        }
+        if (errorThrown) {
+            this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
+            this.resetErrorThrown();
         }
     }
 
@@ -1447,7 +1456,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFail failNode) {
-        this.lastStatement = true;
+        this.checkStatementExecutionValidity(failNode);
+        this.errorThrown = true;
         analyzeExpr(failNode.expr);
         if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
             // Check at module level.
@@ -2904,6 +2914,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangOnFailClause onFailClause) {
         this.resetLastStatement();
+        this.resetErrorThrown();
         this.returnWithinLambdaWrappingCheckStack.push(false);
         BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
         for (BType errorType : errorTypes.peek()) {

@@ -66,3 +66,22 @@ function testUnreachableInOnFail () returns string {
    str += "-> Execution continues...";
    return str;
 }
+
+function testNestedTrxWithLessOnFails () returns string {
+   string str = "";
+   transaction {
+     str += "-> Before error 1 is thrown";
+     check commit;
+      transaction {
+          str += " -> Before error 2 is thrown";
+          check commit;
+          fail ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
+      }
+      fail ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
+   }
+   on fail error e1 {
+       str += " -> Error caught !";
+   }
+   str += "-> Execution continues...";
+   return str;
+}

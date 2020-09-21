@@ -611,6 +611,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
+        retryTransaction.transaction = rewrite(retryTransaction.transaction, env);
         result = retryTransaction;
     }
 

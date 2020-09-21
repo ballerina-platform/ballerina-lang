@@ -46,10 +46,11 @@ public class TransactionOnFailTest {
 
     @Test(description = "Check not incompatible types and reachable statements.")
     public void testNegative1() {
-        Assert.assertEquals(negativeFile.getErrorCount(), 3);
+        Assert.assertEquals(negativeFile.getErrorCount(), 4);
         BAssertUtil.validateError(negativeFile, 0, "unreachable code", 16, 6);
         BAssertUtil.validateError(negativeFile, 1, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 32, 4);
         BAssertUtil.validateError(negativeFile, 2, "unreachable code", 64, 7);
+        BAssertUtil.validateError(negativeFile, 3, "unreachable code", 80, 7);
     }
 }

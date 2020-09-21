@@ -127,7 +127,6 @@ function testNestedDoWithLessOnFails () returns string {
           str += " -> Before error 2 is thrown";
           fail err2;
       }
-      fail err1;
    }
    on fail error e1 {
        str += " -> Error caught !";
