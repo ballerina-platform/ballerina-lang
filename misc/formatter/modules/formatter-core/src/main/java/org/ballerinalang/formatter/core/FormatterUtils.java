@@ -64,7 +64,8 @@ class FormatterUtils {
         int startOffset = startPos.offset();
         if (node.kind() == SyntaxKind.FUNCTION_DEFINITION || node.kind() == SyntaxKind.TYPE_DEFINITION ||
                 node.kind() == SyntaxKind.CONST_DECLARATION || node.kind() == SyntaxKind.OBJECT_TYPE_DESC ||
-                node.kind() == SyntaxKind.MATCH_STATEMENT || node.kind() == SyntaxKind.NAMED_WORKER_DECLARATION) {
+                node.kind() == SyntaxKind.MATCH_STATEMENT || node.kind() == SyntaxKind.NAMED_WORKER_DECLARATION ||
+                node.kind() == SyntaxKind.IF_ELSE_STATEMENT || node.kind() == SyntaxKind.ELSE_BLOCK) {
             startOffset = (startOffset / 4) * 4;
         }
         return new DiagnosticPos(null, startPos.line() + 1, endPos.line() + 1,
@@ -526,7 +527,8 @@ class FormatterUtils {
         if (parent == null) {
             parent = node;
         }
-        if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION || parent.kind() == SyntaxKind.WHILE_STATEMENT) {
+        if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION || parent.kind() == SyntaxKind.WHILE_STATEMENT ||
+                parent.kind() == SyntaxKind.IF_ELSE_STATEMENT) {
             return new Indentation(parent, true);
         } else if (parent.parent() != null) {
             return getIfElseParent(parent);
@@ -559,8 +561,12 @@ class FormatterUtils {
         if (parent.kind() == SyntaxKind.IF_ELSE_STATEMENT) {
             ArrayList nestedBlock = nestedIfBlock((NonTerminalNode) parent);
             if (!nestedBlock.isEmpty()) {
+                boolean addSpaces = false;
+                if (parent.parent() != null && parent.parent().kind() == SyntaxKind.BLOCK_STATEMENT) {
+                    addSpaces = true;
+                }
                 NonTerminalNode nestedIfParent = (NonTerminalNode) nestedBlock.get(0);
-                return new Indentation((nestedIfParent != null) ? nestedIfParent : parent, false);
+                return new Indentation((nestedIfParent != null) ? nestedIfParent : parent, addSpaces);
             }
             return new Indentation(parent, false);
         }
