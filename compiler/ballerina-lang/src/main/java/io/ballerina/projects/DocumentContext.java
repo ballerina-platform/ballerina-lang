@@ -33,12 +33,12 @@ import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.IOException;
@@ -113,7 +113,7 @@ class DocumentContext {
         }
 
         nodeCloner = NodeCloner.getInstance(compilerContext);
-        BLangDiagnosticLogHelper dlog = BLangDiagnosticLogHelper.getInstance(compilerContext);
+        BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
 
         SyntaxTree syntaxTree = syntaxTree();
         BDiagnosticSource diagnosticSource = new BDiagnosticSource(pkgID, name());
@@ -173,7 +173,7 @@ class DocumentContext {
 
     private void reportSyntaxDiagnostics(BDiagnosticSource diagnosticSource,
                                          SyntaxTree tree,
-                                         BLangDiagnosticLogHelper dlog) {
+                                         BLangDiagnosticLog dlog) {
         for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
             DiagnosticPos pos = getPosition(syntaxDiagnostic.location(), diagnosticSource);
 

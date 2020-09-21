@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
@@ -40,7 +41,6 @@ import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 
 import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
@@ -58,7 +58,7 @@ public class CompilerPhaseRunner {
             new CompilerContext.Key<>();
 
     private final CompilerOptions options;
-    private final BLangDiagnosticLogHelper dlog;
+    private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
     private final PackageCache pkgCache;
     private final SymbolTable symbolTable;
@@ -91,7 +91,7 @@ public class CompilerPhaseRunner {
         context.put(COMPILER_DRIVER_KEY, this);
 
         this.options = CompilerOptions.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.pkgCache = PackageCache.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
@@ -117,7 +117,7 @@ public class CompilerPhaseRunner {
 
         BLangPackage pkg = taintAnalyze(
                 documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID)))));
-        if (dlog.getErrorCount() > 0) {
+        if (dlog.errorCount() > 0) {
             return null;
         }
 
@@ -234,7 +234,7 @@ public class CompilerPhaseRunner {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
         }
-        return (checkNextPhase(nextPhase) && dlog.getErrorCount() > 0);
+        return (checkNextPhase(nextPhase) && dlog.errorCount() > 0);
     }
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
