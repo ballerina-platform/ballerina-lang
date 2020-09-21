@@ -218,11 +218,11 @@ class FormatUtil {
                 .resolve(compilationUnit.getPosition().getSource().getPackageName())
                 .resolve(compilationUnit.getPosition().getSource().getCompilationUnitName()).toString();
 
+        String originalSource = new String(Files.readAllBytes(Paths.get(fileName)),StandardCharsets.UTF_8);
         // Format and get the formatted source.
-        String formattedSource = Formatter.format(new String(Files.readAllBytes(Paths.get(fileName)),
-                StandardCharsets.UTF_8));
+        String formattedSource = Formatter.format(originalSource);
 
-        if (areChangesAvailable(formattedSource, formattedSource)) {
+        if (areChangesAvailable(originalSource, formattedSource)) {
             if (!dryRun) {
                 // Write formatted content to the file.
                 FormatUtil.writeFile(fileName, formattedSource);
@@ -311,9 +311,9 @@ class FormatUtil {
     private static void writeFile(String filePath, String content) throws IOException {
         OutputStreamWriter fileWriter = null;
         try {
-            try (FileOutputStream fileStream = new FileOutputStream(new File(filePath))) {
-                fileWriter = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8);
-            }
+            File newFile = new File(filePath);
+            FileOutputStream fileStream = new FileOutputStream(newFile);
+            fileWriter = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8);
             fileWriter.write(content);
         } finally {
             if (fileWriter != null) {
