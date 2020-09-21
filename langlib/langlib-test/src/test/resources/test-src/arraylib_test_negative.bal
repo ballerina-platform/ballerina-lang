@@ -171,4 +171,7 @@ function testArrSortNegativeScenarios() {
     };
 
     int[] sortedArr15 = arr.sort(array:DESCENDING, addFunc1);
+
+    any[] arr4 = [2, "AC", {"x":10}, 12.30];
+    any[] sortedArr16 = arr4.sort(array:DESCENDING, (x) => x);
 }

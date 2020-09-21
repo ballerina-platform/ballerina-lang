@@ -38,6 +38,7 @@ import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
@@ -179,8 +180,6 @@ import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
@@ -238,7 +237,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private NodeCloner nodeCloner;
     private Types types;
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
     private SymbolEnv env;
     private boolean isTypeChecked;
     private TypeNarrower typeNarrower;
@@ -321,7 +320,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
@@ -885,13 +884,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
             boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
             this.nonErrorLoggingCheck = true;
-
-            BLangDiagnosticLog prevDLog = this.dlog.getCurrentLog();
-            this.dlog.setNonConsoleDLog();
+            int errorCount = this.dlog.errorCount();
+            this.dlog.mute();
 
             List<BType> matchingTypes = new ArrayList<>();
             BUnionType expectedType = (BUnionType) applicableExpType;
             for (BType memType : expectedType.getMemberTypes()) {
+                dlog.resetErrorCount();
 
                 BLangTableConstructorExpr clonedTableExpr = tableConstructorExpr;
                 if (this.nonErrorLoggingCheck) {
@@ -900,15 +899,17 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BType resultType = checkExpr(clonedTableExpr, env, memType);
-                if (resultType != symTable.semanticError && dlog.getErrorCount() == 0 &&
+                if (resultType != symTable.semanticError && dlog.errorCount() == 0 &&
                         isUniqueType(matchingTypes, resultType)) {
                     matchingTypes.add(resultType);
                 }
-                dlog.resetErrorCount();
             }
 
-            this.dlog.setCurrentLog(prevDLog);
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+            this.dlog.setErrorCount(errorCount);
+            if (!prevNonErrorLoggingCheck) {
+                this.dlog.unmute();
+            }
 
             if (matchingTypes.isEmpty()) {
                 BLangTableConstructorExpr exprToLog = tableConstructorExpr;
@@ -1287,10 +1288,9 @@ public class TypeChecker extends BLangNodeVisitor {
         int tag = bType.tag;
         if (tag == TypeTags.UNION) {
             boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+            int errorCount = this.dlog.errorCount();
             this.nonErrorLoggingCheck = true;
-
-            BLangDiagnosticLog prevDLog = this.dlog.getCurrentLog();
-            this.dlog.setNonConsoleDLog();
+            this.dlog.mute();
 
             List<BType> compatibleTypes = new ArrayList<>();
             boolean erroredExpType = false;
@@ -1302,24 +1302,24 @@ public class TypeChecker extends BLangNodeVisitor {
                     continue;
                 }
 
-
                 BType listCompatibleMemType = getListConstructorCompatibleNonUnionType(memberType);
-
                 if (listCompatibleMemType == symTable.semanticError) {
                     continue;
                 }
 
+                dlog.resetErrorCount();
                 BType memCompatibiltyType = checkListConstructorCompatibility(listCompatibleMemType, listConstructor);
-
-                if (memCompatibiltyType != symTable.semanticError && dlog.getErrorCount() == 0 &&
+                if (memCompatibiltyType != symTable.semanticError && dlog.errorCount() == 0 &&
                         isUniqueType(compatibleTypes, memCompatibiltyType)) {
                     compatibleTypes.add(memCompatibiltyType);
                 }
-                dlog.resetErrorCount();
             }
 
-            this.dlog.setCurrentLog(prevDLog);
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+            this.dlog.setErrorCount(errorCount);
+            if (!prevNonErrorLoggingCheck) {
+                this.dlog.unmute();
+            }
 
             if (compatibleTypes.isEmpty()) {
                 BLangListConstructorExpr exprToLog = listConstructor;
@@ -1724,9 +1724,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (tag == TypeTags.UNION) {
             boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
             this.nonErrorLoggingCheck = true;
-
-            BLangDiagnosticLog prevDLog = this.dlog.getCurrentLog();
-            this.dlog.setNonConsoleDLog();
+            int errorCount = this.dlog.errorCount();
+            this.dlog.mute();
 
             List<BType> compatibleTypes = new ArrayList<>();
             boolean erroredExpType = false;
@@ -1739,23 +1738,25 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BType listCompatibleMemType = getMappingConstructorCompatibleNonUnionType(memberType);
-
                 if (listCompatibleMemType == symTable.semanticError) {
                     continue;
                 }
 
+                dlog.resetErrorCount();
                 BType memCompatibiltyType = checkMappingConstructorCompatibility(listCompatibleMemType,
                                                                                  mappingConstructor);
 
-                if (memCompatibiltyType != symTable.semanticError && dlog.getErrorCount() == 0 &&
+                if (memCompatibiltyType != symTable.semanticError && dlog.errorCount() == 0 &&
                         isUniqueType(compatibleTypes, memCompatibiltyType)) {
                     compatibleTypes.add(memCompatibiltyType);
                 }
-                dlog.resetErrorCount();
             }
 
-            this.dlog.setCurrentLog(prevDLog);
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+            dlog.setErrorCount(errorCount);
+            if (!prevNonErrorLoggingCheck) {
+                this.dlog.unmute();
+            }
 
             if (compatibleTypes.isEmpty()) {
                 if (!erroredExpType) {
@@ -5381,8 +5382,11 @@ public class TypeChecker extends BLangNodeVisitor {
             returnType = ((BLangSimpleVarRef) keyFunction).type.getReturnType();
         } else if (keyFunction.getKind() == NodeKind.ARROW_EXPR) {
             BLangArrowFunction arrowFunction = ((BLangArrowFunction) keyFunction);
-            pos = arrowFunction.params.get(0).pos;
-            returnType = arrowFunction.params.get(0).type;
+            pos = arrowFunction.body.expr.pos;
+            returnType = arrowFunction.body.expr.type;
+            if (returnType.tag == TypeTags.SEMANTIC_ERROR) {
+                return;
+            }
         } else {
             BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
             pos = keyLambdaFunction.function.pos;

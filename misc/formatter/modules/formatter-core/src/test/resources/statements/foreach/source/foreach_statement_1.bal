@@ -1,8 +1,11 @@
-map<string> countryCapitals = { "Sri Lanka": "Colombo" };
+function foo() {
+    map<string> countryCapitals = { "Sri Lanka": "Colombo" };
 
-   foreach   var   capital   in   countryCapitals
-   {
+       foreach   var   capital   in   countryCapitals
+       {
+    }
+    foreach var
+    [  country  ,   capital  ]     in         countryCapitals.entries()   {
+       }
+
 }
-foreach var
-[  country  ,   capital  ]     in         countryCapitals.entries()   {
-   }

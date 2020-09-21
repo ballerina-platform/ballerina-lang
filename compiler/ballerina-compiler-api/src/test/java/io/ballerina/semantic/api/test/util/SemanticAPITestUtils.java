@@ -21,6 +21,7 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerina.compiler.api.ModuleID;
 import org.ballerina.compiler.api.symbols.Symbol;
 import org.ballerina.compiler.impl.BallerinaSemanticModel;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -83,6 +84,19 @@ public class SemanticAPITestUtils {
 
             if (value.symbol != null && (value.symbol.tag & symTag) == symTag
                     && Symbols.isFlagOn(value.symbol.flags, Flags.PUBLIC) && value.symbol.origin == COMPILED_SOURCE) {
+                symbolNames.add(name.value);
+            }
+        }
+        return symbolNames;
+    }
+
+    public static List<String> getSymbolNames(BPackageSymbol pkgSymbol, int symTag, SymbolOrigin origin) {
+        List<String> symbolNames = new ArrayList<>();
+        for (Map.Entry<Name, Scope.ScopeEntry> entry : pkgSymbol.scope.entries.entrySet()) {
+            Name name = entry.getKey();
+            Scope.ScopeEntry value = entry.getValue();
+
+            if (value.symbol != null && (value.symbol.tag & symTag) == symTag && value.symbol.origin == origin) {
                 symbolNames.add(name.value);
             }
         }

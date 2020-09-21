@@ -41,9 +41,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 public class FinishSpan {
+    private static final OpenTracerBallerinaWrapper otWrapperInstance = OpenTracerBallerinaWrapper.getInstance();
 
     public static Object finishSpan(Strand strand, long spanId) {
-        boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(strand, spanId);
+        boolean isFinished = otWrapperInstance.finishSpan(strand, spanId);
 
         if (isFinished) {
             return null;

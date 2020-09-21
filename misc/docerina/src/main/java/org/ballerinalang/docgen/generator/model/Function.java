@@ -24,6 +24,8 @@ import java.util.List;
  */
 public class Function extends Construct {
     @Expose
+    public boolean isIsolated;
+    @Expose
     public boolean isRemote;
     @Expose
     public boolean isExtern;
@@ -33,11 +35,12 @@ public class Function extends Construct {
     public List<Variable> returnParameters;
 
     public Function(String name, String description, boolean isRemote, boolean isExtern, boolean isDeprecated,
-                    List<DefaultableVariable> parameters, List<Variable> returnParameters) {
+                    boolean isIsolated, List<DefaultableVariable> parameters, List<Variable> returnParameters) {
         super(name, description, isDeprecated);
         this.isRemote = isRemote;
         this.isExtern = isExtern;
         this.parameters = parameters;
         this.returnParameters = returnParameters;
+        this.isIsolated = isIsolated;
     }
 }

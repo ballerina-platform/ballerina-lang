@@ -107,8 +107,8 @@ function testQueryExprWithOrderByClause2() returns boolean {
 
     testPassed = testPassed &&  opStudentList[0] ==  studentList[1];
     testPassed = testPassed &&  opStudentList[1] ==  studentList[2];
-    testPassed = testPassed &&  opStudentList[2] ==  studentList[3];
-    testPassed = testPassed &&  opStudentList[3] ==  studentList[0];
+    testPassed = testPassed &&  opStudentList[2] ==  studentList[0];
+    testPassed = testPassed &&  opStudentList[3] ==  studentList[3];
 
     return testPassed;
 }

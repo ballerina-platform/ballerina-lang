@@ -25,9 +25,9 @@ function testSubsequentInitializationOfFinalVarInBranches() {
     assertEquality("ONE", initializeFinalVarInBranches1(1));
     assertEquality("TWO", initializeFinalVarInBranches1(2));
     assertEquality("OTHER", initializeFinalVarInBranches1(3));
-    //assertEquality("ONE", initializeFinalVarInBranches2(1));
-    //assertEquality("TWO", initializeFinalVarInBranches2(2));
-    //assertEquality("OTHER", initializeFinalVarInBranches2(3));
+    assertEquality("ONE", initializeFinalVarInBranches2(1));
+    assertEquality("TWO", initializeFinalVarInBranches2(2));
+    assertEquality("OTHER", initializeFinalVarInBranches2(3));
 }
 
 function initializeFinalVarInBranches1(int i) returns string {
@@ -42,22 +42,22 @@ function initializeFinalVarInBranches1(int i) returns string {
     return s;
 }
 
-//function initializeFinalVarInBranches2(int i) returns string {
-//    final string s;
-//
-//    match i {
-//        1 => {
-//            s = "ONE";
-//        }
-//        2 => {
-//            s = "TWO";
-//        }
-//        _ => {
-//            s = "OTHER";
-//        }
-//    }
-//    return s;
-//}
+function initializeFinalVarInBranches2(int i) returns string {
+    final string s;
+
+    match i {
+        1 => {
+            s = "ONE";
+        }
+        2 => {
+            s = "TWO";
+        }
+        _ => {
+            s = "OTHER";
+        }
+    }
+    return s;
+}
 
 function assertEquality(any|error expected, any|error actual) {
     if (expected is anydata && actual is anydata && expected == actual) {

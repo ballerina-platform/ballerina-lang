@@ -23,6 +23,8 @@
         <classes>
             <class name="io.ballerina.semantic.api.test.SymbolLookupTest" />
             <class name="io.ballerina.semantic.api.test.SymbolAtCursorTest" />
+            <class name="io.ballerina.semantic.api.test.SymbolBIRTest" />
+            <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
         </classes>
     </test>
 </suite>

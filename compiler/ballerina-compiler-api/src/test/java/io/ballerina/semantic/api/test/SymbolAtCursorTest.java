@@ -95,7 +95,7 @@ public class SymbolAtCursorTest {
         };
     }
 
-    @Test(dataProvider = "EnumPosProvider", enabled = false)
+    @Test(dataProvider = "EnumPosProvider")
     public void testEnum(int line, int column, String expSymbolName) {
         CompilerContext context = new CompilerContext();
         CompileResult result = compile("test-src/symbol_at_cursor_enum_test.bal", context);
@@ -113,13 +113,12 @@ public class SymbolAtCursorTest {
     @DataProvider(name = "EnumPosProvider")
     public Object[][] getEnumPos() {
         return new Object[][]{
-                {69, 7, "RED"},
-                {73, 19, "RED"},
-                {74, 9, "Colour"},
-                {78, 46, "Colour"},
-                {78, 46, "Colour"},
-                {82, 18, "GREEN"},
-                {83, 29, "BLUE"},
+                {18, 7, "RED"},
+//                {22, 19, "RED"}, // TODO: issue #25841
+                {23, 9, "Colour"},
+                {27, 46, "Colour"},
+//                {31, 18, "GREEN"}, // TODO: issue #25841
+//                {32, 29, "BLUE"}, // TODO: issue #25841
         };
     }
 

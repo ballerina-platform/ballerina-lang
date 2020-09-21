@@ -35,6 +35,7 @@ public class ItemResolverConstants {
     public static final String RETRY_TRANSACTION = "retry transaction";
     public static final String TRAP = "trap";
     public static final String WHILE = "while";
+    public static final String DO = "do";
     public static final String ERROR = "error";
     public static final String LOCK = "lock";
     public static final String ON = "on";
@@ -79,6 +80,7 @@ public class ItemResolverConstants {
     public static final String FROM_CLAUSE = "from clause";
     public static final String LET_CLAUSE = "let clause";
     public static final String JOIN_CLAUSE = "join clause";
+    public static final String ON_FAIL_CLAUSE = "on fail clause";
 
     // End of Basic Constructs
 
@@ -141,6 +143,7 @@ public class ItemResolverConstants {
     public static final String ISOLATED_KEYWORD = "isolated";
     public static final String PRIVATE_KEYWORD = "private";
     public static final String FINAL_KEYWORD = "final";
+    public static final String FAIL_KEYWORD = "fail";
     public static final String REMOTE_KEYWORD = "remote";
     public static final String CONST_KEYWORD = "const";
     public static final String RECORD_KEYWORD = "record";

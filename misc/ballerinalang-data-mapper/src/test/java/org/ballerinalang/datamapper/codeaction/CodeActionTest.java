@@ -80,7 +80,7 @@ public class CodeActionTest extends PowerMockTestCase {
         TestUtil.setWorkspaceConfig(serviceEndpoint, configs);
     }
 
-    @Test(dataProvider = "codeAction-data-mapper-data-provider")
+    @Test(enabled = false, dataProvider = "codeAction-data-mapper-data-provider")
     public void testDataMapperCodeAction(String config, String source) throws Exception {
         // Mocking server response
         String responseData = "{\"answer\":\"\\nfunction mapStudentToGrades (Student student) " +
@@ -125,7 +125,7 @@ public class CodeActionTest extends PowerMockTestCase {
                 "Cannot find expected Code Action for: " + title);
     }
 
-    @Test(dataProvider = "codeAction-data-mapper-data-provider-un-processable-data")
+    @Test(enabled = false, dataProvider = "codeAction-data-mapper-data-provider-un-processable-data")
     public void testDataMapperCodeActionWithUnProcessableData(String config, String source) throws Exception {
         // Mocking server response
         String responseData = "";
@@ -157,7 +157,7 @@ public class CodeActionTest extends PowerMockTestCase {
         Assert.assertFalse(codeActionFound, "Returned an invalid code action");
     }
 
-    @Test(dataProvider = "codeAction-data-mapper-data-provider-server-error")
+    @Test(enabled = false, dataProvider = "codeAction-data-mapper-data-provider-server-error")
     public void testDataMapperCodeActionWithServerError(String config, String source) throws Exception {
         // Mocking server response
         String responseData = "";

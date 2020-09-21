@@ -10,4 +10,3 @@ function foo() {
     string? countryValue = addrMap["country"];
     addrMap["postalCode"] = "00300";
 }
-

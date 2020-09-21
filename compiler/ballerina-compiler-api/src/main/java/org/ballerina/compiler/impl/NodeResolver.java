@@ -176,6 +176,8 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+
 /**
  * Finds the enclosing AST node for the given position.
  *
@@ -950,8 +952,8 @@ class NodeResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        this.enclosingNode = userDefinedType;
-        if (setEnclosingNode(userDefinedType, userDefinedType.typeName.pos)) {
+        if (userDefinedType.type.tsymbol.origin == VIRTUAL
+                || setEnclosingNode(userDefinedType, userDefinedType.typeName.pos)) {
             return;
         }
 

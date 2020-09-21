@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
@@ -42,7 +43,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Constants;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -82,7 +82,7 @@ public class CompilerDriver {
             new CompilerContext.Key<>();
 
     private final CompilerOptions options;
-    private final BLangDiagnosticLogHelper dlog;
+    private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
     private final PackageCache pkgCache;
     private final SymbolTable symbolTable;
@@ -103,7 +103,6 @@ public class CompilerDriver {
     private final IsolationAnalyzer isolationAnalyzer;
     private boolean isToolingCompilation;
 
-
     public static CompilerDriver getInstance(CompilerContext context) {
         CompilerDriver compilerDriver = context.get(COMPILER_DRIVER_KEY);
         if (compilerDriver == null) {
@@ -116,7 +115,7 @@ public class CompilerDriver {
         context.put(COMPILER_DRIVER_KEY, this);
 
         this.options = CompilerOptions.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.pkgCache = PackageCache.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
@@ -370,7 +369,7 @@ public class CompilerDriver {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
         }
-        return (checkNextPhase(nextPhase) && dlog.getErrorCount() > 0);
+        return (checkNextPhase(nextPhase) && pkgNode.getErrorCount() > 0);
     }
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
@@ -384,11 +383,10 @@ public class CompilerDriver {
 
         BLangPackage pkg = taintAnalyze(
                 documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID)))));
-        if (dlog.getErrorCount() > 0) {
+        if (dlog.errorCount() > 0) {
             return null;
         }
 
         return codeGen(birGen(desugar(pkg))).symbol;
     }
-
 }

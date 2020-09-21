@@ -10,4 +10,3 @@ function countInfinity() {
         runtime:sleep(1);
     }
 }
-
