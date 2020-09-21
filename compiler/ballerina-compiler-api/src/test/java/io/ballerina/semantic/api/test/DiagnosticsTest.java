@@ -87,7 +87,7 @@ public class DiagnosticsTest {
     private void assertDiagnostic(Diagnostic diagnostic, Object[] expected) {
         assertEquals(diagnostic.message(), expected[0]);
         assertEquals(diagnostic.location().lineRange().startLine().line(), expected[1]);
-        assertEquals(diagnostic.location().textRange().startOffset(), expected[2]);
+        assertEquals(diagnostic.location().lineRange().startLine().offset(), expected[2]);
     }
 
     private CompileResult compile(String sourceRoot, String module, CompilerContext context) {
