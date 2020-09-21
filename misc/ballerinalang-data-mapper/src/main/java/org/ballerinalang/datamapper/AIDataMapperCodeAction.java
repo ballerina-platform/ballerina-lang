@@ -124,6 +124,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                         startingPosition.getCharacter() - 1);
             }
             SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, diagnosticPosition);
+            System.out.println(refAtCursor);
             BType symbolAtCursorType = refAtCursor.getSymbol().type;
             if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess) {
                 return Optional.empty();

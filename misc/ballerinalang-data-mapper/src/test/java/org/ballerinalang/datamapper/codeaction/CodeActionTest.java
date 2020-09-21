@@ -113,6 +113,8 @@ public class CodeActionTest extends PowerMockTestCase {
             JsonArray edit = editText.getAsJsonObject().get("documentChanges")
                     .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray();
             boolean editsMatched = expectedResponse.get("edits").getAsJsonArray().equals(edit);
+            System.out.println(edit);
+            System.out.println(expectedResponse.get("edits").getAsJsonArray());
             if (right.getAsJsonObject().get("title").getAsString().equals(title) && editsMatched) {
                 codeActionFound = true;
                 numberOfDataMappingCodeAction = numberOfDataMappingCodeAction + 1;
