@@ -2471,43 +2471,35 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType actualType;
-        // Accessing all fields using * is only supported for XML.
-        // todo: remove this, this is no longer supported, this is moved to xml.<*>
-        if (fieldAccessExpr.fieldKind == FieldKind.ALL && varRefType.tag != TypeTags.XML) {
-            dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
-            actualType = symTable.semanticError;
+        if (fieldAccessExpr.optionalFieldAccess) {
+            if (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar) {
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPTIONAL_FIELD_ACCESS_NOT_REQUIRED_ON_LHS);
+                resultType = symTable.semanticError;
+                return;
+            }
+            actualType = checkOptionalFieldAccessExpr(fieldAccessExpr, varRefType,
+                                                      names.fromIdNode(fieldAccessExpr.field));
         } else {
-            if (fieldAccessExpr.optionalFieldAccess) {
-                if (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar) {
-                    dlog.error(fieldAccessExpr.pos,
-                               DiagnosticCode.OPTIONAL_FIELD_ACCESS_NOT_REQUIRED_ON_LHS);
-                    resultType = symTable.semanticError;
-                    return;
-                }
-                actualType = checkOptionalFieldAccessExpr(fieldAccessExpr, varRefType,
-                                                          names.fromIdNode(fieldAccessExpr.field));
-            } else {
-                actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, names.fromIdNode(fieldAccessExpr.field));
+            actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, names.fromIdNode(fieldAccessExpr.field));
 
-                if (actualType != symTable.semanticError &&
-                        (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar)) {
-                    if (isAllReadonlyTypes(varRefType)) {
-                        if (varRefType.tag != TypeTags.OBJECT || !isInitializationInInit(varRefType)) {
-                            dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
-                                       varRefType);
-                            resultType = symTable.semanticError;
-                            return;
-                        }
-
-                    } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD) &&
-                            isInvalidReadonlyFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
-                        dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_RECORD_FIELD,
-                                   fieldAccessExpr.field.value, varRefType);
+            if (actualType != symTable.semanticError &&
+                    (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar)) {
+                if (isAllReadonlyTypes(varRefType)) {
+                    if (varRefType.tag != TypeTags.OBJECT || !isInitializationInInit(varRefType)) {
+                        dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
+                                   varRefType);
                         resultType = symTable.semanticError;
                         return;
                     }
-                    // Object final field updates will be analyzed at dataflow analysis.
+
+                } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD) &&
+                        isInvalidReadonlyFieldUpdate(varRefType, fieldAccessExpr.field.value)) {
+                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_RECORD_FIELD,
+                               fieldAccessExpr.field.value, varRefType);
+                    resultType = symTable.semanticError;
+                    return;
                 }
+                // Object final field updates will be analyzed at dataflow analysis.
             }
         }
 

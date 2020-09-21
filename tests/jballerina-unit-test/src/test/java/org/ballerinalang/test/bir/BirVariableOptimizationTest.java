@@ -21,6 +21,7 @@ package org.ballerinalang.test.bir;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -39,10 +40,11 @@ import java.util.stream.Stream;
  * Test to confirm the functionality of the {@link LivenessAnalyzer}.
  */
 public class BirVariableOptimizationTest {
-    private final BIREmitter birEmitter;
+    private BIREmitter birEmitter;
     private CompileResult result;
 
-    public BirVariableOptimizationTest() {
+    @BeforeClass
+    public void setup() {
         birEmitter = BIREmitter.getInstance(new CompilerContext());
         result = BCompileUtil.compileAndGetBIR("test-src/bir/biroptimizer.bal");
     }

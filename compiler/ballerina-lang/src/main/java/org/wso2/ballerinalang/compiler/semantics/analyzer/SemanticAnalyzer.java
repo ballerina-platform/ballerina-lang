@@ -852,7 +852,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         switch (variable.getKind()) {
             case VARIABLE:
             case LET_VARIABLE:
-                if (!validateVariableDefinition(varRefExpr)) {
+                if (!validateObjectTypeInitInvocation(varRefExpr)) {
                     rhsType = symTable.semanticError;
                 }
 
@@ -2957,7 +2957,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return binaryExpressionNode;
     }
 
-    private boolean validateVariableDefinition(BLangExpression expr) {
+    private boolean validateObjectTypeInitInvocation(BLangExpression expr) {
         // Following is invalid:
         // var a = new ;
         if (expr != null && expr.getKind() == NodeKind.TYPE_INIT_EXPR &&

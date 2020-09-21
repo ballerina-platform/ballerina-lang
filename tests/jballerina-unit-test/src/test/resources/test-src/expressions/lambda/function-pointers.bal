@@ -211,27 +211,89 @@ public function testDefaultParams() {
 
 class A {
     int i;
-    function init() {
-        self.i = 1;
+    function init(int i) {
+        self.i = i;
     }
 
-    function getI() returns int {
+    function getI(int k) returns int {
         return self.i;
     }
 }
 
 public function testGetMemberFunctionAsAField() {
-    A a = new();
-    function () returns int func = a.getI;
-    int i = func();
+    A a = new(1);
+    function (int) returns int func = a.getI;
+    int i = func(0);
     assertEquality(1, i);
+
+    var AFactory = function () returns A {
+        return new(2);
+    };
+    function (int) returns int func2 = AFactory().getI;
+    int j = func2(0);
+    assertEquality(2, j);
+
+    var c = createA(3).getI;
+    int k = c(2);
+    assertEquality(3, k);
+}
+
+function createA(int i) returns A {
+    return new(i);
+}
+
+class B {
+    int i;
+
+    function init(int i) {
+        self.i = i;
+    }
+
+    function accumelate(int... args) returns int {
+        foreach int i in args {
+            self.i += i;
+        }
+        return self.i;
+    }
+
+    function get() returns int {
+        return self.i;
+    }
+}
+
+public function testMemberTakenAsAFieldWithRestArgs() {
+    B b = new(0);
+    assertEquality(0, b.get());
+
+    _ = b.accumelate(1);
+    assertEquality(1, b.get());
+
+    _ = b.accumelate(1, 2);
+    assertEquality(4, b.get());
+
+    _ = b.accumelate(10, 20);
+    assertEquality(34, b.get());
+
+    var f = b.accumelate;
+    var g = b.get;
+
+    int f0 = f(-34);
+    assertEquality(0, g());
+    assertEquality(0, f0);
+
+    _ = f(1);
+    assertEquality(1, g());
+
+    _ = f(1);
+    assertEquality(2, g());
+
+    _ = f(10, 100);
+    assertEquality(112, g());
 }
 
 type AssertionError distinct error;
 
-const ASSERTION_ERROR_REASON = "AssertionError";
-
-function assertEquality(any|error expected, any|error actual) {
+function assertEquality(any|error expected, any|error  actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
     }
@@ -240,5 +302,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError("AssertionError", message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
