@@ -12185,14 +12185,15 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseErrorMatchPatternOrConsPattern(SyntaxKind nextToken, STNode typeRefOrConstExpr) {
         switch (nextToken) {
             case OPEN_PAREN_TOKEN:
-                return parseErrorMatchPattern(typeRefOrConstExpr);
+                STNode errorKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.ERROR_KEYWORD);
+                return parseErrorMatchPattern(errorKeyword, typeRefOrConstExpr);
             default:
                 if (isMatchPatternEnd(peek().kind)) {
                     return typeRefOrConstExpr;
                 }
 
                 Solution solution =
-                        recover(peek(), ParserRuleContext.FUNC_MATCH_PATTERN_OR_CONST_PATTERN, typeRefOrConstExpr);
+                        recover(peek(), ParserRuleContext.ERROR_MATCH_PATTERN_OR_CONST_PATTERN, typeRefOrConstExpr);
                 return parseErrorMatchPatternOrConsPattern(solution.tokenKind, typeRefOrConstExpr);
         }
     }
