@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 /**
  * Identifier literal test cases with package.
  */
-@Test(groups = { "disableOnOldParser" })
+@Test(groups = {"disableOnOldParser"})
 public class IdentifierLiteralPackageTest {
 
     private CompileResult result;
@@ -42,7 +42,7 @@ public class IdentifierLiteralPackageTest {
 
         result = BCompileUtil.compile(this, "test-src/expressions/literals/identifierliteral/TestProject",
                 "pkg.main");
-        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 0);
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
     @Test(description = "Test accessing variable in other packages defined with identifier literal")

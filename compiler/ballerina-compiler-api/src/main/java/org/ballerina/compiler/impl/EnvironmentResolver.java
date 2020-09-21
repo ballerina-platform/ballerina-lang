@@ -21,7 +21,6 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -183,7 +182,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        if (this.withinBlock(serviceNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, serviceNode.getPosition())) {
             SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, this.symbolEnv);
             this.scope = serviceEnv;
             serviceNode.getResources().forEach(function -> this.acceptNode(function, serviceEnv));
@@ -194,7 +193,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        if (this.withinBlock(funcNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, funcNode.getPosition())) {
             SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.symbolEnv);
             this.scope = funcEnv;
             this.acceptNode(funcNode.getBody(), funcEnv);
@@ -206,7 +205,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     // TODO: Add the expression and the external
     @Override
     public void visit(BLangBlockFunctionBody blockFuncBody) {
-        if (this.withinBlock(blockFuncBody.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, blockFuncBody.getPosition())) {
             SymbolEnv funcBodyEnv = SymbolEnv.createFuncBodyEnv(blockFuncBody, this.symbolEnv);
             this.scope = funcBodyEnv;
             blockFuncBody.getStatements().forEach(bLangStatement -> this.acceptNode(bLangStatement, funcBodyEnv));
@@ -221,7 +220,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
-        if (this.withinBlock(classDefinition.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, classDefinition.getPosition())) {
             SymbolEnv env = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, this.symbolEnv);
             this.scope = env;
             classDefinition.getFunctions().forEach(function -> this.acceptNode(function, env));
@@ -233,7 +232,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        if (this.withinBlock(objectTypeNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, objectTypeNode.getPosition())) {
             SymbolEnv env = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, this.symbolEnv);
             this.scope = env;
             objectTypeNode.getFunctions().forEach(function -> this.acceptNode(function, env));
@@ -247,7 +246,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        if (this.withinBlock(recordTypeNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, recordTypeNode.getPosition())) {
             BSymbol recordSymbol = recordTypeNode.symbol;
             SymbolEnv recordEnv = SymbolEnv.createPkgLevelSymbolEnv(recordTypeNode, recordSymbol.scope, symbolEnv);
             this.scope = recordEnv;
@@ -283,7 +282,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        if (this.withinBlock(blockNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, blockNode.getPosition())) {
             SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
             this.scope = blockEnv;
             for (BLangStatement statement : blockNode.stmts) {
@@ -301,7 +300,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExprFunctionBody exprFuncBody) {
-        if (this.withinBlock(exprFuncBody.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, exprFuncBody.getPosition())) {
             SymbolEnv exprBodyEnv = SymbolEnv.createFuncBodyEnv(exprFuncBody, symbolEnv);
             this.scope = exprBodyEnv;
             this.acceptNode(exprFuncBody.expr, exprBodyEnv);
@@ -343,7 +342,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
-        if (this.withinBlock(ifNode.getBody().getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, ifNode.getBody().getPosition())) {
             this.scope = this.symbolEnv;
             this.acceptNode(ifNode.body, this.symbolEnv);
         }
@@ -355,7 +354,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
-        if (this.withinBlock(whileNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, whileNode.getPosition())) {
             this.scope = this.symbolEnv;
             this.acceptNode(whileNode.body, this.symbolEnv);
         }
@@ -373,7 +372,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        if (this.withinBlock(forkJoin.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, forkJoin.getPosition())) {
             SymbolEnv forkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.symbolEnv);
             this.scope = forkJoinEnv;
             forkJoin.workers.forEach(e -> this.acceptNode(e, forkJoinEnv));
@@ -418,7 +417,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchNode) {
-        if (this.withinBlock(matchNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, matchNode.getPosition())) {
             this.scope = this.symbolEnv;
             matchNode.patternClauses.forEach(patternClause -> acceptNode(patternClause, this.symbolEnv));
         }
@@ -426,7 +425,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        if (!this.withinBlock(annAttachmentNode.getPosition())) {
+        if (!PositionUtil.withinBlock(this.linePosition, annAttachmentNode.getPosition())) {
             return;
         }
         SymbolEnv annotationAttachmentEnv = new SymbolEnv(annAttachmentNode, symbolEnv.scope);
@@ -450,7 +449,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        if (!this.withinBlock(recordLiteral.getPosition())) {
+        if (!PositionUtil.withinBlock(this.linePosition, recordLiteral.getPosition())) {
             return;
         }
         SymbolEnv recordLiteralEnv = new SymbolEnv(recordLiteral, symbolEnv.scope);
@@ -1057,20 +1056,5 @@ public class EnvironmentResolver extends BLangNodeVisitor {
         this.symbolEnv = env;
         node.accept(this);
         this.symbolEnv = prevEnv;
-    }
-
-    private boolean withinBlock(Diagnostic.DiagnosticPosition symbolPosition) {
-        int zeroBasedStartLine = symbolPosition.getStartLine();
-        int zeroBasedEndLine = symbolPosition.getEndLine();
-        int zeroBasedStartCol = symbolPosition.getStartColumn();
-        int zeroBasedEndCol = symbolPosition.getEndColumn();
-        int line = this.linePosition.line();
-        int col = this.linePosition.offset();
-
-        return (zeroBasedStartLine < line && zeroBasedEndLine > line)
-                || (zeroBasedStartLine < line && zeroBasedEndLine == line && zeroBasedEndCol > col)
-                || (zeroBasedStartLine == line && zeroBasedStartCol < col && zeroBasedEndLine > line)
-                || (zeroBasedStartLine == zeroBasedEndLine && zeroBasedStartLine == line
-                && zeroBasedStartCol <= col && zeroBasedEndCol > col);
     }
 }

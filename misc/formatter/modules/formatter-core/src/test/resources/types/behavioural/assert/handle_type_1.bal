@@ -17,4 +17,3 @@ public function foo() {
     var arrayDeque = newArrayDeque();
     handle nextInLineHandle = poll(arrayDeque);
 }
-

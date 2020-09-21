@@ -68,6 +68,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRIN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE_OF_J_METHOD;
@@ -654,7 +655,7 @@ public class JvmCastGen {
                 Label afterHandle = new Label();
                 if (((JType.JRefType) sourceType).typeValue.equals(OBJECT)) {
                     mv.visitInsn(DUP);
-                    mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+                    mv.visitTypeInsn(INSTANCEOF, B_ERROR);
                     mv.visitJumpInsn(IFNE, afterHandle);
 
                     mv.visitInsn(DUP);

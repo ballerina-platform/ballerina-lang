@@ -8,4 +8,3 @@ function foo() {
     int y = checkpanic parse("120");
     int|error result = trap parse("test");
 }
-

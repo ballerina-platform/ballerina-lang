@@ -18,7 +18,11 @@
 package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -26,9 +30,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.langlib.value.CloneWithType;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.net.uri.URIUtil;
@@ -145,10 +147,10 @@ public class HttpDispatcher {
     }
 
     public static Object[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
-                                                  MapValue<BString, Object> endpointConfig) {
-        ObjectValue httpCaller = ValueCreatorUtils.createCallerObject();
-        ObjectValue inRequest = ValueCreatorUtils.createRequestObject();
-        ObjectValue inRequestEntity = ValueCreatorUtils.createEntityObject();
+                                                  BMap<BString, Object> endpointConfig) {
+        BObject httpCaller = ValueCreatorUtils.createCallerObject();
+        BObject inRequest = ValueCreatorUtils.createRequestObject();
+        BObject inRequestEntity = ValueCreatorUtils.createEntityObject();
 
         HttpUtil.enrichHttpCallerWithConnectionInfo(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);
@@ -194,7 +196,7 @@ public class HttpDispatcher {
                         paramValues[paramIndex++] = Boolean.parseBoolean(argumentValue);
                         break;
                     default:
-                        paramValues[paramIndex++] = StringUtils.fromString(argumentValue);
+                        paramValues[paramIndex++] = BStringUtils.fromString(argumentValue);
                 }
                 paramValues[paramIndex] = true;
             } catch (Exception ex) {
@@ -216,7 +218,7 @@ public class HttpDispatcher {
         return paramValues;
     }
 
-    private static Object populateAndGetEntityBody(ObjectValue inRequest, ObjectValue inRequestEntity,
+    private static Object populateAndGetEntityBody(BObject inRequest, BObject inRequestEntity,
                                                    org.ballerinalang.jvm.types.BType entityBodyType)
             throws IOException {
         HttpUtil.populateEntityBody(inRequest, inRequestEntity, true, true);
@@ -250,13 +252,13 @@ public class HttpDispatcher {
                 default:
                         //Do nothing
             }
-        } catch (ErrorValue ex) {
+        } catch (BError ex) {
             throw new BallerinaConnectorException(ex.toString());
         }
         return null;
     }
 
-    private static Object getRecordEntity(ObjectValue inRequestEntity, BType entityBodyType) {
+    private static Object getRecordEntity(BObject inRequestEntity, BType entityBodyType) {
         Object result = getRecord(entityBodyType, getBJsonValue(inRequestEntity));
         if (result instanceof ErrorValue) {
             throw (ErrorValue) result;
@@ -286,7 +288,7 @@ public class HttpDispatcher {
      * @param inRequestEntity Represents inbound request entity
      * @return a ballerina json value
      */
-    private static Object getBJsonValue(ObjectValue inRequestEntity) {
+    private static Object getBJsonValue(BObject inRequestEntity) {
         Object bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
         EntityBodyHandler.addJsonMessageDataSource(inRequestEntity, bjson);
         return bjson;

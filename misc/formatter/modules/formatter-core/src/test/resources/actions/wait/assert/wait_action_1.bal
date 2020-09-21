@@ -4,4 +4,3 @@ public function main() {
     }
     wait w1;
 }
-

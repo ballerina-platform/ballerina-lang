@@ -15,8 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerinalang.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
@@ -56,10 +59,10 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
             return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
         }
 
-        return this.getClassBodyCompletions(context);
+        return this.getClassBodyCompletions(context, node);
     }
 
-    private List<LSCompletionItem> getClassBodyCompletions(LSContext context) {
+    private List<LSCompletionItem> getClassBodyCompletions(LSContext context, ObjectFieldNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
@@ -67,8 +70,14 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+        if (node.parent().kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+                || node.parent().kind() == SyntaxKind.CLASS_DEFINITION) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+        } else if (node.parent().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION_SIGNATURE.get()));
+        }
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
 
@@ -99,5 +108,21 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         Optional<Token> equalsToken = node.equalsToken();
 
         return equalsToken.isPresent() && equalsToken.get().textRange().endOffset() <= cursor;
+    }
+
+    @Override
+    public boolean onPreValidation(LSContext context, ObjectFieldNode node) {
+        /*
+        This validation is added in order to avoid identifying the following context as object field node context.
+        This is happened due to the parser recovery strategy.
+        Eg: type TestType client o<cursor>
+         */
+        NonTerminalNode parent = node.parent();
+        return (parent.kind() == SyntaxKind.CLASS_DEFINITION
+                && !((ClassDefinitionNode) parent).openBrace().isMissing()) ||
+                (parent.kind() == SyntaxKind.OBJECT_TYPE_DESC
+                        && !((ObjectTypeDescriptorNode) parent).openBrace().isMissing()) ||
+                (parent.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+                        && !((ObjectConstructorExpressionNode) parent).openBraceToken().isMissing());
     }
 }

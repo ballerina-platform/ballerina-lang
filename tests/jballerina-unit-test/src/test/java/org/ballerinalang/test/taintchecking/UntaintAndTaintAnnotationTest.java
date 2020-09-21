@@ -50,14 +50,14 @@ public class UntaintAndTaintAnnotationTest {
     @Test
     public void testTaint() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/expressions/taint.bal");
-        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 1);
+        Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'sensitiveInput'", 19, 20);
     }
 
     @Test
     public void testUntaintVariable() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/expressions/untaint-variable-negative.bal");
-        Assert.assertEquals(result.getErrorAndWarnDiagnostics().length, 2);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 5, 20);
         BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 8, 20);
     }

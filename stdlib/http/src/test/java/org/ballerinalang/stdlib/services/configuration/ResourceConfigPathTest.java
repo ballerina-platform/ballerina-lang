@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.services.configuration;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -39,7 +39,7 @@ public class ResourceConfigPathTest {
     public void testResourceConfigPathAnnotationsNegativeCases() {
         CompileResult compileResult = BCompileUtil
                 .compile("test-src/services/configuration/resource-config-path-field.bal");
-        Diagnostic[] diag = compileResult.getErrorAndWarnDiagnostics();
+        Diagnostic[] diag = compileResult.getDiagnostics();
         Assert.assertEquals(diag.length, 12);
         assertResponse(diag[0], "Illegal closing brace detected in resource path config", 12);
         assertResponse(diag[1], "Illegal closing brace detected in resource path config", 19);
@@ -59,7 +59,7 @@ public class ResourceConfigPathTest {
     public void testPathParamAndSignatureParamMatch() {
         CompileResult compileResult = BCompileUtil
                 .compile("test-src/services/configuration/resource-arg--pathparam-match.bal");
-        Diagnostic[] diag = compileResult.getErrorAndWarnDiagnostics();
+        Diagnostic[] diag = compileResult.getDiagnostics();
         Assert.assertEquals(diag.length, 8);
         assertResponse(diag[0], INVALID_RESOURCE_PARAMETERS, 10);
         assertResponse(diag[1], INVALID_RESOURCE_PARAMETERS, 18);
@@ -72,7 +72,7 @@ public class ResourceConfigPathTest {
     }
 
     private void assertResponse(Diagnostic diag, String msg, int line) {
-        Assert.assertEquals(diag.getMessage(), msg);
-        Assert.assertEquals(diag.getPosition().getStartLine(), line);
+        Assert.assertEquals(diag.message(), msg);
+        Assert.assertEquals(diag.location().lineRange().startLine().line(), line);
     }
 }

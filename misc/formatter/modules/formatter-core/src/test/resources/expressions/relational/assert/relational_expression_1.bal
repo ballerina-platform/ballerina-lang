@@ -4,4 +4,3 @@ public function foo() {
     boolean h = 23 >= 1;
     boolean i = 23 <= 1;
 }
-

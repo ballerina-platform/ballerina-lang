@@ -60,7 +60,7 @@ public class ForkInFunctionTest {
     @Test(description = "Test Fork With Workers in same function")
     public void testForkWithWorkersInSameFunction() {
         CompileResult result = BCompileUtil.compile("test-src/workers/fork-workers-under-same-funtion.bal");
-        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getErrorAndWarnDiagnostics()).toString());
+        Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "forkWithWorkers", args);
         Assert.assertEquals(returns.length, 1);

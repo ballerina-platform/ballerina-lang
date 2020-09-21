@@ -3,4 +3,3 @@ public function foo() {
     Person p2 = new ();
     Person p3 = new Person();
 }
-

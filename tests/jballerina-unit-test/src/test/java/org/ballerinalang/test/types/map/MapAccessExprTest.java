@@ -92,7 +92,7 @@ public class MapAccessExprTest {
     @Test(description = "Test nested map access")
     public void testNestedMapAccess() {
         CompileResult incorrectCompileResult = BCompileUtil.compile("test-src/types/map/nested-map-access.bal");
-        Assert.assertEquals(incorrectCompileResult.getErrorAndWarnDiagnostics().length, 1);
+        Assert.assertEquals(incorrectCompileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(incorrectCompileResult, 0, "invalid operation: type 'any' does not support " +
                 "indexing", 4, 12);
     }
@@ -155,7 +155,7 @@ public class MapAccessExprTest {
 
     @Test(description = "Map access negative scenarios", groups = { "disableOnOldParser" })
     public void testNegativeSemantics() {
-        Assert.assertEquals(resultSemanticsNegative.getErrorAndWarnDiagnostics().length, 4);
+        Assert.assertEquals(resultSemanticsNegative.getDiagnostics().length, 4);
         int index = 0;
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "incompatible types: expected 'string', found " + "'int'", 4, 20);
@@ -167,7 +167,7 @@ public class MapAccessExprTest {
 
     @Test(description = "Map access negative scenarios")
     public void negativeTest() {
-        Assert.assertEquals(resultNegative.getErrorAndWarnDiagnostics().length, 3);
+        Assert.assertEquals(resultNegative.getDiagnostics().length, 3);
         int index = 0;
 
         // uninitialized map access

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.statements.variabledef;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -24,7 +25,6 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -40,7 +40,7 @@ public class ForwardReferencingGlobalDefinitionTest {
     public void globalDefinitionsWithCyclicReferences() {
         CompileResult resultNegativeCycleFound = BCompileUtil.compile("test-src/statements/variabledef/globalcycle/",
                 "simple");
-        Diagnostic[] diagnostics = resultNegativeCycleFound.getErrorAndWarnDiagnostics();
+        Diagnostic[] diagnostics = resultNegativeCycleFound.getDiagnostics();
         Assert.assertTrue(diagnostics.length > 0);
         BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[employee, person]'", 35, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 1, "illegal cyclic reference '[dep1, dep2]'", 54, 1);
@@ -51,7 +51,7 @@ public class ForwardReferencingGlobalDefinitionTest {
     public void globalDefinitionsReOrdering() {
         CompileResult resultReOrdered = BCompileUtil.compile(this, "test-src/statements/variabledef/TestProj/",
                 "multiFileReference");
-        Diagnostic[] diagnostics = resultReOrdered.getErrorAndWarnDiagnostics();
+        Diagnostic[] diagnostics = resultReOrdered.getDiagnostics();
         Assert.assertEquals(diagnostics.length, 0);
 
         BValue[] employee = BRunUtil.invoke(resultReOrdered, "getEmployee");
@@ -90,7 +90,7 @@ public class ForwardReferencingGlobalDefinitionTest {
         CompileResult cycle = BCompileUtil.compile("test-src/statements/variabledef/globalcycle/",
                                                    "viafunc");
 
-        Assert.assertTrue(cycle.getErrorAndWarnDiagnostics().length > 0);
+        Assert.assertTrue(cycle.getDiagnostics().length > 0);
         BAssertUtil.validateError(cycle, 0, "illegal cyclic reference '[fromFuncA, fromFunc, getPersonOuter, " +
                 "getPersonInner, getfromFuncA]'", 22, 1);
     }
@@ -100,7 +100,7 @@ public class ForwardReferencingGlobalDefinitionTest {
     public void globalDefinitionsListenerDef() {
         CompileResult resultNegativeCycleFound = BCompileUtil.compile(this,
                 "test-src/statements/variabledef/globalcycle/", "viaservice");
-        Assert.assertEquals(resultNegativeCycleFound.getErrorAndWarnDiagnostics().length, 1);
+        Assert.assertEquals(resultNegativeCycleFound.getDiagnostics().length, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[port, o, Obj]'", 22, 1);
     }
 }

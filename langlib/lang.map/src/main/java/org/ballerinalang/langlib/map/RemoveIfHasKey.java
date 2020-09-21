@@ -18,10 +18,11 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -53,8 +54,8 @@ public class RemoveIfHasKey {
         try {
             return m.remove(k);
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-            throw BallerinaErrors.createError(e.getMessage(),
-                                              "Failed to remove element: " + e.getDetail());
+            throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
+                                            BStringUtils.fromString("Failed to remove element: " + e.getDetail()));
         }
     }
 }

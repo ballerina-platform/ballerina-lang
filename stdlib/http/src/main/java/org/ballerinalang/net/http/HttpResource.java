@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,13 +51,13 @@ public class HttpResource {
 
     private static final Logger log = LoggerFactory.getLogger(HttpResource.class);
 
-    private static final BString METHODS_FIELD = StringUtils.fromString("methods");
-    private static final BString PATH_FIELD = StringUtils.fromString("path");
-    private static final BString BODY_FIELD = StringUtils.fromString("body");
-    private static final BString CONSUMES_FIELD = StringUtils.fromString("consumes");
-    private static final BString PRODUCES_FIELD = StringUtils.fromString("produces");
-    private static final BString CORS_FIELD = StringUtils.fromString("cors");
-    private static final BString TRANSACTION_INFECTABLE_FIELD = StringUtils.fromString("transactionInfectable");
+    private static final BString METHODS_FIELD = BStringUtils.fromString("methods");
+    private static final BString PATH_FIELD = BStringUtils.fromString("path");
+    private static final BString BODY_FIELD = BStringUtils.fromString("body");
+    private static final BString CONSUMES_FIELD = BStringUtils.fromString("consumes");
+    private static final BString PRODUCES_FIELD = BStringUtils.fromString("produces");
+    private static final BString CORS_FIELD = BStringUtils.fromString("cors");
+    private static final BString TRANSACTION_INFECTABLE_FIELD = BStringUtils.fromString("transactionInfectable");
 
     private AttachedFunction balResource;
     private List<String> methods;

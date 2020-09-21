@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -42,6 +42,6 @@ import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 public class UUID {
 
     public static BString uuid(Strand strand) {
-        return StringUtils.fromString(java.util.UUID.randomUUID().toString());
+        return BStringUtils.fromString(java.util.UUID.randomUUID().toString());
     }
 }

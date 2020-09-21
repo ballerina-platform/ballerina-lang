@@ -18,4 +18,3 @@ public function foo() {
         name : "John"
     }];
 }
-

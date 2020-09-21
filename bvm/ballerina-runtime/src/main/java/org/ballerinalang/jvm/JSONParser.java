@@ -18,6 +18,9 @@
 package org.ballerinalang.jvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -25,8 +28,8 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -54,6 +57,29 @@ public class JSONParser {
     };
 
     /**
+     * Represents the modes which process numeric values while converting a string to JSON.
+     */
+    public enum NonStringValueProcessingMode {
+        /**
+         * FROM_JSON_STRING converts a numeric value that
+         * - starts with the negative sign (-) and is numerically equal to zero (0) to `-0.0f`
+         * - is syntactically an integer to an `int`
+         * - doesn't belong to the above to decimal.
+         */
+        FROM_JSON_STRING,
+
+        /**
+         * FROM_JSON_FLOAT_STRING converts all numerical values to float.
+         */
+        FROM_JSON_FLOAT_STRING,
+
+        /**
+         * FROM_JSON_DECIMAL_STRING converts all numerical values to decimal.
+         */
+        FROM_JSON_DECIMAL_STRING
+    }
+
+    /**
      * Parses the contents in the given {@link InputStream} and returns a json.
      *
      * @param in input stream which contains the JSON content
@@ -75,10 +101,12 @@ public class JSONParser {
      */
     public static Object parse(InputStream in, String charsetName) throws BallerinaException {
         try {
-            Object jsonObj = parse(new InputStreamReader(new BufferedInputStream(in), charsetName));
+            Object jsonObj = parse(new InputStreamReader(new BufferedInputStream(in), charsetName),
+                    NonStringValueProcessingMode.FROM_JSON_STRING);
             return changeForBString(jsonObj);
         } catch (IOException e) {
-            throw BallerinaErrors.createError("Error in parsing JSON data: " + e.getMessage());
+            throw BErrorCreator.createError(BStringUtils
+                                                    .fromString(("Error in parsing JSON data: " + e.getMessage())));
         }
     }
 
@@ -90,12 +118,24 @@ public class JSONParser {
      * @throws BallerinaException for any parsing error
      */
     public static Object parse(String jsonStr) throws BallerinaException {
-        return parse(new StringReader(jsonStr));
+        return parse(new StringReader(jsonStr), NonStringValueProcessingMode.FROM_JSON_STRING);
+    }
+
+    /**
+     * Parses the contents in the given string and returns a json.
+     *
+     * @param jsonStr the string which contains the JSON content
+     * @param mode    the mode to use when processing numeric values
+     * @return JSON   value if parsing is successful
+     * @throws BallerinaException for any parsing error
+     */
+    public static Object parse(String jsonStr, NonStringValueProcessingMode mode) throws BallerinaException {
+        return parse(new StringReader(jsonStr), mode);
     }
 
     private static Object changeForBString(Object jsonObj) {
         if (jsonObj instanceof String) {
-            return StringUtils.fromString((String) jsonObj);
+            return BStringUtils.fromString((String) jsonObj);
         }
         return jsonObj;
     }
@@ -104,11 +144,13 @@ public class JSONParser {
      * Parses the contents in the given {@link Reader} and returns a json.
      *
      * @param reader reader which contains the JSON content
+     * @param mode   the mode to use when processing numeric values
      * @return JSON structure
      * @throws BallerinaException for any parsing error
      */
-    public static Object parse(Reader reader) throws BallerinaException {
+    public static Object parse(Reader reader, NonStringValueProcessingMode mode) throws BallerinaException {
         StateMachine sm = tlStateMachine.get();
+        sm.mode = mode;
         try {
             return sm.execute(reader);
         } finally {
@@ -181,6 +223,7 @@ public class JSONParser {
                 new StringFieldUnicodeHexProcessingState();
         private static final State STRING_VALUE_UNICODE_HEX_PROCESSING_STATE =
                 new StringValueUnicodeHexProcessingState();
+        private NonStringValueProcessingMode mode = NonStringValueProcessingMode.FROM_JSON_STRING;
 
         private Object currentJsonNode;
         private Deque<Object> nodesStack;
@@ -204,6 +247,7 @@ public class JSONParser {
             this.currentJsonNode = null;
             this.line = 1;
             this.column = 0;
+            this.mode = NonStringValueProcessingMode.FROM_JSON_STRING;
             this.nodesStack = new ArrayDeque<>();
             this.fieldNames = new ArrayDeque<>();
         }
@@ -272,7 +316,7 @@ public class JSONParser {
 
             Object parentNode = this.nodesStack.pop();
             if (TypeChecker.getType(parentNode).getTag() == TypeTags.MAP_TAG) {
-                ((MapValueImpl<BString, Object>) parentNode).put(StringUtils.fromString(fieldNames.pop()),
+                ((MapValueImpl<BString, Object>) parentNode).put(BStringUtils.fromString(fieldNames.pop()),
                                                                  currentJsonNode);
                 currentJsonNode = parentNode;
                 return FIELD_END_STATE;
@@ -636,7 +680,7 @@ public class JSONParser {
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
                         ((MapValueImpl<BString, Object>) sm.currentJsonNode).put(
-                                StringUtils.fromString(sm.fieldNames.pop()), StringUtils.fromString(sm.value()));
+                                BStringUtils.fromString(sm.fieldNames.pop()), BStringUtils.fromString(sm.value()));
                         state = FIELD_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_FIELD_ESC_CHAR_PROCESSING_STATE;
@@ -807,19 +851,19 @@ public class JSONParser {
             String str = value();
             if (str.indexOf('.') >= 0) {
                 try {
-                    double doubleValue = Double.parseDouble(str);
-                    switch (type) {
-                        case ARRAY_ELEMENT:
-                            ((ArrayValue) this.currentJsonNode).append(doubleValue);
+                    switch (mode) {
+                        case FROM_JSON_FLOAT_STRING:
+                            setValueToJsonType(type, Double.parseDouble(str));
                             break;
-                        case FIELD:
-                            ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                    StringUtils.fromString(this.fieldNames.pop()), doubleValue);
-                            break;
-                        case VALUE:
-                            currentJsonNode = doubleValue;
+                        case FROM_JSON_DECIMAL_STRING:
+                            setValueToJsonType(type, new DecimalValue(str));
                             break;
                         default:
+                            if (isNegativeZero(str)) {
+                                setValueToJsonType(type, Double.parseDouble(str));
+                            } else {
+                                setValueToJsonType(type, new DecimalValue(str));
+                            }
                             break;
                     }
                 } catch (NumberFormatException ignore) {
@@ -834,7 +878,7 @@ public class JSONParser {
                             break;
                         case FIELD:
                             ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                    StringUtils.fromString(this.fieldNames.pop()), Boolean.TRUE);
+                                    BStringUtils.fromString(this.fieldNames.pop()), Boolean.TRUE);
                             break;
                         case VALUE:
                             currentJsonNode = Boolean.TRUE;
@@ -849,7 +893,7 @@ public class JSONParser {
                             break;
                         case FIELD:
                             ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                    StringUtils.fromString(this.fieldNames.pop()), Boolean.FALSE);
+                                    BStringUtils.fromString(this.fieldNames.pop()), Boolean.FALSE);
                             break;
                         case VALUE:
                             currentJsonNode = Boolean.FALSE;
@@ -864,7 +908,7 @@ public class JSONParser {
                             break;
                         case FIELD:
                             ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                    StringUtils.fromString(this.fieldNames.pop()), null);
+                                    BStringUtils.fromString(this.fieldNames.pop()), null);
                             break;
                         case VALUE:
                             currentJsonNode = null;
@@ -874,19 +918,19 @@ public class JSONParser {
                     }
                 } else {
                     try {
-                        long longValue = Long.parseLong(str);
-                        switch (type) {
-                            case ARRAY_ELEMENT:
-                                ((ArrayValue) this.currentJsonNode).append(longValue);
+                        switch (mode) {
+                            case FROM_JSON_FLOAT_STRING:
+                                setValueToJsonType(type, Double.parseDouble(str));
                                 break;
-                            case FIELD:
-                                ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
-                                        StringUtils.fromString(this.fieldNames.pop()), longValue);
-                                break;
-                            case VALUE:
-                                currentJsonNode = longValue;
+                            case FROM_JSON_DECIMAL_STRING:
+                                setValueToJsonType(type, new DecimalValue(str));
                                 break;
                             default:
+                                if (isNegativeZero(str)) {
+                                    setValueToJsonType(type, Double.parseDouble(str));
+                                } else {
+                                    setValueToJsonType(type, Long.parseLong(str));
+                                }
                                 break;
                         }
                     } catch (NumberFormatException ignore) {
@@ -894,6 +938,25 @@ public class JSONParser {
                     }
                 }
             }
+        }
+
+        private void setValueToJsonType(ValueType type, Object value) {
+            switch (type) {
+                case ARRAY_ELEMENT:
+                    ((ArrayValue) this.currentJsonNode).append(value);
+                    break;
+                case FIELD:
+                    ((MapValueImpl<BString, Object>) this.currentJsonNode).put(
+                            BStringUtils.fromString(this.fieldNames.pop()), value);
+                    break;
+                default:
+                    currentJsonNode = value;
+                    break;
+            }
+        }
+
+        private boolean isNegativeZero(String str) {
+            return '-' == str.charAt(0) && 0 == Double.parseDouble(str);
         }
 
         /**

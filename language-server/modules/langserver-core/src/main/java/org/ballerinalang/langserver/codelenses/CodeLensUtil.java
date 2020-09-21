@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codelenses;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.langserver.DocumentServiceOperationContext;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -22,11 +23,8 @@ import org.ballerinalang.langserver.commons.codelenses.CodeLensesProviderKeys;
 import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CodeLens;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +33,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,21 +61,13 @@ public class CodeLensUtil {
                 .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_LENS)
                 .withCommonParams(null, fileUri, documentManager)
                 .build();
-        BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(codeLensContext, documentManager, null,
-                false, false, true);
+        BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(codeLensContext, documentManager, false, false);
         // Source compilation has no errors, continue
         Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                 .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
                 .findFirst();
 
-        CompilerContext compilerContext = codeLensContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        final List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
-        if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-            CollectDiagnosticListener listener =
-                    (CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class);
-            diagnostics.addAll(listener.getDiagnostics());
-            listener.clearAll();
-        }
+        final List<Diagnostic> diagnostics = bLangPackage.getDiagnostics();
 
         codeLensContext.put(CodeLensesProviderKeys.BLANG_PACKAGE_KEY, bLangPackage);
         codeLensContext.put(CodeLensesProviderKeys.FILE_URI_KEY, fileUri);

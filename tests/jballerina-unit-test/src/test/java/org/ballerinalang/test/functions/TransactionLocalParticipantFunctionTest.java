@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.test.functions;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,7 +46,7 @@ public class TransactionLocalParticipantFunctionTest {
 
     @Test (enabled = false)
     public void testTransactionAnnotatedFunction() {
-        Diagnostic[] diagnostics = result.getErrorAndWarnDiagnostics();
+        Diagnostic[] diagnostics = result.getDiagnostics();
         Assert.assertTrue(diagnostics.length == 0, "Transaction annotation error");
     }
 

@@ -80,9 +80,29 @@ public class MatchStmtConstPatternTest {
         BRunUtil.invoke(result, "testConstPattern8");
     }
 
+    @Test
+    public void testConstPattern9() {
+        BRunUtil.invoke(result, "testConstPattern9");
+    }
+
+    @Test
+    public void testConstPattern10() {
+        BRunUtil.invoke(result, "testConstPattern10");
+    }
+
+    @Test
+    public void testConstPattern11() {
+        BRunUtil.invoke(result, "testConstPattern11");
+    }
+
+    @Test
+    public void testConstPattern12() {
+        BRunUtil.invoke(result, "testConstPattern12");
+    }
+
     @Test(description = "Test pattern will not be matched")
     public void testConstPatternNegative() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 26);
+        Assert.assertEquals(resultNegative.getErrorCount(), 28);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
@@ -112,5 +132,7 @@ public class MatchStmtConstPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 79, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 80, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 94, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "variable 's' may not have been initialized", 107, 12);
+        BAssertUtil.validateError(resultNegative, ++i, "variable 's' may not have been initialized", 125, 12);
     }
 }
