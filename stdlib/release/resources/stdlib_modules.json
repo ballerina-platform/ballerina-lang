@@ -204,11 +204,11 @@
             "release": false
         },
         {
-            "name": "module-ballerinax-mysql",
-            "version": "0.6.0",
+            "name": "module-ballerinax-mysql-test",
+            "version": "0.5.16",
             "branch": "master",
             "level": 7,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-ldap",
