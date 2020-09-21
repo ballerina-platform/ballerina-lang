@@ -59,9 +59,9 @@ import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
+import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -148,6 +148,9 @@ public class BuildCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
+
+    @CommandLine.Option(names = "--dump-bir-file", hidden = true)
+    private String dumpBIRFile;
 
     @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
     private boolean dumpLLVMIR;
@@ -387,6 +390,7 @@ public class BuildCommand implements BLauncherCmd {
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, this.sourceRootPath.toString());
         options.put(DUMP_BIR, Boolean.toString(dumpBIR));
+        options.put(DUMP_BIR_FILE, dumpBIRFile);
         options.put(OFFLINE, Boolean.toString(this.offline));
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(LOCK_ENABLED, Boolean.toString(!this.skipLock));
@@ -394,7 +398,6 @@ public class BuildCommand implements BLauncherCmd {
         options.put(TEST_ENABLED, Boolean.toString(!this.skipTests));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
         options.put(PRESERVE_WHITESPACE, "true");
-        options.put(NEW_PARSER_ENABLED, Boolean.toString(!this.useOldParser));
 
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);

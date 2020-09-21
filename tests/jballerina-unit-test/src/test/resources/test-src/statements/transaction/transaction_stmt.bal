@@ -365,7 +365,7 @@ transactional function setRollbackOnlyError() {
     transactions:setRollbackOnly(cause);
 }
 
-type Bank client object {
+client class Bank {
     remote transactional function deposit(string str) returns string {
         return str + "-> deposit trx func";
     }
@@ -380,7 +380,7 @@ type Bank client object {
         }
         return str;
     }
-};
+}
 
 function testInvokeRemoteTransactionalMethodInTransactionalScope() {
     Bank bank = new;

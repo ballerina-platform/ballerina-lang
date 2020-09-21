@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.__internal as internal;
 import ballerina/lang.'xml;
 
 function createPipeline(
@@ -70,8 +71,8 @@ function createDoFunction(function(_Frame _frame) doFunc) returns _StreamFunctio
     return new _DoFunction(doFunc);
 }
 
-function createLimitFunction(int lmt) returns _StreamFunction {
-    return new _LimitFunction(lmt);
+function createLimitFunction(function (_Frame _frame) returns int limitFunction) returns _StreamFunction {
+    return new _LimitFunction(limitFunction);
 }
 
 function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _StreamFunction streamFunction) {
@@ -80,43 +81,6 @@ function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _StreamFu
 
 function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, error?> {
     return pipeline.getStream();
-}
-
-function sortStream(stream<Type, error?> strm, @tainted Type[] arr, int lmt) returns stream<Type, error?> {
-    Type[] streamValArr = [];
-    record {| Type value; |}|error? v = strm.next();
-    while (v is record {| Type value; |}) {
-        streamValArr.push(v.value);
-        v = strm.next();
-    }
-
-    StreamOrderBy streamOrderByObj = new StreamOrderBy();
-    var sortedArr = <@untainted>streamOrderByObj.topDownMergeSort();
-
-    int i = 0;
-    int k = 0;
-    // Add the sorted stream values to arr
-    foreach var e in sortedArr {
-        if (!(lmt == 0) && (k == lmt)) {
-            break;
-        }
-        int j = 0;
-        while (j < streamValArr.length()) {
-            if (e is anydata[]) {
-                if (streamValArr[j] is map<anydata>|string|xml) {
-                    if (e[e.length()-1] == <map<anydata>|string|xml>streamValArr[j]) {
-                        arr[i] = streamValArr[j];
-                        var val = streamValArr.remove(j);
-                        i += 1;
-                    }
-                }
-            }
-            j += 1;
-        }
-        k += 1;
-    }
-
-    return arr.toStream();
 }
 
 function toArray(stream<Type, error?> strm, Type[] arr) returns Type[]|error {
@@ -185,9 +149,6 @@ function consumeStream(stream<Type, error?> strm) returns error? {
         return v;
     }
 }
-
-// Check whether a float is NaN
-function checkNaN(float x) returns boolean = external;
 
 // TODO: This for debugging purposes, remove once completed.
 function print(any|error? data) = external;

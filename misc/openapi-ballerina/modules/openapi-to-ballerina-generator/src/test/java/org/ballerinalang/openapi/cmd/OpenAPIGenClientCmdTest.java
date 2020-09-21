@@ -27,7 +27,7 @@ import java.io.IOException;
  * OpenAPI client generation command test suit.
  */
 public class OpenAPIGenClientCmdTest extends OpenAPICommandTest {
-    @Test(description = "Test openapi gen client command with help flag")
+    @Test(description = "Test openapi gen client command with help flag",  enabled = false)
     public void testOpenAPIGenClientCmdHelp() throws IOException {
         String[] args = {"-h"};
         OpenApiGenClientCmd openApiGenClientCmd = new OpenApiGenClientCmd(printStream, this.tmpDir.toString());

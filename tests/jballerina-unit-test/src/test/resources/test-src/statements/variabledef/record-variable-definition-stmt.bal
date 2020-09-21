@@ -295,7 +295,7 @@ function testRecordVariableWithOnlyRestParam() returns map<anydata|error> {
     return rest;
 }
 
-type Object object {
+class Object {
     private int 'field;
 
     public function init() {
@@ -305,7 +305,7 @@ type Object object {
     public function getField() returns int {
         return self.'field;
     }
-};
+}
 
 type IntRestRecord record {|
     string name;

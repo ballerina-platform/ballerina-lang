@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
@@ -47,7 +49,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Responsible for serializing BIR instructions and operands.
@@ -57,18 +61,57 @@ import java.util.List;
 public class BIRInstructionWriter extends BIRVisitor {
 
     private ByteBuf buf;
+    private ByteBuf scopeBuf;
     private ConstantPool cp;
     private BIRBinaryWriter binaryWriter;
+    private int instructionOffset;
+    private Set<BirScope> completedScopeSet;
+    private int scopeCount;
 
-    BIRInstructionWriter(ByteBuf buf, ConstantPool cp, BIRBinaryWriter birBinaryWriter) {
+    BIRInstructionWriter(ByteBuf buf, ByteBuf scopeBuf, ConstantPool cp, BIRBinaryWriter birBinaryWriter) {
         this.buf = buf;
+        this.scopeBuf = scopeBuf;
         this.binaryWriter = birBinaryWriter;
         this.cp = cp;
+        this.instructionOffset = 0;
+        this.completedScopeSet = new HashSet<>();
+        this.scopeCount = 0;
+    }
+
+    public int getScopeCount() {
+        return scopeCount;
     }
 
     void writeBBs(List<BIRBasicBlock> bbList) {
         buf.writeInt(bbList.size());
         bbList.forEach(bb -> bb.accept(this));
+    }
+
+    void writeScopes(BIRAbstractInstruction instruction) {
+        this.instructionOffset++;
+        BirScope currentScope = instruction.scope;
+
+        writeScope(currentScope);
+    }
+
+    private void writeScope(BirScope currentScope) {
+        if (this.completedScopeSet.contains(currentScope)) {
+            return;
+        }
+
+        this.completedScopeSet.add(currentScope);
+        this.scopeCount++; // Increment the scope count so we can read the scopes iteratively
+
+        scopeBuf.writeInt(currentScope.id);
+        scopeBuf.writeInt(this.instructionOffset);
+
+        if (currentScope.parent != null) {
+            scopeBuf.writeBoolean(true); // Parent available.
+            scopeBuf.writeInt(currentScope.parent.id);
+            writeScope(currentScope.parent);
+        } else {
+            scopeBuf.writeBoolean(false);
+        }
     }
 
     public void visit(BIRBasicBlock birBasicBlock) {
@@ -81,6 +124,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         birBasicBlock.instructions.forEach(instruction -> {
             // write pos and kind
             writePosition(instruction.pos);
+            writeScopes(instruction);
             buf.writeByte(instruction.kind.getValue());
             // write instruction
             instruction.accept(this);
@@ -185,6 +229,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         waitAll.lhsOp.accept(this);
         buf.writeInt(waitAll.keys.size());
         waitAll.keys.forEach(key -> buf.writeInt(addStringCPEntry(key)));
+        buf.writeInt(waitAll.valueExprs.size());
         waitAll.valueExprs.forEach(val -> val.accept(this));
         addCpAndWriteString(waitAll.thenBB.id.value);
     }
@@ -211,7 +256,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(BIRTerminator.AsyncCall birAsyncCall) {
         writeCallInstruction(birAsyncCall);
-        binaryWriter.writeAnnotAttachments(buf, this, birAsyncCall.annotAttachments);
+        binaryWriter.writeAnnotAttachments(buf, birAsyncCall.annotAttachments);
         addCpAndWriteString(birAsyncCall.thenBB.id.value);
     }
 
@@ -465,53 +510,25 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     // Positions
     void writePosition(DiagnosticPos pos) {
-        writePosition(pos, buf);
-    }
-
-    void writePosition(ByteBuf buf, DiagnosticPos pos) {
-        writePosition(pos, buf);
+        BIRWriterUtils.writePosition(pos, this.buf, this.cp);
     }
 
     int addPkgCPEntry(PackageID packageID) {
-        int orgCPIndex = addStringCPEntry(packageID.orgName.value);
-        int nameCPIndex = addStringCPEntry(packageID.name.value);
-        int versionCPIndex = addStringCPEntry(packageID.version.value);
-        return cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        return BIRWriterUtils
+                .addPkgCPEntry(packageID.orgName.value, packageID.name.value, packageID.version.value, this.cp);
     }
 
+    // private methods
 
     private void addCpAndWriteString(String string) {
         buf.writeInt(addStringCPEntry(string));
     }
 
     private int addStringCPEntry(String value) {
-        return cp.addCPEntry(new CPEntry.StringCPEntry(value));
+        return BIRWriterUtils.addStringCPEntry(value, this.cp);
     }
 
     private void writeType(BType type) {
         buf.writeInt(cp.addShapeCPEntry(type));
     }
-
-    private void writePosition(DiagnosticPos pos, ByteBuf buf) {
-        int sLine = Integer.MIN_VALUE;
-        int eLine = Integer.MIN_VALUE;
-        int sCol = Integer.MIN_VALUE;
-        int eCol = Integer.MIN_VALUE;
-        String sourceFileName = "";
-        if (pos != null) {
-            sLine = pos.sLine;
-            eLine = pos.eLine;
-            sCol = pos.sCol;
-            eCol = pos.eCol;
-            if (pos.src != null) {
-                sourceFileName = pos.src.cUnitName;
-            }
-        }
-        buf.writeInt(sLine);
-        buf.writeInt(eLine);
-        buf.writeInt(sCol);
-        buf.writeInt(eCol);
-        buf.writeInt(addStringCPEntry(sourceFileName));
-    }
-
 }

@@ -14,33 +14,35 @@
 // specific language governing permissions and limitations
 // under the License.
 
+const constLength = 2;
+
 type Rec record {
     int i?;
     int j = 10;
 };
 
-type Obj object {
+class Obj {
     int i;
 
     function init() {
         self.i = 1;
     }
-};
+}
 
-type ObjInitNullable object {
+class ObjInitNullable {
     int i;
 
     function init() returns () {
         self.i = 1;
     }
-};
+}
 
-type Age object {
+class Age {
     public int age;
     public function init(int age = 5) {
     	 self.age = age;
     }
-};
+}
 
 // TODO: fix me https://github.com/ballerina-platform/ballerina-lang/issues/20983
 function testObjectDynamicArrayFilling() {
@@ -120,6 +122,28 @@ function createMultipleConstLiteralAutoFilledSealedArray() {
     assertEqualPanic(1, sealedArray[3]);
 }
 
+function tesOneDimensionalArrayWithConstantSizeReferenceFill() {
+    int[constLength] a = [];
+    a[1] = 2;
+    assertEqualPanic(2, a.length());
+    assertEqualPanic(0, a[0]);
+    assertEqualPanic(2, a[1]);
+}
+
+function tesTwoDimensionalArrayWithConstantSizeReferenceFill() {
+    int[2][constLength] a = [];
+    a[1][0] = 3;
+    assertEqualPanic(2, a.length());
+    assertEqualPanic([0, 0], a[0]);
+    assertEqualPanic([3, 0], a[1]);
+
+    int[constLength][] b = [];
+    b[1] = [1,2,3];
+    assertEqualPanic(2, b.length());
+    assertEqualPanic([], b[0]);
+    assertEqualPanic([1,2,3], b[1]);
+}
+
 public function main() {
     testObjectDynamicArrayFilling();
     testRecordTypeWithOptionalFieldsArrayFill();
@@ -128,6 +152,8 @@ public function main() {
     testObjectNoRetDynamicArrayFilling();
     testTwoDimensionalSealedArrayFill();
     createMultipleConstLiteralAutoFilledSealedArray();
+    tesOneDimensionalArrayWithConstantSizeReferenceFill();
+    tesTwoDimensionalArrayWithConstantSizeReferenceFill();
 }
 
 function assertEqualPanic(anydata expected, anydata actual, string message = "Value mismatch") {

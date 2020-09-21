@@ -18,10 +18,11 @@
 
 package org.ballerinalang.stdlib.file.service.endpoint;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.api.BRuntime;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.ballerinalang.stdlib.file.service.FSListener;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
@@ -43,8 +44,8 @@ import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.F
 
 public class Register {
 
-    public static Object register(ObjectValue listener, ObjectValue service, Object name) {
-        MapValue serviceEndpointConfig = listener.getMapValue(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG);
+    public static Object register(BObject listener, BObject service, Object name) {
+        BMap serviceEndpointConfig = listener.getMapValue(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG);
         try {
             final Map<String, AttachedFunction> resourceRegistry = getResourceRegistry(service);
             final String events = String.join(",", resourceRegistry.keySet());
@@ -56,12 +57,13 @@ public class Register {
             listener.addNativeData(DirectoryListenerConstants.FS_SERVER_CONNECTOR, serverConnector);
         } catch (LocalFileSystemServerConnectorException e) {
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,
-                    "Unable to initialize server connector: " + e.getMessage());
+                                               BStringUtils.fromString("Unable to initialize server connector: " +
+                                                                               e.getMessage()));
         }
         return null;
     }
 
-    private static Map<String, AttachedFunction> getResourceRegistry(ObjectValue service) {
+    private static Map<String, AttachedFunction> getResourceRegistry(BObject service) {
         Map<String, AttachedFunction> registry = new HashMap<>(5);
         final AttachedFunction[] attachedFunctions = service.getType().getAttachedFunctions();
         for (AttachedFunction resource : attachedFunctions) {
@@ -90,7 +92,7 @@ public class Register {
         return registry;
     }
 
-    private static Map<String, String> getParamMap(MapValue serviceEndpointConfig, String events) {
+    private static Map<String, String> getParamMap(BMap serviceEndpointConfig, String events) {
         final String path = serviceEndpointConfig.getStringValue(DirectoryListenerConstants.ANNOTATION_PATH).getValue();
         final boolean recursive = serviceEndpointConfig
                 .getBooleanValue(DirectoryListenerConstants.ANNOTATION_DIRECTORY_RECURSIVE);

@@ -14,7 +14,7 @@ public function testObjectWithoutRHSType () returns [int, string, int, string] {
 }
 
 
-type Person object {
+class Person {
     public int age = 10;
     public string name = "sample name";
 
@@ -27,4 +27,4 @@ type Person object {
         self.age = self.age + count;
         self.month = val1;
     }
-};
+}

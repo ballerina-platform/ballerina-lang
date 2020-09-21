@@ -1,5 +1,5 @@
 public function foo() {
-   if (true) {
-       int x = 6;
-   }
+    if (true) {
+        int x = 6;
+    }
 }

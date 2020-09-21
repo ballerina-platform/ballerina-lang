@@ -35,17 +35,17 @@ type Bar record {
     float f = 2.0;
 };
 
-type Baz object {
+class Baz {
     string x;
     Qux q;
 
-    function init() {
+    isolated function init() {
         self.x = "string value";
         self.q = new;
     }
-};
+}
 
-type BazTwo object {
+class BazTwo {
     int x;
     Qux q;
 
@@ -53,11 +53,11 @@ type BazTwo object {
         self.x = 1;
         self.q = new;
     }
-};
+}
 
-type Qux object {
+class Qux {
     string x = "test string";
-};
+}
 
 int gi = 1;
 int|string gsi = 2;
@@ -186,21 +186,21 @@ function testInherentTypeViolatingUpdate1() {
     a.i = "hello";
 }
 
-type AObj object {
+class AObj {
     boolean|int i;
 
     function init(boolean|int i) {
         self.i = i;
     }
-};
+}
 
-type BObj object {
+class BObj {
     boolean i;
 
     function init(boolean i) {
         self.i = i;
     }
-};
+}
 
 function testInherentTypeViolatingUpdate2() {
     BObj b = new(true);
@@ -267,14 +267,14 @@ function testArrayFillSuccess2() returns boolean {
             e[1].f.f == 1.0;
 }
 
-type G object {
+class G {
 
     string s;
 
     function init(string s) {
         self.s = s;
     }
-};
+}
 
 function testArrayFillFailure() {
     G[] a = [new("hello"), new("world")];
@@ -297,9 +297,9 @@ type H record {
     map<int> m?;
 };
 
-type I object {
+class I {
     H h = {};
-};
+}
 
 function testFillingReadOnInitializedObjectField() returns boolean {
     I i = new;

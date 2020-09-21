@@ -17,10 +17,10 @@
  */
 package org.ballerina.compiler.api;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.TextRange;
+import io.ballerina.tools.text.LineRange;
 import org.ballerina.compiler.api.symbols.Symbol;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,24 +35,41 @@ public interface SemanticModel {
     /**
      * Lookup the visible symbols at the given location.
      *
+     * @param fileName  path for the file in which we need to look up symbols, relative to the source root path
      * @param position text position in the source
      * @return {@link List} of visible symbols in the given location
      */
-    List<Symbol> visibleSymbols(LinePosition position);
+    List<Symbol> visibleSymbols(String fileName, LinePosition position);
 
     /**
      * Lookup the symbol at the given location.
      *
+     * @param srcFile  path for the file in which we need to look up symbols, relative to the source root path
      * @param position text position in the source
      * @return {@link Symbol} in the given location
      */
-    Optional<Symbol> symbol(LinePosition position);
+    Optional<Symbol> symbol(String srcFile, LinePosition position);
+
+    /**
+     * Retrieves the symbols of module-scoped constructs in the semantic model.
+     *
+     * @return A list of module-scoped symbols
+     */
+    List<Symbol> moduleLevelSymbols();
 
     /**
      * Get the diagnostics within the given text Span.
      *
-     * @param textRange Text range to filter the diagnostics
+     * @param range Line range to filter the diagnostics
      * @return {@link List} of extracted diagnostics
      */
-    List<Diagnostic> diagnostics(TextRange textRange);
+    List<Diagnostic> diagnostics(LineRange range);
+
+
+    /**
+     * Retrieves the diagnostics of the module.
+     *
+     * @return {@link List} of diagnostics for the module
+     */
+    List<Diagnostic> diagnostics();
 }

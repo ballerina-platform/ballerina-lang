@@ -18,9 +18,11 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -52,6 +54,10 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
     public List<LSCompletionItem> getCompletions(LSContext context, FunctionTypeDescriptorNode node) {
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
 
+        if (this.onSuggestionsAfterQualifiers(context, node)) {
+            // Currently we consider the isolated qualifier only
+            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+        }
         if (this.withinParameterContext(context, node)) {
             /*
             Covers the completions when the cursor is within the parameter context
@@ -62,7 +68,7 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
                 return this.getCompletionItemList(typesInModule, context);
             }
 
-            List<LSCompletionItem> completionItems = this.getPackagesCompletionItems(context);
+            List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
             completionItems.addAll(this.getTypeItems(context));
 
             return completionItems;
@@ -98,5 +104,18 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
 
         return closeParanRange.startOffset() <= txtPosInTree && (!returnTypeDescNode.isPresent()
                 || returnTypeDescNode.get().returnsKeyword().isMissing());
+    }
+    
+    private boolean onSuggestionsAfterQualifiers(LSContext context, FunctionTypeDescriptorNode node) {
+        int cursor = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);
+        NodeList<Token> qualifiers = node.qualifierList();
+        Token functionKeyword = node.functionKeyword();
+        
+        if (qualifiers.isEmpty()) {
+            return false;
+        }
+        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        return cursor > lastQualifier.textRange().endOffset()
+                && (functionKeyword.isMissing() || cursor < functionKeyword.textRange().startOffset());
     }
 }

@@ -11,7 +11,7 @@ never{
    panic error("Invalid");
 }
 
-public function main66() {
+public function foo() {
    xml  <  never  >    xmlValue = <  xml  <   never   >  > 'xml:concat();
    map<
    never  > someMap = {};

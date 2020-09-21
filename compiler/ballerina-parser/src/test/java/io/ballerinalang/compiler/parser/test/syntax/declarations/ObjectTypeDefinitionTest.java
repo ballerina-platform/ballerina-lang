@@ -62,91 +62,14 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     }
 
     @Test
-    public void testObjectFieldsWithReadonlyQualifier() {
-        test("object-type-def/object_type_def_source_37.bal", "object-type-def/object_type_def_assert_37.json");
-    }
-
-    @Test
     public void testObjectFieldsWithComplexTypeDescHavingReadonlyTypeDescWithin() {
         test("object-type-def/object_type_def_source_38.bal", "object-type-def/object_type_def_assert_38.json");
-        test("object-type-def/object_type_def_source_39.bal", "object-type-def/object_type_def_assert_39.json");
     }
 
-    // Test object type qualifiers
-
     @Test
-    public void testClientQualifierOnly() {
+    public void testClientQualifier() {
         test("object-type-def/object_type_def_source_14.bal", "object-type-def/object_type_def_assert_14.json");
-    }
-
-    @Test
-    public void testAbstractQualifierOnly() {
-        test("object-type-def/object_type_def_source_15.bal", "object-type-def/object_type_def_assert_15.json");
-    }
-
-    @Test
-    public void testClientAndAbstractQualifiers() {
         test("object-type-def/object_type_def_source_16.bal", "object-type-def/object_type_def_assert_16.json");
-    }
-
-    @Test
-    public void testAbstractAndClientQualifiers() {
-        test("object-type-def/object_type_def_source_17.bal", "object-type-def/object_type_def_assert_17.json");
-    }
-
-    @Test
-    public void testReadonlyQualifierOnly() {
-        test("object-type-def/object_type_def_source_24.bal", "object-type-def/object_type_def_assert_24.json");
-    }
-
-    @Test
-    public void testReadonlyAndAbstractQualifiers() {
-        test("object-type-def/object_type_def_source_25.bal", "object-type-def/object_type_def_assert_25.json");
-    }
-
-    @Test
-    public void testAbstractAndReadonlyQualifiers() {
-        test("object-type-def/object_type_def_source_26.bal", "object-type-def/object_type_def_assert_26.json");
-    }
-
-    @Test
-    public void testReadonlyAndClientQualifiers() {
-        test("object-type-def/object_type_def_source_27.bal", "object-type-def/object_type_def_assert_27.json");
-    }
-
-    @Test
-    public void testClientAndReadonlyQualifiers() {
-        test("object-type-def/object_type_def_source_28.bal", "object-type-def/object_type_def_assert_28.json");
-    }
-
-    @Test
-    public void testReadonlyAbstractAndClientQualifiers() {
-        test("object-type-def/object_type_def_source_29.bal", "object-type-def/object_type_def_assert_29.json");
-    }
-
-    @Test
-    public void testReadonlyClientAndAbstractQualifiers() {
-        test("object-type-def/object_type_def_source_30.bal", "object-type-def/object_type_def_assert_30.json");
-    }
-
-    @Test
-    public void testAbstractReadonlyAndClientQualifiers() {
-        test("object-type-def/object_type_def_source_31.bal", "object-type-def/object_type_def_assert_31.json");
-    }
-
-    @Test
-    public void testAbstractClientAndReadonlyQualifiers() {
-        test("object-type-def/object_type_def_source_32.bal", "object-type-def/object_type_def_assert_32.json");
-    }
-
-    @Test
-    public void testClientReadonlyAndAbstractQualifiers() {
-        test("object-type-def/object_type_def_source_33.bal", "object-type-def/object_type_def_assert_33.json");
-    }
-
-    @Test
-    public void testClientAbstractAndReadonlyQualifiers() {
-        test("object-type-def/object_type_def_source_34.bal", "object-type-def/object_type_def_assert_34.json");
     }
 
     @Test
@@ -177,7 +100,7 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     }
 
     @Test
-    public void testObjectFieldWithMissingEqual() {
+    public void testObjectFieldWithInitializer() {
         test("object-type-def/object_type_def_source_09.bal", "object-type-def/object_type_def_assert_09.json");
     }
 
@@ -224,5 +147,27 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testInvalidObjectMethodWithTransactional() {
         test("object-type-def/object_type_def_source_42.bal", "object-type-def/object_type_def_assert_42.json");
+    }
+
+    @Test
+    public void testObjectDescWithObjectMemberDescriptorsNegative() {
+        testFile("object-type-def/object_type_def_source_43.bal", "object-type-def/object_type_def_assert_43.json");
+    }
+
+    @Test
+    public void testObjectTypeWithAbstractQualifier() {
+        test("object-type-def/object_type_def_source_15.bal", "object-type-def/object_type_def_assert_15.json");
+    }
+
+    @Test
+    public void testObjectTypeWithClientReadonlyAndAbstractQualifiers() {
+        test("object-type-def/object_type_def_source_33.bal", "object-type-def/object_type_def_assert_33.json");
+    }
+
+    @Test
+    public void testObjectFieldsWithInvalidQualifier() {
+        test("object-type-def/object_type_def_source_17.bal", "object-type-def/object_type_def_assert_17.json");
+        test("object-type-def/object_type_def_source_37.bal", "object-type-def/object_type_def_assert_37.json");
+        test("object-type-def/object_type_def_source_39.bal", "object-type-def/object_type_def_assert_39.json");
     }
 }

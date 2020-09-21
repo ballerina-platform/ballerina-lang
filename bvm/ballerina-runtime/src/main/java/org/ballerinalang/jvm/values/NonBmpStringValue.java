@@ -17,8 +17,9 @@
   */
  package org.ballerinalang.jvm.values;
 
- import org.ballerinalang.jvm.StringUtils;
- import org.ballerinalang.jvm.values.api.BString;
+ import org.ballerinalang.jvm.api.BStringUtils;
+ import org.ballerinalang.jvm.api.values.BLink;
+ import org.ballerinalang.jvm.api.values.BString;
 
  import java.util.Arrays;
 
@@ -83,8 +84,13 @@
     }
 
      @Override
-     public String stringValue() {
+     public String stringValue(BLink parent) {
          return value;
+     }
+
+     @Override
+     public String informalStringValue(BLink parent) {
+         return "\"" + toString() + "\"";
      }
 
      public int[] getSurrogates() {
@@ -147,7 +153,7 @@
      public BString substring(int beginIndex, int endIndex) {
          int beginOffset = getOffset(beginIndex);
          int endOffset = getOffset(endIndex);
-         return StringUtils.fromString(value.substring(beginOffset, endOffset));
+         return BStringUtils.fromString(value.substring(beginOffset, endOffset));
      }
 
      private int getOffset(int fromIndex) {

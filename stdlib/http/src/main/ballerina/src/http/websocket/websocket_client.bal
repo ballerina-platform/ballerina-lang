@@ -16,9 +16,10 @@
 
 import ballerina/java;
 import ballerina/time;
+import ballerina/lang.array;
 
 # Represents a WebSocket client endpoint.
-public type WebSocketClient client object {
+public client class WebSocketClient {
 
     private string id = "";
     private string? negotiatedSubProtocol = ();
@@ -173,8 +174,8 @@ public type WebSocketClient client object {
     public function getHttpResponse() returns Response? {
         return self.response;
     }
-    
-};
+
+}
 
 # Configurations for the WebSocket client.
 # Following fields are inherited from the other configuration records in addition to the Client specific
@@ -237,7 +238,16 @@ public function addCookies(WebSocketClientConfiguration|WebSocketFailoverClientC
     string cookieHeader = "";
     var cookiesToAdd = config["cookies"];
     if (cookiesToAdd is Cookie[]) {
-        Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
+
+        Cookie[] sortedCookies = cookiesToAdd.sort(array:ASCENDING, isolated function(Cookie c) returns int {
+                var cookiePath = c.path;
+                int l = 0;
+                if (cookiePath is string) {
+                   l = cookiePath.length();
+                }
+                return l;
+            });
+
         foreach var cookie in sortedCookies {
             var cookieName = cookie.name;
             var cookieValue = cookie.value;
@@ -270,11 +280,11 @@ public type WebSocketRetryConfig record {|
 |};
 
 function externWSInitEndpoint(WebSocketClient wsClient) = @java:Method {
-    class: "org.ballerinalang.net.http.websocket.client.InitEndpoint",
+    'class: "org.ballerinalang.net.http.websocket.client.InitEndpoint",
     name: "initEndpoint"
 } external;
 
 function externRetryInitEndpoint(WebSocketClient wsClient) = @java:Method {
-    class: "org.ballerinalang.net.http.websocket.client.RetryInitEndpoint",
+    'class: "org.ballerinalang.net.http.websocket.client.RetryInitEndpoint",
     name: "initEndpoint"
 } external;

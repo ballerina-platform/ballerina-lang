@@ -15,7 +15,7 @@
 // under the License.
 
 # Represents a WebSocket caller.
-public type WebSocketCaller client object {
+public client class WebSocketCaller {
 
     private string id = "";
     private string? negotiatedSubProtocol = ();
@@ -133,4 +133,4 @@ public type WebSocketCaller client object {
     public function isOpen() returns boolean {
         return self.open;
     }
-};
+}

@@ -91,6 +91,11 @@ public class LangLibValueTest {
     }
 
     @Test
+    public void testToStringOnCycles() {
+        BRunUtil.invokeFunction(compileResult, "testToStringOnCycles");
+    }
+
+    @Test
     public void testFromJsonString() {
 
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonString");
@@ -101,12 +106,62 @@ public class LangLibValueTest {
         assertNull(arr.get("aNull"));
         assertEquals(arr.get("aString").stringValue(), "aString");
         assertEquals(arr.get("aNumber").stringValue(), "10");
-//        assertEquals(arr.get("aFloatNumber").stringValue(), "10.5"); // TODO : Enable this. Bug in JVM Type checker.
+        assertEquals(arr.get("aFloatNumber").stringValue(), "10.5");
+        assertEquals(arr.get("positiveZero").stringValue(), "0");
+        assertEquals(arr.get("negativeZero").stringValue(), "-0.0");
+        assertEquals(arr.get("negativeNumber").stringValue(), "-25");
+        assertEquals(arr.get("negativeFloatNumber").stringValue(), "-10.5");
         assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");
         assertEquals(arr.get("anObject").stringValue(),
                 "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
         assertEquals(arr.get("anInvalid").getType().getTag(), TypeTags.ERROR_TAG);
-        assertEquals(arr.size(), 7);
+        assertEquals(arr.size(), 12);
+    }
+
+    @Test
+    public void testFromJsonFloatString() {
+
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonFloatString");
+        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+
+        BMap<String, BValue> arr = (BMap<String, BValue>) returns[0];
+        assertEquals(arr.get("aNil").getType().getTag(), TypeTags.ERROR_TAG);
+        assertNull(arr.get("aNull"));
+        assertEquals(arr.get("aString").stringValue(), "aString");
+        assertEquals(arr.get("aNumber").stringValue(), "10.0");
+        assertEquals(arr.get("aFloatNumber").stringValue(), "10.5");
+        assertEquals(arr.get("positiveZero").stringValue(), "0.0");
+        assertEquals(arr.get("negativeZero").stringValue(), "-0.0");
+        assertEquals(arr.get("negativeNumber").stringValue(), "-25.0");
+        assertEquals(arr.get("negativeFloatNumber").stringValue(), "-10.5");
+        assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");
+        assertEquals(arr.get("anObject").stringValue(),
+                "{\"name\":\"anObject\", \"value\":10.0, \"sub\":{\"subName\":\"subObject\", \"subValue\":10.0}}");
+        assertEquals(arr.get("anInvalid").getType().getTag(), TypeTags.ERROR_TAG);
+        assertEquals(arr.size(), 12);
+    }
+
+    @Test
+    public void testFromJsonDecimalString() {
+
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonDecimalString");
+        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+
+        BMap<String, BValue> arr = (BMap<String, BValue>) returns[0];
+        assertEquals(arr.get("aNil").getType().getTag(), TypeTags.ERROR_TAG);
+        assertNull(arr.get("aNull"));
+        assertEquals(arr.get("aString").stringValue(), "aString");
+        assertEquals(arr.get("aNumber").stringValue(), "10");
+        assertEquals(arr.get("aFloatNumber").stringValue(), "10.5");
+        assertEquals(arr.get("positiveZero").stringValue(), "0.0");
+        assertEquals(arr.get("negativeZero").stringValue(), "0.0");
+        assertEquals(arr.get("negativeNumber").stringValue(), "-25");
+        assertEquals(arr.get("negativeFloatNumber").stringValue(), "-10.5");
+        assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");
+        assertEquals(arr.get("anObject").stringValue(),
+                "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
+        assertEquals(arr.get("anInvalid").getType().getTag(), TypeTags.ERROR_TAG);
+        assertEquals(arr.size(), 12);
     }
 
     @Test
@@ -127,39 +182,44 @@ public class LangLibValueTest {
         Assert.assertEquals(array.getString(i++), "");
         Assert.assertEquals(array.getString(i++), "true");
         Assert.assertEquals(array.getString(i++), "345.2425341");
-        Assert.assertEquals(array.getString(i++), "a=STRING b=12 c=12.4 d=true e=x=x y=");
+        Assert.assertEquals(array.getString(i++), "{\"a\":\"STRING\",\"b\":12,\"c\":12.4,\"d\":true," +
+                "\"e\":{\"x\":\"x\",\"y\":null}}");
         Assert.assertEquals(array.getString(i++),
                 "<CATALOG>" +
                 "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
                 "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
                 "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
                 "</CATALOG>");
-        Assert.assertEquals(array.getString(i++), "str 23 23.4 true");
-        Assert.assertEquals(array.getString(i++), "error Reason1 message=Test passing error union to a function");
+        Assert.assertEquals(array.getString(i++), "[\"str\",23,23.4,true]");
+        Assert.assertEquals(array.getString(i++), "error FirstError (\"Reason1\",message=\"Test passing error " +
+                "union to a function\")");
         Assert.assertEquals(array.getString(i++), "object Student");
         Assert.assertEquals(array.getString(i++), "Rola from MMV");
-        Assert.assertEquals(array.getString(i++), "object Student Rola from MMV");
+        Assert.assertEquals(array.getString(i++), "[object Student,Rola from MMV]");
         Assert.assertEquals(array.getString(i++),
-                "name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12");
+                "{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\",\"city\":\"Colombo\"," +
+                        "\"street\":\"Palm Grove\"},\"age\":12}");
         Assert.assertEquals(array.getString(i),
-                            "varInt=6 " +
-                            "varFloat=6.0 " +
-                            "varStr=toString " +
-                            "varNil= " +
-                            "varBool=true " +
-                            "varDecimal=345.2425341 " +
-                            "varjson=a=STRING b=12 c=12.4 d=true e=x=x y= " +
-                            "varXml=<CATALOG>" +
-                            "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
-                            "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
-                            "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
-                            "</CATALOG> " +
-                            "varArr=str 23 23.4 true " +
-                            "varErr=error Reason1 message=Test passing error union to a function " +
-                            "varObj=object Student " +
-                            "varObj2=Rola from MMV " +
-                            "varObjArr=object Student Rola from MMV " +
-                            "varRecord=name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12");
+                            "{\"varInt\":6," +
+                                    "\"varFloat\":6.0," +
+                                    "\"varStr\":\"toString\"," +
+                                    "\"varNil\":null," +
+                                    "\"varBool\":true," +
+                                    "\"varDecimal\":345.2425341," +
+                                    "\"varjson\":{\"a\":\"STRING\",\"b\":12,\"c\":12.4,\"d\":true," +
+                                    "\"e\":{\"x\":\"x\",\"y\":null}}," +
+                                    "\"varXml\":`<CATALOG><CD><TITLE>Empire Burlesque</TITLE>" +
+                                    "<ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE>" +
+                                    "<ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
+                                    "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`," +
+                                    "\"varArr\":[\"str\",23,23.4,true]," +
+                                    "\"varErr\":error FirstError (\"Reason1\"," +
+                                    "message=\"Test passing error union to a function\")," +
+                                    "\"varObj\":object Student," +
+                                    "\"varObj2\":Rola from MMV," +
+                                    "\"varObjArr\":[object Student,Rola from MMV]," +
+                                    "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
+                                    "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}}");
     }
 
     @Test

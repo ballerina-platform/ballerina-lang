@@ -130,7 +130,7 @@ function tableFunc(){
             { name: "Mary", physics: 90, chemistry: 87 }
         ];
 
-    assertEquality("name=Mary physics=90 chemistry=87", gradesTable.toString());
+    assertEquality("[{\"name\":\"Mary\",\"physics\":90,\"chemistry\":87}]", gradesTable.toString());
 }
 
 function arrayFunc(string[] strs) returns Grades[] {

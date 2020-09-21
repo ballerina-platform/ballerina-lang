@@ -17,12 +17,19 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.MapUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BLink;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BValue;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -33,9 +40,6 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -149,7 +153,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
-            throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+            throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
+                    .fromString("cannot find key '" + key + "'"));
         }
         return this.get(key);
     }
@@ -178,7 +183,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             } else {
                 if (recordType.sealed) {
                     // Panic if this record type does not contain a key by the specified name.
-                    throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+                    throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
+                            .fromString("cannot find key '" + key + "'"));
                 }
                 expectedType = recordType.restFieldType;
             }
@@ -188,7 +194,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
-            throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+            throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
+                    .fromString("cannot find key '" + key + "'"));
         }
 
         Object value = expectedType.getZeroValue();
@@ -228,9 +235,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 errMessage = "Invalid map insertion: ";
                 break;
         }
-        throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                          errMessage + BLangExceptionHelper.getErrorMessage(
-                                                  INVALID_READONLY_VALUE_UPDATE));
+        throw BErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
+                                        BStringUtils
+                                                .fromString(errMessage).concat(BLangExceptionHelper.getErrorMessage(
+                                                  INVALID_READONLY_VALUE_UPDATE)));
     }
 
     protected void populateInitialValues(MappingInitialValueEntry[] initialValues) {
@@ -373,7 +381,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public String toString() {
-        return stringValue();
+        return stringValue(null);
     }
 
     @SuppressWarnings("unchecked")
@@ -408,14 +416,34 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public String stringValue() {
-        StringJoiner sj = new StringJoiner(" ");
+    public String stringValue(BLink parent) {
+        StringJoiner sj = new StringJoiner(",");
         for (Map.Entry<K, V> kvEntry : this.entrySet()) {
             K key = kvEntry.getKey();
             V value = kvEntry.getValue();
-            sj.add(key + "=" + StringUtils.getStringValue(value));
+            if (value == null) {
+                sj.add("\"" + key + "\":null");
+            } else {
+                BType type = TypeChecker.getType(value);
+                CycleUtils.Node mapParent = new CycleUtils.Node(this, parent);
+                switch (type.getTag()) {
+                    case TypeTags.STRING_TAG:
+                    case TypeTags.XML_TAG:
+                    case TypeTags.XML_ELEMENT_TAG:
+                    case TypeTags.XML_ATTRIBUTES_TAG:
+                    case TypeTags.XML_COMMENT_TAG:
+                    case TypeTags.XML_PI_TAG:
+                    case TypeTags.XMLNS_TAG:
+                    case TypeTags.XML_TEXT_TAG:
+                        sj.add("\"" + key + "\":" + ((BValue) value).informalStringValue(mapParent));
+                        break;
+                    default:
+                        sj.add("\"" + key + "\":" + BStringUtils.getStringValue(value, mapParent));
+                        break;
+                }
+            }
         }
-        return sj.toString();
+        return "{" + sj.toString() + "}";
     }
 
     @Override
@@ -565,7 +593,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     private Object merge(MapValueImpl v2, boolean checkMergeability) {
         if (checkMergeability) {
-            ErrorValue errorIfUnmergeable = JSONUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
+            BError errorIfUnmergeable = JSONUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
             if (errorIfUnmergeable != null) {
                 return errorIfUnmergeable;
             }

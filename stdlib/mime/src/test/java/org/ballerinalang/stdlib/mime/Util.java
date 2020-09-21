@@ -18,15 +18,16 @@
 
 package org.ballerinalang.stdlib.mime;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -76,7 +77,7 @@ public class Util {
      * @param bodyParts List of body parts
      * @return BValueArray representing an array of entities
      */
-    public static ArrayValue getArrayOfBodyParts(ArrayList<ObjectValue> bodyParts) {
+    public static ArrayValue getArrayOfBodyParts(ArrayList<BObject> bodyParts) {
         BType typeOfBodyPart = bodyParts.get(0).getType();
         ObjectValue[] result = bodyParts.toArray(new ObjectValue[bodyParts.size()]);
         return new ArrayValueImpl(result, new org.ballerinalang.jvm.types.BArrayType(typeOfBodyPart));
@@ -87,9 +88,9 @@ public class Util {
      *
      * @return A ballerina struct that represent a body part
      */
-    public static ObjectValue getTextBodyPart() {
+    public static BObject getTextBodyPart() {
         String textPayload = "Ballerina text body part";
-        ObjectValue bodyPart = createEntityObject();
+        BObject bodyPart = createEntityObject();
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(textPayload));
         MimeUtil.setContentType(createMediaTypeObject(), bodyPart, TEXT_PLAIN);
         return bodyPart;
@@ -100,10 +101,10 @@ public class Util {
      *
      * @return A body part with text content in a file
      */
-    public static ObjectValue getTextFilePart() {
+    public static BObject getTextFilePart() {
         try {
             File file = getTemporaryFile("test", ".txt", "Ballerina text as a file part");
-            ObjectValue bodyPart = createEntityObject();
+            BObject bodyPart = createEntityObject();
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
             MimeUtil.setContentType(createMediaTypeObject(), bodyPart, TEXT_PLAIN);
@@ -122,10 +123,10 @@ public class Util {
      * @param message                 String that needs to be written to temp file
      * @return A ballerina struct that represent a body part
      */
-    public static ObjectValue getTextFilePartWithEncoding(String contentTransferEncoding, String message) {
+    public static BObject getTextFilePartWithEncoding(String contentTransferEncoding, String message) {
         try {
             File file = getTemporaryFile("test", ".txt", message);
-            ObjectValue bodyPart = createEntityObject();
+            BObject bodyPart = createEntityObject();
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
             MimeUtil.setContentType(createMediaTypeObject(), bodyPart, TEXT_PLAIN);
@@ -143,11 +144,11 @@ public class Util {
      *
      * @return A ballerina struct that represent a body part
      */
-    public static ObjectValue getJsonBodyPart() {
+    public static BObject getJsonBodyPart() {
         String key = "bodyPart";
         String value = "jsonPart";
         String jsonContent = "{\"" + key + "\":\"" + value + "\"}";
-        ObjectValue bodyPart = createEntityObject();
+        BObject bodyPart = createEntityObject();
         EntityWrapper byteChannel = EntityBodyHandler.getEntityWrapper(jsonContent);
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
         MimeUtil.setContentType(createMediaTypeObject(), bodyPart, APPLICATION_JSON);
@@ -159,10 +160,10 @@ public class Util {
      *
      * @return A body part with json content in a file
      */
-    public static ObjectValue getJsonFilePart() {
+    public static BObject getJsonFilePart() {
         try {
             File file = getTemporaryFile("test", ".json", "{'name':'wso2'}");
-            ObjectValue bodyPart = createEntityObject();
+            BObject bodyPart = createEntityObject();
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
             MimeUtil.setContentType(createMediaTypeObject(), bodyPart, APPLICATION_JSON);
@@ -179,11 +180,11 @@ public class Util {
      *
      * @return A ballerina struct that represent a body part
      */
-    public static ObjectValue getXmlBodyPart() {
+    public static BObject getXmlBodyPart() {
         XMLValue xmlNode = XMLFactory.parse("<name>Ballerina</name>");
-        ObjectValue bodyPart = createEntityObject();
+        BObject bodyPart = createEntityObject();
         EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
-                xmlNode.stringValue().getBytes(StandardCharsets.UTF_8)));
+                xmlNode.stringValue(null).getBytes(StandardCharsets.UTF_8)));
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(byteChannel));
         MimeUtil.setContentType(createMediaTypeObject(), bodyPart, APPLICATION_XML);
         return bodyPart;
@@ -194,10 +195,10 @@ public class Util {
      *
      * @return A body part with xml content in a file
      */
-    public static ObjectValue getXmlFilePart() {
+    public static BObject getXmlFilePart() {
         try {
             File file = getTemporaryFile("test", ".xml", "<name>Ballerina xml file part</name>");
-            ObjectValue bodyPart = createEntityObject();
+            BObject bodyPart = createEntityObject();
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
             MimeUtil.setContentType(createMediaTypeObject(), bodyPart, APPLICATION_XML);
@@ -214,8 +215,8 @@ public class Util {
      *
      * @return A ballerina struct that represent a body part
      */
-    public static ObjectValue getBinaryBodyPart() {
-        ObjectValue bodyPart = createEntityObject();
+    public static BObject getBinaryBodyPart() {
+        BObject bodyPart = createEntityObject();
         EntityWrapper byteChannel = EntityBodyHandler.getEntityWrapper("Ballerina binary part");
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
         MimeUtil.setContentType(createMediaTypeObject(), bodyPart, OCTET_STREAM);
@@ -227,10 +228,10 @@ public class Util {
      *
      * @return A body part with blob content in a file
      */
-    public static ObjectValue getBinaryFilePart() {
+    public static BObject getBinaryFilePart() {
         try {
             File file = getTemporaryFile("test", ".tmp", "Ballerina binary file part");
-            ObjectValue bodyPart = createEntityObject();
+            BObject bodyPart = createEntityObject();
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
             MimeUtil.setContentType(createMediaTypeObject(), bodyPart, OCTET_STREAM);
@@ -247,9 +248,9 @@ public class Util {
      *
      * @return A ballerina entity with four body parts in it
      */
-    public static ObjectValue getMultipartEntity() {
-        ObjectValue multipartEntity = createEntityObject();
-        ArrayList<ObjectValue> bodyParts = getMultipleBodyParts();
+    public static BObject getMultipartEntity() {
+        BObject multipartEntity = createEntityObject();
+        ArrayList<BObject> bodyParts = getMultipleBodyParts();
         multipartEntity.addNativeData(BODY_PARTS, Util.getArrayOfBodyParts(bodyParts));
         return multipartEntity;
     }
@@ -259,10 +260,10 @@ public class Util {
      *
      * @return A nested multipart entity
      */
-    public static ObjectValue getNestedMultipartEntity() {
-        ObjectValue nestedMultipartEntity = createEntityObject();
-        ArrayList<ObjectValue> bodyParts = getEmptyBodyPartList();
-        for (ObjectValue bodyPart : bodyParts) {
+    public static BObject getNestedMultipartEntity() {
+        BObject nestedMultipartEntity = createEntityObject();
+        ArrayList<BObject> bodyParts = getEmptyBodyPartList();
+        for (BObject bodyPart : bodyParts) {
             MimeUtil.setContentType(createMediaTypeObject(), bodyPart, MULTIPART_MIXED);
             bodyPart.addNativeData(BODY_PARTS, Util.getArrayOfBodyParts(getMultipleBodyParts()));
         }
@@ -275,8 +276,8 @@ public class Util {
      *
      * @return A list of different body parts
      */
-    private static ArrayList<ObjectValue> getMultipleBodyParts() {
-        ArrayList<ObjectValue> bodyParts = new ArrayList<>();
+    private static ArrayList<BObject> getMultipleBodyParts() {
+        ArrayList<BObject> bodyParts = new ArrayList<>();
         bodyParts.add(getJsonBodyPart());
         bodyParts.add(getXmlFilePart());
         bodyParts.add(getTextBodyPart());
@@ -289,25 +290,25 @@ public class Util {
      *
      * @return A list of empty body parts
      */
-    private static ArrayList<ObjectValue> getEmptyBodyPartList() {
-        ArrayList<ObjectValue> bodyParts = new ArrayList<>();
+    private static ArrayList<BObject> getEmptyBodyPartList() {
+        ArrayList<BObject> bodyParts = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             bodyParts.add(createEntityObject());
         }
         return bodyParts;
     }
 
-    public static ObjectValue createEntityObject() {
-        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
+    public static BObject createEntityObject() {
+        return BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
     }
 
 
-    public static ObjectValue createMediaTypeObject() {
-        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
+    public static BObject createMediaTypeObject() {
+        return BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
     }
 
-    public static ObjectValue getContentDispositionStruct() {
-        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, CONTENT_DISPOSITION_STRUCT);
+    public static BObject getContentDispositionStruct() {
+        return BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, CONTENT_DISPOSITION_STRUCT);
     }
 
     //@NotNull
@@ -327,17 +328,17 @@ public class Util {
      * @param bodyPart  Ballerina body part
      * @throws IOException When an exception occurs during binary data decoding
      */
-    public static void validateBodyPartContent(List<MIMEPart> mimeParts, ObjectValue bodyPart)
+    public static void validateBodyPartContent(List<MIMEPart> mimeParts, BObject bodyPart)
             throws IOException {
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(0));
         Object jsonData = EntityBodyHandler.constructJsonDataSource(bodyPart);
         Assert.assertNotNull(jsonData);
-        Assert.assertEquals(StringUtils.getJsonString(jsonData), "{\"" + "bodyPart" + "\":\"" + "jsonPart" + "\"}");
+        Assert.assertEquals(BStringUtils.getJsonString(jsonData), "{\"" + "bodyPart" + "\":\"" + "jsonPart" + "\"}");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(1));
         XMLValue xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);
         Assert.assertNotNull(xmlData);
-        Assert.assertEquals(xmlData.stringValue(), "<name>Ballerina xml file part</name>");
+        Assert.assertEquals(xmlData.stringValue(null), "<name>Ballerina xml file part</name>");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(2));
         BString textData = EntityBodyHandler.constructStringDataSource(bodyPart);

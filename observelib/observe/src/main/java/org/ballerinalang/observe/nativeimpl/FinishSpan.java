@@ -19,7 +19,8 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -40,14 +41,16 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 public class FinishSpan {
+    private static final OpenTracerBallerinaWrapper otWrapperInstance = OpenTracerBallerinaWrapper.getInstance();
 
     public static Object finishSpan(Strand strand, long spanId) {
-        boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(strand, spanId);
+        boolean isFinished = otWrapperInstance.finishSpan(strand, spanId);
 
         if (isFinished) {
             return null;
         }
 
-        return BallerinaErrors.createError("Can not finish span with id " + spanId + ". Span already finished");
+        return BErrorCreator.createError(BStringUtils.fromString(("Can not finish span with id " + spanId + ". Span " +
+                "already finished")));
     }
 }

@@ -77,7 +77,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
         BLangPackage bLangPackage;
         try {
             WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-            bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, null, false, false, true);
+            bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, false, false);
         } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }
@@ -97,7 +97,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
             }
             if (topLevelNode instanceof BLangService) {
                 BLangService service = (BLangService) topLevelNode;
-                ((BLangObjectTypeNode) service.serviceTypeDefinition.getTypeNode()).getFunctions()
+                service.serviceClass.getFunctions()
                         .forEach(bLangResource -> {
                             DocAttachmentInfo resourceInfo = getDocumentationEditForNode(bLangResource);
                             if (resourceInfo != null) {

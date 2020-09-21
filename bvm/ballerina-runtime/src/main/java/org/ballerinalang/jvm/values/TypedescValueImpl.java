@@ -17,12 +17,13 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.api.values.BInitialValueEntry;
+import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.api.BInitialValueEntry;
 
 import java.util.Map;
 
@@ -88,13 +89,13 @@ public class TypedescValueImpl implements  TypedescValue {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         return "typedesc " + describingType.toString();
     }
 
     @Override
     public String toString() {
-        return stringValue();
+        return stringValue(null);
     }
 
     @Override

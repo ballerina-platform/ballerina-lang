@@ -22,8 +22,8 @@ type Foo record {|
     } c;
 
     object {
-        int z = a;
-    } d;
+        int z;
+    } d = object { int z = a; };
 |};
 
 function fieldRefTest() {
@@ -42,8 +42,8 @@ function fieldRefTest() {
         } c;
 
         object {
-            int z = a;
-        } d;
+            int z;
+        } d = object { int z = a; };
     |} rec;
 
     int p = 25;
@@ -60,8 +60,16 @@ function fieldRefTest() {
             record {
                 int d = a;
             } nestd = {};
-        } f = {a: 10};
-    } obj;
+        } f;
+    } obj = object {
+                    record {
+                        int a;
+                        int b = a;
+                        record {
+                            int d = a;
+                        } nestd = {};
+                    } f = {a: 10};
+                };
 }
 
 int glbA = 100;

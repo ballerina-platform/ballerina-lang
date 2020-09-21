@@ -30,6 +30,7 @@ public enum EvaluationExceptionKind {
     FUNCTION_EXECUTION_ERROR("Error occurred when executing method: '%s'"),
     STRAND_NOT_FOUND("Error occurred when trying to get the parent strand instance for executing the method: %s"),
     INVALID_ARGUMENT("Unsupported/invalid argument found: %s"),
+    TYPE_MISMATCH("Incompatible types: expected `%s`, but found '%s': in '%s'"),
     VARIABLE_EXECUTION_ERROR("Internal error occurred when processing variable: '%s'"),
     BLOCK_EVALUATION("Block expressions/statements are not supported"),
     EMPTY("Empty expressions cannot be evaluated."),

@@ -10,12 +10,12 @@ function jsonReturnFunction() returns (json) {
 
 function tableReturnTestAsAny(){
     any abc = tableReturnFunction();
-    assertEquality("id=1 name=Jane\nid=2 name=Anne", abc.toString());
+    assertEquality("[{\"id\":1,\"name\":\"Jane\"},{\"id\":2,\"name\":\"Anne\"}]", abc.toString());
 }
 
 function inputAnyAsTableTest(){
     table<map<any>>? t = anyToTableFunction(tableReturnFunction());
-    assertEquality("id=1 name=Jane\nid=2 name=Anne", t.toString());
+    assertEquality("[{\"id\":1,\"name\":\"Jane\"},{\"id\":2,\"name\":\"Anne\"}]", t.toString());
 }
 
 function anyToTableFunction (any aTable) returns (table<map<any>>?) {

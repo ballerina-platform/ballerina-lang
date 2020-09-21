@@ -43,7 +43,7 @@ public function startSpan(string spanName, map<string>? tags = (), int parentSpa
 # + tagKey - Key of the tag
 # + tagValue - Value of the tag
 # + return - An error if an error occurred while attaching tag to the span
-public function addTagToSpan(string tagKey, string tagValue, int spanId = -1) returns error? = external;
+public isolated function addTagToSpan(string tagKey, string tagValue, int spanId = -1) returns error? = external;
 
 # Finish the current span.
 #
@@ -66,9 +66,9 @@ public function lookupMetric(string name, map<string>? tags = ()) returns Counte
 # Checks of either metrics or tracing had been enabled.
 #
 # + return - True if observability had been enabled.
-public function isObservabilityEnabled() returns boolean = @java:Method {
+public isolated function isObservabilityEnabled() returns boolean = @java:Method {
     name: "isObservabilityEnabled",
-    class: "org.ballerinalang.jvm.observability.ObserveUtils"
+    'class: "org.ballerinalang.jvm.observability.ObserveUtils"
 } external;
 
 # This represents the metric type - counter, that can be only increased by an integer number.
@@ -76,7 +76,7 @@ public function isObservabilityEnabled() returns boolean = @java:Method {
 # + name - Name of the counter metric.
 # + description - Description of the counter metric.
 # + metricTags - Tags associated with the counter metric.
-public type Counter object {
+public  class Counter {
 
     public string name;
     public string description;
@@ -130,7 +130,7 @@ public type Counter object {
     # + return - The current value of the counter.
     public function getValue() returns int = external;
 
-};
+}
 
 # This represents the metric type - gauge, that can hold instantaneous, increased or decreased value
 # during the usage.
@@ -140,7 +140,7 @@ public type Counter object {
 # + metricTags - Tags associated with the counter metric.
 # + statisticConfigs - Array of StatisticConfig objects which defines about the statistical calculation
 #                      of the gauge during its usage.
-public type Gauge object {
+public  class Gauge {
 
     public string name;
     public string description;
@@ -207,7 +207,7 @@ public type Gauge object {
     #            If there is no statisticsConfigs provided, then it will be nil.
     public function getSnapshot() returns Snapshot[]? = external;
 
-};
+}
 
 # This represents the generic metric record that can represent both counter and gauge.
 #

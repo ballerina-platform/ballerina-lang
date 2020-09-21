@@ -16,14 +16,17 @@
  */
 package org.ballerinalang.test.util;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.diagnostic.DiagnosticComparator;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -34,35 +37,43 @@ import java.util.List;
 public class CompileResult {
 
     private PackageNode pkgNode;
-    private CompileResultDiagnosticListener diagnosticListener;
-
+    private CompilerContext context;
     URLClassLoader classLoader;
+    private Diagnostic[] diagnostics = null;
+    private int errorCount = 0;
+    private int warnCount = 0;
 
-    public CompileResult(CompileResultDiagnosticListener diagnosticListener) {
-        this.diagnosticListener = diagnosticListener;
+    public CompileResult(CompilerContext context, BLangPackage packageNode) {
+        this.context = context;
+        this.pkgNode = packageNode;
     }
 
     public Diagnostic[] getDiagnostics() {
-        List<Diagnostic> diagnostics = this.diagnosticListener.getDiagnostics();
-        diagnostics.sort(Comparator.comparing((Diagnostic d) -> d.getSource().getCompilationUnitName()).
-                thenComparingInt(d -> d.getPosition().getStartLine()));
-        return diagnostics.toArray(new Diagnostic[diagnostics.size()]);
+        if (this.diagnostics == null) {
+            populateDiagnostics();
+        }
+
+        return this.diagnostics;
     }
 
     public int getErrorCount() {
-        return this.diagnosticListener.errorCount;
+        if (diagnostics == null) {
+            populateDiagnostics();
+        }
+
+        return this.errorCount;
     }
 
     public int getWarnCount() {
-        return this.diagnosticListener.warnCount;
+        if (diagnostics == null) {
+            populateDiagnostics();
+        }
+
+        return this.warnCount;
     }
 
     public PackageNode getAST() {
         return pkgNode;
-    }
-
-    public void setAST(PackageNode pkgNode) {
-        this.pkgNode = pkgNode;
     }
 
     public URLClassLoader getClassLoader() {
@@ -76,7 +87,7 @@ public class CompileResult {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        if (this.diagnosticListener.errorCount == 0) {
+        if (getErrorCount() == 0) {
             builder.append("Compilation Successful");
         } else {
             builder.append("Compilation Failed:\n");
@@ -87,46 +98,32 @@ public class CompileResult {
         return builder.toString();
     }
 
-    /**
-     * Diagnostic listener implementation for module compilation.
-     *
-     * @since 0.990.4
-     */
-    public static class CompileResultDiagnosticListener implements DiagnosticListener {
-        private List<Diagnostic> diagnostics;
-        private int errorCount = 0;
-        private int warnCount = 0;
+    private void populateDiagnostics() {
+        BLangPackage bLangPkg = (BLangPackage) this.pkgNode;
+        this.errorCount = bLangPkg.getErrorCount();
+        this.warnCount = bLangPkg.getWarnCount();
 
-        public CompileResultDiagnosticListener() {
-            this.diagnostics = new ArrayList<>();
-        }
+        // Get diagnostics for imported packages
+        List<Diagnostic> diagList = bLangPkg.getDiagnostics();
+        PackageCache packageCache = PackageCache.getInstance(context);
 
-        @Override
-        public void received(Diagnostic diagnostic) {
-            this.diagnostics.add(diagnostic);
-            switch (diagnostic.getKind()) {
-                case ERROR:
-                    errorCount++;
-                    break;
-                case WARNING:
-                    warnCount++;
-                    break;
-                default:
-                    break;
+        for (BLangImportPackage importedPackage : bLangPkg.getImports()) {
+            BPackageSymbol pkgSymbol = importedPackage.symbol;
+            if (pkgSymbol == null) {
+                continue;
             }
+
+            BLangPackage pkg = packageCache.get(pkgSymbol.pkgID);
+            if (pkg == null) {
+                continue;
+            }
+
+            diagList.addAll(pkg.getDiagnostics());
+            this.errorCount += pkg.getErrorCount();
+            this.warnCount += pkg.getWarnCount();
         }
 
-        public int getErrorCount() {
-            return errorCount;
-        }
-
-        public int getWarnCount() {
-            return warnCount;
-        }
-
-        public List<Diagnostic> getDiagnostics() {
-            Collections.sort(diagnostics);
-            return diagnostics;
-        }
+        Collections.sort(diagList, new DiagnosticComparator());
+        this.diagnostics = diagList.toArray(new Diagnostic[diagList.size()]);
     }
 }

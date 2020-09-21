@@ -34,7 +34,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
@@ -48,10 +47,9 @@ import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.openapi.CodeGenerator;
+import org.ballerinalang.openapi.cmd.Filter;
 import org.ballerinalang.openapi.model.GenSrcFile;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -150,8 +148,13 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             //Generate compilation unit for provided Open Api Sep JSON
             File tempOasJsonFile = getOpenApiFile(params.getOASDefinition());
             CodeGenerator generator = new CodeGenerator();
+
+            List<String> tag = new ArrayList<>();
+            List<String> operation = new ArrayList<>();
+            Filter filter = new Filter(tag, operation);
+
             List<GenSrcFile> oasSources = generator.generateBalSource(GeneratorConstants.GenType.GEN_SERVICE,
-                    tempOasJsonFile.getPath(), "", null);
+                    tempOasJsonFile.getPath(), "", null, filter);
 
             Optional<GenSrcFile> oasServiceFile = oasSources.stream()
                     .filter(genSrcFile -> genSrcFile.getType().equals(GenSrcFile.GenFileType.GEN_SRC)).findAny();
@@ -278,7 +281,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
                     .withCommonParams(null, fileUri, documentManager)
                     .build();
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(isParseSuccess(astContext));
         } catch (Throwable e) {
@@ -292,25 +295,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     private boolean isParseSuccess(LSContext astContext) {
-        BLangPackage bLangPackage = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        if (bLangPackage != null) {
-            List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
-            CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-            if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-                diagnostics = ((CollectDiagnosticListener) compilerContext
-                        .get(DiagnosticListener.class)).getDiagnostics();
-            }
-            return !diagnostics.stream().anyMatch(diagnostic -> {
-                DiagnosticCode code = diagnostic.getCode();
-                return (code == DiagnosticCode.SYNTAX_ERROR)
-                        || (code == DiagnosticCode.INVALID_TOKEN)
-                        || (code == DiagnosticCode.MISSING_TOKEN)
-                        || (code == DiagnosticCode.EXTRANEOUS_INPUT)
-                        || (code == DiagnosticCode.MISMATCHED_INPUT)
-                        || (code == DiagnosticCode.INVALID_SHIFT_OPERATOR);
-            });
-        }
-        return false;
+        // TODO: Revisit this. Can never be false.
+        return true;
     }
 
     @Override
@@ -387,7 +373,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             oldContent = documentManager.getFileContent(compilationPath);
             LSContext astContext = BallerinaTreeModifyUtil.modifyTree(request.getAstModifications(),
                     fileUri, compilationPath, documentManager);
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
             reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(isParseSuccess(astContext));
@@ -426,7 +412,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             oldContent = documentManager.getFileContent(compilationPath);
             LSContext astContext = BallerinaTriggerModifyUtil.modifyTrigger(request.getType(), request.getConfig(),
                     fileUri, compilationPath, documentManager);
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
             reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(isParseSuccess(astContext));

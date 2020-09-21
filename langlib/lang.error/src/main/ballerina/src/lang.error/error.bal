@@ -29,26 +29,26 @@ type DetailType Detail;
 #
 # + e - the error value
 # + return - error message
-public function message(error e) returns string = external;
+public isolated function message(error e) returns string = external;
 
 # Returns the error's cause.
 #
 # + e - the error value
 # + return - error cause
-public function cause(error e) returns error? = external;
+public isolated function cause(error e) returns error? = external;
 
 # Returns the error's detail record.
 # The returned value will be immutable.
 # + e - the error value
 # + return - error detail value
-public function detail(error<DetailType> e) returns DetailType = external;
+public isolated function detail(error<DetailType> e) returns DetailType = external;
 //public function detail(error<DetailType> e) returns readonly & DetailType = external;
 
 # Returns an object representing the stack trace of the error.
 #
 # + e - the error value
 # + return - a new object representing the stack trace of the error value
-public function stackTrace(error e) returns CallStack = external;
+public isolated function stackTrace(error e) returns CallStack = external;
 
 # Representation of `CallStackElement`
 #
@@ -66,6 +66,6 @@ public type CallStackElement record {|
 # Represent error call stack.
 #
 # + callStack - call stack
-public type CallStack object {
+public class CallStack {
     public CallStackElement[] callStack = [];
-};
+}

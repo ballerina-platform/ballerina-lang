@@ -18,15 +18,18 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BLink;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +56,7 @@ import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
 public class MultipartDataSource implements RefValue {
     private static final Logger log = LoggerFactory.getLogger(MultipartDataSource.class);
 
-    private ObjectValue parentEntity;
+    private BObject parentEntity;
     private String boundaryString;
     private OutputStream outputStream;
     private static final String DASH_BOUNDARY = "--";
@@ -63,7 +66,7 @@ public class MultipartDataSource implements RefValue {
     private static final char COLON = ':';
     private static final char SPACE = ' ';
 
-    public MultipartDataSource(ObjectValue entityStruct, String boundaryString) {
+    public MultipartDataSource(BObject entityStruct, String boundaryString) {
         this.parentEntity = entityStruct;
         this.boundaryString = boundaryString;
     }
@@ -82,7 +85,7 @@ public class MultipartDataSource implements RefValue {
      * @param parentBodyPart       Represent parent body part
      */
     private void serializeBodyPart(OutputStream outputStream, String parentBoundaryString,
-                                   ObjectValue parentBodyPart) {
+                                   BObject parentBodyPart) {
         final Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, Charset.defaultCharset()));
         ArrayValue childParts = parentBodyPart.getNativeData(BODY_PARTS) != null ?
                 (ArrayValue) parentBodyPart.getNativeData(BODY_PARTS) : null;
@@ -92,7 +95,7 @@ public class MultipartDataSource implements RefValue {
             }
             boolean firstPart = true;
             for (int i = 0; i < childParts.size(); i++) {
-                ObjectValue childPart = (ObjectValue) childParts.getRefValue(i);
+                BObject childPart = (ObjectValue) childParts.getRefValue(i);
                 // Write leading boundary string
                 if (firstPart) {
                     firstPart = false;
@@ -120,19 +123,19 @@ public class MultipartDataSource implements RefValue {
      * @throws IOException When an error occurs while writing child part headers
      */
     @SuppressWarnings("unchecked")
-    private void checkForNestedParts(Writer writer, ObjectValue childPart) throws IOException {
+    private void checkForNestedParts(Writer writer, BObject childPart) throws IOException {
         String childBoundaryString = null;
         if (MimeUtil.isNestedPartsAvailable(childPart)) {
             childBoundaryString = MimeUtil.getNewMultipartDelimiter();
-            ObjectValue mediaType = (ObjectValue) childPart.get(MEDIA_TYPE_FIELD);
-            MapValue<BString, BString> paramMap;
+            BObject mediaType = (ObjectValue) childPart.get(MEDIA_TYPE_FIELD);
+            BMap<BString, Object> paramMap;
             if (mediaType.get(PARAMETER_MAP_FIELD) != null) {
-                paramMap = (MapValue<BString, BString>) mediaType.get(PARAMETER_MAP_FIELD);
+                paramMap = (MapValue<BString, Object>) mediaType.get(PARAMETER_MAP_FIELD);
             } else {
-                paramMap = new MapValueImpl<>(new org.ballerinalang.jvm.types.BMapType(BTypes.typeString));
+                paramMap = BValueCreator.createMapValue(new org.ballerinalang.jvm.types.BMapType(BTypes.typeString));
             }
 
-            paramMap.put(StringUtils.fromString(BOUNDARY), StringUtils.fromString(childBoundaryString));
+            paramMap.put(BStringUtils.fromString(BOUNDARY), BStringUtils.fromString(childBoundaryString));
             mediaType.set(PARAMETER_MAP_FIELD, paramMap);
         }
         writeBodyPartHeaders(writer, childPart);
@@ -153,8 +156,8 @@ public class MultipartDataSource implements RefValue {
      * @throws IOException When an error occurs while writing body part headers
      */
     @SuppressWarnings("unchecked")
-    private void writeBodyPartHeaders(Writer writer, ObjectValue bodyPart) throws IOException {
-        MapValue<BString, Object> httpHeaders = EntityHeaderHandler.getEntityHeaderMap(bodyPart);
+    private void writeBodyPartHeaders(Writer writer, BObject bodyPart) throws IOException {
+        BMap<BString, Object> httpHeaders = EntityHeaderHandler.getEntityHeaderMap(bodyPart);
         String contentType = MimeUtil.getContentTypeWithParameters(bodyPart);
         EntityHeaderHandler.addHeader(bodyPart, httpHeaders, MimeConstants.CONTENT_TYPE, contentType);
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
@@ -202,7 +205,7 @@ public class MultipartDataSource implements RefValue {
      * @param bodyPart     Represent a ballerina body part
      * @throws IOException When an error occurs while writing body content
      */
-    private void writeBodyContent(OutputStream outputStream, ObjectValue bodyPart) throws IOException {
+    private void writeBodyContent(OutputStream outputStream, BObject bodyPart) throws IOException {
         Object messageDataSource = EntityBodyHandler.getMessageDataSource(bodyPart);
         if (messageDataSource != null) {
             //TODO Recheck following logic
@@ -218,7 +221,7 @@ public class MultipartDataSource implements RefValue {
         }
     }
 
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         return null;
     }
 
