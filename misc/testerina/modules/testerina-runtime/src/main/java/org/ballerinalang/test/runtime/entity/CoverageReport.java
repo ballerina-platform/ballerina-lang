@@ -29,10 +29,13 @@ import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.tools.ExecFileLoader;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.jacoco.core.analysis.ICounter.FULLY_COVERED;
 import static org.jacoco.core.analysis.ICounter.NOT_COVERED;
@@ -51,6 +54,8 @@ public class CoverageReport {
     private Path classesDirectory;
     private final Path projectDir;
 
+    private final Path jarCache;
+
     private ExecFileLoader execFileLoader;
 
     private Path sourceJarPath;
@@ -64,6 +69,9 @@ public class CoverageReport {
         this.moduleName = moduleName;
         this.version = version;
         this.projectDir = targetDirPath.resolve(TesterinaConstants.COVERAGE_DIR);
+
+        this.jarCache = targetDirPath.resolve("caches/jar_cache/" + orgName);
+
         this.title = projectDir.toFile().getName();
         this.classesDirectory = projectDir.resolve(TesterinaConstants.BIN_DIR);
         this.executionDataFile = projectDir.resolve(TesterinaConstants.EXEC_FILE_NAME);
@@ -76,16 +84,40 @@ public class CoverageReport {
      * @throws IOException when file operations are failed
      */
     public void generateReport() throws IOException {
-        try {
-            CodeCoverageUtils.unzipCompiledSource(sourceJarPath, projectDir, orgName, moduleName, version);
-        } catch (NoSuchFileException e) {
+
+        // Obtain a path list of all the .jar files generated
+        List<Path> pathList = new ArrayList<>();
+        try (Stream<Path> walk = Files.walk(this.jarCache, 5)) {
+            pathList = walk.map(path -> path)
+                    .filter(f -> f.toString().endsWith("testable.jar"))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
             return;
         }
 
-        execFileLoader.load(executionDataFile.toFile());
+        if (!pathList.isEmpty()) {
 
-        final IBundleCoverage bundleCoverage = analyzeStructure();
-        createReport(bundleCoverage);
+            // For each jar file found, we unzip it for this particular module
+            for (Path moduleJarPath : pathList) {
+                try {
+                    // Creates coverage folder with each class per module
+                    CodeCoverageUtils.unzipCompiledSource(moduleJarPath, projectDir, orgName, moduleName, version);
+                } catch (NoSuchFileException e) {
+                    System.out.println("Exception " + e);
+                    return;
+                }
+            }
+
+            execFileLoader.load(executionDataFile.toFile());
+
+            final IBundleCoverage bundleCoverage = analyzeStructure();
+            createReport(bundleCoverage);
+        } else {
+            String msg = "Unable to generate code coverage for the module " + moduleName + ". Jar files dont exist.";
+            throw new NoSuchFileException(msg);
+        }
+
     }
 
     private IBundleCoverage analyzeStructure() throws IOException {
@@ -100,13 +132,26 @@ public class CoverageReport {
         boolean containsSourceFiles;
 
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
-            if (TesterinaConstants.DOT.equals(moduleName)) {
-                containsSourceFiles = packageCoverage.getName().isEmpty();
-            } else {
-                containsSourceFiles = packageCoverage.getName().contains(orgName + "/" + moduleName);
-            }
+            containsSourceFiles = true;
+
+            // I havent tested the behaviour of single files
+//            if (TesterinaConstants.DOT.equals(moduleName)) {
+//                containsSourceFiles = packageCoverage.getName().isEmpty();
+//            } else {
+//                containsSourceFiles = packageCoverage.getName().contains(orgName + "/" + moduleName);
+//            }
+
+
             if (containsSourceFiles) {
                 for (ISourceFileCoverage sourceFileCoverage : packageCoverage.getSourceFiles()) {
+
+                    // Extract the Module name individually for each source file
+                    // This is done since some source files come from other modules
+                    // sourceFileCoverage : "<orgname>/<moduleName>:<version>
+                    System.out.println("SourceFileCoverage package " + sourceFileCoverage.getPackageName());
+                    String sourceFileModule = sourceFileCoverage.getPackageName().split("/")[1];
+                    System.out.println("Extracted module name : " + sourceFileModule);
+
                     if (sourceFileCoverage.getName().contains(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
                             !sourceFileCoverage.getName().contains("tests/")) {
                         List<Integer> coveredLines = new ArrayList<>();
@@ -124,8 +169,9 @@ public class CoverageReport {
                                 coveredLines.add(i);
                             }
                         }
-                        ModuleCoverage.getInstance().addSourceFileCoverage(moduleName, sourceFileCoverage.getName(),
-                                coveredLines, missedLines);
+
+                        ModuleCoverage.getInstance().addSourceFileCoverage(sourceFileModule,
+                                sourceFileCoverage.getName(), coveredLines, missedLines);
                     }
                 }
             }

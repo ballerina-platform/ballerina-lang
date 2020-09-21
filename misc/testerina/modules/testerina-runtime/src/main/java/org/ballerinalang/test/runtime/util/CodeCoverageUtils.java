@@ -28,9 +28,13 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -80,7 +84,7 @@ public class CodeCoverageUtils {
             deleteDirectory(new File(destJarDir));
         } catch (NoSuchFileException e) {
             String msg = "Unable to generate code coverage for the module " + moduleName + ". Source file does not " +
-                    "exist";
+                    "exist" + e;
             errStream.println(msg);
             throw new NoSuchFileException(msg);
         } catch (IOException e) {
@@ -88,7 +92,54 @@ public class CodeCoverageUtils {
         }
     }
 
-    private static void copyClassFilesToBinPath(Path destination, String destJarDir, String orgName,
+
+    public static void copyClassFilesToBinPath(Path destination, String destjarDir, String orgName, String moduleName,
+                                                String version) throws IOException {
+        Path binClassDirPath;
+        Path extractedJarPath = Paths.get(destjarDir);
+
+        // First we resolve the destination to where the .class files will go
+        if (TesterinaConstants.DOT.equals(moduleName)) {
+            binClassDirPath = destination.resolve(TesterinaConstants.BIN_DIR);
+        } else {
+            binClassDirPath = destination.resolve(TesterinaConstants.BIN_DIR).resolve(moduleName).resolve(version);
+        }
+
+        // binClassDirPath : /target/coverage/bin/<moduleName>/version
+        if (!binClassDirPath.toFile().exists()) {
+            Files.createDirectories(binClassDirPath);
+        }
+
+
+        //Next we walk through extractedJarPath and copy only the class files
+        List<Path> pathList = new ArrayList<>();
+        try (Stream<Path> walk = Files.walk(extractedJarPath, 5)) {
+            pathList = walk.map(path -> path)
+                    .filter(f -> f.toString().endsWith(".class"))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // If the path list is empty there are no .class files extracted
+        if (!pathList.isEmpty()) {
+
+            // For every .class found we move it to /target/coverage/bin/<moduleName>
+            for (Path classPath : pathList) {
+                Path target = binClassDirPath.resolveSibling(classPath.getFileName());
+
+                System.out.println("\n= Moving : " + classPath);
+
+                // target/coverage/bin/<moduleName>/(.class)
+                System.out.println("= Moving to : " + target); // This doesnt have the version for some reason.
+
+                Files.move(classPath, target, StandardCopyOption.REPLACE_EXISTING);
+            }
+        }
+    }
+
+    public static void copyClassFilesToBinPath1(Path destination, String destJarDir, String orgName,
                                                 String moduleName, String version) throws IOException {
         Path extractedPath;
         Path binClassDirPath;
@@ -100,10 +151,13 @@ public class CodeCoverageUtils {
             binClassDirPath = destination.resolve(TesterinaConstants.BIN_DIR).resolve(moduleName);
         }
 
+        // We cant delete the file since we have to add multiple classes from different directories
         if (binClassDirPath.toFile().exists()) {
             deleteDirectory(binClassDirPath.toFile());
         }
         Files.createDirectories(binClassDirPath);
+
+        // This fails all the time since the binClassDirPath is difficult to resolve
         Files.move(extractedPath, binClassDirPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
