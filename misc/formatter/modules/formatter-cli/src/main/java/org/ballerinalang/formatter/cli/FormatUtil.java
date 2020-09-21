@@ -310,14 +310,18 @@ class FormatUtil {
      */
     private static void writeFile(String filePath, String content) throws IOException {
         OutputStreamWriter fileWriter = null;
+        FileOutputStream fileStream = null;
         try {
             File newFile = new File(filePath);
-            FileOutputStream fileStream = new FileOutputStream(newFile);
+            fileStream = new FileOutputStream(newFile);
             fileWriter = new OutputStreamWriter(fileStream, StandardCharsets.UTF_8);
             fileWriter.write(content);
         } finally {
             if (fileWriter != null) {
                 fileWriter.close();
+            }
+            if (fileStream != null) {
+                fileStream.close();
             }
         }
     }
