@@ -1,7 +1,7 @@
 const CONFIG_FILE_PATH = "./resources/stdlib_modules.json";
 const ACCESS_TOKEN_ENV = "GITHUB_TOKEN";
 
-const API_PATH = "https://api.github.com/repos/BuddhiWathsala";
+const API_PATH = "https://api.github.com/repos/ballerina-platform";
 const DISPATCHES = "/dispatches";
 const RELEASES = "/releases";
 const TAGS = "/tags";

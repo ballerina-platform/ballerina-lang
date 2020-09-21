@@ -6,8 +6,6 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - with:
-                  ref: ballerina-stdlib-build-pipeline-test
 
             - name: Release Pipeline
               uses: ballerina-platform/ballerina-action@master
