@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.codeaction;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -175,7 +174,6 @@ public class CodeActionUtil {
 
             Location location = diagnostic.location();
             LineRange lineRange = location.lineRange();
-            TextRange textRange = location.textRange();
             int startLine = lineRange.startLine().line() - 1; // LSP diagnostics range is 0 based
             int startChar = lineRange.startLine().offset() - 1;
             int endLine = lineRange.endLine().line() - 1;
