@@ -58,9 +58,9 @@ public class ForEach {
         Strand parentStrand = Scheduler.getStrand();
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
-                                                       () -> new Object[]{parentStrand, x.getItem(index.incrementAndGet()),
-                                                               true},
-                                                       result -> {
-                                                       }, () -> null);
+                        () -> new Object[]{parentStrand, x.getItem(index.incrementAndGet()),
+                                true},
+                        result -> {
+                        }, () -> null);
     }
 }

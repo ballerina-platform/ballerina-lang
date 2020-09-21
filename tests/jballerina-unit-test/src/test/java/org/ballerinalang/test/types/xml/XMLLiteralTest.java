@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.types.xml;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BIterator;
 import org.ballerinalang.core.model.values.BString;
@@ -27,9 +25,8 @@ import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.model.values.BXML;
 import org.ballerinalang.core.model.values.BXMLItem;
 import org.ballerinalang.core.model.values.BXMLSequence;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
-import org.ballerinalang.test.services.testutils.MessageUtils;
-import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -37,8 +34,6 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * Test class for XML literal.
@@ -273,17 +268,6 @@ public class XMLLiteralTest {
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[1].stringValue(),
                 "<ns1:student xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:student>");
-    }
-
-    @Test(groups = "brokenOnJBallerina")
-    // todo: enable this once we fix the method too large issue on jBallerina
-    public void testLargeXMLLiteral() {
-        BCompileUtil.compile("test-src/types/xml/xml_inline_large_literal.bal");
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
-        HttpCarbonMessage response = Services.invoke(9091, cMsg);
-        Assert.assertNotNull(response);
-        BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertTrue(xml.stringValue().contains("<line2>Sigiriya</line2>"));
     }
 
     @Test (description = "Test sequence of brackets in content of XML")

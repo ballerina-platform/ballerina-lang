@@ -17,6 +17,8 @@
 package org.ballerinalang.test.util;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
@@ -25,8 +27,6 @@ import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;

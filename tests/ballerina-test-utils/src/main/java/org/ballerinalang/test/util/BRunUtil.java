@@ -18,40 +18,6 @@
 package org.ballerinalang.test.util;
 
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.DecimalValueKind;
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.commons.ArrayState;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BIntersectionType;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.types.BTypedescType;
-import org.ballerinalang.jvm.types.TypeFlags;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.jvm.values.AbstractObjectValue;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.BmpStringValue;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.NonBmpStringValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BXML;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.core.model.types.BArrayType;
 import org.ballerinalang.core.model.types.BErrorType;
 import org.ballerinalang.core.model.types.BField;
@@ -86,6 +52,40 @@ import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.model.values.BValueType;
 import org.ballerinalang.core.model.values.BXMLItem;
 import org.ballerinalang.core.model.values.BXMLSequence;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.DecimalValueKind;
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.commons.ArrayState;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
+import org.ballerinalang.jvm.types.BIntersectionType;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.types.BTypedescType;
+import org.ballerinalang.jvm.types.TypeFlags;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.jvm.values.AbstractObjectValue;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.BmpStringValue;
+import org.ballerinalang.jvm.values.DecimalValue;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.NonBmpStringValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BXML;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -264,7 +264,8 @@ public class BRunUtil {
                         throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
                     if (t instanceof ErrorValue) {
-                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
+                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: "
+                                + ((ErrorValue) t).getPrintableStackTrace());
                     }
                     if (t instanceof StackOverflowError) {
                         throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " +
@@ -397,7 +398,8 @@ public class BRunUtil {
                         throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
                     if (t instanceof ErrorValue) {
-                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
+                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: "
+                                + ((ErrorValue) t).getPrintableStackTrace());
                     }
                     if (t instanceof StackOverflowError) {
                         throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " +

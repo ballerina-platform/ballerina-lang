@@ -174,7 +174,8 @@
 ////            int totalLines = contentComponents.length;
 ////            Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
 ////
-////            BallerinaFile ballerinaFile = ExtendedLSCompiler.compileContent(fileContent, CompilerPhase.CODE_ANALYZE);
+////            BallerinaFile ballerinaFile = ExtendedLSCompiler
+//                                              .compileContent(fileContent, CompilerPhase.CODE_ANALYZE);
 ////            Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
 ////
 ////            if (bLangPackage.isPresent() && bLangPackage.get().symbol != null && oasFilePackage.isPresent()) {
@@ -190,7 +191,8 @@
 ////                JsonObject targetAST = TextDocumentFormatUtil.generateJSON(compilationUnit.get(), new HashMap<>(),
 ////                        new HashMap<>()).getAsJsonObject();
 ////                FormattingSourceGen.build(targetAST, "CompilationUnit");
-////                JsonObject generatedAST = TextDocumentFormatUtil.generateJSON(oasCompilationUnit.get(), new HashMap<>(),
+////                JsonObject generatedAST = TextDocumentFormatUtil
+//                                                  .generateJSON(oasCompilationUnit.get(), new HashMap<>(),
 ////                        new HashMap<>()).getAsJsonObject();
 ////                FormattingSourceGen.build(generatedAST, "CompilationUnit");
 ////                mergeAst(targetAST, generatedAST);
@@ -484,7 +486,8 @@
 //            TextDocumentEdit txtDocumentEdit = new TextDocumentEdit(notification.getTextDocumentIdentifier(),
 //                    Collections.singletonList(textEdit));
 //
-//            WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(txtDocumentEdit)));
+//            WorkspaceEdit workspaceEdit =
+//                  new WorkspaceEdit(Collections.singletonList(Either.forLeft(txtDocumentEdit)));
 //            applyWorkspaceEditParams.setEdit(workspaceEdit);
 //
 //            // update the document
@@ -771,7 +774,8 @@
 //                                    // Add a new comma to separate the new key value pair.
 //                                    int startIndex = FormattingSourceGen.extractWS(sourceKeyValue).get(0)
 //                                            .getAsJsonObject().get("i").getAsInt();
-//                                    FormattingSourceGen.addNewWS(matchedTargetRecord, tree, "", ",", true, startIndex);
+//                                    FormattingSourceGen
+//                                          .addNewWS(matchedTargetRecord, tree, "", ",", true, startIndex);
 //                                }
 //                            }
 //                        }
