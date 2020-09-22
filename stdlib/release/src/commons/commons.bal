@@ -31,8 +31,8 @@ function readFileAndGetJson(string path) returns json|error {
     return result;
 }
 
-public function printModules(commons:Module[] modules) {
-    string[] moduleStrings = modules.map(function (commons:Module m) returns string {
+public function printModules(Module[] modules) {
+    string[] moduleStrings = modules.map(function (Module m) returns string {
         return m.name + " " + m.'version;
     });
     foreach string moduleString in moduleStrings {
