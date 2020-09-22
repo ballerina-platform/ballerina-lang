@@ -334,7 +334,7 @@ class FormatterUtils {
         if (token == null) {
             return token;
         }
-        MinutiaeList newLeadingMinutiaeList = preserveComments(token.leadingMinutiae(), trailingNewLines)
+        MinutiaeList newLeadingMinutiaeList = preserveComments(token.leadingMinutiae(), leadingNewLines)
                 .add(createWhitespaceMinutiae(getWhiteSpaces(leadingSpaces, leadingNewLines)));
         MinutiaeList newTrailingMinutiaeList = preserveComments(token.trailingMinutiae(), trailingNewLines)
                 .add(createWhitespaceMinutiae(getWhiteSpaces(trailingSpaces, trailingNewLines)));
@@ -342,7 +342,7 @@ class FormatterUtils {
         return token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
     }
 
-    private static MinutiaeList preserveComments(MinutiaeList minutiaeList, int trailingNewLines) {
+    private static MinutiaeList preserveComments(MinutiaeList minutiaeList, int newLines) {
         MinutiaeList minutiaes = AbstractNodeFactory.createEmptyMinutiaeList();
         if (minutiaeList.size() > 0) {
             int count = commentCount(minutiaeList);
@@ -354,7 +354,7 @@ class FormatterUtils {
                     if (minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE) {
                         processedCount++;
                         if (processedCount == count) {
-                            if (trailingNewLines == 0) {
+                            if (newLines == 0) {
                                 minutiaes = minutiaes.add(AbstractNodeFactory.createEndOfLineMinutiae(NEWLINE_SYMBOL));
                             }
                             break;
