@@ -148,6 +148,10 @@ class NodeIndentation {
         if (parent != null && parent.kind() == (SyntaxKind.TYPED_BINDING_PATTERN)) {
             addSpaces = true;
         }
+        if (parent != null && parent.kind() == SyntaxKind.UNION_TYPE_DESC && parent.parent() != null &&
+                parent.parent().kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
+            addSpaces = true;
+        }
         if (parent != null && parent.kind() == (SyntaxKind.FUNCTION_CALL) && parent.parent() != null &&
                 parent.parent().kind() == (SyntaxKind.CALL_STATEMENT)) {
             addSpaces = true;

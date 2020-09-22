@@ -120,6 +120,7 @@ class FormatterUtils {
                     parentKind == SyntaxKind.POSITIONAL_ARG ||
                     parentKind == SyntaxKind.BINARY_EXPRESSION ||
                     parentKind == SyntaxKind.BRACED_EXPRESSION ||
+                    parentKind == SyntaxKind.PANIC_STATEMENT ||
                     parentKind == SyntaxKind.ASYNC_SEND_ACTION ||
                     parentKind == SyntaxKind.SYNC_SEND_ACTION ||
                     parentKind == SyntaxKind.RECEIVE_ACTION ||
@@ -144,6 +145,10 @@ class FormatterUtils {
                         grandParent.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
                     return grandParent;
                 }
+                return null;
+            }
+            if (parentKind == SyntaxKind.METHOD_CALL && grandParent != null &&
+                    grandParent.kind() == SyntaxKind.LOCAL_VAR_DECL) {
                 return null;
             }
             return getParent(parent, syntaxKind);
