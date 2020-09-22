@@ -122,6 +122,10 @@ class NodeIndentation {
                 parent.parent().kind() == SyntaxKind.LET_VAR_DECL) {
             addSpaces = false;
         }
+        if (parent != null && parent.kind() == SyntaxKind.UNION_TYPE_DESC && parent.parent() != null &&
+                parent.parent().kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
+            addSpaces = true;
+        }
         if (parent != null && parent.kind() == SyntaxKind.FIELD_BINDING_PATTERN && parent.parent() != null &&
                 parent.parent().kind() == SyntaxKind.MAPPING_BINDING_PATTERN) {
             addSpaces = true;
