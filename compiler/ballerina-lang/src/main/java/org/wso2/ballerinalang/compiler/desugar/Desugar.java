@@ -1739,7 +1739,7 @@ public class Desugar extends BLangNodeVisitor {
                                               BLangExpression detailEntryVar) {
         if (detailEntry.valueBindingPattern.getKind() == NodeKind.VARIABLE) {
             BLangSimpleVariableDef errorDetailVar = createVarDef(
-                    "$" + ((BLangSimpleVariable) detailEntry.valueBindingPattern).name.value,
+                    ((BLangSimpleVariable) detailEntry.valueBindingPattern).name.value,
                     detailEntry.valueBindingPattern.type,
                     detailEntryVar,
                     detailEntry.valueBindingPattern.pos);

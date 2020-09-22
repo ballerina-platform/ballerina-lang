@@ -83,13 +83,9 @@ public class FunctionPointersNegativeTest {
     public void testFPInvalidInvocation() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative" +
                 "/fp_invalid_invocation_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 6);
+        Assert.assertEquals(result.getErrorCount(), 2);
         int i = 0;
         BAssertUtil.validateError(result, i++, "undefined field 'getFullName' in record 'Person'", 35, 20);
-        BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 45, 15);
-        BAssertUtil.validateError(result, i++, "undefined function 'f3'", 46, 9);
-        BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 77, 15);
-        BAssertUtil.validateError(result, i++, "undefined function 'f3'", 78, 9);
         BAssertUtil.validateError(result, i, "undefined method 'getLname' in object 'Employee'", 83, 11);
     }
 
