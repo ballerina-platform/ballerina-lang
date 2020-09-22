@@ -1129,28 +1129,63 @@ public class TypeChecker {
         List<BType> sourceTypes = new ArrayList<>(sourceTupleType.getTupleTypes());
         BType sourceRestType = sourceTupleType.getRestType();
 
-        if ((!(targetTypes.isEmpty()) && (sourceRestType != null && targetRestType == null))) {
+        if (sourceRestType != null && targetRestType == null) {
             return false;
         }
 
-        if (sourceRestType != null) {
-            sourceTypes.add(sourceRestType);
-        }
-
-        if (targetRestType != null) {
-            targetTypes.add(targetRestType);
-        }
-
-        if (sourceTypes.size() != targetTypes.size()) {
+        if ((sourceRestType == null && targetRestType == null) && sourceTypes.size() != targetTypes.size()) {
             return false;
         }
 
-        for (int i = 0; i < sourceTypes.size(); i++) {
-            if (!checkIsType(sourceTypes.get(i), targetTypes.get(i), unresolvedTypes)) {
-                return false;
+        boolean memberTypesMatch = true;
+
+        if (sourceTypes.size() >= targetTypes.size()) {
+            for (int i = 0; i < targetTypes.size(); i++) {
+                if (!checkIsType(sourceTypes.get(i), targetTypes.get(i), unresolvedTypes)) {
+                    memberTypesMatch = false;
+                }
             }
+            if (sourceTypes.size() == targetTypes.size()) {
+                if (sourceRestType != null) {
+                    return (checkIsType (sourceRestType, targetRestType, unresolvedTypes)
+                            && memberTypesMatch);
+                }
+                return memberTypesMatch;
+            }
+
+            boolean remainingMemberTypesMatch = true;
+
+            for (int i = targetTypes.size(); i < sourceTypes.size(); i++) {
+                if (!checkIsType(sourceTypes.get(i), targetRestType, unresolvedTypes)) {
+                    remainingMemberTypesMatch = false;
+                }
+            }
+            if (sourceRestType != null) {
+                return (checkIsType (sourceRestType, targetRestType, unresolvedTypes)
+                        && memberTypesMatch && remainingMemberTypesMatch);
+            }
+            return (memberTypesMatch && remainingMemberTypesMatch);
+        } else {
+            return false;
         }
-        return true;
+//        if (sourceRestType != null) {
+//            sourceTypes.add(sourceRestType);
+//        }
+//
+//        if (targetRestType != null) {
+//            targetTypes.add(targetRestType);
+//        }
+//
+//        if (sourceTypes.size() != targetTypes.size()) {
+//            return false;
+//        }
+//
+//        for (int i = 0; i < sourceTypes.size(); i++) {
+//            if (!checkIsType(sourceTypes.get(i), targetTypes.get(i), unresolvedTypes)) {
+//                return false;
+//            }
+//        }
+//        return true;
     }
 
     private static boolean checkIsAnyType(BType sourceType) {
