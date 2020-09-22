@@ -17,6 +17,8 @@ package org.ballerinalang.formatter.core;
 
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerinalang.compiler.syntax.tree.AsyncSendActionNode;
 import io.ballerinalang.compiler.syntax.tree.ChildNodeList;
@@ -599,13 +601,15 @@ class FormatterUtils {
 
     /**
      * Converts the syntax tree into source code, remove superfluous spaces and newlines at the ending and returns it
-     * as a string.
+     * as a syntax tree.
      *
      * @param syntaxTree       syntaxTree
-     * @return source code as a string
+     * @return source code as a syntax tree
      */
-    public static String toFormattedSourceCode(SyntaxTree syntaxTree) {
-        return syntaxTree.toSourceCode().trim() + NEWLINE_SYMBOL;
+    static SyntaxTree handleNewLineEndings(SyntaxTree syntaxTree) {
+        String formattedSource = syntaxTree.toSourceCode().trim() + NEWLINE_SYMBOL;
+        TextDocument textDocument = TextDocuments.from(formattedSource);
+        return SyntaxTree.from(textDocument);
     }
 
     private static final class Indentation {
