@@ -5,21 +5,21 @@
             "version": "0.9.0",
             "branch": "master",
             "level": 0,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-jsonutils",
             "version": "1.0.0",
             "branch": "master",
             "level": 0,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-xmlutils",
             "version": "1.0.0",
             "branch": "master",
             "level": 0,
-            "release": false
+            "release": true
         },
 
         {
@@ -27,28 +27,28 @@
             "version": "1.0.0",
             "branch": "master",
             "level": 1,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-io",
             "version": "0.5.0",
             "branch": "master",
             "level": 1,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-stringutils",
             "version": "0.5.0",
             "branch": "master",
             "level": 1,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-runtime",
             "version": "0.5.0",
             "branch": "master",
             "level": 1,
-            "release": false
+            "release": true
         },
 
         {
@@ -56,28 +56,28 @@
             "version": "0.6.0",
             "branch": "master",
             "level": 2,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-time",
             "version": "1.0.1",
             "branch": "master",
             "level": 2,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-xslt",
             "version": "1.0.1",
             "branch": "master",
             "level": 2,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-task",
             "version": "1.1.0",
             "branch": "master",
             "level": 2,
-            "release": false
+            "release": true
         },
 
         {
@@ -85,28 +85,28 @@
             "version": "1.0.2",
             "branch": "master",
             "level": 3,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-config",
             "version": "1.0.0",
             "branch": "master",
             "level": 3,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-file",
             "version": "0.5.1",
             "branch": "master",
             "level": 3,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-crypto",
             "version": "1.0.0",
             "branch": "master",
             "level": 3,
-            "release": false
+            "release": true
         },
 
         {
@@ -114,14 +114,14 @@
             "version": "1.0.0",
             "branch": "master",
             "level": 4,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-reflect",
             "version": "0.5.0",
             "branch": "master",
             "level": 4,
-            "release": false
+            "release": true
         },
 
         {
@@ -129,42 +129,42 @@
             "version": "1.0.0",
             "branch": "master",
             "level": 5,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-filepath",
             "version": "0.7.1",
             "branch": "master",
             "level": 5,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-cache",
             "version": "2.0.0",
             "branch": "master",
             "level": 5,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-socket",
             "version": "0.6.8",
             "branch": "master",
             "level": 5,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerinax-nats",
             "version": "1.0.0",
             "branch": "master",
             "level": 5,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerinax-rabbitmq",
             "version": "1.0.2",
             "branch": "master",
             "level": 5,
-            "release": false
+            "release": true
         },
 
         {
@@ -172,28 +172,28 @@
             "version": "1.0.0",
             "branch": "master",
             "level": 6,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerinax-kafka",
             "version": "2.0.0",
             "branch": "master",
             "level": 6,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-auth",
             "version": "1.0.0",
             "branch": "master",
             "level": 6,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-sql",
             "version": "0.5.0",
             "branch": "master",
             "level": 6,
-            "release": false
+            "release": true
         },
 
         {
@@ -201,28 +201,28 @@
             "version": "0.5.0",
             "branch": "master",
             "level": 7,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerinax-mysql",
             "version": "0.6.0",
             "branch": "master",
             "level": 7,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-ldap",
             "version": "1.0.0",
             "branch": "master",
             "level": 7,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-http",
             "version": "1.0.0",
             "branch": "master",
             "level": 7,
-            "release": false
+            "release": true
         },
 
         {
@@ -230,28 +230,28 @@
             "version": "1.0.2",
             "branch": "master",
             "level": 8,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-jwt",
             "version": "1.0.2",
             "branch": "master",
             "level": 8,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-oauth2",
             "version": "1.0.0",
             "branch": "master",
             "level": 8,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-grpc",
             "version": "0.7.0",
             "branch": "master",
             "level": 8,
-            "release": false
+            "release": true
         }
     ]
 }
