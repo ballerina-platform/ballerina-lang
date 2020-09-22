@@ -914,6 +914,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public IfElseStatementNode transform(IfElseStatementNode ifElseStatementNode) {
+        // TODO: Enable the nested if else statements
         if (!isInLineRange(ifElseStatementNode, lineRange) || !nestedIfBlock(ifElseStatementNode).isEmpty()) {
             return ifElseStatementNode;
         }
@@ -3003,6 +3004,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+    // TODO: Enable the QueryExpressionNode
     @Override
     public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
 //        if (!isInLineRange(queryExpressionNode, lineRange)) {
