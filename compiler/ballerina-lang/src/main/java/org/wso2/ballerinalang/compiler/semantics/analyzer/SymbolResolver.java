@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -99,7 +100,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
@@ -135,7 +135,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private SymbolTable symTable;
     private Names names;
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
     private Types types;
 
     private SymbolEnv env;
@@ -160,7 +160,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
@@ -1363,7 +1363,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                          functionTypeNode.pos);
     }
 
-    public BInvokableType createInvokableType(List<? extends BLangVariable> paramVars, BLangVariable restVariable,
+    public BType createInvokableType(List<? extends BLangVariable> paramVars, BLangVariable restVariable,
                                               BLangType retTypeVar, int flags, SymbolEnv env, DiagnosticPos pos) {
         List<BType> paramTypes = new ArrayList<>();
         List<BVarSymbol> params = new ArrayList<>();
@@ -1381,6 +1381,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
             }
             BType type = resolveTypeNode(param.getTypeNode(), env);
+            if (type == symTable.noType) {
+                return symTable.noType;
+            }
             paramNode.type = type;
             paramTypes.add(type);
 
@@ -1412,12 +1415,18 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         BType retType = resolveTypeNode(retTypeVar, this.env);
+        if (retType == symTable.noType) {
+            return symTable.noType;
+        }
 
         BVarSymbol restParam = null;
         BType restType = null;
 
         if (restVariable != null) {
             restType = resolveTypeNode(restVariable.typeNode, env);
+            if (restType == symTable.noType) {
+                return symTable.noType;
+            }
             restVariable.type = restType;
             restParam = new BVarSymbol(restType.flags, names.fromIdNode(((BLangSimpleVariable) restVariable).name),
                                        env.enclPkg.symbol.pkgID, restType, env.scope.owner, restVariable.pos, SOURCE);

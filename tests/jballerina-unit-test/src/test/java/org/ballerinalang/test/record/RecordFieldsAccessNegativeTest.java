@@ -48,13 +48,15 @@ public class RecordFieldsAccessNegativeTest {
     public void testRecordPrivateFieldsAccess2() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record-project", "access-neg-2");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 6);
+        Assert.assertEquals(compileResult.getErrorCount(), 8);
         int i = 0;
         BAssertUtil.validateError(compileResult, i++, "attempt to expose non-public symbol 'ChildFoo'", 4, 5);
         BAssertUtil.validateError(compileResult, i++, "attempt to expose non-public symbol 'PrivatePerson'", 16, 44);
         BAssertUtil.validateError(compileResult, i++, "attempt to expose non-public symbol 'PrivatePerson'", 20, 1);
         BAssertUtil.validateError(compileResult, i++, "attempt to expose non-public symbol 'PrivatePerson'", 24, 1);
         BAssertUtil.validateError(compileResult, i++, "attempt to expose non-public symbol 'PrivatePerson'", 24, 72);
-        BAssertUtil.validateError(compileResult, i, "attempt to expose non-public symbol 'FooFamily'", 12, 5);
+        BAssertUtil.validateError(compileResult, i++, "attempt to expose non-public symbol 'FooFamily'", 12, 5);
+        BAssertUtil.validateError(compileResult, i++, "attempt to refer to non-accessible symbol 'FooFamily'", 5, 13);
+        BAssertUtil.validateError(compileResult, i, "attempt to refer to non-accessible symbol 'FooFamily'", 10, 13);
     }
 }

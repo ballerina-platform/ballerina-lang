@@ -36,6 +36,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -112,6 +113,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -126,7 +128,6 @@ import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -188,7 +189,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final SymbolTable symTable;
     private final Names names;
     private final SymbolResolver symResolver;
-    private final BLangDiagnosticLogHelper dlog;
+    private final BLangDiagnosticLog dlog;
     private final Types types;
     private final SourceDirectory sourceDirectory;
     private List<BLangNode> unresolvedTypes;
@@ -220,7 +221,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
@@ -953,10 +954,19 @@ public class SymbolEnter extends BLangNodeVisitor {
             case BUILT_IN_REF_TYPE:
                 // Eg - `xml`. This is not needed to be checked because no types are available in the `xml`.
             case FINITE_TYPE_NODE:
-            case FUNCTION_TYPE:
             case VALUE_TYPE:
             case ERROR_TYPE:
                 // Do nothing.
+                break;
+            case FUNCTION_TYPE:
+                BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) currentTypeOrClassNode;
+                functionTypeNode.params.forEach(p -> checkErrors(unresolvedType, p.typeNode, visitedNodes));
+                if (functionTypeNode.restParam != null) {
+                    checkErrors(unresolvedType, functionTypeNode.restParam.typeNode, visitedNodes);
+                }
+                if (functionTypeNode.returnTypeNode != null) {
+                    checkErrors(unresolvedType, functionTypeNode.returnTypeNode, visitedNodes);
+                }
                 break;
             case RECORD_TYPE:
                 for (TypeNode typeNode : ((BLangRecordTypeNode) currentTypeOrClassNode).getTypeReferences()) {
@@ -1051,9 +1061,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private String getTypeOrClassName(BLangNode node) {
-        return node instanceof TypeDefinition
-                ? ((TypeDefinition) node).getName().getValue()
-                : ((BLangClassDefinition) node).getName().getValue();
+        if (node.getKind() == NodeKind.TYPE_DEFINITION || node.getKind() == NodeKind.CONSTANT) {
+            return ((TypeDefinition) node).getName().getValue();
+        } else  {
+            return ((BLangClassDefinition) node).getName().getValue();
+        }
     }
 
     public boolean isUnknownTypeRef(BLangUserDefinedType bLangUserDefinedType) {
@@ -2872,7 +2884,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void resolveAndSetFunctionTypeFromRHSLambda(BLangSimpleVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
-        BInvokableType invokableType = symResolver.createInvokableType(function.getParameters(),
+        BInvokableType invokableType = (BInvokableType) symResolver.createInvokableType(function.getParameters(),
                                                                        function.restParam, function.returnTypeNode,
                                                                        Flags.asMask(variable.flagSet), env,
                                                                        function.pos);

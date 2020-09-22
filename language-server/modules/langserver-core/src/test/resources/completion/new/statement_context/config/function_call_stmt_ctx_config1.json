@@ -13,6 +13,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "on fail clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "on fail ${1:var} ${2:varName} {\n\t${3}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "xmlns",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -83,6 +90,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "fail",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "fail ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "if",
       "kind": "Snippet",
       "detail": "Statement",
@@ -94,6 +108,13 @@
       "kind": "Snippet",
       "detail": "Statement",
       "insertText": "while (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "do",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "insertText": "do {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -720,6 +741,41 @@
       "kind": "Event",
       "detail": "error",
       "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "record {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {||}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "record {|\n\t${1}\n|}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "object {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {

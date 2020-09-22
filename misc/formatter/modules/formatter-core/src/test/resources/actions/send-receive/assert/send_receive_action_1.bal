@@ -8,4 +8,3 @@ public function foo() {
         lw = <- w1;
     }
 }
-

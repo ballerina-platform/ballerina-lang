@@ -79,12 +79,12 @@ public class BallerinaApiDocsTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(Paths.get(String.valueOf(authDocsDir), "errors.html")));
         Assert.assertTrue(Files.exists(Paths.get(String.valueOf(authDocsDir), "functions.html")));
 
-        Path objectsDir = Paths.get(String.valueOf(authDocsDir), "objects");
-        Assert.assertTrue(Files.exists(objectsDir));
-        Assert.assertTrue(Files.exists(Paths.get(String.valueOf(objectsDir), "InboundAuthProvider.html")));
-        Assert.assertTrue(Files.exists(Paths.get(String.valueOf(objectsDir), "InboundBasicAuthProvider.html")));
-        Assert.assertTrue(Files.exists(Paths.get(String.valueOf(objectsDir), "OutboundAuthProvider.html")));
-        Assert.assertTrue(Files.exists(Paths.get(String.valueOf(objectsDir), "OutboundBasicAuthProvider.html")));
+        Path classDir = Paths.get(String.valueOf(authDocsDir), "bClasses");
+        Assert.assertTrue(Files.exists(classDir));
+        Assert.assertTrue(Files.exists(Paths.get(String.valueOf(classDir), "InboundAuthProvider.html")));
+        Assert.assertTrue(Files.exists(Paths.get(String.valueOf(classDir), "InboundBasicAuthProvider.html")));
+        Assert.assertTrue(Files.exists(Paths.get(String.valueOf(classDir), "OutboundAuthProvider.html")));
+        Assert.assertTrue(Files.exists(Paths.get(String.valueOf(classDir), "OutboundBasicAuthProvider.html")));
 
         Path recordsDir = Paths.get(String.valueOf(authDocsDir), "records");
         Assert.assertTrue(Files.exists(recordsDir));

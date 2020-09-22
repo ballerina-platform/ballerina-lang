@@ -7,4 +7,3 @@ public function foo() {
         };
     } iterableObj = 25 ..< 28;
 }
-

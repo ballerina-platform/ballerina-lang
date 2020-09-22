@@ -1030,20 +1030,31 @@ public class BallerinaParser extends AbstractParser {
         STNodeList qualifierList = (STNodeList) qualifiers;
         STNode visibilityQualifier = STNodeFactory.createEmptyNode();
         List<STNode> validatedQualifierList = new ArrayList<>();
+
         // qualifiers are only allowed in the following cases for func type desc.
-        // isolated and transactional qualifiers allowed.
-        // public or private qualifier allowed in object field.
+        // isolated and transactional qualifiers are allowed.
+        // public, private and remote qualifiers are allowed in object field.
         for (int position = 0; position < qualifierList.size(); position++) {
             STNode qualifier = qualifierList.get(position);
+
             if (qualifier.kind == SyntaxKind.ISOLATED_KEYWORD || qualifier.kind == SyntaxKind.TRANSACTIONAL_KEYWORD) {
                 validatedQualifierList.add(qualifier);
-            } else if (isObjectMember && isVisibilityQualifier(qualifier)) {
-                // public or private qualifier allowed in object field.
-                visibilityQualifier = qualifier;
-            } else {
-                functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, qualifier,
-                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
+                continue;
             }
+
+            if (isObjectMember) {
+                if (isVisibilityQualifier(qualifier)) {
+                    // public or private qualifier allowed in object field.
+                    visibilityQualifier = qualifier;
+                    continue;
+                } else if (qualifier.kind == SyntaxKind.REMOTE_KEYWORD) {
+                    validatedQualifierList.add(qualifier);
+                    continue;
+                }
+            }
+
+            functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, qualifier,
+                    DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
         }
 
         qualifiers = STNodeFactory.createNodeList(validatedQualifierList);

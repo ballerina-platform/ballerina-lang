@@ -7,4 +7,3 @@ public function foo() {
     string j = " hello ";
     byte[] k = [5, 24, 56, 243];
 }
-

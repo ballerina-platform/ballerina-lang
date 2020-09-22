@@ -1,5 +1,5 @@
 function recordWithClosureInDefaults() returns error? {
-    int x = 20;
+    final int x = 20;
 
     record {
         string name;
