@@ -180,6 +180,41 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "record",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "record {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {||}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "record {|\n\t${1}\n|}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "object {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
@@ -568,24 +603,24 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <RecordName> record",
+      "label": "record {}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "record {\n\t${1}\n};",
+      "insertText": "record {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <RecordName> closed record",
+      "label": "record {||}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "record {|\n\t${1}\n|};",
+      "insertText": "record {|\n\t${1}\n|}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <ObjectName> object",
+      "label": "object {}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "object {\n\t${1}\n};",
+      "insertText": "object {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     }
   ]

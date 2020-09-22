@@ -218,6 +218,13 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         });
 
         completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
+        completionItems.addAll(Arrays.asList(
+                new SnippetCompletionItem(context, Snippet.KW_RECORD.get()),
+                new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
+                new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()),
+                new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()),
+                new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get())
+        ));
 
         return completionItems;
     }
