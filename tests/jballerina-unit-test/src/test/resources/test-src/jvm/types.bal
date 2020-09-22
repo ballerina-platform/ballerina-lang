@@ -179,6 +179,8 @@ public function testClosedArrayType(){
       assertEquality(y is [int...], true);
       assertEquality(y is [int, int, int...], true);
       assertEquality(y is [string, string, int...], false);
+      assertEquality(y is [int, int, int], false);
+      assertEquality(y is [int, int, int, int...], false);
 }
 
 public function testInferredArrayType() {
@@ -188,6 +190,8 @@ public function testInferredArrayType() {
     assertEquality(y is [int...], true);
     assertEquality(y is [int, int, int...], true);
     assertEquality(y is [string, string, int...], false);
+    assertEquality(y is [int, int, int], false);
+    assertEquality(y is [int, int, int, int...], false);
 }
 
 public function testEmptyArrayType() {
