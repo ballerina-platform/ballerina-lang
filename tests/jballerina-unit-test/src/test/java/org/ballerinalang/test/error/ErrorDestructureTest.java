@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.error;
 
-
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -28,7 +27,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for Error destructure binding pattern.
  *
- * @since 1.2
+ * @since 2.0 Swan Lake
  */
 public class ErrorDestructureTest {
     @Test(description = "Test error destruturing binding pattern")
