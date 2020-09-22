@@ -2687,6 +2687,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(streamTypeDescriptorNode, lineRange)) {
             return streamTypeDescriptorNode;
         }
+        int startColumn = getStartColumn(streamTypeDescriptorNode, true);
         Token streamKeywordToken = getToken(streamTypeDescriptorNode.streamKeywordToken());
         Node streamTypeParamsNode = this.modifyNode(streamTypeDescriptorNode.streamTypeParamsNode().orElse(null));
         if (streamTypeParamsNode != null) {
@@ -2694,7 +2695,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withStreamTypeParamsNode(streamTypeParamsNode).apply();
         }
         return streamTypeDescriptorNode.modify()
-                .withStreamKeywordToken(formatToken(streamKeywordToken, 0, 1, 0, 0))
+                .withStreamKeywordToken(formatToken(streamKeywordToken, startColumn, 1, 0, 0))
                 .apply();
     }
 
