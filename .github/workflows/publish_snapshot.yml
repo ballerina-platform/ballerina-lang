@@ -29,8 +29,8 @@ jobs:
 
       - name: Build and Publish
         env:
-          packageUser: ${{ github.actor }}
-          packagePAT: ${{ secrets.BAL_BOT_PAT }}
+          NEXUS_USERNAME: ${{ github.actor }}
+          NEXUS_PASSWORD: ${{ secrets.BAL_BOT_PAT }}
         run: |
           ./gradlew build -x createJavadoc -x test -x check --max-workers=2 --no-daemon
-          ./gradlew publish
+          ./gradlew publish -PpublishToGithub
