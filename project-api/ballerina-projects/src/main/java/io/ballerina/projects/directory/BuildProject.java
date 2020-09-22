@@ -17,13 +17,18 @@
  */
 package io.ballerina.projects.directory;
 
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.environment.EnvironmentContext;
+import io.ballerina.projects.model.BallerinaToml;
+import io.ballerina.projects.model.BallerinaTomlProcessor;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
+import org.ballerinalang.toml.exceptions.TomlException;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -55,14 +60,37 @@ public class BuildProject extends Project {
     private BuildProject(EnvironmentContext environmentContext, Path projectPath) {
         super(environmentContext);
         this.sourceRoot = projectPath;
-        addPackage(projectPath.toString());
+
+        // load Ballerina.toml
+        Path ballerinaTomlPath = this.sourceRoot.resolve(ProjectConstants.BALLERINA_TOML);
+        BallerinaToml ballerinaToml;
+        try {
+            ballerinaToml = BallerinaTomlProcessor.parse(ballerinaTomlPath);
+        } catch (IOException | TomlException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
 
         // Set default build options
-//        if (this.context.currentPackage().ballerinaToml().getBuildOptions() != null) {
-//            this.context.setBuildOptions(this.context.currentPackage().ballerinaToml().getBuildOptions());
-//        } else {
-//            this.context.setBuildOptions(new BuildOptions());
-//        }
+        if (ballerinaToml.getBuildOptions() != null) {
+            this.setBuildOptions(ballerinaToml.getBuildOptions());
+        } else {
+            this.setBuildOptions(new BuildOptions());
+        }
+
+        addPackage(projectPath.toString());
+    }
+
+    public BuildOptions getBuildOptions() {
+        return (BuildOptions) super.getBuildOptions();
+    }
+
+    public Path modulePath(ModuleId moduleId) {
+        if (currentPackage().getDefaultModule().moduleId() == moduleId) {
+            return sourceRoot;
+        } else {
+            return sourceRoot.resolve(ProjectConstants.MODULES_ROOT).resolve(
+                    currentPackage().module(moduleId).moduleName().moduleNamePart());
+        }
     }
 
     /**
@@ -87,10 +115,6 @@ public class BuildProject extends Project {
                 && Files.exists(ballerinaToml)
                 && Files.isRegularFile(ballerinaToml)
                 && (ProjectUtils.findProjectRoot(sourceRoot) == null);
-    }
-
-    public BuildOptions getBuildOptions() {
-        return (BuildOptions) super.getBuildOptions();
     }
 
     /**

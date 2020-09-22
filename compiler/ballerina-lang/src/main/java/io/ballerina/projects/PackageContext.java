@@ -32,10 +32,11 @@ import java.util.Set;
  * @since 2.0.0
  */
 class PackageContext {
-    private final PackageConfig packageConfig;
     private final Map<ModuleId, ModuleContext> moduleContextMap;
     private final Collection<ModuleId> moduleIds;
     private final Project project;
+    private final PackageId packageId;
+    private final PackageName packageName;
     private ModuleContext defaultModuleContext;
     private boolean dependenciesResolved;
 
@@ -46,10 +47,11 @@ class PackageContext {
     private final Map<ModuleId, ModuleCompilation> moduleCompilationMap;
     //    private final BallerinaToml ballerinaToml;
 
-    private PackageContext(Project project, PackageConfig packageConfig,
+    PackageContext(Project project, PackageId packageId, PackageName packageName,
                            Map<ModuleId, ModuleContext> moduleContextMap) {
         this.project = project;
-        this.packageConfig = packageConfig;
+        this.packageId = packageId;
+        this.packageName = packageName;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
         this.moduleContextMap = moduleContextMap;
         // TODO Try to reuse previous unaffected compilations
@@ -70,12 +72,13 @@ class PackageContext {
 //        }
     }
 
-    private PackageContext(Project project, PackageConfig packageConfig,
+    private PackageContext(Project project, PackageId packageId, PackageName packageName,
                            Map<ModuleId, ModuleContext> moduleContextMap,
                            Set<PackageDependency> packageDependencies,
                            DependencyGraph<ModuleId> moduleDependencyGraph) {
         this.project = project;
-        this.packageConfig = packageConfig;
+        this.packageId = packageId;
+        this.packageName = packageName;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
         this.moduleContextMap = moduleContextMap;
         // TODO Try to reuse previous unaffected compilations
@@ -91,15 +94,15 @@ class PackageContext {
         }
 
         // Create module dependency graph
-        return new PackageContext(project, packageConfig, moduleContextMap);
+        return new PackageContext(project, packageConfig.packageId(), packageConfig.packageName(), moduleContextMap);
     }
 
     PackageId packageId() {
-        return this.packageConfig.packageId();
+        return this.packageId;
     }
 
     PackageName packageName() {
-        return packageConfig.packageName();
+        return this.packageName;
     }
 
     Collection<ModuleId> moduleIds() {

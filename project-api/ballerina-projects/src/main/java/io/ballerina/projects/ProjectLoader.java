@@ -41,7 +41,8 @@ public class ProjectLoader {
         Path absProjectPath = Optional.of(path.toAbsolutePath()).get();
         Path projectRoot;
         if (absProjectPath.toFile().isDirectory()) {
-            if (ProjectConstants.MODULES_ROOT.equals(Optional.of(absProjectPath.getParent()).get().toFile().getName())) {
+            if (ProjectConstants.MODULES_ROOT.equals(
+                    Optional.of(absProjectPath.getParent()).get().toFile().getName())) {
                 projectRoot = Optional.of(Optional.of(absProjectPath.getParent()).get().getParent()).get();
             } else {
                 projectRoot = absProjectPath;
@@ -77,6 +78,37 @@ public class ProjectLoader {
         }
 
         return SingleFileProject.loadProject(absProjectPath);
+    }
+
+    /**
+     * Returns the documentId of the provided file path.
+     *
+     * @param documentFilePath file path of the document
+     * @param project project that the file belongs to
+     * @return documentId of the document
+     */
+    public static DocumentId getDocumentId(Path documentFilePath, BuildProject project) {
+        Path parent = Optional.of(documentFilePath.getParent()).get();
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            if (parent.equals(project.modulePath(moduleId)) || parent.toString().equals(
+                    project.modulePath(moduleId).resolve(ProjectConstants.TEST_DIR_NAME).toString())) {
+                Module module = project.currentPackage().module(moduleId);
+                for (DocumentId documentId : module.documentIds()) {
+                    if (module.document(documentId).name().equals(
+                            Optional.of(documentFilePath.getFileName()).get().toString())) {
+                        return documentId;
+                    }
+                }
+
+                for (DocumentId documentId : module.testDocumentIds()) {
+                    if (module.document(documentId).name().equals(
+                            Optional.of(documentFilePath.getFileName()).get().toString())) {
+                        return documentId;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private static boolean hasBallerinaToml(Path filePath) {

@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects.directory;
 
-import java.nio.file.Path;
-
 /**
  * {@code ModuleFileData} represents a Ballerina source file (.bal).
  *
@@ -26,19 +24,19 @@ import java.nio.file.Path;
  */
 public class DocumentData {
     private final String name;
-    private final Path filePath;
+    private String content;
 
-    private DocumentData(String name, Path filePath) {
+    private DocumentData(String name, String content) {
         this.name = name;
-        this.filePath = filePath;
+        this.content = content;
     }
 
-    public static DocumentData from(String name, Path filePath) {
-        return new DocumentData(name, filePath);
+    public static DocumentData from(String name, String content) {
+        return new DocumentData(name, content);
     }
 
-    public Path filePath() {
-        return filePath;
+    public String content() {
+        return content;
     }
 
     public String name() {

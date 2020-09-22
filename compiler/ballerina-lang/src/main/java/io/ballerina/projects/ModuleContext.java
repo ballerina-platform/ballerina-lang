@@ -46,8 +46,10 @@ import java.util.Set;
  * @since 2.0.0
  */
 class ModuleContext {
-    private final ModuleConfig moduleConfig;
+    private final ModuleId moduleId;
+    private ModuleName moduleName;
     private final Collection<DocumentId> srcDocIds;
+    private final boolean isDefaultModule;
     private final Map<DocumentId, DocumentContext> srcDocContextMap;
     private final Collection<DocumentId> testSrcDocIds;
     private final Map<DocumentId, DocumentContext> testDocContextMap;
@@ -59,12 +61,14 @@ class ModuleContext {
     // TODO How about introducing a ModuleState concept. ModuleState.DEPENDENCIES_RESOLVED
     private boolean dependenciesResolved;
 
-    private ModuleContext(Project project, ModuleConfig moduleConfig,
+    ModuleContext(Project project, ModuleId moduleId, ModuleName moduleName, boolean isDefaultModule,
                           Map<DocumentId, DocumentContext> srcDocContextMap,
                           Map<DocumentId, DocumentContext> testDocContextMap,
                           Set<ModuleDependency> moduleDependencies) {
         this.project = project;
-        this.moduleConfig = moduleConfig;
+        this.moduleId = moduleId;
+        this.moduleName = moduleName;
+        this.isDefaultModule = isDefaultModule;
         this.srcDocContextMap = srcDocContextMap;
         this.srcDocIds = Collections.unmodifiableCollection(srcDocContextMap.keySet());
         this.testDocContextMap = testDocContextMap;
@@ -72,10 +76,11 @@ class ModuleContext {
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
     }
 
-    private ModuleContext(Project project, ModuleConfig moduleConfig,
+    private ModuleContext(Project project, ModuleId moduleId, ModuleName moduleName, boolean isDefaultModule,
                           Map<DocumentId, DocumentContext> srcDocContextMap,
                           Map<DocumentId, DocumentContext> testDocContextMap) {
-        this(project, moduleConfig, srcDocContextMap, testDocContextMap, Collections.emptySet());
+        this(project, moduleId, moduleName, isDefaultModule, srcDocContextMap, testDocContextMap,
+                Collections.emptySet());
     }
 
     static ModuleContext from(Project project, ModuleConfig moduleConfig) {
@@ -89,15 +94,18 @@ class ModuleContext {
             testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
         }
 
-        return new ModuleContext(project, moduleConfig, srcDocContextMap, testDocContextMap);
+        return new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleName(),
+                moduleConfig.isDefaultModule(),
+                srcDocContextMap,
+                testDocContextMap);
     }
 
     ModuleId moduleId() {
-        return moduleConfig.moduleId();
+        return this.moduleId;
     }
 
     ModuleName moduleName() {
-        return moduleConfig.moduleName();
+        return this.moduleName;
     }
 
     Collection<DocumentId> srcDocumentIds() {
@@ -121,7 +129,7 @@ class ModuleContext {
     }
 
     boolean isDefaultModule() {
-        return moduleConfig.isDefaultModule();
+        return this.isDefaultModule;
     }
 
     boolean resolveDependencies() {
@@ -171,14 +179,14 @@ class ModuleContext {
         CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
 
         PackageID pkgID = new PackageID(new Name(packageName.toString()),
-                new Name(moduleConfig.moduleName().toString()), new Name("0.1.0"));
+                new Name(this.moduleName.toString()), new Name("0.1.0"));
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         packageCache.put(pkgID, pkgNode);
 
         for (DocumentContext documentContext : srcDocContextMap.values()) {
             pkgNode.addCompilationUnit(documentContext.compilationUnit(compilerContext, pkgID));
         }
-        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgID, moduleConfig.moduleName().toString()), 1, 1, 1, 1);
+        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgID, this.moduleName.toString()), 1, 1, 1, 1);
 
         symbolEnter.definePackage(pkgNode);
         packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);

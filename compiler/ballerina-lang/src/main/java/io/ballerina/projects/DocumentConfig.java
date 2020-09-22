@@ -17,9 +17,6 @@
  */
 package io.ballerina.projects;
 
-import java.nio.file.Path;
-import java.util.Optional;
-
 /**
  * {@code DocumentConfig} contains necessary configuration elements required to
  * create an instance of a {@code Document}.
@@ -29,28 +26,28 @@ import java.util.Optional;
 public class DocumentConfig {
     // This class should contain project-agnostic information
     private final DocumentId documentId;
-    private final Path filePath;
+    private final String content;
+    private String name;
 
-    private DocumentConfig(DocumentId documentId, Path filePath) {
+    private DocumentConfig(DocumentId documentId, String content, String name) {
         this.documentId = documentId;
-        this.filePath = filePath;
+        this.content = content;
+        this.name = name;
     }
 
-    public static DocumentConfig from(DocumentId documentId, Path filePath) {
-        return new DocumentConfig(documentId, filePath);
+    public static DocumentConfig from(DocumentId documentId, String content, String name) {
+        return new DocumentConfig(documentId, content, name);
     }
 
     public DocumentId documentId() {
         return documentId;
     }
 
-    public Optional<Path> filePath() {
-        return Optional.ofNullable(filePath);
+    public String content() {
+        return content;
     }
 
     public String name() {
-        // TODO Improve this logic. When a document is created a name has to be there.
-        //  It shouldn't be extracted from the filepath
-        return filePath.getFileName().toString();
+        return name;
     }
 }

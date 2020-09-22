@@ -20,6 +20,7 @@ package io.ballerina.projects.directory;
 import io.ballerina.projects.utils.ProjectUtils;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,6 +28,7 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -134,10 +136,16 @@ public class ProjectFiles {
         }
     }
 
-    private static DocumentData loadDocument(Path documentFilePath) {
-        Path fileNamePath = documentFilePath.getFileName();
-        // IMO, fileNamePath cannot be null in this case.
-        String name = fileNamePath != null ? fileNamePath.toString() : "";
-        return DocumentData.from(name, documentFilePath);
+    public static DocumentData loadDocument(Path documentFilePath) {
+        String content;
+        if (documentFilePath == null) {
+            throw new RuntimeException("document path cannot be null");
+        }
+        try {
+            content = new String(Files.readAllBytes(documentFilePath), Charset.defaultCharset());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
     }
 }
