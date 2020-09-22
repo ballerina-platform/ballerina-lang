@@ -925,7 +925,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withElseBody(elseBody).apply();
         }
         return ifElseStatementNode.modify()
-                .withIfKeyword(formatToken(ifKeyword, startColumn, 0, 0, 0))
+                .withIfKeyword(formatToken(ifKeyword, startColumn, 1, 0, 0))
                 .withIfBody(ifBody)
                 .withCondition(condition)
                 .apply();
@@ -953,7 +953,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token closeParen = getToken(bracedExpressionNode.closeParen());
         ExpressionNode expression = this.modifyNode(bracedExpressionNode.expression());
         return bracedExpressionNode.modify()
-                .withOpenParen(formatToken(openParen, 1, 0, 0, 0))
+                .withOpenParen(formatToken(openParen, 0, 0, 0, 0))
                 .withCloseParen(formatToken(closeParen, 0, 0, 0, 0))
                 .withExpression(expression)
                 .apply();
@@ -1108,6 +1108,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 (parentKind == SyntaxKind.FUNCTION_BODY_BLOCK ||
                         parentKind == SyntaxKind.IF_ELSE_STATEMENT ||
                         parentKind == SyntaxKind.MATCH_CLAUSE ||
+                        parentKind == SyntaxKind.WHILE_STATEMENT ||
                         parentKind == SyntaxKind.DO_STATEMENT ||
                         parentKind == SyntaxKind.FOREACH_STATEMENT ||
                         parentKind == SyntaxKind.ELSE_BLOCK)) {
@@ -1326,7 +1327,7 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode condition = this.modifyNode(whileStatementNode.condition());
         OnFailClauseNode onFailClause = this.modifyNode(whileStatementNode.onFailClause().orElse(null));
         whileStatementNode = whileStatementNode.modify()
-                .withWhileKeyword(formatToken(whileKeyword, startColumn, 0, 0, 0)).apply();
+                .withWhileKeyword(formatToken(whileKeyword, startColumn, 1, 0, 0)).apply();
         BlockStatementNode whileBody = this.modifyNode(whileStatementNode.whileBody());
         if (onFailClause != null) {
             whileStatementNode = whileStatementNode.modify()
