@@ -92,7 +92,7 @@ function waitForCurrentModuleReleases(commons:Module[] modules) {
     }
     if (unreleasedModules.length() > 0) {
         log:printWarn("Following modules not released after the max wait time");
-        printModules(unreleasedModules);
+        commons:printModules(unreleasedModules);
         error err = error("Unreleased", message = "There are modules not released after max wait time");
         commons:logAndPanicError("Release Failed.", err);
     }
@@ -134,13 +134,4 @@ function createRequest(string accessTokenHeaderValue) returns http:Request {
     request.setHeader(ACCEPT_HEADER_KEY, ACCEPT_HEADER_VALUE);
     request.setHeader(AUTH_HEADER_KEY, accessTokenHeaderValue);
     return request;
-}
-
-function printModules(commons:Module[] modules) {
-    string[] moduleStrings = modules.map(function (commons:Module m) returns string {
-        return m.name + " " + m.'version;
-    });
-    foreach string moduleString in moduleStrings {
-        log:printInfo(moduleString);
-    }
 }
