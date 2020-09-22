@@ -74,6 +74,10 @@ class NodeIndentation {
                 (grandParent.kind() != SyntaxKind.TYPE_CAST_PARAM) && parent.children().get(0).equals(node))) {
             addSpaces = true;
         }
+        if (parent != null && grandParent != null && (parent.kind() == (SyntaxKind.UNION_TYPE_DESC) &&
+                (grandParent.kind() == SyntaxKind.PARENTHESISED_TYPE_DESC) && parent.children().get(0).equals(node))) {
+            addSpaces = false;
+        }
         return getStartColumn(node, addSpaces, options);
     }
 

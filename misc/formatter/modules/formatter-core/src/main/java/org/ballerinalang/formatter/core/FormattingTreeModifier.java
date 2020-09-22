@@ -2886,8 +2886,9 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openParenToken = getToken(parenthesisedTypeDescriptorNode.openParenToken());
         TypeDescriptorNode typedesc = this.modifyNode(parenthesisedTypeDescriptorNode.typedesc());
         Token closeParenToken = getToken(parenthesisedTypeDescriptorNode.closeParenToken());
+        int startColumn = getStartColumn(parenthesisedTypeDescriptorNode, true);
         return parenthesisedTypeDescriptorNode.modify()
-                .withOpenParenToken(formatToken(openParenToken, 0, 0, 0, 0))
+                .withOpenParenToken(formatToken(openParenToken, startColumn, 0, 0, 0))
                 .withTypedesc(typedesc)
                 .withCloseParenToken(formatToken(closeParenToken, 0, 0, 0, 0))
                 .apply();
