@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,7 +45,6 @@ class PackageContext {
 
     // TODO Try to reuse the unaffected compilations if possible
     private final Map<ModuleId, ModuleCompilation> moduleCompilationMap;
-    //    private final BallerinaToml ballerinaToml;
 
     private PackageContext(Project project, PackageConfig packageConfig,
                            Map<ModuleId, ModuleContext> moduleContextMap) {
@@ -56,18 +56,6 @@ class PackageContext {
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
         this.moduleDependencyGraph = DependencyGraph.emptyGraph();
-
-//        // load Ballerina.toml
-//        Path ballerinaTomlPath = packageConfig.packagePath().resolve(ProjectConstants.BALLERINA_TOML);
-//        if (ballerinaTomlPath.toFile().exists()) {
-//            try {
-//                this.ballerinaToml = BallerinaTomlProcessor.parse(ballerinaTomlPath);
-//            } catch (IOException | TomlException e) {
-//                throw new RuntimeException(e.getMessage(), e);
-//            }
-//        } else {
-//            this.ballerinaToml = new BallerinaToml();
-//        }
     }
 
     private PackageContext(Project project, PackageConfig packageConfig,
@@ -100,6 +88,14 @@ class PackageContext {
 
     PackageName packageName() {
         return packageConfig.packageName();
+    }
+
+    PackageOrg packageOrg() {
+        return packageConfig.packageOrg();
+    }
+
+    PackageVersion packageVersion() {
+        return packageConfig.packageVersion();
     }
 
     Collection<ModuleId> moduleIds() {
@@ -200,7 +196,7 @@ class PackageContext {
         moduleDependencyIdMap.put(moduleId, moduleDependencyIds);
     }
 
-//    BallerinaToml ballerinaToml() {
-//        return this.ballerinaToml;
-//    }
+    Path packagePath() {
+        return this.packageConfig.packagePath();
+    }
 }

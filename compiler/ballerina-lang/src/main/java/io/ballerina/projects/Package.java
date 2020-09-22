@@ -1,5 +1,6 @@
 package io.ballerina.projects;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,6 +44,14 @@ public class Package {
 
     public PackageName packageName() {
         return packageContext.packageName();
+    }
+
+    public PackageOrg packageOrg() {
+        return packageContext.packageOrg();
+    }
+
+    public PackageVersion packageVersion() {
+        return packageContext.packageVersion();
     }
 
     public Collection<ModuleId> moduleIds() {
@@ -100,7 +109,7 @@ public class Package {
         return packageContext.packageDependencies();
     }
 
-//    public BallerinaToml ballerinaToml() {
-//        return this.packageContext.ballerinaToml();
-//    }
+    public Path packagePath() {
+        return packageContext.packagePath();
+    }
 }

@@ -25,10 +25,18 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.model.BallerinaToml;
+import io.ballerina.projects.model.BallerinaTomlProcessor;
+import org.ballerinalang.toml.exceptions.TomlException;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static io.ballerina.projects.utils.ProjectConstants.BALLERINA_TOML;
 
 /**
  * Contains a set of utility methods that creates the config hierarchy from the project directory.
@@ -52,7 +60,18 @@ public class PackageLoader {
             // TODO Proper error handling
             throw new IllegalStateException("This branch cannot be reached");
         }
+
+        // load Ballerina.toml
+        BallerinaToml ballerinaToml;
+        try {
+            ballerinaToml = BallerinaTomlProcessor.parse(packagePath.resolve(BALLERINA_TOML));
+        } catch (IOException | TomlException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+
         PackageName packageName = PackageName.from(fileName.toString());
+        PackageOrg packageOrg = PackageOrg.from(ballerinaToml.getPackage().getOrg());
+        PackageVersion packageVersion = PackageVersion.from(ballerinaToml.getPackage().getVersion());
         PackageId packageId = PackageId.create(packageName.toString());
 
         List<ModuleConfig> moduleConfigs = packageData.otherModules()
@@ -62,7 +81,7 @@ public class PackageLoader {
         ModuleConfig defaultModuleConfig = createDefaultModuleData(packageName,
                 packageData.defaultModule(), packageId);
         moduleConfigs.add(defaultModuleConfig);
-        return PackageConfig.from(packageId, packageName, packagePath, moduleConfigs);
+        return PackageConfig.from(packageId, packageName, packageOrg, packageVersion, packagePath, moduleConfigs);
     }
 
     private static ModuleConfig createDefaultModuleData(PackageName packageName,

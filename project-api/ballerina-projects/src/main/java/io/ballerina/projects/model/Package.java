@@ -35,6 +35,7 @@ public class Package {
     private String repository = "";
     private List<String> keywords = new LinkedList<>();
     private List<String> templates = new LinkedList<>();
+    private List<String> exported = new LinkedList<>();
 
     public String getOrg() {
         return org;
@@ -98,5 +99,13 @@ public class Package {
 
     public void setTemplates(List<String> templates) {
         this.templates = templates;
+    }
+
+    public List<String> getExported() {
+        return exported;
+    }
+
+    public void setExported(List<String> exported) {
+        this.exported = exported;
     }
 }

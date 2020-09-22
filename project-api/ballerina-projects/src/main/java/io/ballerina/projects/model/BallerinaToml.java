@@ -66,4 +66,8 @@ public class BallerinaToml {
     public void setBuildOptions(BuildOptions buildOptions) {
         this.buildOptions = buildOptions;
     }
+
+    public boolean isTemplateModule(String moduleName) {
+        return this.getPackage().getTemplates().contains(moduleName);
+    }
 }
