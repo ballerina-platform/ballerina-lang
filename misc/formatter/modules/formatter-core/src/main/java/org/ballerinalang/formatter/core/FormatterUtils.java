@@ -476,7 +476,7 @@ class FormatterUtils {
         return preserve;
     }
 
-    private static ArrayList<NonTerminalNode> nestedIfBlock(NonTerminalNode node) {
+    static ArrayList<NonTerminalNode> nestedIfBlock(NonTerminalNode node) {
         NonTerminalNode parent = node.parent();
         ArrayList<NonTerminalNode> nestedParent = new ArrayList<>();
         if (parent == null) {

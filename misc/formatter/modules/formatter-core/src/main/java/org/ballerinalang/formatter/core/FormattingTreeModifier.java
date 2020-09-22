@@ -235,11 +235,13 @@ import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 import static org.ballerinalang.formatter.core.FormatterUtils.addNewTrailingLine;
 import static org.ballerinalang.formatter.core.FormatterUtils.formatToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.getChildLocation;
+import static org.ballerinalang.formatter.core.FormatterUtils.getIndentation;
 import static org.ballerinalang.formatter.core.FormatterUtils.getParent;
 import static org.ballerinalang.formatter.core.FormatterUtils.getPosition;
 import static org.ballerinalang.formatter.core.FormatterUtils.getToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.getTrailingNewLines;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
+import static org.ballerinalang.formatter.core.FormatterUtils.nestedIfBlock;
 import static org.ballerinalang.formatter.core.FormatterUtils.preserveNewLine;
 import static org.ballerinalang.formatter.core.NodeIndentation.blockStatementNode;
 
@@ -912,7 +914,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public IfElseStatementNode transform(IfElseStatementNode ifElseStatementNode) {
-        if (!isInLineRange(ifElseStatementNode, lineRange)) {
+        if (!isInLineRange(ifElseStatementNode, lineRange) || !nestedIfBlock(ifElseStatementNode).isEmpty()) {
             return ifElseStatementNode;
         }
         Token ifKeyword = getToken(ifElseStatementNode.ifKeyword());
@@ -936,10 +938,14 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(elseBlockNode, lineRange)) {
             return elseBlockNode;
         }
+        int trailingSpaces = 0;
+        if (elseBlockNode.children().get(1).kind() == SyntaxKind.IF_ELSE_STATEMENT) {
+            trailingSpaces = 1;
+        }
         Token elseKeyword = getToken(elseBlockNode.elseKeyword());
         StatementNode elseBody = this.modifyNode(elseBlockNode.elseBody());
         return elseBlockNode.modify()
-                .withElseKeyword(formatToken(elseKeyword, 1, 0, 0, 0))
+                .withElseKeyword(formatToken(elseKeyword, 1, trailingSpaces, 0, 0))
                 .withElseBody(elseBody)
                 .apply();
     }
@@ -3983,7 +3989,7 @@ public class FormattingTreeModifier extends TreeModifier {
     private int getStartColumn(Node node, boolean addSpaces) {
         Node parent = getParent(node, node.kind());
         if (parent != null) {
-            return getPosition(parent).sCol + (addSpaces ? FormatterUtils.getIndentation(node, 0, options) : 0);
+            return getPosition(parent).sCol + (addSpaces ? getIndentation(node, 0, options) : 0);
         }
         return 0;
     }
