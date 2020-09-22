@@ -19,6 +19,14 @@ jobs:
         with:
           java-version: 1.8
 
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+            node-version: '8.x'
+
+      - name: Initialize sub-modules
+        run: git submodule update --init
+
       - name: Build and Publish
         run: |
           ./gradlew build -x createJavadoc -x test --max-workers=2 --no-daemon
