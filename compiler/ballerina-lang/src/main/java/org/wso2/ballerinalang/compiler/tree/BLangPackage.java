@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.diagnostic.DiagnosticComparator;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 
@@ -45,6 +46,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
@@ -71,6 +73,9 @@ public class BLangPackage extends BLangNode implements PackageNode {
     // Queue to maintain lambda functions so that we can visit all lambdas at the end of the semantic phase
     public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
     public List<BLangClassDefinition> classDefinitions;
+
+    // Hold global variable dependencies identified from DataflowAnalyzer
+    public Map<BSymbol, Set<BVarSymbol>> globalVariableDependsOn;
 
     public PackageID packageID;
     public BPackageSymbol symbol;

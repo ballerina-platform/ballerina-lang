@@ -36,7 +36,6 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
     // Only used for type-narrowing. Cache of the original symbol.
     public BVarSymbol originalSymbol;
 
-
     /**
      * This indicate the indicated (by programmer) taintedness of a variable.
      */
