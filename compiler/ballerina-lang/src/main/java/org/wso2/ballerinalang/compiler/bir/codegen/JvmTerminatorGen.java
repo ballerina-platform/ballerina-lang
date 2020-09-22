@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.jvm.IdentifierEncoder;
+import org.ballerinalang.jvm.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -685,7 +685,7 @@ public class JvmTerminatorGen {
     private void genFuncCall(BIRTerminator.Call callIns, String orgName, String moduleName, String version,
                              int localVarOffset) {
 
-        String methodName = IdentifierEncoder.encodeIdentifier(callIns.name.value);
+        String methodName = IdentifierUtils.encodeIdentifier(callIns.name.value);
         this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodName);
     }
 
