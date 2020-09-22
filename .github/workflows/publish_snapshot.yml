@@ -19,7 +19,7 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Use Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
             node-version: '8.x'
@@ -28,6 +28,9 @@ jobs:
         run: git submodule update --init
 
       - name: Build and Publish
+        env:
+          packageUser: ${{ github.actor }}
+          packagePAT: ${{ secrets.BAL_BOT_PAT }}
         run: |
-          ./gradlew build -x createJavadoc -x test --max-workers=2 --no-daemon
+          ./gradlew build -x createJavadoc -x test -x check --max-workers=2 --no-daemon
           ./gradlew publish

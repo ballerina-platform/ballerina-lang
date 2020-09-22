@@ -44,7 +44,7 @@ subprojects {
 
             maven {
                 if (project.version.endsWith('-SNAPSHOT')) {
-                    url = 'https://maven.pkg.github.com/ballerina-platform/module-ballerina-socket'
+                    url = 'https://maven.pkg.github.com/ThisaruGuruge/ballerina-lang'
                 }
                 credentials {
                     username System.getenv("packageUser")
