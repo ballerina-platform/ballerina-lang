@@ -1010,8 +1010,19 @@ public class TypeChecker {
             }
 
             if (sourceTupleType.getRestType() != null && targetType.getState() == ArrayState.UNSEALED) {
-                BType sourceRestType = sourceTupleType.getRestType();
-                return checkIsType (sourceRestType, targetElementType, unresolvedTypes);
+                boolean isSameElementType = true;
+                if (!(tupleTypes.isEmpty())) {
+                    for (BType sourceElementType : tupleTypes) {
+                        if (!checkIsType(sourceElementType, targetElementType, unresolvedTypes)) {
+                            isSameElementType = false;
+                        }
+                    }
+                }
+                if (isSameElementType) {
+                    BType sourceRestType = sourceTupleType.getRestType();
+                    return checkIsType (sourceRestType, targetElementType, unresolvedTypes);
+                }
+                return isSameElementType;
             }
 
             sourceArrayType =
