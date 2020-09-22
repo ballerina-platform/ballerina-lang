@@ -980,7 +980,9 @@ public class TypeChecker {
     }
 
     private static boolean checkIsArrayType(BType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() == TypeTags.UNION_TAG) {
+        int sourceTypeTag = sourceType.getTag();
+
+        if (sourceTypeTag == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) sourceType).getMemberTypes()) {
                 if (!checkIsArrayType(memberType, targetType, unresolvedTypes)) {
                     return false;
@@ -989,7 +991,7 @@ public class TypeChecker {
             return true;
         }
 
-        if (sourceType.getTag() != TypeTags.ARRAY_TAG && sourceType.getTag() != TypeTags.TUPLE_TAG) {
+        if (sourceTypeTag != TypeTags.ARRAY_TAG && sourceTypeTag != TypeTags.TUPLE_TAG) {
             return false;
         }
 
@@ -997,7 +999,7 @@ public class TypeChecker {
         int targetElementTypeTag = targetElementType.getTag();
 
         BArrayType sourceArrayType;
-        if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+        if (sourceTypeTag == TypeTags.ARRAY_TAG) {
             sourceArrayType = (BArrayType) sourceType;
         } else {
             BTupleType sourceTupleType = (BTupleType) sourceType;
@@ -1022,7 +1024,7 @@ public class TypeChecker {
                     BType sourceRestType = sourceTupleType.getRestType();
                     return checkIsType (sourceRestType, targetElementType, unresolvedTypes);
                 }
-                return isSameElementType;
+                return false;
             }
 
             sourceArrayType =
@@ -1056,8 +1058,9 @@ public class TypeChecker {
     }
 
     private static boolean checkIsTupleType(BType sourceType, BTupleType targetType, List<TypePair> unresolvedTypes) {
+        int sourceTypeTag = sourceType.getTag();
 
-        if (sourceType.getTag() == TypeTags.UNION_TAG) {
+        if (sourceTypeTag == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) sourceType).getMemberTypes()) {
                 if (!checkIsTupleType(memberType, targetType, unresolvedTypes)) {
                     return false;
@@ -1066,15 +1069,15 @@ public class TypeChecker {
             return true;
         }
 
-        if (sourceType.getTag() != TypeTags.ARRAY_TAG && sourceType.getTag() != TypeTags.TUPLE_TAG) {
+        if (sourceTypeTag != TypeTags.ARRAY_TAG && sourceTypeTag != TypeTags.TUPLE_TAG) {
             return false;
         }
 
         List<BType> targetTypes = new ArrayList<>(targetType.getTupleTypes());
         BType targetRestType = targetType.getRestType();
 
-        BTupleType sourceTupleType;
-        if (sourceType.getTag() == TypeTags.TUPLE_TAG) {
+        BTupleType sourceTupleType = null;
+        if (sourceTypeTag == TypeTags.TUPLE_TAG) {
             sourceTupleType = (BTupleType) sourceType;
         } else {
             BArrayType sourceArrayType = (BArrayType) sourceType;
@@ -1084,9 +1087,11 @@ public class TypeChecker {
                 case UNSEALED:
                     if (targetRestType == null) {
                         return false;
-                    } else {
+                    }
+                    if (targetTypes.isEmpty()) {
                         return checkIsType (sourceElementType, targetRestType, unresolvedTypes);
                     }
+                    return false;
                 case CLOSED_SEALED:
                     if (sourceArrayType.getSize() >= targetTypes.size()) {
                         if (targetTypes.isEmpty()) {
@@ -1111,15 +1116,17 @@ public class TypeChecker {
                             }
                         }
                         return isSameType;
+                    } else if (sourceArrayType.getSize() < targetTypes.size()) {
+                        return false;
                     }
                     break;
             }
 
-            List<BType> fieldTypes = new ArrayList<>();
-            for (int i = 0; i < sourceArrayType.getSize(); i++) {
-                fieldTypes.add(sourceArrayType.getElementType());
-            }
-            sourceTupleType = new BTupleType(fieldTypes);
+//            List<BType> fieldTypes = new ArrayList<>();
+//            for (int i = 0; i < sourceArrayType.getSize(); i++) {
+//                fieldTypes.add(sourceArrayType.getElementType());
+//            }
+//            sourceTupleType = new BTupleType(fieldTypes);
         }
 
         List<BType> sourceTypes = new ArrayList<>(sourceTupleType.getTupleTypes());
