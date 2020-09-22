@@ -3,5 +3,5 @@ public function foo() {
     )
    {
 
-     }
+     }else{int y=0;return i;}
 }

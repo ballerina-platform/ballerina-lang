@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.jvm.IdentifierEncoder;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -1491,7 +1492,8 @@ public class JvmMethodGen {
             mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
         } else {
             String jvmClass;
-            String lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + funcName;
+            String encodedFuncName = IdentifierEncoder.encodeIdentifier(funcName);
+            String lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + encodedFuncName;
             BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
             String methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
             if (functionWrapper != null) {
@@ -1517,7 +1519,7 @@ public class JvmMethodGen {
                         .cleanupPathSeparators(balFileName));
             }
 
-            mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, methodDesc, false);
+            mv.visitMethodInsn(INVOKESTATIC, jvmClass, encodedFuncName, methodDesc, false);
         }
 
         if (!isVirtual) {
@@ -1576,7 +1578,7 @@ public class JvmMethodGen {
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
 
-        mv.visitLdcInsn(JvmCodeGenUtil.cleanupObjectTypeName(ins.name.value));
+        mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(ins.name.value));
         int objectArrayLength = paramTypes.size() - 1;
         if (!isBuiltinModule) {
             mv.visitIntInsn(BIPUSH, objectArrayLength * 2);

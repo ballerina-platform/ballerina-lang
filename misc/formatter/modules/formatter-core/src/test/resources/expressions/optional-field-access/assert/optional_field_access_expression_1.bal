@@ -18,4 +18,3 @@ public function foo() {
     string defaultCity = "San Jose";
     string city = city2 ?: defaultCity;
 }
-

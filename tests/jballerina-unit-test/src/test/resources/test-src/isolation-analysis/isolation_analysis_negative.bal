@@ -187,3 +187,17 @@ function testInvalidArrowFuncAsIsolatedFunction() {
     int y = 100;
     isolated function (int) returns int af3 = x => x + y;
 }
+
+public isolated function testInvalidNonIsolatedRemoteMethodCalls() {
+    ClientClass f = new;
+    f->bar();
+    int j = f->baz(a);
+    int k = f->baz(a, c, c);
+}
+
+client class ClientClass {
+    remote function bar() {
+    }
+
+    remote function baz(int i, string... s) returns int => 1;
+}

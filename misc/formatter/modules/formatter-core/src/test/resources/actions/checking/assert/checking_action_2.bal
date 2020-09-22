@@ -7,4 +7,3 @@ function parse(string num) returns int|error {
 public function checkpanicTest() {
     int y = checkpanic parse("120");
 }
-

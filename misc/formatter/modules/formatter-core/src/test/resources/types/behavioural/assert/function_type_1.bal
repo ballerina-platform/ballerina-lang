@@ -5,4 +5,3 @@ function multiply(int a, int b) returns int {
 public function foo() {
     int result = multiply(2, 3);
 }
-
