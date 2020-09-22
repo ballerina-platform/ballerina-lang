@@ -16,8 +16,8 @@ jobs:
 
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
-          with:
-            java-version: 1.8
+        with:
+          java-version: 1.8
 
       - name: Build and Publish
         run: |
