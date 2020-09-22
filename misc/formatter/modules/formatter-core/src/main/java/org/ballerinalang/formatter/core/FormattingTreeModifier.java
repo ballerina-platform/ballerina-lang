@@ -3003,26 +3003,26 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
-        if (!isInLineRange(queryExpressionNode, lineRange)) {
+//        if (!isInLineRange(queryExpressionNode, lineRange)) {
             return queryExpressionNode;
-        }
-        QueryConstructTypeNode queryConstructType =
-                this.modifyNode(queryExpressionNode.queryConstructType().orElse(null));
-        QueryPipelineNode queryPipeline = this.modifyNode(queryExpressionNode.queryPipeline());
-        SelectClauseNode selectClause = this.modifyNode(queryExpressionNode.selectClause());
-        OnConflictClauseNode onConflictClause = this.modifyNode(queryExpressionNode.onConflictClause().orElse(null));
-        if (queryConstructType != null) {
-            queryExpressionNode = queryExpressionNode.modify()
-                    .withQueryConstructType(queryConstructType).apply();
-        }
-        if (onConflictClause != null) {
-            queryExpressionNode = queryExpressionNode.modify()
-                    .withOnConflictClause(onConflictClause).apply();
-        }
-        return queryExpressionNode.modify()
-                .withQueryPipeline(queryPipeline)
-                .withSelectClause(selectClause)
-                .apply();
+//        }
+//        QueryConstructTypeNode queryConstructType =
+//                this.modifyNode(queryExpressionNode.queryConstructType().orElse(null));
+//        QueryPipelineNode queryPipeline = this.modifyNode(queryExpressionNode.queryPipeline());
+//        SelectClauseNode selectClause = this.modifyNode(queryExpressionNode.selectClause());
+//        OnConflictClauseNode onConflictClause = this.modifyNode(queryExpressionNode.onConflictClause().orElse(null));
+//        if (queryConstructType != null) {
+//            queryExpressionNode = queryExpressionNode.modify()
+//                    .withQueryConstructType(queryConstructType).apply();
+//        }
+//        if (onConflictClause != null) {
+//            queryExpressionNode = queryExpressionNode.modify()
+//                    .withOnConflictClause(onConflictClause).apply();
+//        }
+//        return queryExpressionNode.modify()
+//                .withQueryPipeline(queryPipeline)
+//                .withSelectClause(selectClause)
+//                .apply();
     }
 
     @Override

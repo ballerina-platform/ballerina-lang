@@ -38,8 +38,10 @@ public class QueryExpressionsTest extends FormatterTest {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList("query_expression_2.bal",
+        return Arrays.asList("query_expression_1.bal",
+                "query_expression_2.bal",
                 "query_expression_3.bal",
+                "query_expression_4.bal",
                 "query_expression_5.bal",
                 "query_expression_6.bal");
     }
