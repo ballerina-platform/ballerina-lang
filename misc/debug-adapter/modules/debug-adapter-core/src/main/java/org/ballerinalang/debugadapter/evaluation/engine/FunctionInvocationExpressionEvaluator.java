@@ -16,7 +16,6 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
-import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.ClassNotPreparedException;
 import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
@@ -106,7 +105,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                     // Note - All the ballerina functions are represented as java static methods and all the generated
                     // jvm methods contain strand as its first argument.
                     if (method.isStatic()) {
-                        return Optional.of(new JvmStaticMethod(context, cls, method, argEvaluators));
+                        return Optional.of(new JvmStaticMethod(context, cls, method, argEvaluators, null));
                     }
                 }
             } catch (ClassNotPreparedException ignored) {
@@ -133,12 +132,13 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                 StringJoiner classNameJoiner = new StringJoiner(".");
                 classNameJoiner.add(context.getOrgName().get()).add(context.getModuleName().get())
                         .add(context.getVersion().get().replace(".", "_")).add(className);
-                ClassLoaderReference classLoader = context.getClassLoader();
-                ReferenceType referenceType = EvaluationUtils.loadClass(context, syntaxNode, classNameJoiner.toString(),
-                        classLoader);
+
+                ReferenceType referenceType = EvaluationUtils.loadClass(context, classNameJoiner.toString(),
+                        syntaxNode.functionName().toSourceCode());
                 List<Method> methods = referenceType.methodsByName(syntaxNode.functionName().toSourceCode());
                 if (!methods.isEmpty()) {
-                    return Optional.of(new JvmStaticMethod(context, referenceType, methods.get(0), argEvaluators));
+                    return Optional.of(new JvmStaticMethod(context, referenceType, methods.get(0), argEvaluators,
+                            null));
                 }
             }
             return Optional.empty();
