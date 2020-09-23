@@ -2,7 +2,6 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
-import ballerina/stringutils;
 import ballerina_stdlib/commons;
 
 http:Client httpClient = new (API_PATH);
@@ -12,6 +11,8 @@ string accessTokenHeaderValue = "Bearer " + accessToken;
 public function main() {
     json[] modulesJson = commons:getModuleJsonArray();
     commons:Module[] modules = commons:getModuleArrayFromJson(modulesJson);
+    modules = commons:removeSnapshots(modules);
+    commons:printModules(modules);
     handleRelease(modules);
 }
 
@@ -44,8 +45,7 @@ function releaseModule(commons:Module module) returns boolean {
     log:printInfo("Releasing " + module.name + " Version " + module.'version);
     http:Request request = createRequest(accessTokenHeaderValue);
     string moduleName = module.name.toString();
-    string versionString = module.'version.toString();
-    string 'version = stringutils:replace(versionString, "-SNAPSHOT", "");
+    string 'version = module.'version.toString();
     string apiPath = "/" + moduleName + DISPATCHES;
 
     json payload = {

@@ -1,5 +1,6 @@
 import ballerina/io;
 import ballerina/log;
+import ballerina/stringutils;
 
 public function getModuleJsonArray() returns json[] {
     var result = readFileAndGetJson(CONFIG_FILE_PATH);
@@ -50,4 +51,14 @@ function closeReadChannel(io:ReadableCharacterChannel rc) {
 public function logAndPanicError(string message, error e) {
     log:printError(message, e);
     panic e;
+}
+
+public function removeSnapshots(Module[] modules) returns Module[] {
+    foreach Module module in modules {
+        string moduleVersion = module.'version;
+        if (stringutils:contains(moduleVersion, SNAPSHOT)) {
+            module.'version = stringutils:replace(moduleVersion, SNAPSHOT, "");
+        }
+    }
+    return modules;
 }
