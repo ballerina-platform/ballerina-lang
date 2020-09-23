@@ -348,6 +348,7 @@ public class Desugar extends BLangNodeVisitor {
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
+    private BType forceCastReturnType = null;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -2674,7 +2675,7 @@ public class Desugar extends BLangNodeVisitor {
                                                   boolean retryReturns, SymbolEnv env) {
 
         if (retryReturns) {
-            BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(pos, retryTransactionStmtExpr);
+            BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(pos, rewrite(retryTransactionStmtExpr,env));
             return rewrite(bLangReturn, env);
         } else {
             BLangExpressionStmt transactionExprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
@@ -2709,6 +2710,9 @@ public class Desugar extends BLangNodeVisitor {
         // If the return node do not have an expression, we add `done` statement instead of a return statement. This is
         // to distinguish between returning nil value specifically and not returning any value.
         if (returnNode.expr != null) {
+            if (forceCastReturnType != null) {
+                returnNode.expr = addConversionExprIfRequired(returnNode.expr, forceCastReturnType);
+            }
             returnNode.expr = rewriteExpr(returnNode.expr);
         }
         result = returnNode;
@@ -3440,7 +3444,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         body.scope = bodyScope;
         SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        this.forceCastReturnType = ((BLangType) returnType).type;
         body.stmts = rewriteStmt(fnBodyStmts, bodyEnv);
+        this.forceCastReturnType = null;
         return createLambdaFunction(pos, functionNamePrefix, lambdaFunctionVariable, returnType, body);
     }
 
