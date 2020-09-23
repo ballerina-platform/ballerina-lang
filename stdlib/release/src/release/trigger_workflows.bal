@@ -46,9 +46,9 @@ function handleRelease(Module[] modules) {
             currentModules.removeAll();
         }
         if (module.release) {
-            boolean releaseStarted = releaseModule(module);
-            if (releaseStarted) {
-                module.releaseStarted = releaseStarted;
+            boolean releaseInProgress = releaseModule(module);
+            if (releaseInProgress) {
+                module.releaseInProgress = releaseInProgress;
                 currentModules.push(module);
                 log:printInfo("Module " + module.name + " release triggerred successfully.");
             } else {
@@ -97,6 +97,7 @@ function waitForCurrentModuleReleases(Module[] modules) {
         foreach Module module in modules {
             boolean releaseCompleted = checkModuleRelease(module);
             if (releaseCompleted) {
+                module.releaseInProgress = false;
                 int moduleIndex = <int>unreleasedModules.indexOf(module);
                 Module releasedModule = unreleasedModules.remove(moduleIndex);
                 releasedModules.push(releasedModule);
@@ -121,7 +122,7 @@ function waitForCurrentModuleReleases(Module[] modules) {
 }
 
 function checkModuleRelease(Module module) returns boolean {
-    if (!module.releaseStarted) {
+    if (!module.releaseInProgress) {
         return true;
     }
     log:printInfo("Validating " + module.name + " release");
