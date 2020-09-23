@@ -94,16 +94,17 @@ function waitForCurrentModuleReleases(Module[] modules) {
 
     boolean allModulesReleased = false;
     int waitCycles = 0;
+    int releasedModules = 0;
     while (!allModulesReleased) {
         foreach Module module in unreleasedModules {
             boolean releaseCompleted = checkModuleRelease(module);
             if (releaseCompleted) {
                 int moduleIndex = <int>unreleasedModules.indexOf(module);
-                Module releasedModule = unreleasedModules.remove(moduleIndex);
+                releasedModules += 1;
                 log:printInfo(releasedModule.name + " " + releasedModule.'version + " is released");
             }
         }
-        if (unreleasedModules.length() == 0) {
+        if (releasedModules == unreleasedModules.length()) {
             allModulesReleased = true;
         } else if (waitCycles < MAX_WAIT_CYCLES) {
             runtime:sleep(SLEEP_INTERVAL);
