@@ -2224,7 +2224,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (nodeKind == NodeKind.RECORD_TYPE && !(((BRecordType) structureType).sealed)) {
+            if (nodeKind != NodeKind.RECORD_TYPE || !(((BRecordType) structureType).sealed)) {
                 continue;
             }
 
@@ -2236,20 +2236,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (nodeKind == NodeKind.RECORD_TYPE) {
-                for (BField field : fields) {
-                    if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
-                        allImmutableFields = false;
-                        break;
-                    }
-                }
-            } else {
-                for (BField field : fields) {
-                    if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL) ||
-                            !Symbols.isFlagOn(structureType.flags, Flags.READONLY)) {
-                        allImmutableFields = false;
-                        break;
-                    }
+            for (BField field : fields) {
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                    allImmutableFields = false;
+                    break;
                 }
             }
 
