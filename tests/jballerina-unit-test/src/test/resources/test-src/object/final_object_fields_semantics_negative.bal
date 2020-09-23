@@ -120,4 +120,15 @@ class Controller {
 function testMutabilityOfFinalFieldOnlyObjectWithMutableTypes() {
     Controller cr = new ("default", {count: 100});
     readonly rd = cr;
+
+    var ob = object {
+        final string id;
+        final map<int> config;
+
+        function init() {
+            self.id = "inline";
+            self.config = {};
+        }
+    };
+    readonly rd2 = ob;
 }

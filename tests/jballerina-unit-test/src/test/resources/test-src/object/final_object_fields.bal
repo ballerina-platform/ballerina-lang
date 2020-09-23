@@ -258,6 +258,19 @@ function testTypeReadOnlyFlagForAllFinalFields() {
 
     readonly rd = st;
     assertTrue(rd is Bar);
+
+    var ob = object {
+        final map<int> & readonly config;
+
+        function init() {
+            self.config = {
+                a: 1,
+                b: 2
+            };
+        }
+    };
+    readonly rd2 = ob;
+    assertTrue(rd2 is readonly & object {map<int> config;});
 }
 
 class Person {
