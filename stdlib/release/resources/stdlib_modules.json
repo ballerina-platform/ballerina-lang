@@ -114,14 +114,14 @@
             "version": "1.0.0",
             "branch": "master",
             "level": 4,
-            "release": true
+            "release": false
         },
         {
             "name": "module-ballerina-reflect",
             "version": "0.5.0",
             "branch": "master",
             "level": 4,
-            "release": true
+            "release": false
         },
 
         {
@@ -129,39 +129,39 @@
             "version": "1.0.0",
             "branch": "master",
             "level": 5,
-            "release": true
+            "release": false
         },
         {
             "name": "module-ballerina-filepath",
             "version": "0.7.1",
             "branch": "master",
             "level": 5,
-            "release": true
+            "release": false
         },
         {
             "name": "module-ballerina-cache",
             "version": "2.0.0",
             "branch": "master",
             "level": 5,
-            "release": true
+            "release": false
         },
         {
             "name": "module-ballerina-socket",
             "version": "0.6.8",
             "branch": "master",
             "level": 5,
-            "release": true
+            "release": false
         },
         {
             "name": "module-ballerinax-nats",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "branch": "master",
             "level": 5,
             "release": true
         },
         {
             "name": "module-ballerinax-rabbitmq",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "branch": "master",
             "level": 5,
             "release": true

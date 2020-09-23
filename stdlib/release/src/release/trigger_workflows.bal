@@ -101,12 +101,14 @@ function waitForCurrentModuleReleases(Module[] modules) {
         foreach Module module in modules {
             if (module.releaseInProgress) {
                 boolean releaseCompleted = checkModuleRelease(module);
-                module.releaseInProgress = !releaseCompleted;
-                var moduleIndex = unreleasedModules.indexOf(module);
-                if (moduleIndex is int) {
-                    Module releasedModule = unreleasedModules.remove(moduleIndex);
-                    releasedModules.push(releasedModule);
-                    log:printInfo(releasedModule.name + " " + releasedModule.'version + " is released");
+                if (releaseCompleted) {
+                    module.releaseInProgress = !releaseCompleted;
+                    var moduleIndex = unreleasedModules.indexOf(module);
+                    if (moduleIndex is int) {
+                        Module releasedModule = unreleasedModules.remove(moduleIndex);
+                        releasedModules.push(releasedModule);
+                        log:printInfo(releasedModule.name + " " + releasedModule.'version + " is released");
+                    }
                 }
             }
         }
