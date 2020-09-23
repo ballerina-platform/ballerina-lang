@@ -12,7 +12,6 @@ public function main() {
     json[] modulesJson = commons:getModuleJsonArray();
     commons:Module[] modules = commons:getModuleArrayFromJson(modulesJson);
     modules = commons:removeSnapshots(modules);
-    commons:printModules(modules);
     handleRelease(modules);
 }
 
