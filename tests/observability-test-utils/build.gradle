@@ -32,6 +32,7 @@ dependencies {
     shadow project(':ballerina-lang')
     shadow project(':ballerina-lang:annotations')
 
+    implementation 'io.netty:netty-codec-http'
     implementation 'io.opentracing:opentracing-mock'
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-java')

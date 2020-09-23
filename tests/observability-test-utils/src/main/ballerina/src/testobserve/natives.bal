@@ -27,8 +27,9 @@ public function getFinishedSpans(string serviceName) returns json {
 
 # Get all the finished spans.
 #
+# + serviceName - The name of the service of which the finished spans should be fetched
 # + return - The finished spans as a json
-function externGetFinishedSpans(handle serviceName) returns json = @java:Method {
+isolated function externGetFinishedSpans(handle serviceName) returns json = @java:Method {
     name: "getFinishedSpans",
     'class: "org.ballerina.testobserve.MockTracerUtils"
 } external;
