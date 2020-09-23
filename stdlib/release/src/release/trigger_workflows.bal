@@ -44,7 +44,6 @@ function handleRelease(Module[] modules) {
         if (nextLevel > currentLevel && currentModules.length() > 0) {
             waitForCurrentModuleReleases(currentModules);
             currentModules.removeAll();
-            currentLevel = nextLevel;
         }
         if (module.release) {
             boolean releaseStarted = releaseModule(module);
@@ -56,6 +55,7 @@ function handleRelease(Module[] modules) {
                 log:printWarn("Module " + module.name + " release did not triggerred successfully.");
             }
         }
+        currentLevel = nextLevel;
     }
     waitForCurrentModuleReleases(currentModules);
 }
@@ -80,7 +80,7 @@ function releaseModule(Module module) returns boolean {
         logAndPanicError("Error occurred while releasing the module: " + moduleName, result);
     }
     http:Response response = <http:Response>result;
-    return validateResponse(response, moduleName, OPERATION_RELEASE);
+    return validateResponse(response, moduleName);
 }
 
 function waitForCurrentModuleReleases(Module[] modules) {
@@ -94,16 +94,18 @@ function waitForCurrentModuleReleases(Module[] modules) {
 
     boolean allModulesReleased = false;
     int waitCycles = 0;
+    int releasedModules = 0;
     while (!allModulesReleased) {
         foreach Module module in unreleasedModules {
             boolean releaseCompleted = checkModuleRelease(module);
             if (releaseCompleted) {
                 int moduleIndex = <int>unreleasedModules.indexOf(module);
-                Module releasedModule = unreleasedModules.remove(moduleIndex);
+                Module releasedModule = unreleasedModules[moduleIndex];
+                releasedModules += 1;
                 log:printInfo(releasedModule.name + " " + releasedModule.'version + " is released");
             }
         }
-        if (unreleasedModules.length() == 0) {
+        if (releasedModules == unreleasedModules.length()) {
             allModulesReleased = true;
         } else if (waitCycles < MAX_WAIT_CYCLES) {
             runtime:sleep(SLEEP_INTERVAL);
@@ -115,6 +117,8 @@ function waitForCurrentModuleReleases(Module[] modules) {
     if (unreleasedModules.length() > 0) {
         log:printWarn("Following modules not released after the max wait time");
         printModules(unreleasedModules);
+        error err = error("Unreleased", message = "There are modules not released after max wait time");
+        logAndPanicError("Release Failed.", err);
     }
 }
 
@@ -132,7 +136,7 @@ function checkModuleRelease(Module module) returns boolean {
     }
     http:Response response = <http:Response>result;
 
-    if(!validateResponse(response, moduleName, OPERATION_VALIDATE)) {
+    if(!validateResponse(response, moduleName)) {
         return false;
     } else {
         map<json> payload = <map<json>>response.getJsonPayload();
@@ -141,11 +145,9 @@ function checkModuleRelease(Module module) returns boolean {
     }
 }
 
-function validateResponse(http:Response response, string moduleName, string operation) returns boolean {
+function validateResponse(http:Response response, string moduleName) returns boolean {
     int statusCode = response.statusCode;
     if (statusCode != 200 && statusCode != 201 && statusCode != 202 && statusCode != 204) {
-        log:printInfo("Error received while " + operation + " the module " + moduleName);
-        log:printInfo(response.getJsonPayload().toString());
         return false;
     }
     return true;

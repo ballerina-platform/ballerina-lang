@@ -44,7 +44,7 @@ public class IfElseStatementsTest extends FormatterTest {
 
     @Override
     public List<String> skipList() {
-        return Collections.singletonList("if_else_statement_2.bal");
+        return Collections.singletonList("if_else_statement_5.bal");
     }
 
     @Override
