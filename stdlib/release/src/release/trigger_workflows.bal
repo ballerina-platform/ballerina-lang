@@ -100,6 +100,7 @@ function waitForCurrentModuleReleases(Module[] modules) {
             boolean releaseCompleted = checkModuleRelease(module);
             if (releaseCompleted) {
                 int moduleIndex = <int>unreleasedModules.indexOf(module);
+                Module releasedModule = unreleasedModules[moduleIndex];
                 releasedModules += 1;
                 log:printInfo(releasedModule.name + " " + releasedModule.'version + " is released");
             }
