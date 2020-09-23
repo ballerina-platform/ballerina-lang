@@ -41,12 +41,12 @@ public class SelectivelyImmutableTypeTest {
         result = BCompileUtil.compile("test-src/types/readonly/test_selectively_immutable_type.bal");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testImmutableTypes() {
         BRunUtil.invoke(result, "testImmutableTypes");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testImmutableTypesNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/types/readonly/test_selectively_immutable_type_negative.bal");
@@ -102,7 +102,7 @@ public class SelectivelyImmutableTypeTest {
 
         validateError(result, index++, "cannot update 'readonly' value of type " +
                 "'record {| readonly int i; (anydata & readonly)...; |} & readonly'", 259, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'object { readonly int j; } & readonly'",
+        validateError(result, index++, "cannot update 'readonly' value of type 'object { final int j; } & readonly'",
                       262, 5);
 
         assertEquals(result.getErrorCount(), index);

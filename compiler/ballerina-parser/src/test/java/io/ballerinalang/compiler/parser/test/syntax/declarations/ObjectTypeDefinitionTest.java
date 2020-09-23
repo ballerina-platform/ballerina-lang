@@ -73,6 +73,11 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     }
 
     @Test
+    public void testIsolatedObjectTypeDesc() {
+        testFile("object-type-def/object_type_def_source_24.bal", "object-type-def/object_type_def_assert_24.json");
+    }
+
+    @Test
     public void testObjectMethod() {
         test("object-type-def/object_type_def_source_41.bal", "object-type-def/object_type_def_assert_41.json");
     }

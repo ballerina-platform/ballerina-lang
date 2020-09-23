@@ -19,10 +19,10 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,8 +45,10 @@ import static org.ballerinalang.observe.nativeimpl.OpenTracerBallerinaWrapper.RO
         isPublic = true
 )
 public class StartRootSpan {
+    private static final OpenTracerBallerinaWrapper otWrapperInstance = OpenTracerBallerinaWrapper.getInstance();
+
     public static long startRootSpan(Strand strand, BString spanName, Object tags) {
-        return OpenTracerBallerinaWrapper.getInstance().startSpan(
+        return otWrapperInstance.startSpan(
                 (String) strand.getProperty(ObservabilityConstants.SERVICE_NAME),
                 spanName.getValue(), Utils.toStringMap((MapValue<BString, ?>) tags), ROOT_SPAN_INDICATOR, strand);
     }

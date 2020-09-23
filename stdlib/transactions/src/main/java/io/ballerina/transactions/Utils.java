@@ -19,9 +19,11 @@
 
 package io.ballerina.transactions;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
@@ -29,8 +31,6 @@ import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.transactions.TransactionResourceManager;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -119,13 +119,13 @@ public class Utils {
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerParticipation(transactionLocalContext.getGlobalTransactionId(),
                 transactionBlockId.getValue(), fpCommitted, fpAborted, strand);
-        MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
-                                                                                 STRUCT_TYPE_TRANSACTION_CONTEXT);
+        BMap<BString, Object> trxContext = BValueCreator.createRecordValue(TRANSACTION_PACKAGE_ID,
+                                                                           STRUCT_TYPE_TRANSACTION_CONTEXT);
         Object[] trxContextData = new Object[] {
                 TransactionConstants.DEFAULT_CONTEXT_VERSION, transactionLocalContext.getGlobalTransactionId(),
                 transactionBlockId.getValue(), transactionLocalContext.getProtocol(), transactionLocalContext.getURL()
         };
-        return BallerinaValues.createRecord(trxContext, trxContextData);
+        return BValueCreator.createRecordValue(trxContext, trxContextData);
     }
 
     public static Object registerLocalParticipant(BString transactionBlockId, FPValue fpCommitted, FPValue fpAborted) {
@@ -141,13 +141,13 @@ public class Utils {
         // Register committed and aborted function handler if exists.
         transactionResourceManager.registerParticipation(transactionLocalContext.getGlobalTransactionId(),
                 transactionBlockId.getValue(), fpCommitted, fpAborted, strand);
-        MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
-                STRUCT_TYPE_TRANSACTION_CONTEXT);
+        BMap<BString, Object> trxContext = BValueCreator.createRecordValue(TRANSACTION_PACKAGE_ID,
+                                                                                   STRUCT_TYPE_TRANSACTION_CONTEXT);
         Object[] trxContextData = new Object[] {
                 TransactionConstants.DEFAULT_CONTEXT_VERSION, transactionLocalContext.getGlobalTransactionId(),
                 transactionBlockId.getValue(), transactionLocalContext.getProtocol(), transactionLocalContext.getURL()
         };
-        return BallerinaValues.createRecord(trxContext, trxContextData);
+        return BValueCreator.createRecordValue(trxContext, trxContextData);
     }
 
     public static void setTransactionContext(MapValue txDataStruct, Object prevAttemptInfo) {
@@ -157,13 +157,13 @@ public class Utils {
         String url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).toString();
         String protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).toString();
         long retryNmbr = getRetryNumber(prevAttemptInfo);
-        MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
-                STRUCT_TYPE_TRANSACTION_INFO);
+        BMap<BString, Object> trxContext = BValueCreator.createRecordValue(TRANSACTION_PACKAGE_ID,
+                                                                                   STRUCT_TYPE_TRANSACTION_INFO);
         Object[] trxContextData = new Object[]{
                 BValueCreator.createArrayValue(globalTransactionId.getBytes(Charset.defaultCharset())), retryNmbr,
                 System.currentTimeMillis(), prevAttemptInfo
         };
-        MapValue<BString, Object> infoRecord = BallerinaValues.createRecord(trxContext, trxContextData);
+        BMap<BString, Object> infoRecord = BValueCreator.createRecordValue(trxContext, trxContextData);
         TransactionLocalContext trxCtx = TransactionLocalContext
                 .createTransactionParticipantLocalCtx(globalTransactionId, url, protocol, infoRecord);
         trxCtx.beginTransactionBlock(transactionBlockId);
@@ -175,7 +175,7 @@ public class Utils {
             return 0;
         } else {
             Map<BString, Object> infoRecord = (Map<BString, Object>) prevAttemptInfo;
-            Long retryNumber = (Long) infoRecord.get(StringUtils.fromString("retryNumber"));
+            Long retryNumber = (Long) infoRecord.get(BStringUtils.fromString("retryNumber"));
             return retryNumber + 1;
         }
     }
@@ -193,7 +193,7 @@ public class Utils {
             currentTransactionId = transactionLocalContext.getGlobalTransactionId() + ":" + transactionLocalContext
                     .getCurrentTransactionBlockId();
         }
-        return StringUtils.fromString(currentTransactionId);
+        return BStringUtils.fromString(currentTransactionId);
     }
 
     public static boolean abortResourceManagers(BString transactionId, BString transactionBlockId) {
@@ -244,7 +244,7 @@ public class Utils {
             TransactionLocalContext context = strand.currentTrxContext;
             return (MapValue<BString, Object>) context.getInfoRecord();
         }
-        throw BallerinaErrors.createError(StringUtils
+        throw BErrorCreator.createError(BStringUtils
                 .fromString("cannot call info() if the strand is not in transaction mode"));
     }
 
@@ -273,7 +273,7 @@ public class Utils {
     }
 
     public static BString getHostAddress() {
-        return StringUtils.fromString(getLocalHostLANAddress().getHostAddress());
+        return BStringUtils.fromString(getLocalHostLANAddress().getHostAddress());
     }
 
     private static InetAddress getLocalHostLANAddress() throws RuntimeException {

@@ -48,6 +48,7 @@ public class RuntimeUtils {
 
     private static final String CRASH_LOGGER = "b7a.log.crash";
     private static final String DEFAULT_CRASH_LOG_FILE = "ballerina-internal.log";
+    private static final String ENCODING_PATTERN = "\\$(\\d{4})";
     private static PrintStream errStream = System.err;
     public static final String USER_DIR = System.getProperty("user.dir");
     public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");

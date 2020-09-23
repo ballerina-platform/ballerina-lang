@@ -21,7 +21,7 @@ class Employee {
     public int age = 0;
     public string name = "";
 
-    function init (int age = 6, string key = "abc") {
+    isolated function init (int age = 6, string key = "abc") {
         self.age = age;
         self.name = "sample value";
     }
@@ -31,7 +31,7 @@ class Foo {
     public int key = 0;
     public string value = "";
 
-    function init () {
+    isolated function init () {
     }
 }
 

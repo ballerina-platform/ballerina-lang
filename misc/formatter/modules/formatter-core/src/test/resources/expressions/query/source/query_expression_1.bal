@@ -13,7 +13,8 @@ public function foo() {
 
    Report[] list3 =   from   var student in list1
          where    student.name == "Michelle"   let   string degreeName = "Bachelor of Medicine"
-         join   var name in list2     select
+     join   var   name   in   list2   on    student.deptId
+     equals    department.deptId     select
 {
            name: student.name,
            degree: degreeName

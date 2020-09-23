@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
@@ -26,10 +27,16 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -40,10 +47,9 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.jvm.IdentifierEncoder.encodeIdentifier;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DESUGARED_BB_ID_NAME;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 
 /**
  * BIR desugar phase related methods at JVM code generation.
@@ -239,5 +245,82 @@ public class JvmDesugarPhase {
     }
 
     private JvmDesugarPhase() {
+    }
+
+    static void encodeModuleIdentifiers(BIRNode.BIRPackage module) {
+        encodeGlobalVariableIdentifiers(module.globalVars);
+        encodeFunctionIdentifiers(module.functions);
+        encodeTypeDefIdentifiers(module.typeDefs);
+    }
+
+    private static void encodeTypeDefIdentifiers(List<BIRTypeDefinition> typeDefs) {
+        for (BIRTypeDefinition typeDefinition : typeDefs) {
+            typeDefinition.type.tsymbol.name.value = encodeIdentifier(typeDefinition.type.tsymbol.name.value);
+            encodeFunctionIdentifiers(typeDefinition.attachedFuncs);
+            BType bType = typeDefinition.type;
+            if (bType.tag == TypeTags.OBJECT) {
+                BObjectType objectType = (BObjectType) bType;
+                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
+                if (objectTypeSymbol.attachedFuncs != null) {
+                    encodeAttachedFunctionIdentifiers(objectTypeSymbol.attachedFuncs);
+                }
+                for (BField field : objectType.fields.values()) {
+                    field.name.value = encodeIdentifier(field.name.value);
+                }
+            }
+            if (bType.tag == TypeTags.RECORD) {
+                BRecordType recordType = (BRecordType) bType;
+                for (BField field : recordType.fields.values()) {
+                    field.name.value = encodeIdentifier(field.name.value);
+                }
+            }
+        }
+    }
+
+    private static void encodeFunctionIdentifiers(List<BIRFunction> functions) {
+        for (BIRFunction function : functions) {
+            function.name.value = encodeIdentifier(function.name.value);
+            for (BIRNode.BIRVariableDcl localVar : function.localVars) {
+                if (localVar.metaVarName == null) {
+                    continue;
+                }
+                localVar.metaVarName = encodeIdentifier(localVar.metaVarName);
+            }
+            for (BIRNode.BIRParameter parameter : function.requiredParams) {
+                if (parameter.name == null) {
+                    continue;
+                }
+                parameter.name.value = encodeIdentifier(parameter.name.value);
+            }
+            encodeWorkerName(function);
+        }
+    }
+
+    private static void encodeWorkerName(BIRFunction function) {
+        if (function.workerName != null) {
+            function.workerName.value = encodeIdentifier(function.workerName.value);
+        }
+        for (BIRNode.ChannelDetails channel : function.workerChannels) {
+            channel.name = encodeIdentifier(channel.name);
+        }
+    }
+
+    private static void encodeAttachedFunctionIdentifiers(List<BAttachedFunction> functions) {
+        for (BAttachedFunction function : functions) {
+            function.funcName.value = encodeIdentifier(function.funcName.value);
+            function.symbol.name.value = encodeIdentifier(function.symbol.name.value);
+            if (function.symbol.receiverSymbol != null) {
+                function.symbol.receiverSymbol.name.value = encodeIdentifier(function.symbol.receiverSymbol.name.value);
+            }
+        }
+    }
+
+    private static void encodeGlobalVariableIdentifiers(List<BIRNode.BIRGlobalVariableDcl> globalVars) {
+        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
+            if (globalVar == null) {
+                continue;
+            }
+            globalVar.name.value = encodeIdentifier(globalVar.name.value);
+        }
     }
 }

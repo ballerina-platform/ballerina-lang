@@ -137,9 +137,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         assertExpression(context, NEVER_VAR, "", "xml");
         // json variable test
         assertExpression(context, JSON_VAR, "object", "json");
-        // Todo - Enable after fixing
         // anonymous object variable test (AnonPerson object)
-        // assertVariable(context, anonObjectVar, "AnonPerson", "object");
+        assertExpression(context, ANON_OBJECT_VAR, "Person", "object");
 
         // Todo - add test for qualified name references, after adding support
     }

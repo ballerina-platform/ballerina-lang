@@ -16,11 +16,11 @@
  */
 package org.ballerinalang.test.object;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -91,7 +91,8 @@ public class ObjectDocumentationTest {
     @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_documentation_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
+        Assert.assertEquals(compileResult.getErrorCount(), 0,
+                            getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 21);
         int i = 0;
         BAssertUtil.validateWarning(compileResult, i++, "field 'a' already documented", 6, 5);

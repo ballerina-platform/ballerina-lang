@@ -394,15 +394,15 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
     /**
      * Can be used to assert variable name, value and type.
      *
-     * @param variable      debug hit variable
-     * @param variableName  variable name
-     * @param variableValue variable value
-     * @param variableType  variable type
+     * @param variable debug hit variable
+     * @param name     variable name
+     * @param value    variable value
+     * @param type     variable type
      */
-    protected void assertVariable(Variable variable, String variableName, String variableValue, String variableType) {
-        Assert.assertEquals(variable.getName(), variableName);
-        Assert.assertEquals(variable.getValue(), variableValue);
-        Assert.assertEquals(variable.getType(), variableType);
+    protected void assertVariable(Variable variable, String name, String value, String type) {
+        Assert.assertEquals(variable.getName(), name);
+        Assert.assertEquals(variable.getValue(), value);
+        Assert.assertEquals(variable.getType(), type);
     }
 
     /**

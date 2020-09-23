@@ -18,6 +18,11 @@
 
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BJSONType;
@@ -40,7 +45,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -76,7 +80,7 @@ public class JSONUtils {
         if (!isJSONObject(json)) {
             return false;
         }
-        return ((MapValueImpl<BString, ?>) json).containsKey(StringUtils.fromString(elementName));
+        return ((MapValueImpl<BString, ?>) json).containsKey(BStringUtils.fromString(elementName));
     }
 
     /**
@@ -159,8 +163,8 @@ public class JSONUtils {
      */
     private static Object getMappingElement(Object json, BString elementName, boolean returnNilOnMissingKey) {
         if (!isJSONObject(json)) {
-            return BallerinaErrors.createError(StringUtils.fromString(JSON_OPERATION_ERROR),
-                                               StringUtils.fromString("JSON value is not a mapping"));
+            return BErrorCreator.createError(JSON_OPERATION_ERROR,
+                                             BStringUtils.fromString("JSON value is not a mapping"));
         }
 
         MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
@@ -170,9 +174,8 @@ public class JSONUtils {
                 return null;
             }
 
-            return BallerinaErrors.createError(StringUtils.fromString(MAP_KEY_NOT_FOUND_ERROR),
-                                               StringUtils.fromString(
-                                                       "Key '" + elementName + "' not found in JSON mapping"));
+            return BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
+                    .fromString("Key '" + elementName + "' not found in JSON mapping"));
         }
 
         try {
@@ -203,7 +206,7 @@ public class JSONUtils {
         }
 
         try {
-            ((MapValueImpl<BString, Object>) json).put(StringUtils.fromString(elementName), element);
+            ((MapValueImpl<BString, Object>) json).put(BStringUtils.fromString(elementName), element);
         } catch (ErrorValue e) {
             throw e;
         } catch (Throwable t) {
@@ -293,7 +296,7 @@ public class JSONUtils {
         MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
         for (Map.Entry<String, BField> field : structType.getFields().entrySet()) {
             BType fieldType = field.getValue().type;
-            BString fieldName = StringUtils.fromString(field.getValue().name);
+            BString fieldName = BStringUtils.fromString(field.getValue().name);
             try {
                 // If the field does not exists in the JSON, set the default value for that struct field.
                 if (!jsonObject.containsKey(fieldName)) {
@@ -420,7 +423,7 @@ public class JSONUtils {
         ((MapValueImpl<BString, ?>) json).remove(fieldName);
     }
 
-    public static ErrorValue getErrorIfUnmergeable(Object j1, Object j2, List<ObjectPair> visitedPairs) {
+    public static BError getErrorIfUnmergeable(Object j1, Object j2, List<ObjectPair> visitedPairs) {
         if (j1 == null || j2 == null) {
             return null;
         }
@@ -429,15 +432,16 @@ public class JSONUtils {
         BType j2Type = TypeChecker.getType(j2);
 
         if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
-            return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                                               "Cannot merge JSON values of types '" + j1Type + "' and '" +
-                                                       j2Type + "'");
+            return BErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
+                                             BStringUtils.fromString("Cannot merge JSON values of types '" +
+                                                                            j1Type + "' and '" + j2Type + "'"));
         }
 
         ObjectPair currentPair = new ObjectPair(j1, j2);
         if (visitedPairs.contains(currentPair)) {
-            return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                                               "Cannot merge JSON values with cyclic references");
+            return BErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
+                                             BStringUtils
+                                                     .fromString("Cannot merge JSON values with cyclic references"));
         }
         visitedPairs.add(currentPair);
 
@@ -451,7 +455,7 @@ public class JSONUtils {
                 continue;
             }
 
-            ErrorValue elementMergeNullableError = getErrorIfUnmergeable(m1.get(key), entry.getValue(), visitedPairs);
+            BError elementMergeNullableError = getErrorIfUnmergeable(m1.get(key), entry.getValue(), visitedPairs);
 
             if (elementMergeNullableError == null) {
                 continue;
@@ -459,9 +463,9 @@ public class JSONUtils {
 
             MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
             detailMap.put(TypeConstants.DETAIL_MESSAGE,
-                          StringUtils.fromString("JSON Merge failed for key '" + key + "'"));
+                          BStringUtils.fromString("JSON Merge failed for key '" + key + "'"));
             detailMap.put(TypeConstants.DETAIL_CAUSE, elementMergeNullableError);
-            return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR, detailMap);
+            return BErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR, detailMap);
         }
         return null;
     }
@@ -480,9 +484,9 @@ public class JSONUtils {
             BType j2Type = TypeChecker.getType(j2);
 
             if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
-                return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                                                   "Cannot merge JSON values of types '" + j1Type + "' and '" +
-                                                           j2Type + "'");
+                return BErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
+                                                 BStringUtils.fromString("Cannot merge JSON values of types '" +
+                                                                                j1Type + "' and '" + j2Type + "'"));
             }
         }
 
@@ -544,11 +548,11 @@ public class JSONUtils {
         return jsonDataSource.build();
     }
 
-    public static ErrorValue createJsonConversionError(Throwable throwable, String prefix) {
-        String detail = throwable.getMessage() != null ?
+    public static BError createJsonConversionError(Throwable throwable, String prefix) {
+        BString detail = BStringUtils.fromString(throwable.getMessage() != null ?
                 prefix + ": " + throwable.getMessage() :
-                "error occurred in JSON Conversion";
-        return BallerinaErrors.createError(BallerinaErrorReasons.JSON_CONVERSION_ERROR, detail);
+                "error occurred in JSON Conversion");
+        return BErrorCreator.createError(BallerinaErrorReasons.JSON_CONVERSION_ERROR, detail);
     }
 
     // Private methods
@@ -579,6 +583,8 @@ public class JSONUtils {
             return ((Integer) json).longValue();
         } else if (json instanceof Double) {
             return (Double) json;
+        } else if (json instanceof DecimalValue) {
+            return ((DecimalValue) json).floatValue();
         } else {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeFloat, getTypeName(json));
@@ -599,6 +605,8 @@ public class JSONUtils {
             decimal = BigDecimal.valueOf((Double) json);
         } else if (json instanceof BigDecimal) {
             decimal = (BigDecimal) json;
+        } else if (json instanceof DecimalValue) {
+            return (DecimalValue) json;
         } else {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeDecimal, getTypeName(json));
@@ -759,7 +767,7 @@ public class JSONUtils {
         return json;
     }
 
-    private static void populateJSON(MapValueImpl<BString, Object> json, BString key, Object value, BType exptType) {
+    private static void populateJSON(BMap<BString, Object> json, BString key, Object value, BType exptType) {
         try {
             if (value == null) {
                 json.put(key, null);

@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInstance;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -54,7 +55,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -126,9 +126,9 @@ public class JvmPackageGen {
     private Map<String, String> externClassMap;
     private Map<String, String> globalVarClassMap;
     private Map<String, PackageID> dependentModules;
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
 
-    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLogHelper dlog) {
+    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog) {
 
         birFunctionMap = new HashMap<>();
         globalVarClassMap = new HashMap<>();
@@ -387,7 +387,7 @@ public class JvmPackageGen {
             BPackageSymbol pkgSymbol = packageCache.getSymbol(getBvmAlias(importModule.org.value,
                     importModule.name.value));
             generateDependencyList(pkgSymbol, interopValidator);
-            if (dlog.getErrorCount() > 0) {
+            if (dlog.errorCount() > 0) {
                 return new CompiledJarFile(Collections.emptyMap());
             }
         }
@@ -400,7 +400,7 @@ public class JvmPackageGen {
         String pkgName = JvmCodeGenUtil.getPackageName(module);
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, pkgName, moduleInitClass,
                                                                           interopValidator, isEntry);
-        if (!isEntry || dlog.getErrorCount() > 0) {
+        if (!isEntry || dlog.errorCount() > 0) {
             return new CompiledJarFile(Collections.emptyMap());
         }
 
@@ -522,7 +522,7 @@ public class JvmPackageGen {
 
     /**
      * Java Class will be generate for each source file. This method add class mappings to globalVar and filters the
-     * unctions based on their source file name and then returns map of associated java class contents.
+     * functions based on their source file name and then returns map of associated java class contents.
      *
      * @param module           bir module
      * @param pkgName          module name

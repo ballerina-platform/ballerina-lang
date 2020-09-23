@@ -624,6 +624,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ROLLBACK_KEYWORD;
             case "TRANSACTIONAL_KEYWORD":
                 return SyntaxKind.TRANSACTIONAL_KEYWORD;
+            case "ISOLATED_KEYWORD":
+                return SyntaxKind.ISOLATED_KEYWORD;
             case "ENUM_KEYWORD":
                 return SyntaxKind.ENUM_KEYWORD;
             case "BASE16_KEYWORD":
@@ -644,8 +646,6 @@ public class ParserTestUtils {
                 return SyntaxKind.EQUALS_KEYWORD;
             case "OUTER_KEYWORD":
                 return SyntaxKind.OUTER_KEYWORD;
-            case "ISOLATED_KEYWORD":
-                return SyntaxKind.ISOLATED_KEYWORD;
 
             // Documentation reference
             case "TYPE_DOC_REFERENCE_TOKEN":

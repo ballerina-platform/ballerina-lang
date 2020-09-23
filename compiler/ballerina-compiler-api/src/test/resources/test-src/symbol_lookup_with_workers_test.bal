@@ -22,6 +22,11 @@ public function workerSendToWorker() returns int {
     worker w1 {
       int i = 40;
       i -> w2;
+
+      float x = 12.34;
+      x ->> w2;
+
+      var res = flush w2;
     }
 
     @strand{thread:"any"}
@@ -29,6 +34,7 @@ public function workerSendToWorker() returns int {
       int j = 25;
       j = <- w1;
 
+      float y = <- w1;
       return j;
     }
     int ret = wait w2;

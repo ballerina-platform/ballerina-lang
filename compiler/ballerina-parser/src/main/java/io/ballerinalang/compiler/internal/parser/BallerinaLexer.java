@@ -896,6 +896,8 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.PARAMETER_KEYWORD);
             case LexerTerminals.FIELD:
                 return getSyntaxToken(SyntaxKind.FIELD_KEYWORD);
+            case LexerTerminals.ISOLATED:
+                return getSyntaxToken(SyntaxKind.ISOLATED_KEYWORD);
             case LexerTerminals.XMLNS:
                 return getSyntaxToken(SyntaxKind.XMLNS_KEYWORD);
             case LexerTerminals.FORK:
@@ -980,8 +982,6 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
             case LexerTerminals.CLASS:
                 return getSyntaxToken(SyntaxKind.CLASS_KEYWORD);
-            case LexerTerminals.ISOLATED:
-                return getSyntaxToken(SyntaxKind.ISOLATED_KEYWORD);
             default:
                 return getIdentifierToken();
         }

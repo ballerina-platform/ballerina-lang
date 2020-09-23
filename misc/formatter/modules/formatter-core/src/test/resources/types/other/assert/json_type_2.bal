@@ -10,4 +10,3 @@ public function foo() {
         }
     ];
 }
-

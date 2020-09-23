@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -82,6 +83,16 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.IMPORT;
+    }
+
+    @Override
+    public Symbol getSymbol() {
+        return this.symbol;
+    }
+
+    @Override
+    public void setSymbol(Symbol symbol) {
+        this.symbol = (BPackageSymbol) symbol;
     }
 
     @Override

@@ -46,6 +46,7 @@ class NodeIndentation {
         boolean addSpaces = true;
         List<SyntaxKind> parentNodes = Arrays.asList(
                         SyntaxKind.FUNCTION_CALL,
+                        SyntaxKind.ON_FAIL_CLAUSE,
                         SyntaxKind.TYPE_TEST_EXPRESSION,
                         SyntaxKind.TYPE_PARAMETER,
                         SyntaxKind.TUPLE_TYPE_DESC,
@@ -59,7 +60,8 @@ class NodeIndentation {
                 (parent.kind() == (SyntaxKind.UNION_TYPE_DESC) &&
                         grandParent.kind() == (SyntaxKind.PARAMETERIZED_TYPE_DESC)) ||
                 (parent.kind() == (SyntaxKind.OBJECT_FIELD) &&
-                        ((ObjectFieldNode) parent).visibilityQualifier().isPresent()) ||
+                        (((ObjectFieldNode) parent).visibilityQualifier().isPresent() ||
+                        ((ObjectFieldNode) parent).finalKeyword().isPresent())) ||
                 (grandParent.kind() == (SyntaxKind.LOCAL_VAR_DECL) &&
                         grandParent.children().get(1).equals(parent)) ||
                 (parent.kind() == (SyntaxKind.RECORD_FIELD) &&
@@ -86,8 +88,11 @@ class NodeIndentation {
                 Arrays.asList(
                         SyntaxKind.TYPED_BINDING_PATTERN,
                         SyntaxKind.FIELD_ACCESS,
+                        SyntaxKind.LOCK_STATEMENT,
+                        SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT,
                         SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE,
                         SyntaxKind.RECORD_FIELD,
+                        SyntaxKind.MATCH_CLAUSE,
                         SyntaxKind.OPTIONAL_TYPE_DESC,
                         SyntaxKind.ARRAY_TYPE_DESC));
         if (parent != null && ((parentNodes.contains(parent.kind())) || grandParent != null &&
@@ -105,6 +110,21 @@ class NodeIndentation {
             } else if (((MethodCallExpressionNode) parent).methodName().equals(node)) {
                 addSpaces = false;
             }
+        }
+        if (parent != null && parent.kind() == SyntaxKind.FUNCTION_CALL) {
+            if (grandParent != null && grandParent.kind() == SyntaxKind.CALL_STATEMENT) {
+                addSpaces = true;
+            } else {
+                addSpaces = false;
+            }
+        }
+        if (parent != null && parent.kind() == SyntaxKind.TYPED_BINDING_PATTERN && parent.parent() != null &&
+                parent.parent().kind() == SyntaxKind.LET_VAR_DECL) {
+            addSpaces = false;
+        }
+        if (parent != null && parent.kind() == SyntaxKind.FIELD_BINDING_PATTERN && parent.parent() != null &&
+                parent.parent().kind() == SyntaxKind.MAPPING_BINDING_PATTERN) {
+            addSpaces = true;
         }
         if (parent != null && grandParent != null && parent.kind() == SyntaxKind.INTERSECTION_TYPE_DESC &&
                 grandParent.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {

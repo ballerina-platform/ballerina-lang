@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Root class of Ballerina intermediate representation-BIR.
@@ -127,6 +128,9 @@ public abstract class BIRNode {
         public BIRBasicBlock endBB;
         public BIRBasicBlock startBB;
         public int insOffset;
+
+        // Stores the scope of the current instruction with respect to local variables.
+        public BirScope insScope;
 
         public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope,
                               VarKind kind, String metaVarName) {
@@ -331,6 +335,8 @@ public abstract class BIRNode {
         public TaintTable taintTable;
 
         public List<BIRAnnotationAttachment> annotAttachments;
+
+        public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
 
         public BIRFunction(DiagnosticPos pos, Name name, int flags, BInvokableType type, Name workerName,
                            int sendInsCount, TaintTable taintTable, SymbolOrigin origin) {

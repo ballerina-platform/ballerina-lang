@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -36,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord.TaintedStatus;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -62,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -89,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -137,6 +141,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -170,7 +175,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
@@ -186,9 +190,6 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
-
-import static org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord.TaintedStatus;
-import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 
 /**
  * Generate taint-table for each invokable node.
@@ -210,7 +211,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private SymbolEnv currPkgEnv;
     private Names names;
     private SymbolTable symTable;
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
     private Types types;
 
     private boolean overridingAnalysis = true;
@@ -254,7 +255,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public TaintAnalyzer(CompilerContext context) {
         context.put(TAINT_ANALYZER_KEY, this);
         names = Names.getInstance(context);
-        dlog = BLangDiagnosticLogHelper.getInstance(context);
+        dlog = BLangDiagnosticLog.getInstance(context);
         symTable = SymbolTable.getInstance(context);
         types = Types.getInstance(context);
     }
@@ -803,6 +804,26 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             ifNode.elseStmt.accept(this);
         }
         overridingAnalysis = true;
+    }
+
+    @Override
+    public void visit(BLangMatchStatement matchStatement) {
+        matchStatement.expr.accept(this);
+        TaintedStatus observedTaintedStatusOfMatchExpr = getCurrentAnalysisState().taintedStatus;
+
+        for (BLangMatchClause matchClause : matchStatement.matchClauses) {
+            getCurrentAnalysisState().taintedStatus = observedTaintedStatusOfMatchExpr;
+            matchClause.accept(this);
+        }
+
+        if (matchStatement.onFailClause != null) {
+            analyzeNode(matchStatement.onFailClause, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangMatchClause matchClause) {
+        matchClause.blockStmt.accept(this);
     }
 
     @Override

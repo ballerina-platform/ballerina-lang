@@ -50,6 +50,7 @@ public enum SyntaxKind {
     WORKER_KEYWORD(117, "worker"),
     PARAMETER_KEYWORD(118, "parameter"),
     FIELD_KEYWORD(119, "field"),
+    ISOLATED_KEYWORD(120, "isolated"),
 
     RETURNS_KEYWORD(200, "returns"),
     RETURN_KEYWORD(201, "return"),
@@ -126,7 +127,6 @@ public enum SyntaxKind {
     READONLY_KEYWORD(318, "readonly"),
     DISTINCT_KEYWORD(319, "distinct"),
     FAIL_KEYWORD(320, "fail"),
-    ISOLATED_KEYWORD(321, "isolated"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),

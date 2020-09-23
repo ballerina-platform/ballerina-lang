@@ -415,7 +415,7 @@ public type Foo record {
     int a = getAsInt("777");
 };
 
-function getAsInt(string s) returns int {
+isolated function getAsInt(string s) returns int {
     return 777;
 }
 
@@ -575,7 +575,7 @@ function removeIfHasKeyRest() {
     }
 }
 
-int a = 10;
+final int a = 10;
 
 type Foo2 record {
     int a;
