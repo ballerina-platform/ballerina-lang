@@ -37,11 +37,11 @@
             "release": true
         },
         {
-            "name": "module-ballerina-stringutils",
+            "name": "module-ballerina-stringutils-test",
             "version": "0.5.0-SNAPSHOT",
             "branch": "master",
             "level": 1,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-runtime",
