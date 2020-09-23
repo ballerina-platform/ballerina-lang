@@ -88,24 +88,26 @@ function waitForCurrentModuleReleases(Module[] modules) {
         return;
     }
     log:printInfo("Waiting for previous level builds");
-    Module[] unreleasedModules = modules.filter(function (Module m) returns boolean {
-        return m.releaseStarted;
-    });
+    Module[] unreleasedModules = modules.filter(
+        function (Module m) returns boolean {
+            return m.releaseStarted;
+        }
+    );
+    Module[] releasedModules = [];
 
     boolean allModulesReleased = false;
     int waitCycles = 0;
-    int releasedModules = 0;
     while (!allModulesReleased) {
-        foreach Module module in unreleasedModules {
+        foreach Module module in modules {
             boolean releaseCompleted = checkModuleRelease(module);
             if (releaseCompleted) {
                 int moduleIndex = <int>unreleasedModules.indexOf(module);
-                Module releasedModule = unreleasedModules[moduleIndex];
-                releasedModules += 1;
+                Module releasedModule = unreleasedModules.remove(moduleIndex);
+                releasedModules.push(releasedModule);
                 log:printInfo(releasedModule.name + " " + releasedModule.'version + " is released");
             }
         }
-        if (releasedModules == unreleasedModules.length()) {
+        if (releasedModules.length() == modules.length()) {
             allModulesReleased = true;
         } else if (waitCycles < MAX_WAIT_CYCLES) {
             runtime:sleep(SLEEP_INTERVAL);
