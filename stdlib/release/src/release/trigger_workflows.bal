@@ -101,7 +101,7 @@ function waitForCurrentModuleReleases(Module[] modules) {
         foreach Module module in modules {
             if (module.releaseInProgress) {
                 boolean releaseCompleted = checkModuleRelease(module);
-                module.releaseInProgress = false;
+                module.releaseInProgress = !releaseCompleted;
                 var moduleIndex = unreleasedModules.indexOf(module);
                 if (moduleIndex is int) {
                     Module releasedModule = unreleasedModules.remove(moduleIndex);
