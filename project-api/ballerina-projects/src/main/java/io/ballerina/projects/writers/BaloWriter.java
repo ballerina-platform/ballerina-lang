@@ -21,6 +21,7 @@ package io.ballerina.projects.writers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.model.BaloJson;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.model.adaptors.JsonCollectionsAdaptor;
@@ -45,6 +46,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.ballerina.projects.utils.ProjectUtils.getBaloName;
+
 /**
  * {@code BaloWriter} writes a package to balo format.
  *
@@ -57,11 +60,11 @@ public class BaloWriter {
     /**
      * Write a package to a .balo and return the created .balo path.
      *
-     * @param pkg  Package to be written as a .balo.
-     * @param path Directory where the .balo should be created.
+     * @param project Project to be written as a .balo.
+     * @param path    Directory where the .balo should be created.
      * @return Newly created balo path
      */
-    public static Path write(Package pkg, Path path) throws AccessDeniedException {
+    public static Path write(Project project, Path path) throws AccessDeniedException {
         // todo check if the given package is compiled properly
 
         // Check if the path is a directory
@@ -73,14 +76,15 @@ public class BaloWriter {
             throw new AccessDeniedException("No write access to create balo:" + path);
         }
 
+        Package currentPackage = project.currentPackage();
         Path balo = path.resolve(
-                getBaloName(pkg.packageOrg().toString(), pkg.packageName().toString(), pkg.packageVersion().toString(),
-                        null));
+                getBaloName(currentPackage.packageOrg().toString(), currentPackage.packageName().toString(),
+                        currentPackage.packageVersion().toString(), null));
 
         // Create the archive over write if exists
         try (FileSystem baloFS = createBaloArchive(balo)) {
             // Now lets put stuff in
-            populateBaloArchive(baloFS, pkg);
+            populateBaloArchive(baloFS, project);
         } catch (IOException e) {
             throw new BLangCompilerException("Failed to create balo :" + e.getMessage(), e);
         } catch (BLangCompilerException be) {
@@ -93,14 +97,6 @@ public class BaloWriter {
             throw be;
         }
         return balo;
-    }
-
-    private static String getBaloName(String org, String pkgName, String version, String platform) {
-        // <orgname>-<packagename>-<platform>-<version>.balo
-        if (platform == null || "".equals(platform)) {
-            platform = "any";
-        }
-        return org + "-" + pkgName + "-" + platform + "-" + version + ".balo";
     }
 
     private static FileSystem createBaloArchive(Path path) throws IOException {
@@ -120,7 +116,7 @@ public class BaloWriter {
         return FileSystems.newFileSystem(zipDisk, env);
     }
 
-    private static void populateBaloArchive(FileSystem baloFS, Package pkg)
+    private static void populateBaloArchive(FileSystem baloFS, Project project)
             throws IOException {
         Path root = baloFS.getPath("/");
 
@@ -153,9 +149,9 @@ public class BaloWriter {
         //         └── ext2/
 
         addBaloJson(root);
-        addPackageJson(root, pkg);
-        addPackageDoc(root, pkg.packagePath(), pkg.packageName().toString());
-        addPackageSource(root, pkg.packagePath(), pkg.packageName().toString());
+        addPackageJson(root, project.currentPackage());
+        addPackageDoc(root, project.sourceRoot(), project.currentPackage().packageName().toString());
+        addPackageSource(root, project.sourceRoot(), project.currentPackage().packageName().toString());
         // Add platform libs only if it is not a template module
 //        if (!ballerinaToml.isTemplateModule(packageName)) {
 //            addPlatformLibs(root, packagePath, ballerinaToml);

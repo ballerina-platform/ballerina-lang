@@ -34,7 +34,7 @@ public class Package {
         return new Package(packageContext);
     }
 
-    PackageContext packageContext() {
+    public PackageContext packageContext() {
         return this.packageContext;
     }
 
@@ -107,9 +107,5 @@ public class Package {
 
     public Collection<PackageDependency> packageDependencies() {
         return packageContext.packageDependencies();
-    }
-
-    public Path packagePath() {
-        return packageContext.packagePath();
     }
 }

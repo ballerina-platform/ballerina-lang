@@ -108,5 +108,14 @@ public class ProjectUtils {
 
         return targetDir;
     }
+
+    public static String getBaloName(String org, String pkgName, String version, String platform) {
+        // <orgname>-<packagename>-<platform>-<version>.balo
+        if (platform == null || "".equals(platform)) {
+            platform = "any";
+        }
+        return org + "-" + pkgName + "-" + platform + "-" + version + ".balo";
+    }
+
 }
 
