@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -113,6 +114,14 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
             typeDefinition.annAttachments.forEach(s -> acceptNode(s, symbolEnv));
         }
         acceptNode(typeDefinition.typeNode, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        if (classDefinition.annAttachments != null) {
+            classDefinition.annAttachments.forEach(s -> acceptNode(s, symbolEnv));
+        }
+        classDefinition.functions.forEach(bLangFunction -> acceptNode(bLangFunction, symbolEnv));
     }
 
     @Override
