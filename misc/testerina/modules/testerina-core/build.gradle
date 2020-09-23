@@ -20,6 +20,12 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
+configurations {
+    dist {
+        transitive false
+    }
+}
+
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
@@ -29,7 +35,8 @@ dependencies {
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-java')
     implementation 'org.testng:testng'
-    implementation 'io.github.java-diff-utils:java-diff-utils:4.5'
+
+    dist 'io.github.java-diff-utils:java-diff-utils:4.5'
 
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.swagger.core.v3:swagger-models'
@@ -40,9 +47,17 @@ dependencies {
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-reflect')
+
+    compile group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: '4.5'
 }
 
 jar.archiveName("${project.name}-${project.version}.jar")
+
+jar {
+    from {
+        configurations.dist.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
 
 task updateVersion {
     ant.replaceregexp(

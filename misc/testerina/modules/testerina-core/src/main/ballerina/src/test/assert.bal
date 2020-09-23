@@ -165,7 +165,7 @@ function getBallerinaType((any|error) value) returns string = @java:Method {
     'class : "org.ballerinalang.testerina.core.BallerinaTypeCheck"
 } external;
 
-function getStringDiff((any|error) actual, (any|error) expected) returns string = @java:Method {
+function getStringDiff(string actual, string expected) returns string = @java:Method {
     name : "getStringDiff",
     'class : "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
 } external;
