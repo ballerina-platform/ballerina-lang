@@ -2228,7 +2228,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            boolean allReadOnlyOrFinalFields = true;
+            boolean allImmutableFields = true;
 
             Collection<BField> fields = structureType.fields.values();
 
@@ -2236,16 +2236,24 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            int flagToCheck = nodeKind == NodeKind.RECORD_TYPE ? Flags.READONLY : Flags.FINAL;
-
-            for (BField field : fields) {
-                if (!Symbols.isFlagOn(field.symbol.flags, flagToCheck)) {
-                    allReadOnlyOrFinalFields = false;
-                    break;
+            if (nodeKind == NodeKind.RECORD_TYPE) {
+                for (BField field : fields) {
+                    if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                        allImmutableFields = false;
+                        break;
+                    }
+                }
+            } else {
+                for (BField field : fields) {
+                    if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL) ||
+                            !Symbols.isFlagOn(structureType.flags, Flags.READONLY)) {
+                        allImmutableFields = false;
+                        break;
+                    }
                 }
             }
 
-            if (allReadOnlyOrFinalFields) {
+            if (allImmutableFields) {
                 structureType.tsymbol.flags |= Flags.READONLY;
                 structureType.flags |= Flags.READONLY;
             }
@@ -2286,7 +2294,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             for (BField field : fields) {
-                if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL)) {
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL) ||
+                        !Symbols.isFlagOn(field.type.flags, Flags.READONLY)) {
                     return;
                 }
             }
