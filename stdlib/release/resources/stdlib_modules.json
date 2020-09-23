@@ -30,18 +30,18 @@
             "release": false
         },
         {
-            "name": "module-ballerina-io-test",
+            "name": "module-ballerina-io",
             "version": "0.5.0-SNAPSHOT",
             "branch": "master",
             "level": 1,
-            "release": true
+            "release": false
         },
         {
-            "name": "module-ballerina-stringutils-test",
+            "name": "module-ballerina-stringutils",
             "version": "0.5.0-SNAPSHOT",
             "branch": "master",
             "level": 1,
-            "release": true
+            "release": false
         },
         {
             "name": "module-ballerina-runtime",
@@ -175,11 +175,11 @@
             "release": false
         },
         {
-            "name": "module-ballerinax-kafka-test",
+            "name": "module-ballerinax-kafka",
             "version": "2.0.0-SNAPSHOT",
             "branch": "master",
             "level": 6,
-            "release": true
+            "release": false
         },
         {
             "name": "module-ballerina-auth",

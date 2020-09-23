@@ -1,6 +1,6 @@
 public const ACCESS_TOKEN_ENV = "GITHUB_TOKEN";
 
-public const API_PATH = "https://api.github.com/repos/ThisaruGuruge";
+public const API_PATH = "https://api.github.com/repos/ballerina-platform";
 
 const CONFIG_FILE_PATH = "./resources/stdlib_modules.json";
 const SNAPSHOT = "-SNAPSHOT";
