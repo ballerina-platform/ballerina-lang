@@ -876,7 +876,7 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(AASTORE);
             paramIndex += 1;
         }
-        String funcName = IdentifierEncoder.encodeIdentifier(callIns.name.value);
+        String funcName = IdentifierUtils.encodeIdentifier(callIns.name.value);
         String lambdaName = "$" + funcName + "$lambda$" + asyncDataCollector.getLambdaIndex() + "$";
 
         JvmCodeGenUtil.createFunctionPointer(this.mv, asyncDataCollector.getEnclosingClass(), lambdaName);
