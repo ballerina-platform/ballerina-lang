@@ -46,9 +46,9 @@ function handleRelease(Module[] modules) {
             currentModules.removeAll();
         }
         if (module.release) {
-            boolean releaseStarted = releaseModule(module);
-            if (releaseStarted) {
-                module.releaseStarted = releaseStarted;
+            boolean releaseInProgress = releaseModule(module);
+            if (releaseInProgress) {
+                module.releaseInProgress = releaseInProgress;
                 currentModules.push(module);
                 log:printInfo("Module " + module.name + " release triggerred successfully.");
             } else {
@@ -88,24 +88,23 @@ function waitForCurrentModuleReleases(Module[] modules) {
         return;
     }
     log:printInfo("Waiting for previous level builds");
-    Module[] unreleasedModules = modules.filter(function (Module m) returns boolean {
-        return m.releaseStarted;
-    });
+    Module[] unreleasedModules = modules;
+    Module[] releasedModules = [];
 
     boolean allModulesReleased = false;
     int waitCycles = 0;
-    int releasedModules = 0;
     while (!allModulesReleased) {
-        foreach Module module in unreleasedModules {
+        foreach Module module in modules {
             boolean releaseCompleted = checkModuleRelease(module);
             if (releaseCompleted) {
+                module.releaseInProgress = false;
                 int moduleIndex = <int>unreleasedModules.indexOf(module);
-                Module releasedModule = unreleasedModules[moduleIndex];
-                releasedModules += 1;
+                Module releasedModule = unreleasedModules.remove(moduleIndex);
+                releasedModules.push(releasedModule);
                 log:printInfo(releasedModule.name + " " + releasedModule.'version + " is released");
             }
         }
-        if (releasedModules == unreleasedModules.length()) {
+        if (releasedModules.length() == modules.length()) {
             allModulesReleased = true;
         } else if (waitCycles < MAX_WAIT_CYCLES) {
             runtime:sleep(SLEEP_INTERVAL);
@@ -123,6 +122,9 @@ function waitForCurrentModuleReleases(Module[] modules) {
 }
 
 function checkModuleRelease(Module module) returns boolean {
+    if (!module.releaseInProgress) {
+        return true;
+    }
     log:printInfo("Validating " + module.name + " release");
     http:Request request = createRequest(accessTokenHeaderValue);
     string moduleName = module.name.toString();
