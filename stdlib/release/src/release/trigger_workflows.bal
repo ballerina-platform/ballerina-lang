@@ -88,7 +88,11 @@ function waitForCurrentModuleReleases(Module[] modules) {
         return;
     }
     log:printInfo("Waiting for previous level builds");
-    Module[] unreleasedModules = modules;
+    Module[] unreleasedModules = modules.filter(
+        function (Module m) returns boolean {
+            return m.releaseInProgress;
+        }
+    );
     Module[] releasedModules = [];
 
     boolean allModulesReleased = false;
