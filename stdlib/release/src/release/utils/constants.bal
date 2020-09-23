@@ -3,7 +3,7 @@ const TAGS = "/tags";
 
 const FIELD_RELEASE = "release";
 const FIELD_TAG_NAME = "tag_name";
-const EVENT_TYPE = "stdlib-release-pipeline";
+const EVENT_TYPE = "stdlibReleasePipeline";
 
 const OPERATION_RELEASE = "releasing";
 const OPERATION_VALIDATE = "validating release of";
