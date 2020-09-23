@@ -1133,19 +1133,22 @@ public class TypeChecker {
             return false;
         }
 
-        if ((sourceRestType == null && targetRestType == null) && sourceTypes.size() != targetTypes.size()) {
+        int sourceTypeSize = sourceTypes.size();
+        int targetTypeSize = targetTypes.size();
+
+        if ((sourceRestType == null && targetRestType == null) && sourceTypeSize != targetTypeSize) {
             return false;
         }
 
         boolean memberTypesMatch = true;
 
-        if (sourceTypes.size() >= targetTypes.size()) {
-            for (int i = 0; i < targetTypes.size(); i++) {
+        if (sourceTypeSize >= targetTypeSize) {
+            for (int i = 0; i < targetTypeSize; i++) {
                 if (!checkIsType(sourceTypes.get(i), targetTypes.get(i), unresolvedTypes)) {
                     memberTypesMatch = false;
                 }
             }
-            if (sourceTypes.size() == targetTypes.size()) {
+            if (sourceTypeSize == targetTypeSize) {
                 if (sourceRestType != null) {
                     return (checkIsType (sourceRestType, targetRestType, unresolvedTypes)
                             && memberTypesMatch);
@@ -1155,7 +1158,7 @@ public class TypeChecker {
 
             boolean remainingMemberTypesMatch = true;
 
-            for (int i = targetTypes.size(); i < sourceTypes.size(); i++) {
+            for (int i = targetTypeSize; i < sourceTypeSize; i++) {
                 if (!checkIsType(sourceTypes.get(i), targetRestType, unresolvedTypes)) {
                     remainingMemberTypesMatch = false;
                 }
@@ -1168,24 +1171,6 @@ public class TypeChecker {
         } else {
             return false;
         }
-//        if (sourceRestType != null) {
-//            sourceTypes.add(sourceRestType);
-//        }
-//
-//        if (targetRestType != null) {
-//            targetTypes.add(targetRestType);
-//        }
-//
-//        if (sourceTypes.size() != targetTypes.size()) {
-//            return false;
-//        }
-//
-//        for (int i = 0; i < sourceTypes.size(); i++) {
-//            if (!checkIsType(sourceTypes.get(i), targetTypes.get(i), unresolvedTypes)) {
-//                return false;
-//            }
-//        }
-//        return true;
     }
 
     private static boolean checkIsAnyType(BType sourceType) {
