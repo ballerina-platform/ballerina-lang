@@ -336,7 +336,6 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
      * @param symbolEntries symbol entries
      */
     private void populateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries) {
-        this.terminateVisitor = true;
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>();
 
         for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : symbolEntries.entrySet()) {
