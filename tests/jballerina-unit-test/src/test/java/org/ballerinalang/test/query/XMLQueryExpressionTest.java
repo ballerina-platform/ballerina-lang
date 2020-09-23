@@ -184,4 +184,11 @@ public class XMLQueryExpressionTest {
         Assert.assertEquals(returnValues[0].stringValue(), "<name>Sherlock Holmes</name>");
         Assert.assertEquals(returnValues[1].stringValue(), "<name>The Da Vinci Code</name>");
     }
+
+    @Test(description = "Test simple query expression with a XML Element Literal")
+    public void testSimpleQueryExprWithXMLElementLiteral() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryExprWithXMLElementLiteral");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<entry>Value</entry>");
+    }
 }

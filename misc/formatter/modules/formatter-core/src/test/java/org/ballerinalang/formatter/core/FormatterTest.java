@@ -61,7 +61,7 @@ public abstract class FormatterTest {
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
         SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
         Assert.assertFalse(newSyntaxTree.hasDiagnostics());
-        Assert.assertEquals(FormatterUtils.toFormattedSourceCode(newSyntaxTree), getSourceText(assertFilePath));
+        Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
     }
 
     /**
