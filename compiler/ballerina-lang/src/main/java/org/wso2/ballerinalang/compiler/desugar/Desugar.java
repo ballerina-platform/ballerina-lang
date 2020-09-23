@@ -1054,8 +1054,10 @@ public class Desugar extends BLangNodeVisitor {
         if (funcNode.returnTypeNode != null && funcNode.returnTypeNode.getKind() != null) {
             funcNode.returnTypeNode = rewrite(funcNode.returnTypeNode, funcEnv);
         }
-
+        BType currentReturnType = this.forceCastReturnType;
+        this.forceCastReturnType = null;
         funcNode.body = rewrite(funcNode.body, funcEnv);
+        this.forceCastReturnType = currentReturnType;
         funcNode.annAttachments.forEach(attachment -> rewrite(attachment, env));
         if (funcNode.returnTypeNode != null) {
             funcNode.returnTypeAnnAttachments.forEach(attachment -> rewrite(attachment, env));
