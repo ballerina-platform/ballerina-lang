@@ -1,3 +1,4 @@
+import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 import ballerina/stringutils;
@@ -61,4 +62,19 @@ public function removeSnapshots(Module[] modules) returns Module[] {
         }
     }
     return modules;
+}
+
+public function createRequest(string accessTokenHeaderValue) returns http:Request {
+    http:Request request = new;
+    request.setHeader(ACCEPT_HEADER_KEY, ACCEPT_HEADER_VALUE);
+    request.setHeader(AUTH_HEADER_KEY, accessTokenHeaderValue);
+    return request;
+}
+
+public function validateResponse(http:Response response, string moduleName) returns boolean {
+    int statusCode = response.statusCode;
+    if (statusCode != 200 && statusCode != 201 && statusCode != 202 && statusCode != 204) {
+        return false;
+    }
+    return true;
 }

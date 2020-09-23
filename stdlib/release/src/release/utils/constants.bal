@@ -1,10 +1,5 @@
-const DISPATCHES = "/dispatches";
 const RELEASES = "/releases";
 const TAGS = "/tags";
-
-const ACCEPT_HEADER_KEY = "Accept";
-const ACCEPT_HEADER_VALUE = "application/vnd.github.v3+json";
-const AUTH_HEADER_KEY = "Authorization";
 
 const FIELD_RELEASE = "release";
 const FIELD_TAG_NAME = "tag_name";
