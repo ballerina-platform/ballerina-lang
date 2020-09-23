@@ -101,6 +101,10 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         } else {
             pkgEnv = symTable.pkgEnvMap.get(sourceOwnerPkg.symbol);
         }
+        // Set Package visible scope entries as default case
+        if (pkgEnv != null) {
+            populateSymbols(symbolResolver.getAllVisibleInScopeSymbols(pkgEnv));
+        }
         List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(sourceOwnerPkg, lsContext);
 
         topLevelNodes.stream()
@@ -176,7 +180,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         }
         blockPositionStack.push(attachment.pos);
         if (!terminateVisitor && this.isCursorWithinBlock()) {
-            this.populateSymbols(symbolResolver.getAllVisibleInScopeSymbols(annotationAttachmentEnv));
+            this.haltAndPopulateSymbols(symbolResolver.getAllVisibleInScopeSymbols(annotationAttachmentEnv));
         }
         blockPositionStack.pop();
     }
@@ -188,7 +192,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         if (!terminateVisitor && this.isCursorWithinBlock()) {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
                     = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
-            this.populateSymbols(visibleSymbolEntries);
+            this.haltAndPopulateSymbols(visibleSymbolEntries);
         }
     }
 
@@ -199,7 +203,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         if (!terminateVisitor && this.isCursorWithinBlock()) {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
                     = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
-            this.populateSymbols(visibleSymbolEntries);
+            this.haltAndPopulateSymbols(visibleSymbolEntries);
         }
     }
 
@@ -277,7 +281,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         if (!terminateVisitor && this.isCursorWithinBlock()) {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
                     = symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
-            this.populateSymbols(visibleSymbolEntries);
+            this.haltAndPopulateSymbols(visibleSymbolEntries);
         }
     }
 
@@ -314,6 +318,16 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         int isBeforeBlockEnd = nodeEndLine == cursorLine ? nodeEndColumn - cursorColumn : nodeEndLine - cursorLine;
 
         return isAfterBlockStart > 0 && isBeforeBlockEnd > 0;
+    }
+
+    /**
+     * Populate the symbols.
+     *
+     * @param symbolEntries symbol entries
+     */
+    private void haltAndPopulateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries) {
+        this.terminateVisitor = true;
+        populateSymbols(symbolEntries);
     }
 
     /**
