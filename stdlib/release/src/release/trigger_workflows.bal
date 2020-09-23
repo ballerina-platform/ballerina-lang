@@ -125,6 +125,9 @@ function waitForCurrentModuleReleases(Module[] modules) {
 }
 
 function checkModuleRelease(Module module) returns boolean {
+    if (!module.releaseStarted) {
+        return true;
+    }
     log:printInfo("Validating " + module.name + " release");
     http:Request request = createRequest(accessTokenHeaderValue);
     string moduleName = module.name.toString();
