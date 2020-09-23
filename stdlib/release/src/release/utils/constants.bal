@@ -1,6 +1,3 @@
-const ACCESS_TOKEN_ENV = "GITHUB_TOKEN";
-
-const API_PATH = "https://api.github.com/repos/ThisaruGuruge";
 const DISPATCHES = "/dispatches";
 const RELEASES = "/releases";
 const TAGS = "/tags";

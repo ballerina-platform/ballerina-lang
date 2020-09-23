@@ -4,8 +4,8 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina_stdlib/commons;
 
-http:Client httpClient = new (API_PATH);
-string accessToken = config:getAsString(ACCESS_TOKEN_ENV);
+http:Client httpClient = new (commons:API_PATH);
+string accessToken = config:getAsString(commons:ACCESS_TOKEN_ENV);
 string accessTokenHeaderValue = "Bearer " + accessToken;
 
 public function main() {
