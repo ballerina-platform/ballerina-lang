@@ -4,5 +4,5 @@ public type Module record {|
     string branch;
     int level;
     boolean release;
-    boolean releaseStarted = false;
+    boolean releaseInProgress = false;
 |};
