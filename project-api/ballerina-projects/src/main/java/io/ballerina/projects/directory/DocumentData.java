@@ -23,6 +23,7 @@ package io.ballerina.projects.directory;
  * @since 2.0.0
  */
 public class DocumentData {
+    //TODO: Remove this class and use DocumentConfig for creating a document
     private final String name;
     private String content;
 

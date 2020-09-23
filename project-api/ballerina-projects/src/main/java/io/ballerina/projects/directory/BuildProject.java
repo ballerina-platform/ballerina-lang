@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.directory;
 
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
@@ -31,7 +33,10 @@ import org.ballerinalang.toml.exceptions.TomlException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 /**
  * {@code BuildProject} represents Ballerina project instance created from the project directory.
@@ -84,13 +89,32 @@ public class BuildProject extends Project {
         return (BuildOptions) super.getBuildOptions();
     }
 
+    @Nullable
     public Path modulePath(ModuleId moduleId) {
-        if (currentPackage().getDefaultModule().moduleId() == moduleId) {
-            return sourceRoot;
-        } else {
-            return sourceRoot.resolve(ProjectConstants.MODULES_ROOT).resolve(
-                    currentPackage().module(moduleId).moduleName().moduleNamePart());
+        if (currentPackage().moduleIds().contains(moduleId)) {
+            if (currentPackage().getDefaultModule().moduleId() == moduleId) {
+                return sourceRoot;
+            } else {
+                return sourceRoot.resolve(ProjectConstants.MODULES_ROOT).resolve(
+                        currentPackage().module(moduleId).moduleName().moduleNamePart());
+            }
         }
+        return null;
+    }
+
+    @Nullable
+    public Path documentPath(DocumentId documentId) {
+        for (ModuleId moduleId : currentPackage().moduleIds()) {
+            Module module = currentPackage().module(moduleId);
+            if (module.documentIds().contains(documentId)) {
+                return Objects.requireNonNull(modulePath(moduleId)).resolve(module.document(documentId).name());
+            }
+            if (module.testDocumentIds().contains(documentId)) {
+                return Objects.requireNonNull(modulePath(moduleId))
+                        .resolve(ProjectConstants.TEST_DIR_NAME).resolve(module.document(documentId).name());
+            }
+        }
+        return null;
     }
 
     /**

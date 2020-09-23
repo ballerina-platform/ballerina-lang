@@ -22,7 +22,10 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.utils.ProjectConstants;
 
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 /**
  * Contains a set of utility methods to create a project.
@@ -87,11 +90,13 @@ public class ProjectLoader {
      * @param project project that the file belongs to
      * @return documentId of the document
      */
+    @Nullable
     public static DocumentId getDocumentId(Path documentFilePath, BuildProject project) {
         Path parent = Optional.of(documentFilePath.getParent()).get();
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             if (parent.equals(project.modulePath(moduleId)) || parent.toString().equals(
-                    project.modulePath(moduleId).resolve(ProjectConstants.TEST_DIR_NAME).toString())) {
+                    Objects.requireNonNull(
+                            project.modulePath(moduleId)).resolve(ProjectConstants.TEST_DIR_NAME).toString())) {
                 Module module = project.currentPackage().module(moduleId);
                 for (DocumentId documentId : module.documentIds()) {
                     if (module.document(documentId).name().equals(

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -44,7 +45,7 @@ public class Module {
 
         this.srcDocs = new ConcurrentHashMap<>();
         this.testSrcDocs = new ConcurrentHashMap<>();
-        this.populateDocumentFunc = documentId -> Document.from(
+        this.populateDocumentFunc = documentId -> new Document(
                 this.moduleContext.documentContext(documentId), this);
     }
 
@@ -139,25 +140,33 @@ public class Module {
      * Inner class that handles module modifications.
      */
     public static class Modifier {
-        private Module oldModule;
-        private DocumentContext newDocContext;
-        private Module newModule;
+        private ModuleId moduleId;
+        private ModuleName moduleName;
+        private Map<DocumentId, DocumentContext> srcDocContextMap;
+        private Map<DocumentId, DocumentContext> testDocContextMap;
+        private boolean isDefaultModule;
+        private Set<ModuleDependency> moduleDependencies;
+        private Package packageInstance;
+        private Project project;
+
 
         private Modifier(Module oldModule) {
-            this.oldModule = oldModule;
+            moduleId = oldModule.moduleId();
+            moduleName = oldModule.moduleName();
+            srcDocContextMap = copySrcDocs(oldModule);
+            testDocContextMap = copyTestDocs(oldModule);
+            isDefaultModule = oldModule.isDefaultModule();
+            moduleDependencies = new HashSet<>(oldModule.moduleDependencies());
+            packageInstance = oldModule.packageInstance;
+            project = oldModule.project();
         }
 
         Modifier updateDocument(DocumentContext newDocContext) {
-            this.newDocContext = newDocContext;
-            Map<DocumentId, DocumentContext> srcDocContextMap = copySrcDocsfromOld();
-            Map<DocumentId, DocumentContext> testDocContextMap = copyTestDocsfromOld();
-
-            if (oldModule.moduleContext.srcDocumentIds().contains(newDocContext.documentId())) {
-                srcDocContextMap.put(newDocContext.documentId(), newDocContext);
+            if (this.srcDocContextMap.get(newDocContext.documentId()) != null) {
+                this.srcDocContextMap.put(newDocContext.documentId(), newDocContext);
             } else {
-                testDocContextMap.put(newDocContext.documentId(), newDocContext);
+                this.testDocContextMap.put(newDocContext.documentId(), newDocContext);
             }
-            createNewModule(srcDocContextMap, testDocContextMap);
             return this;
         }
 
@@ -168,12 +177,8 @@ public class Module {
          * @return an instance of the Module.Modifier
          */
         public Modifier addDocument(DocumentConfig documentConfig) {
-            this.newDocContext = DocumentContext.from(documentConfig);
-            Map<DocumentId, DocumentContext> srcDocContextMap = copySrcDocsfromOld();
-            Map<DocumentId, DocumentContext> testDocContextMap = copyTestDocsfromOld();
-
-            srcDocContextMap.put(newDocContext.documentId(), newDocContext);
-            createNewModule(srcDocContextMap, testDocContextMap);
+            DocumentContext newDocumentContext = DocumentContext.from(documentConfig);
+            this.srcDocContextMap.put(newDocumentContext.documentId(), newDocumentContext);
             return this;
         }
 
@@ -184,12 +189,8 @@ public class Module {
          * @return an instance of the Module.Modifier
          */
         public Modifier addTestDocument(DocumentConfig documentConfig) {
-            this.newDocContext = DocumentContext.from(documentConfig);
-            Map<DocumentId, DocumentContext> srcDocContextMap = copySrcDocsfromOld();
-            Map<DocumentId, DocumentContext> testDocContextMap = copyTestDocsfromOld();
-
-            testDocContextMap.put(newDocContext.documentId(), newDocContext);
-            createNewModule(srcDocContextMap, testDocContextMap);
+            DocumentContext newDocumentContext = DocumentContext.from(documentConfig);
+            this.testDocContextMap.put(newDocumentContext.documentId(), newDocumentContext);
             return this;
         }
 
@@ -200,15 +201,12 @@ public class Module {
          * @return an instance of the Module.Modifier
          */
         public Modifier removeDocument(DocumentId documentId) {
-            Map<DocumentId, DocumentContext> srcDocContextMap = copySrcDocsfromOld();
-            Map<DocumentId, DocumentContext> testDocContextMap = copyTestDocsfromOld();
 
-            if (oldModule.moduleContext.srcDocumentIds().contains(documentId)) {
+            if (this.srcDocContextMap.get(documentId) != null) {
                 srcDocContextMap.remove(documentId);
             } else {
                 testDocContextMap.remove(documentId);
             }
-            createNewModule(srcDocContextMap, testDocContextMap);
             return this;
         }
 
@@ -218,10 +216,10 @@ public class Module {
          * @return the updated module
          */
         public Module apply() {
-            return newModule;
+            return createNewModule(this.srcDocContextMap, this.testDocContextMap);
         }
 
-        private Map<DocumentId, DocumentContext> copySrcDocsfromOld() {
+        private Map<DocumentId, DocumentContext> copySrcDocs(Module oldModule) {
             Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
             for (DocumentId documentId : oldModule.moduleContext.srcDocumentIds()) {
                 srcDocContextMap.put(documentId, oldModule.moduleContext.documentContext(documentId));
@@ -229,7 +227,7 @@ public class Module {
             return srcDocContextMap;
         }
 
-        private Map<DocumentId, DocumentContext> copyTestDocsfromOld() {
+        private Map<DocumentId, DocumentContext> copyTestDocs(Module oldModule) {
             Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
             for (DocumentId documentId : oldModule.moduleContext.testSrcDocumentIds()) {
                 testDocContextMap.put(documentId, oldModule.moduleContext.documentContext(documentId));
@@ -237,14 +235,13 @@ public class Module {
             return testDocContextMap;
         }
 
-        private void createNewModule(Map<DocumentId, DocumentContext> srcDocContextMap, Map<DocumentId,
+        private Module createNewModule(Map<DocumentId, DocumentContext> srcDocContextMap, Map<DocumentId,
                 DocumentContext> testDocContextMap) {
-            ModuleContext newModuleContext = new ModuleContext(oldModule.project(),
-                    oldModule.moduleId(), oldModule.moduleName(), oldModule.isDefaultModule(), srcDocContextMap,
-                    testDocContextMap,
-                    new HashSet<>(oldModule.moduleDependencies()));
-            Package newPackage = oldModule.packageInstance.modify().updateModule(newModuleContext).apply();
-            newModule = newPackage.module(oldModule.moduleId());
+            ModuleContext newModuleContext = new ModuleContext(this.project,
+                    this.moduleId, this.moduleName, this.isDefaultModule, srcDocContextMap,
+                    testDocContextMap, this.moduleDependencies);
+            Package newPackage = this.packageInstance.modify().updateModule(newModuleContext).apply();
+            return newPackage.module(this.moduleId);
         }
 
     }

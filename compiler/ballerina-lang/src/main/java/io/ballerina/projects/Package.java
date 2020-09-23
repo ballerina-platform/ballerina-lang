@@ -146,20 +146,20 @@ public class Package {
      * Inner class that handles package modifications.
      */
     public static class Modifier {
-        private Package oldPackage;
-        private ModuleContext newModuleContext = null;
-        private Package newPackage;
+        private PackageId packageId;
+        private PackageName packageName;
+        private Map<ModuleId, ModuleContext> moduleContextMap;
+        private Project project;
 
         public Modifier(Package oldPackage) {
-            this.oldPackage = oldPackage;
+            this.packageId = oldPackage.packageId();
+            this.packageName = oldPackage.packageName();
+             this.moduleContextMap = copyModules(oldPackage);
+             this.project = oldPackage.project;
         }
 
         Modifier updateModule(ModuleContext newModuleContext) {
-            this.newModuleContext = newModuleContext;
-            Map<ModuleId, ModuleContext> moduleContextMap = copyModulesfromOld();
-            moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
-            createNewPackage(moduleContextMap);
-
+            this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
             return this;
         }
 
@@ -170,11 +170,8 @@ public class Package {
          * @return Package.Modifier which contains the updated package
          */
         public Modifier addModule(ModuleConfig moduleConfig) {
-            this.newModuleContext = ModuleContext.from(oldPackage.packageContext.project(), moduleConfig);
-            Map<ModuleId, ModuleContext> moduleContextMap = copyModulesfromOld();
-            moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
-            createNewPackage(moduleContextMap);
-
+            ModuleContext newModuleContext = ModuleContext.from(this.project, moduleConfig);
+            this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
             return this;
         }
 
@@ -185,16 +182,7 @@ public class Package {
          * @return Package.Modifier which contains the updated package
          */
         public Modifier removeModule(ModuleId moduleId) {
-            Map<ModuleId, ModuleContext> moduleContextMap = copyModulesfromOld();
             moduleContextMap.remove(moduleId);
-            PackageContext newPackageContext = new PackageContext(
-                    oldPackage.packageContext.project(),
-                    oldPackage.packageId(),
-                    oldPackage.packageContext.packageName(),
-                    moduleContextMap);
-            oldPackage.project.setCurrentPackage(new Package(newPackageContext, oldPackage.project));
-            this.newPackage = oldPackage.project.currentPackage();
-
             return this;
         }
 
@@ -204,10 +192,10 @@ public class Package {
          * @return updated package
          */
         public Package apply() {
-            return this.newPackage;
+            return createNewPackage();
         }
 
-        private Map<ModuleId, ModuleContext> copyModulesfromOld() {
+        private Map<ModuleId, ModuleContext> copyModules(Package oldPackage) {
             Map<ModuleId, ModuleContext> moduleContextMap = new HashMap<>();
 
             for (ModuleId moduleId : oldPackage.packageContext.moduleIds()) {
@@ -216,11 +204,11 @@ public class Package {
             return moduleContextMap;
         }
 
-        private void createNewPackage(Map<ModuleId, ModuleContext> moduleContextMap) {
-            PackageContext newPackageContext = new PackageContext(oldPackage.project, oldPackage.packageId(),
-                    oldPackage.packageContext.packageName(), moduleContextMap);
-            oldPackage.project.setCurrentPackage(new Package(newPackageContext, oldPackage.project));
-            this.newPackage = oldPackage.project.currentPackage();
+        private Package createNewPackage() {
+            PackageContext newPackageContext = new PackageContext(this.project, this.packageId,
+                    this.packageName, this.moduleContextMap);
+            this.project.setCurrentPackage(new Package(newPackageContext, this.project));
+            return this.project.currentPackage();
         }
     }
 }

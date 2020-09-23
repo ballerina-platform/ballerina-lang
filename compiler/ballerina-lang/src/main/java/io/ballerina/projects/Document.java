@@ -34,7 +34,8 @@ public class Document {
         this.module = module;
     }
 
-    public static Document from(DocumentContext documentContext, Module module) {
+    public static Document from(DocumentConfig documentConfig, Module module) {
+        DocumentContext documentContext = DocumentContext.from(documentConfig);
         return new Document(documentContext, module);
     }
 
@@ -71,10 +72,15 @@ public class Document {
      */
     public static class Modifier {
         private String content;
-        private Document oldDocument;
+        private String name;
+        private DocumentId documentId;
+        private Module oldModule;
 
         private Modifier(Document oldDocument) {
-            this.oldDocument = oldDocument;
+            this.documentId = oldDocument.documentId();
+            this.name = oldDocument.name();
+            this.content = oldDocument.syntaxTree().textDocument().toString();
+            this.oldModule = oldDocument.module();
         }
 
         /**
@@ -94,11 +100,11 @@ public class Document {
          * @return document with updated content
          */
         public Document apply() {
-            DocumentConfig documentConfig = DocumentConfig.from(oldDocument.documentId(), this.content,
-                    oldDocument.documentContext.name());
+            DocumentConfig documentConfig = DocumentConfig.from(this.documentId, this.content,
+                    this.name);
             DocumentContext documentContext = DocumentContext.from(documentConfig);
-            Module newModule = oldDocument.module().modify().updateDocument(documentContext).apply();
-            return newModule.document(oldDocument.documentId());
+            Module newModule = oldModule.modify().updateDocument(documentContext).apply();
+            return newModule.document(this.documentId);
         }
     }
 }

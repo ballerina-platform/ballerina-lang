@@ -48,6 +48,7 @@ import java.util.Objects;
  */
 public class TestBuildProject {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private final String dummyContent = "function foo() {\n}";
 
     @Test (description = "tests loading a valid build project")
     public void testBuildProjectAPI() {
@@ -213,7 +214,6 @@ public class TestBuildProject {
     public void testUpdateDocument() {
         // Inputs from langserver
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal").toAbsolutePath();
-        String newContent = "import ballerina/io;\n";
 
         // Load the project from document filepath
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
@@ -222,7 +222,7 @@ public class TestBuildProject {
         Document oldDocument = oldModule.document(oldDocumentId);
 
         // Update the document
-        Document updatedDoc = oldDocument.modify().withContent(newContent).apply();
+        Document updatedDoc = oldDocument.modify().withContent(dummyContent).apply();
 
         Assert.assertEquals(oldDocument.module().documentIds().size(), updatedDoc.module().documentIds().size());
         Assert.assertEquals(oldDocument.module().testDocumentIds().size(),
@@ -233,8 +233,8 @@ public class TestBuildProject {
         }
 
         Assert.assertNotEquals(oldDocument, updatedDoc);
-        Assert.assertNotEquals(oldDocument.syntaxTree().textDocument().toString(), newContent);
-        Assert.assertEquals(updatedDoc.syntaxTree().textDocument().toString(), newContent);
+        Assert.assertNotEquals(oldDocument.syntaxTree().textDocument().toString(), dummyContent);
+        Assert.assertEquals(updatedDoc.syntaxTree().textDocument().toString(), dummyContent);
 
         Package updatedPackage = buildProject.currentPackage();
         Assert.assertNotEquals(oldModule.packageInstance(), buildProject.currentPackage());
@@ -247,7 +247,6 @@ public class TestBuildProject {
         // Inputs from langserver
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.TEST_DIR_NAME)
                 .resolve("main_tests.bal").toAbsolutePath();
-        String newContent = "import ballerina/io;\n";
 
         // Load the project from document filepath
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
@@ -256,7 +255,7 @@ public class TestBuildProject {
         Document oldDocument = oldModule.document(oldDocumentId);
 
         // Update the document
-        Document updatedDoc = oldDocument.modify().withContent(newContent).apply();
+        Document updatedDoc = oldDocument.modify().withContent(dummyContent).apply();
 
         Assert.assertEquals(oldDocument.module().documentIds().size(), updatedDoc.module().documentIds().size());
         Assert.assertEquals(oldDocument.module().testDocumentIds().size(),
@@ -267,8 +266,8 @@ public class TestBuildProject {
         }
 
         Assert.assertNotEquals(oldDocument, updatedDoc);
-        Assert.assertNotEquals(oldDocument.syntaxTree().textDocument().toString(), newContent);
-        Assert.assertEquals(updatedDoc.syntaxTree().textDocument().toString(), newContent);
+        Assert.assertNotEquals(oldDocument.syntaxTree().textDocument().toString(), dummyContent);
+        Assert.assertEquals(updatedDoc.syntaxTree().textDocument().toString(), dummyContent);
 
         Package updatedPackage = buildProject.currentPackage();
         Assert.assertNotEquals(oldModule.packageInstance(), buildProject.currentPackage());
