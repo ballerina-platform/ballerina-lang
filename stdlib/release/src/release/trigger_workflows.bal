@@ -1,6 +1,5 @@
 import ballerina/config;
 import ballerina/http;
-import ballerina/lang.'string;
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/stringutils;
