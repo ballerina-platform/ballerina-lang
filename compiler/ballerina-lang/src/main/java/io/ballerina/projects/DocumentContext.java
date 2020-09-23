@@ -90,11 +90,9 @@ class DocumentContext {
     }
 
     TextDocument textDocument() {
-        if (this.textDocument != null) {
-            return this.textDocument;
+        if (this.textDocument == null) {
+            this.textDocument = TextDocuments.from(this.content);
         }
-
-        this.textDocument = TextDocuments.from(this.content);
         return this.textDocument;
     }
 

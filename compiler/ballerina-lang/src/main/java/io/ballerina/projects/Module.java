@@ -162,7 +162,7 @@ public class Module {
         }
 
         Modifier updateDocument(DocumentContext newDocContext) {
-            if (this.srcDocContextMap.get(newDocContext.documentId()) != null) {
+            if (this.srcDocContextMap.containsKey(newDocContext.documentId())) {
                 this.srcDocContextMap.put(newDocContext.documentId(), newDocContext);
             } else {
                 this.testDocContextMap.put(newDocContext.documentId(), newDocContext);
@@ -202,7 +202,7 @@ public class Module {
          */
         public Modifier removeDocument(DocumentId documentId) {
 
-            if (this.srcDocContextMap.get(documentId) != null) {
+            if (this.srcDocContextMap.containsKey(documentId)) {
                 srcDocContextMap.remove(documentId);
             } else {
                 testDocContextMap.remove(documentId);

@@ -154,8 +154,8 @@ public class Package {
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
             this.packageName = oldPackage.packageName();
-             this.moduleContextMap = copyModules(oldPackage);
-             this.project = oldPackage.project;
+            this.moduleContextMap = copyModules(oldPackage);
+            this.project = oldPackage.project;
         }
 
         Modifier updateModule(ModuleContext newModuleContext) {

@@ -33,10 +33,7 @@ import org.ballerinalang.toml.exceptions.TomlException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.Optional;
-
-import javax.annotation.Nullable;
 
 /**
  * {@code BuildProject} represents Ballerina project instance created from the project directory.
@@ -89,32 +86,34 @@ public class BuildProject extends Project {
         return (BuildOptions) super.getBuildOptions();
     }
 
-    @Nullable
-    public Path modulePath(ModuleId moduleId) {
+    public Optional<Path> modulePath(ModuleId moduleId) {
         if (currentPackage().moduleIds().contains(moduleId)) {
             if (currentPackage().getDefaultModule().moduleId() == moduleId) {
-                return sourceRoot;
+                return Optional.of(sourceRoot);
             } else {
-                return sourceRoot.resolve(ProjectConstants.MODULES_ROOT).resolve(
-                        currentPackage().module(moduleId).moduleName().moduleNamePart());
+                return Optional.of(sourceRoot.resolve(ProjectConstants.MODULES_ROOT).resolve(
+                        currentPackage().module(moduleId).moduleName().moduleNamePart()));
             }
         }
-        return null;
+        return Optional.empty();
     }
 
-    @Nullable
-    public Path documentPath(DocumentId documentId) {
+    public Optional<Path> documentPath(DocumentId documentId) {
         for (ModuleId moduleId : currentPackage().moduleIds()) {
             Module module = currentPackage().module(moduleId);
+            Optional<Path> modulePath = modulePath(moduleId);
             if (module.documentIds().contains(documentId)) {
-                return Objects.requireNonNull(modulePath(moduleId)).resolve(module.document(documentId).name());
-            }
-            if (module.testDocumentIds().contains(documentId)) {
-                return Objects.requireNonNull(modulePath(moduleId))
-                        .resolve(ProjectConstants.TEST_DIR_NAME).resolve(module.document(documentId).name());
+                if (modulePath.isPresent()) {
+                    return Optional.of(modulePath.get().resolve(module.document(documentId).name()));
+                }
+            } else if (module.testDocumentIds().contains(documentId)) {
+                if (modulePath.isPresent()) {
+                    return Optional.of(modulePath.get()
+                            .resolve(ProjectConstants.TEST_DIR_NAME).resolve(module.document(documentId).name()));
+                }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -149,7 +148,7 @@ public class BuildProject extends Project {
         private BuildOptions() {}
 
         public void setObservabilityEnabled(boolean observabilityEnabled) {
-            observabilityIncluded = observabilityEnabled;
+            this.observabilityIncluded = observabilityEnabled;
         }
 
         public void setSkipLock(boolean skipLock) {
