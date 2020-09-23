@@ -56,28 +56,28 @@
             "version": "0.6.0",
             "branch": "master",
             "level": 2,
-            "release": true
+            "release": false
         },
         {
             "name": "module-ballerina-time",
             "version": "1.0.1",
             "branch": "master",
             "level": 2,
-            "release": true
+            "release": false
         },
         {
             "name": "module-ballerina-xslt",
             "version": "1.0.1",
             "branch": "master",
             "level": 2,
-            "release": true
+            "release": false
         },
         {
             "name": "module-ballerina-task",
             "version": "1.1.0",
             "branch": "master",
             "level": 2,
-            "release": true
+            "release": false
         },
 
         {
@@ -85,28 +85,28 @@
             "version": "1.0.2",
             "branch": "master",
             "level": 3,
-            "release": true
+            "release": false
         },
         {
             "name": "module-ballerina-config",
             "version": "1.0.0",
             "branch": "master",
             "level": 3,
-            "release": true
+            "release": false
         },
         {
             "name": "module-ballerina-file",
             "version": "0.5.1",
             "branch": "master",
             "level": 3,
-            "release": true
+            "release": false
         },
         {
             "name": "module-ballerina-crypto",
             "version": "1.0.0",
             "branch": "master",
             "level": 3,
-            "release": true
+            "release": false
         },
 
         {
