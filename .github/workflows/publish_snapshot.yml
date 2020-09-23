@@ -1,9 +1,6 @@
 name: Publish Ballerina Snapshot
 
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
 
 jobs:

@@ -23,7 +23,6 @@ function handleRelease(commons:Module[] modules) {
         if (nextLevel > currentLevel && currentModules.length() > 0) {
             waitForCurrentModuleReleases(currentModules);
             currentModules.removeAll();
-            currentLevel = nextLevel;
         }
         if (module.release) {
             boolean releaseStarted = releaseModule(module);
@@ -35,6 +34,7 @@ function handleRelease(commons:Module[] modules) {
                 log:printWarn("Module " + module.name + " release did not triggerred successfully.");
             }
         }
+        currentLevel = nextLevel;
     }
     waitForCurrentModuleReleases(currentModules);
 }
