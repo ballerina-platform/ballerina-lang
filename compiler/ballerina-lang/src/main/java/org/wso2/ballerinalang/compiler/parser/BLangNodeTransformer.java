@@ -2327,6 +2327,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 case WILDCARD_BINDING_PATTERN:
                     if (position == 0) {
                         errorVarRef.message = (BLangVariableReference) createExpression(bindingPatternNode);
+                        break;
                     }
                     // Fall through.
                 case ERROR_BINDING_PATTERN:
@@ -2341,6 +2342,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         errorVarRef.detail = namedArgs;
         return errorVarRef;
+    }
+
+    @Override
+    public BLangNode transform(NamedArgBindingPatternNode namedArgBindingPatternNode) {
+        BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) TreeBuilder.createNamedArgNode();
+        namedArgsExpression.pos = getPosition(namedArgBindingPatternNode);
+        namedArgsExpression.name = createIdentifier(namedArgBindingPatternNode.argName());
+        namedArgsExpression.expr = createExpression(namedArgBindingPatternNode.bindingPattern());
+        return namedArgsExpression;
     }
 
     // -----------------------------------------------Statements--------------------------------------------------------

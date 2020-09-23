@@ -10,4 +10,3 @@ public function foo() {
     future<int> f1 = start sum(40, 50);
     future<()> f2 = start printSum(40, 50);
 }
-

@@ -811,42 +811,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        List<BLangExpression> args = new ArrayList<>(invocationExpr.requiredArgs);
-        args.addAll(invocationExpr.restArgs);
-        for (BLangExpression argExpr : args) {
-            analyzeNode(argExpr, env);
-        }
-
-        BSymbol symbol = invocationExpr.symbol;
-        if (symbol == null || symbol.getKind() == SymbolKind.ERROR_CONSTRUCTOR || isIsolated(symbol)) {
-            return;
-        }
-
-        inferredIsolated = false;
-
-        if (isInIsolatedFunction(env.enclInvokable)) {
-            dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION);
-            return;
-        }
-
-        if (isRecordFieldDefaultValue(env.enclType)) {
-            if (isBallerinaModule(env.enclPkg)) {
-                // TODO: 9/13/20 remove this once stdlibs are migrated
-                dlog.warning(invocationExpr.pos,
-                             DiagnosticCode.WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
-            } else {
-                dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
-            }
-        }
-
-        if (isObjectFieldDefaultValueRequiringIsolation(env)) {
-            dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_OBJECT_DEFAULT);
-        }
+        analyzeInvocation(invocationExpr);
     }
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
         if (!actionInvocationExpr.async) {
+            analyzeInvocation(actionInvocationExpr);
             return;
         }
 
@@ -1369,6 +1340,40 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangExpression childIndex = xmlNavigation.childIndex;
         if (childIndex != null) {
             analyzeNode(childIndex, env);
+        }
+    }
+
+    private void analyzeInvocation(BLangInvocation invocationExpr) {
+        List<BLangExpression> args = new ArrayList<>(invocationExpr.requiredArgs);
+        args.addAll(invocationExpr.restArgs);
+        for (BLangExpression argExpr : args) {
+            analyzeNode(argExpr, env);
+        }
+
+        BSymbol symbol = invocationExpr.symbol;
+        if (symbol == null || symbol.getKind() == SymbolKind.ERROR_CONSTRUCTOR || isIsolated(symbol)) {
+            return;
+        }
+
+        inferredIsolated = false;
+
+        if (isInIsolatedFunction(env.enclInvokable)) {
+            dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION);
+            return;
+        }
+
+        if (isRecordFieldDefaultValue(env.enclType)) {
+            if (isBallerinaModule(env.enclPkg)) {
+                // TODO: 9/13/20 remove this once stdlibs are migrated
+                dlog.warning(invocationExpr.pos,
+                             DiagnosticCode.WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
+            } else {
+                dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT);
+            }
+        }
+
+        if (isObjectFieldDefaultValueRequiringIsolation(env)) {
+            dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_OBJECT_DEFAULT);
         }
     }
 

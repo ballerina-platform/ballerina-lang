@@ -286,6 +286,41 @@ isolated function testIsolatedObjectFieldInitializers() {
     assertEquality("ballerina", c3.ob.k);
 }
 
+client class ClientClass {
+    int i = 1;
+
+    remote isolated function bar() {
+        self.i = 2;
+    }
+
+    isolated remote function baz(int j, string... s) returns int {
+        int tot = self.i + j;
+
+        foreach string strVal in s {
+            tot = tot + strVal.length();
+        }
+        return tot;
+    }
+}
+
+final string[] & readonly strArr = ["hello", "world"];
+
+isolated function testIsolationAnalysisWithRemoteMethods() {
+    ClientClass cc = new;
+
+    cc->bar();
+    assertEquality(2, cc.i);
+
+    int x = cc->baz(1);
+    assertEquality(3, x);
+
+    x = cc->baz(arr[2], "hello");
+    assertEquality(10, x);
+
+    x = cc->baz(arr[1], ...strArr);
+    assertEquality(14, x);
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

@@ -42,11 +42,13 @@ public enum Snippet {
 
     DEF_CLOSED_RECORD(SnippetGenerator.getClosedRecordDefinitionSnippet()),
 
+    DEF_ERROR_TYPE(SnippetGenerator.getErrorTypeDefinitionSnippet()),
+
     DEF_RECORD_TYPE_DESC(SnippetGenerator.getRecordTypeDescSnippet()),
 
     DEF_CLOSED_RECORD_TYPE_DESC(SnippetGenerator.getClosedRecordTypeDescSnippet()),
 
-    DEF_ERROR_TYPE_DESC(SnippetGenerator.getErrorTypeDefinitionSnippet()),
+    DEF_ERROR_TYPE_DESC(SnippetGenerator.getErrorTypeDescSnippet()),
 
     DEF_RESOURCE_HTTP(SnippetGenerator.getResourceDefinitionSnippet()),
 

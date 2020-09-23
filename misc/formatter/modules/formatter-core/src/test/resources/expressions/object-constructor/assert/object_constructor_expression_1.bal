@@ -5,4 +5,3 @@ type Person object {
     string email;
     string address;
 };
-

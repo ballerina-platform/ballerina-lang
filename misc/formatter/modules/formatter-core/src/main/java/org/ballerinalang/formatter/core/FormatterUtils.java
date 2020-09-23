@@ -17,7 +17,10 @@ package org.ballerinalang.formatter.core;
 
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
+import io.ballerinalang.compiler.syntax.tree.AsyncSendActionNode;
 import io.ballerinalang.compiler.syntax.tree.ChildNodeList;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
@@ -25,6 +28,7 @@ import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -44,7 +48,7 @@ class FormatterUtils {
 
     }
 
-    private static final String LINE_SEPARATOR = "line.separator";
+    private static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
 
     /**
      * Get the node position.
@@ -62,7 +66,8 @@ class FormatterUtils {
         int startOffset = startPos.offset();
         if (node.kind() == SyntaxKind.FUNCTION_DEFINITION || node.kind() == SyntaxKind.TYPE_DEFINITION ||
                 node.kind() == SyntaxKind.CONST_DECLARATION || node.kind() == SyntaxKind.OBJECT_TYPE_DESC ||
-                node.kind() == SyntaxKind.MATCH_STATEMENT) {
+                node.kind() == SyntaxKind.MATCH_STATEMENT || node.kind() == SyntaxKind.NAMED_WORKER_DECLARATION ||
+                node.kind() == SyntaxKind.IF_ELSE_STATEMENT || node.kind() == SyntaxKind.ELSE_BLOCK) {
             startOffset = (startOffset / 4) * 4;
         }
         return new DiagnosticPos(null, startPos.line() + 1, endPos.line() + 1,
@@ -92,11 +97,15 @@ class FormatterUtils {
                 parentKind == SyntaxKind.IF_ELSE_STATEMENT ||
                 parentKind == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT ||
                 parentKind == SyntaxKind.WHILE_STATEMENT ||
+                parentKind == SyntaxKind.FORK_STATEMENT ||
                 parentKind == SyntaxKind.DO_STATEMENT ||
+                parentKind == SyntaxKind.ENUM_DECLARATION ||
+                parentKind == SyntaxKind.NAMED_WORKER_DECLARATION ||
                 parentKind == SyntaxKind.LOCK_STATEMENT ||
                 parentKind == SyntaxKind.CONST_DECLARATION ||
                 parentKind == SyntaxKind.METHOD_DECLARATION ||
-                parentKind == SyntaxKind.TYPE_DEFINITION) {
+                parentKind == SyntaxKind.TYPE_DEFINITION ||
+                parentKind == SyntaxKind.CLASS_DEFINITION) {
             return parent;
         }
         if (parentKind == SyntaxKind.MATCH_CLAUSE && grandParent != null &&
@@ -109,10 +118,16 @@ class FormatterUtils {
             return grandParent;
         }
         if (syntaxKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            if (parentKind == (SyntaxKind.REQUIRED_PARAM) ||
+            if (parentKind == SyntaxKind.REQUIRED_PARAM ||
                     parentKind == SyntaxKind.POSITIONAL_ARG ||
                     parentKind == SyntaxKind.BINARY_EXPRESSION ||
                     parentKind == SyntaxKind.BRACED_EXPRESSION ||
+                    parentKind == SyntaxKind.PANIC_STATEMENT ||
+                    parentKind == SyntaxKind.ASYNC_SEND_ACTION ||
+                    parentKind == SyntaxKind.SYNC_SEND_ACTION ||
+                    parentKind == SyntaxKind.RECEIVE_ACTION ||
+                    parentKind == SyntaxKind.MAPPING_BINDING_PATTERN ||
+                    parentKind == SyntaxKind.FLUSH_ACTION ||
                     parentKind == SyntaxKind.RETURN_STATEMENT ||
                     parentKind == SyntaxKind.REMOTE_METHOD_CALL_ACTION ||
                     parentKind == SyntaxKind.FIELD_ACCESS ||
@@ -125,6 +140,17 @@ class FormatterUtils {
                         grandParent.parent().kind() == SyntaxKind.BLOCK_STATEMENT) {
                     return getParent(grandParent.parent(), syntaxKind);
                 }
+                if (parentKind == SyntaxKind.ASYNC_SEND_ACTION && ((AsyncSendActionNode) parent).expression() == node) {
+                    return getParent(parent.parent(), syntaxKind);
+                }
+                if (parentKind == SyntaxKind.MAPPING_BINDING_PATTERN && grandParent != null &&
+                        grandParent.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
+                    return grandParent;
+                }
+                return null;
+            }
+            if (parentKind == SyntaxKind.METHOD_CALL && grandParent != null &&
+                    grandParent.kind() == SyntaxKind.LOCAL_VAR_DECL) {
                 return null;
             }
             return getParent(parent, syntaxKind);
@@ -137,6 +163,14 @@ class FormatterUtils {
         if (syntaxKind == SyntaxKind.OBJECT_CONSTRUCTOR &&
                 parentKind == SyntaxKind.LOCAL_VAR_DECL) {
             return parent;
+        }
+        if (parentKind == SyntaxKind.BLOCK_STATEMENT && parent.parent() != null &&
+                parent.parent().kind() == SyntaxKind.NAMED_WORKER_DECLARATION) {
+            return parent.parent();
+        }
+        if (parentKind == SyntaxKind.QUERY_EXPRESSION && parent.parent() != null &&
+                parent.parent().kind() == SyntaxKind.LOCAL_VAR_DECL) {
+            return parent.parent();
         }
         if (syntaxKind == SyntaxKind.ON_FAIL_CLAUSE && (parentKind == SyntaxKind.MATCH_STATEMENT ||
                 parentKind == SyntaxKind.FOREACH_STATEMENT)) {
@@ -155,10 +189,16 @@ class FormatterUtils {
             }
             return parent;
         }
-        if (parentKind == (SyntaxKind.REQUIRED_PARAM) || parentKind == SyntaxKind.TYPE_TEST_EXPRESSION) {
+        if (parentKind == SyntaxKind.REQUIRED_PARAM || parentKind == SyntaxKind.TYPE_TEST_EXPRESSION) {
             return null;
         }
-        if (parentKind == (SyntaxKind.OBJECT_TYPE_DESC)) {
+        if (parentKind == SyntaxKind.TUPLE_TYPE_DESC) {
+            return null;
+        }
+        if (parentKind == SyntaxKind.LET_VAR_DECL) {
+            return parent;
+        }
+        if (parentKind == SyntaxKind.OBJECT_TYPE_DESC) {
             if (grandParent != null && grandParent.kind() == SyntaxKind.RETURN_TYPE_DESCRIPTOR) {
                 return grandParent.parent().parent();
             } else if (grandParent != null && grandParent.kind() == SyntaxKind.TYPE_DEFINITION) {
@@ -170,6 +210,10 @@ class FormatterUtils {
         if (parentKind == SyntaxKind.OBJECT_CONSTRUCTOR && grandParent != null &&
                 grandParent.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             return grandParent;
+        }
+        if (parentKind == SyntaxKind.UNION_TYPE_DESC && grandParent != null &&
+                grandParent.kind() == SyntaxKind.PARENTHESISED_TYPE_DESC) {
+            return null;
         }
         if (parentKind == SyntaxKind.TYPE_CAST_PARAM && grandParent != null &&
                 grandParent.kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
@@ -191,12 +235,16 @@ class FormatterUtils {
                     parentKind == SyntaxKind.FUNCTION_BODY_BLOCK ||
                     parentKind == SyntaxKind.LIST_CONSTRUCTOR ||
                     parentKind == SyntaxKind.MATCH_STATEMENT ||
+                    parentKind == SyntaxKind.ENUM_DECLARATION ||
                     parentKind == SyntaxKind.TYPE_DEFINITION ||
                     parentKind == SyntaxKind.METHOD_DECLARATION ||
-                    parentKind == SyntaxKind.MAPPING_CONSTRUCTOR) {
+                    parentKind == SyntaxKind.MAPPING_CONSTRUCTOR ||
+                    parentKind == SyntaxKind.CLASS_DEFINITION) {
                 indentation += formattingOptions.getTabSize();
                 Node grandParent = node.parent().parent();
-                if (grandParent != null && grandParent.kind() == SyntaxKind.DO_STATEMENT) {
+                if (grandParent != null && (grandParent.kind() == SyntaxKind.DO_STATEMENT ||
+                        grandParent.kind() == SyntaxKind.ELSE_BLOCK ||
+                        grandParent.kind() == SyntaxKind.IF_ELSE_STATEMENT)) {
                     indentation -= formattingOptions.getTabSize();
                 }
             }
@@ -207,7 +255,7 @@ class FormatterUtils {
     private static MinutiaeList getCommentMinutiae(MinutiaeList minutiaeList, boolean isLeading) {
         MinutiaeList minutiaes = AbstractNodeFactory.createEmptyMinutiaeList();
         for (int i = 0; i < minutiaeList.size(); i++) {
-            if (minutiaeList.get(i).kind() == (SyntaxKind.COMMENT_MINUTIAE)) {
+            if (minutiaeList.get(i).kind() == SyntaxKind.COMMENT_MINUTIAE) {
                 if (i > 0) {
                     minutiaes = minutiaes.add(minutiaeList.get(i - 1));
                 }
@@ -223,7 +271,7 @@ class FormatterUtils {
     private static String getWhiteSpaces(int column, int newLines) {
         StringBuilder whiteSpaces = new StringBuilder();
         for (int i = 0; i <= (newLines - 1); i++) {
-            whiteSpaces.append(System.getProperty(LINE_SEPARATOR));
+            whiteSpaces.append(NEWLINE_SYMBOL);
         }
         for (int i = 0; i <= (column - 1); i++) {
             whiteSpaces.append(" ");
@@ -290,7 +338,7 @@ class FormatterUtils {
         if (token == null) {
             return token;
         }
-        MinutiaeList newLeadingMinutiaeList = preserveComments(token.leadingMinutiae(), trailingNewLines)
+        MinutiaeList newLeadingMinutiaeList = preserveComments(token.leadingMinutiae(), leadingNewLines)
                 .add(createWhitespaceMinutiae(getWhiteSpaces(leadingSpaces, leadingNewLines)));
         MinutiaeList newTrailingMinutiaeList = preserveComments(token.trailingMinutiae(), trailingNewLines)
                 .add(createWhitespaceMinutiae(getWhiteSpaces(trailingSpaces, trailingNewLines)));
@@ -298,7 +346,7 @@ class FormatterUtils {
         return token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
     }
 
-    private static MinutiaeList preserveComments(MinutiaeList minutiaeList, int trailingNewLines) {
+    private static MinutiaeList preserveComments(MinutiaeList minutiaeList, int newLines) {
         MinutiaeList minutiaes = AbstractNodeFactory.createEmptyMinutiaeList();
         if (minutiaeList.size() > 0) {
             int count = commentCount(minutiaeList);
@@ -310,9 +358,8 @@ class FormatterUtils {
                     if (minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE) {
                         processedCount++;
                         if (processedCount == count) {
-                            if (trailingNewLines == 0) {
-                                minutiaes = minutiaes.add(AbstractNodeFactory
-                                        .createEndOfLineMinutiae(System.getProperty(LINE_SEPARATOR)));
+                            if (newLines == 0) {
+                                minutiaes = minutiaes.add(AbstractNodeFactory.createEndOfLineMinutiae(NEWLINE_SYMBOL));
                             }
                             break;
                         }
@@ -399,6 +446,42 @@ class FormatterUtils {
         return response;
     }
 
+    private static int startingNewLines(MinutiaeList minutiaeList) {
+        int newLines = 0;
+        for (int i = 0; i < minutiaeList.size(); i++) {
+            if (minutiaeList.isEmpty()) {
+                break;
+            }
+            Minutiae minutiae = minutiaeList.get(i);
+            if (minutiae == null || minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE ||
+                    minutiae.kind() == SyntaxKind.INVALID_NODE_MINUTIAE) {
+                return newLines;
+            }
+            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                newLines++;
+            }
+        }
+        return newLines;
+    }
+
+    private static int endingNewLines(MinutiaeList minutiaeList) {
+        int newLines = 0;
+        for (int i = 1; i < minutiaeList.size() + 1; i++) {
+            if (minutiaeList.isEmpty()) {
+                break;
+            }
+            Minutiae minutiae = minutiaeList.get(minutiaeList.size() - i);
+            if (minutiae == null || minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE ||
+                    minutiae.kind() == SyntaxKind.INVALID_NODE_MINUTIAE) {
+                return newLines;
+            }
+            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                newLines++;
+            }
+        }
+        return newLines;
+    }
+
     private static Token getStartingToken(Node node) {
         if (node instanceof Token) {
             return (Token) node;
@@ -422,25 +505,27 @@ class FormatterUtils {
                         SyntaxKind.CLOSE_BRACE_PIPE_TOKEN,
                         SyntaxKind.CLOSE_BRACKET_TOKEN,
                         SyntaxKind.CLOSE_PAREN_TOKEN));
-        boolean preserve = false;
         MinutiaeList nodeEnd = getEndingToken(node).trailingMinutiae();
-        if (nodeEnd.toString().contains(System.getProperty(LINE_SEPARATOR))) {
-            int childIndex = getChildLocation(node.parent(), node);
-            if (childIndex != -1) {
-                Node nextNode = node.parent().children().get(childIndex + 1);
-                if (nextNode != null && !endTokens.contains(nextNode.kind())) {
-                    MinutiaeList siblingStart = getStartingToken(nextNode).leadingMinutiae();
-                    int newLines = regexCount(nodeEnd.toString(), System.getProperty(LINE_SEPARATOR));
-                    if (siblingStart.toString().contains(System.getProperty(LINE_SEPARATOR)) || newLines > 1) {
-                        preserve = true;
-                    }
+        int ending = endingNewLines(nodeEnd);
+        if (!nodeEnd.isEmpty() && ending == 0) {
+            ending = regexCount(nodeEnd.get(nodeEnd.size() - 1).text(), NEWLINE_SYMBOL);
+        }
+        int starting = 0;
+        int childIndex = getChildLocation(node.parent(), node);
+        if (childIndex != -1) {
+            Node nextNode = node.parent().children().get(childIndex + 1);
+            if (nextNode != null && !endTokens.contains(nextNode.kind())) {
+                MinutiaeList siblingStart = getStartingToken(nextNode).leadingMinutiae();
+                starting = startingNewLines(siblingStart);
+                if (!siblingStart.isEmpty() && starting == 0) {
+                    starting = regexCount(siblingStart.get(0).text(), NEWLINE_SYMBOL);
                 }
             }
         }
-        return preserve;
+        return (ending + starting) > 1;
     }
 
-    private static ArrayList<NonTerminalNode> nestedIfBlock(NonTerminalNode node) {
+    static ArrayList<NonTerminalNode> nestedIfBlock(NonTerminalNode node) {
         NonTerminalNode parent = node.parent();
         ArrayList<NonTerminalNode> nestedParent = new ArrayList<>();
         if (parent == null) {
@@ -464,11 +549,11 @@ class FormatterUtils {
      */
     static int getStartColumn(Node node, boolean addSpaces, FormattingOptions formattingOptions) {
         Node parent;
-        if (node.kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
+        if (node.kind() == SyntaxKind.IF_ELSE_STATEMENT) {
             Indentation indent = getIfElseParent((NonTerminalNode) node);
             parent = indent.getParent();
             addSpaces = indent.getAddSpaces();
-        } else if (node.kind() == (SyntaxKind.BLOCK_STATEMENT)) {
+        } else if (node.kind() == SyntaxKind.BLOCK_STATEMENT) {
             Indentation indent = getBlockParent(node);
             parent = indent.getParent();
             addSpaces = indent.getAddSpaces();
@@ -490,7 +575,8 @@ class FormatterUtils {
         if (parent == null) {
             parent = node;
         }
-        if (parent.kind() == (SyntaxKind.FUNCTION_DEFINITION)) {
+        if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION || parent.kind() == SyntaxKind.WHILE_STATEMENT ||
+                parent.kind() == SyntaxKind.IF_ELSE_STATEMENT) {
             return new Indentation(parent, true);
         } else if (parent.parent() != null) {
             return getIfElseParent(parent);
@@ -520,11 +606,15 @@ class FormatterUtils {
         if (parentWithSpaces.contains(parent.kind())) {
             return new Indentation(parent, true);
         }
-        if (parent.kind() == (SyntaxKind.IF_ELSE_STATEMENT)) {
+        if (parent.kind() == SyntaxKind.IF_ELSE_STATEMENT) {
             ArrayList nestedBlock = nestedIfBlock((NonTerminalNode) parent);
             if (!nestedBlock.isEmpty()) {
+                boolean addSpaces = false;
+                if (parent.parent() != null && parent.parent().kind() == SyntaxKind.BLOCK_STATEMENT) {
+                    addSpaces = true;
+                }
                 NonTerminalNode nestedIfParent = (NonTerminalNode) nestedBlock.get(0);
-                return new Indentation((nestedIfParent != null) ? nestedIfParent : parent, false);
+                return new Indentation((nestedIfParent != null) ? nestedIfParent : parent, addSpaces);
             }
             return new Indentation(parent, false);
         }
@@ -549,6 +639,19 @@ class FormatterUtils {
             }
         }
         return true;
+    }
+
+    /**
+     * Converts the syntax tree into source code, remove superfluous spaces and newlines at the ending and returns it
+     * as a syntax tree.
+     *
+     * @param syntaxTree       syntaxTree
+     * @return source code as a syntax tree
+     */
+    static SyntaxTree handleNewLineEndings(SyntaxTree syntaxTree) {
+        String formattedSource = syntaxTree.toSourceCode().trim() + NEWLINE_SYMBOL;
+        TextDocument textDocument = TextDocuments.from(formattedSource);
+        return SyntaxTree.from(textDocument);
     }
 
     private static final class Indentation {
