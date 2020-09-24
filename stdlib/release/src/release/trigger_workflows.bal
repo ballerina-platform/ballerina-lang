@@ -2,6 +2,7 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
+import ballerina/stringutils;
 import ballerina_stdlib/commons;
 
 http:Client httpClient = new (API_PATH);
@@ -11,6 +12,7 @@ string accessTokenHeaderValue = "Bearer " + accessToken;
 public function main() {
     json[] modulesJson = commons:getModuleJsonArray();
     commons:Module[] modules = commons:getModuleArray(modulesJson);
+    removeSnapshotVersions(modules);
     handleRelease(modules);
 }
 
@@ -139,4 +141,13 @@ function validateResponse(http:Response response, string moduleName) returns boo
         return false;
     }
     return true;
+}
+
+function removeSnapshotVersions(commons:Module[] modules) {
+    foreach commons:Module module in modules {
+        string moduleVersion = module.'version;
+        if (stringutils:contains(moduleVersion, SNAPSHOT)) {
+            module.'version = stringutils:replace(moduleVersion, SNAPSHOT, "");
+        }
+    }
 }
