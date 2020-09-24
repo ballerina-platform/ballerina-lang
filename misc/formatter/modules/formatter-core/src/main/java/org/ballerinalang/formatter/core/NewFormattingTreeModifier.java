@@ -32,9 +32,12 @@ import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.MetadataNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
+import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
@@ -95,17 +98,25 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     @Override
+    public ModulePartNode transform(ModulePartNode modulePartNode) {
+        NodeList<ImportDeclarationNode> imports = formatNodeList(modulePartNode.imports(), 0, 1, 0, 2);
+        NodeList<ModuleMemberDeclarationNode> members = formatNodeList(modulePartNode.members(), 0, 2, 0, 1);
+        Token eofToken = formatToken(modulePartNode.eofToken(), 0, 0);
+        return modulePartNode.modify(imports, members, eofToken);
+    }
+
+    @Override
     public FunctionDefinitionNode transform(FunctionDefinitionNode functionDefinitionNode) {
         if (functionDefinitionNode.metadata().isPresent()) {
             MetadataNode metadata = formatNode(functionDefinitionNode.metadata().get(), 1, 0);
             functionDefinitionNode = functionDefinitionNode.modify().withMetadata(metadata).apply();
         }
 
-        NodeList<Token> qualifierList = modifyNodeList(functionDefinitionNode.qualifierList());
+        NodeList<Token> qualifierList = formatNodeList(functionDefinitionNode.qualifierList(), 1, 0, 1, 0);
         Token functionKeyword = formatToken(functionDefinitionNode.functionKeyword(), 1, 0);
         IdentifierToken functionName = formatToken(functionDefinitionNode.functionName(), 1, 0);
         FunctionSignatureNode functionSignatureNode = formatNode(functionDefinitionNode.functionSignature(), 1, 0);
-        FunctionBodyNode functionBodyNode = formatNode(functionDefinitionNode.functionBody(), 0, 2);
+        FunctionBodyNode functionBodyNode = formatNode(functionDefinitionNode.functionBody(), this.trailingWS, this.trailingNL);
 
         return functionDefinitionNode.modify()
                 .withFunctionKeyword(functionKeyword)
@@ -119,7 +130,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public FunctionSignatureNode transform(FunctionSignatureNode functionSignatureNode) {
         Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, 0);
         Token closePara = formatToken(functionSignatureNode.closeParenToken(), 1, 0);
-        SeparatedNodeList<ParameterNode> parameters = this.modifySeparatedNodeList(functionSignatureNode.parameters());
+        SeparatedNodeList<ParameterNode> parameters =
+                formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, 0, 0);
         if (functionSignatureNode.returnTypeDesc().isPresent()) {
             ReturnTypeDescriptorNode returnTypeDesc =
                     formatNode(functionSignatureNode.returnTypeDesc().get(), this.trailingWS, this.trailingNL);
@@ -137,7 +149,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public FunctionBodyBlockNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
         Token openBrace = formatToken(functionBodyBlockNode.openBraceToken(), 0, 1);
         indent(); // increase indentation for the statements to follow.
-        NodeList<StatementNode> statements = this.modifyNodeList(functionBodyBlockNode.statements());
+        NodeList<StatementNode> statements = formatNodeList(functionBodyBlockNode.statements(), 0, 1, 0, 1);
         unindent(); // reset the indentation
         Token closeBrace = formatToken(functionBodyBlockNode.closeBraceToken(), this.trailingWS, this.trailingNL);
 
@@ -150,7 +162,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public VariableDeclarationNode transform(VariableDeclarationNode variableDeclarationNode) {
-        NodeList<AnnotationNode> annotationNodes = modifyNodeList(variableDeclarationNode.annotations());
+        NodeList<AnnotationNode> annotationNodes = formatNodeList(variableDeclarationNode.annotations(), 0, 1, 0, 1);
         if (variableDeclarationNode.finalKeyword().isPresent()) {
             Token finalToken = formatToken(variableDeclarationNode.finalKeyword().get(), 1, 0);
             variableDeclarationNode = variableDeclarationNode.modify().withFinalKeyword(finalToken).apply();
@@ -169,7 +181,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             typedBindingPatternNode = formatNode(variableDeclarationNode.typedBindingPattern(), 0, 0);
         }
 
-        Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(), 0, 1);
+        Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(), this.trailingWS, this.trailingNL);
         return variableDeclarationNode.modify()
                 .withAnnotations(annotationNodes)
                 .withTypedBindingPattern(typedBindingPatternNode)
@@ -212,10 +224,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         BlockStatementNode ifBody;
         if (ifElseStatementNode.elseBody().isPresent()) {
             ifBody = formatNode(ifElseStatementNode.ifBody(), 1, 0);
-            Node elseBody = formatNode(ifElseStatementNode.elseBody().get(), 0, 2);
+            Node elseBody = formatNode(ifElseStatementNode.elseBody().get(), this.trailingWS, this.trailingNL);
             ifElseStatementNode = ifElseStatementNode.modify().withElseBody(elseBody).apply();
         } else {
-            ifBody = formatNode(ifElseStatementNode.ifBody(), 0, 2);
+            ifBody = formatNode(ifElseStatementNode.ifBody(), this.trailingWS, this.trailingNL);
         }
 
         return ifElseStatementNode.modify()
@@ -239,7 +251,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public BlockStatementNode transform(BlockStatementNode blockStatementNode) {
         Token openBrace = formatToken(blockStatementNode.openBraceToken(), 0, 1);
         indent(); // start an indentation
-        NodeList<StatementNode> statements = modifyNodeList(blockStatementNode.statements());
+        NodeList<StatementNode> statements = formatNodeList(blockStatementNode.statements(), 0, 1, 0, 1);
         unindent(); // end the indentation
         Token closeBrace = formatToken(blockStatementNode.closeBraceToken(), this.trailingWS, this.trailingNL);
 
@@ -253,13 +265,13 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public IdentifierToken transform(IdentifierToken identifier) {
         // ideally should never reach here
-        return formatTokenInternal(identifier);
+        return formatToken(identifier, this.trailingWS, this.trailingNL);
     }
 
     @Override
     public Token transform(Token token) {
         // ideally should never reach here
-        return formatTokenInternal(token);
+        return formatToken(token, this.trailingWS, this.trailingNL);
     }
 
     // ------------------------------------- Set of private helper methods -------------------------------------
@@ -323,6 +335,139 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         this.trailingNL = prevTrailingNL;
         this.trailingWS = prevTrailingWS;
         return token;
+    }
+
+    /**
+     * Format a list of nodes.
+     * 
+     * @param <T> Type of the list item
+     * @param nodeList Node list to be formatted
+     * @param itemTrailingWS Number of single-length spaces to be added after each item of the list
+     * @param itemTrailingNL Number of newlines to be added after each item of the list
+     * @param listTrailingWS Number of single-length spaces to be added after the last item of the list
+     * @param listTrailingNL Number of newlines to be added after the last item of the list
+     * @return Formatted node list
+     */
+    @SuppressWarnings("unchecked")
+    protected <T extends Node> NodeList<T> formatNodeList(NodeList<T> nodeList,
+                                                          int itemTrailingWS,
+                                                          int itemTrailingNL,
+                                                          int listTrailingWS,
+                                                          int listTrailingNL) {
+        if (nodeList.isEmpty()) {
+            return nodeList;
+        }
+
+        boolean nodeModified = false;
+        int size = nodeList.size();
+        Node[] newNodes = new Node[size];
+        for (int index = 0; index < size; index++) {
+            T oldNode = nodeList.get(index);
+            T newNode;
+            if (index == size - 1) {
+                // This is the last item of the list. Trailing WS and NL for the last item on the list
+                // should be the WS and NL of the entire list
+                newNode = formatNode(oldNode, listTrailingWS, listTrailingNL);
+            } else {
+                newNode = formatNode(oldNode, itemTrailingWS, itemTrailingNL);
+            }
+
+            if (oldNode != newNode) {
+                nodeModified = true;
+            }
+            newNodes[index] = newNode;
+        }
+
+        if (!nodeModified) {
+            return nodeList;
+        }
+
+        return (NodeList<T>) NodeFactory.createNodeList(newNodes);
+    }
+
+    /**
+     * Format a delimited list of nodes. This method assumes the delimiters are followed by a
+     * single whitespace character only.
+     * 
+     * @param <T> Type of the list item
+     * @param nodeList Node list to be formatted
+     * @param itemTrailingWS Number of single-length spaces to be added after each item in the list
+     * @param itemTrailingNL Number of newlines to be added after each item in the list
+     * @param listTrailingWS Number of single-length spaces to be added after the last item in the list
+     * @param listTrailingNL Number of newlines to be added after the last item in the list
+     * @return Formatted node list
+     */
+    protected <T extends Node> SeparatedNodeList<T> formatSeparatedNodeList(SeparatedNodeList<T> nodeList,
+                                                                            int itemTrailingWS,
+                                                                            int itemTrailingNL,
+                                                                            int listTrailingWS,
+                                                                            int listTrailingNL) {
+        return formatSeparatedNodeList(nodeList, itemTrailingWS, itemTrailingNL, 0, 1, listTrailingWS, listTrailingNL);
+    }
+
+    /**
+     * Format a delimited list of nodes.
+     * 
+     * @param <T> Type of the list item
+     * @param nodeList Node list to be formatted
+     * @param itemTrailingWS Number of single-length spaces to be added after each item in the list
+     * @param itemTrailingNL Number of newlines to be added after each item in the list
+     * @param separatorTrailingWS Number of single-length spaces to be added after each separator in the list
+     * @param separatorTrailingNL Number of newlines to be added after each each separator in the list
+     * @param listTrailingWS Number of single-length spaces to be added after the last item in the list
+     * @param listTrailingNL Number of newlines to be added after the last item in the list
+     * @return Formatted node list
+     */
+    @SuppressWarnings("unchecked")
+    protected <T extends Node> SeparatedNodeList<T> formatSeparatedNodeList(SeparatedNodeList<T> nodeList,
+                                                                            int itemTrailingWS,
+                                                                            int itemTrailingNL,
+                                                                            int separatorTrailingWS,
+                                                                            int separatorTrailingNL,
+                                                                            int listTrailingWS,
+                                                                            int listTrailingNL) {
+        if (nodeList.isEmpty()) {
+            return nodeList;
+        }
+
+        boolean nodeModified = false;
+        int size = nodeList.size();
+        Node[] newNodes = new Node[size];
+
+        for (int index = 0; index < size; index++) {
+            T oldNode = nodeList.get(index);
+            T newNode;
+            if (index == size - 1) {
+                // This is the last item of the list. Trailing WS and NL for the last item on the list
+                // should be the WS and NL of the entire list
+                newNode = formatNode(oldNode, listTrailingWS, listTrailingNL);
+            } else {
+                newNode = formatNode(oldNode, itemTrailingWS, itemTrailingNL);
+            }
+            newNodes[2 * index] = newNode;
+            if (oldNode != newNode) {
+                nodeModified = true;
+            }
+
+            if (index == nodeList.size() - 1) {
+                break;
+            }
+
+            Token oldSeperator = nodeList.getSeparator(index);
+            Token newSeperator = formatToken(oldSeperator, separatorTrailingWS, separatorTrailingNL);
+            newNodes[(2 * index) + 1] = newSeperator;
+
+            if (oldSeperator != newSeperator) {
+                nodeModified = true;
+            }
+
+        }
+
+        if (!nodeModified) {
+            return nodeList;
+        }
+
+        return (SeparatedNodeList<T>) NodeFactory.createSeparatedNodeList(newNodes);
     }
 
     /**
