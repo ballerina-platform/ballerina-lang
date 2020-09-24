@@ -150,7 +150,7 @@ function getInequalityErrorMsg(any|error actual, any|error expected, string msg 
         } else {
             string diff = getStringDiff(actualStr, expectedStr);
             errorMsg = string `${msg}` + "\nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
-            + string `'${actualStr}'` + "\n" + string `${diff}`;
+            + string `'${actualStr}'` + "\n\n" + string `${diff}`;
         }
         return errorMsg;
 }

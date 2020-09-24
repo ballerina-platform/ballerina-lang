@@ -35,6 +35,7 @@ dependencies {
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-java')
     implementation 'org.testng:testng'
+    implementation 'com.google.guava:guava:23.0'
 
     dist 'io.github.java-diff-utils:java-diff-utils:4.5'
 
