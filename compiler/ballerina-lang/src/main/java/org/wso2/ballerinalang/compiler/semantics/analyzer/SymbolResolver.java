@@ -923,7 +923,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
             symTable.cloneableType.tsymbol =
                     new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
-                            symTable.cloneableType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
+                            symTable.cloneableType, symTable.langAnnotationModuleSymbol, symTable.builtinPos, BUILTIN);
             symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
             entry.symbol.origin = BUILTIN;
             symTable.errorType = new BErrorType(null, symTable.detailType);
