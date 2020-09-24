@@ -58,7 +58,7 @@ public class DependencyScopeTestCase extends BaseTest {
 
     private String jarEntry = "platform-libs/utils.jar";
 
-    @BeforeClass(enabled = false)
+    @BeforeClass()
     public void setUp() throws IOException, BallerinaTestException {
         this.tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-pathdep-home-");
         this.tempTestResources = Files.createTempDirectory("bal-test-integration-packaging-pathdep-project-");
@@ -79,7 +79,7 @@ public class DependencyScopeTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Test 'provided' scope for platform dependency jars")
+    @Test(description = "Test 'provided' scope for platform dependency jars")
     public void providedScopeDependencyCase() throws BallerinaTestException, IOException {
         String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -104,8 +104,7 @@ public class DependencyScopeTestCase extends BaseTest {
         // Define the scope as provided for a dependency jar which is needed for testable package
         copy(tempTestResources.resolve("provided").resolve(MANIFEST_FILE_NAME),
                 projectResources.resolve("TestProject2").resolve(MANIFEST_FILE_NAME));
-        String moduleFooTestMsg = "Tested utils getString method using interop and received: " +
-                "This is a test string value !!!";
+        String moduleFooTestMsg = "1 passing";
         LogLeecher moduleFooTestLeecher = new LogLeecher(moduleFooTestMsg);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{moduleFooTestLeecher}, projectResources.resolve("TestProject2").toString());
@@ -118,7 +117,7 @@ public class DependencyScopeTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Test 'testOnly' scope for platform dependency jars")
+    @Test(description = "Test 'testOnly' scope for platform dependency jars")
     public void testOnlyScopeDependencyCase() throws BallerinaTestException, IOException {
         Path baloPath = projectResources.resolve("TestProject2" + File.separator + "target" + File.separator +
                 "balo");
@@ -128,8 +127,7 @@ public class DependencyScopeTestCase extends BaseTest {
         File baloZipFile = new File(baloPath.toString() + File.separator +
                 moduleFooBaloFileName.concat(".zip"));
 
-        String moduleFooTestMsg = "Tested utils getString method using interop and received: " +
-                "This is a test string value !!!";
+        String moduleFooTestMsg = "1 passing";
         LogLeecher moduleFooTestLeecher = new LogLeecher(moduleFooTestMsg);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{moduleFooTestLeecher}, projectResources.resolve("TestProject2").toString());
@@ -148,7 +146,6 @@ public class DependencyScopeTestCase extends BaseTest {
         balClient.runMain("build", new String[]{"-a", "-c"}, envVariables, new String[]{},
                 new LogLeecher[]{utilsCompileLeecher}, projectResources.resolve("TestProject1").toString());
         utilsCompileLeecher.waitForText(5000);
-
     }
 
     /**
@@ -228,7 +225,7 @@ public class DependencyScopeTestCase extends BaseTest {
         }
     }
 
-    @AfterClass(enabled = false)
+    @AfterClass()
     private void cleanup() throws Exception {
         deleteFiles(this.tempHomeDirectory);
         deleteFiles(this.tempTestResources);
