@@ -1,166 +1,166 @@
 {
     "modules": [
         {
-            "name": "module-ballerina-java.arrays",
+            "name": "module-ballerina-java.arrays-test",
             "version": "0.9.1-SNAPSHOT",
             "branch": "master",
             "level": 0,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-jsonutils",
+            "name": "module-ballerina-jsonutils-test",
             "version": "1.0.1-SNAPSHOT",
             "branch": "master",
             "level": 0,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-xmlutils",
+            "name": "module-ballerina-xmlutils-test",
             "version": "1.0.1-SNAPSHOT",
             "branch": "master",
             "level": 0,
-            "release": false
+            "release": true
         },
 
         {
-            "name": "module-ballerina-math",
+            "name": "module-ballerina-math-test",
             "version": "1.0.1-SNAPSHOT",
             "branch": "master",
             "level": 1,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-io",
+            "name": "module-ballerina-io-test",
             "version": "0.5.1-SNAPSHOT",
             "branch": "master",
             "level": 1,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-stringutils",
+            "name": "module-ballerina-stringutils-test",
             "version": "0.5.1-SNAPSHOT",
             "branch": "master",
             "level": 1,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-runtime",
+            "name": "module-ballerina-runtime-test",
             "version": "0.5.1-SNAPSHOT",
             "branch": "master",
             "level": 1,
-            "release": false
+            "release": true
         },
 
         {
-            "name": "module-ballerina-system",
+            "name": "module-ballerina-system-test",
             "version": "0.6.1-SNAPSHOT",
             "branch": "master",
             "level": 2,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-time",
+            "name": "module-ballerina-time-test",
             "version": "1.0.2-SNAPSHOT",
             "branch": "master",
             "level": 2,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-xslt",
+            "name": "module-ballerina-xslt-test",
             "version": "1.0.2-SNAPSHOT",
             "branch": "master",
             "level": 2,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-task",
+            "name": "module-ballerina-task-test",
             "version": "1.1.1-SNAPSHOT",
             "branch": "master",
             "level": 2,
-            "release": false
+            "release": true
         },
 
         {
-            "name": "module-ballerina-encoding",
+            "name": "module-ballerina-encoding-test",
             "version": "1.0.3-SNAPSHOT",
             "branch": "master",
             "level": 3,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-config",
+            "name": "module-ballerina-config-test",
             "version": "1.0.1-SNAPSHOT",
             "branch": "master",
             "level": 3,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-file",
+            "name": "module-ballerina-file-test",
             "version": "0.5.2-SNAPSHOT",
             "branch": "master",
             "level": 3,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-crypto",
+            "name": "module-ballerina-crypto-test",
             "version": "1.0.1-SNAPSHOT",
             "branch": "master",
             "level": 3,
-            "release": false
+            "release": true
         },
 
         {
-            "name": "module-ballerina-log",
+            "name": "module-ballerina-log-test",
             "version": "1.0.1-SNAPSHOT",
             "branch": "master",
             "level": 4,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-reflect",
+            "name": "module-ballerina-reflect-test",
             "version": "0.5.1-SNAPSHOT",
             "branch": "master",
             "level": 4,
-            "release": false
+            "release": true
         },
 
         {
-            "name": "module-ballerina-mime",
+            "name": "module-ballerina-mime-test",
             "version": "1.0.1-SNAPSHOT",
             "branch": "master",
             "level": 5,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-filepath",
+            "name": "module-ballerina-filepath-test",
             "version": "0.7.2-SNAPSHOT",
             "branch": "master",
             "level": 5,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-cache",
+            "name": "module-ballerina-cache-test",
             "version": "2.0.1-SNAPSHOT",
             "branch": "master",
             "level": 5,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerina-socket",
+            "name": "module-ballerina-socket-test",
             "version": "0.6.9-SNAPSHOT",
             "branch": "master",
             "level": 5,
-            "release": false
+            "release": true
         },
         {
-            "name": "module-ballerinax-nats",
+            "name": "module-ballerinax-nats-test",
             "version": "1.0.2-SNAPSHOT",
             "branch": "master",
             "level": 5,
             "release": true
         },
         {
-            "name": "module-ballerinax-rabbitmq",
+            "name": "module-ballerinax-rabbitmq-test",
             "version": "1.0.4-SNAPSHOT",
             "branch": "master",
             "level": 5,
@@ -168,21 +168,21 @@
         },
 
         {
-            "name": "module-ballerina-email",
+            "name": "module-ballerina-email-test",
             "version": "1.0.1-SNAPSHOT",
             "branch": "master",
             "level": 6,
             "release": true
         },
         {
-            "name": "module-ballerinax-kafka",
+            "name": "module-ballerinax-kafka-test",
             "version": "2.0.1-SNAPSHOT",
             "branch": "master",
             "level": 6,
             "release": true
         },
         {
-            "name": "module-ballerina-auth",
+            "name": "module-ballerina-auth-test",
             "version": "1.0.1-SNAPSHOT",
             "branch": "master",
             "level": 6,
@@ -190,21 +190,21 @@
         },
 
         {
-            "name": "module-ballerina-sql",
+            "name": "module-ballerina-sql-test",
             "version": "0.5.1-SNAPSHOT",
             "branch": "master",
             "level": 7,
             "release": true
         },
         {
-            "name": "module-ballerina-ldap",
+            "name": "module-ballerina-ldap-test",
             "version": "1.0.1-SNAPSHOT",
             "branch": "master",
             "level": 7,
             "release": true
         },
         {
-            "name": "module-ballerina-http",
+            "name": "module-ballerina-http-test",
             "version": "1.0.1-SNAPSHOT",
             "branch": "master",
             "level": 7,
@@ -213,42 +213,42 @@
 
 
         {
-            "name": "module-ballerina-java.jdbc",
+            "name": "module-ballerina-java.jdbc-test",
             "version": "0.5.1-SNAPSHOT",
             "branch": "master",
             "level": 8,
             "release": true
         },
         {
-            "name": "module-ballerinax-mysql",
+            "name": "module-ballerinax-mysql-test",
             "version": "0.6.1-SNAPSHOT",
             "branch": "master",
             "level": 8,
             "release": true
         },
         {
-            "name": "module-ballerina-websub",
+            "name": "module-ballerina-websub-test",
             "version": "1.0.3-SNAPSHOT",
             "branch": "master",
             "level": 8,
             "release": true
         },
         {
-            "name": "module-ballerina-jwt",
+            "name": "module-ballerina-jwt-test",
             "version": "1.0.3-SNAPSHOT",
             "branch": "master",
             "level": 8,
             "release": true
         },
         {
-            "name": "module-ballerina-oauth2",
+            "name": "module-ballerina-oauth2-test",
             "version": "1.0.1-SNAPSHOT",
             "branch": "master",
             "level": 8,
             "release": true
         },
         {
-            "name": "module-ballerina-grpc",
+            "name": "module-ballerina-grpc-test",
             "version": "0.7.1-SNAPSHOT",
             "branch": "master",
             "level": 8,
