@@ -35,6 +35,7 @@ jobs:
 
     publish-stdlib-modules:
         name: Publish Standard Library Modules
+        needs: publish-ballerina-lang
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Repository
