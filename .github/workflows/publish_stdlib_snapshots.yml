@@ -37,6 +37,6 @@ jobs:
               with:
                   args:
                       run publish_snapshot
-                  env:
-                      WORKING_DIR: ./stdlib/release
-                      GITHUB_TOKEN: ${{ secrets.BAL_BOT_PAT }}
+              env:
+                WORKING_DIR: ./stdlib/release
+                GITHUB_TOKEN: ${{ secrets.BAL_BOT_PAT }}
