@@ -13,6 +13,7 @@ jobs:
     publish-ballerina-lang:
         name: Build and Publish Ballerina Lang
         runs-on: ubuntu-latest
+        if: github.repository_owner == 'ballerina-platform'
         steps:
             -   name: Checkout Repository
                 uses: actions/checkout@v2
@@ -42,6 +43,7 @@ jobs:
         name: Publish Standard Library Modules
         needs: publish-ballerina-lang
         runs-on: ubuntu-latest
+        if: github.repository_owner == 'ballerina-platform'
         steps:
             -   name: Checkout Repository
                 uses: actions/checkout@v2
