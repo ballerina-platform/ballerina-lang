@@ -5033,7 +5033,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (parent.kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
             return false;
         }
-        return parent.kind() != SyntaxKind.TYPE_DEFINITION ;
+        return parent.kind() != SyntaxKind.TYPE_DEFINITION;
     }
 
     private boolean ifInLocalContext(Node parent) {
