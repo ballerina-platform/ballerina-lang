@@ -17,12 +17,14 @@
  */
 package org.ballerina.compiler.impl.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerina.compiler.api.ModuleID;
 import org.ballerina.compiler.api.symbols.Documentation;
 import org.ballerina.compiler.api.symbols.Symbol;
 import org.ballerina.compiler.api.symbols.SymbolKind;
 import org.ballerina.compiler.impl.BallerinaModuleID;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -40,16 +42,16 @@ public class BallerinaSymbol implements Symbol {
     private final SymbolKind symbolKind;
     private final Documentation docAttachment;
     private final boolean isLangLib;
+    private final Location position;
 
-    protected BallerinaSymbol(String name,
-                                  PackageID moduleID,
-                                  SymbolKind symbolKind,
-                                  BSymbol symbol) {
+    protected BallerinaSymbol(String name, PackageID moduleID, SymbolKind symbolKind, BSymbol symbol) {
         this.name = name;
         this.moduleID = moduleID;
         this.symbolKind = symbolKind;
         this.docAttachment = getDocAttachment(symbol);
         this.isLangLib = symbol != null && ((symbol.flags & Flags.LANG_LIB) == Flags.LANG_LIB);
+        this.position = new BLangDiagnosticLocation(symbol.pos.src.getCompilationUnitName(), symbol.pos.sLine,
+                                                    symbol.pos.eLine, symbol.pos.sCol, symbol.pos.eCol);
     }
 
     /**
@@ -84,6 +86,11 @@ public class BallerinaSymbol implements Symbol {
         return Optional.ofNullable(this.docAttachment);
     }
 
+    @Override
+    public Location position() {
+        return this.position;
+    }
+
     /**
      * Whether the symbol is a langlib symbol.
      *
@@ -103,7 +110,7 @@ public class BallerinaSymbol implements Symbol {
      * @param <T> Symbol Type
      */
     protected abstract static class SymbolBuilder<T extends SymbolBuilder<T>> {
-        
+
         protected String name;
         protected PackageID moduleID;
         protected SymbolKind ballerinaSymbolKind;

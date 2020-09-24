@@ -17,6 +17,7 @@
  */
 package org.ballerina.compiler.api.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerina.compiler.api.ModuleID;
 
 import java.util.Optional;
@@ -44,17 +45,25 @@ public interface Symbol {
 
     /**
      * Get the Symbol Kind.
-     * 
+     *
      * @return {@link SymbolKind} of the symbol
      */
     SymbolKind kind();
 
     /**
      * Get the Documentation attachment bound to the symbol.
-     * 
+     *
      * @return {@link Optional} doc attachment
      */
     Optional<Documentation> docAttachment();
+
+    /**
+     * This retrieves position information of the symbol in the source code. The position given here is the location of
+     * the definition of the symbol.
+     *
+     * @return The position information of the symbol
+     */
+    Location position();
 
     // TODO: Add the annotation attachment API
 }

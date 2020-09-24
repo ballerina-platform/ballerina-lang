@@ -17,6 +17,7 @@
  */
 package org.ballerina.compiler.impl.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerina.compiler.api.ModuleID;
 import org.ballerina.compiler.api.symbols.Documentation;
 import org.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -69,5 +70,10 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     @Override
     public List<Qualifier> qualifiers() {
         return this.functionSymbol.qualifiers();
+    }
+
+    @Override
+    public Location position() {
+        return this.functionSymbol.position();
     }
 }
