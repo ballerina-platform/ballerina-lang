@@ -1,39 +1,12 @@
-import ballerina/io;
+import ballerina/java;
 import ballerina/test;
-
-# Before Suite Function
-
-@test:BeforeSuite
-function beforeSuiteFunc() {
-    io:println("I'm the before suite function!");
-}
-
-# Before test function
-
-function beforeFunc() {
-    io:println("I'm the before function!");
-}
 
 # Test function
 
 @test:Config {
-    before: "beforeFunc",
-    after: "afterFunc"
 }
 function testFunction() {
-    io:println("I'm in test function!");
-    main();
+    string result =  <string>java:toString(getDriversAsString());
+    test:assertEquals(result, "class org.h2.Driver class org.hsqldb.jdbc.JDBCDriver ");
 }
 
-# After test function
-
-function afterFunc() {
-    io:println("I'm the after function!");
-}
-
-# After Suite Function
-
-@test:AfterSuite {}
-function afterSuiteFunc() {
-    io:println("I'm the after suite function!");
-}
