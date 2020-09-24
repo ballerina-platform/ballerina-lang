@@ -46,6 +46,11 @@ public class BTypeIdSet {
         this.secondary = new HashSet<>();
     }
 
+    public BTypeIdSet() {
+        this.primary = new HashSet<>();
+        this.secondary = new HashSet<>();
+    }
+
     public static BTypeIdSet from(PackageID packageID, String typeId, boolean publicId) {
         HashSet<BTypeId> set = new HashSet<>();
         set.add(new BTypeId(packageID, typeId, publicId));
