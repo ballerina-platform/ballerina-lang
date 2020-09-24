@@ -3254,7 +3254,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (!PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
             dlog.error(variable.pos, DiagnosticCode.ISOLATED_PARAM_OUTSIDE_LANG_MODULE);
-            return;
         }
 
         BType type = isRestParam ? ((BArrayType) variable.type).eType : variable.type;
