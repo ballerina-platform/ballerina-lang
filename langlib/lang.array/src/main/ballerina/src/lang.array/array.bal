@@ -65,21 +65,21 @@ public isolated function enumerate(Type[] arr) returns [int, Type][] = external;
 # + arr - the array
 # + func - a function to apply to each member
 # + return - new array containing result of applying `func` to each member of `arr` in order
-public function 'map(Type[] arr, function(Type val) returns Type1 func) returns Type1[] = external;
+public isolated function 'map(Type[] arr, @isolatedParam function(Type val) returns Type1 func) returns Type1[] = external;
 
 # Applies a function to each member of an array.
 # The parameter `func` is applied to each member of array `arr` in order.
 #
 # + arr - the array
 # + func - a function to apply to each member
-public function forEach(Type[] arr, function(Type val) returns () func) returns () = external;
+public isolated function forEach(Type[] arr, @isolatedParam function(Type val) returns () func) returns () = external;
 
 # Selects the members from an array for which a function returns true.
 #
 # + arr - the array
 # + func - a predicate to apply to each member to test whether it should be selected
 # + return - new array only containing members of `arr` for which `func` evaluates to true
-public function filter(Type[] arr, function(Type val) returns boolean func) returns Type[] = external;
+public isolated function filter(Type[] arr, @isolatedParam function(Type val) returns boolean func) returns Type[] = external;
 
 # Combines the members of an array using a combining function.
 # The combining function takes the combined value so far and a member of the array,
@@ -95,7 +95,7 @@ public function filter(Type[] arr, function(Type val) returns boolean func) retu
 # reduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)
 # ```
 # is the same as `sum(1, 2, 3)`.
-public function reduce(Type[] arr, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = external;
+public isolated function reduce(Type[] arr, @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = external;
 
 # Returns a subarray starting from `startIndex` (inclusive) to `endIndex` (exclusive).
 #

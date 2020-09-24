@@ -217,7 +217,7 @@ public isolated function elementChildren(xml x, string? nm = ()) returns xml<Ele
 # + x - the xml value
 # + func - a function to apply to each child or `item`
 # + return - new xml value containing result of applying `func` to each child or `item`
-public function 'map(xml<ItemType> x, function(ItemType item) returns XmlType func)
+public isolated function 'map(xml<ItemType> x, @isolatedParam function(ItemType item) returns XmlType func)
     returns xml<XmlType> = external;
 
 # Applies a function to each item in an xml sequence.
@@ -225,7 +225,7 @@ public function 'map(xml<ItemType> x, function(ItemType item) returns XmlType fu
 #
 # + x - the xml value
 # + func - a function to apply to each item in `x`
-public function forEach(xml<ItemType> x, function(ItemType item) returns () func)
+public isolated function forEach(xml<ItemType> x, @isolatedParam function(ItemType item) returns () func)
     = external;
 
 # Selects the items from an xml sequence for which a function returns true.
@@ -234,7 +234,7 @@ public function forEach(xml<ItemType> x, function(ItemType item) returns () func
 # + x - xml value
 # + func - a predicate to apply to each item to test whether it should be selected
 # + return - new xml sequence containing items in `x` for which `func` evaluates to true
-public function filter(xml<ItemType> x, function(ItemType item) returns boolean func)
+public isolated function filter(xml<ItemType> x, @isolatedParam function(ItemType item) returns boolean func)
     returns xml = external;
 
 # Constructs an xml value from a string.

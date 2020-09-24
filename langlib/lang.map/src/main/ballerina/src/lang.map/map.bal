@@ -71,21 +71,21 @@ public isolated function entries(map<Type> m) returns map<[string, Type]> = exte
 # + m - the map
 # + func - a function to apply to each member
 # + return - new map containing result of applying parameter `func` to each member
-public function 'map(map<Type> m, function(Type val) returns Type1 func) returns map<Type1> = external;
+public isolated function 'map(map<Type> m, @isolatedParam function(Type val) returns Type1 func) returns map<Type1> = external;
 
 # Applies a function to each member of a map.
 # The parameter `func` is applied to each member of `m`.
 #
 # + m - the map
 # + func - a function to apply to each member
-public function forEach(map<Type> m, function(Type val) returns () func) returns () = external;
+public isolated function forEach(map<Type> m, @isolatedParam function(Type val) returns () func) returns () = external;
 
 # Selects the members from a map for which a function returns true.
 #
 # + m - the map
 # + func - a predicate to apply to each element to test whether it should be included
 # + return - new map containing members for which `func` evaluates to true
-public function filter(map<Type> m, function(Type val) returns boolean func) returns map<Type> = external;
+public isolated function filter(map<Type> m, @isolatedParam function(Type val) returns boolean func) returns map<Type> = external;
 
 # Combines the members of a map using a combining function.
 # The combining function takes the combined value so far and a member of the map,
@@ -95,7 +95,7 @@ public function filter(map<Type> m, function(Type val) returns boolean func) ret
 # + func - combining function
 # + initial - initial value for the first argument of combining parameter `func`
 # + return - result of combining the members of `m` using `func`
-public function reduce(map<Type> m, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = external;
+public isolated function reduce(map<Type> m, @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = external;
 
 # Removes a member of a map.
 #

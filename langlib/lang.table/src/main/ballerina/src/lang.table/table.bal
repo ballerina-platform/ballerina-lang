@@ -90,7 +90,7 @@ public isolated function add(table<Type> t, Type val) = external;
 # + t - the table
 # + func - a function to apply to each member
 # + return - new table containing result of applying `func` to each member
-public function 'map(table<Type> t, function(Type val) returns Type1 func)
+public isolated function 'map(table<Type> t, @isolatedParam function(Type val) returns Type1 func)
    returns table<Type1> key<never> = external;
 
 # Applies a function to each member of a table.
@@ -98,14 +98,14 @@ public function 'map(table<Type> t, function(Type val) returns Type1 func)
 #
 # + t - the table
 # + func - a function to apply to each member
-public function forEach(table<Type> t, function(Type val) returns () func) returns () = external;
+public isolated function forEach(table<Type> t, @isolatedParam function(Type val) returns () func) returns () = external;
 
 # Selects the members from a table for which a function returns true.
 #
 # + t - the table
 # + func - a predicate to apply to each member to test whether it should be included
 # + return - new table containing members for which `func` evaluates to true
-public function filter(table<Type> key<KeyType> t, function(Type val) returns boolean func)
+public isolated function filter(table<Type> key<KeyType> t, @isolatedParam function(Type val) returns boolean func)
    returns table<Type> key<KeyType> = external;
 
 # Combines the members of a table using a combining function.
@@ -116,7 +116,7 @@ public function filter(table<Type> key<KeyType> t, function(Type val) returns bo
 # + func - combining function
 # + initial - initial value for the first argument of combining `func`
 # + return - result of combining the members of `t` using `func`
-public function reduce(table<Type> t, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = external;
+public isolated function reduce(table<Type> t, @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = external;
 
 # Removes a member of a table.
 #

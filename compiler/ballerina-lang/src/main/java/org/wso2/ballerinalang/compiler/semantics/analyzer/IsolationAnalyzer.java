@@ -27,9 +27,13 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -182,6 +186,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -1344,25 +1350,44 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeInvocation(BLangInvocation invocationExpr) {
-        List<BLangExpression> args = new ArrayList<>(invocationExpr.requiredArgs);
-        args.addAll(invocationExpr.restArgs);
+        List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
+        List<BLangExpression> restArgs = invocationExpr.restArgs;
+
+        List<BLangExpression> args = new ArrayList<>(requiredArgs);
+        args.addAll(restArgs);
         for (BLangExpression argExpr : args) {
             analyzeNode(argExpr, env);
         }
 
-        BSymbol symbol = invocationExpr.symbol;
-        if (symbol == null || symbol.getKind() == SymbolKind.ERROR_CONSTRUCTOR || isIsolated(symbol)) {
+        BInvokableSymbol symbol = (BInvokableSymbol) invocationExpr.symbol;
+        if (symbol == null || symbol.getKind() == SymbolKind.ERROR_CONSTRUCTOR) {
+            return;
+        }
+
+        boolean inIsolatedFunction = isInIsolatedFunction(env.enclInvokable);
+        boolean recordFieldDefaultValue = isRecordFieldDefaultValue(env.enclType);
+        boolean objectFieldDefaultValueRequiringIsolation = isObjectFieldDefaultValueRequiringIsolation(env);
+
+        boolean expectsIsolation =
+                inIsolatedFunction || recordFieldDefaultValue || objectFieldDefaultValueRequiringIsolation;
+
+        if (isIsolated(symbol)) {
+            if (!expectsIsolation) {
+                return;
+            }
+
+            analyzeArgIsolatedness(requiredArgs, restArgs, symbol);
             return;
         }
 
         inferredIsolated = false;
 
-        if (isInIsolatedFunction(env.enclInvokable)) {
+        if (inIsolatedFunction) {
             dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION);
             return;
         }
 
-        if (isRecordFieldDefaultValue(env.enclType)) {
+        if (recordFieldDefaultValue) {
             if (isBallerinaModule(env.enclPkg)) {
                 // TODO: 9/13/20 remove this once stdlibs are migrated
                 dlog.warning(invocationExpr.pos,
@@ -1372,8 +1397,181 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (isObjectFieldDefaultValueRequiringIsolation(env)) {
+        if (objectFieldDefaultValueRequiringIsolation) {
             dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_AS_OBJECT_DEFAULT);
+        }
+    }
+
+    private void analyzeArgIsolatedness(List<BLangExpression> requiredArgs, List<BLangExpression> restArgs,
+                                        BInvokableSymbol symbol) {
+        List<BVarSymbol> params = symbol.params;
+        int paramsCount = params.size();
+
+        if (restArgs.isEmpty()) {
+            // Can have positional and named args.
+            int nextParamIndex = 0;
+
+            for (BLangExpression arg : requiredArgs) {
+                if (arg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
+                    // Positional argument.
+                    BVarSymbol varSymbol = params.get(nextParamIndex++);
+
+                    if (!Symbols.isFlagOn(varSymbol.flags, Flags.ISOLATED_PARAM)) {
+                        continue;
+                    }
+
+                    if (!Symbols.isFlagOn(arg.type.flags, Flags.ISOLATED)) {
+                        dlog.error(arg.pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                    }
+
+                    continue;
+                }
+
+                // Named argument, there cannot be positional arguments after this.
+                String name = ((BLangNamedArgsExpression) arg).name.value;
+
+                for (BVarSymbol param : params) {
+                    if (!param.name.value.equals(name)) {
+                        continue;
+                    }
+
+                    if (!Symbols.isFlagOn(param.flags, Flags.ISOLATED_PARAM)) {
+                        continue;
+                    }
+
+                    if (!Symbols.isFlagOn(arg.type.flags, Flags.ISOLATED)) {
+                        dlog.error(arg.pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                    }
+                }
+            }
+            return;
+        }
+
+        // No parameter defaults are added and there should not be named args.
+        int reqArgCount = requiredArgs.size();
+        for (int i = 0; i < reqArgCount; i++) {
+            if (!Symbols.isFlagOn(params.get(i).flags, Flags.ISOLATED_PARAM)) {
+                continue;
+            }
+
+            BLangExpression arg = requiredArgs.get(i);
+            BType argType = arg.type;
+            if (argType == symTable.semanticError) {
+                continue;
+            }
+
+            if (!Symbols.isFlagOn(argType.flags, Flags.ISOLATED)) {
+                dlog.error(arg.pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+            }
+        }
+
+        if (restArgs.get(restArgs.size() - 1).getKind() == NodeKind.REST_ARGS_EXPR) {
+            BLangExpression varArg = restArgs.get(restArgs.size() - 1);
+            BType varArgType = varArg.type;
+            DiagnosticPos varArgPos = varArg.pos;
+
+            if (varArgType == symTable.semanticError) {
+                return;
+            }
+
+            if (reqArgCount == paramsCount) {
+                // Vararg is only for the rest param.
+                if (!Symbols.isFlagOn(symbol.restParam.flags, Flags.ISOLATED_PARAM)) {
+                    return;
+                }
+
+                analyzeVarArgIsolatedness(varArgType, varArgPos);
+                return;
+            }
+
+            if (reqArgCount < paramsCount) {
+                // Part of the non-rest params are provided via the vararg.
+                BTupleType tupleType = (BTupleType) varArgType;
+                List<BType> memberTypes = tupleType.tupleTypes;
+
+                int tupleIndex = 0;
+                for (int i = reqArgCount; i < paramsCount; i++) {
+                    if (!Symbols.isFlagOn(params.get(i).flags, Flags.ISOLATED_PARAM)) {
+                        tupleIndex++;
+                        continue;
+                    }
+
+                    if (!Symbols.isFlagOn(memberTypes.get(tupleIndex).flags, Flags.ISOLATED)) {
+                        dlog.error(varArgPos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                    }
+                    tupleIndex++;
+                }
+
+                BVarSymbol restParam = symbol.restParam;
+
+                if (restParam != null && Symbols.isFlagOn(symbol.restParam.flags, Flags.ISOLATED_PARAM)) {
+                    int memberTypeCount = memberTypes.size();
+                    if (tupleIndex < memberTypeCount) {
+                        for (int i = tupleIndex; i < memberTypeCount; i++) {
+                            if (!Symbols.isFlagOn(memberTypes.get(i).flags, Flags.ISOLATED)) {
+                                dlog.error(varArgPos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                            }
+                        }
+                    }
+
+                    BType tupleRestType = tupleType.restType;
+                    if (tupleRestType != null && !Symbols.isFlagOn(tupleRestType.flags, Flags.ISOLATED)) {
+                        dlog.error(varArgPos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+                    }
+                }
+                return;
+            }
+        }
+
+        if (!Symbols.isFlagOn(symbol.restParam.flags, Flags.ISOLATED_PARAM)) {
+            return;
+        }
+
+        // Args for rest param provided as both individual args and vararg.
+        analyzeRestArgsForRestParam(restArgs, symbol);
+    }
+
+    private void analyzeRestArgsForRestParam(List<BLangExpression> restArgs, BInvokableSymbol symbol) {
+        if (Symbols.isFlagOn(((BArrayType) symbol.restParam.type).eType.flags, Flags.ISOLATED_PARAM)) {
+            return;
+        }
+
+        int size = restArgs.size();
+        BLangExpression lastArg = restArgs.get(size - 1);
+
+        boolean lastArgIsVarArg = lastArg.getKind() == NodeKind.REST_ARGS_EXPR;
+
+        for (int i = 0; i < (lastArgIsVarArg ? size - 1 : size); i++) {
+            BLangExpression arg = restArgs.get(i);
+            if (!Symbols.isFlagOn(arg.type.flags, Flags.ISOLATED)) {
+                dlog.error(arg.pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+            }
+        }
+
+        if (lastArgIsVarArg) {
+            analyzeVarArgIsolatedness(lastArg.type, lastArg.pos);
+        }
+    }
+
+    private void analyzeVarArgIsolatedness(BType varArgType, DiagnosticPos pos) {
+        if (varArgType.tag == TypeTags.ARRAY) {
+            if (!Symbols.isFlagOn(((BArrayType) varArgType).eType.flags, Flags.ISOLATED)) {
+                dlog.error(pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+            }
+            return;
+        }
+
+        BTupleType tupleType = (BTupleType) varArgType;
+
+        for (BType type : tupleType.tupleTypes) {
+            if (!Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
+                dlog.error(pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+            }
+        }
+
+        BType restType = tupleType.restType;
+        if (restType != null && !Symbols.isFlagOn(restType.flags, Flags.ISOLATED)) {
+            dlog.error(pos, DiagnosticCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
         }
     }
 
