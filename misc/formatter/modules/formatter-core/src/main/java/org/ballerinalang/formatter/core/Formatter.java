@@ -23,6 +23,8 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.ballerinalang.formatter.core.FormatterUtils.handleNewLineEndings;
+
 /**
  * Class that exposes the formatting APIs.
  */
@@ -72,7 +74,7 @@ public class Formatter {
     public static String format(String source, FormattingOptions options) {
         TextDocument textDocument = TextDocuments.from(source);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        return FormatterUtils.toFormattedSourceCode(modifyTree(syntaxTree, options, null));
+        return modifyTree(syntaxTree, options, null).toSourceCode();
     }
 
     /**
@@ -105,7 +107,8 @@ public class Formatter {
         try {
             // FIXME: Why transform twice?
             SyntaxTree newSyntaxTree = syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
-            return newSyntaxTree.modifyWith(treeModifier.transform((ModulePartNode) newSyntaxTree.rootNode()));
+            return handleNewLineEndings(newSyntaxTree.modifyWith(treeModifier
+                    .transform((ModulePartNode) newSyntaxTree.rootNode())));
         } catch (Exception e) {
             LOGGER.error(String.format("Error while formatting the source: %s", e.getMessage()));
             return syntaxTree;

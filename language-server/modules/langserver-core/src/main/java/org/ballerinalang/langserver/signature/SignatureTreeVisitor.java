@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -100,6 +101,10 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         } else {
             pkgEnv = symTable.pkgEnvMap.get(sourceOwnerPkg.symbol);
         }
+        // Set Package visible scope entries as default case
+        if (pkgEnv != null) {
+            populateSymbols(symbolResolver.getAllVisibleInScopeSymbols(pkgEnv));
+        }
         List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(sourceOwnerPkg, lsContext);
 
         topLevelNodes.stream()
@@ -113,6 +118,14 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
             typeDefinition.annAttachments.forEach(s -> acceptNode(s, symbolEnv));
         }
         acceptNode(typeDefinition.typeNode, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        if (classDefinition.annAttachments != null) {
+            classDefinition.annAttachments.forEach(s -> acceptNode(s, symbolEnv));
+        }
+        classDefinition.functions.forEach(bLangFunction -> acceptNode(bLangFunction, symbolEnv));
     }
 
     @Override
@@ -167,7 +180,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         }
         blockPositionStack.push(attachment.pos);
         if (!terminateVisitor && this.isCursorWithinBlock()) {
-            this.populateSymbols(symbolResolver.getAllVisibleInScopeSymbols(annotationAttachmentEnv));
+            this.haltAndPopulateSymbols(symbolResolver.getAllVisibleInScopeSymbols(annotationAttachmentEnv));
         }
         blockPositionStack.pop();
     }
@@ -179,7 +192,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         if (!terminateVisitor && this.isCursorWithinBlock()) {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
                     = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
-            this.populateSymbols(visibleSymbolEntries);
+            this.haltAndPopulateSymbols(visibleSymbolEntries);
         }
     }
 
@@ -190,7 +203,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         if (!terminateVisitor && this.isCursorWithinBlock()) {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
                     = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
-            this.populateSymbols(visibleSymbolEntries);
+            this.haltAndPopulateSymbols(visibleSymbolEntries);
         }
     }
 
@@ -268,7 +281,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         if (!terminateVisitor && this.isCursorWithinBlock()) {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
                     = symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
-            this.populateSymbols(visibleSymbolEntries);
+            this.haltAndPopulateSymbols(visibleSymbolEntries);
         }
     }
 
@@ -312,8 +325,17 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
      *
      * @param symbolEntries symbol entries
      */
-    private void populateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries) {
+    private void haltAndPopulateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries) {
         this.terminateVisitor = true;
+        populateSymbols(symbolEntries);
+    }
+
+    /**
+     * Populate the symbols.
+     *
+     * @param symbolEntries symbol entries
+     */
+    private void populateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries) {
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>();
 
         for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : symbolEntries.entrySet()) {

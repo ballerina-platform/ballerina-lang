@@ -373,3 +373,23 @@ function testSimpleQueryExprWithUnionTypeForXML2() returns xml[]|error {
 
     return  books;
 }
+
+public function testSimpleQueryExprWithXMLElementLiteral() returns xml {
+    xml payload = xml `<Root>
+                            <data>
+                                <record>
+                                    <field name="Country or Area" key="ABW">Aruba</field>
+                                    <field name="Item" key="EN.ATM.CO2E.KT">CO2 emissions (kt)</field>
+                                    <field name="Year">1960</field>
+                                    <field name="Value">11092.675</field>
+                                </record>
+                            </data>
+                       </Root>`;
+
+    xml res = from var x in payload/<data>/<*>
+             let var year = <xml> x/<'field>[2]
+             let var value = <xml> x/<'field>[3].name
+             select xml `<entry>${<string> value}</entry>`;
+
+    return res;
+}

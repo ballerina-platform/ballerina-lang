@@ -154,17 +154,17 @@
         },
         {
             "name": "module-ballerinax-nats",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "branch": "master",
             "level": 5,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerinax-rabbitmq",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "branch": "master",
             "level": 5,
-            "release": false
+            "release": true
         },
 
         {
@@ -172,28 +172,28 @@
             "version": "1.0.0",
             "branch": "master",
             "level": 6,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerinax-kafka",
             "version": "2.0.0",
             "branch": "master",
             "level": 6,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-auth",
             "version": "1.0.0",
             "branch": "master",
             "level": 6,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-sql",
             "version": "0.5.0",
             "branch": "master",
             "level": 6,
-            "release": false
+            "release": true
         },
 
         {
@@ -201,28 +201,28 @@
             "version": "0.5.0",
             "branch": "master",
             "level": 7,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerinax-mysql",
             "version": "0.6.0",
             "branch": "master",
             "level": 7,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-ldap",
             "version": "1.0.0",
             "branch": "master",
             "level": 7,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-http",
             "version": "1.0.0",
             "branch": "master",
             "level": 7,
-            "release": false
+            "release": true
         },
 
         {
@@ -230,28 +230,28 @@
             "version": "1.0.2",
             "branch": "master",
             "level": 8,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-jwt",
             "version": "1.0.2",
             "branch": "master",
             "level": 8,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-oauth2",
             "version": "1.0.0",
             "branch": "master",
             "level": 8,
-            "release": false
+            "release": true
         },
         {
             "name": "module-ballerina-grpc",
             "version": "0.7.0",
             "branch": "master",
             "level": 8,
-            "release": false
+            "release": true
         }
     ]
 }
