@@ -22,7 +22,7 @@ function handlePublish(commons:Module[] modules) {
         // Don't wait on level 0 modules since no module depends on them
         if (nextLevel > currentLevel && currentLevel > 0) {
             commons:logNewLine();
-            log:printInfo("Waiting for the level " + currentLevel.toString() + " module builds");
+            log:printInfo("Waiting for level " + currentLevel.toString() + " module builds");
             runtime:sleep(getWaitTimeForLevel(currentLevel));
         }
         if (module.release) {

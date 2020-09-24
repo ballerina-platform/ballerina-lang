@@ -23,7 +23,7 @@ function handleRelease(commons:Module[] modules) {
     foreach commons:Module module in modules {
         int nextLevel = module.level;
         if (nextLevel > currentLevel && currentModules.length() > 0) {
-            waitForCurrentModuleReleases(currentModules);
+            waitForCurrentModuleReleases(currentModules, currentLevel);
             currentModules.removeAll();
         }
         if (module.release) {
@@ -38,7 +38,7 @@ function handleRelease(commons:Module[] modules) {
         }
         currentLevel = nextLevel;
     }
-    waitForCurrentModuleReleases(currentModules);
+    waitForCurrentModuleReleases(currentModules, currentLevel);
 }
 
 function releaseModule(commons:Module module) returns boolean {
@@ -64,11 +64,12 @@ function releaseModule(commons:Module module) returns boolean {
     return commons:validateResponse(response, moduleName);
 }
 
-function waitForCurrentModuleReleases(commons:Module[] modules) {
-    if (modules.length() == 0) {
+function waitForCurrentModuleReleases(commons:Module[] modules, int level) {
+    if (modules.length() == 0 || level < 1) {
         return;
     }
-    log:printInfo("Waiting for previous level builds");
+    commons:logNewLine();
+    log:printInfo("Waiting for level " + level.toString() + " module builds");
     commons:Module[] unreleasedModules = modules.filter(
         function (commons:Module m) returns boolean {
             return m.releaseInProgress;
@@ -115,7 +116,8 @@ function checkReleaseInprogressModules(commons:Module module, commons:Module[] u
 }
 
 function checkModuleRelease(commons:Module module) returns boolean {
-    if (!module.releaseInProgress) {
+    // Don't wait for level 0 modules
+    if (!module.releaseInProgress || module.level < 1) {
         return true;
     }
     log:printInfo("Validating " + module.name + " release");

@@ -50,7 +50,7 @@ jobs:
                 uses: ballerina-platform/ballerina-action@master
                 with:
                     args:
-                        run publish_snapshots
+                        run publish
                 env:
                     WORKING_DIR: ./stdlib/release
                     GITHUB_TOKEN: ${{ secrets.BAL_BOT_PAT }}
