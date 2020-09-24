@@ -46,7 +46,8 @@ public class WhileStmtTest {
         positiveCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt.bal");
         negativeCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt-negative.bal");
         onfailCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt-on-fail.bal");
-        onfailNegativeCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt-on-fail-negative.bal");
+        onfailNegativeCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/"
+                + "while-stmt-on-fail-negative.bal");
     }
 
     @Test(description = "Test while loop with a condition which evaluates to true")
