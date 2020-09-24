@@ -25,13 +25,11 @@ function handlePublish(commons:Module[] modules) {
             log:printInfo("Waiting for level " + currentLevel.toString() + " module builds");
             runtime:sleep(getWaitTimeForLevel(currentLevel));
         }
-        if (module.release) {
-            boolean releaseStarted = publishModule(module);
-            if (releaseStarted) {
-                log:printInfo("Module " + module.name + " publish triggerred successfully.");
-            } else {
-                log:printWarn("Module " + module.name + " publish did not triggerred successfully.");
-            }
+        boolean publishStarted = publishModule(module);
+        if (publishStarted) {
+            log:printInfo("Module " + module.name + " publish triggerred successfully.");
+        } else {
+            log:printWarn("Module " + module.name + " publish did not triggerred successfully.");
         }
         currentLevel = nextLevel;
     }
