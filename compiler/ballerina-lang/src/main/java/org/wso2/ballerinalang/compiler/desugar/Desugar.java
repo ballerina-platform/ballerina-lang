@@ -2712,7 +2712,7 @@ public class Desugar extends BLangNodeVisitor {
         // If the return node do not have an expression, we add `done` statement instead of a return statement. This is
         // to distinguish between returning nil value specifically and not returning any value.
         if (returnNode.expr != null) {
-            if (forceCastReturnType != null) {
+            if (forceCastReturnType != null && returnNode.expr.type != null) {
                 returnNode.expr = addConversionExprIfRequired(returnNode.expr, forceCastReturnType);
             }
             returnNode.expr = rewriteExpr(returnNode.expr);
@@ -2931,8 +2931,14 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchStatement matchStatement) {
+        BLangOnFailClause currentOnFailClause = this.onFailClause;
+        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
         matchBlockStmt.pos = matchStatement.pos;
+        matchBlockStmt.isBreakable = matchStatement.onFailClause != null;
+        if (matchStatement.onFailClause != null) {
+            rewrite(matchStatement.onFailClause, env);
+        }
 
         String matchExprVarName = GEN_VAR_PREFIX.value;
 
@@ -2948,6 +2954,8 @@ public class Desugar extends BLangNodeVisitor {
         rewrite(matchBlockStmt, this.env);
 
         result = matchBlockStmt;
+        this.onFailClause = currentOnFailClause;
+        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     private BLangStatement convertMatchClausesToIfElseStmt(List<BLangMatchClause> matchClauses,

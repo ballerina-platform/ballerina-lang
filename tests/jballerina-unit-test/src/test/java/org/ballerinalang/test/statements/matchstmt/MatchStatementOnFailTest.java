@@ -122,13 +122,14 @@ public class MatchStatementOnFailTest {
     @Test(description = "Check not incompatible types and reachable statements.")
     public void testNegative1() {
         Assert.assertEquals(resultNegative.getErrorCount(), 5);
-        BAssertUtil.validateError(resultNegative, 0, "unreachable code", 29, 14);
-        BAssertUtil.validateError(resultNegative, 1, "incompatible error definition type: " +
+        int i = -1;
+        BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 29, 14);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 59, 7);
-        BAssertUtil.validateError(resultNegative, 2, "incompatible error definition type: " +
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 88, 7);
-        BAssertUtil.validateError(resultNegative, 3, "unreachable code", 90, 9);
-        BAssertUtil.validateError(resultNegative, 4, "incompatible error definition type: " +
+        BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 90, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 124, 7);
     }
 }

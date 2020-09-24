@@ -6,7 +6,7 @@ type ErrorTypeB distinct error;
 
 const TYPE_B_ERROR_REASON = "TypeB_Error";
 
-function testUnreachableAfterFail(string | int | boolean a) returns string {
+function testUnreachableAfterFail(string | int | boolean a) returns string|error {
     match a {
         12 => {
             return "Value is '12'";
@@ -35,7 +35,7 @@ function testUnreachableAfterFail(string | int | boolean a) returns string {
     return "Value is 'Default'";
 }
 
-function testIncompatibleErrorTypeOnFail(string | int | boolean a) returns string {
+function testIncompatibleErrorTypeOnFail(string | int | boolean a) returns string|error {
     match a {
         12 => {
             return "Value is '12'";
@@ -63,7 +63,7 @@ function testIncompatibleErrorTypeOnFail(string | int | boolean a) returns strin
     return "Value is 'Default'";
 }
 
-function testUnreachableInOnFail(string | int | boolean a) returns string {
+function testUnreachableInOnFail(string | int | boolean a) returns string|error {
     string str = "";
     match a {
         12 => {
@@ -93,7 +93,7 @@ function testUnreachableInOnFail(string | int | boolean a) returns string {
     return "Value is 'Default'";
 }
 
-function testOnFailErrorType(string | int | boolean a) returns string {
+function testOnFailErrorType(string | int | boolean a) returns string|error {
    var getTypeAError = function () returns int|ErrorTypeA{
        ErrorTypeA errorA = ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
        return errorA;
