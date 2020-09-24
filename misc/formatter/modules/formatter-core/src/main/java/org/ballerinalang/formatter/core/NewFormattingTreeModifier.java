@@ -42,6 +42,7 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
+import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
@@ -93,6 +94,16 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      */
     private static final int DEFAULT_INDENTATION = 4;
 
+    /**
+     * Maximum length of a line. Any line that goes pass this limit will be wrapped.
+     */
+    private static final int COLUMN_LIMIT = 80;
+
+    /**
+     * Length of the currently formatting line.
+     */
+    private int lineLength = 0;
+
     public NewFormattingTreeModifier(FormattingOptions options, LineRange lineRange) {
         super(options, lineRange);
     }
@@ -129,9 +140,16 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public FunctionSignatureNode transform(FunctionSignatureNode functionSignatureNode) {
         Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, 0);
-        Token closePara = formatToken(functionSignatureNode.closeParenToken(), 1, 0);
+
+        // Start a new indentation for the parameters. So any wrapped parameter will
+        // start from the same level as the open parenthesis.
+        int currentIndentation = this.indentation;
+        setIndentation(this.lineLength);
         SeparatedNodeList<ParameterNode> parameters =
                 formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, 0, 0);
+        this.indentation = currentIndentation;
+
+        Token closePara = formatToken(functionSignatureNode.closeParenToken(), 1, 0);
         if (functionSignatureNode.returnTypeDesc().isPresent()) {
             ReturnTypeDescriptorNode returnTypeDesc =
                     formatNode(functionSignatureNode.returnTypeDesc().get(), this.trailingWS, this.trailingNL);
@@ -143,6 +161,25 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .withCloseParenToken(closePara)
                 .withParameters(parameters)
                 .apply();
+    }
+
+    @Override
+    public RequiredParameterNode transform(RequiredParameterNode requiredParameterNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(requiredParameterNode.annotations(), 0, 1, 0, 0);
+        Node typeName = formatNode(requiredParameterNode.typeName(), 1, 0);
+        if (requiredParameterNode.paramName().isPresent()) {
+            Token paramName = formatToken(requiredParameterNode.paramName().get(), 0, 0);
+            return requiredParameterNode.modify()
+                    .withAnnotations(annotations)
+                    .withTypeName(typeName)
+                    .withParamName(paramName)
+                    .apply();
+        } else {
+            return requiredParameterNode.modify()
+                    .withAnnotations(annotations)
+                    .withTypeName(typeName)
+                    .apply();
+        }
     }
 
     @Override
@@ -297,10 +334,30 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         this.trailingWS = trailingWS;
 
         node = (T) node.apply(this);
+        if (this.lineLength > COLUMN_LIMIT) {
+            node = wrap(node);
+        }
 
         this.trailingNL = prevTrailingNL;
         this.trailingWS = prevTrailingWS;
         return node;
+    }
+
+    /**
+     * Wrap the node. This is equivalent to adding a newline before the node and
+     * re-formatting the node. Wrapped content will start from the current level
+     * of indentation.
+     * 
+     * @param <T> Node type
+     * @param node Node to be wrapped
+     * @return Wrapped node
+     */
+    @SuppressWarnings("unchecked")
+    private <T extends Node> T wrap(T node) {
+        this.leadingNL += 1;
+        this.lineLength = 0;
+        this.isFirstToken = true;
+        return (T) node.apply(this);
     }
 
     /**
@@ -402,7 +459,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                                                                             int itemTrailingNL,
                                                                             int listTrailingWS,
                                                                             int listTrailingNL) {
-        return formatSeparatedNodeList(nodeList, itemTrailingWS, itemTrailingNL, 0, 1, listTrailingWS, listTrailingNL);
+        return formatSeparatedNodeList(nodeList, itemTrailingWS, itemTrailingNL, 1, 0, listTrailingWS, listTrailingNL);
     }
 
     /**
@@ -432,7 +489,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         boolean nodeModified = false;
         int size = nodeList.size();
-        Node[] newNodes = new Node[size];
+        Node[] newNodes = new Node[size * 2 - 1];
 
         for (int index = 0; index < size; index++) {
             T oldNode = nodeList.get(index);
@@ -481,6 +538,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     private <T extends Token> T formatTokenInternal(T token) {
         MinutiaeList newLeadingMinutiaeList = getLeadingMinutiae();
         MinutiaeList newTrailingMinutiaeList = getTrailingMinutiae();
+        this.lineLength += token.text().length();
         return (T) token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
     }
 
@@ -493,7 +551,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         List<Minutiae> leadingMinutiae = new ArrayList<>();
         if (this.isFirstToken) {
             for (int i = 0; i < this.leadingNL; i++) {
-                leadingMinutiae.add(NodeFactory.createEndOfLineMinutiae(FormatterUtils.NEWLINE_SYMBOL));
+                leadingMinutiae.add(getNewline());
             }
 
             if (this.indentation > 0) {
@@ -518,10 +576,16 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         if (this.trailingNL > 0) {
-            trailingMinutiae.add(NodeFactory.createEndOfLineMinutiae(FormatterUtils.NEWLINE_SYMBOL));
+            trailingMinutiae.add(getNewline());
         }
         MinutiaeList newTrailingMinutiaeList = NodeFactory.createMinutiaeList(trailingMinutiae);
         return newTrailingMinutiaeList;
+    }
+
+    private Minutiae getNewline() {
+        // reset the line length
+        this.lineLength = 0;
+        return NodeFactory.createEndOfLineMinutiae(FormatterUtils.NEWLINE_SYMBOL);
     }
 
     /**
@@ -553,6 +617,9 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     private String getWSContent(int count) {
+        // for all whitespaces, increase the line length
+        this.lineLength += count;
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < count; i++) {
             sb.append(" ");
