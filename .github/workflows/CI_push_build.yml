@@ -3,7 +3,7 @@ name: Build merged PR changes on Ubuntu
 on:
   push:
     paths-ignore:
-      - 'stdlib/release/*'
+      - 'stdlib/release/**'
     branches:
       - master
       - next-release

@@ -3,8 +3,8 @@ name: Publish Ballerina Snapshot
 on:
     push:
         paths-ignore:
-            - 'stdlib/release/*'
-            - '.github/workflows/*'
+            - 'stdlib/release/**'
+            - '.github/workflows/**'
         branchs:
             - master
     workflow_dispatch:
