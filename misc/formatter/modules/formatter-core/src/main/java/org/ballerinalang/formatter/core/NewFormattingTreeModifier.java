@@ -21,14 +21,17 @@ import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
 import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
+import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerinalang.compiler.syntax.tree.MetadataNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
@@ -50,37 +53,59 @@ import java.util.List;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
 
 /**
+ * A formatter implementation that updates the minutiae of a given tree
+ * according to the ballerina formatting guidelines.
  *
+ * @since 2.0.0
  */
 public class NewFormattingTreeModifier extends FormattingTreeModifier {
-    
-    private int blockIndentation = 0;
+
+    /**
+     * Number of of whitespace characters to be used as the indentation for the current line.
+     */
+    private int indentation = 0;
+
+    /**
+     * Number of leading newlines to be added to the currently processing node.
+     */
     private int leadingNL = 0;
+
+    /**
+     * Number of trailing newlines to be added to the currently processing node.
+     */
     private int trailingNL = 0;
+
+    /**
+     * Number of trailing whitespace characters to be added to the currently processing node.
+     */
     private int trailingWS = 0;
+
+    /**
+     * Flag indicating whether the currently formatting token is the first token of the current line.
+     */
     private boolean isFirstToken = true;
 
     /**
-     * @param options
-     * @param lineRange
+     * Number of of whitespace characters to be used for a single indentation.
      */
+    private static final int DEFAULT_INDENTATION = 4;
+
     public NewFormattingTreeModifier(FormattingOptions options, LineRange lineRange) {
         super(options, lineRange);
     }
 
     @Override
     public FunctionDefinitionNode transform(FunctionDefinitionNode functionDefinitionNode) {
-        MetadataNode metadata = formatNode(functionDefinitionNode.metadata().orElse(null), 1, 0);
+        if (functionDefinitionNode.metadata().isPresent()) {
+            MetadataNode metadata = formatNode(functionDefinitionNode.metadata().get(), 1, 0);
+            functionDefinitionNode = functionDefinitionNode.modify().withMetadata(metadata).apply();
+        }
+
         NodeList<Token> qualifierList = modifyNodeList(functionDefinitionNode.qualifierList());
         Token functionKeyword = formatToken(functionDefinitionNode.functionKeyword(), 1, 0);
         IdentifierToken functionName = formatToken(functionDefinitionNode.functionName(), 1, 0);
         FunctionSignatureNode functionSignatureNode = formatNode(functionDefinitionNode.functionSignature(), 1, 0);
         FunctionBodyNode functionBodyNode = formatNode(functionDefinitionNode.functionBody(), 0, 2);
-
-        // FIXME: metadata cannot be null
-        if (metadata != null) {
-            functionDefinitionNode = functionDefinitionNode.modify().withMetadata(metadata).apply();
-        }
 
         return functionDefinitionNode.modify()
                 .withFunctionKeyword(functionKeyword)
@@ -95,10 +120,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token openPara = formatToken(functionSignatureNode.openParenToken(), 0, 0);
         Token closePara = formatToken(functionSignatureNode.closeParenToken(), 1, 0);
         SeparatedNodeList<ParameterNode> parameters = this.modifySeparatedNodeList(functionSignatureNode.parameters());
-        ReturnTypeDescriptorNode returnTypeDesc = this.modifyNode(functionSignatureNode.returnTypeDesc().orElse(null));
-        if (returnTypeDesc != null) {
-            functionSignatureNode = functionSignatureNode.modify()
-                    .withReturnTypeDesc(returnTypeDesc).apply();
+        if (functionSignatureNode.returnTypeDesc().isPresent()) {
+            ReturnTypeDescriptorNode returnTypeDesc =
+                    formatNode(functionSignatureNode.returnTypeDesc().get(), this.trailingWS, this.trailingNL);
+            functionSignatureNode = functionSignatureNode.modify().withReturnTypeDesc(returnTypeDesc).apply();
         }
 
         return functionSignatureNode.modify()
@@ -111,12 +136,9 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public FunctionBodyBlockNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
         Token openBrace = formatToken(functionBodyBlockNode.openBraceToken(), 0, 1);
-
-        // Format statements. Increase indentations.
-        indent();
+        indent(); // increase indentation for the statements to follow.
         NodeList<StatementNode> statements = this.modifyNodeList(functionBodyBlockNode.statements());
-        unindent();
-
+        unindent(); // reset the indentation
         Token closeBrace = formatToken(functionBodyBlockNode.closeBraceToken(), this.trailingWS, this.trailingNL);
 
         return functionBodyBlockNode.modify()
@@ -129,33 +151,37 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public VariableDeclarationNode transform(VariableDeclarationNode variableDeclarationNode) {
         NodeList<AnnotationNode> annotationNodes = modifyNodeList(variableDeclarationNode.annotations());
-        Token finalToken = formatToken(variableDeclarationNode.finalKeyword().orElse(null), 1, 0);
-
-        // FIXME:
-        if (finalToken != null) {
+        if (variableDeclarationNode.finalKeyword().isPresent()) {
+            Token finalToken = formatToken(variableDeclarationNode.finalKeyword().get(), 1, 0);
             variableDeclarationNode = variableDeclarationNode.modify().withFinalKeyword(finalToken).apply();
         }
 
-        TypedBindingPatternNode typedBindingPatternNode =
-                formatNode(variableDeclarationNode.typedBindingPattern(), 1, 0);
-        Token equalToken = formatToken(variableDeclarationNode.equalsToken().orElse(null), 1, 0);
-        ExpressionNode initializer = formatNode(variableDeclarationNode.initializer().orElse(null), 0, 0);
-        Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(), 0, 1);
+        TypedBindingPatternNode typedBindingPatternNode;
+        if (variableDeclarationNode.equalsToken().isPresent()) {
+            typedBindingPatternNode = formatNode(variableDeclarationNode.typedBindingPattern(), 1, 0);
+            Token equalToken = formatToken(variableDeclarationNode.equalsToken().get(), 1, 0);
+            ExpressionNode initializer = formatNode(variableDeclarationNode.initializer().get(), 0, 0);
+            variableDeclarationNode = variableDeclarationNode.modify()
+                    .withEqualsToken(equalToken)
+                    .withInitializer(initializer)
+                    .apply();
+        } else {
+            typedBindingPatternNode = formatNode(variableDeclarationNode.typedBindingPattern(), 0, 0);
+        }
 
+        Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(), 0, 1);
         return variableDeclarationNode.modify()
                 .withAnnotations(annotationNodes)
                 .withTypedBindingPattern(typedBindingPatternNode)
-                .withEqualsToken(equalToken)
-                .withInitializer(initializer)
                 .withSemicolonToken(semicolonToken)
                 .apply();
     }
 
-
     @Override
     public TypedBindingPatternNode transform(TypedBindingPatternNode typedBindingPatternNode) {
         TypeDescriptorNode typeDescriptorNode = formatNode(typedBindingPatternNode.typeDescriptor(), 1, 0);
-        BindingPatternNode bindingPatternNode = formatNode(typedBindingPatternNode.bindingPattern(), 1, 0);
+        BindingPatternNode bindingPatternNode =
+                formatNode(typedBindingPatternNode.bindingPattern(), this.trailingWS, this.trailingNL);
         return typedBindingPatternNode.modify()
                 .withTypeDescriptor(typeDescriptorNode)
                 .withBindingPattern(bindingPatternNode)
@@ -176,22 +202,77 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public CaptureBindingPatternNode transform(CaptureBindingPatternNode captureBindingPatternNode) {
-        Token variableName = formatToken(captureBindingPatternNode.variableName(), 1, 0);
+        Token variableName = formatToken(captureBindingPatternNode.variableName(), this.trailingWS, this.trailingNL);
         return captureBindingPatternNode.modify().withVariableName(variableName).apply();
+    }
+
+    public IfElseStatementNode transform(IfElseStatementNode ifElseStatementNode) {
+        Token ifKeyword = formatToken(ifElseStatementNode.ifKeyword(), 1, 0);
+        ExpressionNode condition = formatNode(ifElseStatementNode.condition(), 1, 0);
+        BlockStatementNode ifBody;
+        if (ifElseStatementNode.elseBody().isPresent()) {
+            ifBody = formatNode(ifElseStatementNode.ifBody(), 1, 0);
+            Node elseBody = formatNode(ifElseStatementNode.elseBody().get(), 0, 2);
+            ifElseStatementNode = ifElseStatementNode.modify().withElseBody(elseBody).apply();
+        } else {
+            ifBody = formatNode(ifElseStatementNode.ifBody(), 0, 2);
+        }
+
+        return ifElseStatementNode.modify()
+                .withIfKeyword(ifKeyword)
+                .withIfBody(ifBody)
+                .withCondition(condition)
+                .apply();
+    }
+
+    @Override
+    public ElseBlockNode transform(ElseBlockNode elseBlockNode) {
+        Token elseKeyword = formatToken(elseBlockNode.elseKeyword(), 1, 0);
+        StatementNode elseBody = formatNode(elseBlockNode.elseBody(), this.trailingWS, this.trailingNL);
+        return elseBlockNode.modify()
+                .withElseKeyword(elseKeyword)
+                .withElseBody(elseBody)
+                .apply();
+    }
+
+    @Override
+    public BlockStatementNode transform(BlockStatementNode blockStatementNode) {
+        Token openBrace = formatToken(blockStatementNode.openBraceToken(), 0, 1);
+        indent(); // start an indentation
+        NodeList<StatementNode> statements = modifyNodeList(blockStatementNode.statements());
+        unindent(); // end the indentation
+        Token closeBrace = formatToken(blockStatementNode.closeBraceToken(), this.trailingWS, this.trailingNL);
+
+        return blockStatementNode.modify()
+                .withOpenBraceToken(openBrace)
+                .withStatements(statements)
+                .withCloseBraceToken(closeBrace)
+                .apply();
     }
 
     @Override
     public IdentifierToken transform(IdentifierToken identifier) {
-        return formatToken(identifier);
+        // ideally should never reach here
+        return formatTokenInternal(identifier);
     }
 
     @Override
     public Token transform(Token token) {
-        return formatToken(token);
+        // ideally should never reach here
+        return formatTokenInternal(token);
     }
 
     // ------------------------------------- Set of private helper methods -------------------------------------
 
+    /**
+     * Format a node.
+     * 
+     * @param <T> Type of the node
+     * @param node Node to be formatted
+     * @param trailingWS Number of single-length spaces to be added after the node
+     * @param trailingNL Number of newlines to be added after the node
+     * @return Formatted node
+     */
     @SuppressWarnings("unchecked")
     private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL) {
         if (node == null || !isInLineRange(node, lineRange)) {
@@ -210,6 +291,15 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         return node;
     }
 
+    /**
+     * Format a token.
+     * 
+     * @param <T> Type of the token
+     * @param token Token to be formatted
+     * @param trailingWS Number of single-length spaces to be added after the token
+     * @param trailingNL Number of newlines to be added after the token
+     * @return Formatted token
+     */
     private <T extends Token> T formatToken(T token, int trailingWS, int trailingNL) {
         if (token == null || !isInLineRange(token, lineRange)) {
             return token;
@@ -222,7 +312,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         this.trailingNL = trailingNL > 0 ? 1 : 0;
         this.trailingWS = trailingWS;
 
-        token = formatToken(token);
+        token = formatTokenInternal(token);
 
         // Set the leading newlines for the next token
         this.leadingNL = trailingNL > 0 ? trailingNL - 1 : 0;
@@ -235,25 +325,47 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         return token;
     }
 
+    /**
+     * Format a token.
+     * 
+     * @param <T> Type of the token
+     * @param token Token to be formatted
+     * @return Formatted token
+     */
     @SuppressWarnings("unchecked")
-    private <T extends Token> T formatToken(T token) {
-        // Create leading minutiae
+    private <T extends Token> T formatTokenInternal(T token) {
+        MinutiaeList newLeadingMinutiaeList = getLeadingMinutiae();
+        MinutiaeList newTrailingMinutiaeList = getTrailingMinutiae();
+        return (T) token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
+    }
+
+    /**
+     * Get leading minutiae.
+     * 
+     * @return Leading minutiae list
+     */
+    private MinutiaeList getLeadingMinutiae() {
         List<Minutiae> leadingMinutiae = new ArrayList<>();
         if (this.isFirstToken) {
-            if (this.blockIndentation > 0) {
-                String wsContent = getWSContent(this.blockIndentation);
-                leadingMinutiae.add(NodeFactory.createWhitespaceMinutiae(wsContent));
+            for (int i = 0; i < this.leadingNL; i++) {
+                leadingMinutiae.add(NodeFactory.createEndOfLineMinutiae(FormatterUtils.NEWLINE_SYMBOL));
             }
 
-            for (int i = 0; i < this.leadingNL - 1; i++) {
-                leadingMinutiae.add(NodeFactory.createEndOfLineMinutiae(FormatterUtils.NEWLINE_SYMBOL));
-                String wsContent = getWSContent(this.blockIndentation);
+            if (this.indentation > 0) {
+                String wsContent = getWSContent(this.indentation);
                 leadingMinutiae.add(NodeFactory.createWhitespaceMinutiae(wsContent));
             }
         }
         MinutiaeList newLeadingMinutiaeList = NodeFactory.createMinutiaeList(leadingMinutiae);
+        return newLeadingMinutiaeList;
+    }
 
-        // Create trailing minutiae
+    /**
+     * Get trailing minutiae.
+     * 
+     * @return Trailing minutiae list
+     */
+    private MinutiaeList getTrailingMinutiae() {
         List<Minutiae> trailingMinutiae = new ArrayList<>();
         if (this.trailingWS > 0) {
             String wsContent = getWSContent(this.trailingWS);
@@ -264,30 +376,35 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             trailingMinutiae.add(NodeFactory.createEndOfLineMinutiae(FormatterUtils.NEWLINE_SYMBOL));
         }
         MinutiaeList newTrailingMinutiaeList = NodeFactory.createMinutiaeList(trailingMinutiae);
-
-        // Update the token
-        return (T) token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
+        return newTrailingMinutiaeList;
     }
 
+    /**
+     * Indent the code by the 4-whitespace characters.
+     */
     private void indent() {
-        startBlock(4);
+        this.indentation += DEFAULT_INDENTATION;
     }
 
+    /**
+     * Undo the indentation of the code by the 4-whitespace characters.
+     */
     private void unindent() {
-        endBlock(4);
-    }
-
-    private void startBlock(int value) {
-        this.blockIndentation += value;
-    }
-
-    private void endBlock(int value) {
-        if (this.blockIndentation < value) {
-            this.blockIndentation = 0;
+        if (this.indentation < DEFAULT_INDENTATION) {
+            this.indentation = 0;
             return;
         }
 
-        this.blockIndentation -= value;
+        this.indentation -= DEFAULT_INDENTATION;
+    }
+
+    /**
+     * Set the indentation for the code to follow.
+     * 
+     * @param value Number of characters to set the indentation from the start of the line.
+     */
+    private void setIndentation(int value) {
+        this.indentation = value;
     }
 
     private String getWSContent(int count) {
