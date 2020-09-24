@@ -669,7 +669,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithinLambdaWrappingCheckStack.push(false);
         this.errorTypes.push(new LinkedHashSet<>());
         boolean failureHandled = this.failureHandled;
-        boolean currentStmtReturns = this.statementReturns;
         this.checkStatementExecutionValidity(retryNode);
         if (!this.failureHandled) {
             this.failureHandled = retryNode.onFailClause != null;
@@ -677,7 +676,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         retryNode.retrySpec.accept(this);
         retryNode.retryBody.accept(this);
         this.failureHandled = failureHandled;
-        this.statementReturns = currentStmtReturns;
         retryNode.retryBodyReturns = this.returnWithinLambdaWrappingCheckStack.peek();
         this.returnWithinLambdaWrappingCheckStack.pop();
         this.resetLastStatement();
@@ -803,23 +801,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchStatement matchStatement) {
+        this.errorTypes.push(new LinkedHashSet<>());
         analyzeExpr(matchStatement.expr);
         if (!this.failureHandled) {
             this.failureHandled = matchStatement.onFailClause != null;
         }
         matchExprType = matchStatement.expr.type;
 
+        boolean currentErrorThrown = this.errorThrown;
         this.matchClauseReturns = false;
         this.hasLastPatternInClause = false;
         boolean containsLastPatternInStatement = false;
         boolean allClausesReturns = true;
         for (BLangMatchClause matchClause : matchStatement.matchClauses) {
+            this.resetErrorThrown();
             analyzeNode(matchClause, env);
             allClausesReturns = allClausesReturns && this.matchClauseReturns;
             containsLastPatternInStatement =
                     containsLastPatternInStatement || (matchClause.matchGuard == null && this.hasLastPatternInClause);
         }
         this.statementReturns = allClausesReturns && containsLastPatternInStatement;
+        this.errorThrown = currentErrorThrown;
         analyzeOnFailClause(matchStatement.onFailClause);
     }
 
