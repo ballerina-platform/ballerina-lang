@@ -1,6 +1,9 @@
 name: CI Ubuntu/Windows
 
 on:
+  paths-ignore:
+      - 'stdlib/release'
+      - '.github/workflows'
   push:
     branches-ignore:
       - master
