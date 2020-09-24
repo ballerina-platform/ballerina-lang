@@ -17,10 +17,10 @@
  */
 
 package org.ballerinalang.test.expressions.literals;
-
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.testng.Assert;
+//
+//import org.ballerinalang.test.util.BCompileUtil;
+//import org.ballerinalang.test.util.CompileResult;
+//import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -29,48 +29,48 @@ import org.testng.annotations.Test;
 @Test(groups = {"disableOnOldParser"})
 public class QuotedIdentifierTest {
 
-    private CompileResult result;
-    private String sourceDirectory = "test-src/expressions/literals/identifierliteral/QuotedIdentifier/";
-
-    @Test(description = "Test defining variables with quoted identifier literal")
-    public void testILInVariables() {
-        result = BCompileUtil.compileOnly(sourceDirectory + "quoted-identifier-variables.bal");
-        Assert.assertEquals(result.toString(), "Compilation Successful");
-        BCompileUtil.runMain(result, new String[]{});
-    }
-
-    @Test(description = "Test quoted identifier literals in Struct type components")
-    public void testILInStructType() {
-        result = BCompileUtil.compileOnly(sourceDirectory + "quoted-identifier-struct-type.bal");
-        Assert.assertEquals(result.toString(), "Compilation Successful");
-        BCompileUtil.runMain(result, new String[]{});
-    }
-
-    @Test(description = "Test quoted identifier literals in functions")
-    public void testILInFunctions() {
-        result = BCompileUtil.compileOnly(sourceDirectory + "quoted-identifier-function.bal");
-        Assert.assertEquals(result.toString(), "Compilation Successful");
-        BCompileUtil.runMain(result, new String[]{});
-    }
-
-    @Test(description = "Test quoted identifier literals in client objects")
-    public void testILInClientObjects() {
-        result = BCompileUtil.compileOnly(sourceDirectory + "quoted-identifier-client-object.bal");
-        Assert.assertEquals(result.toString(), "Compilation Successful");
-        BCompileUtil.runMain(result, new String[]{});
-    }
-
-    @Test(description = "Test quoted identifier literals in workers")
-    public void testILInWorkers() {
-        result = BCompileUtil.compileOnly(sourceDirectory + "quoted-identifier-worker.bal");
-        Assert.assertEquals(result.toString(), "Compilation Successful");
-        BCompileUtil.runMain(result, new String[]{});
-    }
-
-    @Test(description = "Test quoted identifier literals in array index")
-    public void testILInArrayIndex() {
-        result = BCompileUtil.compileOnly(sourceDirectory + "quoted-identifier-array.bal");
-        Assert.assertEquals(result.toString(), "Compilation Successful");
-        BCompileUtil.runMain(result, new String[]{});
-    }
+//    private CompileResult result;
+//    private String sourceDirectory = "test-src/expressions/literals/identifierliteral/QuotedIdentifier/";
+//
+//    @Test(description = "Test defining variables with quoted identifier literal")
+//    public void testILInVariables() {
+//        result = BCompileUtil.compileOnly(sourceDirectory + "quoted-identifier-variables.bal");
+//        Assert.assertEquals(result.toString(), "Compilation Successful");
+//        BCompileUtil.runMain(result, new String[]{});
+//    }
+//
+//    @Test(description = "Test quoted identifier literals in Struct type components")
+//    public void testILInStructType() {
+//        result = BCompileUtil.compileOnly(sourceDirectory + "quoted-identifier-struct-type.bal");
+//        Assert.assertEquals(result.toString(), "Compilation Successful");
+//        BCompileUtil.runMain(result, new String[]{});
+//    }
+//
+//    @Test(description = "Test quoted identifier literals in functions")
+//    public void testILInFunctions() {
+//        result = BCompileUtil.compileOnly(sourceDirectory + "quoted-identifier-function.bal");
+//        Assert.assertEquals(result.toString(), "Compilation Successful");
+//        BCompileUtil.runMain(result, new String[]{});
+//    }
+//
+//    @Test(description = "Test quoted identifier literals in client objects")
+//    public void testILInClientObjects() {
+//        result = BCompileUtil.compileOnly(sourceDirectory + "quoted-identifier-client-object.bal");
+//        Assert.assertEquals(result.toString(), "Compilation Successful");
+//        BCompileUtil.runMain(result, new String[]{});
+//    }
+//
+//    @Test(description = "Test quoted identifier literals in workers")
+//    public void testILInWorkers() {
+//        result = BCompileUtil.compileOnly(sourceDirectory + "quoted-identifier-worker.bal");
+//        Assert.assertEquals(result.toString(), "Compilation Successful");
+//        BCompileUtil.runMain(result, new String[]{});
+//    }
+//
+//    @Test(description = "Test quoted identifier literals in array index")
+//    public void testILInArrayIndex() {
+//        result = BCompileUtil.compileOnly(sourceDirectory + "quoted-identifier-array.bal");
+//        Assert.assertEquals(result.toString(), "Compilation Successful");
+//        BCompileUtil.runMain(result, new String[]{});
+//    }
 }

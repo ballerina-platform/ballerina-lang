@@ -403,7 +403,7 @@ public class BuildCommandTest extends CommandTest {
         readOutput(true);
     }
     
-    @Test(description = "Test Build Command in a Project")
+    @Test(description = "Test Build Command in a Project", enabled = false)
     public void testBuildCommand() throws IOException {
 
         // Create jar files for the test since we cannot commit jar files to git.
@@ -489,7 +489,8 @@ public class BuildCommandTest extends CommandTest {
         }
     }
 
-    @Test(description = "Test Build Command in a Project which use dependency jar which include stored jar.")
+    @Test(description = "Test Build Command in a Project which use dependency jar which include stored jar.",
+    enabled = false)
     public void testBuildCommandWithStoredJarDependency() throws IOException {
         // Build the project
         String[] compileArgs = {"--all", "--skip-tests"};
@@ -514,7 +515,7 @@ public class BuildCommandTest extends CommandTest {
         readOutput(true);
     }
 
-    @Test(dependsOnMethods = {"testBuildCommand"})
+    @Test(dependsOnMethods = {"testBuildCommand"}, enabled = false)
     public void testBuildOutput() throws IOException {
         Path bin = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME)
                 .resolve(ProjectDirConstants.BIN_DIR_NAME);
@@ -527,7 +528,7 @@ public class BuildCommandTest extends CommandTest {
         Assert.assertNotNull(jar.getJarEntry("resources/testOrg/mymodule/myresource/insideDirectory.txt"));
     }
     
-    @Test(dependsOnMethods = {"testBuildOutput"})
+    @Test(dependsOnMethods = {"testBuildOutput"}, enabled = false)
     public void testCleanCommand() {
         CleanCommand cleanCommand = new CleanCommand(Paths.get(System.getProperty("user.dir")), false);
         new CommandLine(cleanCommand).parse("--sourceroot", this.testResources.resolve("valid-project").toString());
@@ -544,7 +545,7 @@ public class BuildCommandTest extends CommandTest {
         Assert.assertFalse(Files.exists(caches), "Check if caches directory is deleted");
     }
 
-    @Test(dependsOnMethods = {"testBuildCommand"})
+    @Test(dependsOnMethods = {"testBuildCommand"}, enabled = false)
     public void testBaloContents() throws IOException {
         URI baloZip = URI.create("jar:" + moduleBalo.toUri().toString());
         FileSystems.newFileSystem(baloZip, Collections.emptyMap())
@@ -631,7 +632,7 @@ public class BuildCommandTest extends CommandTest {
     }
 
 
-    @Test(dependsOnMethods = {"testBuildCommand"})
+    @Test(dependsOnMethods = {"testBuildCommand"}, enabled = false)
     public void testTemplateBaloContents() throws IOException {
         URI baloZip = URI.create("jar:" + tplModuleBalo.toUri().toString());
         FileSystems.newFileSystem(baloZip, Collections.emptyMap())
@@ -720,7 +721,7 @@ public class BuildCommandTest extends CommandTest {
                 });
     }
 
-    @Test(dependsOnMethods = {"testBuildCommand"})
+    @Test(dependsOnMethods = {"testBuildCommand"}, enabled = false)
     public void testTargetCacheDirectory() throws IOException {
         // check for the cache directory in target
         Path cache = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME)
@@ -731,7 +732,7 @@ public class BuildCommandTest extends CommandTest {
     }
 
     @Test(description = "Test the cleaning of target resources in the build command.",
-            dependsOnMethods = {"testBuildCommand"})
+            dependsOnMethods = {"testBuildCommand"}, enabled = false)
     public void testTargetClean() throws IOException {
         // If a single module is built only the relevant module's resources should be cleaned,
         // else the entire target will be deleted.

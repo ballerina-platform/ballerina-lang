@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+//import org.ballerinalang.core.model.values.BMap;
+//import org.ballerinalang.core.model.values.BValue;
+//import org.ballerinalang.test.util.BCompileUtil;
+//import org.ballerinalang.test.util.BRunUtil;
+//import org.ballerinalang.test.util.CompileResult;
+//import org.testng.Assert;
+//import org.testng.annotations.BeforeClass;
+//import org.testng.annotations.Test;
 
 /**
  * Test cases to cover built in methods related tests on JBallerina.
@@ -33,26 +33,26 @@ import org.testng.annotations.Test;
  */
 public class BuiltinMethodTest {
 
-    private CompileResult compileResult;
-
-    @BeforeClass
-    public void setup() {
-        compileResult = BCompileUtil.compile("test-src/jvm/builtin-methods.bal");
-    }
-
-    @Test(description = "Test clone")
-    public void testClone() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testClone");
-        Assert.assertTrue(result[0] instanceof BMap);
-        BMap bMap = (BMap) result[0];
-        Assert.assertEquals(bMap.get("test").stringValue(), "sample");
-    }
-
-    @Test(description = "Test clone any")
-    public void testCloneAny() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testCloneAny");
-        Assert.assertTrue(result[0] instanceof BMap);
-        BMap bMap = (BMap) result[0];
-        Assert.assertEquals(bMap.get("test").stringValue(), "sample");
-    }
+//    private CompileResult compileResult;
+//
+//    @BeforeClass
+//    public void setup() {
+//        compileResult = BCompileUtil.compile("test-src/jvm/builtin-methods.bal");
+//    }
+//
+//    @Test(description = "Test clone")
+//    public void testClone() {
+//        BValue[] result = BRunUtil.invoke(compileResult, "testClone");
+//        Assert.assertTrue(result[0] instanceof BMap);
+//        BMap bMap = (BMap) result[0];
+//        Assert.assertEquals(bMap.get("test").stringValue(), "sample");
+//    }
+//
+//    @Test(description = "Test clone any")
+//    public void testCloneAny() {
+//        BValue[] result = BRunUtil.invoke(compileResult, "testCloneAny");
+//        Assert.assertTrue(result[0] instanceof BMap);
+//        BMap bMap = (BMap) result[0];
+//        Assert.assertEquals(bMap.get("test").stringValue(), "sample");
+//    }
 }

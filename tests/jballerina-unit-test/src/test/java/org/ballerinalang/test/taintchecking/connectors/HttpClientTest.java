@@ -30,13 +30,13 @@ import org.testng.annotations.Test;
 @Test
 public class HttpClientTest {
 
-    @Test
+    @Test (enabled = false)
     public void testHttpClient() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/httpclient.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testHttpClientNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/httpclient-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 2);
