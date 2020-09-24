@@ -12,6 +12,7 @@ string accessTokenHeaderValue = "Bearer " + accessToken;
 public function main() {
     json[] modulesJson = commons:getModuleJsonArray();
     commons:Module[] modules = commons:getModuleArray(modulesJson);
+    modules = commons:sortModules(modules);
     removeSnapshotVersions(modules);
     handleRelease(modules);
 }
