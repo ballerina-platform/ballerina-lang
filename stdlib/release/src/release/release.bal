@@ -5,8 +5,8 @@ import ballerina/runtime;
 import ballerina/stringutils;
 import ballerina_stdlib/commons;
 
-http:Client httpClient = new (API_PATH);
-string accessToken = config:getAsString(ACCESS_TOKEN_ENV);
+http:Client httpClient = new (commons:API_PATH);
+string accessToken = config:getAsString(commons:ACCESS_TOKEN_ENV);
 string accessTokenHeaderValue = "Bearer " + accessToken;
 
 public function main() {
@@ -42,15 +42,15 @@ function handleRelease(commons:Module[] modules) {
 }
 
 function releaseModule(commons:Module module) returns boolean {
-    log:printInfo("------------------------------");
+    commons:logNewLine();
     log:printInfo("Releasing " + module.name + " Version " + module.'version);
     http:Request request = commons:createRequest(accessTokenHeaderValue);
     string moduleName = module.name.toString();
     string 'version = module.'version.toString();
-    string apiPath = "/" + moduleName + DISPATCHES;
+    string apiPath = "/" + moduleName + commons:DISPATCHES;
 
     json payload = {
-        event_type: EVENT_TYPE,
+        event_type: RELEASE_EVENT,
         client_payload: {
             'version: 'version
         }
@@ -61,7 +61,7 @@ function releaseModule(commons:Module module) returns boolean {
         commons:logAndPanicError("Error occurred while releasing the module: " + moduleName, result);
     }
     http:Response response = <http:Response>result;
-    return validateResponse(response, moduleName);
+    return commons:validateResponse(response, moduleName);
 }
 
 function waitForCurrentModuleReleases(commons:Module[] modules) {
@@ -131,21 +131,13 @@ function checkModuleRelease(commons:Module module) returns boolean {
     }
     http:Response response = <http:Response>result;
 
-    if(!validateResponse(response, moduleName)) {
+    if(!commons:validateResponse(response, moduleName)) {
         return false;
     } else {
         map<json> payload = <map<json>>response.getJsonPayload();
         string releaseTag = payload[FIELD_TAG_NAME].toString();
         return <@untainted>releaseTag == expectedReleaseTag;
     }
-}
-
-function validateResponse(http:Response response, string moduleName) returns boolean {
-    int statusCode = response.statusCode;
-    if (statusCode != 200 && statusCode != 201 && statusCode != 202 && statusCode != 204) {
-        return false;
-    }
-    return true;
 }
 
 function removeSnapshotVersions(commons:Module[] modules) {

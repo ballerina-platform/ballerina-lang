@@ -60,6 +60,14 @@ function closeReadChannel(io:ReadableCharacterChannel rc) {
     }
 }
 
+public function validateResponse(http:Response response, string moduleName) returns boolean {
+    int statusCode = response.statusCode;
+    if (statusCode != 200 && statusCode != 201 && statusCode != 202 && statusCode != 204) {
+        return false;
+    }
+    return true;
+}
+
 public function logAndPanicError(string message, error e) {
     log:printError(message, e);
     panic e;
@@ -72,4 +80,8 @@ public function printModules(Module[] modules) {
     foreach string moduleString in moduleStrings {
         log:printInfo(moduleString);
     }
+}
+
+public function logNewLine() {
+    log:printInfo("------------------------------");
 }
