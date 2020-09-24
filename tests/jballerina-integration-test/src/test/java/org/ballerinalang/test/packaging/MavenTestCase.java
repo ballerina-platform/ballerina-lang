@@ -48,7 +48,7 @@ public class MavenTestCase extends BaseTest {
     private BMainInstance balClient;
     private String moduleName = "jyaml";
 
-    @BeforeClass(enabled = false)
+    @BeforeClass()
     public void setUp() throws IOException, BallerinaTestException {
         this.tempHomeDirectory = Files.createTempDirectory("bal-test-integration-maven-home-");
         this.tempProjectsDirectory = Files.createTempDirectory("bal-test-integration-maven-");
@@ -57,7 +57,7 @@ public class MavenTestCase extends BaseTest {
         Path originalTestProj1 = Paths.get("src", "test", "resources", "packaging", "maven", "jyaml")
                 .toAbsolutePath();
         this.projectPath = this.tempProjectsDirectory.resolve("jyaml");
-        copyFolder(originalTestProj1, this.projectPath);
+        PackerinaTestUtils.copyFolder(originalTestProj1, this.projectPath);
 
         envVariables = addEnvVariables(PackerinaTestUtils.getEnvVariables());
         balClient = new BMainInstance(balServer);
@@ -68,7 +68,7 @@ public class MavenTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Test maven dependency resolution.")
+    @Test(description = "Test maven dependency resolution.")
     public void mavenResolvingTest() throws BallerinaTestException, IOException {
         String mvnBuildMsg = "snakeyaml-1.26.jar";
         LogLeecher mvnBuildLeecher = new LogLeecher(mvnBuildMsg);
@@ -94,19 +94,7 @@ public class MavenTestCase extends BaseTest {
         return envVariables;
     }
 
-    public  void copyFolder(Path src, Path dest) throws IOException {
-        Files.walk(src).forEach(source -> copy(source, dest.resolve(src.relativize(source))));
-    }
-
-    private void copy(Path source, Path dest) {
-        try {
-            Files.copy(source, dest, REPLACE_EXISTING);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    @AfterClass(enabled = false)
+    @AfterClass()
     private void cleanup() throws Exception {
         deleteFiles(this.tempHomeDirectory);
         deleteFiles(this.projectPath);
