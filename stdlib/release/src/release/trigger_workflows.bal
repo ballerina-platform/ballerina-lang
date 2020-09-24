@@ -1,45 +1,23 @@
 import ballerina/config;
 import ballerina/http;
-import ballerina/io;
 import ballerina/log;
 import ballerina/runtime;
+import ballerina_stdlib/commons;
 
 http:Client httpClient = new (API_PATH);
 string accessToken = config:getAsString(ACCESS_TOKEN_ENV);
 string accessTokenHeaderValue = "Bearer " + accessToken;
 
 public function main() {
-    json[] modulesJson = getModuleJsonArray();
-    Module[] modules = getModuleArray(modulesJson);
+    json[] modulesJson = commons:getModuleJsonArray();
+    commons:Module[] modules = commons:getModuleArray(modulesJson);
     handleRelease(modules);
 }
 
-function getModuleJsonArray() returns json[] {
-    var result = readFileAndGetJson(CONFIG_FILE_PATH);
-    if (result is error) {
-        logAndPanicError("Error occurred while reading the config file", result);
-    }
-    json jsonFile = <json>result;
-    return <json[]>jsonFile.modules;
-}
-
-function getModuleArray(json[] modulesJson) returns Module[] {
-    Module[] modules = [];
-    foreach json moduleJson in modulesJson {
-        Module|error result = Module.constructFrom(moduleJson);
-        if (result is error) {
-            logAndPanicError("Error building the module record", result);
-        }
-        Module module = <Module>result;
-        modules.push(module);
-    }
-    return modules;
-}
-
-function handleRelease(Module[] modules) {
+function handleRelease(commons:Module[] modules) {
     int currentLevel = -1;
-    Module[] currentModules = [];
-    foreach Module module in modules {
+    commons:Module[] currentModules = [];
+    foreach commons:Module module in modules {
         int nextLevel = module.level;
         if (nextLevel > currentLevel && currentModules.length() > 0) {
             waitForCurrentModuleReleases(currentModules);
@@ -60,10 +38,10 @@ function handleRelease(Module[] modules) {
     waitForCurrentModuleReleases(currentModules);
 }
 
-function releaseModule(Module module) returns boolean {
+function releaseModule(commons:Module module) returns boolean {
     log:printInfo("------------------------------");
     log:printInfo("Releasing " + module.name + " Version " + module.'version);
-    http:Request request = createRequest(accessTokenHeaderValue);
+    http:Request request = commons:createRequest(accessTokenHeaderValue);
     string moduleName = module.name.toString();
     string 'version = module.'version.toString();
     string apiPath = "/" + moduleName + DISPATCHES;
@@ -77,35 +55,35 @@ function releaseModule(Module module) returns boolean {
     request.setJsonPayload(payload);
     var result = httpClient->post(apiPath, request);
     if (result is error) {
-        logAndPanicError("Error occurred while releasing the module: " + moduleName, result);
+        commons:logAndPanicError("Error occurred while releasing the module: " + moduleName, result);
     }
     http:Response response = <http:Response>result;
     return validateResponse(response, moduleName);
 }
 
-function waitForCurrentModuleReleases(Module[] modules) {
+function waitForCurrentModuleReleases(commons:Module[] modules) {
     if (modules.length() == 0) {
         return;
     }
     log:printInfo("Waiting for previous level builds");
-    Module[] unreleasedModules = modules.filter(
-        function (Module m) returns boolean {
+    commons:Module[] unreleasedModules = modules.filter(
+        function (commons:Module m) returns boolean {
             return m.releaseInProgress;
         }
     );
-    Module[] releasedModules = [];
+    commons:Module[] releasedModules = [];
 
     boolean allModulesReleased = false;
     int waitCycles = 0;
     while (!allModulesReleased) {
-        foreach Module module in modules {
+        foreach commons:Module module in modules {
             if (module.releaseInProgress) {
                 boolean releaseCompleted = checkModuleRelease(module);
                 if (releaseCompleted) {
                     module.releaseInProgress = !releaseCompleted;
                     var moduleIndex = unreleasedModules.indexOf(module);
                     if (moduleIndex is int) {
-                        Module releasedModule = unreleasedModules.remove(moduleIndex);
+                        commons:Module releasedModule = unreleasedModules.remove(moduleIndex);
                         releasedModules.push(releasedModule);
                         log:printInfo(releasedModule.name + " " + releasedModule.'version + " is released");
                     }
@@ -123,18 +101,18 @@ function waitForCurrentModuleReleases(Module[] modules) {
     }
     if (unreleasedModules.length() > 0) {
         log:printWarn("Following modules not released after the max wait time");
-        printModules(unreleasedModules);
+        commons:printModules(unreleasedModules);
         error err = error("Unreleased", message = "There are modules not released after max wait time");
-        logAndPanicError("Release Failed.", err);
+        commons:logAndPanicError("Release Failed.", err);
     }
 }
 
-function checkModuleRelease(Module module) returns boolean {
+function checkModuleRelease(commons:Module module) returns boolean {
     if (!module.releaseInProgress) {
         return true;
     }
     log:printInfo("Validating " + module.name + " release");
-    http:Request request = createRequest(accessTokenHeaderValue);
+    http:Request request = commons:createRequest(accessTokenHeaderValue);
     string moduleName = module.name.toString();
     string 'version = module.'version.toString();
     string expectedReleaseTag = "v" + 'version;
@@ -142,7 +120,7 @@ function checkModuleRelease(Module module) returns boolean {
     string modulePath = "/" + moduleName + RELEASES + TAGS + "/v" + 'version;
     var result = httpClient->get(modulePath, request);
     if (result is error) {
-        logAndPanicError("Error occurred while checking the release status for module: " + moduleName, result);
+        commons:logAndPanicError("Error occurred while checking the release status for module: " + moduleName, result);
     }
     http:Response response = <http:Response>result;
 
@@ -161,40 +139,4 @@ function validateResponse(http:Response response, string moduleName) returns boo
         return false;
     }
     return true;
-}
-
-function createRequest(string accessTokenHeaderValue) returns http:Request {
-    http:Request request = new;
-    request.setHeader(ACCEPT_HEADER_KEY, ACCEPT_HEADER_VALUE);
-    request.setHeader(AUTH_HEADER_KEY, accessTokenHeaderValue);
-    return request;
-}
-
-function readFileAndGetJson(string path) returns json|error {
-    io:ReadableByteChannel rbc = check <@untainted>io:openReadableFile(path);
-    io:ReadableCharacterChannel rch = new (rbc, "UTF8");
-    var result = <@untainted>rch.readJson();
-    closeReadChannel(rch);
-    return result;
-}
-
-function closeReadChannel(io:ReadableCharacterChannel rc) {
-    var result = rc.close();
-    if (result is error) {
-        log:printError("Error occurred while closing character stream", result);
-    }
-}
-
-function printModules(Module[] modules) {
-    string[] moduleStrings = modules.map(function (Module m) returns string {
-        return m.name + " " + m.'version;
-    });
-    foreach string moduleString in moduleStrings {
-        log:printInfo(moduleString);
-    }
-}
-
-function logAndPanicError(string message, error e) {
-    log:printError(message, e);
-    panic e;
 }

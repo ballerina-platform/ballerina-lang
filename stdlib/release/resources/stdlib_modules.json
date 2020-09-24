@@ -188,24 +188,10 @@
             "level": 6,
             "release": true
         },
+
         {
             "name": "module-ballerina-sql",
             "version": "0.5.1-SNAPSHOT",
-            "branch": "master",
-            "level": 6,
-            "release": true
-        },
-
-        {
-            "name": "module-ballerina-java.jdbc",
-            "version": "0.5.1-SNAPSHOT",
-            "branch": "master",
-            "level": 7,
-            "release": true
-        },
-        {
-            "name": "module-ballerinax-mysql",
-            "version": "0.6.1-SNAPSHOT",
             "branch": "master",
             "level": 7,
             "release": true
@@ -225,6 +211,21 @@
             "release": true
         },
 
+
+        {
+            "name": "module-ballerina-java.jdbc",
+            "version": "0.5.1-SNAPSHOT",
+            "branch": "master",
+            "level": 8,
+            "release": true
+        },
+        {
+            "name": "module-ballerinax-mysql",
+            "version": "0.6.1-SNAPSHOT",
+            "branch": "master",
+            "level": 8,
+            "release": true
+        },
         {
             "name": "module-ballerina-websub",
             "version": "1.0.3-SNAPSHOT",
