@@ -54,7 +54,6 @@ function retryError() returns string|error {
     } on fail error e {
         return error("Custom Error");
     }
-    return str;
 }
 
 function testNestedRetryWithLessOnFails () returns string|error {
@@ -71,9 +70,9 @@ function testNestedRetryWithLessOnFails () returns string|error {
            if(count2 != 2) {
                fail err;
            }
-           return str;
         }
-    } on fail error e {
+    }
+    on fail error e {
         str += " -> error handled";
         return err;
     }
