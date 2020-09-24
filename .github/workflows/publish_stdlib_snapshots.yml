@@ -1,7 +1,12 @@
 name: Publish Ballerina Snapshot
 
 on:
-    # TODO: Add master branch push trigger
+    push:
+        paths-ignore:
+            - 'stdlib/release'
+            - '.github/workflows'
+        branchs:
+            - master
     workflow_dispatch:
 
 jobs:
