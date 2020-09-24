@@ -73,6 +73,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(breakStatementNode);
     }
 
+    public void visit(STFailStatementNode failStatementNode) {
+        visitSyntaxNode(failStatementNode);
+    }
+
     public void visit(STExpressionStatementNode expressionStatementNode) {
         visitSyntaxNode(expressionStatementNode);
     }
@@ -131,10 +135,6 @@ public abstract class STNodeVisitor {
 
     public void visit(STCheckExpressionNode checkExpressionNode) {
         visitSyntaxNode(checkExpressionNode);
-    }
-
-    public void visit(STFailExpressionNode failExpressionNode) {
-        visitSyntaxNode(failExpressionNode);
     }
 
     public void visit(STFieldAccessExpressionNode fieldAccessExpressionNode) {
@@ -219,6 +219,10 @@ public abstract class STNodeVisitor {
 
     public void visit(STObjectTypeDescriptorNode objectTypeDescriptorNode) {
         visitSyntaxNode(objectTypeDescriptorNode);
+    }
+
+    public void visit(STObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        visitSyntaxNode(objectConstructorExpressionNode);
     }
 
     public void visit(STRecordTypeDescriptorNode recordTypeDescriptorNode) {
@@ -509,6 +513,22 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(letClauseNode);
     }
 
+    public void visit(STJoinClauseNode joinClauseNode) {
+        visitSyntaxNode(joinClauseNode);
+    }
+
+    public void visit(STOnClauseNode onClauseNode) {
+        visitSyntaxNode(onClauseNode);
+    }
+
+    public void visit(STLimitClauseNode limitClauseNode) {
+        visitSyntaxNode(limitClauseNode);
+    }
+
+    public void visit(STOnConflictClauseNode onConflictClauseNode) {
+        visitSyntaxNode(onConflictClauseNode);
+    }
+
     public void visit(STQueryPipelineNode queryPipelineNode) {
         visitSyntaxNode(queryPipelineNode);
     }
@@ -519,6 +539,10 @@ public abstract class STNodeVisitor {
 
     public void visit(STQueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
+    }
+
+    public void visit(STQueryActionNode queryActionNode) {
+        visitSyntaxNode(queryActionNode);
     }
 
     public void visit(STIntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
@@ -581,8 +605,8 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(restBindingPatternNode);
     }
 
-    public void visit(STFunctionalBindingPatternNode functionalBindingPatternNode) {
-        visitSyntaxNode(functionalBindingPatternNode);
+    public void visit(STErrorBindingPatternNode errorBindingPatternNode) {
+        visitSyntaxNode(errorBindingPatternNode);
     }
 
     public void visit(STNamedArgBindingPatternNode namedArgBindingPatternNode) {
@@ -631,10 +655,6 @@ public abstract class STNodeVisitor {
 
     public void visit(STAnnotAccessExpressionNode annotAccessExpressionNode) {
         visitSyntaxNode(annotAccessExpressionNode);
-    }
-
-    public void visit(STQueryActionNode queryActionNode) {
-        visitSyntaxNode(queryActionNode);
     }
 
     public void visit(STOptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
@@ -721,22 +741,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(distinctTypeDescriptorNode);
     }
 
-    public void visit(STOnConflictClauseNode onConflictClauseNode) {
-        visitSyntaxNode(onConflictClauseNode);
-    }
-
-    public void visit(STLimitClauseNode limitClauseNode) {
-        visitSyntaxNode(limitClauseNode);
-    }
-
-    public void visit(STJoinClauseNode joinClauseNode) {
-        visitSyntaxNode(joinClauseNode);
-    }
-
-    public void visit(STOnClauseNode onClauseNode) {
-        visitSyntaxNode(onClauseNode);
-    }
-
     public void visit(STListMatchPatternNode listMatchPatternNode) {
         visitSyntaxNode(listMatchPatternNode);
     }
@@ -783,6 +787,18 @@ public abstract class STNodeVisitor {
 
     public void visit(STOrderKeyNode orderKeyNode) {
         visitSyntaxNode(orderKeyNode);
+    }
+
+    public void visit(STOnFailClauseNode onFailClauseNode) {
+        visitSyntaxNode(onFailClauseNode);
+    }
+
+    public void visit(STDoStatementNode doStatementNode) {
+        visitSyntaxNode(doStatementNode);
+    }
+
+    public void visit(STClassDefinitionNode classDefinitionNode) {
+        visitSyntaxNode(classDefinitionNode);
     }
 
     // STNodeList

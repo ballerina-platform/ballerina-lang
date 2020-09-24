@@ -145,7 +145,8 @@ public class LangLibStringTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*IndexOutOfRange message=String codepoint index out of range: 1.*")
+        expectedExceptionsMessageRegExp = ".*IndexOutOfRange \\{\"message\":\"String codepoint index out of range: " +
+                "1\"\\}.*")
     public void testGetCodepointNegative() {
         testGetCodepoint("", 1, 0);
     }
@@ -237,7 +238,7 @@ public class LangLibStringTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.string\\}StringOperationError " +
-                    "message=string index out of range. Length:'6' requested: '7' to '9'.*")
+                    "\\{\"message\":\"string index out of range. Length:'6' requested: '7' to '9'\"\\}.*")
     public void testSubstringOutRange() {
         BRunUtil.invoke(compileResult, "testSubstringOutRange");
         Assert.fail();

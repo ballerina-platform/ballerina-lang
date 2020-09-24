@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface InvokableNode extends AnnotatableNode, DocumentableNode {
+public interface InvokableNode extends AnnotatableNode, DocumentableNode, IdentifiableNode {
     
     IdentifierNode getName();
 
@@ -52,8 +52,6 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
     void addWorker(WorkerNode worker);
 
     List<? extends WorkerNode> getWorkers();
-
-    List<? extends EndpointNode> getEndpointNodes();
 
     SimpleVariableNode getRestParameters();
 

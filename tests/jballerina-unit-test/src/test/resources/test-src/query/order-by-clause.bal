@@ -107,8 +107,8 @@ function testQueryExprWithOrderByClause2() returns boolean {
 
     testPassed = testPassed &&  opStudentList[0] ==  studentList[1];
     testPassed = testPassed &&  opStudentList[1] ==  studentList[2];
-    testPassed = testPassed &&  opStudentList[2] ==  studentList[3];
-    testPassed = testPassed &&  opStudentList[3] ==  studentList[0];
+    testPassed = testPassed &&  opStudentList[2] ==  studentList[0];
+    testPassed = testPassed &&  opStudentList[3] ==  studentList[3];
 
     return testPassed;
 }
@@ -157,12 +157,12 @@ function testQueryExprWithOrderByClauseReturnTable() returns boolean {
          from var person in personList
          where person.firstName == "Frank"
          order by customer.noOfItems descending, customer.id
+         limit 3
          select {
              id: customer.id,
              name: customer.name,
              noOfItems: customer.noOfItems
-         }
-         limit 3;
+         };
 
     if (customerTable is CustomerTable) {
         var itr = customerTable.iterator();
@@ -380,8 +380,8 @@ function testQueryExprWithOrderByClauseReturnString() returns string {
 
     string outputNameString = from var person in personList
          order by person.age descending
-         select person.firstName+" "+person.lastName+","
-         limit 3;
+         limit 3
+         select person.firstName+" "+person.lastName+",";
 
     return outputNameString;
 }
@@ -404,8 +404,8 @@ function testQueryExprWithOrderByClauseReturnXML() returns xml {
 
     xml authors = from var book in bookStore/<book>/<author>
                   order by book.toString()
-                  select <xml> book
-                  limit 2;
+                  limit 2
+                  select <xml> book;
 
     return  authors;
 }
@@ -425,16 +425,16 @@ function testQueryExprWithOrderByClauseAndInnerQueries() returns CustomerProfile
     Person[] personList = [p1, p2, p3];
 
     CustomerProfile[] customerProfileList = from var customer in (stream from var c in customerList
-                                                                    order by c.id descending select c limit 4)
-         join var person in (from var p in personList order by p.firstName descending select p limit 2)
+                                                                    order by c.id descending limit 4 select c)
+         join var person in (from var p in personList order by p.firstName descending limit 2 select p)
          on customer.name equals person.lastName
          order by incrementCount(0), customer.noOfItems descending
+         limit 3
          select {
              name: person.firstName,
              age : person.age,
              noOfItems: customer.noOfItems
-         }
-         limit 3;
+         };
 
     return customerProfileList;
 }
@@ -465,19 +465,19 @@ function testQueryExprWithOrderByClauseAndInnerQueries2() returns CustomerProfil
     PaymentInfo[] paymentList = [i1, i2, i3, i4, i5, i6, i7, i8];
 
     CustomerProfile[] customerProfileList = from var customer in (stream from var c in customerList
-                                                                    order by c.id descending select c limit 4)
-         join var person in (from var p in personList order by p.firstName descending select p limit 2)
+                                                                    order by c.id descending limit 4 select c)
+         join var person in (from var p in personList order by p.firstName descending limit 2 select p)
          on customer.name equals person.lastName
          join var payment in (table key() from var paym in paymentList where paym.modeOfPayment == "cash"
-                                   order by paym.custId ascending select paym limit 5)
+                                   order by paym.custId ascending limit 5 select paym)
          on customer.id equals payment.custId
          order by customer.noOfItems descending
+         limit 2
          select {
              name: person.firstName,
              age : person.age,
              noOfItems: customer.noOfItems
-         }
-         limit 2;
+         };
 
     return customerProfileList;
 }

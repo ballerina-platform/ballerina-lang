@@ -36,16 +36,20 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
         return new NodeList<>(childInBucket(0));
     }
 
-    public Token functionKeyword() {
-        return childInBucket(1);
+    public NodeList<Token> qualifierList() {
+        return new NodeList<>(childInBucket(1));
     }
 
-    public FunctionSignatureNode functionSignature() {
+    public Token functionKeyword() {
         return childInBucket(2);
     }
 
-    public FunctionBodyNode functionBody() {
+    public FunctionSignatureNode functionSignature() {
         return childInBucket(3);
+    }
+
+    public FunctionBodyNode functionBody() {
+        return childInBucket(4);
     }
 
     @Override
@@ -62,6 +66,7 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
     protected String[] childNames() {
         return new String[]{
                 "annotations",
+                "qualifierList",
                 "functionKeyword",
                 "functionSignature",
                 "functionBody"};
@@ -69,11 +74,13 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
 
     public ExplicitAnonymousFunctionExpressionNode modify(
             NodeList<AnnotationNode> annotations,
+            NodeList<Token> qualifierList,
             Token functionKeyword,
             FunctionSignatureNode functionSignature,
             FunctionBodyNode functionBody) {
         if (checkForReferenceEquality(
                 annotations.underlyingListNode(),
+                qualifierList.underlyingListNode(),
                 functionKeyword,
                 functionSignature,
                 functionBody)) {
@@ -82,6 +89,7 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
 
         return NodeFactory.createExplicitAnonymousFunctionExpressionNode(
                 annotations,
+                qualifierList,
                 functionKeyword,
                 functionSignature,
                 functionBody);
@@ -99,6 +107,7 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
     public static class ExplicitAnonymousFunctionExpressionNodeModifier {
         private final ExplicitAnonymousFunctionExpressionNode oldNode;
         private NodeList<AnnotationNode> annotations;
+        private NodeList<Token> qualifierList;
         private Token functionKeyword;
         private FunctionSignatureNode functionSignature;
         private FunctionBodyNode functionBody;
@@ -106,6 +115,7 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
         public ExplicitAnonymousFunctionExpressionNodeModifier(ExplicitAnonymousFunctionExpressionNode oldNode) {
             this.oldNode = oldNode;
             this.annotations = oldNode.annotations();
+            this.qualifierList = oldNode.qualifierList();
             this.functionKeyword = oldNode.functionKeyword();
             this.functionSignature = oldNode.functionSignature();
             this.functionBody = oldNode.functionBody();
@@ -115,6 +125,13 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
                 NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
+            return this;
+        }
+
+        public ExplicitAnonymousFunctionExpressionNodeModifier withQualifierList(
+                NodeList<Token> qualifierList) {
+            Objects.requireNonNull(qualifierList, "qualifierList must not be null");
+            this.qualifierList = qualifierList;
             return this;
         }
 
@@ -142,6 +159,7 @@ public class ExplicitAnonymousFunctionExpressionNode extends AnonymousFunctionEx
         public ExplicitAnonymousFunctionExpressionNode apply() {
             return oldNode.modify(
                     annotations,
+                    qualifierList,
                     functionKeyword,
                     functionSignature,
                     functionBody);

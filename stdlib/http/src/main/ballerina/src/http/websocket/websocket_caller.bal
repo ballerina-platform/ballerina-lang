@@ -15,7 +15,7 @@
 // under the License.
 
 # Represents a WebSocket caller.
-public type WebSocketCaller client object {
+public client class WebSocketCaller {
 
     private string id = "";
     private string? negotiatedSubProtocol = ();
@@ -36,7 +36,7 @@ public type WebSocketCaller client object {
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return  - An `error` if an error occurs when sending
     public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data,
-        public boolean finalFrame = true) returns WebSocketError? {
+        boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushText(data, finalFrame);
     }
 
@@ -46,7 +46,7 @@ public type WebSocketCaller client object {
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return  - An `error` if an error occurs when sending
-    public remote function pushBinary(byte[] data, public boolean finalFrame = true) returns WebSocketError? {
+    public remote function pushBinary(byte[] data, boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushBinary(data, finalFrame);
     }
 
@@ -77,8 +77,8 @@ public type WebSocketCaller client object {
     #                   until a close frame is received. If WebSocket frame is received from the remote endpoint
     #                   within the waiting period, the connection is terminated immediately.
     # + return - An `error` if an error occurs when sending
-    public remote function close(public int? statusCode = 1000, public string? reason = (),
-        public int timeoutInSeconds = 60) returns WebSocketError? {
+    public remote function close(int? statusCode = 1000, string? reason = (),
+        int timeoutInSeconds = 60) returns WebSocketError? {
         return self.conn.close(statusCode, reason, timeoutInSeconds);
     }
 
@@ -133,4 +133,4 @@ public type WebSocketCaller client object {
     public function isOpen() returns boolean {
         return self.open;
     }
-};
+}

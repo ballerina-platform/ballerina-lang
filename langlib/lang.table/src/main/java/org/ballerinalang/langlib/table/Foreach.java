@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
@@ -49,14 +49,12 @@ public class Foreach {
     public static void forEach(TableValueImpl tbl, FPValue<Object, Object> func) {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
-        // accessing the parent strand here to use it with each iteration
-        Strand parentStrand = Scheduler.getStrand();
-        BRuntime.getCurrentRuntime()
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                         () -> new Object[]{parentStrand,
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                         result -> {
-                        }, () -> null);
+                        }, () -> null, Scheduler.getStrand().scheduler);
     }
 
     public static void forEach_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {

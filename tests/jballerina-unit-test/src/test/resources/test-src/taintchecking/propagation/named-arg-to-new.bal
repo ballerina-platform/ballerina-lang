@@ -1,18 +1,18 @@
 import ballerina/io;
 
-public type Client object {
+public class Client {
 
     public function init(
-            public string host="localhost",
-            public string? user = (),
-            public string? password= (),
-            public string? database = (),
-            public int port=3306)
+            string host="localhost",
+            string? user = (),
+            string? password= (),
+            string? database = (),
+            int port=3306)
         returns error? {
         bar(user);
         return ();
     }
-};
+}
 
 public function main(string... argv) {
     callClient(argv[0]);

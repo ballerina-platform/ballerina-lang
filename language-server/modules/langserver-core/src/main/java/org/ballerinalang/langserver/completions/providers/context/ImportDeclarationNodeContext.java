@@ -27,9 +27,11 @@ import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Position;
@@ -38,6 +40,8 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
 
 /**
  * Completion provider for {@link ImportDeclarationNode} context.
@@ -78,27 +82,95 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
 //        }
 
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
+        ContextScope contextScope;
         List<BallerinaPackage> packagesList = new ArrayList<>();
         Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
                 .forEach(packagesList::addAll);
 
         if (withinVersionAndPrefix(ctx, node)) {
-            completionItems.add(getAsKeyword(ctx));
-            completionItems.add(getVersionKeyword(ctx));
+            completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_AS.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_VERSION.get()));
+            contextScope = ContextScope.SCOPE1;
         } else if (node.orgName().isPresent()) {
             /*
             Covers case (4)
              */
             String orgName = node.orgName().get().orgName().text();
             completionItems.addAll(this.moduleNameContextCompletions(ctx, orgName, packagesList));
+            contextScope = ContextScope.SCOPE2;
         } else {
             /*
             Covers cases (1) to (3)
              */
             completionItems.addAll(this.orgNameContextCompletions(packagesList, ctx));
+            contextScope = ContextScope.SCOPE3;
         }
 
+        this.sort(ctx, node, completionItems, contextScope);
         return completionItems;
+    }
+
+    @Override
+    public void sort(LSContext context, ImportDeclarationNode node, List<LSCompletionItem> cItems, Object... metaData) {
+        if (metaData.length == 0 || !(metaData[0] instanceof ContextScope)) {
+            super.sort(context, node, cItems, metaData);
+            return;
+        }
+
+        if (metaData[0] == ContextScope.SCOPE2) {
+            /*
+            Sorts only the completions when the org name is ballerina
+            Context covered:
+            (1) import ballerina/<cursor
+            (2) import ballerina/a<cursor
+             */
+            for (LSCompletionItem completion : cItems) {
+                CompletionItem cItem = completion.getCompletionItem();
+                String label = cItem.getLabel();
+                cItem.setSortText(genSortText(this.rankModuleName(label)));
+            }
+            return;
+        }
+
+        if (metaData[0] == ContextScope.SCOPE3) {
+            for (LSCompletionItem completion : cItems) {
+                CompletionItem cItem = completion.getCompletionItem();
+                String label = cItem.getLabel();
+                cItem.setSortText(genSortText(this.rankOrgName(label)));
+            }
+            return;
+        }
+
+        super.sort(context, node, cItems, metaData);
+    }
+
+    private int rankModuleName(String label) {
+        if (label.startsWith("ballerina/lang.")) {
+            return 2;
+        }
+        if (label.startsWith("ballerina/")) {
+            return 1;
+        }
+
+        return 3;
+    }
+
+    private int rankOrgName(String label) {
+        if (!label.contains("/") && !label.equals("ballerina")) {
+            // This is a module under the current project
+            return 1;
+        }
+        if (!label.contains("/")) {
+            return 2;
+        }
+        if (label.startsWith("ballerina/lang.")) {
+            return 4;
+        }
+        if (label.startsWith("ballerina/")) {
+            return 3;
+        }
+
+        return 5;
     }
 
     private ArrayList<LSCompletionItem> orgNameContextCompletions(List<BallerinaPackage> packagesList, LSContext ctx) {
@@ -182,7 +254,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         item.setKind(CompletionItemKind.Module);
         item.setDetail(ItemResolverConstants.MODULE_TYPE);
 
-        return new StaticCompletionItem(context, item);
+        return new StaticCompletionItem(context, item, StaticCompletionItem.Kind.MODULE);
     }
 
     private static boolean withinVersionAndPrefix(LSContext context, ImportDeclarationNode node) {
@@ -204,28 +276,15 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                 && endModuleNameComponent.lineRange().endLine().offset() < cursor.getCharacter();
     }
 
-    private static LSCompletionItem getAsKeyword(LSContext context) {
-        CompletionItem item = new CompletionItem();
-        item.setLabel("as");
-        item.setInsertText("as ");
-        item.setKind(CompletionItemKind.Keyword);
-        item.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-
-        return new StaticCompletionItem(context, item);
-    }
-
-    private static LSCompletionItem getVersionKeyword(LSContext context) {
-        CompletionItem item = new CompletionItem();
-        item.setLabel("version");
-        item.setInsertText("version ");
-        item.setKind(CompletionItemKind.Keyword);
-        item.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-
-        return new StaticCompletionItem(context, item);
-    }
-
     private boolean isAnnotationLangLib(BallerinaPackage ballerinaPackage) {
         return "ballerina".equals(ballerinaPackage.getOrgName())
                 && "lang.annotations".equals(ballerinaPackage.getPackageName());
+    }
+
+    private enum ContextScope {
+        SCOPE1,
+        SCOPE2,
+        SCOPE3,
+        OTHER
     }
 }

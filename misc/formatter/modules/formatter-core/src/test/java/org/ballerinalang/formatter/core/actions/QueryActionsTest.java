@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -36,15 +36,15 @@ public class QueryActionsTest extends FormatterTest {
         super.test(source, sourcePath);
     }
 
+    @Override
+    public List<String> skipList() {
+        return Arrays.asList("query_action_2.bal", "query_action_3.bal");
+    }
+
     @DataProvider(name = "test-file-provider")
     @Override
     public Object[][] dataProvider() {
         return this.getConfigsList();
-    }
-
-    @Override
-    public List<String> skipList() {
-        return Collections.singletonList("query_action_1.bal");
     }
 
     @Override

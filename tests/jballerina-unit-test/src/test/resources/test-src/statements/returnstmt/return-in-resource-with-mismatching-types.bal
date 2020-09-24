@@ -34,14 +34,14 @@ service helloWorld on new http:Listener(9090) {
 type Config record {
 };
 
-type DummyEndpoint object {
+class DummyEndpoint {
     function _init_ (Config conf)  {
     }
-};
+}
 
-type DummyService object{
+class DummyService {
     function getEndpoint() returns (DummyEndpoint) {
         DummyEndpoint ep = new;
         return ep;
     }
-};
+}

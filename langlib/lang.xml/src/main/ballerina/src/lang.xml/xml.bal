@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
-
 # The namespace URI bound to the `xml` prefix.
 public const string XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
 # The namespace URI bound to the `xmlns` prefix.
@@ -55,10 +53,7 @@ public type Text xml;
 #
 # + x - xml item
 # + return - number of XML items in `x`
-public function length(xml x) returns int = @java:Method {
-    class: "org.ballerinalang.langlib.xml.Length",
-    name: "length"
-} external;
+public isolated function length(xml x) returns int = external;
 
 # A type parameter that is a subtype of any singleton or empty xml sequence.
 # Has the special semantic that when used in a declaration
@@ -76,8 +71,8 @@ type XmlType xml;
 # + x - xml sequence to iterate over
 # + return - iterator object
 # Each item is represented by an xml singleton.
-public function iterator(xml<ItemType> x) returns abstract object {
-    public function next() returns record {| (xml|string) value; |}?;
+public isolated function iterator(xml<ItemType> x) returns object {
+    public isolated function next() returns record {| (xml|string) value; |}?;
 } {
     XMLIterator xmlIterator = new(x);
     return xmlIterator;
@@ -90,47 +85,32 @@ public function iterator(xml<ItemType> x) returns abstract object {
 # + x - the xml sequence
 # + i - the index
 # + return - the item with index `i` in `x`
-public function get(xml<ItemType> x, int i) returns xml = @java:Method {
-    class: "org.ballerinalang.langlib.xml.Get",
-    name: "get"
-} external;
+public isolated function get(xml<ItemType> x, int i) returns xml = external;
 
 # Concatenates xml and string values.
 #
-# + xs|string - xml or string items to concatenate
+# + xs - xml or string items to concatenate
 # + return - an xml sequence that is the concatenation of all the `xs`;
 #    an empty xml sequence if the `xs` are empty
-public function concat((xml|string)... xs) returns xml = @java:Method {
-    class: "org.ballerinalang.langlib.xml.Concat",
-    name: "concat"
-} external;
+public isolated function concat((xml|string)... xs) returns xml = external;
 
 # Returns a string giving the expanded name of `elem`.
 #
 # + elem - xml element
 # + return - element name
-public function getName(Element elem) returns string = @java:Method {
-    class: "org.ballerinalang.langlib.xml.GetName",
-    name: "getName"
-} external;
+public isolated function getName(Element elem) returns string = external;
 
 # Change the name of element `elem` to `xName`.
 #
 # + elem - xml element
 # + xName - new expanded name
-public function setName(Element elem, string xName) = @java:Method {
-    class: "org.ballerinalang.langlib.xml.SetName",
-    name: "setName"
-} external;
+public isolated function setName(Element elem, string xName) = external;
 
 # Returns the children of `elem`.
 #
 # + elem - xml element
 # + return - children of `elem`
-public function getChildren(Element elem) returns xml = @java:Method {
-    class: "org.ballerinalang.langlib.xml.GetChildren",
-    name: "getChildren"
-} external;
+public isolated function getChildren(Element elem) returns xml = external;
 
 # Sets the children of `elem` to `children`.
 # This panics if it would result in the element structure
@@ -138,10 +118,7 @@ public function getChildren(Element elem) returns xml = @java:Method {
 #
 # + elem - xml element
 # + children - xml or string to set as children
-public function setChildren(Element elem, xml|string children) = @java:Method {
-    class: "org.ballerinalang.langlib.xml.SetChildren",
-    name: "setChildren"
-} external;
+public isolated function setChildren(Element elem, xml|string children) = external;
 
 # Returns the map representing the attributes of `elem`.
 # This includes namespace attributes.
@@ -149,28 +126,19 @@ public function setChildren(Element elem, xml|string children) = @java:Method {
 #
 # + x - xml element
 # + return - attributes of `x`
-public function getAttributes(Element x) returns map<string> = @java:Method {
-    class: "org.ballerinalang.langlib.xml.GetAttributes",
-    name: "getAttributes"
-} external;
+public isolated function getAttributes(Element x) returns map<string> = external;
 
 # Returns the target part of the processing instruction.
 #
 # + x - xml processing instruction item
 # + return - target part of `x`
-public function getTarget(ProcessingInstruction x) returns string = @java:Method {
-    class: "org.ballerinalang.langlib.xml.GetTarget",
-    name: "getTarget"
-} external;
+public isolated function getTarget(ProcessingInstruction x) returns string = external;
 
 # Returns the content of a text or processing instruction or comment item.
 #
 # + x - xml item
 # + return - the content of `x`
-public function getContent(Text|ProcessingInstruction|Comment x) returns string = @java:Method {
-    class: "org.ballerinalang.langlib.xml.GetContent",
-    name: "getContent"
-} external;
+public isolated function getContent(Text|ProcessingInstruction|Comment x) returns string = external;
 
 # Constructs an xml sequence consisting of only a new element item.
 #
@@ -178,11 +146,8 @@ public function getContent(Text|ProcessingInstruction|Comment x) returns string 
 # + children - the children of the new element
 # + return - an xml sequence consisting of only a new xml element with name `name`,
 #   no attributes, and children `children`
-public function createElement(string name, xml children = concat())
-    returns Element = @java:Method {
-        class: "org.ballerinalang.langlib.xml.CreateElement",
-        name: "createElement"
-} external;
+public isolated function createElement(string name, xml children = concat())
+    returns Element = external;
 
 # Constructs an xml sequence consisting of only a processing instruction item.
 #
@@ -190,20 +155,14 @@ public function createElement(string name, xml children = concat())
 # + content - the content part of the processing instruction to be constructed
 # + return - an xml sequence consisting of a processing instruction with target `target`
 #     and content `content`
-public function createProcessingInstruction(string target, string content)
-    returns ProcessingInstruction = @java:Method {
-        class: "org.ballerinalang.langlib.xml.CreateProcessingInstruction",
-        name: "createProcessingInstruction"
-} external;
+public isolated function createProcessingInstruction(string target, string content)
+    returns ProcessingInstruction = external;
 
 # Constructs an xml sequence consisting of only a comment item.
 #
 # + content - the content of the comment to be constructed.
 # + return - an xml sequence consisting of a comment with content `content`
-public function createComment(string content) returns Comment = @java:Method {
-    class: "org.ballerinalang.langlib.xml.CreateComment",
-    name: "createComment"
-} external;
+public isolated function createComment(string content) returns Comment = external;
 
 # Returns a subsequence of an xml value.
 #
@@ -211,11 +170,8 @@ public function createComment(string content) returns Comment = @java:Method {
 # + startIndex - start index, inclusive
 # + endIndex - end index, exclusive
 # + return - a subsequence of `x` consisting of items with index >= startIndex and < endIndex
-public function slice(xml<ItemType> x, int startIndex, int endIndex = x.length())
-    returns xml<ItemType> = @java:Method {
-        class: "org.ballerinalang.langlib.xml.Slice",
-        name: "slice"
-} external;
+public isolated function slice(xml<ItemType> x, int startIndex, int endIndex = x.length())
+    returns xml<ItemType> = external;
 
 # Strips the insignificant parts of the an xml value.
 # Comment items, processing instruction items are considered insignificant.
@@ -225,10 +181,7 @@ public function slice(xml<ItemType> x, int startIndex, int endIndex = x.length()
 #
 # + x - the xml value
 # + return - `x` with insignificant parts removed
-public function strip(xml x) returns xml = @java:Method {
-    class: "org.ballerinalang.langlib.xml.Strip",
-    name: "strip"
-} external;
+public isolated function strip(xml x) returns xml = external;
 
 # Selects elements from an xml value.
 # If `nm` is `()`, selects all elements;
@@ -238,20 +191,14 @@ public function strip(xml x) returns xml = @java:Method {
 # + nm - the expanded name of the elements to be selected, or `()` for all elements
 # + return - an xml sequence consisting of all the element items in `x` whose expanded name is `nm`,
 #  or, if `nm` is `()`, all element items in `x`
-public function elements(xml x, string? nm = ()) returns xml<Element> = @java:Method {
-    class: "org.ballerinalang.langlib.xml.Elements",
-    name: "elements"
-} external;
+public isolated function elements(xml x, string? nm = ()) returns xml<Element> = external;
 
 # Returns the children of elements in an xml value.
 # When `x` is of type Element, it is equivalent to `getChildren`.
 # + x - xml value
 # + return - xml sequence containing the children of each element x concatenated in order
 # This is equivalent to `elements(x).map(getChildren)`.
-public function children(xml x) returns xml = @java:Method {
-    class: "org.ballerinalang.langlib.xml.Children",
-    name: "children"
-} external;
+public isolated function children(xml x) returns xml = external;
 
 # Selects element children of an xml value
 # + x - the xml value
@@ -260,10 +207,7 @@ public function children(xml x) returns xml = @java:Method {
 #  is `()`, returns a sequence of all such elements;
 #  otherwise, include only elements whose expanded name is `nm`
 # This is equivalent to `children(x).elements(nm)`.
-public function elementChildren(xml x, string? nm = ()) returns xml<Element> = @java:Method {
-    class: "org.ballerinalang.langlib.xml.ElementChildren",
-    name: "elementChildren"
-} external;
+public isolated function elementChildren(xml x, string? nm = ()) returns xml<Element> = external;
 
 // Functional programming methods
 
@@ -274,20 +218,15 @@ public function elementChildren(xml x, string? nm = ()) returns xml<Element> = @
 # + func - a function to apply to each child or `item`
 # + return - new xml value containing result of applying `func` to each child or `item`
 public function 'map(xml<ItemType> x, function(ItemType item) returns XmlType func)
-    returns xml<XmlType> = @java:Method {
-        class: "org.ballerinalang.langlib.xml.Map",
-        name: "map"
-} external;
+    returns xml<XmlType> = external;
 
 # Applies a function to each item in an xml sequence.
 # Each item is represented as a singleton value.
 #
 # + x - the xml value
 # + func - a function to apply to each item in `x`
-public function forEach(xml<ItemType> x, function(ItemType item) returns () func) = @java:Method {
-    class: "org.ballerinalang.langlib.xml.ForEach",
-    name: "forEach"
-} external;
+public function forEach(xml<ItemType> x, function(ItemType item) returns () func)
+    = external;
 
 # Selects the items from an xml sequence for which a function returns true.
 # Each item is represented as a singleton value.
@@ -296,10 +235,7 @@ public function forEach(xml<ItemType> x, function(ItemType item) returns () func
 # + func - a predicate to apply to each item to test whether it should be selected
 # + return - new xml sequence containing items in `x` for which `func` evaluates to true
 public function filter(xml<ItemType> x, function(ItemType item) returns boolean func)
-    returns xml = @java:Method {
-        class: "org.ballerinalang.langlib.xml.Filter",
-        name: "filter"
-} external;
+    returns xml = external;
 
 # Constructs an xml value from a string.
 # This parses the string using the `content` production of the
@@ -307,7 +243,4 @@ public function filter(xml<ItemType> x, function(ItemType item) returns boolean 
 #
 # + s - a string in XML format
 # + return - xml value resulting from parsing `s`, or an error
-public function fromString(string s) returns xml|error = @java:Method {
-    class: "org.ballerinalang.langlib.xml.FromString",
-    name: "fromString"
-} external;
+public isolated function fromString(string s) returns xml|error = external;

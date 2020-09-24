@@ -28,7 +28,6 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-java')
-    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.testng:testng'
 
     testCompile 'org.slf4j:slf4j-jdk14'

@@ -38,9 +38,9 @@ public class FromCodePointInt {
         try {
             StringBuilder builder = new StringBuilder();
             builder.appendCodePoint(((Long) codePoint).intValue());
-            return StringUtils.fromString(builder.toString());
+            return BStringUtils.fromString(builder.toString());
         } catch (IllegalArgumentException e) {
-            return BallerinaErrors.createError("Invalid codepoint: " + codePoint);
+            return BErrorCreator.createError(BStringUtils.fromString("Invalid codepoint: " + codePoint));
         }
     }
 }

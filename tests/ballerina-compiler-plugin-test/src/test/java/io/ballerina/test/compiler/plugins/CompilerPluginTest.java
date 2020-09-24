@@ -56,7 +56,7 @@ public class CompilerPluginTest {
         Map<TestEvent.Kind, Set<TestEvent>> allEvents = TestCompilerPlugin.testEventMap;
         Map<TestEvent.Kind, Set<TestEvent>> funcEvents = FunctionsTestCompilerPlugin.testEventMap;
 
-        Assert.assertEquals(allEvents.size(), 6,
+        Assert.assertEquals(allEvents.size(), 7,
                 "All the process methods haven't been invoked by the compiler plugin");
 
         assertData(TestEvent.Kind.PLUGIN_START,
@@ -88,9 +88,15 @@ public class CompilerPluginTest {
         assertData(TestEvent.Kind.TYPEDEF_ANN,
                 allEvents,
                 new ArrayList<TestEvent>() {{
-                    add(new TestEvent(TestEvent.Kind.TYPEDEF_ANN, "routeCon", 1));
                     add(new TestEvent(TestEvent.Kind.TYPEDEF_ANN, "RouteConfig", 1));
                     add(new TestEvent(TestEvent.Kind.TYPEDEF_ANN, "Employee", 1));
+                }});
+
+        // Test class events
+        assertData(TestEvent.Kind.CLASSDEF_ANN,
+                allEvents,
+                new ArrayList<TestEvent>() {{
+                    add(new TestEvent(TestEvent.Kind.CLASSDEF_ANN, "routeCon", 1));
                 }});
 
         // Test function events

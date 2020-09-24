@@ -9,32 +9,32 @@ function testGetDefaultValuesInObject() returns [int, string, int, string] {
     return [p1.age, p1.emp.name, p1.foo.key, p1.bar.address];
 }
 
-type Person object {
+class Person {
     public int age = 0;
     public string name = "";
     public Employee emp = new;
     public Foo foo = new;
     public Bar bar = new;
-};
+}
 
-type Employee object {
+class Employee {
     public int age = 0;
     public string name = "";
 
-    function init (int age = 6, string key = "abc") {
+    isolated function init (int age = 6, string key = "abc") {
         self.age = age;
         self.name = "sample value";
     }
-};
+}
 
-type Foo object {
+class Foo {
     public int key = 0;
     public string value = "";
 
-    function init () {
+    isolated function init () {
     }
-};
+}
 
-type Bar object {
+class Bar {
     public string address = "";
-};
+}

@@ -18,46 +18,14 @@
 package org.ballerinalang.test.util;
 
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.core.model.types.BArrayType;
-import org.ballerinalang.core.model.types.BErrorType;
-import org.ballerinalang.core.model.types.BField;
-import org.ballerinalang.core.model.types.BFiniteType;
-import org.ballerinalang.core.model.types.BFunctionType;
-import org.ballerinalang.core.model.types.BMapType;
-import org.ballerinalang.core.model.types.BObjectType;
-import org.ballerinalang.core.model.types.BRecordType;
-import org.ballerinalang.core.model.types.BServiceType;
-import org.ballerinalang.core.model.types.BStreamType;
-import org.ballerinalang.core.model.types.BTupleType;
-import org.ballerinalang.core.model.types.BType;
-import org.ballerinalang.core.model.types.BTypeDesc;
-import org.ballerinalang.core.model.types.BTypes;
-import org.ballerinalang.core.model.types.BUnionType;
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BFunctionPointer;
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BRefType;
-import org.ballerinalang.core.model.values.BStream;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BTypeDescValue;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.model.values.BValueType;
-import org.ballerinalang.core.model.values.BXMLItem;
-import org.ballerinalang.core.model.values.BXMLSequence;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.DecimalValueKind;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BXML;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -84,7 +52,6 @@ import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -263,9 +230,11 @@ public class BRunUtil {
                     if (t instanceof BLangRuntimeException) {
                         throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
-                    if (t instanceof ErrorValue) {
-                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: "
-                                + ((ErrorValue) t).getPrintableStackTrace());
+                    if (t instanceof org.ballerinalang.jvm.api.values.BError) {
+                        throw new org.ballerinalang.util.exceptions
+                                .BLangRuntimeException("error: " +
+                                                               ((org.ballerinalang.jvm.api.values.BError) t)
+                                                                       .getPrintableStackTrace());
                     }
                     if (t instanceof StackOverflowError) {
                         throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " +
@@ -338,7 +307,7 @@ public class BRunUtil {
                     typeClazz = boolean.class;
                     break;
                 case TypeTags.STRING_TAG:
-                    typeClazz = org.ballerinalang.jvm.values.api.BString.class;
+                    typeClazz = org.ballerinalang.jvm.api.values.BString.class;
                     break;
                 case TypeTags.DECIMAL_TAG:
                     typeClazz = DecimalValue.class;
@@ -397,9 +366,9 @@ public class BRunUtil {
                     if (t instanceof BLangRuntimeException) {
                         throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
-                    if (t instanceof ErrorValue) {
-                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: "
-                                + ((ErrorValue) t).getPrintableStackTrace());
+                    if (t instanceof org.ballerinalang.jvm.api.values.BError) {
+                        throw new org.ballerinalang.util.exceptions
+                                .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
                     }
                     if (t instanceof StackOverflowError) {
                         throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " +
@@ -460,7 +429,7 @@ public class BRunUtil {
             case TypeTags.BOOLEAN_TAG:
                 return ((BBoolean) value).booleanValue();
             case TypeTags.STRING_TAG:
-                return StringUtils.fromString(value.stringValue());
+                return BStringUtils.fromString(value.stringValue());
             case TypeTags.FLOAT_TAG:
                 return ((BFloat) value).floatValue();
             case TypeTags.DECIMAL_TAG:
@@ -512,12 +481,12 @@ public class BRunUtil {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
                 BMap<String, BValue> record = (BMap) value;
-                MapValueImpl<org.ballerinalang.jvm.values.api.BString, Object> jvmRecord = new MapValueImpl<>(
+                MapValueImpl<org.ballerinalang.jvm.api.values.BString, Object> jvmRecord = new MapValueImpl<>(
                         getJVMType(type));
                 for (Map.Entry<String, BValue> entry : record.getMap().entrySet()) {
                     BValue entryVal = entry.getValue();
                     Object jvmVal = entryVal == null ? null : getJVMValue(entryVal.getType(), entryVal);
-                    jvmRecord.put(StringUtils.fromString(entry.getKey()), jvmVal);
+                    jvmRecord.put(BStringUtils.fromString(entry.getKey()), jvmVal);
                 }
                 return jvmRecord;
             case TypeTags.OBJECT_TYPE_TAG:
@@ -526,12 +495,12 @@ public class BRunUtil {
                         packageID.version.getValue());
                 String objName = type.tsymbol.getName().getValue();
 
-                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPackage, objName);
+                BObject jvmObject = BValueCreator.createObjectValue(objPackage, objName);
                 BMap<String, BValue> objVal = (BMap) value;
                 for (Map.Entry<String, BValue> entry : objVal.getMap().entrySet()) {
                     BValue entryVal = entry.getValue();
                     Object jvmVal = entryVal == null ? null : getJVMValue(entryVal.getType(), entryVal);
-                    jvmObject.set(StringUtils.fromString(entry.getKey()), jvmVal);
+                    jvmObject.set(BStringUtils.fromString(entry.getKey()), jvmVal);
                 }
                 HashMap<String, Object> nativeData = ((BMap) value).getNativeData();
                 if (nativeData == null) {
@@ -589,7 +558,7 @@ public class BRunUtil {
             case TypeTags.BOOLEAN_TAG:
                 return ((BBoolean) value).booleanValue();
             case TypeTags.STRING_TAG:
-                return StringUtils.fromString(value.stringValue());
+                return BStringUtils.fromString(value.stringValue());
             case TypeTags.FLOAT_TAG:
                 return ((BFloat) value).floatValue();
             case TypeTags.DECIMAL_TAG:
@@ -644,7 +613,7 @@ public class BRunUtil {
                 jvmMap = new MapValueImpl<>(new org.ballerinalang.jvm.types.BMapType(getJVMType(type)));
                 bMap.getMap().forEach((k, v) -> {
                     BValue bValue = bMap.get(k);
-                    jvmMap.put(StringUtils.fromString(k.toString()),
+                    jvmMap.put(BStringUtils.fromString(k.toString()),
                                bValue != null ? getJVMValue(bValue.getType(), bValue) : null);
                 });
                 return jvmMap;
@@ -653,7 +622,7 @@ public class BRunUtil {
                 BPackage objPkgPath = new BPackage(objPackagePath, "");
                 String objName = type.getName();
 
-                ObjectValue jvmObject = BallerinaValues.createObjectValue(objPkgPath, objName);
+                BObject jvmObject = BValueCreator.createObjectValue(objPkgPath, objName);
                 HashMap<String, Object> nativeData = ((BMap) value).getNativeData();
                 if (nativeData == null) {
                     return jvmObject;
@@ -856,8 +825,8 @@ public class BRunUtil {
                 bvmValue = new BBoolean((boolean) value);
                 break;
             case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
-                if (value instanceof org.ballerinalang.jvm.values.api.BString) {
-                    bvmValue = new BString(((org.ballerinalang.jvm.values.api.BString) value).getValue());
+                if (value instanceof org.ballerinalang.jvm.api.values.BString) {
+                    bvmValue = new BString(((org.ballerinalang.jvm.api.values.BString) value).getValue());
                 } else {
                     bvmValue = new BString((String) value);
                 }
@@ -942,9 +911,9 @@ public class BRunUtil {
                 for (String key : jvmObjectType.getFields().keySet()) {
                     Object val;
                     try {
-                        val = jvmObject.get(StringUtils.fromString(key));
+                        val = jvmObject.get(BStringUtils.fromString(key));
                     } catch (AbstractMethodError error) {
-                        val = jvmObject.get(StringUtils.fromString(key));
+                        val = jvmObject.get(BStringUtils.fromString(key));
                     }
                     bvmObject.put(key, getBVMValue(val, bvmValueMap));
                 }

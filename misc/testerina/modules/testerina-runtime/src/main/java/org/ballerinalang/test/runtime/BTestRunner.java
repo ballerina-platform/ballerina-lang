@@ -19,6 +19,7 @@
 package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -41,7 +42,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.entity.TesterinaFunction;
@@ -72,7 +72,7 @@ import java.util.stream.Collectors;
  */
 public class BTestRunner {
 
-    public static final String MODULE_INIT_CLASS_NAME = "___init";
+    public static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
 
     private PrintStream errStream;
@@ -516,7 +516,6 @@ public class BTestRunner {
                     String errorMsg;
                     for (String afterGroupFunc : suite.getGroups().get(groupName).getAfterGroupsFunctions()) {
                         try {
-
                             invokeTestFunction(suite, afterGroupFunc, classLoader, scheduler);
                         } catch (Throwable e) {
                             shouldSkip.set(true);

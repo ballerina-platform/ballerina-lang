@@ -138,21 +138,21 @@ public class JavaVarargsTest {
         BValue[] returns = BRunUtil.invoke(result, "testRefTypeVarArg");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "[7, 2, 8]");
-        Assert.assertEquals(returns[1].stringValue(), "[error error one, error error two]");
+        Assert.assertEquals(returns[1].stringValue(), "[error(\"error one\"), error(\"error two\")]");
     }
 
     @Test
     public void testIntArrayTypeVararg() {
         BValue[] returns = BRunUtil.invoke(result, "testIntArrayTypeVararg");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[[7 2], [8]]");
+        Assert.assertEquals(returns[0].stringValue(), "[[[7,2]], [[8]]]");
     }
 
     @Test
     public void testRefArrayTypeVararg() {
         BValue[] returns = BRunUtil.invoke(result, "testRefArrayTypeVararg");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[[error error one], [error error two]]");
+        Assert.assertEquals(returns[0].stringValue(), "[[[error(\"error one\")]], [[error(\"error two\")]]]");
     }
 
     // Java methods for interop

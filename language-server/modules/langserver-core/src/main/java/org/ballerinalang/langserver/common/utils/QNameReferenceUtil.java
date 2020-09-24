@@ -19,12 +19,10 @@ import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,9 +103,7 @@ public class QNameReferenceUtil {
         Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context,
                 QNameReferenceUtil.getAlias(qNameRef));
         return module.map(scopeEntry -> scopeEntry.symbol.scope.entries.values().stream()
-                .filter(entry -> entry.symbol instanceof BTypeSymbol
-                        || (entry.symbol instanceof BConstructorSymbol
-                        && Names.ERROR.equals(entry.symbol.name)))
+                .filter(CommonUtil.isBType())
                 .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
     }

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.IdentifierEncoder;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
@@ -39,7 +40,7 @@ public abstract class BType {
     private int hashCode;
 
     protected BType(String typeName, BPackage pkg, Class<? extends Object> valueClass) {
-        this.typeName = typeName;
+        this.typeName = IdentifierEncoder.decodeIdentifier(typeName);
         this.pkg = pkg;
         this.valueClass = valueClass;
         if (pkg != null && typeName != null) {
@@ -85,25 +86,35 @@ public abstract class BType {
 
         if (obj instanceof BType) {
             BType other = (BType) obj;
-            boolean namesEqual = this.typeName.equals(other.getName());
 
-            // If both package paths are null or both package paths are not null,
-            //    then check their names. If not return false
-
-            if (this.pkg == null || other.pkg == null) {
-                return namesEqual;
+            if (!this.typeName.equals(other.getName())) {
+                return false;
             }
 
-            String thisPkgName = this.pkg.getName();
-            String otherPkgName = other.pkg.getName();
+            BPackage thisModule = this.pkg;
+            BPackage otherModule = other.pkg;
 
-            if (otherPkgName == null) {
-                if (thisPkgName == null) {
-                    return namesEqual;
-                }
-            } else if (thisPkgName != null) {
-                return namesEqual && thisPkgName.equals(otherPkgName);
+            if (thisModule == null) {
+                return otherModule == null;
             }
+
+            if (otherModule == null) {
+                return false;
+            }
+
+            if (hasAllNullConstituents(thisModule)) {
+                return hasAllNullConstituents(otherModule);
+            }
+
+            if (hasAllNullConstituents(otherModule)) {
+                return false;
+            }
+
+            if (thisModule.version == null || otherModule.version == null) {
+                return thisModule.org.equals(otherModule.org) && thisModule.name.equals(otherModule.name);
+            }
+
+            return thisModule.equals(otherModule);
         }
         return false;
     }
@@ -160,5 +171,9 @@ public abstract class BType {
     public void setImmutableType(BIntersectionType immutableType) {
         // Do nothing since already set.
         // For types that immutable type may be set later, the relevant type overrides this method.
+    }
+
+    private boolean hasAllNullConstituents(BPackage module) {
+        return module.org == null && module.name == null && module.version == null;
     }
 }

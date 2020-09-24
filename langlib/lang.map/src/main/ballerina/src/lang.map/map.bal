@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
-
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
@@ -32,10 +30,7 @@ type Type1 any|error;
 #
 # + m - the map
 # + return - number of members in `m`
-public function length(map<any|error> m) returns int = @java:Method {
-    class: "org.ballerinalang.langlib.map.Length",
-    name: "length"
-} external;
+public isolated function length(map<any|error> m) returns int = external;
 
 # Returns an iterator over a map.
 # The iterator will iterate over the members of the map not the keys.
@@ -44,8 +39,8 @@ public function length(map<any|error> m) returns int = @java:Method {
 #
 # + m - the map
 # + return - a new iterator object that will iterate over the members of `m`
-public function iterator(map<Type> m) returns abstract object {
-    public function next() returns record {|
+public isolated function iterator(map<Type> m) returns object {
+    public isolated function next() returns record {|
         Type value;
     |}?;
 } {
@@ -60,19 +55,13 @@ public function iterator(map<Type> m) returns abstract object {
 # + m - the map
 # + k - the key
 # + return - member with key `k`
-public function get(map<Type> m, string k) returns Type = @java:Method {
-    class: "org.ballerinalang.langlib.map.Get",
-    name: "get"
-} external;
+public isolated function get(map<Type> m, string k) returns Type = external;
 
 # Returns a map containing [key, member] pair as the value for each key.
 #
 # + m - the map
 # + return - a new map of [key, member] pairs
-public function entries(map<Type> m) returns map<[string, Type]> = @java:Method {
-    class: "org.ballerinalang.langlib.map.Entries",
-    name: "entries"
-} external;
+public isolated function entries(map<Type> m) returns map<[string, Type]> = external;
 
 // Functional iteration
 
@@ -82,30 +71,21 @@ public function entries(map<Type> m) returns map<[string, Type]> = @java:Method 
 # + m - the map
 # + func - a function to apply to each member
 # + return - new map containing result of applying parameter `func` to each member
-public function 'map(map<Type> m, function(Type val) returns Type1 func) returns map<Type1> = @java:Method {
-    class: "org.ballerinalang.langlib.map.Map",
-    name: "map"
-} external;
+public function 'map(map<Type> m, function(Type val) returns Type1 func) returns map<Type1> = external;
 
 # Applies a function to each member of a map.
 # The parameter `func` is applied to each member of `m`.
 #
 # + m - the map
 # + func - a function to apply to each member
-public function forEach(map<Type> m, function(Type val) returns () func) returns () = @java:Method {
-    class: "org.ballerinalang.langlib.map.ForEach",
-    name: "forEach"
-} external;
+public function forEach(map<Type> m, function(Type val) returns () func) returns () = external;
 
 # Selects the members from a map for which a function returns true.
 #
 # + m - the map
 # + func - a predicate to apply to each element to test whether it should be included
 # + return - new map containing members for which `func` evaluates to true
-public function filter(map<Type> m, function(Type val) returns boolean func) returns map<Type> = @java:Method {
-    class: "org.ballerinalang.langlib.map.Filter",
-    name: "filter"
-} external;
+public function filter(map<Type> m, function(Type val) returns boolean func) returns map<Type> = external;
 
 # Combines the members of a map using a combining function.
 # The combining function takes the combined value so far and a member of the map,
@@ -115,11 +95,7 @@ public function filter(map<Type> m, function(Type val) returns boolean func) ret
 # + func - combining function
 # + initial - initial value for the first argument of combining parameter `func`
 # + return - result of combining the members of `m` using `func`
-public function reduce(map<Type> m, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1
-= @java:Method {
-    class: "org.ballerinalang.langlib.map.Reduce",
-    name: "reduce"
-} external;
+public function reduce(map<Type> m, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = external;
 
 # Removes a member of a map.
 #
@@ -128,10 +104,7 @@ public function reduce(map<Type> m, function(Type1 accum, Type val) returns Type
 # + return - the member of `m` that had key `k`
 # This removed the member of `m` with key `k` and returns it.
 # It panics if there is no such member.
-public function remove(map<Type> m, string k) returns Type = @java:Method {
-    class: "org.ballerinalang.langlib.map.Remove",
-    name: "remove"
-} external;
+public isolated function remove(map<Type> m, string k) returns Type = external;
 
 # Removes a member of a map with a given key, if the map has member with the key.
 #
@@ -140,44 +113,29 @@ public function remove(map<Type> m, string k) returns Type = @java:Method {
 # + return - the member of `m` that had key `k`, or `()` if `m` does not have a key `k`
 # If `m` has a member with key `k`, it removes and returns it;
 # otherwise it returns `()`.
-public function removeIfHasKey(map<Type> m, string k) returns Type? = @java:Method {
-    class: "org.ballerinalang.langlib.map.RemoveIfHasKey",
-    name: "removeIfHasKey"
-} external;
+public isolated function removeIfHasKey(map<Type> m, string k) returns Type? = external;
 
 # Removes all members of a map.
 # This panics if any member cannot be removed.
 #
 # + m - the map
-public function removeAll(map<any|error> m) returns () = @java:Method {
-    class: "org.ballerinalang.langlib.map.RemoveAll",
-    name: "removeAll"
-} external;
+public isolated function removeAll(map<any|error> m) returns () = external;
 
 # Tests whether m has a member with key `k`.
 #
 # + m - the map
 # + k - the key
 # + return - true if m has a member with key `k`
-public function hasKey(map<Type> m, string k) returns boolean = @java:Method {
-    class: "org.ballerinalang.langlib.map.HasKey",
-    name: "hasKey"
-} external;
+public isolated function hasKey(map<Type> m, string k) returns boolean = external;
 
 # Returns a list of all the keys of map `m`.
 #
 # + m - the map
 # + return - a new list of all keys
-public function keys(map<any|error> m) returns string[] = @java:Method {
-    class: "org.ballerinalang.langlib.map.GetKeys",
-    name: "keys"
-} external;
+public isolated function keys(map<any|error> m) returns string[] = external;
 
 # Returns a list of all the members of a map.
 #
 # + m - the map
 # + return - an array whose members are the members of `m`
-public function toArray(map<Type> m) returns Type[] = @java:Method {
-    class: "org.ballerinalang.langlib.map.ToArray",
-    name: "toArray"
-} external;
+public isolated function toArray(map<Type> m) returns Type[] = external;

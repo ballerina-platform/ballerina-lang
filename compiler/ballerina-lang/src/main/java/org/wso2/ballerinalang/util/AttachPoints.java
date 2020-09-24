@@ -44,6 +44,7 @@ public class AttachPoints {
     public static final int VAR = EXTERNAL << 1;
     public static final int CONST = VAR << 1;
     public static final int WORKER = CONST << 1;
+    public static final int CLASS = WORKER << 1;
 
     public static int asMask(Set<AttachPoint.Point> attachPoints) {
         int mask = 0;
@@ -100,6 +101,8 @@ public class AttachPoints {
                 case WORKER:
                     mask |= WORKER;
                     break;
+                case CLASS:
+                    mask |= CLASS;
             }
         }
         return mask;

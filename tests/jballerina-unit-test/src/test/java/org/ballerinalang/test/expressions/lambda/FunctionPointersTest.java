@@ -191,6 +191,11 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns[0].stringValue(), "truetest6");
     }
 
+    @Test(description = "Test global function type defs with closures")
+    public void testGlobalFunctionTypeDefWithClosures() {
+        BRunUtil.invoke(globalProgram, "testGlobalFunctionTypeDefWithClosures");
+    }
+
     @Test
     public void testStructFP() {
         BValue[] returns = BRunUtil.invoke(structProgram, "test1");
@@ -214,6 +219,11 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "white, bob");
+    }
+
+    @Test
+    public void testClassTypeAsParamtype() {
+        BRunUtil.invoke(structProgram, "testClassTypeAsParamtype");
     }
 
     @Test
@@ -251,7 +261,8 @@ public class FunctionPointersTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible types: " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError " +
+                    "\\{\"message\":\"incompatible types: " +
                     "'function \\(Student\\) returns \\(int\\)' cannot be cast to 'function \\(Person\\)" +
                     " returns \\(int\\)'.*")
     public void testAnyToFuncPointerConversion_2() {

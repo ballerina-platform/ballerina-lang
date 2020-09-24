@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.values.MapValue;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
@@ -42,7 +42,8 @@ public class RemoveAll {
         try {
             m.clear();
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-            throw BallerinaErrors.createError(e.getMessage(), "Failed to clear map: " + e.getDetail());
+            throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
+                                            BStringUtils.fromString("Failed to clear map: " + e.getDetail()));
         }
     }
 }

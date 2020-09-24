@@ -26,10 +26,12 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.writer.JarFileWriter;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -63,7 +65,6 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -71,7 +72,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_MODULE_DEPENDEN
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
-import static org.ballerinalang.test.util.TestConstant.ENABLE_OLD_PARSER_FOR_TESTS;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
@@ -95,7 +95,6 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compileAndGetBIR(String sourceFilePath) {
-
         return compile(sourceFilePath, CompilerPhase.BIR_GEN);
     }
 
@@ -106,7 +105,6 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceFilePath) {
-
         return compileOnJBallerina(sourceFilePath, false, true);
     }
 
@@ -117,7 +115,6 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compileOffline(String sourceFilePath) {
-
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(OFFLINE, "true");
@@ -132,7 +129,6 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compileInProc(String sourceFilePath) {
-
         System.setProperty("java.command", "java");
         Path sourcePath = Paths.get(sourceFilePath);
         String packageName = sourcePath.getFileName().toString();
@@ -148,13 +144,11 @@ public class BCompileUtil {
      * @return compiled results
      */
     public static CompileResult compileOnly(String sourceFilePath) {
-
         return compileOnJBallerina(sourceFilePath, false, false);
     }
 
     // This is a temp fix until service test are fix
     public static CompileResult compile(boolean temp, String sourceFilePath) {
-
         return compileOnJBallerina(sourceFilePath, temp, true);
     }
 
@@ -190,8 +184,7 @@ public class BCompileUtil {
     }
 
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler) {
-
-        String funcName = cleanupFunctionName(name);
+        String funcName = JvmCodeGenUtil.cleanupFunctionName(name.value);
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
@@ -231,13 +224,7 @@ public class BCompileUtil {
         }
     }
 
-    private static String cleanupFunctionName(BLangIdentifier name) {
-
-        return name.value.replaceAll("[.:/<>]", "_");
-    }
-
     public static CompileResult compileWithoutExperimentalFeatures(String sourceFilePath) {
-
         return compile(sourceFilePath, CompilerPhase.BIR_GEN, false);
     }
 
@@ -249,7 +236,6 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceRoot, String packageName) {
-
         return compile(sourceRoot, packageName, true);
     }
 
@@ -261,7 +247,6 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compileWithTests(String sourceRoot, String packageName) {
-
         return compile(sourceRoot, packageName, true, true);
     }
 
@@ -274,12 +259,10 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceRoot, String packageName, boolean init) {
-
         return compile(sourceRoot, packageName, init, false);
     }
 
     private static CompileResult compile(String sourceRoot, String packageName, boolean init, boolean withTests) {
-
         String filePath = concatFileName(sourceRoot, resourceDir);
         Path rootPath = Paths.get(filePath);
         Path packagePath = Paths.get(packageName);
@@ -296,7 +279,6 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(Path sourceRoot, String packageName, boolean init, boolean withTests) {
-
         Path packagePath = Paths.get(packageName);
         return getCompileResult(packageName, sourceRoot, packagePath, init, withTests);
     }
@@ -310,7 +292,6 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(Object obj, String sourceRoot, String packageName) {
-
         return compile(obj, sourceRoot, packageName, true);
     }
 
@@ -324,7 +305,6 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(Object obj, String sourceRoot, String packageName, boolean init) {
-
         String filePath = concatFileName(sourceRoot, resourceDir);
         Path rootPath = Paths.get(filePath);
         Path packagePath = Paths.get(packageName);
@@ -333,7 +313,6 @@ public class BCompileUtil {
 
     private static CompileResult getCompileResult(String packageName, Path rootPath, Path packagePath, boolean init,
                                                   boolean withTests) {
-
         String effectiveSource;
         if (Files.isDirectory(packagePath)) {
             String[] pkgParts = packageName.split("\\/");
@@ -372,7 +351,6 @@ public class BCompileUtil {
      * @return the path with directoryName + file.
      */
     public static String concatFileName(String fileName, Path pathLocation) {
-
         final String windowsFolderSeparator = "\\";
         final String unixFolderSeparator = "/";
         StringBuilder path = new StringBuilder(pathLocation.toAbsolutePath().toString());
@@ -393,7 +371,6 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceFilePath, CompilerPhase compilerPhase, boolean enableExpFeatures) {
-
         Path sourcePath = Paths.get(sourceFilePath);
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
@@ -408,7 +385,6 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceFilePath, CompilerPhase compilerPhase) {
-
         return compile(sourceFilePath, compilerPhase, true);
     }
 
@@ -423,7 +399,6 @@ public class BCompileUtil {
      */
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
                                         boolean enableExpFeatures) {
-
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
@@ -431,7 +406,6 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
         options.put(OFFLINE, "true");
-
         return compile(context, packageName, compilerPhase, false);
     }
 
@@ -447,7 +421,6 @@ public class BCompileUtil {
      */
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
                                         boolean isSiddhiRuntimeEnabled, boolean enableExpFeatures) {
-
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
@@ -468,13 +441,11 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
-
         return compile(sourceRoot, packageName, compilerPhase, true);
     }
 
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
                                         SourceDirectory sourceDirectory) {
-
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
@@ -484,37 +455,22 @@ public class BCompileUtil {
         options.put(OFFLINE, "true");
         context.put(SourceDirectory.class, sourceDirectory);
 
-        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
-        context.put(DiagnosticListener.class, listener);
-        CompileResult comResult = new CompileResult(listener);
-
         // compile
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage packageNode = compiler.compile(packageName);
-        comResult.setAST(packageNode);
+        CompileResult comResult = new CompileResult(context, packageNode);
         return comResult;
     }
 
-    private static CompileResult compile(CompilerContext context, String packageName,
-                                         CompilerPhase compilerPhase, boolean withTests) {
-
-        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
-        context.put(DiagnosticListener.class, listener);
-        return compile(context, listener, packageName, compilerPhase, withTests);
-    }
-
     private static CompileResult compile(CompilerContext context,
-                                         CompileResult.CompileResultDiagnosticListener listener,
                                          String packageName,
                                          CompilerPhase compilerPhase,
                                          boolean withTests) {
 
-        CompileResult comResult = new CompileResult(listener);
-
         // compile
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage packageNode = compiler.compile(packageName, true);
-        comResult.setAST(packageNode);
+        CompileResult comResult = new CompileResult(context, packageNode);
         return comResult;
     }
 
@@ -526,7 +482,6 @@ public class BCompileUtil {
      * @return compiled module node
      */
     public static BLangPackage compileAndGetPackage(String sourceFilePath, CompilerPhase compilerPhase) {
-
         Path sourcePath = Paths.get(sourceFilePath);
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
@@ -538,16 +493,12 @@ public class BCompileUtil {
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
         options.put(OFFLINE, "true");
 
-        CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
-        context.put(DiagnosticListener.class, listener);
-
         // compile
         Compiler compiler = Compiler.getInstance(context);
         return compiler.compile(packageName);
     }
 
     public static String readFileAsString(String path) throws IOException {
-
         InputStream is = new FileInputStream(path);
         InputStreamReader inputStreamREader = null;
         BufferedReader br = null;
@@ -583,51 +534,39 @@ public class BCompileUtil {
     }
 
     public static boolean jBallerinaTestsEnabled() {
-
         String value = System.getProperty(ENABLE_JBALLERINA_TESTS);
         return Boolean.parseBoolean(value);
     }
 
-    public static boolean newParserEnabled() {
-        return !Boolean.parseBoolean(System.getProperty(ENABLE_OLD_PARSER_FOR_TESTS));
-    }
-
     private static CompileResult compileOnJBallerina(String sourceRoot, String packageName,
                                                      SourceDirectory sourceDirectory, boolean init, boolean withTests) {
-
         CompilerContext context = new CompilerContext();
         context.put(SourceDirectory.class, sourceDirectory);
         return compileOnJBallerina(context, sourceRoot, packageName, false, init, withTests);
     }
 
     public static CompileResult compileOnJBallerina(String sourceRoot, String packageName, boolean temp, boolean init) {
-
         return compileOnJBallerina(sourceRoot, packageName, temp, init, false);
     }
 
     private static CompileResult compileOnJBallerina(String sourceRoot, String packageName, boolean temp, boolean init,
                                                      boolean withTests) {
-
         CompilerContext context = new CompilerContext();
         return compileOnJBallerina(context, sourceRoot, packageName, temp, init, withTests);
     }
 
     public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
                                                     boolean temp, boolean init) {
-
         return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false, false);
     }
 
-    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
-                                                     boolean temp, boolean init, boolean withTests) {
-
+    public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
+                                                    boolean temp, boolean init, boolean withTests) {
         return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false, withTests);
     }
 
     public static String runMain(CompileResult compileResult, String[] args) {
-
         ExitDetails exitDetails = run(compileResult, args);
-
         if (exitDetails.exitCode != 0) {
             throw new RuntimeException(exitDetails.errorOutput);
         }
@@ -654,8 +593,8 @@ public class BCompileUtil {
 
             final Runtime runtime = Runtime.getRuntime();
             final Process process = runtime.exec(actualArgs.toArray(new String[0]));
-            String consoleInput = getConsoleOutput(process.getInputStream());
             String consoleError = getConsoleOutput(process.getErrorStream());
+            String consoleInput = getConsoleOutput(process.getInputStream());
             process.waitFor();
             int exitValue = process.exitValue();
             return new ExitDetails(exitValue, consoleInput, consoleError);
@@ -665,7 +604,6 @@ public class BCompileUtil {
     }
 
     private static String getClassPath(URLClassLoader cl) {
-
         URL[] urls = cl.getURLs();
         StringJoiner joiner = new StringJoiner(":");
         for (URL url : urls) {
@@ -675,7 +613,6 @@ public class BCompileUtil {
     }
 
     private static String getConsoleOutput(InputStream inputStream) {
-
         final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
         reader.lines().iterator().forEachRemaining(sj::add);
@@ -683,7 +620,6 @@ public class BCompileUtil {
     }
 
     private static CompileResult compileOnJBallerina(String sourceFilePath, boolean temp, boolean init) {
-
         Path sourcePath = Paths.get(sourceFilePath);
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
@@ -692,7 +628,6 @@ public class BCompileUtil {
 
     private static CompileResult compileOnJBallerina(CompilerContext context, String sourceFilePath,
                                                      boolean temp, boolean init) {
-
         Path sourcePath = Paths.get(sourceFilePath);
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
@@ -722,19 +657,13 @@ public class BCompileUtil {
                 options.put(TEST_ENABLED, Boolean.TRUE.toString());
             }
 
-            if (newParserEnabled()) {
-                options.put(NEW_PARSER_ENABLED, Boolean.TRUE.toString());
-            }
-
             CompileResult compileResult = compile(context, packageName, CompilerPhase.CODE_GEN, withTests);
             if (compileResult.getErrorCount() > 0) {
                 return compileResult;
             }
 
             BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
-
             JarFileWriter jarFileWriter = JarFileWriter.getInstance(context);
-
             URLClassLoader cl = createClassLoaderWithCompiledJars(bLangPackage, buildDir, jarTargetRoot, jarFileWriter);
             compileResult.setClassLoader(cl);
 
@@ -782,7 +711,6 @@ public class BCompileUtil {
 
     private static void writeImportModuleJars(List<BPackageSymbol> imports, Path jarTargetDir,
                                               JarFileWriter jarFileWriter) {
-
         for (BPackageSymbol pkg : imports) {
             PackageID id = pkg.pkgID;
             // Todo: ballerinax check shouldn't be here. This should be fixed by having a proper package hierarchy.
@@ -796,7 +724,6 @@ public class BCompileUtil {
     }
 
     private static void addClasspathEntries(Path path, List<URL> jarFiles) throws IOException {
-
         if (!path.toFile().isDirectory()) {
             return;
         }
@@ -815,7 +742,6 @@ public class BCompileUtil {
     }
 
     private static String calcFileNameForJar(BLangPackage bLangPackage) {
-
         PackageID pkgID = bLangPackage.pos.src.pkgID;
         Name sourceFileName = pkgID.sourceFileName;
         if (sourceFileName != null) {

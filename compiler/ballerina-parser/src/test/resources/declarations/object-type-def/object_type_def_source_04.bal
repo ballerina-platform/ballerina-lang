@@ -1,11 +1,8 @@
 type Foo object {
-    public function init() {
-    }
+    public function init();
 
-    function getName() {
-    }
+    function getName();
 
-    private remote function get() {
-    }
+    public remote function get();
 
 };

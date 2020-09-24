@@ -62,7 +62,7 @@ public class RecordToJSONTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*KeyNotFound message=invalid field access: field 'newField' not found in " +
+                  ".*KeyNotFound \\{\"message\":\"invalid field access: field 'newField' not found in " +
                           "record type 'Foo'.*")
     public void testClosedRecordToJson() {
         BRunUtil.invoke(compileResult, "testClosedRecordToJson");

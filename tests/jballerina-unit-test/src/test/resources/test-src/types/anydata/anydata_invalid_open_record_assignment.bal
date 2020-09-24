@@ -90,9 +90,9 @@ type Foo7 record {|
     anydata...;
 |};
 
-type Bar object {
+class Bar {
     int oa = 0;
-};
+}
 
 type Bar2 record {|
     int ra = 0;

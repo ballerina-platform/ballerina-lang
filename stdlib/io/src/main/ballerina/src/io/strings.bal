@@ -15,14 +15,14 @@
 // under the License.
 
 # Represents a reader which will wrap string content as a channel.
-public type StringReader object {
+public class StringReader {
     private ReadableCharacterChannel? charChannel;
 
     # Constructs a channel to read string.
     #
     # + content - The content, which should be written
     # + encoding - Encoding of the characters of the content
-    public function init(string content, public string encoding = "UTF-8") {
+    public function init(string content, string encoding = "UTF-8") {
         byte[] contentBytes = content.toBytes();
         ReadableByteChannel byteChannel = checkpanic createReadableChannel(contentBytes);
         self.charChannel = new ReadableCharacterChannel(byteChannel, encoding);
@@ -48,7 +48,7 @@ public type StringReader object {
 # io:StringReader reader = new("<Person><Name>Alice</Name></Person>");
 # xml|io:Error? person = reader.readXml();
 # ```
-# 
+#
 # + return - XML or else `io:Error` if any error occurred
     public function readXml() returns @tainted xml|Error? {
         if(self.charChannel is ReadableCharacterChannel){
@@ -87,4 +87,4 @@ public type StringReader object {
         }
         return ();
     }
-};
+}

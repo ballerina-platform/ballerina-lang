@@ -3,5 +3,3 @@
 }public   function   foo  (  )   {
     int  result  =  multiply (  2  ,   3  )  ;
    }
-
-

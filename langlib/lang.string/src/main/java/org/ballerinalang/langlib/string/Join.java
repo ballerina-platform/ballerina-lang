@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 
 import java.util.StringJoiner;
 
@@ -44,6 +44,6 @@ public class Join {
             String str = ((BString) strs[i]).getValue();
             stringJoiner.add(str);
         }
-        return StringUtils.fromString(stringJoiner.toString());
+        return BStringUtils.fromString(stringJoiner.toString());
     }
 }

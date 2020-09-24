@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.clauses.OnFailClauseNode;
+
 /**
  * {@code TransactionNode} represents the transaction statement in Ballerina.
  *
@@ -27,4 +29,8 @@ public interface TransactionNode extends StatementNode {
     BlockStatementNode getTransactionBody();
 
     void setTransactionBody(BlockStatementNode body);
+
+    OnFailClauseNode getOnFailClause();
+
+    void setOnFailClause(OnFailClauseNode onFailClause);
 }

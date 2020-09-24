@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.internal.ErrorUtils;
 
 import java.util.Locale;
 
@@ -39,8 +39,8 @@ public class ToLowerAscii {
 
     public static BString toLowerAscii(BString str) {
         if (str == null) {
-            throw BallerinaErrors.createNullReferenceError();
+            throw ErrorUtils.createNullReferenceError();
         }
-        return org.ballerinalang.jvm.StringUtils.fromString(str.getValue().toLowerCase(Locale.getDefault()));
+        return BStringUtils.fromString(str.getValue().toLowerCase(Locale.getDefault()));
     }
 }

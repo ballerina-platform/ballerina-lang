@@ -116,7 +116,8 @@ public class ModOperationTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}DivisionByZero message= / by zero.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}DivisionByZero \\{\"message\":\" / " +
+                    "by zero\"\\}.*")
     public void testIntModZero() {
         BRunUtil.invoke(result, "intMod", new BValue[]{new BInteger(2000), new BInteger(0)});
     }

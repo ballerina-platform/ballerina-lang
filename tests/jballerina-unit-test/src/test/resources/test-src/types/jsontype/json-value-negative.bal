@@ -42,10 +42,10 @@ type PersonWithTypedesc record {
     typedesc<any> t;
 };
 
-type Obj object {
+class Obj {
     int i;
 
     function init() {
         self.i = 0;
     }
-};
+}

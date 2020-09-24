@@ -41,6 +41,12 @@
         <Package name="org.wso2.ballerinalang.compiler.tree" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.tree.bindingpatterns" />
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerinalang.compiler.tree.matchpatterns" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.parser" />
     </Match>
     <Match>
@@ -195,6 +201,10 @@
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer"/>
         <Bug pattern="BC_UNCONFIRMED_CAST, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.diagnostic.DiagnosticComparator"/>
+        <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE"/>
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer$OptimizerEnv"/>

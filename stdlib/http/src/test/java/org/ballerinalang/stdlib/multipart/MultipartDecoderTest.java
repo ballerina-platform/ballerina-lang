@@ -22,10 +22,7 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.util.internal.StringUtil;
-import org.ballerinalang.core.model.util.StringUtils;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.net.http.HttpConstants;
@@ -221,7 +218,7 @@ public class MultipartDecoderTest {
     @Test(enabled = false)
     public void testBase64DecodeByteChannel() {
         String expectedValue = "Hello Ballerina!";
-        ObjectValue byteChannelStruct = MultipartUtils.getByteChannelStruct();
+        BObject byteChannelStruct = MultipartUtils.getByteChannelStruct();
         byte[] encodedByteArray = Base64.getEncoder().encode(expectedValue.getBytes());
         InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
         Base64ByteChannel base64ByteChannel = new Base64ByteChannel(encodedStream);

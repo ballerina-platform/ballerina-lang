@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.api.values.BXML;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BXML;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,9 +69,7 @@ public class Filter {
         List<BXML> elements = new ArrayList<>();
         int size = x.size();
         AtomicInteger index = new AtomicInteger(-1);
-        // accessing the parent strand here to use it with each iteration
-        Strand parentStrand = Scheduler.getStrand();
-        BRuntime.getCurrentRuntime()
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{parentStrand,
                                                                x.getItem(index.incrementAndGet()), true},
@@ -79,7 +77,8 @@ public class Filter {
                                                            if ((Boolean) result) {
                                                                elements.add(x.getItem(index.get()));
                                                            }
-                                                       }, () -> new XMLSequence(elements));
+                                                       }, () -> new XMLSequence(elements),
+                                                       Scheduler.getStrand().scheduler);
 
         return new XMLSequence(elements);
     }

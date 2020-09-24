@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.integer;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.BStringUtils;
 
 /**
  * Native implementation of lang.int:toHexString(int).

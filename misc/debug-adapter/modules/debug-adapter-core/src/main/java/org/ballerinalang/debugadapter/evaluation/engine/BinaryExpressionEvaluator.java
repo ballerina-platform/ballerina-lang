@@ -87,6 +87,23 @@ public class BinaryExpressionEvaluator extends Evaluator {
                 return div(lVar, rVar);
             case PERCENT_TOKEN:
                 return mod(lVar, rVar);
+            case LT_TOKEN:
+            case GT_TOKEN:
+            case LT_EQUAL_TOKEN:
+            case GT_EQUAL_TOKEN:
+                return compare(lVar, rVar, operatorType);
+            case BITWISE_AND_TOKEN:
+                return bitwiseAND(lVar, rVar);
+            case PIPE_TOKEN:
+                return bitwiseOR(lVar, rVar);
+            case BITWISE_XOR_TOKEN:
+                return bitwiseXOR(lVar, rVar);
+            case LOGICAL_AND_TOKEN:
+                return logicalAND(lVar, rVar);
+            case LOGICAL_OR_TOKEN:
+                return logicalOR(lVar, rVar);
+            case ELVIS_TOKEN:
+                return conditionalReturn(lVar, rVar);
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operatorType);
         }
@@ -237,6 +254,136 @@ public class BinaryExpressionEvaluator extends Evaluator {
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
         } else {
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+        }
+    }
+
+    private BExpressionValue compare(BVariable lVar, BVariable rVar, SyntaxKind operator) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int <=> int
+            boolean result;
+            switch (operator) {
+                case LT_TOKEN:
+                    result = Long.parseLong(lVar.computeValue()) < Long.parseLong(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+                case GT_TOKEN:
+                    result = Long.parseLong(lVar.computeValue()) > Long.parseLong(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+                case LT_EQUAL_TOKEN:
+                    result = Long.parseLong(lVar.computeValue()) <= Long.parseLong(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+                case GT_EQUAL_TOKEN:
+                    result = Long.parseLong(lVar.computeValue()) >= Long.parseLong(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+            }
+        } else if ((lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.FLOAT)
+                || (lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.INT)
+                || lVar.getBType() == BVariableType.FLOAT && rVar.getBType() == BVariableType.FLOAT) {
+            // int <=> float or float <=> float
+            boolean result;
+            switch (operator) {
+                case LT_TOKEN:
+                    result = Double.parseDouble(lVar.computeValue()) < Double.parseDouble(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+                case GT_TOKEN:
+                    result = Double.parseDouble(lVar.computeValue()) > Double.parseDouble(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+                case LT_EQUAL_TOKEN:
+                    result = Double.parseDouble(lVar.computeValue()) <= Double.parseDouble(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+                case GT_EQUAL_TOKEN:
+                    result = Double.parseDouble(lVar.computeValue()) >= Double.parseDouble(rVar.computeValue());
+                    return EvaluationUtils.make(context, result);
+            }
+        } else if (lVar.getBType() == BVariableType.DECIMAL || rVar.getBType() == BVariableType.DECIMAL) {
+            // Todo - Add support for
+            // decimal <=> decimal
+            // decimal <=>  int or int <=> decimal
+            // decimal <=> float or float <=> decimal
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+        }
+        throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+    }
+
+    /**
+     * Performs bitwise AND operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue bitwiseAND(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int + int
+            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
+            long result = Long.parseLong(lVar.computeValue()) & Long.parseLong(rVar.computeValue());
+            return EvaluationUtils.make(context, result);
+        } else {
+            // Todo - Add support for signed and unsigned integers
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_AND_TOKEN);
+        }
+    }
+
+    /**
+     * Performs bitwise OR operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue bitwiseOR(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int + int
+            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
+            long result = Long.parseLong(lVar.computeValue()) | Long.parseLong(rVar.computeValue());
+            return EvaluationUtils.make(context, result);
+        } else {
+            // Todo - Add support for signed and unsigned integers
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PIPE_TOKEN);
+        }
+    }
+
+    /**
+     * Performs bitwise XOR operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue bitwiseXOR(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.INT && rVar.getBType() == BVariableType.INT) {
+            // int + int
+            // Todo - filter unsigned integers and signed integers with 8, 16 and 32 bits
+            long result = Long.parseLong(lVar.computeValue()) ^ Long.parseLong(rVar.computeValue());
+            return EvaluationUtils.make(context, result);
+        } else {
+            // Todo - Add support for signed and unsigned integers
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.BITWISE_XOR_TOKEN);
+        }
+    }
+
+    /**
+     * Performs logical AND operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue logicalAND(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.BOOLEAN && rVar.getBType() == BVariableType.BOOLEAN) {
+            return !Boolean.parseBoolean(lVar.computeValue()) ? EvaluationUtils.make(context, false)
+                    : EvaluationUtils.make(context, Boolean.parseBoolean(rVar.computeValue()));
+        } else {
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.LOGICAL_AND_TOKEN);
+        }
+    }
+
+    /**
+     * Performs logical OR operation on the given ballerina variable values and returns the result.
+     */
+    private BExpressionValue logicalOR(BVariable lVar, BVariable rVar) throws EvaluationException {
+        if (lVar.getBType() == BVariableType.BOOLEAN && rVar.getBType() == BVariableType.BOOLEAN) {
+            return Boolean.parseBoolean(lVar.computeValue()) ? EvaluationUtils.make(context, true)
+                    : EvaluationUtils.make(context, Boolean.parseBoolean(rVar.computeValue()));
+        } else {
+            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.LOGICAL_OR_TOKEN);
+        }
+    }
+
+    /**
+     * Performs elvis conditional operation.
+     */
+    private BExpressionValue conditionalReturn(BVariable lVar, BVariable rVar) {
+        // Evaluate LHS to get a value x.
+        // If x is not nil, then return x.
+        // Otherwise, return the result of evaluating RHS.
+        if (lVar.getBType() != BVariableType.NIL) {
+            return new BExpressionValue(context, lVar.getJvmValue());
+        } else {
+            return new BExpressionValue(context, rVar.getJvmValue());
         }
     }
 

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
@@ -54,18 +54,15 @@ public class Filter {
         int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
         AtomicInteger index = new AtomicInteger(-1);
-        // accessing the parent strand here to use it with each iteration
-        Strand parentStrand = Scheduler.getStrand();
-        BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{parentStrand, arr.get(index.incrementAndGet()),
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                                                         () -> new Object[]{strand, arr.get(index.incrementAndGet()),
                                 true},
                         result -> {
                             if ((Boolean) result) {
                                 newArr.add(newArraySize.incrementAndGet(),
                                         arr.get(index.get()));
                             }
-                        }, () -> newArr);
+                                                       }, () -> newArr, Scheduler.getStrand().scheduler);
         return newArr;
     }
 }

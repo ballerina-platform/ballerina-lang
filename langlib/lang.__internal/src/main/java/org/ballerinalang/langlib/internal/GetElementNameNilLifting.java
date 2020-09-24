@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.values.XMLValue;
 
-import static org.ballerinalang.jvm.BallerinaErrors.createError;
+import static org.ballerinalang.jvm.api.BErrorCreator.createError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
 
 /**
@@ -45,6 +45,7 @@ public class GetElementNameNilLifting {
             return elementName;
         }
         String nodeTypeName = xmlVal.getNodeType().value();
-        return createError(XML_OPERATION_ERROR, "XML " + nodeTypeName + " does not contain element name");
+        return createError(XML_OPERATION_ERROR,
+                           BStringUtils.fromString("XML " + nodeTypeName + " does not contain element name"));
     }
 }

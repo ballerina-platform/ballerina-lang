@@ -90,27 +90,27 @@ public class ForeachIterableObjectTest {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'object { public function next " +
                 "() returns (record {| int value; |}?); }', found 'object { int[] integers; int cursorIndex; public " +
-                "function next () returns ((record {| int value; |}|CustomError)?); }'", 142, 16);
+                "function next () returns ((record {| int value; |}|CustomError)?); }'", 120, 16);
         BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function with " +
                 "signature,  public function __iterator() returns (object { public function next () returns (record " +
-                "{| T value; |}?); });", 229, 25);
+                "{| T value; |}?); });", 220, 25);
         BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function with " +
                 "signature,  public function __iterator() returns (object { public function next () returns (record " +
-                "{| T value; |}?); });", 231, 25);
+                "{| T value; |}?); });", 222, 25);
         BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function with " +
                 "signature,  public function __iterator() returns (object { public function next () returns (record " +
-                "{| T value; |}?); });", 233, 25);
+                "{| T value; |}?); });", 224, 25);
         BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function with " +
                 "signature,  public function __iterator() returns (object { public function next () returns (record " +
-                "{| T value; |}?); });", 235, 25);
+                "{| T value; |}?); });", 226, 25);
         BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function with " +
                 "signature,  public function __iterator() returns (object { public function next () returns (record " +
-                "{| T value; |}?); });", 237, 25);
+                "{| T value; |}?); });", 228, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|CustomError)" +
-                "'", 241, 25);
+                "'", 232, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|CustomError)" +
-                "'", 243, 25);
+                "'", 234, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|CustomError)" +
-                "'", 246, 25);
+                "'", 237, 25);
     }
 }

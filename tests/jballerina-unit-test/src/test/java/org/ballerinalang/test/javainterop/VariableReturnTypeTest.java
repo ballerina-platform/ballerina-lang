@@ -61,47 +61,46 @@ public class VariableReturnTypeTest {
         validateError(errors, indx++, "incompatible types: expected 'float', found '(int|float)'", 61, 15);
         validateError(errors, indx++, "unknown type 'td'", 64, 73);
         validateError(errors, indx++, "unknown type 'td'", 72, 54);
-        validateError(errors, indx++, "unknown type 'td'", 74, 88);
         validateError(errors, indx++, "invalid error detail type 'detail', expected a subtype of " +
-                "'map<(anydata|readonly)>'", 86, 83);
-        validateError(errors, indx++, "unknown type 'detail'", 86, 83);
+                "'map<(anydata|readonly)>'", 81, 83);
+        validateError(errors, indx++, "unknown type 'detail'", 81, 83);
         validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +
-                "in external functions", 93, 45);
+                "in external functions", 88, 45);
         validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +
-                "in external functions", 93, 67);
+                "in external functions", 88, 67);
         validateError(errors, indx++, "default value for a 'typedesc' parameter used in the return type" +
-                " should be a reference to a type", 97, 29);
-        validateError(errors, indx++, "unknown type 'NonExistentParam'", 107, 77);
-        validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 113, 54);
-        validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 119, 45);
+                " should be a reference to a type", 92, 29);
+        validateError(errors, indx++, "unknown type 'NonExistentParam'", 102, 77);
+        validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 108, 54);
+        validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 114, 45);
         validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +
-                "in external functions", 119, 45);
+                "in external functions", 114, 45);
         validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) returns " +
-                "(string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 130, 61);
-        validateError(errors, indx++, "unknown type 'td'", 131, 48);
+                "(string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 125, 61);
+        validateError(errors, indx++, "unknown type 'td'", 126, 48);
         validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) returns " +
-                "(other)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 131, 57);
+                "(other)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 126, 57);
 
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'map' cannot be cast to " +
-                  "'map<anydata>.*")
+          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: 'map' cannot be " +
+                  "cast to 'map<anydata>.*")
     public void testRuntimeCastError() {
         BRunUtil.invoke(result, "testRuntimeCastError");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'Person' cannot be cast " +
-                  "to 'int'.*")
+          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: 'Person' cannot be" +
+                  " cast to 'int'.*")
     public void testCastingForInvalidValues() {
         BRunUtil.invoke(result, "testCastingForInvalidValues");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'string' cannot be cast " +
-                  "to 'int'.*")
+          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: 'string' cannot be " +
+                  "cast to 'int'.*")
     public void testFunctionAssignment() {
         BRunUtil.invoke(result, "testFunctionAssignment");
     }

@@ -71,11 +71,14 @@ public class ObjectTypeReferenceTest {
                                   "cyclic type reference in '[C, D, A, B, C]'", 74, 1);
         BAssertUtil.validateError(negativeResult, i++,
                                   "cyclic type reference in '[E, C, E]'", 74, 1);
-        BAssertUtil.validateError(negativeResult, i++,
-                                  "no implementation found for the function 'getName' of non-abstract object " +
-                                          "'Manager2'", 96, 5);
-        BAssertUtil.validateError(negativeResult, i++,
-                "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
+        // Disable as new class definition will replace objects that can have method implementations.
+//        BAssertUtil.validateError(negativeResult, i++,
+//                                  "no implementation found for the function 'getName' of non-abstract object " +
+//                                          "'Manager2'", 96, 5);
+        i++;
+//        BAssertUtil.validateError(negativeResult, i++,
+//                "no implementation found for the function 'getSalary' of non-abstract object 'Manager2'", 96, 5);
+        i++;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an object", 101, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 111, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +
@@ -223,36 +226,33 @@ public class ObjectTypeReferenceTest {
                                   "mismatched function signatures: expected 'function test1(string aString, int " +
                                           "anInt) returns (string|error)', found 'function test1(string str, int " +
                                           "anInt)" +
-                                          " returns (string|error)'", 55, 5);
+                                          " returns (string|error)'", 53, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'public function test2(string aString)', " +
-                                          "found 'function test2(string aString)'", 60, 5);
+                                          "found 'function test2(string aString)'", 58, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test3(int anInt, string " +
                                           "aString, string defaultable, int def2)', found 'function test3(string " +
-                                          "aString, int anInt, string defaultable, int def2) returns string'", 63, 5);
+                                          "aString, int anInt, string defaultable, int def2) returns string'", 61, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test4(string aString, " +
                                           "int:Signed16 anInt, Bar... bars) returns string', found 'function test4" +
                                           "(string aString, int anInt, AnotherBar... bars) returns string'",
-                                  68, 5);
+                                  66, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test5(ON|OFF... status) returns" +
-                                          " Bar', found 'function test5(ON|OFF... stat) returns Bar'", 73, 5);
+                                          " Bar', found 'function test5(ON|OFF... stat) returns Bar'", 71, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test6([string,ON|OFF]... tup)'," +
-                                          " found 'function test6([string,ON|OFF]... tupl)'", 78, 5);
+                                          " found 'function test6([string,ON|OFF]... tupl)'", 76, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test7() returns ON|OFF', found " +
-                                          "'function test7(int x) returns ON|OFF'", 81, 5);
+                                          "'function test7(int x) returns ON|OFF'", 79, 5);
         BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'function test8(public string s, int i)'," +
-                                          " found 'function test8(string s, public int i)'", 86, 5);
-        BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'function test9(int:Signed16 anInt, Bar.." +
-                                          ". bars) returns int:Signed16', found 'function test9(int:Signed16 anInt, " +
+                                  "mismatched function signatures: expected 'function test8(int:Signed16 anInt, Bar.." +
+                                          ". bars) returns int:Signed16', found 'function test8(int:Signed16 anInt, " +
                                           "Bar... bars) returns int'",
-                                  91, 5);
+                                  84, 5);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 

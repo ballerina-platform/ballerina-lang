@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -36,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -52,7 +54,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -85,7 +86,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private Names names;
     private final Types types;
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
 
     private DiagnosticPos defaultPos;
     private CompilerContext context;
@@ -113,7 +114,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.context = context;
 
         this.pluginList = new ArrayList<>();
@@ -196,7 +197,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         List<BLangAnnotationAttachment> attachmentList = funcNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(funcNode, list));
-        funcNode.endpoints.forEach(endpoint -> endpoint.accept(this));
     }
 
     public void visit(BLangImportPackage importPkgNode) {
@@ -219,6 +219,12 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefNode) {
         List<BLangAnnotationAttachment> attachmentList = typeDefNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(typeDefNode, list));
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        List<BLangAnnotationAttachment> attachmentList = classDefinition.getAnnotationAttachments();
+        notifyProcessors(attachmentList, (processor, list) -> processor.process(classDefinition, list));
     }
 
     public void visit(BLangSimpleVariable varNode) {

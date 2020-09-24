@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLValueUtil;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Create XML processing instruction.
@@ -45,6 +45,6 @@ public class GetTarget {
                     "getTarget", "processing instruction");
         }
 
-        return StringUtils.fromString(XMLValueUtil.getTarget(xmlValue));
+        return BStringUtils.fromString(XMLValueUtil.getTarget(xmlValue));
     }
 }

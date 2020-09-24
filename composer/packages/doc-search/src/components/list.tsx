@@ -28,7 +28,8 @@ interface ListProps extends React.Props<any> {
 interface ListState {
     filteredModules: any[];
     filteredFunctions: any[];
-    filteredObjects: any[];
+    filteredClasses: any[];
+    filteredAbsObjects: any[];
     filteredRecords: any[];
     filteredConstants: any[];
     filteredErrors: any[];
@@ -45,7 +46,8 @@ export class List extends React.Component<ListProps, ListState> {
         this.state = {
             filteredModules: [],
             filteredFunctions: [],
-            filteredObjects: [],
+            filteredClasses: [],
+            filteredAbsObjects: [],
             filteredRecords: [],
             filteredConstants: [],
             filteredErrors: [],
@@ -74,9 +76,10 @@ export class List extends React.Component<ListProps, ListState> {
         this.setState({
             filteredModules: this.props.searchJson.modules,
             filteredFunctions: this.props.searchJson.functions,
-            filteredObjects: this.props.searchJson.objects,
+            filteredClasses: this.props.searchJson.classes,
             filteredRecords: this.props.searchJson.records,
             filteredConstants: this.props.searchJson.constants,
+            filteredAbsObjects: this.props.searchJson.abstractObjects,
             filteredErrors: this.props.searchJson.errors,
             filteredTypes: this.props.searchJson.types,
             filteredClients: this.props.searchJson.clients,
@@ -90,7 +93,8 @@ export class List extends React.Component<ListProps, ListState> {
         this.setState({
             filteredModules: nextProps.searchJson.modules,
             filteredFunctions: nextProps.searchJson.functions,
-            filteredObjects: nextProps.searchJson.objects,
+            filteredClasses: nextProps.searchJson.objects,
+            filteredAbsObjects: nextProps.searchJson.abstractObjects,
             filteredRecords: nextProps.searchJson.records,
             filteredConstants: nextProps.searchJson.constants,
             filteredErrors: nextProps.searchJson.errors,
@@ -114,7 +118,8 @@ export class List extends React.Component<ListProps, ListState> {
         // Variable to hold the original version of the list
         let currentModuleList = [];
         let currentFunctionsList = [];
-        let currentObjectsList = [];
+        let currentClassesList = [];
+        let currentAbsObjectsList = [];
         let currentRecordsList = [];
         let currentConstantsList = [];
         let currentErrorsList = [];
@@ -125,7 +130,8 @@ export class List extends React.Component<ListProps, ListState> {
         // Variable to hold the filtered list before putting into state
         let newModuleList = [];
         let newFunctionsList = [];
-        let newObjectsList = [];
+        let newClassesList = [];
+        let newAbsObjectsList = [];
         let newRecordsList = [];
         let newConstantsList = [];
         let newErrorsList = [];
@@ -138,7 +144,8 @@ export class List extends React.Component<ListProps, ListState> {
             // Assign the original list to currentList
             currentModuleList = this.props.searchJson.modules;
             currentFunctionsList = this.props.searchJson.functions;
-            currentObjectsList = this.props.searchJson.objects;
+            currentClassesList = this.props.searchJson.classes;
+            currentAbsObjectsList = this.props.searchJson.abstractObjects;
             currentRecordsList = this.props.searchJson.records;
             currentConstantsList = this.props.searchJson.constants;
             currentErrorsList = this.props.searchJson.errors;
@@ -165,7 +172,13 @@ export class List extends React.Component<ListProps, ListState> {
                 return lc.includes(filter);
             });
 
-            newObjectsList = currentObjectsList.filter((item: any) => {
+            newClassesList = currentClassesList.filter((item: any) => {
+                const lc = item.id.toLowerCase();
+                const filter = searchTxt.toLowerCase();
+                return lc.includes(filter);
+            });
+
+            newAbsObjectsList = currentAbsObjectsList.filter((item: any) => {
                 const lc = item.id.toLowerCase();
                 const filter = searchTxt.toLowerCase();
                 return lc.includes(filter);
@@ -222,7 +235,8 @@ export class List extends React.Component<ListProps, ListState> {
         this.setState({
             filteredModules: newModuleList,
             filteredFunctions: newFunctionsList,
-            filteredObjects: newObjectsList,
+            filteredClasses: newClassesList,
+            filteredAbsObjects: newAbsObjectsList,
             filteredRecords: newRecordsList,
             filteredConstants: newConstantsList,
             filteredErrors: newErrorsList,
@@ -243,12 +257,12 @@ export class List extends React.Component<ListProps, ListState> {
                 {this.state.searchText &&
                     <div className="search-list">
                         <h1>Search results for '{this.state.searchText}'</h1>
-                        {this.state.filteredModules.length == 0 && this.state.filteredObjects.length == 0 &&
+                        {this.state.filteredModules.length == 0 && this.state.filteredClasses.length == 0 &&
                         this.state.filteredFunctions.length == 0 && this.state.filteredRecords.length == 0 &&
                         this.state.filteredConstants.length == 0 && this.state.filteredTypes.length == 0 &&
                         this.state.filteredErrors.length == 0 && this.state.filteredClients.length == 0 &&
                         this.state.filteredListeners.length == 0 && this.state.filteredAnnotations.length == 0
-                        && <p>No results found</p>
+                        && this.state.filteredAbsObjects.length == 0 && <p>No results found</p>
                         }
                         {this.state.filteredModules.length > 0 &&
                             <div>
@@ -269,15 +283,34 @@ export class List extends React.Component<ListProps, ListState> {
                             </div>
                         }
 
-                        {this.state.filteredObjects.length > 0 &&
+                        {this.state.filteredClasses.length > 0 &&
                             <div>
-                                <h3>Objects: {this.state.filteredObjects.length}</h3>
+                                <h3>Classes: {this.state.filteredClasses.length}</h3>
                                 <table>
                                     <tbody>
-                                        {this.state.filteredObjects.map(item => (
+                                        {this.state.filteredClasses.map(item => (
                                             <tr>
                                                 <td className="search-title" id={item.id} title={item.id}>
-                                                    <a href={rootPath + item.moduleId + "/objects/" + item.id + ".html"}
+                                                    <a href={rootPath + item.moduleId + "/classes/" + item.id + ".html"}
+                                                     className="objects">{item.moduleId + ": " + item.id}</a></td>
+                                                <td className="search-desc"><span
+                                                dangerouslySetInnerHTML={{ __html: item.description }} /></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+
+                        {this.state.filteredAbsObjects.length > 0 &&
+                            <div>
+                                <h3>Abstract Objects: {this.state.filteredAbsObjects.length}</h3>
+                                <table>
+                                    <tbody>
+                                        {this.state.filteredAbsObjects.map(item => (
+                                            <tr>
+                                                <td className="search-title" id={item.id} title={item.id}>
+                                                    <a href={rootPath + item.moduleId + "/abstractobjects/" + item.id + ".html"}
                                                      className="objects">{item.moduleId + ": " + item.id}</a></td>
                                                 <td className="search-desc"><span
                                                 dangerouslySetInnerHTML={{ __html: item.description }} /></td>

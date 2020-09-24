@@ -34,7 +34,7 @@ import java.util.Enumeration;
 public class GetHostAddress {
 
     public static BString getHostAddress() {
-        return StringUtils.fromString(getLocalHostLANAddress().getHostAddress());
+        return BStringUtils.fromString(getLocalHostLANAddress().getHostAddress());
     }
 
     private static InetAddress getLocalHostLANAddress() throws RuntimeException {

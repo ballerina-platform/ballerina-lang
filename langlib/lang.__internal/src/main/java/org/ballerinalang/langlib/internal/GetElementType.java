@@ -18,6 +18,8 @@
 
 package org.ballerinalang.langlib.internal;
 
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BTableType;
@@ -25,7 +27,6 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 
 /**
  * Native implementation of lang.internal:getElementType(typedesc).

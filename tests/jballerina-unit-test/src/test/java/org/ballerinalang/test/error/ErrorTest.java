@@ -67,6 +67,11 @@ public class ErrorTest {
     }
 
     @Test
+    public void testFunctionCallInDetailArgExpr() {
+         BRunUtil.invoke(distinctErrorTestResult, "testFunctionCallInDetailArgExpr");
+    }
+
+    @Test
     public void testNegativeDistinctError() {
         int i = 0;
         BAssertUtil.validateError(negativeDistinctErrorRes, i++,
@@ -145,9 +150,9 @@ public class ErrorTest {
         String message = ((BLangRuntimeException) expectedException).getMessage();
 
         Assert.assertEquals(message,
-                "error: largeNumber message=large number\n\t" +
-                        "at error_test:errorPanicCallee(error_test.bal:37)\n\t" +
-                        "   error_test:errorPanicTest(error_test.bal:31)");
+                "error: largeNumber {\"message\":\"large number\"}\n" +
+                        "\tat error_test:errorPanicCallee(error_test.bal:37)\n" +
+                        "\t   error_test:errorPanicTest(error_test.bal:31)");
     }
 
     @Test
@@ -381,7 +386,8 @@ public class ErrorTest {
         BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "error: y code=4.*")
+    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "error: y " +
+            "\\{\"code\":4\\}.*")
     public void testPanicOnErrorUnionCustomError2() {
         BValue[] args = new BValue[] { new BInteger(2) };
         BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);

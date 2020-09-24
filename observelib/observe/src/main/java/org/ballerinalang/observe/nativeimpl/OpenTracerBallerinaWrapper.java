@@ -159,7 +159,6 @@ public class OpenTracerBallerinaWrapper {
         if (!enabled) {
             return false;
         }
-        ObserverContext observerContext = observerContextMap.get(spanId);
         if (spanId == -1) {
             Optional<ObserverContext> observer = ObserveUtils.getObserverContextOfCurrentFrame(strand);
             if (observer.isPresent()) {
@@ -167,6 +166,7 @@ public class OpenTracerBallerinaWrapper {
                 return true;
             }
         }
+        ObserverContext observerContext = observerContextMap.get(spanId);
         if (observerContext != null) {
             observerContext.addTag(tagKey, tagValue);
             return true;

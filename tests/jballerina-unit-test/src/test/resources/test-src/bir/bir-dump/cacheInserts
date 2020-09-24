@@ -1,0 +1,429 @@
+public cacheInserts function() -> () {
+    %0(RETURN) ();
+    %0(RETURN) ();
+    %1(LOCAL) ballerina/cache:2.0.0:CacheConfig;
+    %2(TEMP) typeDesc<any | error>;
+    %4(TEMP) string;
+    %5(TEMP) int;
+    %6(TEMP) string;
+    %7(TEMP) float;
+    %8(LOCAL) ballerina/cache:2.0.0:Cache;
+    %9(SYNTHETIC) ballerina/cache:2.0.0:Cache;
+    %13(TEMP) ();
+    %15(SYNTHETIC) ();
+    %16(SYNTHETIC) error{map<anydata | readonly>} | ();
+    %18(TEMP) string;
+    %19(TEMP) any;
+    %20(TEMP) string;
+    %23(TEMP) ();
+    %24(TEMP) boolean;
+    %25(SYNTHETIC) ();
+    %30(SYNTHETIC) error;
+    %35(SYNTHETIC) ();
+    %36(SYNTHETIC) ballerina/cache:2.0.0:CacheError | ();
+    %45(SYNTHETIC) ();
+    %50(SYNTHETIC) error;
+    %55(SYNTHETIC) ();
+    %56(SYNTHETIC) ballerina/cache:2.0.0:CacheError | ();
+    %65(SYNTHETIC) ();
+    %70(SYNTHETIC) error;
+    %75(SYNTHETIC) ();
+    %76(SYNTHETIC) ballerina/cache:2.0.0:CacheError | ();
+    %85(SYNTHETIC) ();
+    %90(SYNTHETIC) error;
+    %95(SYNTHETIC) ();
+    %96(SYNTHETIC) ballerina/cache:2.0.0:CacheError | ();
+    %105(SYNTHETIC) ();
+    %110(SYNTHETIC) error;
+    %115(SYNTHETIC) ();
+    %116(SYNTHETIC) ballerina/cache:2.0.0:CacheError | ();
+    %125(SYNTHETIC) ();
+    %130(SYNTHETIC) error;
+    %135(SYNTHETIC) ();
+    %136(SYNTHETIC) ballerina/cache:2.0.0:CacheError | ();
+    %145(SYNTHETIC) ();
+    %150(SYNTHETIC) error;
+    %155(SYNTHETIC) ();
+    %156(SYNTHETIC) ballerina/cache:2.0.0:CacheError | ();
+    %165(SYNTHETIC) ();
+    %170(SYNTHETIC) error;
+    %175(SYNTHETIC) ();
+    %176(SYNTHETIC) ballerina/cache:2.0.0:CacheError | ();
+    %185(SYNTHETIC) ();
+    %190(SYNTHETIC) error;
+    %195(SYNTHETIC) ();
+    %196(SYNTHETIC) ballerina/cache:2.0.0:CacheError | ();
+    %205(SYNTHETIC) ();
+    %210(SYNTHETIC) error;
+    %215(SYNTHETIC) ();
+    %216(SYNTHETIC) ballerina/cache:2.0.0:CacheError | ();
+    %225(SYNTHETIC) ();
+    %230(SYNTHETIC) error;
+    %235(LOCAL) (string[], int);
+    %237(TEMP) int;
+    %239(TEMP) string[];
+    %242(TEMP) int;
+
+    bb0 {
+;
+        %4 = ConstLoad capacity;
+        %5 = ConstLoad 10;
+        %6 = ConstLoad evictionFactor;
+        %7 = ConstLoad 0.2;
+        %1 = NewMap %2;
+        %9 = new ballerina/cache:2.0.0:Cache;
+        %13 = Cache.$init$(%9, %1) -> bb1;
+    }
+    bb1 {
+        %8 = %9;
+        %18 = ConstLoad A;
+        %20 = ConstLoad 1;
+        %19 = <any> %20;
+        %16 = Cache.put(%8, %18, %19, _) -> bb2;
+    }
+    bb2 {
+        %23 = ConstLoad 0;
+        %24 = %16 == %23;
+        %24? bb3 : bb4;
+    }
+    bb3 {
+        %25 = %16;
+        %15 = %25;
+        GOTO bb8;
+    }
+    bb4 {
+        %24 = %16 is error;
+        %24? bb5 : bb7;
+    }
+    bb5 {
+        %30 = <error> %16;
+        panic %30;
+    }
+    bb6 {
+        GOTO bb7;
+    }
+    bb7 {
+        GOTO bb8;
+    }
+    bb8 {
+        %20 = ConstLoad B;
+        %18 = ConstLoad 2;
+        %19 = <any> %18;
+        %36 = Cache.put(%8, %20, %19, _) -> bb9;
+    }
+    bb9 {
+        %23 = ConstLoad 0;
+        %24 = %36 == %23;
+        %24? bb10 : bb11;
+    }
+    bb10 {
+        %45 = %36;
+        %35 = %45;
+        GOTO bb15;
+    }
+    bb11 {
+        %24 = %36 is error;
+        %24? bb12 : bb14;
+    }
+    bb12 {
+        %50 = <error> %36;
+        panic %50;
+    }
+    bb13 {
+        GOTO bb14;
+    }
+    bb14 {
+        GOTO bb15;
+    }
+    bb15 {
+        %18 = ConstLoad C;
+        %20 = ConstLoad 3;
+        %19 = <any> %20;
+        %56 = Cache.put(%8, %18, %19, _) -> bb16;
+    }
+    bb16 {
+        %23 = ConstLoad 0;
+        %24 = %56 == %23;
+        %24? bb17 : bb18;
+    }
+    bb17 {
+        %65 = %56;
+        %55 = %65;
+        GOTO bb22;
+    }
+    bb18 {
+        %24 = %56 is error;
+        %24? bb19 : bb21;
+    }
+    bb19 {
+        %70 = <error> %56;
+        panic %70;
+    }
+    bb20 {
+        GOTO bb21;
+    }
+    bb21 {
+        GOTO bb22;
+    }
+    bb22 {
+        %20 = ConstLoad D;
+        %18 = ConstLoad 4;
+        %19 = <any> %18;
+        %76 = Cache.put(%8, %20, %19, _) -> bb23;
+    }
+    bb23 {
+        %23 = ConstLoad 0;
+        %24 = %76 == %23;
+        %24? bb24 : bb25;
+    }
+    bb24 {
+        %85 = %76;
+        %75 = %85;
+        GOTO bb29;
+    }
+    bb25 {
+        %24 = %76 is error;
+        %24? bb26 : bb28;
+    }
+    bb26 {
+        %90 = <error> %76;
+        panic %90;
+    }
+    bb27 {
+        GOTO bb28;
+    }
+    bb28 {
+        GOTO bb29;
+    }
+    bb29 {
+        %18 = ConstLoad E;
+        %20 = ConstLoad 5;
+        %19 = <any> %20;
+        %96 = Cache.put(%8, %18, %19, _) -> bb30;
+    }
+    bb30 {
+        %23 = ConstLoad 0;
+        %24 = %96 == %23;
+        %24? bb31 : bb32;
+    }
+    bb31 {
+        %105 = %96;
+        %95 = %105;
+        GOTO bb36;
+    }
+    bb32 {
+        %24 = %96 is error;
+        %24? bb33 : bb35;
+    }
+    bb33 {
+        %110 = <error> %96;
+        panic %110;
+    }
+    bb34 {
+        GOTO bb35;
+    }
+    bb35 {
+        GOTO bb36;
+    }
+    bb36 {
+        %20 = ConstLoad F;
+        %18 = ConstLoad 6;
+        %19 = <any> %18;
+        %116 = Cache.put(%8, %20, %19, _) -> bb37;
+    }
+    bb37 {
+        %23 = ConstLoad 0;
+        %24 = %116 == %23;
+        %24? bb38 : bb39;
+    }
+    bb38 {
+        %125 = %116;
+        %115 = %125;
+        GOTO bb43;
+    }
+    bb39 {
+        %24 = %116 is error;
+        %24? bb40 : bb42;
+    }
+    bb40 {
+        %130 = <error> %116;
+        panic %130;
+    }
+    bb41 {
+        GOTO bb42;
+    }
+    bb42 {
+        GOTO bb43;
+    }
+    bb43 {
+        %18 = ConstLoad G;
+        %20 = ConstLoad 7;
+        %19 = <any> %20;
+        %136 = Cache.put(%8, %18, %19, _) -> bb44;
+    }
+    bb44 {
+        %23 = ConstLoad 0;
+        %24 = %136 == %23;
+        %24? bb45 : bb46;
+    }
+    bb45 {
+        %145 = %136;
+        %135 = %145;
+        GOTO bb50;
+    }
+    bb46 {
+        %24 = %136 is error;
+        %24? bb47 : bb49;
+    }
+    bb47 {
+        %150 = <error> %136;
+        panic %150;
+    }
+    bb48 {
+        GOTO bb49;
+    }
+    bb49 {
+        GOTO bb50;
+    }
+    bb50 {
+        %20 = ConstLoad H;
+        %18 = ConstLoad 8;
+        %19 = <any> %18;
+        %156 = Cache.put(%8, %20, %19, _) -> bb51;
+    }
+    bb51 {
+        %23 = ConstLoad 0;
+        %24 = %156 == %23;
+        %24? bb52 : bb53;
+    }
+    bb52 {
+        %165 = %156;
+        %155 = %165;
+        GOTO bb57;
+    }
+    bb53 {
+        %24 = %156 is error;
+        %24? bb54 : bb56;
+    }
+    bb54 {
+        %170 = <error> %156;
+        panic %170;
+    }
+    bb55 {
+        GOTO bb56;
+    }
+    bb56 {
+        GOTO bb57;
+    }
+    bb57 {
+        %18 = ConstLoad I;
+        %20 = ConstLoad 9;
+        %19 = <any> %20;
+        %176 = Cache.put(%8, %18, %19, _) -> bb58;
+    }
+    bb58 {
+        %23 = ConstLoad 0;
+        %24 = %176 == %23;
+        %24? bb59 : bb60;
+    }
+    bb59 {
+        %185 = %176;
+        %175 = %185;
+        GOTO bb64;
+    }
+    bb60 {
+        %24 = %176 is error;
+        %24? bb61 : bb63;
+    }
+    bb61 {
+        %190 = <error> %176;
+        panic %190;
+    }
+    bb62 {
+        GOTO bb63;
+    }
+    bb63 {
+        GOTO bb64;
+    }
+    bb64 {
+        %20 = ConstLoad J;
+        %18 = ConstLoad 10;
+        %19 = <any> %18;
+        %196 = Cache.put(%8, %20, %19, _) -> bb65;
+    }
+    bb65 {
+        %23 = ConstLoad 0;
+        %24 = %196 == %23;
+        %24? bb66 : bb67;
+    }
+    bb66 {
+        %205 = %196;
+        %195 = %205;
+        GOTO bb71;
+    }
+    bb67 {
+        %24 = %196 is error;
+        %24? bb68 : bb70;
+    }
+    bb68 {
+        %210 = <error> %196;
+        panic %210;
+    }
+    bb69 {
+        GOTO bb70;
+    }
+    bb70 {
+        GOTO bb71;
+    }
+    bb71 {
+        %18 = ConstLoad K;
+        %20 = ConstLoad 11;
+        %19 = <any> %20;
+        %216 = Cache.put(%8, %18, %19, _) -> bb72;
+    }
+    bb72 {
+        %23 = ConstLoad 0;
+        %24 = %216 == %23;
+        %24? bb73 : bb74;
+    }
+    bb73 {
+        %225 = %216;
+        %215 = %225;
+        GOTO bb78;
+    }
+    bb74 {
+        %24 = %216 is error;
+        %24? bb75 : bb77;
+    }
+    bb75 {
+        %230 = <error> %216;
+        panic %230;
+    }
+    bb76 {
+        GOTO bb77;
+    }
+    bb77 {
+        GOTO bb78;
+    }
+    bb78 {
+        %237 = ConstLoad 2;
+        %239 = Cache.keys(%8) -> bb79;
+    }
+    bb79 {
+        %242 = Cache.size(%8) -> bb80;
+    }
+    bb80 {
+        %19 = <any> %242;
+        %235 = newArray (string[], int)[%237];
+        %0 = ConstLoad 0;
+        GOTO bb82;
+    }
+    bb81 {
+        GOTO bb82;
+    }
+    bb82 {
+        return;
+    }
+
+
+}

@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -52,6 +53,10 @@ public class ForEachStatementNode extends StatementNode {
         return childInBucket(4);
     }
 
+    public Optional<OnFailClauseNode> onFailClause() {
+        return optionalChildInBucket(5);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -69,7 +74,8 @@ public class ForEachStatementNode extends StatementNode {
                 "typedBindingPattern",
                 "inKeyword",
                 "actionOrExpressionNode",
-                "blockStatement"};
+                "blockStatement",
+                "onFailClause"};
     }
 
     public ForEachStatementNode modify(
@@ -77,13 +83,15 @@ public class ForEachStatementNode extends StatementNode {
             TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
             Node actionOrExpressionNode,
-            StatementNode blockStatement) {
+            StatementNode blockStatement,
+            OnFailClauseNode onFailClause) {
         if (checkForReferenceEquality(
                 forEachKeyword,
                 typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
-                blockStatement)) {
+                blockStatement,
+                onFailClause)) {
             return this;
         }
 
@@ -92,7 +100,8 @@ public class ForEachStatementNode extends StatementNode {
                 typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     public ForEachStatementNodeModifier modify() {
@@ -111,6 +120,7 @@ public class ForEachStatementNode extends StatementNode {
         private Token inKeyword;
         private Node actionOrExpressionNode;
         private StatementNode blockStatement;
+        private OnFailClauseNode onFailClause;
 
         public ForEachStatementNodeModifier(ForEachStatementNode oldNode) {
             this.oldNode = oldNode;
@@ -119,6 +129,7 @@ public class ForEachStatementNode extends StatementNode {
             this.inKeyword = oldNode.inKeyword();
             this.actionOrExpressionNode = oldNode.actionOrExpressionNode();
             this.blockStatement = oldNode.blockStatement();
+            this.onFailClause = oldNode.onFailClause().orElse(null);
         }
 
         public ForEachStatementNodeModifier withForEachKeyword(
@@ -156,13 +167,21 @@ public class ForEachStatementNode extends StatementNode {
             return this;
         }
 
+        public ForEachStatementNodeModifier withOnFailClause(
+                OnFailClauseNode onFailClause) {
+            Objects.requireNonNull(onFailClause, "onFailClause must not be null");
+            this.onFailClause = onFailClause;
+            return this;
+        }
+
         public ForEachStatementNode apply() {
             return oldNode.modify(
                     forEachKeyword,
                     typedBindingPattern,
                     inKeyword,
                     actionOrExpressionNode,
-                    blockStatement);
+                    blockStatement,
+                    onFailClause);
         }
     }
 }

@@ -106,6 +106,11 @@ public class ErrorTypeTest {
                 "{ballerina}TypeCastError {\"message\":\"incompatible types: 'OurProccessingError' cannot be cast to " +
                         "'errors:OrderProcessingError'\"}");
     }
+
+    @Test
+    public void testErrorDetailDefinedAfterErrorDef() {
+        BRunUtil.invoke(result, "testErrorDetailDefinedAfterErrorDef");
+    }
     
     @Test
     public void testDistinctErrorTypeNegative() {
@@ -113,6 +118,9 @@ public class ErrorTypeTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'testorg/errors:1.0.0:OrderCreationError2', " +
                         "found 'testorg/errors:1.0.0:OrderCreationError'", 23, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'testorg/errors:1.0.0:NewPostDefinedError', " +
+                        "found 'testorg/errors:1.0.0:PostDefinedError'", 28, 32);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

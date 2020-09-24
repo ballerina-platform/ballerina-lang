@@ -19,6 +19,7 @@ import ballerina/mime;
 import ballerina/stringutils;
 import ballerina/java;
 import ballerina/time;
+import ballerina/lang.array;
 
 # Represents an HTTP request.
 #
@@ -30,7 +31,7 @@ import ballerina/time;
 # + cacheControl - The cache-control directives for the request. This needs to be explicitly initialized if intending
 #                  on utilizing HTTP caching.
 # + mutualSslHandshake - A record providing mutual ssl handshake results.
-public type Request object {
+public class Request {
 
     public string rawPath = "";
     public string method = "";
@@ -393,7 +394,7 @@ public type Request object {
     # + payload - The `json` payload
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `json`
-    public function setJsonPayload(json payload, public string contentType = "application/json") {
+    public function setJsonPayload(json payload, string contentType = "application/json") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setJson(payload, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);
@@ -404,7 +405,7 @@ public type Request object {
     # + payload - The `xml` payload
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `xml`
-    public function setXmlPayload(xml payload, public string contentType = "application/xml") {
+    public function setXmlPayload(xml payload, string contentType = "application/xml") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setXml(payload, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);
@@ -415,7 +416,7 @@ public type Request object {
     # + payload - The `string` payload
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `string`
-    public function setTextPayload(string payload, public string contentType = "text/plain") {
+    public function setTextPayload(string payload, string contentType = "text/plain") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setText(payload, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);
@@ -426,7 +427,7 @@ public type Request object {
     # + payload - The `byte[]` payload
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `byte[]`
-    public function setBinaryPayload(byte[] payload, public string contentType = "application/octet-stream") {
+    public function setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setByteArray(payload, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);
@@ -437,7 +438,7 @@ public type Request object {
     # + bodyParts - The entities which make up the message body
     # + contentType - The content type of the top level message. Set this to override the default
     #                 `content-type` header value
-    public function setBodyParts(mime:Entity[] bodyParts, public string contentType = "multipart/form-data") {
+    public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setBodyParts(bodyParts, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);
@@ -448,7 +449,7 @@ public type Request object {
     # + filePath - Path to the file to be set as the payload
     # + contentType - The content type of the specified file. Set this to override the default `content-type`
     #                 header value
-    public function setFileAsPayload(string filePath, public string contentType = "application/octet-stream") {
+    public function setFileAsPayload(string filePath, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setFileAsEntityBody(filePath, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);
@@ -459,7 +460,7 @@ public type Request object {
     # + payload - A `ByteChannel` through which the message payload can be read
     # + contentType - The content type of the payload. Set this to override the default `content-type`
     #                 header value
-    public function setByteChannel(io:ReadableByteChannel payload, public string contentType = "application/octet-stream") {
+    public function setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setByteChannel(payload, contentType);
         self.setEntityAndUpdateContentTypeHeader(entity);
@@ -534,7 +535,16 @@ public type Request object {
     # + cookiesToAdd - Represents the cookies to be added
     public function addCookies(Cookie[] cookiesToAdd) {
         string cookieheader = "";
-        Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
+
+        Cookie[] sortedCookies = cookiesToAdd.sort(array:ASCENDING, isolated function(Cookie c) returns int {
+                var cookiePath = c.path;
+                int l = 0;
+                if (cookiePath is string) {
+                    l = cookiePath.length();
+                }
+                return l;
+            });
+
         foreach var cookie in sortedCookies {
             var cookieName = cookie.name;
             var cookieValue = cookie.value;
@@ -564,59 +574,59 @@ public type Request object {
         }
         return cookiesInRequest;
     }
-};
+}
 
 function externCreateNewReqEntity(Request request) returns mime:Entity =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "createNewEntity"
 } external;
 
 function externSetReqEntity(Request request, mime:Entity entity) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "setEntity"
 } external;
 
 function externSetReqEntityAndUpdateContentTypeHeader(Request request, mime:Entity entity) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "setEntityAndUpdateContentTypeHeader"
 } external;
 
 function externGetQueryParams(Request request) returns map<string[]> =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getQueryParams"
 } external;
 
 function externGetMatrixParams(Request request, string path) returns map<any> =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getMatrixParams"
 } external;
 
 function externGetReqEntity(Request request) returns mime:Entity|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getEntity"
 } external;
 
 function externGetEntityWithoutBodyAndHeaders(Request request) returns mime:Entity =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getEntityWithoutBodyAndHeaders"
 } external;
 
 function externGetEntityWithBodyAndWithoutHeaders(Request request) returns mime:Entity =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getEntityWithBodyAndWithoutHeaders"
 } external;
 
 function externCheckReqEntityBodyAvailability(Request request) returns boolean =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "checkEntityBodyAvailability"
 } external;
 
@@ -647,46 +657,46 @@ public const NONE = ();
 // HTTP header related external functions
 function externRequestGetHeader(Request request, string headerName, HeaderPosition position = LEADING)
                          returns @tainted string = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "getHeader"
 } external;
 
 function externRequestGetHeaders(Request request, string headerName, HeaderPosition position = LEADING)
                           returns @tainted string[] = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "getHeaders"
 } external;
 
 function externRequestGetHeaderNames(Request request, HeaderPosition position = LEADING) returns @tainted string[] =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "getHeaderNames"
 } external;
 
 function externRequestAddHeader(Request request, string headerName, string headerValue, HeaderPosition position = LEADING) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "addHeader"
 } external;
 
 function externRequestSetHeader(Request request, string headerName, string headerValue, HeaderPosition position = LEADING) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "setHeader"
 } external;
 
 function externRequestRemoveHeader(Request request, string headerName, HeaderPosition position = LEADING) = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "removeHeader"
 } external;
 
 function externRequestRemoveAllHeaders(Request request, HeaderPosition position = LEADING) = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "removeAllHeaders"
 } external;
 
 function externRequestHasHeader(Request request, string headerName, HeaderPosition position = LEADING) returns boolean =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternHeaders",
     name: "hasHeader"
 } external;

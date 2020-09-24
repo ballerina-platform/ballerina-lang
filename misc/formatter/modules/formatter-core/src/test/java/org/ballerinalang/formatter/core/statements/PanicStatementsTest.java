@@ -41,14 +41,7 @@ public class PanicStatementsTest extends FormatterTest {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"match_statement_1.bal", this.getTestResourceDir()}
-        };
-    }
-
-    @Override
     public String getTestResourceDir() {
-        return Paths.get("statements", "match").toString();
+        return Paths.get("statements", "panic").toString();
     }
 }

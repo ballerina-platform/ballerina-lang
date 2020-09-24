@@ -3,8 +3,6 @@
 public function foo() {
       future  <  (  )  >
                f2   =   start   countInfinity()  ;
-
-
     f2.  cancel    (  )  ;
 }
 
@@ -13,4 +11,3 @@ function countInfinity() {
        runtime:sleep(1);
    }
 }
-

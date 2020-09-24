@@ -265,6 +265,11 @@ public class ArrowExprTest {
         BRunUtil.invoke(basic, "testNestedArrowExpressionWithOneParameter");
     }
 
+    @Test(description = "Test global arrow expression with closures")
+    public void testGlobalArrowExpressionsWithClosure() {
+        BRunUtil.invoke(basic, "testGlobalArrowExpressionsWithClosure");
+    }
+
     @Test(description = "Test type narrowing in arrow expression")
     public void testTypeNarrowingInArrowExpression() {
         BRunUtil.invoke(basic, "testTypeNarrowingInArrowExpression");

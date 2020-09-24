@@ -40,46 +40,50 @@ type Employee record {
 
 type EmployeeTable table<Employee> key(id);
 
-type Person object {
-    public string name = "";
+class Person {
+    public string name = "John";
     public int age = 0;
     public Person? parent = ();
-    private string email = "default@abc.com";
+    string email = "default@abc.com";
     string address = "No 20, Palm grove";
 
     public function getSum(int a, int b) returns int {
         return a + b;
     }
-};
+}
 
-public type AnonPerson record {
-    string name;
-    int age;
-    object {
-        public string city;
-        public string country;
+public class Location {
+   public string city;
+   public string country;
 
-        public function init(string city, string country) {
-            self.city = city;
-            self.country = country;
-        }
+   public function init(string city, string country) {
+       self.city = city;
+       self.country = country;
+   }
 
-        public function value() returns string {
-            return self.city + ", " + self.country;
-        }
-    } address;
+   public function value() returns string {
+       return self.city + ", " + self.country;
+   }
+}
+
+public type AnonPerson object {
+    public string name;
+    public int age;
+    public Person? parent;
+    string email;
+    string address;
 };
 
 type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
 
-type OddNumberGenerator object {
+class OddNumberGenerator {
     int i = 1;
 
     public function next() returns record {|int value;|}|error? {
         self.i += 2;
         return {value: self.i};
     }
-};
+}
 
 public function main() {
     //------------------------ basic, simple type variables ------------------------//
@@ -133,11 +137,7 @@ public function main() {
 
     Person v16_objectVar = new;
 
-    AnonPerson v17_anonObjectVar = {
-        name: "John Doe",
-        age: 25,
-        address: new ("Colombo", "Sri Lanka")
-    };
+    AnonPerson v17_anonObjectVar = new Person();
 
     typedesc<int> v18_typedescVar = int;
     stream<int, error> v26_oddNumberStream = new stream<int, error>(new OddNumberGenerator());

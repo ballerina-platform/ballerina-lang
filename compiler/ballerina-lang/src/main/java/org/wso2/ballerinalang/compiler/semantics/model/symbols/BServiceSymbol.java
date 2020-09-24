@@ -17,8 +17,10 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * {@link BServiceSymbol} represents a service symbol in a scope.
@@ -27,8 +29,9 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class BServiceSymbol extends BVarSymbol {
 
-    public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(flags, name, pkgID, type, owner);
+    public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, DiagnosticPos pos,
+                          SymbolOrigin origin) {
+        super(flags, name, pkgID, type, owner, pos, origin);
         this.tag = SymTag.SERVICE;
     }
 }

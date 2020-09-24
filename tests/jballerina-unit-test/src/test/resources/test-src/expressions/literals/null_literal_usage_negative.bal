@@ -50,9 +50,9 @@ type Person record {
     string? name = null;
 };
 
-type Foo object {
+class Foo {
     string? s = null;
-};
+}
 
 function testNullWithMatch() returns string {
     int? x = 10;

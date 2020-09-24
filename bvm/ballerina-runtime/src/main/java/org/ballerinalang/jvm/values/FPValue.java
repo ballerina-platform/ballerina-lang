@@ -17,11 +17,13 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.api.values.BFunctionPointer;
+import org.ballerinalang.jvm.api.values.BLink;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.values.api.BFunctionPointer;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -65,8 +67,8 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
 
     public FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction,
                                  StrandMetadata metaData) {
-        return BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(this, this.strandName, metaData,
-                                                                       args, resultHandleFunction);
+        return AsyncUtils.invokeFunctionPointerAsync(this, this.strandName, metaData,
+                                                     args, resultHandleFunction, Scheduler.getStrand().scheduler);
     }
 
     public Function<T, R> getFunction() {
@@ -79,7 +81,7 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         return "function " + type;
     }
 

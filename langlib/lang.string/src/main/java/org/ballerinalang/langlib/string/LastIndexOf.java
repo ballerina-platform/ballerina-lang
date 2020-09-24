@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.string;
 
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.langlib.string.utils.StringUtils;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;

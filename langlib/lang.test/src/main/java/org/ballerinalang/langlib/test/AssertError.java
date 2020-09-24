@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.TypeTags;
 
@@ -35,8 +34,8 @@ import org.ballerinalang.jvm.types.TypeTags;
 public class AssertError {
     public static void assertError(Object value) {
         if (TypeChecker.getType(value).getTag() != TypeTags.ERROR_TAG) {
-            throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError",
-                    "expected an error type");
+            throw BErrorCreator.createError(BStringUtils.fromString("{ballerina/lang.test}AssertionError"),
+                                            BStringUtils.fromString("expected an error type"));
         }
     }
 }

@@ -87,7 +87,7 @@ public class MainFunctionsTest {
         assertTrue(result.consoleOutput.startsWith("error? returning main invoked"),
                             "expected the main function to be invoked");
         assertTrue(result.errorOutput.contains("const error reason"), "invalid error reason");
-        assertTrue(result.errorOutput.contains("message=error message"), "invalid error message");
+        assertTrue(result.errorOutput.contains("{\"message\":\"error message\""), "invalid error message");
     }
 
     @Test(groups = { "disableOnOldParser" })

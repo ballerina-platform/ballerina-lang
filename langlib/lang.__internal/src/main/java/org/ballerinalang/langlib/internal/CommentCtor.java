@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.api.values.BString;
 
 /**
  * XML Comment constructor function.

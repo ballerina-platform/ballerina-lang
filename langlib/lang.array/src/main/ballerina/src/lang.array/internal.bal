@@ -14,10 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
-
 # Represent the iterator type returned when `iterator` method is invoked.
-type ArrayIterator object {
+class ArrayIterator {
 
     private Type[] m;
 
@@ -27,12 +25,7 @@ type ArrayIterator object {
 
     # Return next member or nil if end of iteration is reached.
     # + return - iterator result
-    public function next() returns record {| Type value; |}? {
-        return externNext(self);
-    }
-};
-
-function externNext(ArrayIterator iterator) returns record {| Type value; |}? = @java:Method {
-    class: "org.ballerinalang.langlib.array.Next",
-    name: "next"
-} external;
+    public isolated function next() returns record {|
+        Type value;
+    |}? = external;
+}

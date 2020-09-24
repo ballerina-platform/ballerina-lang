@@ -11,7 +11,7 @@ public annotation map<int> v1 on function;
 annotation v2 on parameter;
 public annotation Annot[] v3 on return;
 annotation Annot v4 on service;
-annotation Annot v5 on object type;
+annotation Annot v5 on class;
 const annotation map<string> v6 on source annotation;
 
 @v6 {
