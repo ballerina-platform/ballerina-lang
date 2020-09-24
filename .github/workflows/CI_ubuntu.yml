@@ -2,6 +2,8 @@ name: CI Ubuntu
 
 on:
   pull_request:
+    paths-ignore:
+      - 'stdlib/release/*'
     branches:
       - master
       - next-release
