@@ -12273,8 +12273,9 @@ public class BallerinaParser extends AbstractParser {
         if (isEndOfErrorFieldMatchPatterns()) {
             return STNodeFactory.createNodeList(argListMatchPatterns);
         }
-
+        startContext(ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG);
         STNode firstArg = parseErrorArgListMatchPattern(ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_START);
+        endContext();
         if (isSimpleMatchPattern(firstArg.kind)) {
 
             argListMatchPatterns.add(firstArg);
