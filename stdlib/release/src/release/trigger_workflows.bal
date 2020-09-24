@@ -44,18 +44,18 @@ function handleRelease(Module[] modules) {
         if (nextLevel > currentLevel && currentModules.length() > 0) {
             waitForCurrentModuleReleases(currentModules);
             currentModules.removeAll();
-            currentLevel = nextLevel;
         }
         if (module.release) {
-            boolean releaseStarted = releaseModule(module);
-            if (releaseStarted) {
-                module.releaseStarted = releaseStarted;
+            boolean releaseInProgress = releaseModule(module);
+            if (releaseInProgress) {
+                module.releaseInProgress = releaseInProgress;
                 currentModules.push(module);
                 log:printInfo("Module " + module.name + " release triggerred successfully.");
             } else {
                 log:printWarn("Module " + module.name + " release did not triggerred successfully.");
             }
         }
+        currentLevel = nextLevel;
     }
     waitForCurrentModuleReleases(currentModules);
 }
@@ -88,22 +88,31 @@ function waitForCurrentModuleReleases(Module[] modules) {
         return;
     }
     log:printInfo("Waiting for previous level builds");
-    Module[] unreleasedModules = modules.filter(function (Module m) returns boolean {
-        return m.releaseStarted;
-    });
+    Module[] unreleasedModules = modules.filter(
+        function (Module m) returns boolean {
+            return m.releaseInProgress;
+        }
+    );
+    Module[] releasedModules = [];
 
     boolean allModulesReleased = false;
     int waitCycles = 0;
     while (!allModulesReleased) {
-        foreach Module module in unreleasedModules {
-            boolean releaseCompleted = checkModuleRelease(module);
-            if (releaseCompleted) {
-                int moduleIndex = <int>unreleasedModules.indexOf(module);
-                Module releasedModule = unreleasedModules.remove(moduleIndex);
-                log:printInfo(releasedModule.name + " " + releasedModule.'version + " is released");
+        foreach Module module in modules {
+            if (module.releaseInProgress) {
+                boolean releaseCompleted = checkModuleRelease(module);
+                if (releaseCompleted) {
+                    module.releaseInProgress = !releaseCompleted;
+                    var moduleIndex = unreleasedModules.indexOf(module);
+                    if (moduleIndex is int) {
+                        Module releasedModule = unreleasedModules.remove(moduleIndex);
+                        releasedModules.push(releasedModule);
+                        log:printInfo(releasedModule.name + " " + releasedModule.'version + " is released");
+                    }
+                }
             }
         }
-        if (unreleasedModules.length() == 0) {
+        if (releasedModules.length() == modules.length()) {
             allModulesReleased = true;
         } else if (waitCycles < MAX_WAIT_CYCLES) {
             runtime:sleep(SLEEP_INTERVAL);
@@ -121,6 +130,9 @@ function waitForCurrentModuleReleases(Module[] modules) {
 }
 
 function checkModuleRelease(Module module) returns boolean {
+    if (!module.releaseInProgress) {
+        return true;
+    }
     log:printInfo("Validating " + module.name + " release");
     http:Request request = createRequest(accessTokenHeaderValue);
     string moduleName = module.name.toString();
