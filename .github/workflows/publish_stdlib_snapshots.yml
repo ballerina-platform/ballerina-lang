@@ -32,6 +32,7 @@ jobs:
               run: |
                   ./gradlew build -x createJavadoc -x test -x check --max-workers=2 --no-daemon
                   ./gradlew publish -PpublishToGithub
+
             - name: Trigger the Standard Library Module Builds
               uses: ballerina-platform/ballerina-action@master
               with:
