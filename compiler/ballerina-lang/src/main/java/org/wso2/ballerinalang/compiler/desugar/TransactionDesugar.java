@@ -248,6 +248,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 transactionLambdaVariable);
         BLangSimpleVarRef transactionLambdaVarRef = new BLangSimpleVarRef.
                 BLangLocalVarRef(transactionLambdaVariable.symbol);
+        transactionLambdaVarRef.type = transactionLambdaVariable.symbol.type;
         transactionBlockStmt.stmts.add(transactionLambdaVariableDef);
 
         // Add lambda function call
