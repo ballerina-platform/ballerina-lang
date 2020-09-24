@@ -338,6 +338,7 @@ public class Desugar extends BLangNodeVisitor {
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
     private BLangSimpleVariableDef onFailCallFuncDef;
     private BLangOnFailClause onFailClause;
+    private BType forceCastReturnType = null;
 
     private SymbolEnv env;
     private int lambdaFunctionCount = 0;
@@ -348,7 +349,6 @@ public class Desugar extends BLangNodeVisitor {
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
-    private BType forceCastReturnType = null;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -1054,6 +1054,7 @@ public class Desugar extends BLangNodeVisitor {
         if (funcNode.returnTypeNode != null && funcNode.returnTypeNode.getKind() != null) {
             funcNode.returnTypeNode = rewrite(funcNode.returnTypeNode, funcEnv);
         }
+
         BType currentReturnType = this.forceCastReturnType;
         this.forceCastReturnType = null;
         funcNode.body = rewrite(funcNode.body, funcEnv);
