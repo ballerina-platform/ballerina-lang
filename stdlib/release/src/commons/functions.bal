@@ -3,17 +3,17 @@ import ballerina/io;
 import ballerina/log;
 
 public function sortModules(Module[] modules) returns Module[] {
-    return modules.sort(
-        function (Module m1, Module m2) returns int {
-            if (m1.level > m2.level) {
-                return 1;
-            } else if (m1.level < m2.level) {
-                return -1;
-            } else {
-                return 0;
-            }
-        }
-    );
+    return modules.sort(compareModules);
+}
+
+function compareModules(Module m1, Module m2) returns int {
+    if (m1.level > m2.level) {
+        return 1;
+    } else if (m1.level < m2.level) {
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
 public function getModuleJsonArray() returns json[] {

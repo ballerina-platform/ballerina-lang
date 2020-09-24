@@ -81,16 +81,7 @@ function waitForCurrentModuleReleases(commons:Module[] modules) {
     while (!allModulesReleased) {
         foreach commons:Module module in modules {
             if (module.releaseInProgress) {
-                boolean releaseCompleted = checkModuleRelease(module);
-                if (releaseCompleted) {
-                    module.releaseInProgress = !releaseCompleted;
-                    var moduleIndex = unreleasedModules.indexOf(module);
-                    if (moduleIndex is int) {
-                        commons:Module releasedModule = unreleasedModules.remove(moduleIndex);
-                        releasedModules.push(releasedModule);
-                        log:printInfo(releasedModule.name + " " + releasedModule.'version + " is released");
-                    }
-                }
+                checkReleaseInprogressModules(module, unreleasedModules, releasedModules);
             }
         }
         if (releasedModules.length() == modules.length()) {
@@ -107,6 +98,19 @@ function waitForCurrentModuleReleases(commons:Module[] modules) {
         commons:printModules(unreleasedModules);
         error err = error("Unreleased", message = "There are modules not released after max wait time");
         commons:logAndPanicError("Release Failed.", err);
+    }
+}
+
+function checkReleaseInprogressModules(commons:Module module, commons:Module[] unreleased, commons:Module[] released) {
+    boolean releaseCompleted = checkModuleRelease(module);
+    if (releaseCompleted) {
+        module.releaseInProgress = !releaseCompleted;
+        var moduleIndex = unreleased.indexOf(module);
+        if (moduleIndex is int) {
+            commons:Module releasedModule = unreleased.remove(moduleIndex);
+            released.push(releasedModule);
+            log:printInfo(releasedModule.name + " " + releasedModule.'version + " is released");
+        }
     }
 }
 
