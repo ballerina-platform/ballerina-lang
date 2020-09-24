@@ -5,8 +5,8 @@ on:
     workflow_dispatch:
 
 jobs:
-    build:
-        name: Build and Publish Artifacts
+    publish-ballerina-lang:
+        name: Build and Publish Ballerina Lang
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Repository
@@ -33,11 +33,23 @@ jobs:
                   ./gradlew build -x createJavadoc -x test -x check --max-workers=2 --no-daemon
                   ./gradlew publish -PpublishToGithub
 
+    publish-stdlib-modules:
+        name: Publish Standard Library Modules
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v2
+
+            - name: Set up JDK 1.8
+              uses: actions/setup-java@v1
+              with:
+                  java-version: 1.8
+
             - name: Trigger the Standard Library Module Builds
               uses: ballerina-platform/ballerina-action@master
               with:
-                  args:
-                      run publish_snapshot
+                args:
+                  run publish_snapshot
               env:
                 WORKING_DIR: ./stdlib/release
                 GITHUB_TOKEN: ${{ secrets.BAL_BOT_PAT }}
