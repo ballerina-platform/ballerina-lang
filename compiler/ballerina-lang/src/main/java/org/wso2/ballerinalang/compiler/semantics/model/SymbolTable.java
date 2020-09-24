@@ -739,6 +739,7 @@ public class SymbolTable {
         cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
                 cloneableType, rootPkgSymbol, builtinPos, BUILTIN);
         cloneableReadonlyType = BUnionType.create(null, readonlyType, cloneableType);
+
         detailType = new BMapType(TypeTags.MAP, cloneableType, null);
         errorType = new BErrorType(null, detailType);
         errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
@@ -761,6 +762,7 @@ public class SymbolTable {
         jsonType = new BJSONType(jsonInternal);
         jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, PackageID.ANNOTATIONS, jsonType,
                 langAnnotationModuleSymbol, this.builtinPos, BUILTIN);
+
         arrayJsonType = new BArrayType(jsonType);
         mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
     }
@@ -777,16 +779,16 @@ public class SymbolTable {
         anydataType = new BAnydataType(anyDataInternal);
         anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, PackageID.ANNOTATIONS,
                 anydataType, rootPkgSymbol, this.builtinPos, BUILTIN);
-        arrayAnydataType = new BArrayType(anyDataInternal);
-        mapAnydataType = new BMapType(TypeTags.MAP, anyDataInternal, null);
+        arrayAnydataType = new BArrayType(anydataType);
+        mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
         anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
 
         pureType = BUnionType.create(null, anydataType, errorType);
-        streamType = new BStreamType(TypeTags.STREAM, pureType, null, null);
+//        streamType = new BStreamType(TypeTags.STREAM, pureType, null, null);
         tableType = new BTableType(TypeTags.TABLE, pureType, null);
 
         initializeType(mapAnydataType, TypeKind.MAP.typeName(), BUILTIN);
-        initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
+//        initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
         initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
     }
 }

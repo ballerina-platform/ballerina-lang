@@ -862,7 +862,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void loadAnydataAndDependentTypes() {
-        ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.ANYDATA);
+        ScopeEntry entry = symTable.langAnnotationModuleSymbol.scope.lookup(Names.ANYDATA);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
                 entry = entry.next;
@@ -875,6 +875,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.anydataOrReadonly = BUnionType.create(null, symTable.anydataType, symTable.readonlyType);
             entry.symbol.type = symTable.anydataType;
             entry.symbol.origin = BUILTIN;
+
+            symTable.anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, PackageID.ANNOTATIONS,
+                    symTable.anydataType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
 
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
