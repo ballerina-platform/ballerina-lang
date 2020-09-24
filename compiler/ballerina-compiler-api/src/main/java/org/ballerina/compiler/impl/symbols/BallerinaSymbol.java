@@ -49,7 +49,12 @@ public class BallerinaSymbol implements Symbol {
         this.moduleID = moduleID;
         this.symbolKind = symbolKind;
         this.docAttachment = getDocAttachment(symbol);
-        this.isLangLib = symbol != null && ((symbol.flags & Flags.LANG_LIB) == Flags.LANG_LIB);
+
+        if (symbol == null) {
+            throw new IllegalArgumentException("'symbol' cannot be null");
+        }
+
+        this.isLangLib = (symbol.flags & Flags.LANG_LIB) == Flags.LANG_LIB;
         this.position = new BLangDiagnosticLocation(symbol.pos.src.getCompilationUnitName(), symbol.pos.sLine,
                                                     symbol.pos.eLine, symbol.pos.sCol, symbol.pos.eCol);
     }
