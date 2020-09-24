@@ -152,7 +152,3 @@ public function main() {
     json v24_jsonVar = {name: "apple", color: "red", price: 40};
     xml<never> v27_neverVar = <xml<never>> 'xml:concat();
 }
-
-function sum(int a, int b) returns int {
-    return a + b;
-}

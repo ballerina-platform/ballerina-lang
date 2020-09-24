@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedundantQuotes;
+
 /**
  * Debug expression evaluation utils.
  */
@@ -108,6 +110,7 @@ public class EvaluationUtils {
     }
 
     public static BExpressionValue make(SuspendedContext context, String val) throws EvaluationException {
+        val = removeRedundantQuotes(val);
         Value bStringVal = getAsBString(context, val);
         return new BExpressionValue(context, bStringVal);
     }
