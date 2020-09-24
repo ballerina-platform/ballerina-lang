@@ -2677,7 +2677,7 @@ public class Desugar extends BLangNodeVisitor {
                                                   boolean retryReturns, SymbolEnv env) {
 
         if (retryReturns) {
-            BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(pos, rewrite(retryTransactionStmtExpr,env));
+            BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(pos, rewrite(retryTransactionStmtExpr, env));
             return rewrite(bLangReturn, env);
         } else {
             BLangExpressionStmt transactionExprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
