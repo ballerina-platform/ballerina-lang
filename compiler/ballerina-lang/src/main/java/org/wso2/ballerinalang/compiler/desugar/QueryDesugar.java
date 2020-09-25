@@ -179,6 +179,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.jvm.util.BLangConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
@@ -899,7 +900,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return new variable name.
      */
     private String getNewVarName() {
-        return "$streamElement$" + streamElementCount++;
+        return "$streamElement$" + UNDERSCORE + streamElementCount++;
     }
 
     /**

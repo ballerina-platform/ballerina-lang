@@ -183,7 +183,6 @@ public class JvmConstants {
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
-    public static final String CONSTRUCTOR_INIT_METHOD = "<init>";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";
     public static final String MODULE_START = "$moduleStart";
@@ -215,6 +214,8 @@ public class JvmConstants {
     public static final String GLOBAL_LOCK_NAME = "lock";
     public static final String SERVICE_EP_AVAILABLE = "serviceEPAvailable";
     public static final String LOCK_STORE_VAR_NAME = "LOCK_STORE";
+    public static final String RECORD_INIT_WRAPPER_NAME = "$init";
+
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";

@@ -13,14 +13,14 @@ sayHello function(ballerina/http:1.0.0:Caller, ballerina/http:1.0.0:Request) -> 
     %13(TEMP) ballerina/http:1.0.0:FilterContext | ();
     %17(SYNTHETIC) ballerina/http:1.0.0:RequestFilter | ballerina/http:1.0.0:ResponseFilter[];
     %19(TEMP) ballerina/http:1.0.0:ListenerConfiguration;
-    %23(SYNTHETIC) ballerina/lang.array:1.1.0:$anonType$1;
-    %26(TEMP) ballerina/lang.array:1.1.0:$anonType$1;
-    %27(SYNTHETIC) ballerina/lang.array:1.1.0:$anonType$0 | ();
-    %31(TEMP) ballerina/lang.array:1.1.0:$anonType$0 | ();
+    %23(SYNTHETIC) ballerina/lang.array:1.1.0:$anonType$_1;
+    %26(TEMP) ballerina/lang.array:1.1.0:$anonType$_1;
+    %27(SYNTHETIC) ballerina/lang.array:1.1.0:$anonType$_0 | ();
+    %31(TEMP) ballerina/lang.array:1.1.0:$anonType$_0 | ();
     %32(TEMP) boolean;
     %34(SYNTHETIC) ballerina/http:1.0.0:RequestFilter | ballerina/http:1.0.0:ResponseFilter;
     %36(TEMP) ballerina/http:1.0.0:RequestFilter | ballerina/http:1.0.0:ResponseFilter;
-    %37(TEMP) ballerina/lang.array:1.1.0:$anonType$0;
+    %37(TEMP) ballerina/lang.array:1.1.0:$anonType$_0;
     %44(SYNTHETIC) boolean;
     %46(TEMP) ballerina/http:1.0.0:RequestFilter;
     %58(SYNTHETIC) ();
@@ -48,26 +48,26 @@ sayHello function(ballerina/http:1.0.0:Caller, ballerina/http:1.0.0:Request) -> 
         %26 = iterator(%17) -> bb2;
     }
     bb2 {
-        %23 = <ballerina/lang.array:1.1.0:$anonType$1> %26;
-        %31 = $anonType$1.next(%23, %23) -> bb3;
+        %23 = <ballerina/lang.array:1.1.0:$anonType$_1> %26;
+        %31 = $anonType$_1.next(%23, %23) -> bb3;
     }
     bb3 {
-        %27 = <ballerina/lang.array:1.1.0:$anonType$0 | ()> %31;
+        %27 = <ballerina/lang.array:1.1.0:$anonType$_0 | ()> %31;
         GOTO bb4;
     }
     bb4 {
-        %32 = %27 is ballerina/lang.array:1.1.0:$anonType$0;
+        %32 = %27 is ballerina/lang.array:1.1.0:$anonType$_0;
         %32? bb5 : bb14;
     }
     bb5 {
-        %37 = <ballerina/lang.array:1.1.0:$anonType$0> %27;
+        %37 = <ballerina/lang.array:1.1.0:$anonType$_0> %27;
         %10 = ConstLoad value;
         %36 = %37[%10];
         %34 = <ballerina/http:1.0.0:RequestFilter> %36;
-        %31 = $anonType$1.next(%23, %23) -> bb6;
+        %31 = $anonType$_1.next(%23, %23) -> bb6;
     }
     bb6 {
-        %27 = <ballerina/lang.array:1.1.0:$anonType$0 | ()> %31;
+        %27 = <ballerina/lang.array:1.1.0:$anonType$_0 | ()> %31;
         %46 = <ballerina/http:1.0.0:RequestFilter> %34;
         %32 = %46 is ballerina/http:1.0.0:RequestFilter;
         %32? bb7 : bb9;
