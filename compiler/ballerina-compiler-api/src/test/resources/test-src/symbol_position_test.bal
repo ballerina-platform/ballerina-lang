@@ -56,3 +56,20 @@ function workers() {
         int x = 10;
     }
 }
+
+function typeNarrowing() {
+    int|float|string val = 10;
+    typedesc<anydata> td;
+
+    if (val is int|float) {
+        _ = val;
+
+        if (val is int) {
+            int x = val;
+        } else {
+            float f = val;
+        }
+    } else {
+        string s = val;
+    }
+}

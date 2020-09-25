@@ -87,4 +87,28 @@ public class SymbolPositionTest {
                 {55, 12, 55, 14, "w1"},
         };
     }
+
+    @Test(dataProvider = "PositionProvider2")
+    public void testTypeNarrowedSymbolPositions(int line, int col) {
+        Optional<Symbol> symbol = model.symbol("symbol_position_test.bal", LinePosition.from(line, col));
+
+        assertEquals(symbol.get().name(), "val");
+
+        Location pos = symbol.get().position();
+        assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");
+        assertEquals(pos.lineRange().startLine().line(), 61);
+        assertEquals(pos.lineRange().startLine().offset(), 22);
+        assertEquals(pos.lineRange().endLine().line(), 61);
+        assertEquals(pos.lineRange().endLine().offset(), 25);
+    }
+
+    @DataProvider(name = "PositionProvider2")
+    public Object[][] getTypeNarrowedPositions() {
+        return new Object[][]{
+                {65, 14},
+                {68, 22},
+                {70, 24},
+                {73, 21},
+        };
+    }
 }
