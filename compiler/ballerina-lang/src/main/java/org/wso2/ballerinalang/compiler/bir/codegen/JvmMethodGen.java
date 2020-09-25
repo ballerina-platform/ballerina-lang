@@ -19,7 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.jvm.IdentifierEncoder;
+import org.ballerinalang.jvm.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -1454,7 +1454,7 @@ public class JvmMethodGen {
             mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
         } else {
             String jvmClass;
-            String encodedFuncName = IdentifierEncoder.encodeIdentifier(funcName);
+            String encodedFuncName = IdentifierUtils.encodeIdentifier(funcName);
             String lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + encodedFuncName;
             BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
             String methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);

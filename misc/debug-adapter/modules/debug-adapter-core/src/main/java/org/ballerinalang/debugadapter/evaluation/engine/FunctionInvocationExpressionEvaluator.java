@@ -67,7 +67,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
             }
             if (!jvmMethod.isPresent()) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
-                        syntaxNode.functionName().toString()));
+                        syntaxNode.functionName().toSourceCode()));
             }
             Value result = jvmMethod.get().invoke();
             return new BExpressionValue(context, result);
@@ -101,7 +101,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                 if (sourceType == DebugSourceType.MODULE && !cls.name().startsWith(context.getOrgName().get())) {
                     continue;
                 }
-                List<Method> methods = cls.methodsByName(syntaxNode.functionName().toString().trim());
+                List<Method> methods = cls.methodsByName(syntaxNode.functionName().toSourceCode());
                 for (Method method : methods) {
                     // Note - All the ballerina functions are represented as java static methods and all the generated
                     // jvm methods contain strand as its first argument.
@@ -136,7 +136,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                 ClassLoaderReference classLoader = context.getClassLoader();
                 ReferenceType referenceType = EvaluationUtils.loadClass(context, syntaxNode, classNameJoiner.toString(),
                         classLoader);
-                List<Method> methods = referenceType.methodsByName(syntaxNode.functionName().toString().trim());
+                List<Method> methods = referenceType.methodsByName(syntaxNode.functionName().toSourceCode());
                 if (!methods.isEmpty()) {
                     return Optional.of(new JvmStaticMethod(context, referenceType, methods.get(0), argEvaluators));
                 }
@@ -145,7 +145,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         } else {
             // If the source is a single bal file, the method(class)must be loaded by now already.
             throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
-                    syntaxNode.functionName().toString()));
+                    syntaxNode.functionName().toSourceCode()));
         }
     }
 }

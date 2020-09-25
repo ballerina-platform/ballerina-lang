@@ -20,6 +20,7 @@ package org.ballerinalang.jvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -27,7 +28,10 @@ import java.util.regex.Pattern;
  *
  * @since 2.0.0
  */
-public class IdentifierEncoder {
+public class IdentifierUtils {
+
+    public static final String UNICODE_REGEX = "\\\\u\\{([a-fA-F0-9]+)\\}";
+    public static final Pattern UNICODE_PATTERN = Pattern.compile(UNICODE_REGEX);
 
     private static final String CHAR_PREFIX = "$";
     private static final String ESCAPE_PREFIX = "\\";
@@ -36,7 +40,7 @@ public class IdentifierEncoder {
     private static final Pattern UNESCAPED_SPECIAL_CHAR_SET =
             Pattern.compile("(?<!\\\\)(?:\\\\\\\\)*([$&+,:;=\\?@#|/' \\[\\}\\]<\\>.\"^*{}~`()%!-])");
 
-    private IdentifierEncoder() {
+    private IdentifierUtils() {
     }
 
     private static String encodeSpecialCharacters(String identifier) {
@@ -108,6 +112,17 @@ public class IdentifierEncoder {
             }
         }
         return sb.toString();
+    }
+
+    public static String unescapeUnicodeCodepoints(String identifier) {
+        Matcher matcher = UNICODE_PATTERN.matcher(identifier);
+        StringBuffer buffer = new StringBuffer(identifier.length());
+        while (matcher.find()) {
+            String ch = String.valueOf((char) Integer.parseInt(matcher.group(1), 16));
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(ch));
+        }
+        matcher.appendTail(buffer);
+        return String.valueOf(buffer);
     }
 
     private static boolean isUnicodePoint(String encodedName, int index) {
