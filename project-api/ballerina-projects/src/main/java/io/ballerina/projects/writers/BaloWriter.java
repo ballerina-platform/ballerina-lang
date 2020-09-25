@@ -20,8 +20,9 @@ package io.ballerina.projects.writers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.Project;
 import io.ballerina.projects.model.BaloJson;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.model.adaptors.JsonCollectionsAdaptor;
@@ -30,6 +31,7 @@ import io.ballerina.projects.utils.ProjectConstants;
 import org.ballerinalang.compiler.BLangCompilerException;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -46,6 +48,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.ballerina.projects.utils.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.utils.ProjectUtils.getBaloName;
 
 /**
@@ -60,11 +63,11 @@ public class BaloWriter {
     /**
      * Write a package to a .balo and return the created .balo path.
      *
-     * @param project Project to be written as a .balo.
-     * @param path    Directory where the .balo should be created.
+     * @param pkg  Package to be written as a .balo.
+     * @param path Directory where the .balo should be created.
      * @return Newly created balo path
      */
-    public static Path write(Project project, Path path) throws AccessDeniedException {
+    public static Path write(Package pkg, Path path) throws AccessDeniedException {
         // todo check if the given package is compiled properly
 
         // Check if the path is a directory
@@ -76,15 +79,14 @@ public class BaloWriter {
             throw new AccessDeniedException("No write access to create balo:" + path);
         }
 
-        Package currentPackage = project.currentPackage();
         Path balo = path.resolve(
-                getBaloName(currentPackage.packageOrg().toString(), currentPackage.packageName().toString(),
-                        currentPackage.packageVersion().toString(), null));
+                getBaloName(pkg.packageOrg().toString(), pkg.packageName().toString(),
+                        pkg.packageVersion().toString(), null));
 
         // Create the archive over write if exists
         try (FileSystem baloFS = createBaloArchive(balo)) {
             // Now lets put stuff in
-            populateBaloArchive(baloFS, project);
+            populateBaloArchive(baloFS, pkg);
         } catch (IOException e) {
             throw new BLangCompilerException("Failed to create balo :" + e.getMessage(), e);
         } catch (BLangCompilerException be) {
@@ -100,7 +102,6 @@ public class BaloWriter {
     }
 
     private static FileSystem createBaloArchive(Path path) throws IOException {
-        // TODO check apache commons zip file writer
         // Remove if file already exists
         if (path.toFile().exists()) {
             Files.delete(path);
@@ -116,7 +117,7 @@ public class BaloWriter {
         return FileSystems.newFileSystem(zipDisk, env);
     }
 
-    private static void populateBaloArchive(FileSystem baloFS, Project project)
+    private static void populateBaloArchive(FileSystem baloFS, Package pkg)
             throws IOException {
         Path root = baloFS.getPath("/");
 
@@ -149,9 +150,9 @@ public class BaloWriter {
         //         └── ext2/
 
         addBaloJson(root);
-        addPackageJson(root, project.currentPackage());
-        addPackageDoc(root, project.sourceRoot(), project.currentPackage().packageName().toString());
-        addPackageSource(root, project.sourceRoot(), project.currentPackage().packageName().toString());
+        addPackageJson(root, pkg);
+        addPackageDoc(root, pkg.project().sourceRoot(), pkg.packageName().toString());
+        addPackageSource(root, pkg);
         // Add platform libs only if it is not a template module
 //        if (!ballerinaToml.isTemplateModule(packageName)) {
 //            addPlatformLibs(root, packagePath, ballerinaToml);
@@ -217,6 +218,8 @@ public class BaloWriter {
         }
     }
 
+    // TODO when iterating and adding source files should create source files from Package sources
+
     private static void addPackageDoc(Path root, Path packageSourceDir, String pkgName) throws IOException {
         final String packageMdFileName = "Package.md";
         final String moduleMdFileName = "Module.md";
@@ -233,7 +236,7 @@ public class BaloWriter {
 
         // If `Module.md` of default module exists, create `docs/modules` directory & add `Module.md`
         Path defaultModuleMd = packageSourceDir.resolve(moduleMdFileName);
-        Path modulesDirInBaloDocs = docsDirInBalo.resolve(ProjectConstants.MODULES_ROOT);
+        Path modulesDirInBaloDocs = docsDirInBalo.resolve(MODULES_ROOT);
 
         if (defaultModuleMd.toFile().exists()) {
             Files.createDirectory(modulesDirInBaloDocs);
@@ -245,14 +248,14 @@ public class BaloWriter {
         }
 
         // Add other module docs
-        File modulesSourceDir = new File(String.valueOf(packageSourceDir.resolve(ProjectConstants.MODULES_ROOT)));
+        File modulesSourceDir = new File(String.valueOf(packageSourceDir.resolve(MODULES_ROOT)));
         File[] directoryListing = modulesSourceDir.listFiles();
 
         if (directoryListing != null) {
             for (File moduleDir : directoryListing) {
                 if (moduleDir.isDirectory()) {
                     // Get `Module.md` path
-                    Path otherModuleMd = packageSourceDir.resolve(ProjectConstants.MODULES_ROOT)
+                    Path otherModuleMd = packageSourceDir.resolve(MODULES_ROOT)
                             .resolve(moduleDir.getName()).resolve(moduleMdFileName);
                     // Create `package.module` folder, if `Module.md` path exists
                     if (otherModuleMd.toFile().exists()) {
@@ -268,36 +271,51 @@ public class BaloWriter {
         }
     }
 
-    private static void addPackageSource(Path root, Path packageSourceDir, String defaultPackageName)
-            throws IOException {
+    private static void addPackageSource(Path root, Package pkg) throws IOException {
         // create the module directory in zip
-        Path packageInBalo = root.resolve(ProjectConstants.MODULES_ROOT);
+        Path packageInBalo = root.resolve(MODULES_ROOT);
         Files.createDirectory(packageInBalo);
 
         // add default module
-        Path defaultPkgDirInBalo = packageInBalo.resolve(defaultPackageName);
+        Path defaultPkgDirInBalo = packageInBalo.resolve(pkg.packageName().toString());
         Files.createDirectory(defaultPkgDirInBalo);
 
         // copy resources directory
-        copyResourcesDir(packageSourceDir, defaultPkgDirInBalo);
-        // only add .bal files in the package root
-        copyBallerinaSrcFiles(packageSourceDir, defaultPkgDirInBalo);
+        copyResourcesDir(pkg.project().sourceRoot(), defaultPkgDirInBalo);
+        // only add .bal files of default module
+        for (Document document : pkg.getDefaultModule().documents()) {
+            if (document.name().endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
+                Path targetDocumentPath = defaultPkgDirInBalo.resolve(document.name());
+                Files.createFile(targetDocumentPath);
+                try (FileWriter fileWriter = new FileWriter(String.valueOf(targetDocumentPath))) {
+                    fileWriter.write(document.textDocument().toCharArray());
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to write " + targetDocumentPath);
+                }
+            }
+        }
 
         // add other modules
-        File modulesSourceDir = new File(String.valueOf(packageSourceDir.resolve(ProjectConstants.MODULES_ROOT)));
-        File[] directoryListing = modulesSourceDir.listFiles();
+        for (Module module : pkg.modules()) {
+            // add module
+            Path moduleDirInBalo = packageInBalo
+                    .resolve(pkg.getDefaultModule().moduleName().toString() + "." + module.moduleName().toString());
+            Files.createDirectory(moduleDirInBalo);
 
-        if (directoryListing != null) {
-            for (File moduleDir : directoryListing) {
-                if (moduleDir.isDirectory()) {
-                    // add module
-                    Path moduleDirInBalo = packageInBalo.resolve(defaultPackageName + "." + moduleDir.getName());
-                    Files.createDirectory(moduleDirInBalo);
+            // copy resources directory
+            copyResourcesDir(pkg.project().sourceRoot().resolve(MODULES_ROOT).resolve(module.moduleName().toString()),
+                    moduleDirInBalo);
 
-                    // copy resources directory
-                    copyResourcesDir(moduleDir.toPath(), moduleDirInBalo);
-                    // only add .bal files in the module root
-                    copyBallerinaSrcFiles(moduleDir.toPath(), moduleDirInBalo);
+            // add .bal files
+            for (Document document : module.documents()) {
+                if (document.name().endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
+                    Files.createFile(moduleDirInBalo.resolve(document.name()));
+                    try (FileWriter fileWriter = new FileWriter(
+                            String.valueOf(moduleDirInBalo.resolve(document.name())))) {
+                        fileWriter.write(document.textDocument().toCharArray());
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to write " + moduleDirInBalo.resolve(document.name()));
+                    }
                 }
             }
         }

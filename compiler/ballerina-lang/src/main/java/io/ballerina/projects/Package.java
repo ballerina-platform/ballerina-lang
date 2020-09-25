@@ -44,6 +44,10 @@ public class Package {
         return this.packageContext;
     }
 
+    public Project project() {
+        return this.project;
+    }
+
     public PackageId packageId() {
         return this.packageContext.packageId();
     }
@@ -156,12 +160,16 @@ public class Package {
     public static class Modifier {
         private PackageId packageId;
         private PackageName packageName;
+        private PackageOrg packageOrg;
+        private PackageVersion packageVersion;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
             this.packageName = oldPackage.packageName();
+            this.packageOrg = oldPackage.packageOrg();
+            this.packageVersion = oldPackage.packageVersion();
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
         }
@@ -214,7 +222,7 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId,
-                    this.packageName, this.moduleContextMap);
+                    this.packageName, this.packageOrg, this.packageVersion,  this.moduleContextMap);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
         }
