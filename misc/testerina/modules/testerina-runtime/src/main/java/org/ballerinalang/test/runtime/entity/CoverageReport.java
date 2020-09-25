@@ -49,33 +49,29 @@ import static org.jacoco.core.analysis.ICounter.PARTLY_COVERED;
 public class CoverageReport {
 
     private final String title;
-
+    private final Path projectDir;
+    private final Path jarCache;
+    private final Path jsonCache;
     private Path executionDataFile;
     private Path classesDirectory;
-    private final Path projectDir;
-
-    private final Path jarCache;
-
     private ExecFileLoader execFileLoader;
 
-    private Path sourceJarPath;
     private String orgName;
     private String moduleName;
     private String version;
 
-    public CoverageReport(Path sourceJarPath, Path targetDirPath, String orgName, String moduleName, String version) {
-        this.sourceJarPath = sourceJarPath;
+    public CoverageReport(Path targetDirPath, String orgName, String moduleName, String version) {
         this.orgName = orgName;
         this.moduleName = moduleName;
         this.version = version;
         this.projectDir = targetDirPath.resolve(TesterinaConstants.COVERAGE_DIR);
-
-        this.jarCache = targetDirPath.resolve("caches/jar_cache/" + orgName);
-
         this.title = projectDir.toFile().getName();
         this.classesDirectory = projectDir.resolve(TesterinaConstants.BIN_DIR);
         this.executionDataFile = projectDir.resolve(TesterinaConstants.EXEC_FILE_NAME);
         this.execFileLoader = new ExecFileLoader();
+
+        this.jarCache = targetDirPath.resolve("caches/jar_cache/").resolve(orgName).resolve(moduleName);
+        this.jsonCache = targetDirPath.resolve("caches/json_cache/");
     }
 
     /**
@@ -86,25 +82,21 @@ public class CoverageReport {
     public void generateReport() throws IOException {
 
         // Obtain a path list of all the .jar files generated
-        List<Path> pathList = new ArrayList<>();
+        List<Path> pathList;
         try (Stream<Path> walk = Files.walk(this.jarCache, 5)) {
-            pathList = walk.map(path -> path)
-                    .filter(f -> f.toString().endsWith("testable.jar"))
-                    .collect(Collectors.toList());
+            pathList = walk.map(path -> path).filter(f -> f.toString().endsWith("testable.jar")).collect(
+                    Collectors.toList());
         } catch (IOException e) {
-            e.printStackTrace();
             return;
         }
 
         if (!pathList.isEmpty()) {
-
             // For each jar file found, we unzip it for this particular module
             for (Path moduleJarPath : pathList) {
                 try {
                     // Creates coverage folder with each class per module
                     CodeCoverageUtils.unzipCompiledSource(moduleJarPath, projectDir, orgName, moduleName, version);
                 } catch (NoSuchFileException e) {
-                    System.out.println("Exception " + e);
                     return;
                 }
             }
@@ -122,8 +114,7 @@ public class CoverageReport {
 
     private IBundleCoverage analyzeStructure() throws IOException {
         final CoverageBuilder coverageBuilder = new CoverageBuilder();
-        final Analyzer analyzer = new Analyzer(
-                execFileLoader.getExecutionDataStore(), coverageBuilder);
+        final Analyzer analyzer = new Analyzer(execFileLoader.getExecutionDataStore(), coverageBuilder);
         analyzer.analyzeAll(classesDirectory.toFile());
         return coverageBuilder.getBundle(title);
     }
@@ -135,12 +126,9 @@ public class CoverageReport {
             containsSourceFiles = true;
 
             // I havent tested the behaviour of single files
-//            if (TesterinaConstants.DOT.equals(moduleName)) {
-//                containsSourceFiles = packageCoverage.getName().isEmpty();
-//            } else {
-//                containsSourceFiles = packageCoverage.getName().contains(orgName + "/" + moduleName);
-//            }
-
+            if (TesterinaConstants.DOT.equals(moduleName)) {
+                containsSourceFiles = packageCoverage.getName().isEmpty();
+            }
 
             if (containsSourceFiles) {
                 for (ISourceFileCoverage sourceFileCoverage : packageCoverage.getSourceFiles()) {
@@ -148,30 +136,39 @@ public class CoverageReport {
                     // Extract the Module name individually for each source file
                     // This is done since some source files come from other modules
                     // sourceFileCoverage : "<orgname>/<moduleName>:<version>
-                    System.out.println("SourceFileCoverage package " + sourceFileCoverage.getPackageName());
                     String sourceFileModule = sourceFileCoverage.getPackageName().split("/")[1];
-                    System.out.println("Extracted module name : " + sourceFileModule);
 
-                    if (sourceFileCoverage.getName().contains(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
-                            !sourceFileCoverage.getName().contains("tests/")) {
+                    if (sourceFileCoverage.getName().contains(
+                            BLangConstants.BLANG_SRC_FILE_SUFFIX) && !sourceFileCoverage.getName().contains("tests/")) {
                         List<Integer> coveredLines = new ArrayList<>();
                         List<Integer> missedLines = new ArrayList<>();
+
+
                         for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine(); i++) {
                             ILine line = sourceFileCoverage.getLine(i);
-                            if (line.getInstructionCounter().getTotalCount() == 0
-                                    && line.getBranchCounter().getTotalCount() == 0) {
+
+                            if (line.getInstructionCounter().getTotalCount() == 0 &&
+                                    line.getBranchCounter().getTotalCount() == 0) {
                                 // do nothing. This is to capture the empty lines
-                            } else if ((line.getBranchCounter().getCoveredCount() == 0
-                                    && line.getBranchCounter().getMissedCount() > 0)
-                                    || line.getStatus() == NOT_COVERED) {
+                            } else if ((line.getBranchCounter().getCoveredCount() == 0 &&
+                                    line.getBranchCounter().getMissedCount() > 0) || line.getStatus() == NOT_COVERED) {
                                 missedLines.add(i);
                             } else if (line.getStatus() == PARTLY_COVERED || line.getStatus() == FULLY_COVERED) {
                                 coveredLines.add(i);
                             }
                         }
 
-                        ModuleCoverage.getInstance().addSourceFileCoverage(sourceFileModule,
-                                sourceFileCoverage.getName(), coveredLines, missedLines);
+                        // Only add the source files that belong to the same module
+                        if (sourceFileModule.equals(moduleName)) {
+                            ModuleCoverage.getInstance().addSourceFileCoverage(sourceFileModule,
+                                    sourceFileCoverage.getName(), coveredLines, missedLines);
+                        } else {
+                            String jsonCachePath = this.jsonCache.toString() + "/"
+                                    + sourceFileCoverage.getPackageName().replace("_", ".");
+                            ModuleCoverage.getInstance().updateSourceFileCoverage(jsonCachePath, sourceFileModule,
+                                    sourceFileCoverage.getName(), coveredLines, missedLines);
+                        }
+
                     }
                 }
             }

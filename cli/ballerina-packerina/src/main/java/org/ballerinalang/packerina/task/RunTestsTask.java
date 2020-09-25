@@ -211,15 +211,22 @@ public class RunTestsTask implements Task {
                 if (coverageResult != 0) {
                     throw createLauncherException("error while generating test report");
                 }
-                Path coverageJsonPath = jsonPath.resolve(TesterinaConstants.COVERAGE_FILE);
-                try {
-                    ModuleCoverage moduleCoverage = loadModuleCoverageFromFile(coverageJsonPath);
-                    testReport.addCoverage(String.valueOf(bLangPackage.packageID.name), moduleCoverage);
-                } catch (IOException e) {
-                    throw createLauncherException("error while generating test report", e);
-                }
             }
         }
+
+        // Load Coverage data from the files only after each module's coverage data has been finalized
+        for (BLangPackage bLangPackage : moduleBirMap) {
+            // Check and update coverage
+            Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
+            Path coverageJsonPath = jsonPath.resolve(TesterinaConstants.COVERAGE_FILE);
+            try {
+                ModuleCoverage moduleCoverage = loadModuleCoverageFromFile(coverageJsonPath);
+                testReport.addCoverage(String.valueOf(bLangPackage.packageID.name), moduleCoverage);
+            } catch (IOException e) {
+                throw createLauncherException("error while generating test report", e);
+            }
+        }
+
         if ((report || coverage) && (testReport.getModuleStatus().size() > 0)) {
             testReport.finalizeTestResults(coverage);
             generateHtmlReport(buildContext.out(), testReport, targetDir);

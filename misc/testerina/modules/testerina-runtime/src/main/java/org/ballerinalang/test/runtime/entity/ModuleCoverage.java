@@ -1,3 +1,5 @@
+
+
 /*
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -17,8 +19,11 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
+import com.google.gson.Gson;
+import org.ballerinalang.test.runtime.CoverageMain;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -67,6 +72,45 @@ public class ModuleCoverage {
         setCoveragePercentage();
     }
 
+    public void updateSourceFileCoverage(String jsonCachePath, String moduleName, String fileName,
+                                         List<Integer> coveredLines, List<Integer> missedLines) {
+        Path jsonTmpSummaryPath = Paths.get(jsonCachePath, TesterinaConstants.COVERAGE_FILE);
+
+        // Calculate the coverage percentage
+        float coverageVal = (float) this.coveredLines / (this.coveredLines + this.missedLines) * 100;
+        float coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);
+
+        if (jsonTmpSummaryPath.toFile().exists()) {
+            try (BufferedReader bufferedReader = Files.newBufferedReader(jsonTmpSummaryPath, StandardCharsets.UTF_8)) {
+                boolean isUpdated = false;
+                Gson gson = new Gson();
+                ModuleCoverage moduleCoverage = gson.fromJson(bufferedReader, ModuleCoverage.class);
+                ModuleCoverage newCoverage = new ModuleCoverage();
+
+                // Look for the source in the existing JSON
+                for (SourceFile sourceFile : moduleCoverage.sourceFiles) {
+                    if (sourceFile.name.equals(fileName)) {
+                        if (sourceFile.coveragePercentage < coveragePercentage) {
+                            // Since the percentages are different we need to update the source file
+                            newCoverage.addSourceFileCoverage(moduleName, fileName, coveredLines, missedLines);
+                            isUpdated = true;
+                        }
+                    } else {
+                        newCoverage.addSourceFileCoverage(sourceFile.moduleName, sourceFile.name,
+                                sourceFile.coveredLines, sourceFile.missedLines);
+                    }
+                }
+
+                // Rewrite only if the file has been updated
+                if (isUpdated) {
+                    CoverageMain.writeCoverageToJsonFile(newCoverage, jsonTmpSummaryPath);
+                }
+            } catch (IOException e) {
+                errStream.println("error while updating source file coverage : " + e);
+            }
+        }
+    }
+
     private void setCoveragePercentage() {
         float coverageVal = (float) this.coveredLines / (this.coveredLines + this.missedLines) * 100;
         this.coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);
@@ -97,6 +141,7 @@ public class ModuleCoverage {
      */
     private static class SourceFile {
         private String name;
+        private String moduleName;
         private List<Integer> coveredLines;
         private List<Integer> missedLines;
         private float coveragePercentage;
@@ -104,6 +149,7 @@ public class ModuleCoverage {
 
         private SourceFile(String moduleName, String fileName, List<Integer> coveredLines, List<Integer> missedLines) {
             this.name = fileName;
+            this.moduleName = moduleName;
             this.coveredLines = coveredLines;
             this.missedLines = missedLines;
             setCoveragePercentage(coveredLines, missedLines);
