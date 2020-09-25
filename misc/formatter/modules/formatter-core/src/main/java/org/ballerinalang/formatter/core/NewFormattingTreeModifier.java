@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.formatter.core;
 
-import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
 import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
@@ -43,6 +43,10 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
+import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
+import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
+import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
@@ -149,7 +153,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         setIndentation(this.lineLength);
         SeparatedNodeList<ParameterNode> parameters =
                 formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, 0, 0);
-        this.indentation = currentIndentation;
+        setIndentation(currentIndentation);
 
         Token closePara = formatToken(functionSignatureNode.closeParenToken(), 1, 0);
         if (functionSignatureNode.returnTypeDesc().isPresent()) {
@@ -302,6 +306,96 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .withOpenBraceToken(openBrace)
                 .withStatements(statements)
                 .withCloseBraceToken(closeBrace)
+                .apply();
+    }
+
+    @Override
+    public RecordTypeDescriptorNode transform(RecordTypeDescriptorNode recordTypeDesc) {
+        Token recordKeyword = formatNode(recordTypeDesc.recordKeyword(), 1, 0);
+        int fieldTrailingWS = 0;
+        int fieldTrailingNL = 0;
+        if (shouldExpand(recordTypeDesc)) {
+            fieldTrailingNL++;
+        } else {
+            fieldTrailingWS++;
+        }
+
+        Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), fieldTrailingWS, fieldTrailingNL);
+
+        int prevIndentation = this.indentation;
+        setIndentation(recordKeyword.location().lineRange().startLine().offset() + DEFAULT_INDENTATION);
+        NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), fieldTrailingWS, fieldTrailingNL,
+                fieldTrailingWS, fieldTrailingNL);
+
+        if (recordTypeDesc.recordRestDescriptor().isPresent()) {
+            RecordRestDescriptorNode recordRestDescriptor =
+                    formatNode(recordTypeDesc.recordRestDescriptor().get(), fieldTrailingWS, fieldTrailingNL);
+            recordTypeDesc = recordTypeDesc.modify().withRecordRestDescriptor(recordRestDescriptor).apply();
+        }
+
+        setIndentation(prevIndentation);
+        Token bodyEndDelimiter = formatToken(recordTypeDesc.bodyEndDelimiter(), this.trailingWS, this.trailingNL);
+
+        return recordTypeDesc.modify()
+                .withRecordKeyword(recordKeyword)
+                .withBodyStartDelimiter(bodyStartDelimiter)
+                .withFields(fields)
+                .withBodyEndDelimiter(bodyEndDelimiter)
+                .apply();
+    }
+
+    @Override
+    public RecordFieldNode transform(RecordFieldNode recordField) {
+        if (recordField.metadata().isPresent()) {
+            MetadataNode metadata = formatNode(recordField.metadata().get(), 0, 1);
+            recordField = recordField.modify().withMetadata(metadata).apply();
+        }
+
+        if (recordField.readonlyKeyword().isPresent()) {
+            Token readonlyKeyword = formatNode(recordField.readonlyKeyword().get(), 1, 0);
+            recordField = recordField.modify().withReadonlyKeyword(readonlyKeyword).apply();
+        }
+
+        Node typeName = formatNode(recordField.typeName(), 1, 0);
+        Token fieldName = formatToken(recordField.fieldName(), 0, 0);
+
+        if (recordField.questionMarkToken().isPresent()) {
+            Token questionMarkToken = formatToken(recordField.questionMarkToken().get(), 0, 1);
+            recordField = recordField.modify().withQuestionMarkToken(questionMarkToken).apply();
+        }
+
+        Token semicolonToken = formatToken(recordField.semicolonToken(), this.trailingWS, this.trailingNL);
+        return recordField.modify()
+                .withTypeName(typeName)
+                .withFieldName(fieldName)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public RecordFieldWithDefaultValueNode transform(RecordFieldWithDefaultValueNode recordField) {
+        if (recordField.metadata().isPresent()) {
+            MetadataNode metadata = formatNode(recordField.metadata().get(), 0, 1);
+            recordField = recordField.modify().withMetadata(metadata).apply();
+        }
+
+        if (recordField.readonlyKeyword().isPresent()) {
+            Token readonlyKeyword = formatNode(recordField.readonlyKeyword().get(), 1, 0);
+            recordField = recordField.modify().withReadonlyKeyword(readonlyKeyword).apply();
+        }
+
+        Node typeName = formatNode(recordField.typeName(), 1, 0);
+        Token fieldName = formatToken(recordField.fieldName(), 1, 0);
+        Token equalsToken = formatToken(recordField.equalsToken(), 1, 0);
+        ExpressionNode expression = formatNode(recordField.expression(), 0, 0);
+        Token semicolonToken = formatToken(recordField.semicolonToken(), this.trailingWS, this.trailingNL);
+
+        return recordField.modify()
+                .withTypeName(typeName)
+                .withFieldName(fieldName)
+                .withEqualsToken(equalsToken)
+                .withExpression(expression)
+                .withSemicolonToken(semicolonToken)
                 .apply();
     }
 
@@ -556,8 +650,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @SuppressWarnings("unchecked")
     private <T extends Token> T formatTokenInternal(T token) {
         MinutiaeList newLeadingMinutiaeList = getLeadingMinutiae();
-        MinutiaeList newTrailingMinutiaeList = getTrailingMinutiae();
         this.lineLength += token.text().length();
+        MinutiaeList newTrailingMinutiaeList = getTrailingMinutiae();
         return (T) token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
     }
 
@@ -645,5 +739,26 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         return sb.toString();
+    }
+    
+    private boolean shouldExpand(RecordTypeDescriptorNode recordTypeDesc) {
+        int fieldCount = recordTypeDesc.fields().size();
+        fieldCount += recordTypeDesc.recordRestDescriptor().isPresent() ? 1 : 0;
+
+        if (fieldCount <= 1) {
+            return false;
+        }
+
+        if (fieldCount > 3) {
+            return true;
+        }
+
+        for (Node field : recordTypeDesc.fields()) {
+            TextRange textRange = field.textRange();
+            if ((textRange.endOffset() - textRange.startOffset()) > 15) {
+                return true;
+            }
+        }
+        return false;
     }
 }
