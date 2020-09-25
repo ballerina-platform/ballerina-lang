@@ -1,7 +1,7 @@
 function foo () {
     match bar {
         error()) => {}
-        error gdgf&%^$ ) => {}
+        error gdgf ) => {}
         identifier name = [], ... var e) => {}
         error identifier:identifier %!&%) => {}
         error () fgfdg 676456 => {}

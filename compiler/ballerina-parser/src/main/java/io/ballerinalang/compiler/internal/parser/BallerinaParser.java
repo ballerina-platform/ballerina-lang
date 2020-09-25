@@ -2787,7 +2787,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Type reference node
      */
     private STNode parseTypeReference() {
-        STNode typeReference = parseTypeReference(false);
+        STNode typeReference = parseTypeDescriptor(ParserRuleContext.TYPE_REFERENCE);
         if (typeReference.kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             if (typeReference.hasDiagnostics()) {
                 // When a missing type desc is recovered, diagnostic code will be missing type desc.
