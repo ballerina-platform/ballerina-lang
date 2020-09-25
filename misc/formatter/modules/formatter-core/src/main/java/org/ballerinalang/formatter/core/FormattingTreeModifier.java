@@ -49,6 +49,7 @@ import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.EnumMemberNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.ErrorMatchPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
@@ -3744,17 +3745,19 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
-    public FunctionalMatchPatternNode transform(FunctionalMatchPatternNode functionalMatchPatternNode) {
-        if (!isInLineRange(functionalMatchPatternNode, lineRange)) {
-            return functionalMatchPatternNode;
+    public ErrorMatchPatternNode transform(ErrorMatchPatternNode errorMatchPatternNode) {
+        if (!isInLineRange(errorMatchPatternNode, lineRange)) {
+            return errorMatchPatternNode;
         }
-        Node typeRef = this.modifyNode(functionalMatchPatternNode.typeRef());
-        Token openParenthesisToken = getToken(functionalMatchPatternNode.openParenthesisToken());
+        Token errorKeywordToken = getToken(errorMatchPatternNode.errorKeyword());
+        Node typeRef = this.modifyNode(errorMatchPatternNode.typeReference().orElse(null));
+        Token openParenthesisToken = getToken(errorMatchPatternNode.openParenthesisToken());
         SeparatedNodeList<Node> argListMatchPatternNode =
-                this.modifySeparatedNodeList(functionalMatchPatternNode.argListMatchPatternNode());
-        Token closeParenthesisToken = getToken(functionalMatchPatternNode.closeParenthesisToken());
-        return functionalMatchPatternNode.modify()
-                .withTypeRef(typeRef)
+                this.modifySeparatedNodeList(errorMatchPatternNode.argListMatchPatternNode());
+        Token closeParenthesisToken = getToken(errorMatchPatternNode.closeParenthesisToken());
+        return errorMatchPatternNode.modify()
+                .withErrorKeyword(formatToken(errorKeywordToken, 0, 1, 0, 0))
+                .withTypeReference(typeRef)
                 .withOpenParenthesisToken(formatToken(openParenthesisToken, 0, 0, 0, 0))
                 .withArgListMatchPatternNode(argListMatchPatternNode)
                 .withCloseParenthesisToken(formatToken(closeParenthesisToken, 0, 0, 0, 0))
