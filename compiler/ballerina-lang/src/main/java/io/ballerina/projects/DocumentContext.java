@@ -97,11 +97,10 @@ class DocumentContext {
     }
 
     BLangCompilationUnit compilationUnit(CompilerContext compilerContext, PackageID pkgID) {
+        nodeCloner = NodeCloner.getInstance(compilerContext);
         if (compilationUnit != null) {
             return nodeCloner.clone(compilationUnit);
         }
-
-        nodeCloner = NodeCloner.getInstance(compilerContext);
         BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
 
         SyntaxTree syntaxTree = syntaxTree();

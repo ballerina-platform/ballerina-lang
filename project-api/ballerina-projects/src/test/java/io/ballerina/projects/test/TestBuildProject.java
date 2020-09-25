@@ -370,7 +370,7 @@ public class TestBuildProject {
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("utils.bal").toAbsolutePath();
 
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        Optional<DocumentId> removeDocumentId = ProjectLoader.getDocumentId(filePath, buildProject); // get the document ID
+        Optional<DocumentId> removeDocumentId = ProjectLoader.getDocumentId(filePath, buildProject);
         Assert.assertTrue(removeDocumentId.isPresent());
         Module oldModule = buildProject.currentPackage().module(removeDocumentId.get().moduleId());
 
@@ -399,7 +399,7 @@ public class TestBuildProject {
                         .resolve(ProjectConstants.TEST_DIR_NAME).resolve("svc_tests.bal").toAbsolutePath();
 
         BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        Optional<DocumentId> removeDocumentId = ProjectLoader.getDocumentId(filePath, buildProject); // get the document ID
+        Optional<DocumentId> removeDocumentId = ProjectLoader.getDocumentId(filePath, buildProject);
         Assert.assertTrue(removeDocumentId.isPresent());
         Module oldModule = buildProject.currentPackage().module(removeDocumentId.get().moduleId());
 
