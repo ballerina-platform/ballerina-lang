@@ -29,6 +29,6 @@ import org.ballerinalang.jvm.api.values.BString;
 public class UUID {
 
     public static BString uuid() {
-        return StringUtils.fromString(java.util.UUID.randomUUID().toString());
+        return BStringUtils.fromString(java.util.UUID.randomUUID().toString());
     }
 }

@@ -25,12 +25,6 @@ import org.ballerinalang.jvm.values.StreamValue;
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.__internal", functionName = "getIteratorObj",
-//        args = {@Argument(name = "strm", type = TypeKind.STREAM)},
-//        returnType = {@ReturnType(type = TypeKind.OBJECT)},
-//        isPublic = true
-//)
 public class GetIteratorObj {
 
     public static Object getIteratorObj(StreamValue strm) {

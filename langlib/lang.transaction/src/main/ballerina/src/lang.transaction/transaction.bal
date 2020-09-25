@@ -58,17 +58,17 @@ public type RollbackHandler function(Info info, error? cause, boolean willRetry)
 
 
 public transactional function onCommit(CommitHandler handler) = @java:Method {
-    class: "org.ballerinalang.langlib.transaction.OnCommit",
+    'class: "org.ballerinalang.langlib.transaction.OnCommit",
     name: "onCommit"
 } external;
 
 public transactional function onRollback(RollbackHandler handler) = @java:Method {
-    class: "org.ballerinalang.langlib.transaction.OnRollback",
+    'class: "org.ballerinalang.langlib.transaction.OnRollback",
     name: "onRollback"
 } external;
 
 public transactional function info() returns Info = @java:Method {
-    class: "org.ballerinalang.langlib.transaction.Info",
+    'class: "org.ballerinalang.langlib.transaction.Info",
     name: "info"
 } external;
 
@@ -80,26 +80,26 @@ public transactional function setRollbackOnly(error? e) {
 }
 
 function wrapRollbackError(Error? e) = @java:Method {
-    class: "org.ballerinalang.langlib.transaction.WrapRollbackError",
+    'class: "org.ballerinalang.langlib.transaction.WrapRollbackError",
     name: "wrapRollbackError"
 } external;
 
 public transactional function getRollbackOnly() returns boolean = @java:Method {
-    class: "org.ballerinalang.langlib.transaction.GetRollbackOnly",
+    'class: "org.ballerinalang.langlib.transaction.GetRollbackOnly",
     name: "getRollbackOnly"
 } external;
 
 public transactional function setData((any|error) & readonly e) = @java:Method {
-    class: "org.ballerinalang.langlib.transaction.SetData",
+    'class: "org.ballerinalang.langlib.transaction.SetData",
     name: "setData"
 } external;
 
 public transactional function getData() returns (any|error) & readonly = @java:Method {
-    class: "org.ballerinalang.langlib.transaction.GetData",
+    'class: "org.ballerinalang.langlib.transaction.GetData",
     name: "getData"
 } external;
 
 public function getInfo(byte[] xid) returns Info? = @java:Method {
-    class: "org.ballerinalang.langlib.transaction.GetInfo",
+    'class: "org.ballerinalang.langlib.transaction.GetInfo",
     name: "getInfo"
 } external;

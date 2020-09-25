@@ -73,6 +73,7 @@ public class Map {
                 throw createOpNotSupportedError(arrType, "map()");
         }
         AtomicInteger index = new AtomicInteger(-1);
+        Strand parentStrand = Scheduler.getStrand();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{parentStrand,

@@ -14,7 +14,10 @@ module io.ballerina.jvm {
     exports org.ballerinalang.jvm.values;
     exports org.ballerinalang.jvm.types;
     exports org.ballerinalang.jvm.util;
-    exports org.ballerinalang.jvm.values.api;
+    exports org.ballerinalang.jvm.api;
+    exports org.ballerinalang.jvm.api.connector;
+    exports org.ballerinalang.jvm.api.values;
+    exports org.ballerinalang.jvm.internal;
     exports org.ballerinalang.jvm.util.exceptions;
     exports org.ballerinalang.jvm.values.utils;
     exports org.ballerinalang.jvm.launch;

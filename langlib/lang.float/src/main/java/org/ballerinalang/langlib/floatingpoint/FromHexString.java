@@ -18,19 +18,13 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.api.values.BString;
 
 /**
  * Native implementation of lang.float:fromHexString(string).
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.float", functionName = "fromHexString",
-//        args = {@Argument(name = "x", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.UNION)},
-//        isPublic = true
-//)
 public class FromHexString {
 
     public static Object fromHexString(BString s) {

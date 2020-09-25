@@ -36,23 +36,17 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Collections;
 
-import static org.ballerinalang.jvm.BallerinaErrors.CALL_STACK_ELEMENT;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG_ID;
+import static org.ballerinalang.jvm.values.ErrorValue.CALL_STACK_ELEMENT;
 
 /**
  * Get the stackTrace of an error value.
  *
  * @since 0.990.4
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.error",
-//        functionName = "stackTrace",
-//        args = {@Argument(name = "value", type = TypeKind.ERROR)},
-//        returnType = {@ReturnType(type = TypeKind.OBJECT)})
 public class StackTrace {
 
     public static ObjectValue stackTrace(ErrorValue value) {

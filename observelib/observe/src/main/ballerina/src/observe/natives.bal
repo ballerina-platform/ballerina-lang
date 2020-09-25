@@ -28,7 +28,7 @@ final map<string> DEFAULT_TAGS = {};
 # + tags - Tags to be associated to the span
 # + return - SpanId of the started span
 public function startRootSpan(string spanName, map<string>? tags = ()) returns int = @java:Method {
-    class: "org.ballerinalang.observe.nativeimpl.StartRootSpan",
+    'class: "org.ballerinalang.observe.nativeimpl.StartRootSpan",
     name: "startRootSpan"
 } external;
 
@@ -39,7 +39,7 @@ public function startRootSpan(string spanName, map<string>? tags = ()) returns i
 # + parentSpanId - Id of the parent span or -1 if parent span should be taken from system trace
 # + return - SpanId of the started span
 public function startSpan(string spanName, map<string>? tags = (), int parentSpanId = -1) returns int|error = @java:Method {
-    class: "org.ballerinalang.observe.nativeimpl.StartSpan",
+    'class: "org.ballerinalang.observe.nativeimpl.StartSpan",
     name: "startSpan"
 } external;
 
@@ -49,14 +49,17 @@ public function startSpan(string spanName, map<string>? tags = (), int parentSpa
 # + tagKey - Key of the tag
 # + tagValue - Value of the tag
 # + return - An error if an error occurred while attaching tag to the span
-public isolated function addTagToSpan(string tagKey, string tagValue, int spanId = -1) returns error? = external;
+public isolated function addTagToSpan(string tagKey, string tagValue, int spanId = -1) returns error? = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.AddTagToSpan",
+    name: "addTagToSpan"
+} external;
 
 # Finish the current span.
 #
 # + spanId - Id of span to finish
 # + return - An error if an error occurred while finishing the span
 public function finishSpan(int spanId) returns error? = @java:Method {
-    class: "org.ballerinalang.observe.nativeimpl.FinishSpan",
+    'class: "org.ballerinalang.observe.nativeimpl.FinishSpan",
     name: "finishSpan"
 } external;
 
@@ -64,7 +67,7 @@ public function finishSpan(int spanId) returns error? = @java:Method {
 #
 # + return - Array of all registered metrics.
 public function getAllMetrics() returns Metric[] = @java:Method {
-    class: "org.ballerinalang.observe.nativeimpl.GetAllMetrics",
+    'class: "org.ballerinalang.observe.nativeimpl.GetAllMetrics",
     name: "getAllMetrics"
 } external;
 
@@ -74,7 +77,7 @@ public function getAllMetrics() returns Metric[] = @java:Method {
 # + tags - The key/value pair tags that associated with the metric that should be looked up.
 # + return - The metric instance.
 public function lookupMetric(string name, map<string>? tags = ()) returns Counter|Gauge? = @java:Method {
-    class: "org.ballerinalang.observe.nativeimpl.LookupMetric",
+    'class: "org.ballerinalang.observe.nativeimpl.LookupMetric",
     name: "lookupMetric"
 } external;
 
@@ -154,8 +157,37 @@ public  class Counter {
     public function getValue() returns int {
         return externCounterGetValue(self);
     }
-
 }
+
+function externCounterInit(Counter counter) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.CounterInitialize",
+    name: "initialize"
+} external;
+
+function externCounterRegister(Counter counter) returns error? = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.CounterRegister",
+    name: "register"
+} external;
+
+function externCounterUnRegister(Counter counter) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.CounterUnregister",
+    name: "unregister"
+} external;
+
+function externCounterIncrement(Counter counter, int amount) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.CounterIncrement",
+    name: "increment"
+} external;
+
+function externCounterReset(Counter counter) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.CounterReset",
+    name: "reset"
+} external;
+
+function externCounterGetValue(Counter counter) returns int = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.CounterGetValue",
+    name: "getValue"
+} external;
 
 # This represents the metric type - gauge, that can hold instantaneous, increased or decreased value
 # during the usage.
@@ -165,7 +197,7 @@ public  class Counter {
 # + metricTags - Tags associated with the counter metric.
 # + statisticConfigs - Array of StatisticConfig objects which defines about the statistical calculation
 #                      of the gauge during its usage.
-public  class Gauge {
+public class Gauge {
 
     public string name;
     public string description;
@@ -245,8 +277,47 @@ public  class Gauge {
     public function getSnapshot() returns Snapshot[]? {
         return externGaugeGetSnapshot(self);
     }
-
 }
+
+function externGaugeInit(Gauge gauge) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeInitialize",
+    name: "initialize"
+} external;
+
+function externGaugeRegister(Gauge gauge) returns error? = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeRegister",
+    name: "register"
+} external;
+
+function externGaugeUnRegister(Gauge gauge) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeUnregister",
+    name: "unregister"
+} external;
+
+function externGaugeIncrement(Gauge gauge, float amount) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeIncrement",
+    name: "increment"
+} external;
+
+function externGaugeDecrement(Gauge gauge, float amount) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeDecrement",
+    name: "decrement"
+} external;
+
+function externGaugeGetValue(Gauge gauge) returns float = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeGetValue",
+    name: "getValue"
+} external;
+
+function externGaugeSetValue(Gauge gauge, float amount) = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeSetValue",
+    name: "setValue"
+} external;
+
+function externGaugeGetSnapshot(Gauge gauge) returns Snapshot[]? = @java:Method {
+    'class: "org.ballerinalang.observe.nativeimpl.GaugeGetSnapshot",
+    name: "getSnapshot"
+} external;
 
 # This represents the generic metric record that can represent both counter and gauge.
 #

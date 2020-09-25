@@ -18,6 +18,40 @@
 package org.ballerinalang.test.util;
 
 import org.apache.axiom.om.OMNode;
+import org.ballerinalang.core.model.types.BArrayType;
+import org.ballerinalang.core.model.types.BErrorType;
+import org.ballerinalang.core.model.types.BField;
+import org.ballerinalang.core.model.types.BFiniteType;
+import org.ballerinalang.core.model.types.BFunctionType;
+import org.ballerinalang.core.model.types.BMapType;
+import org.ballerinalang.core.model.types.BObjectType;
+import org.ballerinalang.core.model.types.BRecordType;
+import org.ballerinalang.core.model.types.BServiceType;
+import org.ballerinalang.core.model.types.BStreamType;
+import org.ballerinalang.core.model.types.BTupleType;
+import org.ballerinalang.core.model.types.BType;
+import org.ballerinalang.core.model.types.BTypeDesc;
+import org.ballerinalang.core.model.types.BTypes;
+import org.ballerinalang.core.model.types.BUnionType;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BByte;
+import org.ballerinalang.core.model.values.BDecimal;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BFunctionPointer;
+import org.ballerinalang.core.model.values.BHandleValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BRefType;
+import org.ballerinalang.core.model.values.BStream;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BTypeDescValue;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BValueType;
+import org.ballerinalang.core.model.values.BXMLItem;
+import org.ballerinalang.core.model.values.BXMLSequence;
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
@@ -83,8 +117,6 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
  * @since 0.94
  */
 public class BRunUtil {
-
-    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
 
     /**
      * Invoke a ballerina function.
@@ -231,7 +263,7 @@ public class BRunUtil {
                         throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
                     if (t instanceof org.ballerinalang.jvm.api.values.BError) {
-                        throw new org.ballerinalang.util.exceptions
+                        throw new org.ballerinalang.jvm.util.exceptions
                                 .BLangRuntimeException("error: " +
                                                                ((org.ballerinalang.jvm.api.values.BError) t)
                                                                        .getPrintableStackTrace());
@@ -367,7 +399,7 @@ public class BRunUtil {
                         throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
                     if (t instanceof org.ballerinalang.jvm.api.values.BError) {
-                        throw new org.ballerinalang.util.exceptions
+                        throw new org.ballerinalang.jvm.util.exceptions
                                 .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
                     }
                     if (t instanceof StackOverflowError) {
@@ -1025,7 +1057,7 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
                 org.ballerinalang.jvm.types.BRecordType recordType = (org.ballerinalang.jvm.types.BRecordType) jvmType;
                 BRecordType bvmRecordType = new BRecordType(recordType.getName(),
-                        recordType.getPackage().getName(), recordType.flags);
+                                                            recordType.getPackage().getName(), recordType.flags);
                 Map<String, BField> recordFields =
                         recordType.getFields().entrySet().stream()
                                 .filter(entry -> !selfTypeStack.contains(entry.getValue()))
@@ -1075,14 +1107,15 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG:
                 BTypedescType typedescType = (BTypedescType) jvmType;
                 return new BTypeDesc(typedescType.getName(),
-                        typedescType.getPackage() == null ? null : typedescType.getPackage().getName());
+                                     typedescType.getPackage() == null ? null : typedescType.getPackage().getName());
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 return BTypes.typeNull;
             case org.ballerinalang.jvm.types.TypeTags.FINITE_TYPE_TAG:
                 org.ballerinalang.jvm.types.BFiniteType jvmBFiniteType =
                         (org.ballerinalang.jvm.types.BFiniteType) jvmType;
                 BFiniteType bFiniteType = new BFiniteType(jvmBFiniteType.getName(),
-                        jvmBFiniteType.getPackage() == null ? null : jvmType.getPackage().name);
+                                                          jvmBFiniteType.getPackage() == null ? null :
+                                                                  jvmType.getPackage().name);
                 jvmBFiniteType.valueSpace.forEach(jvmVal -> bFiniteType.valueSpace.add(getBVMValue(jvmVal)));
                 return bFiniteType;
 

@@ -21,7 +21,7 @@ import ballerina/java;
 # + expected - expected value
 # + actual - actual value
 public function assertValueEqual(anydata expected, anydata actual) = @java:Method {
-    class: "org.ballerinalang.langlib.test.AssertValueEqual",
+    'class: "org.ballerinalang.langlib.test.AssertValueEqual",
     name: "assertValueEqual"
 } external;
 
@@ -29,7 +29,7 @@ public function assertValueEqual(anydata expected, anydata actual) = @java:Metho
 #
 # + value - the passed value to be asserted
 public function assertError(any|error value) = @java:Method {
-    class: "org.ballerinalang.langlib.test.AssertError",
+    'class: "org.ballerinalang.langlib.test.AssertError",
     name: "assertError"
 } external;
 
@@ -37,7 +37,7 @@ public function assertError(any|error value) = @java:Method {
 #
 # + value - the passed value to be asserted
 public function assertNotError(any|error value) = @java:Method {
-    class: "org.ballerinalang.langlib.test.AssertNotError",
+    'class: "org.ballerinalang.langlib.test.AssertNotError",
     name: "assertNotError"
 } external;
 
@@ -45,7 +45,7 @@ public function assertNotError(any|error value) = @java:Method {
 #
 # + value - the passed value to be asserted
 public function assertTrue(boolean value) = @java:Method {
-    class: "org.ballerinalang.langlib.test.AssertTrue",
+    'class: "org.ballerinalang.langlib.test.AssertTrue",
     name: "assertTrue"
 } external;
 
@@ -53,6 +53,6 @@ public function assertTrue(boolean value) = @java:Method {
 #
 # + value - the passed value to be asserted
 public function assertFalse(boolean value) = @java:Method {
-    class: "org.ballerinalang.langlib.test.AssertFalse",
+    'class: "org.ballerinalang.langlib.test.AssertFalse",
     name: "assertFalse"
 } external;

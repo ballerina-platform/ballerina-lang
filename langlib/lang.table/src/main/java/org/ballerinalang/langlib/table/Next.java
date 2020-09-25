@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
@@ -29,7 +30,6 @@ import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,13 +42,6 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.ITERAT
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table", functionName = "next",
-//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "TableIterator",
-//                structPackage = "ballerina/lang.table"),
-//        returnType = {@ReturnType(type = TypeKind.RECORD)},
-//        isPublic = true
-//)
 public class Next {
 
     private static final BString MUTATED_TABLE_ERROR_DETAIL =  BStringUtils.fromString("Table was mutated after the " +

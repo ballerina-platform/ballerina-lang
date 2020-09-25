@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.values.AbstractArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -30,13 +30,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "next",
-//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ArrayIterator",
-//                structPackage = "ballerina/lang.array"),
-//        returnType = {@ReturnType(type = TypeKind.RECORD)},
-//        isPublic = true
-//)
 public class Next {
     //TODO: refactor hard coded values
     public static Object next(ObjectValue m) {

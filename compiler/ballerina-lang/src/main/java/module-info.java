@@ -7,7 +7,6 @@ module io.ballerina.lang {
     requires org.objectweb.asm;
     requires io.ballerina.jvm;
     requires io.netty.buffer;
-    requires antlr4.runtime;
     requires io.ballerina.cli.module;
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
@@ -48,7 +47,6 @@ module io.ballerina.lang {
     exports org.wso2.ballerinalang.compiler.bir.model;
     exports org.ballerinalang.toml.exceptions;
     exports org.ballerinalang.model.tree.types;
-    exports org.wso2.ballerinalang.compiler.parser.antlr4;
     exports org.wso2.ballerinalang.compiler.parser;
     exports org.ballerinalang.model.symbols;
     exports org.ballerinalang.repository.fs;
@@ -56,4 +54,7 @@ module io.ballerina.lang {
     exports org.ballerinalang.util;
     exports org.wso2.ballerinalang.compiler.tree.clauses;
     exports org.ballerinalang.model.clauses;
+    exports org.wso2.ballerinalang.compiler.diagnostic;
+    exports org.wso2.ballerinalang.compiler.tree.bindingpatterns;
+    exports org.wso2.ballerinalang.compiler.tree.matchpatterns;
 }

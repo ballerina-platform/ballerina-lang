@@ -18,20 +18,14 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 
 /**
  * Extern function lang.string:startsWith(string, string).
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string", functionName = "fromCodePointInt",
-//        args = {@Argument(name = "codePoint", type = TypeKind.INT)},
-//        returnType = {@ReturnType(type = TypeKind.UNION)},
-//        isPublic = true
-//)
 public class FromCodePointInt {
 
     public static Object fromCodePointInt(long codePoint) {

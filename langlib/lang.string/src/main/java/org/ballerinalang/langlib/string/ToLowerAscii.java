@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.string;
 
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.internal.ErrorUtils;
 
@@ -28,13 +29,6 @@ import java.util.Locale;
  *
  * @since 0.8.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string",
-//        functionName = "toLowerAscii",
-//        args = {@Argument(name = "s", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.STRING)},
-//        isPublic = true
-//)
 public class ToLowerAscii {
 
     public static BString toLowerAscii(BString str) {

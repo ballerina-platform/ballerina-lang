@@ -19,9 +19,10 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.api.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.api.values.BString;
 
 /**
  * This function adds tags to a span.
@@ -29,9 +30,9 @@ import org.ballerinalang.jvm.values.api.values.BString;
 public class AddTagToSpan {
     private static final OpenTracerBallerinaWrapper otWrapperInstance = OpenTracerBallerinaWrapper.getInstance();
 
-    public static Object addTagToSpan(Strand strand, BString tagKey, BString tagValue, long spanId) {
+    public static Object addTagToSpan(BString tagKey, BString tagValue, long spanId) {
         boolean tagAdded = otWrapperInstance.addTag(tagKey.getValue(), tagValue.getValue(),
-                spanId, strand);
+                                                    spanId, Scheduler.getStrand());
 
         if (tagAdded) {
             return null;

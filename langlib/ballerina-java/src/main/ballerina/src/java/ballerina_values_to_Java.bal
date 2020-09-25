@@ -21,7 +21,10 @@
 #
 # + value - The Ballerina `string` with which the `handle` is created
 # + return - The `handle`, which refers to the Java String representation of the Ballerina `string`
-public isolated function fromString(string value) returns handle = external;
+public isolated function fromString(string value) returns handle = @Method {
+    'class: "org.ballerinalang.nativeimpl.java.FromString",
+    name: "fromString"
+} external;
 
 # Returns a Ballerina `string` representation of the Java object referred by the `handle`.
 # If the `handle` refers to Java null, then this function returns a `nil` value.
@@ -32,7 +35,11 @@ public isolated function fromString(string value) returns handle = external;
 # + value - The `handle` of which the referred value is to be converted to a Ballerina `string`
 # + return - The Ballerina `string` representation of the Java object referred by the `handle` or else
 #            returns `()` if the `handle` refers to Java null
-public isolated function toString(handle value) returns string? = external;
+public isolated function toString(handle value) returns string? = @Method {
+    'class: "org.ballerinalang.nativeimpl.java.ToString",
+    name: "toString",
+    paramTypes: ["org.ballerinalang.jvm.values.HandleValue"]
+} external;
 
 # Returns `true` if this handle refers to Java null.
 # ```ballerina
@@ -41,7 +48,10 @@ public isolated function toString(handle value) returns string? = external;
 #
 # + value - The `handle` of which the referred value is to be tested with Java null
 # + return - `true` if this handle refers to Java null
-public isolated function isNull(handle value) returns boolean = external;
+public isolated function isNull(handle value) returns boolean = @Method {
+    'class: "org.ballerinalang.nativeimpl.java.IsNull",
+    name: "isNull"
+} external;
 
 # Returns a `handle`, which refers to Java null.
 # ```ballerina
@@ -49,7 +59,10 @@ public isolated function isNull(handle value) returns boolean = external;
 # ```
 #
 # + return - The `handle`, which refers to Java null
-public isolated function createNull() returns handle = external;
+public isolated function createNull() returns handle = @Method {
+    'class: "org.ballerinalang.nativeimpl.java.CreateNull",
+    name: "createNull"
+} external;
 
 # Returns a `handle`, which refers to the Java Class object associated with the class or interface with the given
 # string name.
@@ -72,7 +85,11 @@ public isolated function createNull() returns handle = external;
 #
 # + name - The name of the Java class
 # + return - The Java Class object for the class with the given name
-public isolated function getClass(string name) returns handle | error = external;
+public isolated function getClass(string name) returns handle | error = @Method {
+    'class: "org.ballerinalang.nativeimpl.java.JavaUtils",
+    name: "getClass",
+    paramTypes: ["org.ballerinalang.jvm.api.values.BString"]
+} external;
 
 # Returns an `JObject|error`, which is obtained after casting the provided `JObject` instance
 # to the given `JObject` type depending on assignability.
@@ -86,4 +103,7 @@ public isolated function getClass(string name) returns handle | error = external
 # + value - The `JObject` instance which is to be casted
 # + castType - The `JObject` implementation type ``typedesc<JObject>`` to which the given object is casted to if assignable
 # + return - The `JObject|error`, which refers to the new `JObject` instance or an `error`
-public isolated function cast(JObject value, typedesc<JObject> castType) returns JObject|error = external;
+public isolated function cast(JObject value, typedesc<JObject> castType) returns JObject|error = @Method {
+    'class: "org.ballerinalang.nativeimpl.java.Cast",
+    name: "cast"
+} external;

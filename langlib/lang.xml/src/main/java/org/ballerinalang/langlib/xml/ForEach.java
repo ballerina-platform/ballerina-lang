@@ -36,13 +36,6 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml", functionName = "forEach",
-//        args = {
-//                @Argument(name = "x", type = TypeKind.XML),
-//                @Argument(name = "func", type = TypeKind.FUNCTION)},
-//        isPublic = true
-//)
 public class ForEach {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
@@ -54,6 +47,7 @@ public class ForEach {
             return;
         }
         AtomicInteger index = new AtomicInteger(-1);
+        Strand parentStrand = Scheduler.getStrand();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
                         () -> new Object[]{parentStrand, x.getItem(index.incrementAndGet()),

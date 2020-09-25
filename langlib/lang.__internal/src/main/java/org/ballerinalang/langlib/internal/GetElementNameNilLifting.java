@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langlib.internal;
 
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.values.XMLValue;
 
 import static org.ballerinalang.jvm.api.BErrorCreator.createError;
@@ -27,13 +28,6 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OP
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.__internal",
-//        functionName = "getElementNameNilLifting",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-//        returnType = {@ReturnType(type = TypeKind.UNION)},
-//        isPublic = true
-//)
 public class GetElementNameNilLifting {
 
     public static Object getElementNameNilLifting(XMLValue xmlVal) {

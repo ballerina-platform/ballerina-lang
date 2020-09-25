@@ -29,22 +29,15 @@ import org.ballerinalang.jvm.values.XMLValue;
  *
  * @since 0.90
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "getContent",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-//        returnType = {@ReturnType(type = TypeKind.STRING)},
-//        isPublic = true
-//)
 public class GetContent {
 
     public static BString getContent(Object xmlVal) {
         XMLValue value = (XMLValue) xmlVal;
         if (IsText.isText(value)) {
             return BStringUtils.fromString(value.getTextValue());
-        } else if (IsProcessingInstruction.isProcessingInstruction(strand, value)) {
+        } else if (IsProcessingInstruction.isProcessingInstruction(value)) {
             return BStringUtils.fromString(XMLValueUtil.getPIContent(value));
-        } else if (IsComment.isComment(strand, value)) {
+        } else if (IsComment.isComment(value)) {
             return BStringUtils.fromString(XMLValueUtil.getCommentContent(value));
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getContent",

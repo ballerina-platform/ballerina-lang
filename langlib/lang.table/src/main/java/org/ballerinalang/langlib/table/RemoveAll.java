@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.values.TableValueImpl;
 
 /**
@@ -26,11 +27,6 @@ import org.ballerinalang.jvm.values.TableValueImpl;
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table", functionName = "removeAll",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-//        isPublic = true
-//)
 public class RemoveAll {
 
     public static void removeAll(TableValueImpl tbl) {

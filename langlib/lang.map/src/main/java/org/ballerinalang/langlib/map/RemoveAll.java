@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
@@ -29,11 +30,6 @@ import static org.ballerinalang.jvm.MapUtils.validateRecord;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map", functionName = "removeAll",
-//        args = {@Argument(name = "m", type = TypeKind.MAP)},
-//        isPublic = true
-//)
 public class RemoveAll {
 
     public static void removeAll(MapValue<?, ?> m) {

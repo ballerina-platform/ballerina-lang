@@ -60,8 +60,8 @@ public class Map {
         }
         List<BXML> elements = new ArrayList<>();
         AtomicInteger index = new AtomicInteger(-1);
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
+        Strand parentStrand = Scheduler.getStrand();
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
                         () -> new Object[]{parentStrand, x.getItem(index.incrementAndGet()),
                                 true},
                         result -> elements.add((XMLValue) result),

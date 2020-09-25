@@ -54,11 +54,11 @@ public class ForEach {
         BType arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
         AtomicInteger index = new AtomicInteger(-1);
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{parentStrand,
-                                                               getFn.get(arr, index.incrementAndGet()), true},
-                                                       result -> {
-                                                       }, () -> null, Scheduler.getStrand().scheduler);
+        Strand parentStrand = Scheduler.getStrand();
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                                                         () -> new Object[]{parentStrand,
+                                                                 getFn.get(arr, index.incrementAndGet()), true},
+                                                         result -> {
+                                                         }, () -> null, Scheduler.getStrand().scheduler);
     }
 }

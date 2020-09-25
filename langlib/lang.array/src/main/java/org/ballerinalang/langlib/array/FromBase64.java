@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 
@@ -29,12 +30,6 @@ import java.util.Base64;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "fromBase64",
-//        args = {@Argument(name = "str", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.UNION)},
-//        isPublic = true
-//)
 public class FromBase64 {
 
     public static Object fromBase64(BString str) {

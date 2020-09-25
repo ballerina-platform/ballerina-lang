@@ -37,13 +37,6 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map", functionName = "reduce",
-//        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION),
-//                @Argument(name = "initial", type = TypeKind.ANY)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
 public class Reduce {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
@@ -53,10 +46,11 @@ public class Reduce {
         int size = m.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
+        Strand parentStrand = Scheduler.getStrand();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{strand, accum.get(), true,
-                        m.get(m.getKeys()[index.incrementAndGet()]), true},
+                                                       () -> new Object[]{parentStrand, accum.get(), true,
+                                                               m.get(m.getKeys()[index.incrementAndGet()]), true},
                                                        accum::set, accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
     }

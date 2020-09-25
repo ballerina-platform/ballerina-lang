@@ -18,8 +18,8 @@
 package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -32,20 +32,6 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_
  *
  * @since 2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina",
-//        packageName = "lang.value", version = VALUE_VERSION,
-//        functionName = "fromJsonStringWithType",
-//        args = {
-//                @Argument(name = "str", type = TypeKind.STRING),
-//                @Argument(name = "t", type = TypeKind.TYPEDESC)
-//        },
-//        returnType = {
-//                @ReturnType(type = TypeKind.ANYDATA),
-//                @ReturnType(type = TypeKind.ERROR)
-//        },
-//        isPublic = true
-//)
 public class FromJsonStringWithType {
 
     public static Object fromJsonStringWithType(BString value, TypedescValue t) {

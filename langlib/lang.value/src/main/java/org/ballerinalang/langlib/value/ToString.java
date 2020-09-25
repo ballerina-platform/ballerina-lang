@@ -28,6 +28,6 @@ import org.ballerinalang.jvm.api.values.BString;
  */
 public class ToString {
     public static BString toString(Object value) {
-        return BStringUtils.fromString(StringUtils.getStringValue(value));
+        return BStringUtils.fromString(BStringUtils.getStringValue(value, null));
     }
 }

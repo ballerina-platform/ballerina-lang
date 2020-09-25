@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.internal.ErrorUtils;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 
@@ -32,14 +32,6 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  *
  * @since 0.8.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string",
-//        functionName = "indexOf",
-//        args = {@Argument(name = "s", type = TypeKind.STRING),
-//                @Argument(name = "substring", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.UNION)},
-//        isPublic = true
-//)
 public class IndexOf {
 
     public static Object indexOf(BString bStr, BString subString, long startIndx) {

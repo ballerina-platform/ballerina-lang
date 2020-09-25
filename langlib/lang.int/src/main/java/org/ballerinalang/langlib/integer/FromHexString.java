@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.integer;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.INT_LANG_LIB;
@@ -30,12 +31,6 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.int", functionName = "fromHexString",
-//        args = {@Argument(name = "n", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.UNION)},
-//        isPublic = true
-//)
 public class FromHexString {
 
     public static Object fromHexString(BString s) {

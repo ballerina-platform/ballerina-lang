@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 
 /**
@@ -26,12 +26,6 @@ import org.ballerinalang.jvm.api.values.BString;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string", functionName = "concat",
-//        args = {@Argument(name = "str", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.STRING)},
-//        isPublic = true
-//)
 public class Concat {
 
     public static BString concat(BString[] str) {

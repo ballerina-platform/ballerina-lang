@@ -30,6 +30,6 @@ public class ToJsonString {
 
     public static BString toJsonString(Object value) {
         Object jsonValue = ToJson.toJson(value);
-        return BStringUtils.fromString(StringUtils.getJsonString(jsonValue));
+        return BStringUtils.fromString(BStringUtils.getJsonString(jsonValue));
     }
 }

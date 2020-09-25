@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.MapValue;
 
@@ -31,12 +32,6 @@ import static org.ballerinalang.jvm.MapUtils.validateRequiredFieldForRecord;
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map", functionName = "removeIfHasKey",
-//        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
 public class RemoveIfHasKey {
 
     public static Object removeIfHasKey(MapValue<?, ?> m, BString k) {

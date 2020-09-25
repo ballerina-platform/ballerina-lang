@@ -26,13 +26,6 @@ import org.ballerinalang.jvm.values.TableValueImpl;
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.table",
-//        functionName = "nextKey",
-//        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-//        returnType = {@ReturnType(type = TypeKind.INT)},
-//        isPublic = true
-//)
 public class NextKey {
     public static long nextKey(TableValueImpl tbl) {
         return tbl.getNextKey();

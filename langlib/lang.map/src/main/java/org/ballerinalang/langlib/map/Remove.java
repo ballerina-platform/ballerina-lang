@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.MapUtils;
 import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
@@ -32,12 +33,6 @@ import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
  * Extern function to remove element from the map.
  * ballerina.model.map:remove(string)
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map", functionName = "remove",
-//        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
 public class Remove {
 
     public static Object remove(MapValue<?, ?> m, BString k) {

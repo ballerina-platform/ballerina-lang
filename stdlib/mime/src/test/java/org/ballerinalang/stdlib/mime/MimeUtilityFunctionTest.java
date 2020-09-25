@@ -18,6 +18,13 @@
 
 package org.ballerinalang.stdlib.mime;
 
+import org.ballerinalang.core.model.util.JsonParser;
+import org.ballerinalang.core.model.util.XMLUtils;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BXML;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BObject;

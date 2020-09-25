@@ -26,7 +26,7 @@ import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.internal.ErrorUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
@@ -48,7 +48,6 @@ import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,12 +64,6 @@ import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_C
  *
  * @since 2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina",
-//        packageName = "lang.value", version = VALUE_VERSION,
-//        functionName = "fromJsonWithType",
-//        isPublic = true
-//)
 public class FromJsonWithType {
     private static final String AMBIGUOUS_TARGET = "ambiguous target type";
 
@@ -237,8 +230,8 @@ public class FromJsonWithType {
     }
 
     private static void putToMap(MapValue<BString, Object> map, Map.Entry entry, BType fieldType,
-                                 List<TypeValuePair> unresolvedValues, TypedescValue t, Strand strand) {
-        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, t, strand);
+                                 List<TypeValuePair> unresolvedValues, TypedescValue t) {
+        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, t);
         map.put(BStringUtils.fromString(entry.getKey().toString()), newValue);
     }
 

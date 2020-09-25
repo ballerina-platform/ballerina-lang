@@ -37,7 +37,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,12 +53,6 @@ import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_C
  *
  * @since 2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina",
-//        packageName = "lang.value", version = VALUE_VERSION,
-//        functionName = "toJson",
-//        isPublic = true
-//)
 public class ToJson {
 
     public static Object toJson(Object value) {
@@ -129,7 +122,7 @@ public class ToJson {
     private static Object convertMapToJson(MapValue<?, ?> map, List<TypeValuePair> unresolvedValues) {
         MapValueImpl<BString, Object> newMap = new MapValueImpl<>(new BMapType(BTypes.typeJSON));
         for (Map.Entry entry : map.entrySet()) {
-            Object newValue = convert(entry.getValue(), unresolvedValues, strand);
+            Object newValue = convert(entry.getValue(), unresolvedValues);
             newMap.put(BStringUtils.fromString(entry.getKey().toString()), newValue);
         }
         return newMap;

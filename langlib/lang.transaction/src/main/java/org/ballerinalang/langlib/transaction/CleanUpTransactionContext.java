@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.transaction;
 
 import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # A type parameter that is a subtype of `anydata`.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
@@ -28,7 +30,10 @@ type AnydataType anydata;
 #
 # + v - source value
 # + return - clone of `v`
-public isolated function clone(AnydataType v) returns AnydataType = external;
+public isolated function clone(AnydataType v) returns AnydataType = @java:Method {
+    'class: "org.ballerinalang.langlib.value.Clone",
+    name: "clone"
+} external;
 
 # Returns a clone of `v` that is read-only, i.e. immutable.
 # It corresponds to the ImmutableClone(v) operation,
@@ -36,7 +41,10 @@ public isolated function clone(AnydataType v) returns AnydataType = external;
 #
 # + v - source value
 # + return - immutable clone of `v`
-public isolated function cloneReadOnly(AnydataType v) returns AnydataType = external;
+public isolated function cloneReadOnly(AnydataType v) returns AnydataType = @java:Method {
+    'class: "org.ballerinalang.langlib.value.CloneReadOnly",
+    name: "cloneReadOnly"
+} external;
 
 # Constructs a value with a specified type by cloning another value.
 # + v - the value to be cloned
@@ -64,14 +72,20 @@ public isolated function cloneReadOnly(AnydataType v) returns AnydataType = exte
 # - numeric values can be converted using the NumericConvert abstract operation
 # - if a record type descriptor specifies default values, these will be used
 #   to supply any missing members
-public isolated function cloneWithType(anydata v, typedesc<AnydataType> t) returns AnydataType|error = external;
+public isolated function cloneWithType(anydata v, typedesc<AnydataType> t) returns AnydataType|error = @java:Method {
+    'class: "org.ballerinalang.langlib.value.CloneWithType",
+    name: "cloneWithType"
+} external;
 
 # Tests whether `v` is read-only, i.e. immutable
 # Returns true if read-only, false otherwise.
 #
 # + v - source value
 # + return - true if read-only, false otherwise
-public isolated function isReadOnly(anydata v) returns boolean = external;
+public isolated function isReadOnly(anydata v) returns boolean = @java:Method {
+    'class: "org.ballerinalang.langlib.value.IsReadOnly",
+    name: "isReadOnly"
+} external;
 
 # Performs a minimal conversion of a value to a string.
 # The conversion is minimal in particular in the sense
@@ -111,7 +125,12 @@ public isolated function isReadOnly(anydata v) returns boolean = external;
 #
 # Note that `toString` may produce the same string for two Ballerina values
 # that are not equal (in the sense of the `==` operator).
-public isolated function toString((any|error) v) returns string = external;
+public isolated function toString((any|error) v) returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.value.ToString",
+    name: "toString",
+    paramTypes: ["java.lang.Object"]
+} external;
+
 
 // JSON conversion
 
@@ -130,14 +149,20 @@ public isolated function toString((any|error) v) returns string = external;
 # + v - anydata value
 # + return - representation of `v` as value of type json
 # This panics if `v` has cycles.
-public isolated function toJson(anydata v) returns json = external;
+public isolated function toJson(anydata v) returns json = @java:Method {
+    'class: "org.ballerinalang.langlib.value.ToJson",
+    name: "toJson"
+} external;
 
 # Returns the string that represents `v` in JSON format.
 # `v` is first converted to `json` as if by the `toJson` function.
 #
 # + v - anydata value
 # + return - string representation of json
-public isolated function toJsonString(anydata v) returns string = external;
+public isolated function toJsonString(anydata v) returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.value.ToJsonString",
+    name: "toJsonString"
+} external;
 
 # Parses a string in JSON format and returns the the value that it represents.
 # All integer numbers in the JSON will be represented as integer values.
@@ -147,7 +172,10 @@ public isolated function toJsonString(anydata v) returns string = external;
 #
 # + str - string representation of json
 # + return - `str` parsed to json or error
-public isolated function fromJsonString(string str) returns json|error = external;
+public isolated function fromJsonString(string str) returns json|error = @java:Method {
+    'class: "org.ballerinalang.langlib.value.FromJsonString",
+    name: "fromJsonString"
+} external;
 
 # Parses a string in JSON format and returns the value that it represents.
 # All numbers in the JSON will be represented as float values.
@@ -155,7 +183,10 @@ public isolated function fromJsonString(string str) returns json|error = externa
 #
 # + str - string representation of json
 # + return - `str` parsed to json or error
-public isolated function fromJsonFloatString(string str) returns json|error = external;
+public isolated function fromJsonFloatString(string str) returns json|error = @java:Method {
+    'class: "org.ballerinalang.langlib.value.FromJsonFloatString",
+    name: "fromJsonFloatString"
+} external;
 
 # Parses a string in JSON format and returns the value that it represents.
 # All numbers in the JSON will be represented as decimal values.
@@ -163,7 +194,10 @@ public isolated function fromJsonFloatString(string str) returns json|error = ex
 #
 # + str - string representation of json
 # + return - `str` parsed to json or error
-public isolated function fromJsonDecimalString(string str) returns json|error = external;
+public isolated function fromJsonDecimalString(string str) returns json|error = @java:Method {
+    'class: "org.ballerinalang.langlib.value.FromJsonDecimalString",
+    name: "fromJsonDecimalString"
+} external;
 
 # Converts a value of type json to a user-specified type.
 # This works the same as `cloneWithType`,
@@ -173,7 +207,10 @@ public isolated function fromJsonDecimalString(string str) returns json|error = 
 # + t - type to convert to
 # + return - value belonging to `t`, or error if this cannot be done
 public isolated function fromJsonWithType(json v, typedesc<anydata> t)
-    returns t|error = external;
+    returns t|error = @java:Method {
+    'class: "org.ballerinalang.langlib.value.FromJsonWithType",
+    name: "fromJsonWithType"
+} external;
 
 # Converts a string in JSON format to a user-specified type.
 # This is a combination of `fromJsonString` followed by
@@ -181,7 +218,10 @@ public isolated function fromJsonWithType(json v, typedesc<anydata> t)
 # + str - string in JSON format
 # + t - type to convert to
 # + return - value belonging to `t`, or error if this cannot be done
-public isolated function fromJsonStringWithType(string str, typedesc<anydata> t) returns t|error = external;
+public isolated function fromJsonStringWithType(string str, typedesc<anydata> t) returns t|error = @java:Method {
+    'class: "org.ballerinalang.langlib.value.FromJsonStringWithType",
+    name: "fromJsonStringWithType"
+} external;
 
 # Merges two json values.
 #
@@ -199,4 +239,7 @@ public isolated function fromJsonStringWithType(string str, typedesc<anydata> t)
 #     - otherwise, the result is `j1`.
 # - otherwise, the merge fails
 # If the merge fails, then `j1` is unchanged.
-public isolated function mergeJson(json j1, json j2) returns json|error = external;
+public isolated function mergeJson(json j1, json j2) returns json|error = @java:Method {
+    'class: "org.ballerinalang.langlib.value.MergeJson",
+    name: "mergeJson"
+} external;
