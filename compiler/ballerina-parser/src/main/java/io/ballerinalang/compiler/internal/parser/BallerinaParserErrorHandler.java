@@ -2847,6 +2847,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_START;
             case ERROR_MESSAGE_MATCH_PATTERN_END_COMMA:
                 return ParserRuleContext.ERROR_MESSAGE_MATCH_PATTERN_RHS;
+            case ERROR_CAUSE_MATCH_PATTERN:
+                return ParserRuleContext.ERROR_FIELD_MATCH_PATTERN_RHS;
             case NAMED_ARG_MATCH_PATTERN:
                 return ParserRuleContext.IDENTIFIER;
             case MODULE_CLASS_DEFINITION:
@@ -3142,7 +3144,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case VAR_KEYWORD:
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.REST_MATCH_PATTERN) {
+                if (parentCtx == ParserRuleContext.REST_MATCH_PATTERN ||
+                        parentCtx == ParserRuleContext.ERROR_MATCH_PATTERN ||
+                        parentCtx == ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG) {
                     return ParserRuleContext.VARIABLE_NAME;
                 }
                 return ParserRuleContext.BINDING_PATTERN;
@@ -3844,6 +3848,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_MATCH_PATTERN:
                 endContext();
                 return getNextRuleForMatchPattern();
+            case MATCH_STMT:
+                endContext();
+                return ParserRuleContext.REGULAR_COMPOUND_STMT_RHS;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
@@ -3992,6 +3999,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.COLON;
             case ON_FAIL_CLAUSE:
                 return ParserRuleContext.BLOCK_STMT;
+            case ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG:
+                endContext();
+                return ParserRuleContext.ERROR_MESSAGE_MATCH_PATTERN_END;
+            case ERROR_MATCH_PATTERN:
+                return ParserRuleContext.ERROR_FIELD_MATCH_PATTERN_RHS;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }
@@ -4323,7 +4335,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ERROR_FIELD_BINDING_PATTERN_END;
             case ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG:
                 endContext();
-                return ParserRuleContext.ERROR_FIELD_MATCH_PATTERN_END;
+                return ParserRuleContext.ERROR_FIELD_MATCH_PATTERN_RHS;
             default:
                 return getNextRuleForMatchPattern();
         }

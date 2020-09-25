@@ -2787,7 +2787,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Type reference node
      */
     private STNode parseTypeReference() {
-        STNode typeReference = parseTypeDescriptor(ParserRuleContext.TYPE_REFERENCE);
+        STNode typeReference = parseTypeReference(false);
         if (typeReference.kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             if (typeReference.hasDiagnostics()) {
                 // When a missing type desc is recovered, diagnostic code will be missing type desc.
@@ -12179,22 +12179,18 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseErrorMatchPatternOrConsPattern(STNode typeRefOrConstExpr) {
-        return parseErrorMatchPatternOrConsPattern(peek().kind, typeRefOrConstExpr);
-    }
-
-    private STNode parseErrorMatchPatternOrConsPattern(SyntaxKind nextToken, STNode typeRefOrConstExpr) {
-        switch (nextToken) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case OPEN_PAREN_TOKEN:
                 STNode errorKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.ERROR_KEYWORD);
+                startContext(ParserRuleContext.ERROR_MATCH_PATTERN); // Context ended inside the method
                 return parseErrorMatchPattern(errorKeyword, typeRefOrConstExpr);
             default:
                 if (isMatchPatternEnd(peek().kind)) {
                     return typeRefOrConstExpr;
                 }
-
-                Solution solution =
-                        recover(peek(), ParserRuleContext.ERROR_MATCH_PATTERN_OR_CONST_PATTERN, typeRefOrConstExpr);
-                return parseErrorMatchPatternOrConsPattern(solution.tokenKind, typeRefOrConstExpr);
+                recover(peek(), ParserRuleContext.ERROR_MATCH_PATTERN_OR_CONST_PATTERN, typeRefOrConstExpr);
+                return parseErrorMatchPatternOrConsPattern(typeRefOrConstExpr);
         }
     }
 
@@ -12307,6 +12303,7 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isSimpleMatchPattern(SyntaxKind matchPatternKind) {
         switch (matchPatternKind) {
+            case IDENTIFIER_TOKEN:
             case SIMPLE_NAME_REFERENCE:
             case NUMERIC_LITERAL:
             case STRING_LITERAL:
@@ -12338,7 +12335,7 @@ public class BallerinaParser extends AbstractParser {
     private void parseErrorFieldMatchPatterns(List<STNode> argListMatchPatterns) {
         SyntaxKind lastValidArgKind = SyntaxKind.NAMED_ARG_MATCH_PATTERN;
         while (!isEndOfErrorFieldMatchPatterns()) {
-            STNode argEnd = parseErrorArgListMatchPatternEnd(ParserRuleContext.ERROR_FIELD_MATCH_PATTERN_END);
+            STNode argEnd = parseErrorArgListMatchPatternEnd(ParserRuleContext.ERROR_FIELD_MATCH_PATTERN_RHS);
             if (argEnd == null) {
                 // null marks the end of args
                 break;
@@ -12395,11 +12392,14 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
             case HEX_FLOATING_POINT_LITERAL_TOKEN:
             case STRING_LITERAL_TOKEN:
-            case VAR_KEYWORD:
             case OPEN_BRACKET_TOKEN:
             case OPEN_BRACE_TOKEN:
             case ERROR_KEYWORD:
                 return parseMatchPattern();
+            case VAR_KEYWORD:
+                STNode varKeyword = consume();
+                STNode variableName = parseVariableName();
+                return STNodeFactory.createTypedBindingPatternNode(varKeyword, variableName);
             default:
                 recover(nextToken, context);
                 return parseErrorArgListMatchPattern(context);
