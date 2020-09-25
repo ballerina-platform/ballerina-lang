@@ -16,7 +16,11 @@
 package org.ballerinalang.langserver;
 
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -73,6 +77,7 @@ import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
 import org.eclipse.lsp4j.DocumentHighlight;
+import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
@@ -102,6 +107,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -524,7 +530,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         return CompletableFuture.supplyAsync(() -> {
             TextEdit textEdit = new TextEdit();
-
             String fileUri = params.getTextDocument().getUri();
             Optional<Path> formattingFilePath = CommonUtil.getPathFromURI(fileUri);
             // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
@@ -538,11 +543,54 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 SyntaxTree syntaxTree = docManager.getTree(formattingFilePath.get());
                 String formattedSource = Formatter.format(syntaxTree).toSourceCode();
 
-                TextRange originalTextRange = syntaxTree.rootNode().textRangeWithMinutiae();
-                LinePosition originalPos = syntaxTree.textDocument().linePositionFrom(originalTextRange.endOffset());
-
-                Range range = new Range(new Position(0, 0), new Position(originalPos.line(), originalPos.offset()));
+                LinePosition eofPos = syntaxTree.rootNode().lineRange().endLine();
+                Range range = new Range(new Position(0, 0), new Position(eofPos.line(), eofPos.offset()));
                 textEdit = new TextEdit(range, formattedSource);
+                return Collections.singletonList(textEdit);
+            } catch (UserErrorException e) {
+                notifyUser("Formatting", e);
+                return Collections.singletonList(textEdit);
+            } catch (Throwable e) {
+                String msg = "Operation 'text/formatting' failed!";
+                logError(msg, e, params.getTextDocument(), (Position) null);
+                return Collections.singletonList(textEdit);
+            } finally {
+                lock.ifPresent(Lock::unlock);
+            }
+        });
+    }
+
+    /**
+     * The document range formatting request is sent from the client to the
+     * server to format a given range in a document.
+     *
+     * Registration Options: TextDocumentRegistrationOptions
+     */
+    @Override
+    public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
+        return CompletableFuture.supplyAsync(() -> {
+            TextEdit textEdit = new TextEdit();
+            String fileUri = params.getTextDocument().getUri();
+            Optional<Path> formattingFilePath = CommonUtil.getPathFromURI(fileUri);
+            // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
+            if (!formattingFilePath.isPresent() || CommonUtil.isCachedExternalSource(fileUri)) {
+                return Collections.singletonList(textEdit);
+            }
+            Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath.get());
+            Optional<Lock> lock = docManager.lockFile(compilationPath);
+            try {
+                CommonUtil.getPathFromURI(fileUri);
+                SyntaxTree syntaxTree = docManager.getTree(formattingFilePath.get());
+                Range range = params.getRange();
+                LinePosition startPos = LinePosition.from(range.getStart().getLine(), range.getStart().getCharacter());
+                LinePosition endPos = LinePosition.from(range.getEnd().getLine(), range.getEnd().getCharacter());
+
+                LineRange lineRange = LineRange.from(syntaxTree.filePath(), startPos, endPos);
+                SyntaxTree formattedTree = Formatter.format(syntaxTree, lineRange);
+
+                LinePosition eofPos = syntaxTree.rootNode().lineRange().endLine();
+                Range updateRange = new Range(new Position(0, 0), new Position(eofPos.line(), eofPos.offset()));
+                textEdit = new TextEdit(updateRange, formattedTree.toSourceCode());
                 return Collections.singletonList(textEdit);
             } catch (UserErrorException e) {
                 notifyUser("Formatting", e);

@@ -105,10 +105,7 @@ public class Formatter {
         FormattingTreeModifier treeModifier = new NewFormattingTreeModifier(options, range);
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         try {
-            // FIXME: Why transform twice?
-            SyntaxTree newSyntaxTree = syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
-            return handleNewLineEndings(newSyntaxTree.modifyWith(treeModifier
-                    .transform((ModulePartNode) newSyntaxTree.rootNode())));
+            return syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
         } catch (Exception e) {
             LOGGER.error(String.format("Error while formatting the source: %s", e.getMessage()));
             return syntaxTree;

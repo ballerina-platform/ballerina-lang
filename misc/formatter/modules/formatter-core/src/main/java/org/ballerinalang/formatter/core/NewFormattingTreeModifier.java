@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
 import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
@@ -46,6 +47,7 @@ import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
@@ -87,7 +89,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     /**
      * Flag indicating whether the currently formatting token is the first token of the current line.
      */
-    private boolean isFirstToken = true;
+    private boolean hasNewline = true;
 
     /**
      * Number of of whitespace characters to be used for a single indentation.
@@ -210,20 +212,23 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             typedBindingPatternNode = formatNode(variableDeclarationNode.typedBindingPattern(), 1, 0);
             Token equalToken = formatToken(variableDeclarationNode.equalsToken().get(), 1, 0);
             ExpressionNode initializer = formatNode(variableDeclarationNode.initializer().get(), 0, 0);
-            variableDeclarationNode = variableDeclarationNode.modify()
+            Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(), this.trailingWS, this.trailingNL);
+            return variableDeclarationNode.modify()
+                    .withAnnotations(annotationNodes)
+                    .withTypedBindingPattern(typedBindingPatternNode)
                     .withEqualsToken(equalToken)
                     .withInitializer(initializer)
+                    .withSemicolonToken(semicolonToken)
                     .apply();
         } else {
             typedBindingPatternNode = formatNode(variableDeclarationNode.typedBindingPattern(), 0, 0);
+            Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(), this.trailingWS, this.trailingNL);
+            return variableDeclarationNode.modify()
+                    .withAnnotations(annotationNodes)
+                    .withTypedBindingPattern(typedBindingPatternNode)
+                    .withSemicolonToken(semicolonToken)
+                    .apply();
         }
-
-        Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(), this.trailingWS, this.trailingNL);
-        return variableDeclarationNode.modify()
-                .withAnnotations(annotationNodes)
-                .withTypedBindingPattern(typedBindingPatternNode)
-                .withSemicolonToken(semicolonToken)
-                .apply();
     }
 
     @Override
@@ -255,6 +260,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         return captureBindingPatternNode.modify().withVariableName(variableName).apply();
     }
 
+    @Override
     public IfElseStatementNode transform(IfElseStatementNode ifElseStatementNode) {
         Token ifKeyword = formatToken(ifElseStatementNode.ifKeyword(), 1, 0);
         ExpressionNode condition = formatNode(ifElseStatementNode.condition(), 1, 0);
@@ -301,13 +307,11 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public IdentifierToken transform(IdentifierToken identifier) {
-        // ideally should never reach here
         return formatToken(identifier, this.trailingWS, this.trailingNL);
     }
 
     @Override
     public Token transform(Token token) {
-        // ideally should never reach here
         return formatToken(token, this.trailingWS, this.trailingNL);
     }
 
@@ -325,6 +329,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @SuppressWarnings("unchecked")
     private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL) {
         if (node == null || !isInLineRange(node, lineRange)) {
+            checkForNewline(node);
             return node;
         }
 
@@ -356,7 +361,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     private <T extends Node> T wrap(T node) {
         this.leadingNL += 1;
         this.lineLength = 0;
-        this.isFirstToken = true;
+        this.hasNewline = true;
         return (T) node.apply(this);
     }
 
@@ -370,7 +375,12 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      * @return Formatted token
      */
     private <T extends Token> T formatToken(T token, int trailingWS, int trailingNL) {
-        if (token == null || !isInLineRange(token, lineRange)) {
+        if (token == null) {
+            return token;
+        }
+
+        if (!isInLineRange(token, lineRange)) {
+            checkForNewline(token);
             return token;
         }
 
@@ -388,10 +398,19 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         // If this node has a trailing new line, then the next immediate token
         // will become the first token the the next line
-        this.isFirstToken = trailingNL > 0;
+        this.hasNewline = trailingNL > 0;
         this.trailingNL = prevTrailingNL;
         this.trailingWS = prevTrailingWS;
         return token;
+    }
+
+    private <T extends Node> void checkForNewline(T node) {
+        for (Minutiae mintiae : node.trailingMinutiae()) {
+            if (mintiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                this.hasNewline = true;
+                return;
+            }
+        }
     }
 
     /**
@@ -549,7 +568,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      */
     private MinutiaeList getLeadingMinutiae() {
         List<Minutiae> leadingMinutiae = new ArrayList<>();
-        if (this.isFirstToken) {
+        if (this.hasNewline) {
             for (int i = 0; i < this.leadingNL; i++) {
                 leadingMinutiae.add(getNewline());
             }

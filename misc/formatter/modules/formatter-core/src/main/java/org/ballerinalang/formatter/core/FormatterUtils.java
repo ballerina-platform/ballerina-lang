@@ -304,23 +304,32 @@ class FormatterUtils {
         if (lineRange == null) {
             return true;
         }
+
         int nodeStartLine = node.lineRange().startLine().line();
-        int nodeStartOffset = node.lineRange().startLine().offset();
+        int nodeStartColumn = node.lineRange().startLine().offset();
         int nodeEndLine = node.lineRange().endLine().line();
-        int nodeEndOffset = node.lineRange().endLine().offset();
+        int nodeEndColumn = node.lineRange().endLine().offset();
 
-        int startLine = lineRange.startLine().line();
-        int startOffset = lineRange.startLine().offset();
-        int endLine = lineRange.endLine().line();
-        int endOffset = lineRange.endLine().offset();
+        int rangeStartLine = lineRange.startLine().line();
+        int rangeStartColumn = lineRange.startLine().offset();
+        int rangeEndLine = lineRange.endLine().line();
+        int rangeEndColumn = lineRange.endLine().offset();
 
-        if (nodeStartLine >= startLine && nodeEndLine <= endLine) {
-            if (nodeStartLine == startLine || nodeEndLine == endLine) {
-                return nodeStartOffset >= startOffset && nodeEndOffset <= endOffset;
-            }
-            return true;
+        // Node ends before the range
+        if (nodeEndLine < rangeStartLine) {
+            return false;
+        } else if (nodeEndLine == rangeStartLine) {
+            return nodeEndColumn > rangeStartColumn;
         }
-        return false;
+
+        // Node starts after the range
+        if (nodeStartLine > rangeEndLine) {
+            return false;
+        } else if (nodeStartLine == rangeEndLine) {
+            return nodeStartColumn < rangeEndColumn;
+        }
+
+        return true;
     }
 
     /**
