@@ -244,9 +244,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
-    public BLangPackage defineTestablePackage(BLangTestablePackage pkgNode, SymbolEnv env,
-                                              List<BLangImportPackage> enclPkgImports) {
-        populatePackageNode(pkgNode, enclPkgImports);
+    public BLangPackage defineTestablePackage(BLangTestablePackage pkgNode, SymbolEnv env) {
+        populatePackageNode(pkgNode);
         defineNode(pkgNode, env);
         return pkgNode;
     }
@@ -280,8 +279,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         importedPackages.add(pkgNode.packageID);
 
         defineConstructs(pkgNode, pkgEnv);
-        pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv,
-                                                                                   pkgNode.imports));
+        pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv));
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
 
         // After we have visited a package node, we need to remove it from the imports list.
@@ -1806,17 +1804,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void populatePackageNode(BLangPackage pkgNode) {
         List<BLangCompilationUnit> compUnits = pkgNode.getCompilationUnits();
         compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode, compUnit));
-    }
-
-    /**
-     * Visit each compilation unit (.bal file) and add each top-level node in the compilation unit to the
-     * testable package node.
-     *
-     * @param pkgNode current package node
-     * @param enclPkgImports imports of the enclosed package
-     */
-    private void populatePackageNode(BLangTestablePackage pkgNode, List<BLangImportPackage> enclPkgImports) {
-        populatePackageNode(pkgNode);
     }
 
     /**
