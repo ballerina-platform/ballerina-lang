@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
@@ -177,6 +178,20 @@ public class CommonUtil {
         int startColumn = diagnosticPos.getStartColumn() - 1;
         int endColumn = diagnosticPos.getEndColumn() - 1;
         return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
+    }
+
+    /**
+     * Convert the diagnostic position to a zero based positioning diagnostic position.
+     *
+     * @param linePosition - diagnostic position to be cloned
+     * @return {@link DiagnosticPos} converted diagnostic position
+     */
+    public static Range toRange(LineRange linePosition) {
+        int startLine = linePosition.startLine().line();
+        int endLine = linePosition.endLine().line();
+        int startColumn = linePosition.startLine().offset();
+        int endColumn = linePosition.endLine().offset();
+        return new Range(new Position(startLine, startColumn), new Position(endLine, endColumn));
     }
 
     /**
