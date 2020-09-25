@@ -40,3 +40,17 @@ function arrForEachFunc(int i) {
 }
 
 function mapFilterFunc(boolean val) returns boolean => !val;
+
+type OneTwoThree 1|2|3;
+
+type Foo record {
+    int[] x = array:filter(<int[]> [1, 2, 3, 4, 5, 1, 2], val => val is OneTwoThree && glob);
+};
+
+type Greetings "hello"|"hi";
+
+class Bar {
+    map<string> m = 'map:filter(<map<string>> {a: "hello", b: "world", c: "hi"}, strMapFilterFunc);
+}
+
+function strMapFilterFunc(string val) returns boolean => val is Greetings;
