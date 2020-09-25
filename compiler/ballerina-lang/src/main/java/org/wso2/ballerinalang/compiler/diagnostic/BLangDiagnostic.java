@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.diagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 
 /**
  * Represent a diagnostic in the ballerina compiler front-end. A diagnostic can be a semantic
@@ -32,11 +33,21 @@ public class BLangDiagnostic extends Diagnostic {
     private Location location;
     private String msg;
     private DiagnosticInfo diagnosticInfo;
+    private DiagnosticCode diagnosticCode;
 
     public BLangDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo) {
         this.location = location;
         this.msg = msg;
         this.diagnosticInfo = diagnosticInfo;
+        this.diagnosticCode = null;
+    }
+
+    public BLangDiagnostic(Location location, String msg, DiagnosticInfo diagnosticInfo,
+                           DiagnosticCode diagnosticCode) {
+        this.location = location;
+        this.msg = msg;
+        this.diagnosticInfo = diagnosticInfo;
+        this.diagnosticCode = diagnosticCode;
     }
 
     /**
@@ -61,6 +72,10 @@ public class BLangDiagnostic extends Diagnostic {
     @Override
     public String message() {
         return msg;
+    }
+
+    public DiagnosticCode getCode() {
+        return diagnosticCode;
     }
 
     public String toString() {

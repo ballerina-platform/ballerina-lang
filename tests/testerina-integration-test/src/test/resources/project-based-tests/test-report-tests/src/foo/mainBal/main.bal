@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
-# Prints `Hello World`.
 # Contains an if condition to test the code coverage
 
 public function main() {
@@ -24,17 +21,17 @@ public function main() {
     // test
     int a = 10;
     if (a == 10) {
-        io:println("a is equal to 10");
+        a = 1;
     } else {
-        io:println("a is notttttt equal to 10");
+        a = 2;
     }
    
-    printHello();
+    incrementValue(a);
 }
 
 
 // Prints hello
-public function printHello() {
+public function incrementValue(int a) {
     // Prints hello
-    io:println("Hello World!!");
+    int b = a + 1;
 }

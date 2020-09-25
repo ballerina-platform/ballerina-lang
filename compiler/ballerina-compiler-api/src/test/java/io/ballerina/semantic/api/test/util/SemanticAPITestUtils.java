@@ -21,12 +21,18 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerina.compiler.api.ModuleID;
 import org.ballerina.compiler.api.symbols.Symbol;
 import org.ballerina.compiler.impl.BallerinaSemanticModel;
+import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,6 +51,15 @@ import static org.testng.Assert.assertTrue;
  * @since 2.0.0
  */
 public class SemanticAPITestUtils {
+
+    private static final Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
+
+    public static CompileResult compile(String path, CompilerContext context) {
+        Path sourcePath = Paths.get(path);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+        return BCompileUtil.compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true, false);
+    }
 
     public static void assertList(List<? extends Symbol> actualValues, List<String> expectedValues) {
         Map<String, Symbol> symbols = actualValues.stream().collect(Collectors.toMap(Symbol::name, s -> s));
@@ -83,6 +98,19 @@ public class SemanticAPITestUtils {
 
             if (value.symbol != null && (value.symbol.tag & symTag) == symTag
                     && Symbols.isFlagOn(value.symbol.flags, Flags.PUBLIC) && value.symbol.origin == COMPILED_SOURCE) {
+                symbolNames.add(name.value);
+            }
+        }
+        return symbolNames;
+    }
+
+    public static List<String> getSymbolNames(BPackageSymbol pkgSymbol, int symTag, SymbolOrigin origin) {
+        List<String> symbolNames = new ArrayList<>();
+        for (Map.Entry<Name, Scope.ScopeEntry> entry : pkgSymbol.scope.entries.entrySet()) {
+            Name name = entry.getKey();
+            Scope.ScopeEntry value = entry.getValue();
+
+            if (value.symbol != null && (value.symbol.tag & symTag) == symTag && value.symbol.origin == origin) {
                 symbolNames.add(name.value);
             }
         }

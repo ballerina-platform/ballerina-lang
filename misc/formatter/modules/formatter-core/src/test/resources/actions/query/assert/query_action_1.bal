@@ -16,4 +16,3 @@ public function main() {
         };
     };
 }
-

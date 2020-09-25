@@ -30,4 +30,3 @@ public function foo() {
     string s = j6.toJsonString();
     json j13 = checkpanic s.fromJsonString();
 }
-

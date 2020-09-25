@@ -4,4 +4,3 @@ public function foo() {
         string name;
     }
 }
-

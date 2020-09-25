@@ -3,4 +3,3 @@ public function foo() {
     int d = 23 >> 1;
     int e = 23 >>> 1;
 }
-
