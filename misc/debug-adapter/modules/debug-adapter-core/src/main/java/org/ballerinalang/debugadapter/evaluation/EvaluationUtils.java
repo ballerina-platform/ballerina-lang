@@ -125,7 +125,7 @@ public class EvaluationUtils {
     private static Value getAsBString(SuspendedContext context, String val) throws EvaluationException {
         List<ReferenceType> cls = context.getAttachedVm().classesByName(B_STRING_UTILS_CLASS);
         if (cls.isEmpty()) {
-            cls = Collections.singletonList(loadClass(context, B_STRING_UTILS_CLASS, "fromString"));
+            cls = Collections.singletonList(loadClass(context, B_STRING_UTILS_CLASS, FROM_STRING_METHOD));
         }
         List<Method> methods = cls.get(0).methodsByName(FROM_STRING_METHOD);
         if (methods.isEmpty()) {
