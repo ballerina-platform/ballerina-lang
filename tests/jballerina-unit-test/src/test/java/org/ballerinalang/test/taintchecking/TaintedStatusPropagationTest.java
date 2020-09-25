@@ -362,25 +362,25 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, i);
     }
 
-    @Test
-    public void testHttpService() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/http-service.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 14, 24);
-        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 15, 24);
-        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'payload'", 22, 37);
-    }
+//    @Test
+//    public void testHttpService() {
+//        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/http-service.bal");
+//        Assert.assertEquals(result.getDiagnostics().length, 3);
+//        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 14, 24);
+//        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 15, 24);
+//        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'payload'", 22, 37);
+//    }
 
-
-    @Test
-    public void testHttpServiceInlineListenerDecl() {
-        CompileResult result = BCompileUtil.compile(
-                "test-src/taintchecking/propagation/http-service-in-line-listener.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 28, 24);
-        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 29, 24);
-        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'payload'", 36, 37);
-    }
+//
+//    @Test
+//    public void testHttpServiceInlineListenerDecl() {
+//        CompileResult result = BCompileUtil.compile(
+//                "test-src/taintchecking/propagation/http-service-in-line-listener.bal");
+//        Assert.assertEquals(result.getDiagnostics().length, 3);
+//        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 28, 24);
+//        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 29, 24);
+//        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'payload'", 36, 37);
+//    }
 
     @Test
     public void testCompoundAssignment() {

@@ -47,7 +47,7 @@ public class RecordVariableReferenceTest {
         resultNegative = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference-negative.bal");
     }
 
-    @Test(description = "Test simple record variable definition")
+    @Test(description = "Test simple record variable definition", enabled = false)
     public void testVariableAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testVariableAssignment");
         Assert.assertEquals(returns.length, 4);
