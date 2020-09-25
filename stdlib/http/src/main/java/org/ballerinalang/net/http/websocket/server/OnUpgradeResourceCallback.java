@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http.websocket.server;
 
+import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
@@ -68,7 +68,7 @@ public class OnUpgradeResourceCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(ErrorValue error) {
+    public void notifyFailure(BError error) {
         ErrorHandlerUtils.printError(error.getPrintableStackTrace());
         WebSocketConnectionInfo connectionInfo =
                 connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId());

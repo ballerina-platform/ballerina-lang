@@ -178,7 +178,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
@@ -199,7 +198,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
     private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
     private static final Name QUERY_CREATE_LIMIT_FUNCTION = new Name("createLimitFunction");
-    private static final Name QUERY_SORT_STREAM_FUNCTION = new Name("sortStream");
     private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
     private static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
     private static final Name QUERY_TO_ARRAY_FUNCTION = new Name("toArray");
@@ -210,8 +208,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final String FRAME_PARAMETER_NAME = "$frame$";
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
     private BLangExpression onConflictExpr;
-    private Stack<BLangOrderByClause> orderByClauses;
-    private Stack<BLangLimitClause> limitClauses;
     private BVarSymbol currentFrameSymbol;
     private BLangBlockFunctionBody currentLambdaBody;
     private Map<String, BSymbol> identifiers;
@@ -253,22 +249,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.type, env, queryBlock);
         BLangStatementExpression streamStmtExpr;
-        if (!orderByClauses.empty()) {
-            // Type[] arr passed to stream ordering helper.
-            BLangArrayLiteral orderArr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
-            orderArr.exprs = new ArrayList<>();
-            orderArr.type = new BArrayType(types.resolveExprType(queryExpr.type));
-            if (!limitClauses.empty()) {
-                // should limit after ordering the stream
-                streamRef = getStreamFunctionVariableRef(queryBlock, QUERY_SORT_STREAM_FUNCTION,
-                        Lists.of(streamRef, orderArr, limitClauses.pop().expression), orderByClauses.peek().pos);
-            } else {
-                // if no limit given order the entire stream
-                streamRef = getStreamFunctionVariableRef(queryBlock, QUERY_SORT_STREAM_FUNCTION,
-                        Lists.of(streamRef, orderArr, ASTBuilderUtil.createLiteral(orderByClauses.peek().pos,
-                                symTable.intType, (long) 0)), orderByClauses.peek().pos);
-            }
-        }
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
             streamStmtExpr.type = streamRef.type;
@@ -284,9 +264,9 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = null;
         } else {
             BLangVariableReference result;
-            if (queryExpr.type.tag == TypeTags.XML) {
+            if (TypeTags.isXMLTypeTag(queryExpr.type.tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
-            } else if (queryExpr.type.tag == TypeTags.STRING) {
+            } else if (TypeTags.isStringTypeTag(queryExpr.type.tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
                 BType arrayType = queryExpr.type;
@@ -342,8 +322,6 @@ public class QueryDesugar extends BLangNodeVisitor {
                 initFromClause.collection, resultType);
         BLangVariableReference initFrom = addInputFunction(block, initFromClause);
         addStreamFunction(block, initPipeline, initFrom);
-        this.limitClauses = new Stack<>();
-        this.orderByClauses = new Stack<>();
         for (BLangNode clause : clauses.subList(1, clauses.size())) {
             switch (clause.getKind()) {
                 case FROM:
@@ -371,8 +349,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     addStreamFunction(block, initPipeline, whereFunc);
                     break;
                 case ORDER_BY:
-                    orderByClauses.push((BLangOrderByClause) clause);
-                    BLangVariableReference orderFunc = addOrderByFunction(block, orderByClauses.peek());
+                    BLangVariableReference orderFunc = addOrderByFunction(block, (BLangOrderByClause) clause);
                     addStreamFunction(block, initPipeline, orderFunc);
                     break;
                 case SELECT:
@@ -384,12 +361,8 @@ public class QueryDesugar extends BLangNodeVisitor {
                     addStreamFunction(block, initPipeline, doFunc);
                     break;
                 case LIMIT:
-                    limitClauses.push((BLangLimitClause) clause);
-                    // limit the frames if order by clause is not given
-                    if (orderByClauses.empty()) {
-                        BLangVariableReference limitFunc = addLimitFunction(block, limitClauses.pop());
-                        addStreamFunction(block, initPipeline, limitFunc);
-                    }
+                    BLangVariableReference limitFunc = addLimitFunction(block, (BLangLimitClause) clause);
+                    addStreamFunction(block, initPipeline, limitFunc);
                     break;
                 case ON_CONFLICT:
                     final BLangOnConflictClause onConflict = (BLangOnConflictClause) clause;

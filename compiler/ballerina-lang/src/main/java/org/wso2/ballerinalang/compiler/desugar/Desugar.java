@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.model.TreeBuilder;
@@ -337,6 +338,7 @@ public class Desugar extends BLangNodeVisitor {
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
     private BLangSimpleVariableDef onFailCallFuncDef;
     private BLangOnFailClause onFailClause;
+    private BType forceCastReturnType = null;
 
     private SymbolEnv env;
     private int lambdaFunctionCount = 0;
@@ -1053,7 +1055,10 @@ public class Desugar extends BLangNodeVisitor {
             funcNode.returnTypeNode = rewrite(funcNode.returnTypeNode, funcEnv);
         }
 
+        BType currentReturnType = this.forceCastReturnType;
+        this.forceCastReturnType = null;
         funcNode.body = rewrite(funcNode.body, funcEnv);
+        this.forceCastReturnType = currentReturnType;
         funcNode.annAttachments.forEach(attachment -> rewrite(attachment, env));
         if (funcNode.returnTypeNode != null) {
             funcNode.returnTypeAnnAttachments.forEach(attachment -> rewrite(attachment, env));
@@ -2708,6 +2713,9 @@ public class Desugar extends BLangNodeVisitor {
         // If the return node do not have an expression, we add `done` statement instead of a return statement. This is
         // to distinguish between returning nil value specifically and not returning any value.
         if (returnNode.expr != null) {
+            if (forceCastReturnType != null && returnNode.expr.type != null) {
+                returnNode.expr = addConversionExprIfRequired(returnNode.expr, forceCastReturnType);
+            }
             returnNode.expr = rewriteExpr(returnNode.expr);
         }
         result = returnNode;
@@ -3438,7 +3446,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         body.scope = bodyScope;
         SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        this.forceCastReturnType = ((BLangType) returnType).type;
         body.stmts = rewriteStmt(fnBodyStmts, bodyEnv);
+        this.forceCastReturnType = null;
         return createLambdaFunction(pos, functionNamePrefix, lambdaFunctionVariable, returnType, body);
     }
 
@@ -3700,7 +3710,8 @@ public class Desugar extends BLangNodeVisitor {
             fieldAccessExpr.expr = addConversionExprIfRequired(fieldAccessExpr.expr, varRefType);
         }
 
-        BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
+        BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.field.pos,
+                                                     StringEscapeUtils.unescapeJava(fieldAccessExpr.field.value));
         int varRefTypeTag = varRefType.tag;
         if (varRefTypeTag == TypeTags.OBJECT ||
                 (varRefTypeTag == TypeTags.UNION &&
@@ -7430,17 +7441,22 @@ public class Desugar extends BLangNodeVisitor {
 
                 BLangRecordLiteral.BLangRecordKey key = keyValueField.key;
                 BLangExpression origKey = key.expr;
-                BLangExpression keyExpr = key.computedKey ? origKey :
-                        origKey.getKind() == NodeKind.SIMPLE_VARIABLE_REF ?
-                                createStringLiteral(pos, ((BLangSimpleVarRef) origKey).variableName.value) :
-                                ((BLangLiteral) origKey);
+                BLangExpression keyExpr;
+                if (key.computedKey) {
+                    keyExpr = origKey;
+                } else {
+                    keyExpr = origKey.getKind() == NodeKind.SIMPLE_VARIABLE_REF ? createStringLiteral(pos,
+                            StringEscapeUtils.unescapeJava(((BLangSimpleVarRef) origKey).variableName.value)) :
+                            ((BLangLiteral) origKey);
+                }
 
                 rewrittenFields.add(ASTBuilderUtil.createBLangRecordKeyValue(rewriteExpr(keyExpr),
                                                                              rewriteExpr(keyValueField.valueExpr)));
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRefField = (BLangSimpleVarRef) field;
                 rewrittenFields.add(ASTBuilderUtil.createBLangRecordKeyValue(
-                        rewriteExpr(createStringLiteral(pos, varRefField.variableName.value)),
+                        rewriteExpr(createStringLiteral(pos,
+                                StringEscapeUtils.unescapeJava(varRefField.variableName.value))),
                         rewriteExpr(varRefField)));
             } else {
                 BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =

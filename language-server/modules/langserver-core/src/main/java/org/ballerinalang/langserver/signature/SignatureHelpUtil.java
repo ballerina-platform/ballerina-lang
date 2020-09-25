@@ -15,9 +15,11 @@
  */
 package org.ballerinalang.langserver.signature;
 
+import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -105,7 +107,7 @@ public class SignatureHelpUtil {
                 "error".equals(((FunctionCallExpressionNode) signatureNode).functionName().toString());
 
         String funcInvocation = (isImplicitNew || isErrorConstructor) ?
-                signatureNode.parent().toSourceCode() :
+                getBlockStatement(signatureNode).toSourceCode() :
                 signatureNode.toSourceCode();
 
         // Remove last ;\n
@@ -126,6 +128,22 @@ public class SignatureHelpUtil {
         String subRule = String.format(subRuleFormat, funcInvocation, funcInvocationStatement);
 
         return parseAndGetFunctionInvocationPath(subRule, serviceContext);
+    }
+
+    private static NonTerminalNode getBlockStatement(NonTerminalNode signatureNode) {
+        if (signatureNode.parent() != null) {
+            signatureNode = signatureNode.parent();
+            if (signatureNode.kind() == SyntaxKind.CHECK_EXPRESSION) {
+                // Remove `check` expression in implicit-new expression or functional-contructor expression
+                signatureNode = signatureNode.parent().replace(signatureNode,
+                                                               ((CheckExpressionNode) signatureNode).expression());
+            } else if (signatureNode.kind() == SyntaxKind.TRAP_EXPRESSION) {
+                // Remove `trap` expression in implicit-new expression or functional-contructor expression
+                signatureNode = signatureNode.parent().replace(signatureNode,
+                                                               ((TrapExpressionNode) signatureNode).expression());
+            }
+        }
+        return signatureNode;
     }
 
     private static Optional<String> parseAndGetFunctionInvocationPath(String subRule, LSContext context)

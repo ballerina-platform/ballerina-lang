@@ -6,4 +6,3 @@ public function foo() {
     int t = true ? 7 : 0;
     int u = getValue(6) ?: 8;
 }
-

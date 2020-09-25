@@ -17,13 +17,15 @@
  */
 package org.ballerinalang.stdlib.task.utils;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Appointment;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
@@ -59,12 +61,12 @@ public class Utils {
     // an attached function.
     private static final int VALID_RESOURCE_COUNT = 1;
 
-    public static ErrorValue createTaskError(String message) {
+    public static BError createTaskError(String message) {
         return createTaskError(LISTENER_ERROR, message);
     }
 
-    public static ErrorValue createTaskError(String reason, String message) {
-        return BallerinaErrors.createDistinctError(reason, TASK_PACKAGE_ID, message);
+    public static BError createTaskError(String reason, String message) {
+        return BErrorCreator.createDistinctError(reason, TASK_PACKAGE_ID, BStringUtils.fromString(message));
     }
 
     @SuppressWarnings("unchecked")
@@ -135,7 +137,7 @@ public class Utils {
         }
     }
 
-    public static Timer processTimer(MapValue<BString, Object> configurations) throws SchedulingException {
+    public static Timer processTimer(BMap<BString, Object> configurations) throws SchedulingException {
         Timer task;
         long interval = configurations.getIntValue(FIELD_INTERVAL).intValue();
         long delay = configurations.getIntValue(FIELD_DELAY).intValue();
@@ -149,7 +151,7 @@ public class Utils {
         return task;
     }
 
-    public static Appointment processAppointment(MapValue<BString, Object> configurations) throws SchedulingException {
+    public static Appointment processAppointment(BMap<BString, Object> configurations) throws SchedulingException {
         Appointment appointment;
         Object appointmentDetails = configurations.get(MEMBER_APPOINTMENT_DETAILS);
         String cronExpression = getCronExpressionFromAppointmentRecord(appointmentDetails);

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 import org.slf4j.Logger;

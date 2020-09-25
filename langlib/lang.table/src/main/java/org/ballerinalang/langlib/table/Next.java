@@ -18,10 +18,11 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -30,7 +31,6 @@ import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -56,12 +56,15 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
         isPublic = true
 )
 public class Next {
+
+    private static final BString MUTATED_TABLE_ERROR_DETAIL =  BStringUtils.fromString("Table was mutated after the " +
+                                                                                               "iterator was created");
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue t) {
         IteratorValue tableIterator = (IteratorValue) t.getNativeData("&iterator&");
-        TableValueImpl table = (TableValueImpl) t.get(StringUtils.fromString("t"));
-        ArrayValueImpl keys = (ArrayValueImpl) t.get(StringUtils.fromString("keys"));
-        long initialSize = (long) t.get(StringUtils.fromString("size"));
+        TableValueImpl table = (TableValueImpl) t.get(BStringUtils.fromString("t"));
+        ArrayValueImpl keys = (ArrayValueImpl) t.get(BStringUtils.fromString("keys"));
+        long initialSize = (long) t.get(BStringUtils.fromString("size"));
         if (tableIterator == null) {
             tableIterator = table.getIterator();
             t.addNativeData("&iterator&", tableIterator);
@@ -75,8 +78,8 @@ public class Next {
         if (tableIterator.hasNext()) {
             ArrayValue keyValueTuple = (ArrayValue) tableIterator.next();
             returnedKeys.add(keyValueTuple.get(0));
-            return BallerinaValues.createRecord(new MapValueImpl<>(table.getIteratorNextReturnType()),
-                    keyValueTuple.get(1));
+            return BValueCreator.createRecordValue(new MapValueImpl<>(table.getIteratorNextReturnType()),
+                                                   keyValueTuple.get(1));
         }
 
         return null;
@@ -87,8 +90,7 @@ public class Next {
         if (initialSize < table.size() ||
                 // Key-less situation, mutation can occur only by calling add() or removeAll()
                 (initialSize > 0 && table.size() == 0)) {
-            throw BallerinaErrors.createError(ITERATOR_MUTABILITY_ERROR,
-                    "Table was mutated after the iterator was created");
+            throw BErrorCreator.createError(ITERATOR_MUTABILITY_ERROR, MUTATED_TABLE_ERROR_DETAIL);
         }
 
         if (keys.isEmpty()) {
@@ -110,8 +112,7 @@ public class Next {
         }
 
         if (!TypeChecker.isEqual(currentKeyArray, keys)) {
-            throw BallerinaErrors.createError(ITERATOR_MUTABILITY_ERROR,
-                    "Table was mutated after the iterator was created");
+            throw BErrorCreator.createError(ITERATOR_MUTABILITY_ERROR, MUTATED_TABLE_ERROR_DETAIL);
         }
 
         keys.shift();

@@ -11,4 +11,3 @@ public function foo() {
 
     readonly readonlyValue = "hello";
 }
-

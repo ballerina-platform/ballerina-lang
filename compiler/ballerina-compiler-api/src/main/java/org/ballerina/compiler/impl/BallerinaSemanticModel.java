@@ -17,13 +17,14 @@
  */
 package org.ballerina.compiler.impl;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.TextRange;
+import io.ballerina.tools.text.LineRange;
 import org.ballerina.compiler.api.SemanticModel;
 import org.ballerina.compiler.api.symbols.Symbol;
 import org.ballerina.compiler.impl.symbols.SymbolFactory;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.model.tree.IdentifiableNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -31,7 +32,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -102,15 +105,16 @@ public class BallerinaSemanticModel implements SemanticModel {
      */
     @Override
     public Optional<Symbol> symbol(String srcFile, LinePosition position) {
-        SymbolEnv enclosingEnv = this.envResolver.lookUp(getCompilationUnit(srcFile), position);
+        BLangCompilationUnit compilationUnit = getCompilationUnit(srcFile);
+        NodeResolver nodeResolver = new NodeResolver();
+        BLangNode node = nodeResolver.lookup(compilationUnit, position);
 
-        for (Map.Entry<Name, Scope.ScopeEntry> entry : enclosingEnv.scope.entries.entrySet()) {
-            Name name = entry.getKey();
-            Scope.ScopeEntry value = entry.getValue();
-
-            if (isWithinSymbol(position, value.symbol.pos)) {
-                return Optional.of(SymbolFactory.getBCompiledSymbol(value.symbol, name.value));
-            }
+        if (node instanceof IdentifiableNode) {
+            BSymbol symbol = (BSymbol) ((IdentifiableNode) node).getSymbol();
+            return Optional.ofNullable(SymbolFactory.getBCompiledSymbol(symbol, symbol.name.value));
+        } else if (node instanceof BLangUserDefinedType) {
+            return Optional.ofNullable(
+                    SymbolFactory.createTypeDefinition(node.type.tsymbol, node.type.tsymbol.name.value));
         }
 
         return Optional.empty();
@@ -120,9 +124,49 @@ public class BallerinaSemanticModel implements SemanticModel {
      * {@inheritDoc}
      */
     @Override
-    public List<Diagnostic> diagnostics(TextRange range) {
-        return new ArrayList<>();
+    public List<Symbol> moduleLevelSymbols() {
+        List<Symbol> compiledSymbols = new ArrayList<>();
+
+        for (Map.Entry<Name, Scope.ScopeEntry> e : bLangPackage.symbol.scope.entries.entrySet()) {
+            Name key = e.getKey();
+            Scope.ScopeEntry value = e.getValue();
+
+            if (value.symbol.origin == SOURCE) {
+                compiledSymbols.add(SymbolFactory.getBCompiledSymbol(value.symbol, key.value));
+            }
+        }
+
+        return compiledSymbols;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Diagnostic> diagnostics(LineRange range) {
+        List<Diagnostic> allDiagnostics = this.bLangPackage.getDiagnostics();
+        List<Diagnostic> filteredDiagnostics = new ArrayList<>();
+
+        for (Diagnostic diagnostic : allDiagnostics) {
+            LineRange lineRange = diagnostic.location().lineRange();
+
+            if (lineRange.filePath().equals(range.filePath()) && withinRange(lineRange, range)) {
+                filteredDiagnostics.add(diagnostic);
+            }
+        }
+
+        return filteredDiagnostics;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Diagnostic> diagnostics() {
+        return this.bLangPackage.getDiagnostics();
+    }
+
+    // Private helper methods for the public APIs above.
 
     private boolean isSymbolInUserProject(BSymbol symbol, DiagnosticPos cursorPos) {
         return symbol.origin == SOURCE &&
@@ -143,18 +187,16 @@ public class BallerinaSemanticModel implements SemanticModel {
                 .get();
     }
 
-    private boolean isWithinSymbol(LinePosition cursorPos, DiagnosticPos symbolPos) {
-        int symbolStartLine = symbolPos.getStartLine();
-        int symbolEndLine = symbolPos.getEndLine();
-        int symbolStartCol = symbolPos.getStartColumn();
-        int symbolEndCol = symbolPos.getEndColumn();
-        int cursorLine = cursorPos.line();
-        int cursorCol = cursorPos.offset();
+    private boolean withinRange(LineRange range, LineRange specifiedRange) {
+        int startLine = range.startLine().line();
+        int startOffset = range.startLine().offset();
 
-        return (symbolStartLine < cursorLine && symbolEndLine > cursorLine)
-                || (symbolStartLine < cursorLine && symbolEndLine == cursorLine && symbolEndCol > cursorCol)
-                || (symbolStartLine == cursorLine && symbolStartCol < cursorCol && symbolEndLine > cursorLine)
-                || (symbolStartLine == symbolEndLine && symbolStartLine == cursorLine
-                && symbolStartCol <= cursorCol && symbolEndCol > cursorCol);
+        int specifiedStartLine = specifiedRange.startLine().line();
+        int specifiedEndLine = specifiedRange.endLine().line();
+        int specifiedStartOffset = specifiedRange.startLine().offset();
+        int specifiedEndOffset = specifiedRange.endLine().offset();
+
+        return startLine >= specifiedStartLine && startLine <= specifiedEndLine &&
+                startOffset >= specifiedStartOffset && startOffset <= specifiedEndOffset;
     }
 }

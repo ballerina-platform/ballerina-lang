@@ -227,6 +227,100 @@ isolated function testIsolatedArrowFunctions() {
     assertEquality(103, sum);
 }
 
+class ClassWithDefaultsWithoutInitFunc {
+    int i = recI;
+    int j = recJ();
+    object {
+        string k;
+    } ob = object {
+        string k = <string> ms["first"];
+    };
+}
+
+class ClassWithDefaultsWithInitFunc {
+    int i;
+    int j;
+    object {
+        string k;
+    } ob;
+
+    isolated function init(int i) {
+        self.i = i;
+        self.j = af1(1);
+        self.ob = object {
+            string k;
+
+            isolated function init() {
+                self.k = <string> ms["second"];
+            }
+        };
+    }
+}
+
+isolated function testIsolatedObjectFieldInitializers() {
+    ClassWithDefaultsWithoutInitFunc c1 = new;
+    assertEquality(111222, c1.i);
+    assertEquality(234, c1.j);
+    assertEquality("hello", c1.ob.k);
+
+    ClassWithDefaultsWithInitFunc c2 = new (123);
+    assertEquality(123, c2.i);
+    assertEquality(2, c2.j);
+    assertEquality("world", c2.ob.k);
+
+    ClassWithDefaultsWithInitFunc c3 = object {
+        int i = 21212;
+        int j = 999;
+        object {
+            string k;
+        } ob = object {
+            string k;
+
+            isolated function init() {
+                self.k = "ballerina";
+            }
+        };
+    };
+    assertEquality(21212, c3.i);
+    assertEquality(999, c3.j);
+    assertEquality("ballerina", c3.ob.k);
+}
+
+client class ClientClass {
+    int i = 1;
+
+    remote isolated function bar() {
+        self.i = 2;
+    }
+
+    isolated remote function baz(int j, string... s) returns int {
+        int tot = self.i + j;
+
+        foreach string strVal in s {
+            tot = tot + strVal.length();
+        }
+        return tot;
+    }
+}
+
+final string[] & readonly strArr = ["hello", "world"];
+
+isolated function testIsolationAnalysisWithRemoteMethods() {
+    ClientClass cc = new;
+
+    cc->bar();
+    assertEquality(2, cc.i);
+
+    int x = cc->baz(1);
+    assertEquality(3, x);
+
+    x = cc->baz(arr[2], "hello");
+    assertEquality(10, x);
+
+    x = cc->baz(arr[1], ...strArr);
+    assertEquality(14, x);
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

@@ -38,6 +38,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "A",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "final",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -453,6 +461,46 @@
       "detail": "error",
       "sortText": "C",
       "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "A",
+      "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "insertText": "record {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {||}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "insertText": "record {|\n\t${1}\n|}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "A",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "insertText": "object {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {

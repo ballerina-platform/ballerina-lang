@@ -148,7 +148,7 @@ public class Bus {
     public int age;
     public string name;
 
-    public function init (int age = 6, string key = "abc") {
+    public isolated function init (int age = 6, string key = "abc") {
         self.age = age;
         self.name = "sample value";
     }
@@ -158,7 +158,7 @@ public class Tyre {
     public int key = 0;
     public string value = "";
 
-    public function init () {
+    public isolated function init () {
 
     }
 }
@@ -203,7 +203,7 @@ public class Architect {
     public int pp;
     public string name;
 
-    public function init (int pp, string name) {
+    public isolated function init (int pp, string name) {
         self.pp = pp;
         self.name = name;
     }

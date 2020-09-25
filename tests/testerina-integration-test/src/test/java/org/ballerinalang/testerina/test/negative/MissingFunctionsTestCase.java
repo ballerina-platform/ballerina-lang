@@ -40,7 +40,7 @@ public class MissingFunctionsTestCase extends BaseTestCase {
         projectPath = singleFilesProjectPath.resolve("missing-functions").toString();
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMissingBeforeFunction() throws BallerinaTestException {
         String errMsg = "error: Cannot find the specified before function : [beforeFunc-nonExist] for testerina " +
                 "function : [beforeFuncNegative]";
@@ -50,7 +50,7 @@ public class MissingFunctionsTestCase extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMissingAfterFunction() throws BallerinaTestException {
         String errMsg = "error: Cannot find the specified after function : [afterFunc-nonExist] for testerina " +
                 "function : [afterFuncNegative]";
@@ -60,7 +60,7 @@ public class MissingFunctionsTestCase extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMissingDependsOnFunction() throws BallerinaTestException {
         String errMsg = "error: Cannot find the specified dependsOn function : non-existing";
         LogLeecher clientLeecher = new LogLeecher(errMsg, ERROR);

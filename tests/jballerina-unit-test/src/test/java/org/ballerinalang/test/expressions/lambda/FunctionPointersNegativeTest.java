@@ -34,9 +34,11 @@ public class FunctionPointersNegativeTest {
     public void testFunctionPointerAsVariable() {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/negative/fp-type-mismatch1-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
+        Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0, "incompatible types: expected 'function (string,int) returns " +
                 "(boolean)', found 'function (string,float) returns (boolean)'", 2, 53);
+        BAssertUtil.validateError(result, 1, "unknown type 'Context'", 10, 29);
+        BAssertUtil.validateError(result, 2, "unknown type 'FunctionEntry'", 12, 5);
     }
 
     @Test()

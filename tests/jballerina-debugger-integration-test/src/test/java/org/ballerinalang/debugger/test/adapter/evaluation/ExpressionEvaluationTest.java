@@ -106,7 +106,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // map variable test
         assertExpression(context, MAP_VAR, "map", "map");
         // record variable test (Student record)
-        assertExpression(context, RECORD_VAR, "Student", "record");
+        assertExpression(context, RECORD_VAR, " /:@[`{~⌤_123_ƮέŞŢ_Student", "record");
         // anonymous record variable test
         assertExpression(context, ANON_RECORD_VAR, "anonymous", "record");
         // error variable test
@@ -116,7 +116,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // future variable test
         assertExpression(context, FUTURE_VAR, "future", "future");
         // object variable test (Person object)
-        assertExpression(context, OBJECT_VAR, "Person", "object");
+        assertExpression(context, OBJECT_VAR, "Person_\\ /<>:@[`{~⌤_ƮέŞŢ", "object");
         // type descriptor variable test
         assertExpression(context, TYPEDESC_VAR, "int", "typedesc");
         // union variable test
@@ -137,9 +137,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         assertExpression(context, NEVER_VAR, "", "xml");
         // json variable test
         assertExpression(context, JSON_VAR, "object", "json");
-        // Todo - Enable after fixing
         // anonymous object variable test (AnonPerson object)
-        // assertVariable(context, anonObjectVar, "AnonPerson", "object");
+        assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~⌤_ƮέŞŢ", "object");
 
         // Todo - add test for qualified name references, after adding support
     }
@@ -150,7 +149,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // objects fields
         assertExpression(context, OBJECT_VAR + ".address", "No 20, Palm grove", "string");
         // record fields
-        assertExpression(context, RECORD_VAR + ".age", "20", "int");
+        assertExpression(context, RECORD_VAR + ".'Ȧɢέ_\\ \\/\\:\\@\\[\\`\\{\\~⌤", "20", "int");
         // json fields
         assertExpression(context, JSON_VAR + ".name", "apple", "string");
         // nested field access (chain access)
@@ -191,7 +190,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void functionCallEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // functions in a different module file.
+        assertExpression(context, "sum(34,56)", "90", "int");
+        assertExpression(context, "getName(\"John\")", "Name: John", "string");
     }
 
     @Override

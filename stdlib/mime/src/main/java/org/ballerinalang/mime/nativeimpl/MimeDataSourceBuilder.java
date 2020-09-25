@@ -21,15 +21,15 @@ package org.ballerinalang.mime.nativeimpl;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BValueCreator;
-import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityHeaderHandler;
 import org.ballerinalang.mime.util.MimeConstants;
@@ -51,7 +51,7 @@ import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
  */
 public abstract class MimeDataSourceBuilder {
 
-    public static Object getByteArray(ObjectValue entityObj) {
+    public static Object getByteArray(BObject entityObj) {
         try {
             Object messageDataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (messageDataSource != null) {
@@ -65,7 +65,7 @@ public abstract class MimeDataSourceBuilder {
         }
     }
 
-    protected static Object getAlreadyBuiltByteArray(ObjectValue entityObj, Object messageDataSource)
+    protected static Object getAlreadyBuiltByteArray(BObject entityObj, Object messageDataSource)
             throws UnsupportedEncodingException {
         if (messageDataSource instanceof ArrayValue) {
             return messageDataSource;
@@ -75,15 +75,15 @@ public abstract class MimeDataSourceBuilder {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
                 return BValueCreator.createArrayValue(
-                        StringUtils.getJsonString(messageDataSource).getBytes(charsetValue));
+                        BStringUtils.getJsonString(messageDataSource).getBytes(charsetValue));
             }
             return BValueCreator.createArrayValue(
-                    StringUtils.getJsonString(messageDataSource).getBytes(Charset.defaultCharset()));
+                    BStringUtils.getJsonString(messageDataSource).getBytes(Charset.defaultCharset()));
         }
         return BValueCreator.createArrayValue(new byte[0]);
     }
 
-    public static Object getJson(ObjectValue entityObj) {
+    public static Object getJson(BObject entityObj) {
         RefValue result;
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
@@ -118,12 +118,12 @@ public abstract class MimeDataSourceBuilder {
         return objectType.getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(objectType);
     }
 
-    public static Object getText(ObjectValue entityObj) {
+    public static Object getText(BObject entityObj) {
         BString result;
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
-                return org.ballerinalang.jvm.StringUtils.fromString(MimeUtil.getMessageAsString(dataSource));
+                return BStringUtils.fromString(MimeUtil.getMessageAsString(dataSource));
             }
             result = EntityBodyHandler.constructStringDataSource(entityObj);
             updateDataSource(entityObj, result);
@@ -133,7 +133,7 @@ public abstract class MimeDataSourceBuilder {
         }
     }
 
-    public static Object getXml(ObjectValue entityObj) {
+    public static Object getXml(BObject entityObj) {
         XMLValue result;
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
@@ -158,17 +158,17 @@ public abstract class MimeDataSourceBuilder {
         return XMLFactory.parse(payload);
     }
 
-    protected static void updateDataSource(ObjectValue entityObj, Object result) {
+    protected static void updateDataSource(BObject entityObj, Object result) {
         EntityBodyHandler.addMessageDataSource(entityObj, result);
         removeByteChannel(entityObj);
     }
 
-    protected static void updateJsonDataSource(ObjectValue entityObj, Object result) {
+    protected static void updateJsonDataSource(BObject entityObj, Object result) {
         EntityBodyHandler.addJsonMessageDataSource(entityObj, result);
         removeByteChannel(entityObj);
     }
 
-    private static void removeByteChannel(ObjectValue entityObj) {
+    private static void removeByteChannel(BObject entityObj) {
         //Set byte channel to null, once the message data source has been constructed
         entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);
     }

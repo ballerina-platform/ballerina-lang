@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
@@ -43,11 +43,11 @@ public final class ObserveNativeImplConstants {
     public static final String PERCENTILE_VALUE = "PercentileValue";
     public static final String METRIC_NATIVE_INSTANCE_KEY = "__metric_native_instance__";
 
-    public static final BString NAME_FIELD = StringUtils.fromString("name");
-    public static final BString DESCRIPTION_FIELD = StringUtils.fromString("description");
-    public static final BString TAGS_FIELD = StringUtils.fromString("metricTags");
-    public static final BString STATISTICS_CONFIG_FIELD = StringUtils.fromString("statisticConfigs");
-    public static final BString EXPIRY_FIELD = StringUtils.fromString("timeWindow");
-    public static final BString BUCKETS_FIELD = StringUtils.fromString("buckets");
-    public static final BString PERCENTILES_FIELD = StringUtils.fromString("percentiles");
+    public static final BString NAME_FIELD = BStringUtils.fromString("name");
+    public static final BString DESCRIPTION_FIELD = BStringUtils.fromString("description");
+    public static final BString TAGS_FIELD = BStringUtils.fromString("metricTags");
+    public static final BString STATISTICS_CONFIG_FIELD = BStringUtils.fromString("statisticConfigs");
+    public static final BString EXPIRY_FIELD = BStringUtils.fromString("timeWindow");
+    public static final BString BUCKETS_FIELD = BStringUtils.fromString("buckets");
+    public static final BString PERCENTILES_FIELD = BStringUtils.fromString("percentiles");
 }

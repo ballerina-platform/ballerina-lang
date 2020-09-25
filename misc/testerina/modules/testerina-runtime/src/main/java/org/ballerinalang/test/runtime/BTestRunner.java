@@ -19,6 +19,7 @@
 package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -41,7 +42,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.entity.TesterinaFunction;
@@ -72,7 +72,7 @@ import java.util.stream.Collectors;
  */
 public class BTestRunner {
 
-    public static final String MODULE_INIT_CLASS_NAME = "___init";
+    public static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
 
     private PrintStream errStream;
@@ -413,12 +413,6 @@ public class BTestRunner {
                                  Scheduler scheduler, AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
                                  List<String> failedOrSkippedTests, List<String> failedAfterFuncTests) {
         TesterinaResult functionResult;
-        Path sourceRootPath = Paths.get(suite.getSourceRootPath());
-        Path jsonCacheDir = sourceRootPath.resolve("target").resolve("caches").resolve("json_cache");
-        Path rerunJson =
-                jsonCacheDir.resolve(suite.getOrgName()).resolve(suite.getPackageID()).resolve(suite.getVersion());
-        Path jsonPath = Paths.get(rerunJson.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
-        File jsonFile = new File(jsonPath.toString());
 
         try {
             if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests) ||
@@ -467,7 +461,15 @@ public class BTestRunner {
             suite.getGroups().get(groupName).incrementExecutedCount();
         }
 
-        writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
+        if (!packageName.equals(TesterinaConstants.DOT)) {
+            Path sourceRootPath = Paths.get(suite.getSourceRootPath()).resolve(TesterinaConstants.TARGET_DIR_NAME)
+                    .resolve(TesterinaConstants.CACHES_DIR_NAME).resolve(TesterinaConstants.JSON_CACHE_DIR_NAME);
+            Path rerunJson = sourceRootPath.resolve(suite.getOrgName()).resolve(suite.getPackageID())
+                    .resolve(suite.getVersion());
+            Path jsonPath = Paths.get(rerunJson.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
+            File jsonFile = new File(jsonPath.toString());
+            writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
+        }
 
     }
 

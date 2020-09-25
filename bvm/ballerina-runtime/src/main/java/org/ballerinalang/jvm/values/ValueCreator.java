@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.HashMap;
 import java.util.Map;

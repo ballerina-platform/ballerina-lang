@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.values.BDecimal;
@@ -140,7 +141,8 @@ public class StaticMethodTest {
     }
 
     public static Object returnObjectOrError() {
-        return BallerinaErrors.createError("some reason", new MapValueImpl<>(BTypes.typeErrorDetail));
+        return BErrorCreator.createError(BStringUtils.fromString("some reason"),
+                                         new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     @Test(description = "Test tuple return with null values")
@@ -191,5 +193,11 @@ public class StaticMethodTest {
     @Test
     public void testBalEnvFastAsync() {
         BRunUtil.invoke(result, "testBalEnvFastAsync");
+    }
+
+    @Test(description = "When instance and static methods have the same name resolve static method based on the " +
+            "parameter type")
+    public void testStaticResolve() {
+        BRunUtil.invoke(result, "testStaticResolve");
     }
 }
