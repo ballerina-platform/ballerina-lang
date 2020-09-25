@@ -45,7 +45,7 @@ public class PackageData {
         return new PackageData(packagePath, defaultModule, otherModules);
     }
 
-    public Path packagePath() {
+    Path packagePath() {
         return packagePath;
     }
 

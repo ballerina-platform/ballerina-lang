@@ -76,7 +76,7 @@ public class PackageLoader {
 
         List<ModuleConfig> moduleConfigs = packageData.otherModules()
                 .stream()
-                .map(moduleData -> createModuleData(packageName, moduleData, packageId))
+                .map(moduleData -> createModuleConfig(packageName, moduleData, packageId))
                 .collect(Collectors.toList());
         ModuleConfig defaultModuleConfig = createDefaultModuleData(packageName,
                 packageData.defaultModule(), packageId);
@@ -88,24 +88,24 @@ public class PackageLoader {
                                                         ModuleData moduleData,
                                                         PackageId packageId) {
         ModuleName moduleName = ModuleName.from(packageName);
-        return createModuleData(moduleName, moduleData, packageId);
+        return createModuleConfig(moduleName, moduleData, packageId);
     }
 
-    private static ModuleConfig createModuleData(PackageName packageName,
-                                                 ModuleData moduleData,
-                                                 PackageId packageId) {
+    private static ModuleConfig createModuleConfig(PackageName packageName,
+                                                   ModuleData moduleData,
+                                                   PackageId packageId) {
         Path fileName = moduleData.moduleDirectoryPath().getFileName();
         if (fileName == null) {
             // TODO Proper error handling
             throw new IllegalStateException("This branch cannot be reached");
         }
         ModuleName moduleName = ModuleName.from(packageName, fileName.toString());
-        return createModuleData(moduleName, moduleData, packageId);
+        return createModuleConfig(moduleName, moduleData, packageId);
     }
 
-    private static ModuleConfig createModuleData(ModuleName moduleName,
-                                                 ModuleData moduleData,
-                                                 PackageId packageId) {
+    private static ModuleConfig createModuleConfig(ModuleName moduleName,
+                                                   ModuleData moduleData,
+                                                   PackageId packageId) {
         Path moduleDirPath = moduleData.moduleDirectoryPath();
         ModuleId moduleId = ModuleId.create(moduleName.toString(), packageId);
 
@@ -117,12 +117,12 @@ public class PackageLoader {
     private static List<DocumentConfig> getDocumentConfigs(ModuleId moduleId, List<DocumentData> documentData) {
         return documentData
                 .stream()
-                .map(srcDoc -> createDocumentData(srcDoc, moduleId))
+                .map(srcDoc -> createDocumentConfig(srcDoc, moduleId))
                 .collect(Collectors.toList());
     }
 
-    protected static DocumentConfig createDocumentData(DocumentData documentData, ModuleId moduleId) {
-        final DocumentId documentId = DocumentId.create(documentData.filePath().toString(), moduleId);
-        return DocumentConfig.from(documentId, documentData.filePath());
+    static DocumentConfig createDocumentConfig(DocumentData documentData, ModuleId moduleId) {
+        final DocumentId documentId = DocumentId.create(documentData.name(), moduleId);
+        return DocumentConfig.from(documentId, documentData.content(), documentData.name());
     }
 }

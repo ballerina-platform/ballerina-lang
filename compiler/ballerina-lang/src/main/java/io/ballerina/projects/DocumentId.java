@@ -44,10 +44,6 @@ public final class DocumentId {
         return id;
     }
     
-    public String documentPath() {
-        return this.documentPath;
-    }
-    
     public ModuleId moduleId() {
         return moduleId;
     }

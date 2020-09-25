@@ -206,4 +206,20 @@
         <Class name="org.wso2.ballerinalang.compiler.diagnostic.DiagnosticComparator"/>
         <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.projects.Project"/>
+        <Bug pattern="UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.BuildOptions"/>
+        <Bug pattern="UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.CompilerPhaseRunner"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.ModuleCompilation"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
 </FindBugsFilter>

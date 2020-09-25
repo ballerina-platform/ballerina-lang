@@ -1,8 +1,12 @@
 package io.ballerina.projects;
 
-import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -12,12 +16,14 @@ import java.util.function.Function;
  * @since 2.0.0
  */
 public class Package {
+    private Project project;
     private final PackageContext packageContext;
     private final Map<ModuleId, Module> moduleMap;
     private final Function<ModuleId, Module> populateModuleFunc;
 
-    private Package(PackageContext packageContext) {
+    private Package(PackageContext packageContext, Project project) {
         this.packageContext = packageContext;
+        this.project = project;
         this.moduleMap = new ConcurrentHashMap<>();
         this.populateModuleFunc = moduleId -> Module.from(
                 this.packageContext.moduleContext(moduleId), this);
@@ -31,7 +37,7 @@ public class Package {
         // contexts need to hold onto the configs. Should we decouple config from tree information as follows.
         // package config has the tree information like modules.
         PackageContext packageContext = PackageContext.from(project, packageConfig);
-        return new Package(packageContext);
+        return new Package(packageContext, project);
     }
 
     public PackageContext packageContext() {
@@ -59,7 +65,11 @@ public class Package {
     }
 
     public Iterable<Module> modules() {
-        return null;
+        List<Module> moduleList = new ArrayList<>();
+        for (ModuleId moduleId : this.packageContext.moduleIds()) {
+            moduleList.add(module(moduleId));
+        }
+        return new ModuleIterable(moduleList);
     }
 
     public Module module(ModuleId moduleId) {
@@ -107,5 +117,106 @@ public class Package {
 
     public Collection<PackageDependency> packageDependencies() {
         return packageContext.packageDependencies();
+    }
+
+//    public BallerinaToml ballerinaToml() {
+//        return this.packageContext.ballerinaToml();
+//    }
+
+
+    /** Returns an instance of the Package.Modifier.
+     *
+     * @return  module modifier
+     */
+    public Modifier modify() {
+        return new Modifier(this);
+    }
+
+    private static class ModuleIterable implements Iterable {
+        private final Collection<Module> moduleList;
+
+        public ModuleIterable(Collection<Module> moduleList) {
+            this.moduleList = moduleList;
+        }
+
+        @Override
+        public Iterator<Module> iterator() {
+            return this.moduleList.iterator();
+        }
+
+        @Override
+        public Spliterator spliterator() {
+            return this.moduleList.spliterator();
+        }
+    }
+
+    /**
+     * Inner class that handles package modifications.
+     */
+    public static class Modifier {
+        private PackageId packageId;
+        private PackageName packageName;
+        private Map<ModuleId, ModuleContext> moduleContextMap;
+        private Project project;
+
+        public Modifier(Package oldPackage) {
+            this.packageId = oldPackage.packageId();
+            this.packageName = oldPackage.packageName();
+            this.moduleContextMap = copyModules(oldPackage);
+            this.project = oldPackage.project;
+        }
+
+        Modifier updateModule(ModuleContext newModuleContext) {
+            this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
+            return this;
+        }
+
+        /**
+         * Adds a new module in a new package that is copied from the existing.
+         *
+         * @param moduleConfig configuration of the module to add
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier addModule(ModuleConfig moduleConfig) {
+            ModuleContext newModuleContext = ModuleContext.from(this.project, moduleConfig);
+            this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
+            return this;
+        }
+
+        /**
+         * Creates a copy of the existing package and removes the module from the new package.
+         *
+         * @param moduleId moduleId of the module to remove
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier removeModule(ModuleId moduleId) {
+            moduleContextMap.remove(moduleId);
+            return this;
+        }
+
+        /**
+         * Returns the updated package created by a module add/remove/update operation.
+         *
+         * @return updated package
+         */
+        public Package apply() {
+            return createNewPackage();
+        }
+
+        private Map<ModuleId, ModuleContext> copyModules(Package oldPackage) {
+            Map<ModuleId, ModuleContext> moduleContextMap = new HashMap<>();
+
+            for (ModuleId moduleId : oldPackage.packageContext.moduleIds()) {
+                moduleContextMap.put(moduleId, oldPackage.packageContext.moduleContext(moduleId));
+            }
+            return moduleContextMap;
+        }
+
+        private Package createNewPackage() {
+            PackageContext newPackageContext = new PackageContext(this.project, this.packageId,
+                    this.packageName, this.moduleContextMap);
+            this.project.setCurrentPackage(new Package(newPackageContext, this.project));
+            return this.project.currentPackage();
+        }
     }
 }
