@@ -38,7 +38,10 @@ public class AssertionDiffEvaluator {
         } catch (DiffException e) {
             return BStringUtils.fromString("Error: Error while generating diff.");
         }
+        return BStringUtils.fromString(getFormattedDiffOutput(rows));
+    }
 
+    private static String getFormattedDiffOutput(List<DiffRow> rows) {
         int maxExpectedLineLength =
                 findMaxLineLength(rows.stream().map(DiffRow::getOldLine).collect(Collectors.toList()));
         int maxActualLineLength =
@@ -47,17 +50,13 @@ public class AssertionDiffEvaluator {
         SideBySideRowFormatter sideBySideRowFormatter =
                 new SideBySideRowFormatter(maxExpectedLineLength, maxActualLineLength);
 
-        return BStringUtils.fromString("" +
-                "\nDiff\t:\n\n" + Joiner.on('\n')
-                .join(
-                        sideBySideRowFormatter.formatRow("Expected", "Actual", ' '),
-                        sideBySideRowFormatter.formatRow("", "", '-'),
-                        rows.stream()
-                                .map(
-                                        row ->
-                                                sideBySideRowFormatter.formatRow(row.getOldLine(), row.getNewLine(),
-                                                        ' '))
-                                .toArray()) + "\n\n");
+        String output = "\nDiff\t:\n\n" + Joiner.on('\n').join(
+                sideBySideRowFormatter.formatRow("Expected", "Actual", ' '),
+                sideBySideRowFormatter.formatRow("", "", '-'),
+                rows.stream()
+                        .map(row -> sideBySideRowFormatter.formatRow(row.getOldLine(), row.getNewLine(), ' '))
+                        .toArray()) + "\n\n";
+        return output;
     }
 
     private static int findMaxLineLength(Collection<String> lines) {
