@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -49,7 +50,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private Map<String, BType> paramValueTypes;
     private boolean isInvocation;
     private BLangInvocation invocation;
-    private BLangDiagnosticLogHelper dlogHelper;
+    private BLangDiagnosticLog dlogHelper;
     private final SymbolTable symTable;
     private final Types types;
 
@@ -80,7 +80,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlogHelper = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlogHelper = BLangDiagnosticLog.getInstance(context);
     }
 
     public static Unifier getInstance(CompilerContext context) {

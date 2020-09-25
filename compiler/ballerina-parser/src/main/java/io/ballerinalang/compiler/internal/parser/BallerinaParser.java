@@ -3477,8 +3477,8 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 return parseListConstructorExpr();
             case LT_TOKEN:
-                STToken nextToken = getNextNextToken(kind);
-                if (nextToken.kind == SyntaxKind.GT_TOKEN) {
+                STToken nextNextToken = getNextNextToken(nextToken.kind);
+                if (nextNextToken.kind == SyntaxKind.GT_TOKEN) {
                     return parseInferDefaultValueTypeExpr();
                 }
                 return parseTypeCastExpr(isRhsExpr, allowActions, isInConditionalExpr);
@@ -3499,7 +3499,7 @@ public class BallerinaParser extends AbstractParser {
             case OBJECT_KEYWORD:
                 return parseObjectConstructorExpression(annots);
             case XML_KEYWORD:
-                STToken nextNextToken = getNextNextToken(nextToken.kind);
+                nextNextToken = getNextNextToken(nextToken.kind);
                 if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
                     return parseXMLTemplateExpression();
                 }
