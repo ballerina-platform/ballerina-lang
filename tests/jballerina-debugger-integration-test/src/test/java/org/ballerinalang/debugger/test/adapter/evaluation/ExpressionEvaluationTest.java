@@ -190,7 +190,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void functionCallEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // functions in a different module file.
+        assertExpression(context, "sum(34,56)", "90", "int");
+        assertExpression(context, "getName(\"John\")", "Name: John", "string");
     }
 
     @Override

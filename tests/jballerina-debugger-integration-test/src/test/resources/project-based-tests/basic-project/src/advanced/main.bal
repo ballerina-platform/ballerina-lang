@@ -157,7 +157,3 @@ public function main() {
     string 'v29_üňĩćőđę_var = "IL with unicode characters in var";
     json 'v30_ĠĿŐΒȂɭ_\ \/\:\@\[\`\{\~\u{2324}_json = {};
 }
-
-function sum(int a, int b) returns int {
-    return a + b;
-}
