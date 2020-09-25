@@ -24,12 +24,16 @@ isolated function testInvalidArgForIsolatedParam() {
     'array:forEach(func = arrForEachFunc, arr = x);
     x.forEach(func = arrForEachFunc);
     x.forEach(arrForEachFunc);
+    x.forEach(val => arrForEachFunc(val));
 
     map<boolean> y = {a: true, b: true, c: false};
     y = y.filter(mapFilterFunc);
     y = y.filter(func = mapFilterFunc);
     y = 'map:filter(y, mapFilterFunc);
+    y = 'map:filter(y, val => !val && glob);
 }
+
+boolean glob = true;
 
 function arrForEachFunc(int i) {
 

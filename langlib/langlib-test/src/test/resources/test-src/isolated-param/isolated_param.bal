@@ -21,22 +21,30 @@ isolated function testIsolatedFunctionArgForIsolatedParam() {
     int[] x = [1, 2, 3];
     'array:forEach(x, arrForEachFunc);
     'array:forEach(func = arrForEachFunc, arr = x);
+    'array:forEach(func = val => assertEquality(true, val is OneTwoThree), arr = x);
     x.forEach(func = arrForEachFunc);
     x.forEach(isolated function (int i) {
         assertEquality(true, i is OneTwoThree);
     });
+    x.forEach(val => assertEquality(true, val is OneTwoThree));
 
     map<boolean> y = {a: true, b: true, c: false};
-    y = y.filter(mapFilterFunc);
-    assertEquality(<map<boolean>> {c: false}, y);
+    map<boolean> v1 = y.filter(mapFilterFunc);
+    assertEquality(<map<boolean>> {c: false}, v1);
+    map<boolean> v2 = y.filter(val => !val);
+    assertEquality(<map<boolean>> {c: false}, v2);
 
     y = {a: false, b: false, c: false, d: true};
-    y = y.filter(func = isolated function (boolean val) returns boolean => !val);
-    assertEquality(<map<boolean>> {a: false, b: false, c: false}, y);
+    map<boolean> v3 = y.filter(func = isolated function (boolean val) returns boolean => !val);
+    assertEquality(<map<boolean>> {a: false, b: false, c: false}, v3);
+    //map<boolean> v4 = y.filter(func = val => !val); // https://github.com/ballerina-platform/ballerina-lang/issues/26111
+    //assertEquality(<map<boolean>> {a: false, b: false, c: false}, v3);
 
     y = {a: true, b: true, d: true};
-    y = 'map:filter(y, mapFilterFunc);
-    assertEquality(<map<boolean>> {}, y);
+    map<boolean> v5 = 'map:filter(y, mapFilterFunc);
+    assertEquality(<map<boolean>> {},v5);
+    map<boolean> v6 = 'map:filter(y, val => !val);
+    assertEquality(<map<boolean>> {},v6);
 }
 
 type OneTwoThree 1|2|3;
