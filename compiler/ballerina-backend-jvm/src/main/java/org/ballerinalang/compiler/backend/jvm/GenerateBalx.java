@@ -23,9 +23,9 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,8 +54,8 @@ public class GenerateBalx {
         Compiler compiler = Compiler.getInstance(context);
         compiler.write(compiler.build(args[1]), args[2]);
 
-        BLangDiagnosticLogHelper diagnosticLog = BLangDiagnosticLogHelper.getInstance(context);
-        if (diagnosticLog.getErrorCount() > 0) {
+        BLangDiagnosticLog diagnosticLog = BLangDiagnosticLog.getInstance(context);
+        if (diagnosticLog.errorCount() > 0) {
             throw new BLangCompilerException("failed to generate executable for " + args[0]);
         }
     }

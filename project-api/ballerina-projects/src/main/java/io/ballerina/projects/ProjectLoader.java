@@ -39,12 +39,18 @@ public class ProjectLoader {
      */
     public static Project loadProject(Path path) {
         Path absProjectPath = Optional.of(path.toAbsolutePath()).get();
-
+        Path projectRoot;
         if (absProjectPath.toFile().isDirectory()) {
-            return BuildProject.loadProject(absProjectPath);
+            if (ProjectConstants.MODULES_ROOT.equals(
+                    Optional.of(absProjectPath.getParent()).get().toFile().getName())) {
+                projectRoot = Optional.of(Optional.of(absProjectPath.getParent()).get().getParent()).get();
+            } else {
+                projectRoot = absProjectPath;
+            }
+            return BuildProject.loadProject(projectRoot);
         }
         // check if the file is a source file in the default module
-        Path projectRoot =  Optional.of(absProjectPath.getParent()).get();
+        projectRoot = Optional.of(absProjectPath.getParent()).get();
         if (hasBallerinaToml(projectRoot)) {
             return BuildProject.loadProject(projectRoot);
         }
@@ -72,6 +78,41 @@ public class ProjectLoader {
         }
 
         return SingleFileProject.loadProject(absProjectPath);
+    }
+
+    /**
+     * Returns the documentId of the provided file path.
+     *
+     * @param documentFilePath file path of the document
+     * @param project project that the file belongs to
+     * @return documentId of the document
+     */
+
+    public static Optional<DocumentId> getDocumentId(Path documentFilePath, BuildProject project) {
+        Path parent = Optional.of(documentFilePath.getParent()).get();
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Optional<Path> modulePath = project.modulePath(moduleId);
+            if (modulePath.isPresent()) {
+                if (parent.equals(modulePath.get())
+                        || parent.equals(modulePath.get().resolve(ProjectConstants.TEST_DIR_NAME))) {
+                    Module module = project.currentPackage().module(moduleId);
+                    for (DocumentId documentId : module.documentIds()) {
+                        if (module.document(documentId).name().equals(
+                                Optional.of(documentFilePath.getFileName()).get().toString())) {
+                            return Optional.of(documentId);
+                        }
+                    }
+
+                    for (DocumentId documentId : module.testDocumentIds()) {
+                        if (module.document(documentId).name().equals(
+                                Optional.of(documentFilePath.getFileName()).get().toString())) {
+                            return Optional.of(documentId);
+                        }
+                    }
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     private static boolean hasBallerinaToml(Path filePath) {

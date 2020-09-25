@@ -41,11 +41,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -58,27 +53,31 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 class DocumentContext {
-    private final DocumentConfig documentConfig;
     private SyntaxTree syntaxTree;
     private TextDocument textDocument;
     private Set<ModuleLoadRequest> moduleLoadRequests;
     private BLangCompilationUnit compilationUnit;
     private NodeCloner nodeCloner;
+    private DocumentId documentId;
+    private String name;
+    private String content;
 
-    private DocumentContext(DocumentConfig documentConfig) {
-        this.documentConfig = documentConfig;
+    private DocumentContext(DocumentId documentId, String name, String content) {
+        this.documentId = documentId;
+        this.name = name;
+        this.content = content;
     }
 
     static DocumentContext from(DocumentConfig documentConfig) {
-        return new DocumentContext(documentConfig);
+        return new DocumentContext(documentConfig.documentId(), documentConfig.name(), documentConfig.content());
     }
 
     DocumentId documentId() {
-        return documentConfig.documentId();
+        return this.documentId;
     }
 
     String name() {
-        return documentConfig.name();
+        return this.name;
     }
 
     SyntaxTree syntaxTree() {
@@ -91,32 +90,21 @@ class DocumentContext {
     }
 
     TextDocument textDocument() {
-        if (this.textDocument != null) {
-            return this.textDocument;
-        }
-
-        // TODO: The content should be loaded from a TextLoader
-        Path documentPath = Paths.get(documentId().documentPath());
-        try {
-            String text = new String(Files.readAllBytes(documentPath), StandardCharsets.UTF_8);
-            this.textDocument = TextDocuments.from(text);
-        } catch (IOException e) {
-            // TODO improve error handling
-            throw new RuntimeException("Unable to read file: " + documentPath);
+        if (this.textDocument == null) {
+            this.textDocument = TextDocuments.from(this.content);
         }
         return this.textDocument;
     }
 
     BLangCompilationUnit compilationUnit(CompilerContext compilerContext, PackageID pkgID) {
+        nodeCloner = NodeCloner.getInstance(compilerContext);
         if (compilationUnit != null) {
             return nodeCloner.clone(compilationUnit);
         }
-
-        nodeCloner = NodeCloner.getInstance(compilerContext);
         BLangDiagnosticLog dlog = BLangDiagnosticLog.getInstance(compilerContext);
 
         SyntaxTree syntaxTree = syntaxTree();
-        BDiagnosticSource diagnosticSource = new BDiagnosticSource(pkgID, name());
+        BDiagnosticSource diagnosticSource = new BDiagnosticSource(pkgID, this.name);
         reportSyntaxDiagnostics(diagnosticSource, syntaxTree, dlog);
         BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(compilerContext, diagnosticSource);
         compilationUnit = (BLangCompilationUnit) bLangNodeTransformer.accept(syntaxTree.rootNode()).get(0);

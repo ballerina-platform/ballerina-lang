@@ -34,12 +34,17 @@ public class Document {
         this.module = module;
     }
 
-    static Document from(DocumentContext documentContext, Module module) {
+    public static Document from(DocumentConfig documentConfig, Module module) {
+        DocumentContext documentContext = DocumentContext.from(documentConfig);
         return new Document(documentContext, module);
     }
 
     public DocumentId documentId() {
         return this.documentContext.documentId();
+    }
+
+    public String name() {
+        return this.documentContext.name();
     }
 
     public Module module() {
@@ -52,5 +57,54 @@ public class Document {
 
     public TextDocument textDocument() {
         return this.documentContext.textDocument();
+    }
+
+    /** Returns an instance of the Document.Modifier.
+     *
+     * @return  module modifier
+     */
+    public Modifier modify() {
+        return new Modifier(this);
+    }
+
+    /**
+     * Inner class that handles Document modifications.
+     */
+    public static class Modifier {
+        private String content;
+        private String name;
+        private DocumentId documentId;
+        private Module oldModule;
+
+        private Modifier(Document oldDocument) {
+            this.documentId = oldDocument.documentId();
+            this.name = oldDocument.name();
+            this.content = oldDocument.syntaxTree().textDocument().toString();
+            this.oldModule = oldDocument.module();
+        }
+
+        /**
+         * Sets the content to be changed.
+         *
+         * @param content content to change with
+         * @return Document.Modifier that holds the content to be changed
+         */
+        public Modifier withContent(String content) {
+            this.content = content;
+            return this;
+        }
+
+        /**
+         * Returns a new document with updated content.
+         *
+         * @return document with updated content
+         */
+        public Document apply() {
+            DocumentConfig documentConfig = DocumentConfig.from(this.documentId, this.content,
+                    this.name);
+            DocumentContext documentContext = DocumentContext.from(documentConfig);
+            Module newModule = oldModule.modify().updateDocument(documentContext).apply();
+            return newModule.document(this.documentId);
+        }
     }
 }

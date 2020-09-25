@@ -18,8 +18,11 @@
 package io.ballerina.projects;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -42,7 +45,7 @@ public class Module {
 
         this.srcDocs = new ConcurrentHashMap<>();
         this.testSrcDocs = new ConcurrentHashMap<>();
-        this.populateDocumentFunc = documentId -> Document.from(
+        this.populateDocumentFunc = documentId -> new Document(
                 this.moduleContext.documentContext(documentId), this);
     }
 
@@ -75,7 +78,7 @@ public class Module {
     }
 
     public Iterable<Document> testDocuments() {
-        return null;
+        return new DocumentIterable(this.testSrcDocs.values());
     }
 
     public Document document(DocumentId documentId) {
@@ -99,6 +102,18 @@ public class Module {
         return moduleContext.isDefaultModule();
     }
 
+    public Project project() {
+        return this.moduleContext.project();
+    }
+
+    /** Returns an instance of the Module.Modifier.
+     *
+     * @return  module modifier
+     */
+    public Modifier modify() {
+        return new Modifier(this);
+    }
+
     ModuleContext moduleContext() {
         return moduleContext;
     }
@@ -119,5 +134,115 @@ public class Module {
         public Spliterator spliterator() {
             return this.documentList.spliterator();
         }
+    }
+
+    /**
+     * Inner class that handles module modifications.
+     */
+    public static class Modifier {
+        private ModuleId moduleId;
+        private ModuleName moduleName;
+        private Map<DocumentId, DocumentContext> srcDocContextMap;
+        private Map<DocumentId, DocumentContext> testDocContextMap;
+        private boolean isDefaultModule;
+        private Set<ModuleDependency> moduleDependencies;
+        private Package packageInstance;
+        private Project project;
+
+
+        private Modifier(Module oldModule) {
+            moduleId = oldModule.moduleId();
+            moduleName = oldModule.moduleName();
+            srcDocContextMap = copySrcDocs(oldModule);
+            testDocContextMap = copyTestDocs(oldModule);
+            isDefaultModule = oldModule.isDefaultModule();
+            moduleDependencies = new HashSet<>(oldModule.moduleDependencies());
+            packageInstance = oldModule.packageInstance;
+            project = oldModule.project();
+        }
+
+        Modifier updateDocument(DocumentContext newDocContext) {
+            if (this.srcDocContextMap.containsKey(newDocContext.documentId())) {
+                this.srcDocContextMap.put(newDocContext.documentId(), newDocContext);
+            } else {
+                this.testDocContextMap.put(newDocContext.documentId(), newDocContext);
+            }
+            return this;
+        }
+
+        /**
+         * Creates a copy of the existing module and adds a new source document to the new module.
+         *
+         * @param documentConfig configurations to create the document
+         * @return an instance of the Module.Modifier
+         */
+        public Modifier addDocument(DocumentConfig documentConfig) {
+            DocumentContext newDocumentContext = DocumentContext.from(documentConfig);
+            this.srcDocContextMap.put(newDocumentContext.documentId(), newDocumentContext);
+            return this;
+        }
+
+        /**
+         * Creates a copy of the existing module and adds a new test document to the new module.
+         *
+         * @param documentConfig configurations to create the document
+         * @return an instance of the Module.Modifier
+         */
+        public Modifier addTestDocument(DocumentConfig documentConfig) {
+            DocumentContext newDocumentContext = DocumentContext.from(documentConfig);
+            this.testDocContextMap.put(newDocumentContext.documentId(), newDocumentContext);
+            return this;
+        }
+
+        /**
+         * Creates a copy of the existing module and removes the specified document from the new module.
+         *
+         * @param documentId documentId of the document to remove
+         * @return an instance of the Module.Modifier
+         */
+        public Modifier removeDocument(DocumentId documentId) {
+
+            if (this.srcDocContextMap.containsKey(documentId)) {
+                srcDocContextMap.remove(documentId);
+            } else {
+                testDocContextMap.remove(documentId);
+            }
+            return this;
+        }
+
+        /**
+         * Returns the updated module created by a document add/remove/update operation.
+         *
+         * @return the updated module
+         */
+        public Module apply() {
+            return createNewModule(this.srcDocContextMap, this.testDocContextMap);
+        }
+
+        private Map<DocumentId, DocumentContext> copySrcDocs(Module oldModule) {
+            Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+            for (DocumentId documentId : oldModule.moduleContext.srcDocumentIds()) {
+                srcDocContextMap.put(documentId, oldModule.moduleContext.documentContext(documentId));
+            }
+            return srcDocContextMap;
+        }
+
+        private Map<DocumentId, DocumentContext> copyTestDocs(Module oldModule) {
+            Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
+            for (DocumentId documentId : oldModule.moduleContext.testSrcDocumentIds()) {
+                testDocContextMap.put(documentId, oldModule.moduleContext.documentContext(documentId));
+            }
+            return testDocContextMap;
+        }
+
+        private Module createNewModule(Map<DocumentId, DocumentContext> srcDocContextMap, Map<DocumentId,
+                DocumentContext> testDocContextMap) {
+            ModuleContext newModuleContext = new ModuleContext(this.project,
+                    this.moduleId, this.moduleName, this.isDefaultModule, srcDocContextMap,
+                    testDocContextMap, this.moduleDependencies);
+            Package newPackage = this.packageInstance.modify().updateModule(newModuleContext).apply();
+            return newPackage.module(this.moduleId);
+        }
+
     }
 }

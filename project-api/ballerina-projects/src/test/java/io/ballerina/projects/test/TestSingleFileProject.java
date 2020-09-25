@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
@@ -103,5 +105,42 @@ public class TestSingleFileProject {
         Assert.assertFalse(project.getBuildOptions().isOffline());
         Assert.assertFalse(project.getBuildOptions().isTestReport());
         Assert.assertFalse(project.getBuildOptions().isExperimental());
+    }
+
+    @Test
+    public void testUpdateDocument() {
+        // Inputs from langserver
+        Path filePath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        String newContent = "import ballerina/io;\n";
+
+        // Load the project from document filepath
+        SingleFileProject singleFileProject = SingleFileProject.loadProject(filePath);
+
+        // get the
+        // document ID
+        Module oldModule = singleFileProject.currentPackage().module(
+                singleFileProject.currentPackage().moduleIds().iterator().next());
+        DocumentId oldDocumentId = oldModule.documentIds().iterator().next();
+        Document oldDocument = oldModule.document(oldDocumentId);
+
+        // Update the document
+        Document updatedDoc = oldDocument.modify().withContent(newContent).apply();
+
+        Assert.assertEquals(oldDocument.module().documentIds().size(), updatedDoc.module().documentIds().size());
+        Assert.assertEquals(oldDocument.module().testDocumentIds().size(),
+                updatedDoc.module().testDocumentIds().size());
+        for (DocumentId documentId : oldDocument.module().documentIds()) {
+            Assert.assertTrue(updatedDoc.module().documentIds().contains(documentId));
+            Assert.assertFalse(updatedDoc.module().testDocumentIds().contains(documentId));
+        }
+
+        Assert.assertNotEquals(oldDocument, updatedDoc);
+        Assert.assertNotEquals(oldDocument.syntaxTree().textDocument().toString(), newContent);
+        Assert.assertEquals(updatedDoc.syntaxTree().textDocument().toString(), newContent);
+
+        Package updatedPackage = singleFileProject.currentPackage();
+        Assert.assertNotEquals(oldModule.packageInstance(), singleFileProject.currentPackage());
+        Assert.assertEquals(updatedPackage.module(oldDocument.module().moduleId()).document(oldDocumentId), updatedDoc);
+        Assert.assertEquals(updatedPackage, updatedDoc.module().packageInstance());
     }
 }

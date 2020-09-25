@@ -52,8 +52,7 @@ public class BuildProjectEnvContext extends ProjectEnvironmentContext {
     private void populateCompilerContext() {
         CompilerContext compilerContext = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(PROJECT_DIR, "/Users/sameera/work/wso2/clones/sameera/ballerina-lang/" +
-                "langlib/lang.annotations/src/main/ballerina");
+        options.put(PROJECT_DIR, "../../langlib/lang.annotations/src/main/ballerina");
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
 
         // TODO This is a temporary property to compile lang lib modules from source
