@@ -61,7 +61,7 @@ public class SymbolPositionTest {
 
         assertEquals(symbol.get().name(), expSymbolName);
 
-        Location pos = symbol.get().position();
+        Location pos = symbol.get().location();
         assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");
         assertEquals(pos.lineRange().startLine().line(), sLine);
         assertEquals(pos.lineRange().startLine().offset(), sCol);
@@ -94,7 +94,7 @@ public class SymbolPositionTest {
 
         assertEquals(symbol.get().name(), "val");
 
-        Location pos = symbol.get().position();
+        Location pos = symbol.get().location();
         assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");
         assertEquals(pos.lineRange().startLine().line(), 61);
         assertEquals(pos.lineRange().startLine().offset(), 22);

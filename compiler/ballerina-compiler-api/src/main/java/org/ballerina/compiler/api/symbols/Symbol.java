@@ -63,7 +63,7 @@ public interface Symbol {
      *
      * @return The position information of the symbol
      */
-    Location position();
+    Location location();
 
     // TODO: Add the annotation attachment API
 }

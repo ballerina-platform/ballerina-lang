@@ -73,7 +73,7 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
-    public Location position() {
-        return this.functionSymbol.position();
+    public Location location() {
+        return this.functionSymbol.location();
     }
 }

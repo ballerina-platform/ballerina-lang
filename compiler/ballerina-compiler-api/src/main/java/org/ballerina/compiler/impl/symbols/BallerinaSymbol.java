@@ -92,7 +92,7 @@ public class BallerinaSymbol implements Symbol {
     }
 
     @Override
-    public Location position() {
+    public Location location() {
         return this.position;
     }
 
