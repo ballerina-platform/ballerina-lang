@@ -1174,7 +1174,7 @@ public class ParserTestUtils {
                 return SyntaxKind.MAPPING_MATCH_PATTERN;
             case "FIELD_MATCH_PATTERN":
                 return SyntaxKind.FIELD_MATCH_PATTERN;
-            case "FUNCTIONAL_MATCH_PATTERN":
+            case "ERROR_MATCH_PATTERN":
                 return SyntaxKind.ERROR_MATCH_PATTERN;
             case "NAMED_ARG_MATCH_PATTERN":
                 return SyntaxKind.NAMED_ARG_MATCH_PATTERN;
