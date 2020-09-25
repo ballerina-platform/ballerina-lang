@@ -71,7 +71,7 @@ public class MockObject {
     #
     # + functionName - function name to allow stubbing
     # + return - object that allows stubbing calls to provided member function
-    public function when(string functionName) returns MemberFunctionStub {
+    public isolated function when(string functionName) returns MemberFunctionStub {
         Error? result = validateFunctionNameExt(java:fromString(functionName), self.mockObject);
         if (result is Error) {
              panic result;
@@ -85,7 +85,7 @@ public class MockObject {
     #
     # + fieldName - field name to allow stubbing
     # + return - object that allows stubbing retrieval of provided member variable
-    public function getMember(string fieldName) returns MemberVariableStub {
+    public isolated function getMember(string fieldName) returns MemberVariableStub {
         self.fieldName = fieldName;
         Error? result = validateFieldNameExt(java:fromString(fieldName), self.mockObject);
         if (result is Error) {
@@ -166,7 +166,7 @@ public class MemberFunctionStub {
     }
 
     # Sets the function behavior to do nothing when called.
-    public function doNothing() {
+    public isolated function doNothing() {
         if (self.functionName == "") {
              error err = error("function to mock is not specified.");
              panic err;
