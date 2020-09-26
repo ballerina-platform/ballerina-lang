@@ -40,11 +40,13 @@ public abstract class JvmMethod {
     protected final SuspendedContext context;
     protected final Method methodRef;
     protected final List<Evaluator> argEvaluators;
+    protected final List<Value> argsList;
 
-    JvmMethod(SuspendedContext context, Method methodRef, List<Evaluator> argEvaluators) {
+    JvmMethod(SuspendedContext context, Method methodRef, List<Evaluator> argEvaluators, List<Value> argsList) {
         this.context = context;
         this.methodRef = methodRef;
         this.argEvaluators = argEvaluators;
+        this.argsList = argsList;
     }
 
     /**
@@ -56,6 +58,9 @@ public abstract class JvmMethod {
 
     protected List<Value> generateJvmArgs(JvmMethod method) throws EvaluationException {
         try {
+            if (argsList != null) {
+                return argsList;
+            }
             List<Value> argValueList = new ArrayList<>();
             // Evaluates all function argument expressions at first.
             for (Evaluator argEvaluator : argEvaluators) {

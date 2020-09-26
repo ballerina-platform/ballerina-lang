@@ -78,6 +78,6 @@ public class MethodCallExpressionEvaluator extends Evaluator {
             throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
                     syntaxNode.methodName().toString().trim()));
         }
-        return new JvmInstanceMethod(context, objectValueRef, methods.get(0), argEvaluators);
+        return new JvmInstanceMethod(context, objectValueRef, methods.get(0), argEvaluators, null);
     }
 }
