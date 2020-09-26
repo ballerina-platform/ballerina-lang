@@ -1635,7 +1635,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 
                 if (listConstrVarArg) {
                     List<BLangExpression> exprs = listConstructorExpr.exprs;
-                    for (int i = memberTypeCount - tupleIndex; i < exprs.size(); i++) {
+                    for (int i = tupleIndex; i < exprs.size(); i++) {
                         BLangExpression arg = exprs.get(i);
                         analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
 
