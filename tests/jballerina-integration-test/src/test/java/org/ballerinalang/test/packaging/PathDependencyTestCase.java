@@ -61,7 +61,7 @@ public class PathDependencyTestCase extends BaseTest {
     private String orgName = "bcintegrationtest";
     private String beeModuleName = "bee" + PackerinaTestUtils.randomModuleName(10);
     
-    @BeforeClass(enabled = false)
+    @BeforeClass()
     public void setUp() throws IOException, BallerinaTestException {
         this.tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-pathdep-home-");
         this.tempTestResources = Files.createTempDirectory("bal-test-integration-packaging-pathdep-project-");
@@ -81,7 +81,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Case1: Test path between 2 projects.")
+    @Test(description = "Case1: Test path between 2 projects.")
     public void testBaloPathCase1() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case1");
         // Build bee module of TestProject1
@@ -98,17 +98,13 @@ public class PathDependencyTestCase extends BaseTest {
         String bazModuleBaloFileName = "baz" + BLANG_COMPILED_JAR_EXT;
     
         String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
+        String bazTestMsg = "1 passing";
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
+        LogLeecher bazTestLeecher = new LogLeecher(bazTestMsg);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
-                new LogLeecher[]{bazModuleBuildLeecher}, caseResources.resolve("TestProject2").toString());
+                new LogLeecher[]{bazModuleBuildLeecher, bazTestLeecher}, caseResources.resolve("TestProject2").toString());
         bazModuleBuildLeecher.waitForText(5000);
-    
-        // Run and see output
-        String msg = "Bar-bzzzz";
-        LogLeecher bazRunLeecher = new LogLeecher(msg);
-        balClient.runMain("run", new String[] {bazBuildMsg}, envVariables, new String[0],
-                new LogLeecher[]{bazRunLeecher}, caseResources.resolve("TestProject2").toString());
-        bazRunLeecher.waitForText(10000);
+        bazTestLeecher.waitForText(10000);
     }
     
     /**
@@ -117,8 +113,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Case2: Test path between 2 projects where 3 modules are " +
-            "involved and imported as a chain.")
+    @Test(description = "Case2: Test path between 2 projects where 3 modules are involved and imported as a chain.")
     public void testBaloPathCase2() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case2");
         // Build bee module of TestProject1
@@ -140,19 +135,13 @@ public class PathDependencyTestCase extends BaseTest {
         String m2BuildMsg = "target" + File.separator + "bin" + File.separator + m2ModuleExecutableFileName;
         LogLeecher m1ModuleBuildLeecher = new LogLeecher(m1BuildMsg);
         LogLeecher m2ModuleBuildLeecher = new LogLeecher(m2BuildMsg);
+        LogLeecher beeTestLeecher = new LogLeecher("1 passing");
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
-                new LogLeecher[]{m1ModuleBuildLeecher, m2ModuleBuildLeecher},
+                new LogLeecher[]{m1ModuleBuildLeecher, m2ModuleBuildLeecher, beeTestLeecher},
                 caseResources.resolve("TestProject2").toString());
         m1ModuleBuildLeecher.waitForText(5000);
         m2ModuleBuildLeecher.waitForText(5000);
-        
-        // Run and see output
-        LogLeecher beeOutputLeecher = new LogLeecher("bzzz");
-        LogLeecher m1OutputLeecher = new LogLeecher("This is org2/m1");
-        balClient.runMain("run", new String[] {m2BuildMsg}, envVariables, new String[0],
-                new LogLeecher[]{beeOutputLeecher, m1OutputLeecher}, caseResources.resolve("TestProject2").toString());
-        beeOutputLeecher.waitForText(10000);
-        m1OutputLeecher.waitForText(10000);
+        beeTestLeecher.waitForText(5000);
     }
     
     /**
@@ -161,7 +150,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Case3: Test path between 2 projects which the import is a native.")
+    @Test(description = "Case3: Test path between 2 projects which the import is a native.")
     public void testBaloPathCase3() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case3");
         // Build bee module of TestProject1
@@ -179,15 +168,11 @@ public class PathDependencyTestCase extends BaseTest {
 
         String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
+        LogLeecher bazTestLeecher = new LogLeecher("1 passing");
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
-                new LogLeecher[]{bazModuleBuildLeecher}, caseResources.resolve("TestProject2").toString());
+                new LogLeecher[]{bazModuleBuildLeecher, bazTestLeecher}, caseResources.resolve("TestProject2").toString());
         bazModuleBuildLeecher.waitForText(5000);
-
-        // Run and see output
-        LogLeecher bazRunLeecher = new LogLeecher("cat");
-        balClient.runMain("run", new String[] {bazBuildMsg}, envVariables, new String[0],
-                new LogLeecher[]{bazRunLeecher}, caseResources.resolve("TestProject2").toString());
-        bazRunLeecher.waitForText(10000);
+        bazTestLeecher.waitForText(5000);
     }
     
     /**
@@ -201,7 +186,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false)
+    @Test()
     public void testBaloPathCase4() throws BallerinaTestException, IOException, InterruptedException {
         Path caseResources = tempTestResources.resolve("case4");
         // Build bee module of TestProject1
@@ -231,14 +216,14 @@ public class PathDependencyTestCase extends BaseTest {
         
         // Build fee module of TestProject2
         String feeModuleName = "fee" + PackerinaTestUtils.randomModuleName(10);
-        //// replace import
+        // replace import
         Path feeBalPath = caseResources.resolve("TestProject2").resolve("src").resolve("fee").resolve("impl.bal");
         Stream<String> lines = Files.lines(feeBalPath);
         List<String> replaced = lines.map(line -> line.replaceAll("bee", beeModuleName))
                 .collect(Collectors.toList());
         Files.write(feeBalPath, replaced);
-        
-        //// change module name
+
+        // change module name
         Path testProjFeeModulePath = caseResources.resolve("TestProject2").resolve("src").resolve(feeModuleName);
         Files.createDirectories(caseResources.resolve("TestProject2").resolve("src").resolve(feeModuleName));
         PackerinaTestUtils.copyFolder(caseResources.resolve("TestProject2").resolve("src").resolve("fee"),
@@ -276,21 +261,16 @@ public class PathDependencyTestCase extends BaseTest {
         String jeeModuleBaloFileName = "jee" + BLANG_COMPILED_JAR_EXT;
         String jeeExecutableFilePath = "target" + File.separator + "bin" + File.separator + jeeModuleBaloFileName;
 
+        LogLeecher beeTestLeecher = new LogLeecher("1 passing");
+
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
             balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
-                    new LogLeecher[]{}, caseResources.resolve("TestProject3").toString());
+                    new LogLeecher[]{beeTestLeecher}, caseResources.resolve("TestProject3").toString());
+            beeTestLeecher.waitForText(10000);
             return Files.exists(caseResources.resolve("TestProject3").resolve(Paths.get(jeeExecutableFilePath)));
         });
-    
-        // Run and see output
-        LogLeecher beeRunLeecher = new LogLeecher("bzzz");
-        LogLeecher feeRunLeecher = new LogLeecher("feeeee");
-        balClient.runMain("run", new String[] {jeeExecutableFilePath}, envVariables, new String[0],
-                new LogLeecher[]{beeRunLeecher, feeRunLeecher}, caseResources.resolve("TestProject3").toString());
-        beeRunLeecher.waitForText(10000);
-        feeRunLeecher.waitForText(10000);
     
         // Update and build bee module of TestProject1
         //// replace code
@@ -306,6 +286,13 @@ public class PathDependencyTestCase extends BaseTest {
         beeModuleBuildLeecher.waitForText(5000);
     
         // Build and run TestProject3 with path set to bee balo in TestProject1
+        //// replace code
+        Path jeeTestPath = caseResources.resolve("TestProject3").resolve("src").resolve("jee").resolve("tests")
+                .resolve("impl_test.bal");
+        lines = Files.lines(jeeTestPath);
+        replaced = lines.map(line -> line.replaceAll("bzzz", "buzzz")).collect(Collectors.toList());
+        Files.write(jeeTestPath, replaced);
+
         //// replace Ballerina.toml
         Path ballerinaToml = caseResources.resolve("TestProject3").resolve("Ballerina.toml");
         lines = Files.lines(ballerinaToml);
@@ -313,22 +300,16 @@ public class PathDependencyTestCase extends BaseTest {
                 .map(line -> line.replaceAll("bee", beeModuleName))
                 .collect(Collectors.toList());
         Files.write(ballerinaToml, replaced);
-        
+        lines.close();
+
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
             balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
-                    new LogLeecher[]{}, caseResources.resolve("TestProject3").toString());
+                    new LogLeecher[]{beeTestLeecher}, caseResources.resolve("TestProject3").toString());
+            beeTestLeecher.waitForText(10000);
             return Files.exists(caseResources.resolve("TestProject3").resolve(Paths.get(jeeExecutableFilePath)));
         });
-    
-        // Run and see output
-        beeRunLeecher = new LogLeecher("buzzz");
-        feeRunLeecher = new LogLeecher("feeeee");
-        balClient.runMain("run", new String[] {jeeExecutableFilePath}, envVariables, new String[0],
-                new LogLeecher[]{beeRunLeecher, feeRunLeecher}, caseResources.resolve("TestProject3").toString());
-        beeRunLeecher.waitForText(10000);
-        feeRunLeecher.waitForText(10000);
     }
     
     /**
@@ -337,8 +318,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Case5: Push with path dependency.",
-            expectedExceptions = BallerinaTestException.class)
+    @Test( description = "Case5: Push with path dependency.", expectedExceptions = BallerinaTestException.class)
     public void testBaloPathCase5() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case5");
         // Build bee module of TestProject1
@@ -653,7 +633,7 @@ public class PathDependencyTestCase extends BaseTest {
         }
     }
     
-    @AfterClass(enabled = false)
+    @AfterClass()
     private void cleanup() throws Exception {
         deleteFiles(this.tempHomeDirectory);
         deleteFiles(this.tempTestResources);

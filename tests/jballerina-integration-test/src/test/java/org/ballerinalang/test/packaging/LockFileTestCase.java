@@ -158,10 +158,10 @@ public class LockFileTestCase extends BaseTest {
         // Replace module names in source file
         Path fooSayBal = testProj2Path.resolve("src").resolve("foo").resolve("foo_say.bal");
         Path fooTestBal = testProj2Path.resolve("src").resolve("foo").resolve("tests").resolve("foo_test.bal");
-        modifyContent(fooSayBal, "MODULE_1", module1Name);
-        modifyContent(fooSayBal, "MODULE_2", module2Name);
-        modifyContent(fooTestBal, "MODULE_1", module1Name);
-        modifyContent(fooTestBal, "MODULE_2", module2Name);
+        PackerinaTestUtils.modifyContent(fooSayBal, "MODULE_1", module1Name);
+        PackerinaTestUtils.modifyContent(fooSayBal, "MODULE_2", module2Name);
+        PackerinaTestUtils.modifyContent(fooTestBal, "MODULE_1", module1Name);
+        PackerinaTestUtils.modifyContent(fooTestBal, "MODULE_2", module2Name);
 
         // Build module
         String fooBaloFileName = "foo-"
@@ -193,11 +193,11 @@ public class LockFileTestCase extends BaseTest {
     public void testModifyProj1AndPush() throws IOException, BallerinaTestException {
         // Update code in module1
         Path module2SourceFile = testProj1Path.resolve("src").resolve(module2Name).resolve("say.bal");
-        modifyContent(module2SourceFile, "Hello ", "Hello world ");
+        PackerinaTestUtils.modifyContent(module2SourceFile, "Hello ", "Hello world ");
 
         // Update Ballerina.toml version
         Path ballerinaTomlPath = testProj1Path.resolve("Ballerina.toml");
-        modifyContent(ballerinaTomlPath, "1.0.0", "1.2.0");
+        PackerinaTestUtils.modifyContent(ballerinaTomlPath, "1.0.0", "1.2.0");
     
         String module1BaloFileName = module1Name + "-"
                                      + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
@@ -311,7 +311,7 @@ public class LockFileTestCase extends BaseTest {
     public void testRebuildTestProj2WithLockRemoved() throws BallerinaTestException, IOException {
 
         Path fooTestBal = testProj2Path.resolve("src").resolve("foo").resolve("tests").resolve("foo_test.bal");
-        modifyContent(fooTestBal, "Hello ", "Hello world ");
+        PackerinaTestUtils.modifyContent(fooTestBal, "Hello ", "Hello world ");
         // Delete Ballerina.lock
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
         Files.delete(lockFilePath);
@@ -383,7 +383,7 @@ public class LockFileTestCase extends BaseTest {
           dependsOnMethods = "testRebuildTestProj2WithUpdatedBallerinaToml")
     public void testRebuildTestProj2WithUpdatedBallerinaTomlAndLockRemoved() throws IOException {
         Path fooTestBal = testProj2Path.resolve("src").resolve("foo").resolve("tests").resolve("foo_test.bal");
-        modifyContent(fooTestBal, "Hello world ", "Hello ");
+        PackerinaTestUtils.modifyContent(fooTestBal, "Hello world ", "Hello ");
 
         // Delete Ballerina.lock
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
@@ -411,22 +411,6 @@ public class LockFileTestCase extends BaseTest {
         
         lockFilePath = testProj2Path.resolve("Ballerina.lock");
         Assert.assertTrue(Files.exists(lockFilePath));
-    }
-
-    /**
-     * Modify the content of the file.
-     *
-     * @param filePath path to the file
-     * @param regex regex to be replaced
-     * @param replacedWith string to replaced with
-     * @throws IOException When modifying the content of the file
-     */
-    private static void modifyContent (Path filePath, String regex, String replacedWith) throws IOException {
-        Stream<String> lines = Files.lines(filePath);
-        List<String> replaced = lines.map(line -> line.replaceAll(regex, replacedWith))
-                .collect(Collectors.toList());
-        Files.write(filePath, replaced);
-        lines.close();
     }
 
     /**
