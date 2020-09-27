@@ -23,6 +23,7 @@ import io.opentracing.mock.MockTracer;
 import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
 import org.ballerinalang.jvm.observability.tracer.OpenTracer;
 
+import java.io.PrintStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,13 +32,15 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class BMockTracer implements OpenTracer {
 
-    private static Map<String, MockTracer> tracerMap = new ConcurrentHashMap<>();
+    private static final PrintStream out = System.out;
+    private static final Map<String, MockTracer> tracerMap = new ConcurrentHashMap<>();
     private static final String NAME = "BMockTracer";
 
     @Override
     public Tracer getTracer(String serviceName) {
         MockTracer mockTracer = new MockTracer();
         BMockTracer.tracerMap.put(serviceName, mockTracer);
+        out.println("Initialized Mock Tracer for " + serviceName);
         return mockTracer;
     }
 

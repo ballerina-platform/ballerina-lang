@@ -209,7 +209,7 @@ public class WebServer {
                     TEST_OBSERVE_PACKAGE.getName(), TEST_OBSERVE_PACKAGE.getVersion(), resourceName);
             Utils.logInfo("Dispatching resource function " + serviceName + "." + resourceName);
             BExecutor.submit(WebServer.this.scheduler, serviceObject, resourceName, null, strandMetadata,
-                    new WebServerCallableUnitCallback(ctx), new HashMap<>(), args);
+                    new WebServerCallableUnitCallback(ctx, serviceName, resourceName), new HashMap<>(), args);
         }
 
         @Override
@@ -221,20 +221,23 @@ public class WebServer {
 
         public class WebServerCallableUnitCallback implements CallableUnitCallback {
             private final ChannelHandlerContext ctx;
+            private final String resourceName;
 
-            public WebServerCallableUnitCallback(ChannelHandlerContext ctx) {
+            public WebServerCallableUnitCallback(ChannelHandlerContext ctx, String serviceName, String resourceName) {
                 this.ctx = ctx;
+                this.resourceName = serviceName + "." + resourceName;
             }
 
             @Override
             public void notifySuccess() {
-                Utils.logInfo("Successfully executed resource");
+                Utils.logInfo("Successfully executed resource " + this.resourceName);
             }
 
             @Override
             public void notifyFailure(BError error) {
                 writeResponse(this.ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR, error.getMessage());
-                Utils.logError("Failed to execute resource " + error.getPrintableStackTrace());
+                Utils.logError("Failed to execute resource " + this.resourceName + " "
+                        + error.getPrintableStackTrace());
             }
         }
     }

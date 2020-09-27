@@ -17,11 +17,10 @@
  *
  */
 
-package org.ballerina.testobserve;
+package org.ballerina.testobserve.extension;
 
 import com.google.gson.Gson;
 import io.opentracing.mock.MockTracer;
-import org.ballerina.testobserve.extension.BMockTracer;
 import org.ballerinalang.jvm.JSONParser;
 
 import java.util.Collections;
