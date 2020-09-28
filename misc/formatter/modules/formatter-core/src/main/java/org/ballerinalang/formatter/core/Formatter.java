@@ -23,8 +23,6 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.formatter.core.FormatterUtils.handleNewLineEndings;
-
 /**
  * Class that exposes the formatting APIs.
  */

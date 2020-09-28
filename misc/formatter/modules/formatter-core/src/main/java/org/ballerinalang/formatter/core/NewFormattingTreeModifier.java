@@ -20,42 +20,71 @@ package org.ballerinalang.formatter.core;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
+import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
+import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.DoStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
+import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.MetadataNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
+import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
+import io.ballerinalang.compiler.syntax.tree.OnFailClauseNode;
+import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
+import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
+import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
+import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,9 +160,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         NodeList<Token> qualifierList = formatNodeList(functionDefinitionNode.qualifierList(), 1, 0, 1, 0);
         Token functionKeyword = formatToken(functionDefinitionNode.functionKeyword(), 1, 0);
-        IdentifierToken functionName = formatToken(functionDefinitionNode.functionName(), 1, 0);
+        IdentifierToken functionName = formatToken(functionDefinitionNode.functionName(), 0, 0);
         FunctionSignatureNode functionSignatureNode = formatNode(functionDefinitionNode.functionSignature(), 1, 0);
-        FunctionBodyNode functionBodyNode = formatNode(functionDefinitionNode.functionBody(), this.trailingWS, this.trailingNL);
+        FunctionBodyNode functionBodyNode = formatNode(functionDefinitionNode.functionBody(),
+                this.trailingWS, this.trailingNL);
 
         return functionDefinitionNode.modify()
                 .withFunctionKeyword(functionKeyword)
@@ -216,7 +246,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             typedBindingPatternNode = formatNode(variableDeclarationNode.typedBindingPattern(), 1, 0);
             Token equalToken = formatToken(variableDeclarationNode.equalsToken().get(), 1, 0);
             ExpressionNode initializer = formatNode(variableDeclarationNode.initializer().get(), 0, 0);
-            Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(), this.trailingWS, this.trailingNL);
+            Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(),
+                    this.trailingWS, this.trailingNL);
             return variableDeclarationNode.modify()
                     .withAnnotations(annotationNodes)
                     .withTypedBindingPattern(typedBindingPatternNode)
@@ -226,7 +257,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .apply();
         } else {
             typedBindingPatternNode = formatNode(variableDeclarationNode.typedBindingPattern(), 0, 0);
-            Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(), this.trailingWS, this.trailingNL);
+            Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(),
+                    this.trailingWS, this.trailingNL);
             return variableDeclarationNode.modify()
                     .withAnnotations(annotationNodes)
                     .withTypedBindingPattern(typedBindingPatternNode)
@@ -400,6 +432,468 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     @Override
+    public ImportDeclarationNode transform(ImportDeclarationNode importDeclarationNode) {
+        Token importKeyword = formatToken(importDeclarationNode.importKeyword(), 1, 0);
+
+        boolean hasOrgName = importDeclarationNode.orgName().isPresent();
+        boolean hasVersion = importDeclarationNode.version().isPresent();
+        boolean hasPrefix = importDeclarationNode.prefix().isPresent();
+
+        if (hasOrgName) {
+            ImportOrgNameNode orgName = formatNode(importDeclarationNode.orgName().get(), 0, 0);
+            importDeclarationNode = importDeclarationNode.modify().withOrgName(orgName).apply();
+        }
+        SeparatedNodeList<IdentifierToken> moduleNames = formatSeparatedNodeList(importDeclarationNode.moduleName(),
+                0, 0, 0, 0, (hasVersion || hasPrefix) ? 1 : 0, 0);
+
+        if (hasVersion) {
+            ImportVersionNode version = formatNode(importDeclarationNode.version().get(), hasPrefix ? 1 : 0, 0);
+            importDeclarationNode = importDeclarationNode.modify().withVersion(version).apply();
+        }
+        if (hasPrefix) {
+            ImportPrefixNode prefix = formatNode(importDeclarationNode.prefix().get(), 0, 0);
+            importDeclarationNode = importDeclarationNode.modify().withPrefix(prefix).apply();
+        }
+        Token semicolon = formatToken(importDeclarationNode.semicolon(), this.trailingWS, this.trailingNL);
+
+        return importDeclarationNode.modify()
+                .withImportKeyword(importKeyword)
+                .withModuleName(moduleNames)
+                .withSemicolon(semicolon)
+                .apply();
+    }
+
+    @Override
+    public ImportOrgNameNode transform(ImportOrgNameNode importOrgNameNode) {
+        Token orgName = formatToken(importOrgNameNode.orgName(), 0, 0);
+        Token slashToken = formatToken(importOrgNameNode.slashToken(), this.trailingWS, this.trailingNL);
+
+        return importOrgNameNode.modify()
+                .withOrgName(orgName)
+                .withSlashToken(slashToken)
+                .apply();
+    }
+
+    @Override
+    public ImportPrefixNode transform(ImportPrefixNode importPrefixNode) {
+        Token asKeyword = formatToken(importPrefixNode.asKeyword(), 1, 0);
+        Token prefix = formatToken(importPrefixNode.prefix(), this.trailingWS, this.trailingNL);
+
+        return importPrefixNode.modify()
+                .withAsKeyword(asKeyword)
+                .withPrefix(prefix)
+                .apply();
+    }
+
+    @Override
+    public ImportVersionNode transform(ImportVersionNode importVersionNode) {
+        Token versionKeyword = formatToken(importVersionNode.versionKeyword(), 1, 0);
+        SeparatedNodeList<Token> versionNumber = formatSeparatedNodeList(importVersionNode.versionNumber(),
+                0, 0, 0, 0, this.trailingWS, this.trailingNL);
+
+        return importVersionNode.modify()
+                .withVersionKeyword(versionKeyword)
+                .withVersionNumber(versionNumber)
+                .apply();
+    }
+
+    @Override
+    public ServiceDeclarationNode transform(ServiceDeclarationNode serviceDeclarationNode) {
+        if (serviceDeclarationNode.metadata().isPresent()) {
+            MetadataNode metadata = formatNode(serviceDeclarationNode.metadata().get(), 1, 0);
+            serviceDeclarationNode = serviceDeclarationNode.modify().withMetadata(metadata).apply();
+        }
+
+        Token serviceKeyword = formatToken(serviceDeclarationNode.serviceKeyword(), 1, 0);
+        IdentifierToken serviceName = formatToken(serviceDeclarationNode.serviceName(), 1, 0);
+        Token onKeyword = formatToken(serviceDeclarationNode.onKeyword(), 1, 0);
+        SeparatedNodeList<ExpressionNode> expressions =
+                formatSeparatedNodeList(serviceDeclarationNode.expressions(), 0, 0, 1, 0);
+        Node serviceBody = formatNode(serviceDeclarationNode.serviceBody(), this.trailingWS, this.trailingNL);
+
+        return serviceDeclarationNode.modify()
+                .withServiceKeyword(serviceKeyword)
+                .withServiceName(serviceName)
+                .withOnKeyword(onKeyword)
+                .withExpressions(expressions)
+                .withServiceBody(serviceBody)
+                .apply();
+    }
+
+    @Override
+    public ExplicitNewExpressionNode transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        Token newKeywordToken = formatToken(explicitNewExpressionNode.newKeyword(), 1, 0);
+        TypeDescriptorNode typeDescriptorNode = formatNode(explicitNewExpressionNode.typeDescriptor(), 0, 0);
+        ParenthesizedArgList parenthesizedArgList = formatNode(explicitNewExpressionNode.parenthesizedArgList(),
+                this.trailingWS, this.trailingNL);
+
+        return explicitNewExpressionNode.modify()
+                .withNewKeyword(newKeywordToken)
+                .withTypeDescriptor(typeDescriptorNode)
+                .withParenthesizedArgList(parenthesizedArgList)
+                .apply();
+    }
+
+    @Override
+    public ParenthesizedArgList transform(ParenthesizedArgList parenthesizedArgList) {
+        Token openParenToken = formatToken(parenthesizedArgList.openParenToken(), 0, 0);
+        SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(parenthesizedArgList
+                .arguments(), 0, 0, 0, 0);
+        Token closeParenToken = formatToken(parenthesizedArgList.closeParenToken(), this.trailingWS, this.trailingNL);
+
+        return parenthesizedArgList.modify()
+                .withOpenParenToken(openParenToken)
+                .withArguments(arguments)
+                .withCloseParenToken(closeParenToken)
+                .apply();
+    }
+
+    @Override
+    public ServiceBodyNode transform(ServiceBodyNode serviceBodyNode) {
+        Token openBraceToken = formatToken(serviceBodyNode.openBraceToken(), 0, 1);
+        indent(); // increase indentation for the statements to follow.
+        NodeList<Node> resources = formatNodeList(serviceBodyNode.resources(), 0, 1, 0, 1);
+        unindent(); // reset the indentation
+        Token closeBraceToken = formatToken(serviceBodyNode.closeBraceToken(), this.trailingWS, this.trailingNL);
+
+        return serviceBodyNode.modify()
+                .withOpenBraceToken(openBraceToken)
+                .withResources(resources)
+                .withCloseBraceToken(closeBraceToken)
+                .apply();
+    }
+
+    @Override
+    public QualifiedNameReferenceNode transform(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+        Token modulePrefix = formatToken(qualifiedNameReferenceNode.modulePrefix(), 0, 0);
+        Token colon = formatToken((Token) qualifiedNameReferenceNode.colon(), 0, 0);
+        IdentifierToken identifier = formatToken(qualifiedNameReferenceNode.identifier(),
+                this.trailingWS, this.trailingNL);
+
+        return qualifiedNameReferenceNode.modify()
+                .withModulePrefix(modulePrefix)
+                .withColon(colon)
+                .withIdentifier(identifier)
+                .apply();
+    }
+
+    @Override
+    public ReturnTypeDescriptorNode transform(ReturnTypeDescriptorNode returnTypeDescriptorNode) {
+        Token returnsKeyword = formatToken(returnTypeDescriptorNode.returnsKeyword(), 1, 0);
+        NodeList<AnnotationNode> annotations = formatNodeList(returnTypeDescriptorNode.annotations(), 0, 0, 1, 0);
+        Node type = formatNode(returnTypeDescriptorNode.type(), this.trailingWS, this.trailingNL);
+
+        return returnTypeDescriptorNode.modify()
+                .withReturnsKeyword(returnsKeyword)
+                .withAnnotations(annotations)
+                .withType(type)
+                .apply();
+    }
+
+    @Override
+    public OptionalTypeDescriptorNode transform(OptionalTypeDescriptorNode optionalTypeDescriptorNode) {
+        Node typeDescriptor = formatNode(optionalTypeDescriptorNode.typeDescriptor(), 0, 0);
+        Token questionMarkToken = formatToken(optionalTypeDescriptorNode.questionMarkToken(),
+                this.trailingWS, this.trailingNL);
+
+        return optionalTypeDescriptorNode.modify()
+                .withTypeDescriptor(typeDescriptor)
+                .withQuestionMarkToken(questionMarkToken)
+                .apply();
+    }
+
+    @Override
+    public ExpressionStatementNode transform(ExpressionStatementNode expressionStatementNode) {
+        ExpressionNode expression = formatNode(expressionStatementNode.expression(), 0, 0);
+        Token semicolonToken = formatToken(expressionStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+
+        return expressionStatementNode.modify()
+                .withExpression(expression)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public CheckExpressionNode transform(CheckExpressionNode checkExpressionNode) {
+        Token checkKeyword = formatToken(checkExpressionNode.checkKeyword(), 1, 0);
+        ExpressionNode expressionNode = formatNode(checkExpressionNode.expression(), this.trailingWS, this.trailingNL);
+
+        return checkExpressionNode.modify()
+                .withCheckKeyword(checkKeyword)
+                .withExpression(expressionNode)
+                .apply();
+    }
+
+    @Override
+    public RemoteMethodCallActionNode transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
+        ExpressionNode expression = formatNode(remoteMethodCallActionNode.expression(), 0, 0);
+        Token rightArrowToken = formatToken(remoteMethodCallActionNode.rightArrowToken(), 0, 0);
+        SimpleNameReferenceNode methodName = formatNode(remoteMethodCallActionNode.methodName(), 0, 0);
+        Token openParenToken = formatToken(remoteMethodCallActionNode.openParenToken(), 0, 0);
+        SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(remoteMethodCallActionNode
+                .arguments(), 1, 0, 0, 0);
+        Token closeParenToken = formatToken(remoteMethodCallActionNode.closeParenToken(),
+                this.trailingWS, this.trailingNL);
+
+        return remoteMethodCallActionNode.modify()
+                .withExpression(expression)
+                .withRightArrowToken(rightArrowToken)
+                .withMethodName(methodName)
+                .withOpenParenToken(openParenToken)
+                .withArguments(arguments)
+                .withCloseParenToken(closeParenToken)
+                .apply();
+    }
+
+    @Override
+    public SimpleNameReferenceNode transform(SimpleNameReferenceNode simpleNameReferenceNode) {
+        Token name = formatToken(simpleNameReferenceNode.name(), this.trailingWS, this.trailingNL);
+
+        return simpleNameReferenceNode.modify()
+                .withName(name)
+                .apply();
+    }
+
+    @Override
+    public TypeDefinitionNode transform(TypeDefinitionNode typeDefinitionNode) {
+        if (typeDefinitionNode.metadata().isPresent()) {
+            MetadataNode metadata = formatNode(typeDefinitionNode.metadata().get(), 1, 0);
+            typeDefinitionNode = typeDefinitionNode.modify().withMetadata(metadata).apply();
+        }
+        if (typeDefinitionNode.visibilityQualifier().isPresent()) {
+            Token visibilityQualifier = formatToken(typeDefinitionNode.visibilityQualifier().get(), 1, 0);
+            typeDefinitionNode = typeDefinitionNode.modify().withVisibilityQualifier(visibilityQualifier).apply();
+        }
+
+        Token typeKeyword = formatToken(typeDefinitionNode.typeKeyword(), 1, 0);
+        Token typeName = formatToken(typeDefinitionNode.typeName(), 1, 0);
+        Node typeDescriptor = formatNode(typeDefinitionNode.typeDescriptor(), 1, 0);
+        Token semicolonToken = formatToken(typeDefinitionNode.semicolonToken(), this.trailingWS, this.trailingNL);
+
+        return typeDefinitionNode.modify()
+                .withTypeKeyword(typeKeyword)
+                .withTypeName(typeName)
+                .withTypeDescriptor(typeDescriptor)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public SingletonTypeDescriptorNode transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
+        ExpressionNode simpleContExprNode = formatNode(singletonTypeDescriptorNode.simpleContExprNode(), 1, 0);
+        return singletonTypeDescriptorNode.modify()
+                .withSimpleContExprNode(simpleContExprNode)
+                .apply();
+    }
+
+    @Override
+    public WhileStatementNode transform(WhileStatementNode whileStatementNode) {
+        boolean hasOnFailClause = whileStatementNode.onFailClause().isPresent();
+        Token whileKeyword = formatToken(whileStatementNode.whileKeyword(), 1, 0);
+        ExpressionNode condition = formatNode(whileStatementNode.condition(), 1, 0);
+        BlockStatementNode whileBody;
+
+        if (hasOnFailClause) {
+            whileBody = formatNode(whileStatementNode.whileBody(), 1, 0);
+            OnFailClauseNode onFailClause = formatNode(whileStatementNode.onFailClause().get(),
+                    this.trailingWS, this.trailingNL);
+            whileStatementNode = whileStatementNode.modify().withOnFailClause(onFailClause).apply();
+        } else {
+            whileBody = formatNode(whileStatementNode.whileBody(), this.trailingWS, this.trailingNL);
+        }
+
+        return whileStatementNode.modify()
+                .withWhileKeyword(whileKeyword)
+                .withCondition(condition)
+                .withWhileBody(whileBody)
+                .apply();
+    }
+
+    @Override
+    public BracedExpressionNode transform(BracedExpressionNode bracedExpressionNode) {
+        Token openParen = formatToken(bracedExpressionNode.openParen(), 0, 0);
+        ExpressionNode expression = formatNode(bracedExpressionNode.expression(), 0, 0);
+        Token closeParen = formatToken(bracedExpressionNode.closeParen(), this.trailingWS, this.trailingNL);
+
+        return bracedExpressionNode.modify()
+                .withOpenParen(openParen)
+                .withExpression(expression)
+                .withCloseParen(closeParen)
+                .apply();
+    }
+
+    @Override
+    public AssignmentStatementNode transform(AssignmentStatementNode assignmentStatementNode) {
+        Node varRef = formatNode(assignmentStatementNode.varRef(), 1, 0);
+        Token equalsToken = formatToken(assignmentStatementNode.equalsToken(), 1, 0);
+        ExpressionNode expression = formatNode(assignmentStatementNode.expression(), 0, 0);
+        Token semicolonToken = formatToken(assignmentStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+
+        return assignmentStatementNode.modify()
+                .withVarRef(varRef)
+                .withEqualsToken(equalsToken)
+                .withExpression(expression)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public CompoundAssignmentStatementNode transform(CompoundAssignmentStatementNode compoundAssignmentStatementNode) {
+        ExpressionNode lhsExpression = formatNode(compoundAssignmentStatementNode.lhsExpression(), 1, 0);
+        Token binaryOperator = formatToken(compoundAssignmentStatementNode.binaryOperator(), 0, 0);
+        Token equalsToken = formatToken(compoundAssignmentStatementNode.equalsToken(), 1, 0);
+        ExpressionNode rhsExpression = formatNode(compoundAssignmentStatementNode.rhsExpression(), 0, 0);
+        Token semicolonToken = formatToken(compoundAssignmentStatementNode.semicolonToken(),
+                this.trailingWS, this.trailingNL);
+
+        return compoundAssignmentStatementNode.modify()
+                .withLhsExpression(lhsExpression)
+                .withBinaryOperator(binaryOperator)
+                .withEqualsToken(equalsToken)
+                .withRhsExpression(rhsExpression)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public DoStatementNode transform(DoStatementNode doStatementNode) {
+        boolean hasOnFailClause = doStatementNode.onFailClause().isPresent();
+        Token doKeyword = formatToken(doStatementNode.doKeyword(), 1, 0);
+        BlockStatementNode blockStatement;
+
+        if (hasOnFailClause) {
+            blockStatement = formatNode(doStatementNode.blockStatement(), 1, 0);
+            OnFailClauseNode onFailClause = formatNode(doStatementNode.onFailClause().get(),
+                    this.trailingWS, this.trailingNL);
+            doStatementNode = doStatementNode.modify().withOnFailClause(onFailClause).apply();
+        } else {
+            blockStatement = formatNode(doStatementNode.blockStatement(), this.trailingWS, this.trailingNL);
+        }
+
+        return doStatementNode.modify()
+                .withDoKeyword(doKeyword)
+                .withBlockStatement(blockStatement)
+                .apply();
+    }
+
+    @Override
+    public ForEachStatementNode transform(ForEachStatementNode forEachStatementNode) {
+        boolean hasOnFailClause = forEachStatementNode.onFailClause().isPresent();
+        Token forEachKeyword = formatToken(forEachStatementNode.forEachKeyword(), 1, 0);
+        TypedBindingPatternNode typedBindingPattern = formatNode(forEachStatementNode.typedBindingPattern(), 1, 0);
+        Token inKeyword = formatToken(forEachStatementNode.inKeyword(), 1, 0);
+        Node actionOrExpressionNode = formatNode(forEachStatementNode.actionOrExpressionNode(), 1, 0);
+        StatementNode blockStatement;
+
+        if (hasOnFailClause) {
+            blockStatement = formatNode(forEachStatementNode.blockStatement(), 1, 0);
+            OnFailClauseNode onFailClause = formatNode(forEachStatementNode.onFailClause().get(),
+                    this.trailingWS, this.trailingNL);
+            forEachStatementNode = forEachStatementNode.modify().withOnFailClause(onFailClause).apply();
+        } else {
+            blockStatement = formatNode(forEachStatementNode.blockStatement(), this.trailingWS, this.trailingNL);
+        }
+
+        return forEachStatementNode.modify()
+                .withForEachKeyword(forEachKeyword)
+                .withTypedBindingPattern(typedBindingPattern)
+                .withInKeyword(inKeyword)
+                .withActionOrExpressionNode(actionOrExpressionNode)
+                .withBlockStatement(blockStatement)
+                .apply();
+    }
+
+    @Override
+    public BinaryExpressionNode transform(BinaryExpressionNode binaryExpressionNode) {
+        Node lhsExpr = formatNode(binaryExpressionNode.lhsExpr(), 1, 0);
+        Token operator = formatToken(binaryExpressionNode.operator(), 1, 0);
+        Node rhsExpr = formatNode(binaryExpressionNode.rhsExpr(), this.trailingWS, this.trailingNL);
+
+        return binaryExpressionNode.modify()
+                .withLhsExpr(lhsExpr)
+                .withOperator(operator)
+                .withRhsExpr(rhsExpr)
+                .apply();
+    }
+
+    @Override
+    public OnFailClauseNode transform(OnFailClauseNode onFailClauseNode) {
+        Token onKeyword = formatToken(onFailClauseNode.onKeyword(), 1, 0);
+        Token failKeyword = formatToken(onFailClauseNode.failKeyword(), 1, 0);
+        TypeDescriptorNode typeDescriptor = formatNode(onFailClauseNode.typeDescriptor(), 1, 0);
+        IdentifierToken failErrorName = formatToken(onFailClauseNode.failErrorName(), 1, 0);
+        BlockStatementNode blockStatement = formatNode(onFailClauseNode.blockStatement(),
+                this.trailingWS, this.trailingNL);
+
+        return onFailClauseNode.modify()
+                .withOnKeyword(onKeyword)
+                .withFailKeyword(failKeyword)
+                .withTypeDescriptor(typeDescriptor)
+                .withFailErrorName(failErrorName)
+                .withBlockStatement(blockStatement)
+                .apply();
+    }
+
+    @Override
+    public ReturnStatementNode transform(ReturnStatementNode returnStatementNode) {
+        Token returnKeyword = formatToken(returnStatementNode.returnKeyword(),
+                returnStatementNode.expression().isPresent() ? 1 : 0, 0);
+
+        if (returnStatementNode.expression().isPresent()) {
+            ExpressionNode expressionNode = formatNode(returnStatementNode.expression().get(), 0, 0);
+            returnStatementNode = returnStatementNode.modify().withExpression(expressionNode).apply();
+        }
+        Token semicolonToken = formatToken(returnStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+
+        return returnStatementNode.modify()
+                .withReturnKeyword(returnKeyword)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public FunctionCallExpressionNode transform(FunctionCallExpressionNode functionCallExpressionNode) {
+        NameReferenceNode functionName = formatNode(functionCallExpressionNode.functionName(), 0, 0);
+        Token functionCallOpenPara = formatToken(functionCallExpressionNode.openParenToken(), 0, 0);
+        SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(functionCallExpressionNode
+                .arguments(), 0, 0, 0, 0);
+        Token functionCallClosePara = formatToken(functionCallExpressionNode.closeParenToken(),
+                this.trailingWS, this.trailingNL);
+
+        return functionCallExpressionNode.modify()
+                .withFunctionName(functionName)
+                .withOpenParenToken(functionCallOpenPara)
+                .withCloseParenToken(functionCallClosePara)
+                .withArguments(arguments)
+                .apply();
+    }
+
+    @Override
+    public UnionTypeDescriptorNode transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
+        TypeDescriptorNode leftTypeDesc = formatNode(unionTypeDescriptorNode.leftTypeDesc(), 0, 0);
+        Token pipeToken = formatToken(unionTypeDescriptorNode.pipeToken(), 0, 0);
+        TypeDescriptorNode rightTypeDesc = formatNode(unionTypeDescriptorNode.rightTypeDesc(),
+                this.trailingWS, this.trailingNL);
+
+        return unionTypeDescriptorNode.modify()
+                .withLeftTypeDesc(leftTypeDesc)
+                .withPipeToken(pipeToken)
+                .withRightTypeDesc(rightTypeDesc)
+                .apply();
+    }
+
+    @Override
+    public NilTypeDescriptorNode transform(NilTypeDescriptorNode nilTypeDescriptorNode) {
+        Token openParenToken = formatToken(nilTypeDescriptorNode.openParenToken(), 0, 0);
+        Token closeParenToken = formatToken(nilTypeDescriptorNode.closeParenToken(), this.trailingWS, this.trailingNL);
+
+        return nilTypeDescriptorNode.modify()
+                .withOpenParenToken(openParenToken)
+                .withCloseParenToken(closeParenToken)
+                .apply();
+    }
+
+    @Override
     public IdentifierToken transform(IdentifierToken identifier) {
         return formatToken(identifier, this.trailingWS, this.trailingNL);
     }
@@ -422,7 +916,11 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      */
     @SuppressWarnings("unchecked")
     private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL) {
-        if (node == null || !isInLineRange(node, lineRange)) {
+        if (node == null) {
+            return node;
+        }
+
+        if (!isInLineRange(node, lineRange)) {
             checkForNewline(node);
             return node;
         }
