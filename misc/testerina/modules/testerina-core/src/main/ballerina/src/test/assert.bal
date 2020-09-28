@@ -134,23 +134,26 @@ public isolated function assertFail(string msg = "Test Failed!") {
 #
 # + return - Error message constructed based on the compared values
 isolated function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "Assertion Failed!") returns string {
-        string expectedStr = sprintf("%s", expected);
         string expectedType = getBallerinaType(expected);
-        string actualStr = sprintf("%s", actual);
         string actualType = getBallerinaType(actual);
         string errorMsg = "";
+        string expectedStr = sprintf("%s", expected);
+        string actualStr = sprintf("%s", actual);
+        if (expectedStr.length() > maxArgLength) {
+            expectedStr = expectedStr.substring(0, maxArgLength);
+        }
+        if (actualStr.length() > maxArgLength) {
+            actualStr = actualStr.substring(0, maxArgLength);
+        }
         if (expectedType != actualType) {
-            if (expectedStr.length() > maxArgLength) {
-                expectedStr = expectedStr.substring(0, maxArgLength);
-            }
-            if (actualStr.length() > maxArgLength) {
-                actualStr = actualStr.substring(0, maxArgLength);
-            }
             errorMsg = string `${msg}` + "\nexpected: " + string `<${expectedType}> '${expectedStr}'` + "\nactual\t: " + string `<${actualType}> '${actualStr}'`;
         } else {
-            string diff = getStringDiff(actualStr, expectedStr);
+            string diff = getStringDiff(sprintf("%s", actual), sprintf("%s", expected));
+            if (diff != "") {
+                diff = "\n\nDiff\t:\n\n" + string `${diff}` + "\n\n";
+            }
             errorMsg = string `${msg}` + "\nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
-                         + string `'${actualStr}'` + "\n\n" + string `${diff}`;
+                         + string `'${actualStr}'` + string `${diff}`;
         }
         return errorMsg;
 }

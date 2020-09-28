@@ -1,86 +1,49 @@
 package org.ballerinalang.testerina.core;
 
+import com.github.difflib.DiffUtils;
+import com.github.difflib.UnifiedDiffUtils;
 import com.github.difflib.algorithm.DiffException;
-import com.github.difflib.text.DiffRow;
-import com.github.difflib.text.DiffRowGenerator;
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
+import com.github.difflib.patch.Patch;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Evaluates assertion values to find the difference inline.
  */
 public class AssertionDiffEvaluator {
 
-    public static String join(String... args) {
-        return Joiner.on(' ').join(args);
-    }
+    private static final int MAX_ARG_LENGTH = 80;
 
-    public static BString getStringDiff(
-            BString actual, BString expected) {
-        DiffRowGenerator generator =
-                DiffRowGenerator.create()
-                        .showInlineDiffs(true)
-                        .inlineDiffByWord(false)
-                        .oldTag(f -> "~")
-                        .newTag(f -> "*")
-                        .build();
-        List<DiffRow> rows;
+    public static BString getStringDiff(BString expected, BString actual) {
+        List<String> difference = null;
+        String output = "";
         try {
-            rows = generator.generateDiffRows(Arrays.asList(expected.toString()), Arrays.asList(actual.toString()));
+            Patch<String> patch = DiffUtils.diff(Arrays.asList(expected.toString().split("(?!^)")),
+                    Arrays.asList(actual.toString().split("(?!^)")));
+            difference = UnifiedDiffUtils.generateUnifiedDiff("expected", "actual",
+                    Arrays.asList(expected.toString().split("(?!^)")), patch, MAX_ARG_LENGTH);
         } catch (DiffException e) {
-            return BStringUtils.fromString("Error: Error while generating diff.");
+            output = "Warning: Could not generate diff.";
         }
-        return BStringUtils.fromString(getFormattedDiffOutput(rows));
-    }
-
-    private static String getFormattedDiffOutput(List<DiffRow> rows) {
-        int maxExpectedLineLength =
-                findMaxLineLength(rows.stream().map(DiffRow::getOldLine).collect(Collectors.toList()));
-        int maxActualLineLength =
-                findMaxLineLength(rows.stream().map(DiffRow::getNewLine).collect(Collectors.toList()));
-
-        SideBySideRowFormatter sideBySideRowFormatter =
-                new SideBySideRowFormatter(maxExpectedLineLength, maxActualLineLength);
-
-        String output = "\nDiff\t:\n\n" + Joiner.on('\n').join(
-                sideBySideRowFormatter.formatRow("Expected", "Actual", ' '),
-                sideBySideRowFormatter.formatRow("", "", '-'),
-                rows.stream()
-                        .map(row -> sideBySideRowFormatter.formatRow(row.getOldLine(), row.getNewLine(), ' '))
-                        .toArray()) + "\n\n";
-        return output;
-    }
-
-    private static int findMaxLineLength(Collection<String> lines) {
-        return lines.stream()
-                .max(Comparator.comparingInt(String::length))
-                .map(String::length)
-                .orElse(0);
-    }
-
-    private static class SideBySideRowFormatter {
-        private final int maxExpectedLineLength;
-        private final int maxActualLineLength;
-
-        private SideBySideRowFormatter(int maxExpectedLineLength, int maxActualLineLength) {
-            this.maxExpectedLineLength = maxExpectedLineLength;
-            this.maxActualLineLength = maxActualLineLength;
+        if (difference != null) {
+            for (String line : difference) {
+                if (line.startsWith("+") || line.startsWith("-")) {
+                    if (output.endsWith("\n")) {
+                        output = output.concat(line + "\n");
+                    } else {
+                        output = output.concat("\n" + line + "\n");
+                    }
+                } else if (line.startsWith("@@ -")) {
+                    output = output.concat(line + "\n\n");
+                } else {
+                    output = output.concat(line.replaceFirst(" ", ""));
+                }
+            }
         }
-
-        public String formatRow(String expected, String actual, char padChar) {
-            return String.format(
-                    "|%s|%s|",
-                    Strings.padEnd(expected, maxExpectedLineLength, padChar),
-                    Strings.padEnd(actual, maxActualLineLength, padChar));
-        }
+        return BStringUtils.fromString(output);
     }
 }
 
