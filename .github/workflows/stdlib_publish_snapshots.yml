@@ -28,9 +28,9 @@ jobs:
             -   name: Trigger Dependent Modules for Module Build
                 if: github.event.action == 'stdlib-module-push'
                 uses: ballerina-platform/ballerina-action@master
-                    with:
-                        args:
-                            run publish
+                with:
+                    args:
+                        run publish
                 env:
                     WORKING_DIR: ./stdlib/release
                     GITHUB_TOKEN: ${{ secrets.BAL_BOT_PAT }}
