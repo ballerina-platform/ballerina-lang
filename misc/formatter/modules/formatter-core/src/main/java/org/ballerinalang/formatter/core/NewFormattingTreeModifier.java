@@ -87,8 +87,6 @@ import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.formatter.core.FormatterUtils.formatToken;
-import static org.ballerinalang.formatter.core.FormatterUtils.getToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
 
 /**
@@ -162,7 +160,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token functionKeyword = formatToken(functionDefinitionNode.functionKeyword(), 1, 0);
         IdentifierToken functionName = formatToken(functionDefinitionNode.functionName(), 0, 0);
         FunctionSignatureNode functionSignatureNode = formatNode(functionDefinitionNode.functionSignature(), 1, 0);
-        FunctionBodyNode functionBodyNode = formatNode(functionDefinitionNode.functionBody(), this.trailingWS, this.trailingNL);
+        FunctionBodyNode functionBodyNode = formatNode(functionDefinitionNode.functionBody(),
+                this.trailingWS, this.trailingNL);
 
         return functionDefinitionNode.modify()
                 .withFunctionKeyword(functionKeyword)
@@ -245,7 +244,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             typedBindingPatternNode = formatNode(variableDeclarationNode.typedBindingPattern(), 1, 0);
             Token equalToken = formatToken(variableDeclarationNode.equalsToken().get(), 1, 0);
             ExpressionNode initializer = formatNode(variableDeclarationNode.initializer().get(), 0, 0);
-            Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(), this.trailingWS, this.trailingNL);
+            Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(),
+                    this.trailingWS, this.trailingNL);
             return variableDeclarationNode.modify()
                     .withAnnotations(annotationNodes)
                     .withTypedBindingPattern(typedBindingPatternNode)
@@ -255,7 +255,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .apply();
         } else {
             typedBindingPatternNode = formatNode(variableDeclarationNode.typedBindingPattern(), 0, 0);
-            Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(), this.trailingWS, this.trailingNL);
+            Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(),
+                    this.trailingWS, this.trailingNL);
             return variableDeclarationNode.modify()
                     .withAnnotations(annotationNodes)
                     .withTypedBindingPattern(typedBindingPatternNode)
@@ -837,7 +838,11 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      */
     @SuppressWarnings("unchecked")
     private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL) {
-        if (node == null || !isInLineRange(node, lineRange)) {
+        if (node == null) {
+            return node;
+        }
+
+        if (!isInLineRange(node, lineRange)) {
             checkForNewline(node);
             return node;
         }
