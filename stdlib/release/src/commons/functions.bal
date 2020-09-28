@@ -1,9 +1,26 @@
 import ballerina/http;
 import ballerina/io;
+import ballerina/lang.'string;
 import ballerina/log;
 
 public function sortModules(Module[] modules) returns Module[] {
     return modules.sort(compareModules);
+}
+
+public function removeDuplicates(Module[] modules) returns Module[] {
+    int length = modules.length();
+    if (length < 2) {
+        return modules;
+    }
+    Module[] newModules = [];
+    int count = 0;
+    while(count < length - 1) {
+        if (modules[count] != modules[count + 1]) {
+            newModules.push(modules[count]);
+        }
+        count += 1;
+    }
+    return newModules;
 }
 
 function compareModules(Module m1, Module m2) returns int {
@@ -12,7 +29,7 @@ function compareModules(Module m1, Module m2) returns int {
     } else if (m1.level < m2.level) {
         return -1;
     } else {
-        return 0;
+        return 'string:codePointCompare(m1.name, m2.name);
     }
 }
 
@@ -35,7 +52,7 @@ public function getModuleArray(json[] modulesJson) returns Module[] {
         Module module = <Module>result;
         modules.push(module);
     }
-    return modules;
+    return sortModules(modules);
 }
 
 public function createRequest(string accessTokenHeaderValue) returns http:Request {

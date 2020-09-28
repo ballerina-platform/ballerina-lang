@@ -13,7 +13,6 @@ public function main() {
     string eventType = config:getAsString(CONFIG_EVENT_TYPE);
     json[] modulesJson = commons:getModuleJsonArray();
     commons:Module[] modules = commons:getModuleArray(modulesJson);
-    modules = commons:sortModules(modules);
     addDependentModules(modules);
 
     if (eventType == EVENT_TYPE_MODULE_PUSH) {
@@ -21,7 +20,8 @@ public function main() {
         string moduleName = stringutils:split(moduleFullName, "/")[1];
         commons:Module? module = commons:getModuleFromModuleArray(modules, moduleName);
         if (module is commons:Module) {
-            publishModuleWithDependents(module);
+            commons:Module[] toBeReleased = getModulesToBeReleased(module);
+            handlePublish(toBeReleased);
         } else {
             log:printWarn("Module '" + moduleName + "' not found in module array");
         }
@@ -67,7 +67,7 @@ function getWaitTimeForLevel(int level) returns int {
         // Max time - HTTP - 18m 53s
         return MINUTE_IN_MILLIS * 5;
     } else {
-        // Max time - gRPC - 5m 20s
+        // No Need to wait for level 8 modules
         return MINUTE_IN_MILLIS * 0;
     }
 }
@@ -95,21 +95,17 @@ function publishModule(commons:Module module) returns boolean {
     return commons:validateResponse(response, moduleName);
 }
 
-function publishModuleWithDependents(commons:Module module) {
-    boolean[] published = [];
+function getModulesToBeReleased(commons:Module module) returns commons:Module[] {
+    commons:Module[] toBeReleased = [];
+    populteToBeReleasedModules(module, toBeReleased);
+    toBeReleased = commons:sortModules(toBeReleased);
+    return commons:removeDuplicates(toBeReleased);
+}
 
-    boolean publishStarted = publishModule(module);
-    if (publishStarted) {
-        log:printInfo("Module " + module.name + " publish triggerred successfully.");
-    } else {
-        log:printWarn("Module " + module.name + " publish did not triggerred successfully.");
-    }
-    int currentLevel = module.level;
+function populteToBeReleasedModules(commons:Module module, commons:Module[] toBeReleased) {
+    toBeReleased.push(module);
     foreach commons:Module dependentModule in module.dependentModules {
-        if (currentLevel < dependentModule.level) {
-            waitForModuleBuild(currentLevel);
-        }
-        publishModuleWithDependents(dependentModule);
+        populteToBeReleasedModules(dependentModule, toBeReleased);
     }
 }
 
