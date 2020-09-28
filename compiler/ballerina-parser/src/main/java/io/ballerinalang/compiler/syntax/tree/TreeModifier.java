@@ -1304,6 +1304,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
         NodeList<AnnotationNode> annotations =
                 modifyNodeList(namedWorkerDeclarationNode.annotations());
+        Token transactionalKeyword =
+                modifyToken(namedWorkerDeclarationNode.transactionalKeyword().orElse(null));
         Token workerKeyword =
                 modifyToken(namedWorkerDeclarationNode.workerKeyword());
         IdentifierToken workerName =
@@ -1314,6 +1316,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(namedWorkerDeclarationNode.workerBody());
         return namedWorkerDeclarationNode.modify(
                 annotations,
+                transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,

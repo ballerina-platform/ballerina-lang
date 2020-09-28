@@ -961,6 +961,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createNamedWorkerDeclarationNode(
             STNode annotations,
+            STNode transactionalKeyword,
             STNode workerKeyword,
             STNode workerName,
             STNode returnTypeDesc,
@@ -968,6 +969,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STNamedWorkerDeclarationNode(
                 annotations,
+                transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,

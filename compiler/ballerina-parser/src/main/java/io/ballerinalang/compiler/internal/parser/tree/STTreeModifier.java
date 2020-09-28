@@ -1020,12 +1020,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STNamedWorkerDeclarationNode transform(
             STNamedWorkerDeclarationNode namedWorkerDeclarationNode) {
         STNode annotations = modifyNode(namedWorkerDeclarationNode.annotations);
+        STNode transactionalKeyword = modifyNode(namedWorkerDeclarationNode.transactionalKeyword);
         STNode workerKeyword = modifyNode(namedWorkerDeclarationNode.workerKeyword);
         STNode workerName = modifyNode(namedWorkerDeclarationNode.workerName);
         STNode returnTypeDesc = modifyNode(namedWorkerDeclarationNode.returnTypeDesc);
         STNode workerBody = modifyNode(namedWorkerDeclarationNode.workerBody);
         return namedWorkerDeclarationNode.modify(
                 annotations,
+                transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,

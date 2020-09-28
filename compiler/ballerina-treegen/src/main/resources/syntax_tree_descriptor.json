@@ -1742,6 +1742,11 @@
                     "occurrences": "MULTIPLE"
                 },
                 {
+                    "name": "transactionalKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
                     "name": "workerKeyword",
                     "type": "Token"
                 },
