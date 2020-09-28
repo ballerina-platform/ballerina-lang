@@ -536,7 +536,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token openParenToken = formatToken(parenthesizedArgList.openParenToken(), 0, 0);
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(parenthesizedArgList
                 .arguments(), 0, 0, 0, 0);
-        Token closeParenToken = formatToken(parenthesizedArgList.closeParenToken(), 1, 0);
+        Token closeParenToken = formatToken(parenthesizedArgList.closeParenToken(), this.trailingWS, this.trailingNL);
 
         return parenthesizedArgList.modify()
                 .withOpenParenToken(openParenToken)
@@ -590,7 +590,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public OptionalTypeDescriptorNode transform(OptionalTypeDescriptorNode optionalTypeDescriptorNode) {
         Node typeDescriptor = formatNode(optionalTypeDescriptorNode.typeDescriptor(), 0, 0);
-        Token questionMarkToken = formatToken(optionalTypeDescriptorNode.questionMarkToken(), 1, 0);
+        Token questionMarkToken = formatToken(optionalTypeDescriptorNode.questionMarkToken(),
+                this.trailingWS, this.trailingNL);
 
         return optionalTypeDescriptorNode.modify()
                 .withTypeDescriptor(typeDescriptor)
@@ -600,7 +601,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public ExpressionStatementNode transform(ExpressionStatementNode expressionStatementNode) {
-        ExpressionNode expression = formatNode(expressionStatementNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(expressionStatementNode.expression(), 0, 0);
         Token semicolonToken = formatToken(expressionStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
 
         return expressionStatementNode.modify()
@@ -628,7 +629,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token openParenToken = formatToken(remoteMethodCallActionNode.openParenToken(), 0, 0);
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(remoteMethodCallActionNode
                 .arguments(), 1, 0, 0, 0);
-        Token closeParenToken = formatToken(remoteMethodCallActionNode.closeParenToken(), 0, 0);
+        Token closeParenToken = formatToken(remoteMethodCallActionNode.closeParenToken(), this.trailingWS, this.trailingNL);
 
         return remoteMethodCallActionNode.modify()
                 .withExpression(expression)
@@ -683,11 +684,13 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public WhileStatementNode transform(WhileStatementNode whileStatementNode) {
+        boolean hasOnFailClause = whileStatementNode.onFailClause().isPresent();
         Token whileKeyword = formatToken(whileStatementNode.whileKeyword(), 1, 0);
         ExpressionNode condition = formatNode(whileStatementNode.condition(), 1, 0);
-        BlockStatementNode whileBody = formatNode(whileStatementNode.whileBody(), this.trailingWS, this.trailingNL);
+        BlockStatementNode whileBody = formatNode(whileStatementNode.whileBody(),
+                hasOnFailClause ? 1 : this.trailingWS, hasOnFailClause ? 0 : this.trailingNL);
 
-        if (whileStatementNode.onFailClause().isPresent()) {
+        if (hasOnFailClause) {
             OnFailClauseNode onFailClause = formatNode(whileStatementNode.onFailClause().get(),
                     this.trailingWS, this.trailingNL);
             whileStatementNode = whileStatementNode.modify().withOnFailClause(onFailClause).apply();
@@ -704,7 +707,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public BracedExpressionNode transform(BracedExpressionNode bracedExpressionNode) {
         Token openParen = formatToken(bracedExpressionNode.openParen(), 0, 0);
         ExpressionNode expression = formatNode(bracedExpressionNode.expression(), 0, 0);
-        Token closeParen = formatToken(bracedExpressionNode.closeParen(), 1, 0);
+        Token closeParen = formatToken(bracedExpressionNode.closeParen(), this.trailingWS, this.trailingNL);
 
         return bracedExpressionNode.modify()
                 .withOpenParen(openParen)
@@ -846,7 +849,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(functionCallExpressionNode
                 .arguments(), 0, 0, 0, 0);
         Token functionCallClosePara = formatToken(functionCallExpressionNode.closeParenToken(),
-                this.trailingWS, 0);
+                this.trailingWS, this.trailingNL);
 
         return functionCallExpressionNode.modify()
                 .withFunctionName(functionName)
