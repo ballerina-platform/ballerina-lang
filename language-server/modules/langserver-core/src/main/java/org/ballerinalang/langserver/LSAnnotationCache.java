@@ -211,6 +211,14 @@ public class LSAnnotationCache {
         }
     }
 
+    /**
+     * Get the annotations in the module when given the alias.
+     * 
+     * @param context Language server context
+     * @param alias module alias
+     * @param attachmentPoint attachment point
+     * @return {@link Map} of annotations
+     */
     public Map<PackageID, List<BAnnotationSymbol>> getAnnotationsInModule(LSContext context, String alias,
                                                                           SyntaxKind attachmentPoint) {
         HashMap<PackageID, List<BAnnotationSymbol>> annotations = getAnnotationMapForType(attachmentPoint, context);
@@ -254,7 +262,6 @@ public class LSAnnotationCache {
      * @param bPackageSymbol BLang Package Symbol to load annotations
      */
     private static void loadAnnotationsFromPackage(BPackageSymbol bPackageSymbol) {
-//        List<Scope.ScopeEntry> scopeEntries = new ArrayList<>();
         List<Scope.ScopeEntry> scopeEntries = extractAnnotationDefinitions(bPackageSymbol.scope.entries);
 
         scopeEntries.forEach(annotationEntry -> {
