@@ -19,29 +19,18 @@ package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.ballerinalang.model.tree.matchpatterns.RestMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.FieldMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.MatchPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
- * Represent rest-match-pattern.
- *
- * @since 2.0.0
+ * @since Swan Lake
  */
-public class BLangRestMatchPattern extends BLangMatchPattern implements RestMatchPatternNode {
-    public BLangIdentifier variableName;
-    public BVarSymbol symbol;
+public class BLangFieldMatchPattern extends BLangMatchPattern implements FieldMatchPatternNode {
 
-    @Override
-    public IdentifierNode getIdentifier() {
-        return variableName;
-    }
-
-    @Override
-    public void setIdentifier(IdentifierNode variableName) {
-        this.variableName = (BLangIdentifier) variableName;
-    }
+    public BLangIdentifier fieldName;
+    public BLangMatchPattern matchPattern;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -50,6 +39,21 @@ public class BLangRestMatchPattern extends BLangMatchPattern implements RestMatc
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.REST_MATCH_PATTERN;
+        return NodeKind.FIELD_MATCH_PATTERN;
+    }
+
+    @Override
+    public IdentifierNode getFieldName() {
+        return fieldName;
+    }
+
+    @Override
+    public void setFieldName(IdentifierNode fieldName) {
+        this.fieldName = (BLangIdentifier) fieldName;
+    }
+
+    @Override
+    public MatchPatternNode getMatchPattern() {
+        return matchPattern;
     }
 }
