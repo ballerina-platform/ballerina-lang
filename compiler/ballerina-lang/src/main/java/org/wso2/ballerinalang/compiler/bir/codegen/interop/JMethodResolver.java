@@ -577,14 +577,6 @@ class JMethodResolver {
         return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
     }
 
-    private BType[] getJSONMemberTypes() {
-        // TODO can't we use a static instance of this?
-        return new BType[]{
-                this.symbolTable.nilType, this.symbolTable.stringType, this.symbolTable.intType,
-                this.symbolTable.floatType, this.symbolTable.booleanType, this.symbolTable.mapJsonType,
-                this.symbolTable.arrayJsonType};
-    }
-
     private boolean isReadOnlyCompatibleReturnType(Class<?> jType, JMethodRequest jMethodRequest)
             throws ClassNotFoundException {
         if (jType.getTypeName().equals(J_OBJECT_TNAME)) {

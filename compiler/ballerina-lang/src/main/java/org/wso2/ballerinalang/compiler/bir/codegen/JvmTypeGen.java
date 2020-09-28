@@ -379,7 +379,7 @@ class JvmTypeGen {
         // Create TypeIdSet
         mv.visitTypeInsn(NEW, TYPE_ID_SET);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, TYPE_ID_SET, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, TYPE_ID_SET, JVM_INIT_METHOD, String.format("()V"), false);
 
         for (BTypeIdSet.BTypeId typeId : typeIdSet.primary) {
             addTypeId(mv, typeId, true);
