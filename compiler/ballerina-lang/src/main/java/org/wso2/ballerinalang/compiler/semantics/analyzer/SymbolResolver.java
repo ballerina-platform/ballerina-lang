@@ -876,8 +876,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             entry.symbol.type = symTable.anydataType;
             entry.symbol.origin = BUILTIN;
 
-            symTable.anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, PackageID.ANNOTATIONS,
-                    symTable.anydataType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
+            symTable.anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA,
+                    PackageID.ANNOTATIONS, symTable.anydataType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
 
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
