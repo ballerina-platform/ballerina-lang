@@ -355,8 +355,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Case6: Test dependency between two porject with " +
-            "common module as an import.")
+    @Test(description = "Case6: Test dependency between two porject with common module as an import.")
     public void testBaloPathCase6() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case6");
 
@@ -378,23 +377,16 @@ public class PathDependencyTestCase extends BaseTest {
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
         String moduleXBuildMsg = "target" + File.separator + "balo" + File.separator + moduleXBaloFileName;
-        String moduleYBuildMsg = "target" + File.separator + "balo" + File.separator + moduleYBaloFileName;
+        String moduleYBuildMsg = "target" + File.separator + "balo" + File.separator + moduleYBaloFileName;;
         LogLeecher moduleXBuildLeecher = new LogLeecher(moduleXBuildMsg);
         LogLeecher moduleYBuildLeecher = new LogLeecher(moduleYBuildMsg);
+        LogLeecher moduleXTestLeecher = new LogLeecher("1 passing");
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
-                new LogLeecher[]{moduleXBuildLeecher, moduleYBuildLeecher},
+                new LogLeecher[]{moduleXBuildLeecher, moduleYBuildLeecher, moduleXTestLeecher},
                 caseResources.resolve("TestProject1").toString());
         moduleXBuildLeecher.waitForText(5000);
         moduleYBuildLeecher.waitForText(5000);
-
-        // Run and see output
-        String msg = "Hello world from module X!";
-        String moduleXJarFileName = "X" + BLANG_COMPILED_JAR_EXT;
-        String executableFilePath = "target" + File.separator + "bin" + File.separator + moduleXJarFileName;
-        LogLeecher bazRunLeecher = new LogLeecher(msg);
-        balClient.runMain("run", new String[]{executableFilePath}, envVariables, new String[0],
-                new LogLeecher[]{bazRunLeecher}, caseResources.resolve("TestProject1").toString());
-        bazRunLeecher.waitForText(10000);
+        moduleXTestLeecher.waitForText(5000);
     }
 
     /**
@@ -403,8 +395,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Case7: Test platform dependency of two project with " +
-            "common module as an interop dependency")
+    @Test(description = "Case7: Test platform dependency of two project with common module as an interop dependency")
     public void testBaloPathCase7() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case7");
         // Build all modules of TestProject3
@@ -418,24 +409,17 @@ public class PathDependencyTestCase extends BaseTest {
         String moduleYBuildMsg = "target" + File.separator + "balo" + File.separator + moduleFooBaloFileName;
         LogLeecher moduleXBuildLeecher = new LogLeecher(moduleXBuildMsg);
         LogLeecher moduleYBuildLeecher = new LogLeecher(moduleYBuildMsg);
+        LogLeecher moduleFooTestLeecher = new LogLeecher("1 passing");
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
-                new LogLeecher[]{moduleXBuildLeecher, moduleYBuildLeecher},
+                new LogLeecher[]{moduleXBuildLeecher, moduleYBuildLeecher, moduleFooTestLeecher},
                 caseResources.resolve("TestProject1").toString());
         moduleXBuildLeecher.waitForText(5000);
         moduleYBuildLeecher.waitForText(5000);
-
-        String msg = "This is a test string value !!!";
-
-        String moduleFooJarFileName = "foo" + BLANG_COMPILED_JAR_EXT;
-        String executableFilePath = "target" + File.separator + "bin" + File.separator + moduleFooJarFileName;
-        LogLeecher bazRunLeecher = new LogLeecher(msg);
-        balClient.runMain("run", new String[]{executableFilePath}, envVariables, new String[0],
-                new LogLeecher[]{bazRunLeecher}, caseResources.resolve("TestProject1").toString());
-        bazRunLeecher.waitForText(10000);
+        moduleFooTestLeecher.waitForText(5000);
     }
 
     /**
-     * Case8: Build the utils single bal file which is using previusly pushed utils module with interop jar.
+     * Case8: Build the utils single bal file which is using previously pushed utils module with interop jar.
      * Then run the jar.
      *
      * @throws BallerinaTestException Error when executing the commands.
@@ -483,8 +467,8 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Case9: Test path between 2 projects which the import is " +
-            "a native and libraries are in resources directory.")
+    @Test(description = "Case9: Test path between 2 projects which the import is a native and libraries are in " +
+            "resources directory.")
     public void testBaloPathCase9() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case9");
         // Build bee module of TestProject1
@@ -502,15 +486,11 @@ public class PathDependencyTestCase extends BaseTest {
 
         String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
+        LogLeecher bazTestLeecher = new LogLeecher("1 passing");
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
-                          new LogLeecher[]{bazModuleBuildLeecher}, caseResources.resolve("TestProject2").toString());
+                          new LogLeecher[]{bazModuleBuildLeecher, bazTestLeecher}, caseResources.resolve("TestProject2").toString());
         bazModuleBuildLeecher.waitForText(5000);
-
-        // Run and see output
-        LogLeecher bazRunLeecher = new LogLeecher("cat");
-        balClient.runMain("run", new String[]{bazBuildMsg}, envVariables, new String[0],
-                          new LogLeecher[]{bazRunLeecher}, caseResources.resolve("TestProject2").toString());
-        bazRunLeecher.waitForText(10000);
+        bazTestLeecher.waitForText(5000);
     }
 
     /**
@@ -518,13 +498,12 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Case10: Test build and run project which imports " +
-            "module with \"ballerina\" org name via balo path.")
+    @Test(description = "Case10: Test build and run project which imports module with \"ballerina\" org name " +
+            "via balo path.")
     public void testBaloPathCase10() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case10");
-        String printBarLog = "Bar";
         String buildLog = "target/bin/mod1.jar";
-        LogLeecher testLogeecher = new LogLeecher(printBarLog);
+        LogLeecher testLogeecher = new LogLeecher("1 passing");
         LogLeecher buildLogLeecher = new LogLeecher(buildLog);
 
         // Build TestProject1 with tests
@@ -533,12 +512,6 @@ public class PathDependencyTestCase extends BaseTest {
                           caseResources.resolve("TestProject1").toString());
         testLogeecher.waitForText(5000);
         buildLogLeecher.waitForText(5000);
-
-        // Run TestProject1
-        LogLeecher runLogLeecher = new LogLeecher(printBarLog);
-        balClient.runMain("run", new String[]{"mod1"}, envVariables, new String[]{},
-                          new LogLeecher[]{runLogLeecher}, caseResources.resolve("TestProject1").toString());
-        runLogLeecher.waitForText(5000);
     }
 
     /**
@@ -546,7 +519,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Test platform library dependency valid path")
+    @Test(description = "Test platform library dependency valid path")
     public void testValidatePlatformLibraryPath() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("platform-dependency");
         String msg = "error: path or maven dependency properties are not specified for given platform library " +
@@ -563,10 +536,10 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Test runtime test dependency from different modules")
+    @Test(description = "Test runtime test dependency from different modules")
     public void testRuntimeTimeDependencyForExecutingModuleTests() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("test-dependency");
-        String msg = "invoked fooFn";
+        String msg = "1 passing";
 
         LogLeecher buildLogLeecher = new LogLeecher(msg);
         balClient.runMain("build", new String[]{"bar"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
@@ -590,12 +563,11 @@ public class PathDependencyTestCase extends BaseTest {
         buildLogLeecher.waitForText(10000);
     }
 
-    @Test(enabled = false, description = "Test if observability jar gets packed with executable " +
-            "if observability flag is given.")
+    @Test(description = "Test if observability jar gets packed with executable if observability flag is given.")
     public void testObservabilityFlag() throws BallerinaTestException, IOException {
         // Test ballerina init
-        Path projectPath = tempTestResources.resolve("test-dependency");
-        String moduleExecutableFileName = "bar" + BLANG_COMPILED_JAR_EXT;
+        Path projectPath = tempTestResources.resolve("case7").resolve("TestProject1");
+        String moduleExecutableFileName = "foo" + BLANG_COMPILED_JAR_EXT;
         String observabilityEntry = "org/ballerinalang/observe/trace/extension/choreo/";
         Path executablePath = projectPath.resolve(ProjectDirConstants.TARGET_DIR_NAME).
                 resolve(ProjectDirConstants.BIN_DIR_NAME).resolve(moduleExecutableFileName);
@@ -604,13 +576,13 @@ public class PathDependencyTestCase extends BaseTest {
         String buildText = ProjectDirConstants.TARGET_DIR_NAME + File.separator + ProjectDirConstants.BIN_DIR_NAME +
                 File.separator + moduleExecutableFileName;
         LogLeecher buildLeecher = new LogLeecher(buildText);
-        balClient.runMain("build", new String[] { "bar" }, envVariables, new String[] {},
+        balClient.runMain("build", new String[] { "-a" }, envVariables, new String[] {},
                 new LogLeecher[] { buildLeecher }, projectPath.toString());
         buildLeecher.waitForText(5000);
         Assert.assertFalse(isJarEntryExists(executablePath, observabilityEntry));
 
         // Build module with "--observability-included" flag
-        balClient.runMain("build", new String[] { "--observability-included", "bar" }, envVariables,
+        balClient.runMain("build", new String[] { "--observability-included", "-a" }, envVariables,
                 new String[] {}, new LogLeecher[] { buildLeecher }, projectPath.toString());
         buildLeecher.waitForText(5000);
         Assert.assertTrue(isJarEntryExists(executablePath, observabilityEntry));
