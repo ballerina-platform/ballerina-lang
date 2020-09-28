@@ -300,6 +300,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExternalFunctionBody body) {
+        inferredIsolated = false;
     }
 
     @Override
