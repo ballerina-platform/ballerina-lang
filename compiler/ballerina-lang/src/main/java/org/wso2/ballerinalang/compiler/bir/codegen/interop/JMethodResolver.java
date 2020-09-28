@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.ballerinalang.jvm.api.BalEnv;
 import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.api.values.BDecimal;
 import org.ballerinalang.jvm.api.values.BError;
@@ -625,11 +626,21 @@ class JMethodResolver {
 
         Executable executable = (kind == JMethodKind.CONSTRUCTOR) ? resolveConstructor(clazz, paramTypes) :
                 resolveMethod(clazz, name, paramTypes);
+        if (executable == null) {
+            executable = tryResolveExactWithBalEnv(paramTypes, clazz, name);
+        }
         if (executable != null) {
             return JMethod.build(kind, executable, receiverType);
         } else {
             return JMethod.NO_SUCH_METHOD;
         }
+    }
+
+    private Executable tryResolveExactWithBalEnv(Class<?>[] paramTypes, Class<?> clazz, String name) {
+        Class<?>[] paramTypesWithBalEnv = new Class<?>[paramTypes.length + 1];
+        System.arraycopy(paramTypes, 0, paramTypesWithBalEnv, 1, paramTypes.length);
+        paramTypesWithBalEnv[0] = BalEnv.class;
+        return resolveMethod(clazz, name, paramTypesWithBalEnv);
     }
 
     private JMethod resolveMatchingMethod(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
