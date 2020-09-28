@@ -43,7 +43,6 @@ jobs:
 
     publish-stdlib-modules:
         name: Publish Standard Library Modules
-        needs: publish-ballerina-lang
         runs-on: ubuntu-latest
         if: github.repository_owner == 'ThisaruGuruge'
         steps:

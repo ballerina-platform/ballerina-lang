@@ -3,5 +3,7 @@ public type Module record {|
     string 'version;
     int level;
     boolean release;
+    string[] dependents;
+    Module[] dependentModules = [];
     boolean releaseInProgress = false;
 |};
