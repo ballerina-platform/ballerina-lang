@@ -3122,6 +3122,7 @@ public class BallerinaParser extends AbstractParser {
                 if (peek(2).kind == SyntaxKind.WORKER_KEYWORD) {
                     return parseNamedWorkerDeclaration(getAnnotations(annots));
                 }
+                return parseStmtStartsWithTypeOrExpr(getAnnotations(annots));
             case FUNCTION_KEYWORD:
             case ISOLATED_KEYWORD:
             case OPEN_PAREN_TOKEN:
@@ -7571,6 +7572,7 @@ public class BallerinaParser extends AbstractParser {
         switch (token.kind) {
             case TRANSACTIONAL_KEYWORD:
                 transactionalKeyword = parseTransactionalKeyword();
+                break;
             case WORKER_KEYWORD:
                 break;
             default:

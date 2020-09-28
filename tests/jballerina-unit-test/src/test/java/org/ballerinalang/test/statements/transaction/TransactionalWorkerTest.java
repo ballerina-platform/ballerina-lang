@@ -27,6 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * This class contains the tests to test out the transactional worker tests.
+ */
 public class TransactionalWorkerTest {
     private CompileResult programFile;
 

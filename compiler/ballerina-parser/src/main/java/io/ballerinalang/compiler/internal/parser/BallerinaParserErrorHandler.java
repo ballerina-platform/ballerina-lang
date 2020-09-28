@@ -1867,6 +1867,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case NAMED_WORKER_DECL_START:
                 alternativeRules = NAMED_WORKER_DECL_START;
+                break;
             default:
                 return seekMatchInExprRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
                         isEntryPoint);
