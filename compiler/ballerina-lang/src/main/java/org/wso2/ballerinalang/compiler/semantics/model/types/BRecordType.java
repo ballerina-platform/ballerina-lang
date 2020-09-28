@@ -44,7 +44,6 @@ public class BRecordType extends BStructureType implements RecordType {
     public boolean sealed;
     public BType restFieldType;
     public Boolean isAnyData = null;
-    private boolean resolving = false;
 
     public BIntersectionType immutableType;
     public BRecordType mutableType;
