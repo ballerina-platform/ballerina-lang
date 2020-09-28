@@ -1,8 +1,6 @@
+import suganya/ex1;
+import suganya/ex1;
 
-
-import ballerina/math;
-import ballerina/math;
-
-function testFunc() {
-  math:pow(2,2);
+public function main() {
+    ex1:say();
 }
