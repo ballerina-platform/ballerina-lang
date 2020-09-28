@@ -85,3 +85,11 @@ public function printModules(Module[] modules) {
 public function logNewLine() {
     log:printInfo("------------------------------");
 }
+
+public function getModuleFromModuleArray(Module[] modules, string name) returns Module? {
+    foreach Module module in modules {
+        if (module.name == name) {
+            return module;
+        }
+    }
+}

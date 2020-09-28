@@ -13,10 +13,12 @@ public function main() {
     json[] modulesJson = commons:getModuleJsonArray();
     commons:Module[] modules = commons:getModuleArray(modulesJson);
     modules = commons:sortModules(modules);
-    if (eventType == EVENT_TYPE_MODULE_PUSH) {
+    addDependentModules(modules);
+    printModulesWithDependents(modules);
 
+    if (eventType == EVENT_TYPE_MODULE_PUSH) {
+        string moduleName = config:getAsString(CONFIG_SOURCE_MODULE);
     }
-    handlePublish(modules);
 }
 
 function handlePublish(commons:Module[] modules) {
@@ -82,4 +84,28 @@ function publishModule(commons:Module module) returns boolean {
     }
     http:Response response = <http:Response>result;
     return commons:validateResponse(response, moduleName);
+}
+
+function addDependentModules(commons:Module[] modules) {
+    foreach commons:Module module in modules {
+        string[] dependentModuleNames = module.dependents;
+        foreach string dependentModuleName in dependentModuleNames {
+            commons:Module? dependentModule = commons:getModuleFromModuleArray(modules, dependentModuleName);
+            if (dependentModule is commons:Module) {
+                module.dependentModules.push(dependentModule);
+            }
+        }
+    }
+}
+
+function printModulesWithDependents(commons:Module[] modules) {
+    foreach commons:Module module in modules {
+        log:printInfo(module.name);
+        log:printInfo("    " + module.'version);
+        log:printInfo("    " + module.level.toString());
+        log:printInfo("    Dependents: ");
+        foreach commons:Module dependent in module.dependentModules {
+            log:printInfo("        " + dependent.name);
+        }
+    }
 }
