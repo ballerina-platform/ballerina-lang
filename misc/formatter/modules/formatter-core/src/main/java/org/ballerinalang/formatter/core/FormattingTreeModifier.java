@@ -3757,7 +3757,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token closeParenthesisToken = getToken(errorMatchPatternNode.closeParenthesisToken());
         return errorMatchPatternNode.modify()
                 .withErrorKeyword(formatToken(errorKeywordToken, 0, 1, 0, 0))
-                .withTypeReference(typeRef)
+                .withTypeReference((NameReferenceNode) typeRef)
                 .withOpenParenthesisToken(formatToken(openParenthesisToken, 0, 0, 0, 0))
                 .withArgListMatchPatternNode(argListMatchPatternNode)
                 .withCloseParenthesisToken(formatToken(closeParenthesisToken, 0, 0, 0, 0))
