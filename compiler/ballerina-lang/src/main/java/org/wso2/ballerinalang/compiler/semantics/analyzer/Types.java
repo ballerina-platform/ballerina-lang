@@ -507,6 +507,26 @@ public class Types {
         return intersectionType;
     }
 
+    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BRecordType mappingMatchPatternType) {
+        if (isAssignable(mappingMatchPatternType, matchExprType)) {
+            return mappingMatchPatternType;
+        }
+        if (isAssignable(matchExprType, mappingMatchPatternType)) {
+            return matchExprType;
+        }
+
+        if (matchExprType.tag == TypeTags.MAP) {
+            BType mapType = ((BMapType) matchExprType).constraint;
+            for (BField field : mappingMatchPatternType.fields.values()) {
+                if (!(isAssignable(field.type, mapType) || isAssignable(mapType, field.type))) {
+                    return symTable.noType;
+                }
+            }
+            return mappingMatchPatternType;
+        }
+        return symTable.noType;
+    }
+
     private boolean containsAnyType(BType type) {
         if (type.tag != TypeTags.UNION) {
             return type.tag == TypeTags.ANY;

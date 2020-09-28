@@ -884,6 +884,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     }
 
+    @Override
+    public void visit(BLangMappingMatchPattern mappingMatchPattern) {}
+
+    @Override
+    public void visit(BLangFieldMatchPattern fieldMatchPattern) {}
+
     private void checkSimilarMatchPatternsBetweenClauses(BLangMatchClause firstClause, BLangMatchClause secondClause) {
         for (BLangMatchPattern firstMatchPattern : firstClause.matchPatterns) {
             for (BLangMatchPattern secondMatchPattern : secondClause.matchPatterns) {

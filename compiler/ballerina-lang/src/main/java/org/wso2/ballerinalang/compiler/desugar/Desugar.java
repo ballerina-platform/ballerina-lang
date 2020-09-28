@@ -817,7 +817,7 @@ public class Desugar extends BLangNodeVisitor {
         initFuncIndex = 0;
         result = pkgNode;
     }
-    
+
     private BLangStatementExpression createIfElseFromConfigurable(BLangSimpleVariable configurableVar) {
 
         /*
