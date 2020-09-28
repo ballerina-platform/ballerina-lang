@@ -17,16 +17,17 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BLink;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +35,7 @@ import java.util.StringJoiner;
 
 import static org.ballerinalang.jvm.util.BLangConstants.OBJECT_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
@@ -87,8 +89,13 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         return "object " + type.toString();
+    }
+
+    @Override
+    public String informalStringValue(BLink parent) {
+        return stringValue(parent);
     }
 
     @Override
@@ -139,7 +146,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
                 continue;
             }
             String fieldName = field.getKey();
-            sj.add(fieldName + ":" + getStringValue(get(StringUtils.fromString(fieldName))));
+            sj.add(fieldName + ":" + getStringValue(get(BStringUtils.fromString(fieldName))));
         }
 
         return sj.toString();
@@ -161,17 +168,17 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     protected void checkFieldUpdate(String fieldName, Object value) {
         if (type.isReadOnly()) {
-            throw BallerinaErrors.createError(
+            throw BErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_READONLY_VALUE_UPDATE));
         }
 
         BField field = type.getFields().get(fieldName);
 
-        if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
-            throw BallerinaErrors.createError(
-                    getModulePrefixedReason(OBJECT_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.OBJECT_INVALID_READONLY_FIELD_UPDATE,
+        if (Flags.isFlagOn(field.flags, Flags.FINAL)) {
+            throw BErrorCreator.createError(
+                    getModulePrefixedReason(OBJECT_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.OBJECT_INVALID_FINAL_FIELD_UPDATE,
                                                          fieldName, type));
         }
         checkFieldUpdateType(fieldName, value);
@@ -183,9 +190,11 @@ public abstract class AbstractObjectValue implements ObjectValue {
             return;
         }
 
-        throw BallerinaErrors.createError(getModulePrefixedReason(OBJECT_LANG_LIB,
-                                                                  INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                "invalid value for object field '" + fieldName + "': expected value of type '" + fieldType +
-                        "', found '" + TypeChecker.getType(value) + "'");
+        throw BErrorCreator.createError(getModulePrefixedReason(OBJECT_LANG_LIB,
+                                                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                                        BStringUtils.fromString("invalid value for object field '" + fieldName +
+                                                                       "': expected value of type '" + fieldType +
+                                                                       "', found '" + TypeChecker.getType(value) +
+                                                                       "'"));
     }
 }

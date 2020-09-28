@@ -17,7 +17,12 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.internal.ErrorUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
@@ -33,10 +38,8 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -80,24 +83,24 @@ public class TypeConverter {
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
                 return anyToInt(inputValue, () ->
-                        BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeInt));
+                        ErrorUtils.createNumericConversionError(inputValue, BTypes.typeInt));
             case TypeTags.DECIMAL_TAG:
                 return anyToDecimal(inputValue, () ->
-                        BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeDecimal));
+                        ErrorUtils.createNumericConversionError(inputValue, BTypes.typeDecimal));
             case TypeTags.FLOAT_TAG:
                 return anyToFloat(inputValue, () ->
-                        BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeFloat));
+                        ErrorUtils.createNumericConversionError(inputValue, BTypes.typeFloat));
             case TypeTags.STRING_TAG:
-                return StringUtils.fromString(anyToString(inputValue));
+                return BStringUtils.fromString(anyToString(inputValue));
             case TypeTags.BOOLEAN_TAG:
                 return anyToBoolean(inputValue, () ->
-                        BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeBoolean));
+                        ErrorUtils.createNumericConversionError(inputValue, BTypes.typeBoolean));
             case TypeTags.BYTE_TAG:
                 return anyToByte(inputValue, () ->
-                        BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeByte));
+                        ErrorUtils.createNumericConversionError(inputValue, BTypes.typeByte));
             default:
-                throw BallerinaErrors.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                                  BLangExceptionHelper.getErrorMessage(
+                throw BErrorCreator.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                BLangExceptionHelper.getErrorMessage(
                                                           RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                           inputType, inputValue, targetType));
         }
@@ -113,24 +116,24 @@ public class TypeConverter {
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
                 return anyToIntCast(inputValue, () ->
-                        BallerinaErrors.createTypeCastError(inputValue, BTypes.typeInt));
+                        ErrorUtils.createTypeCastError(inputValue, BTypes.typeInt));
             case TypeTags.DECIMAL_TAG:
                 return anyToDecimal(inputValue, () ->
-                        BallerinaErrors.createTypeCastError(inputValue, BTypes.typeDecimal));
+                        ErrorUtils.createTypeCastError(inputValue, BTypes.typeDecimal));
             case TypeTags.FLOAT_TAG:
                 return anyToFloatCast(inputValue, () ->
-                        BallerinaErrors.createTypeCastError(inputValue, BTypes.typeFloat));
+                        ErrorUtils.createTypeCastError(inputValue, BTypes.typeFloat));
             case TypeTags.STRING_TAG:
                 return anyToStringCast(inputValue, () ->
-                        BallerinaErrors.createTypeCastError(inputValue, BTypes.typeString));
+                        ErrorUtils.createTypeCastError(inputValue, BTypes.typeString));
             case TypeTags.BOOLEAN_TAG:
                 return anyToBooleanCast(inputValue, () ->
-                        BallerinaErrors.createTypeCastError(inputValue, BTypes.typeBoolean));
+                        ErrorUtils.createTypeCastError(inputValue, BTypes.typeBoolean));
             case TypeTags.BYTE_TAG:
                 return anyToByteCast(inputValue, () ->
-                        BallerinaErrors.createTypeCastError(inputValue, BTypes.typeByte));
+                        ErrorUtils.createTypeCastError(inputValue, BTypes.typeByte));
             default:
-                throw BallerinaErrors.createTypeCastError(inputValue, targetType);
+                throw ErrorUtils.createTypeCastError(inputValue, targetType);
         }
     }
 
@@ -322,7 +325,7 @@ public class TypeConverter {
         for (Map.Entry targetTypeEntry : targetFieldTypes.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
-            if (sourceMapValueImpl.containsKey(StringUtils.fromString(fieldName))) {
+            if (sourceMapValueImpl.containsKey(BStringUtils.fromString(fieldName))) {
                 continue;
             }
             BField targetField = targetType.getFields().get(fieldName);
@@ -367,7 +370,7 @@ public class TypeConverter {
         return true;
     }
 
-    static long anyToInt(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static long anyToInt(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Long) {
             return (Long) sourceVal;
         } else if (sourceVal instanceof Double) {
@@ -389,7 +392,7 @@ public class TypeConverter {
         throw errorFunc.get();
     }
 
-    static long anyToIntCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static long anyToIntCast(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Long) {
             return (Long) sourceVal;
         } else if (sourceVal instanceof Double) {
@@ -405,7 +408,7 @@ public class TypeConverter {
         }
     }
 
-    static long anyToIntSubTypeCast(Object sourceVal, BType type, Supplier<ErrorValue> errorFunc) {
+    static long anyToIntSubTypeCast(Object sourceVal, BType type, Supplier<BError> errorFunc) {
         long value = anyToIntCast(sourceVal, errorFunc);
         if (type == BTypes.typeIntSigned32 && isSigned32LiteralValue(value)) {
             return value;
@@ -423,7 +426,7 @@ public class TypeConverter {
         throw errorFunc.get();
     }
 
-    static double anyToFloat(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static double anyToFloat(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Long) {
             return ((Long) sourceVal).doubleValue();
         } else if (sourceVal instanceof Double) {
@@ -445,7 +448,7 @@ public class TypeConverter {
         throw errorFunc.get();
     }
 
-    static double anyToFloatCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static double anyToFloatCast(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Long) {
             return ((Long) sourceVal).doubleValue();
         } else if (sourceVal instanceof Double) {
@@ -461,7 +464,7 @@ public class TypeConverter {
         }
     }
 
-    static boolean anyToBoolean(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static boolean anyToBoolean(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Long) {
             return (long) sourceVal != 0;
         } else if (sourceVal instanceof Double) {
@@ -483,7 +486,7 @@ public class TypeConverter {
         throw errorFunc.get();
     }
 
-    static boolean anyToBooleanCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static boolean anyToBooleanCast(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Boolean) {
             return (boolean) sourceVal;
         }
@@ -493,49 +496,49 @@ public class TypeConverter {
 
     public static int intToByte(long sourceVal) {
         if (!TypeChecker.isByteLiteral(sourceVal)) {
-            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
+            throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeByte);
         }
         return ((Long) sourceVal).intValue();
     }
 
     public static long intToSigned32(long sourceVal) {
         if (!TypeChecker.isSigned32LiteralValue(sourceVal)) {
-            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeIntSigned32);
+            throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeIntSigned32);
         }
         return sourceVal;
     }
 
     public static long intToSigned16(long sourceVal) {
         if (!isSigned16LiteralValue(sourceVal)) {
-            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeIntSigned16);
+            throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeIntSigned16);
         }
         return sourceVal;
     }
 
     public static long intToSigned8(long sourceVal) {
         if (!isSigned8LiteralValue(sourceVal)) {
-            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeIntSigned8);
+            throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeIntSigned8);
         }
         return sourceVal;
     }
 
     public static long intToUnsigned32(long sourceVal) {
         if (!isUnsigned32LiteralValue(sourceVal)) {
-            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeIntUnsigned32);
+            throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeIntUnsigned32);
         }
         return sourceVal;
     }
 
     public static long intToUnsigned16(long sourceVal) {
         if (!isUnsigned16LiteralValue(sourceVal)) {
-            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeIntUnsigned16);
+            throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeIntUnsigned16);
         }
         return sourceVal;
     }
 
     public static long intToUnsigned8(long sourceVal) {
         if (!isUnsigned8LiteralValue(sourceVal)) {
-            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeIntUnsigned8);
+            throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeIntUnsigned8);
         }
         return sourceVal;
     }
@@ -566,9 +569,9 @@ public class TypeConverter {
 
     public static BString stringToChar(Object sourceVal) {
         if (!isCharLiteralValue(sourceVal)) {
-            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeStringChar);
+            throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeStringChar);
         }
-        return StringUtils.fromString(Objects.toString(sourceVal));
+        return BStringUtils.fromString(Objects.toString(sourceVal));
     }
 
     public static BString anyToChar(Object sourceVal) {
@@ -582,7 +585,7 @@ public class TypeConverter {
 
         long intVal = Math.round(sourceVal);
         if (!TypeChecker.isByteLiteral(intVal)) {
-            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeByte);
+            throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeByte);
         }
 
         return (int) intVal;
@@ -592,7 +595,7 @@ public class TypeConverter {
         checkIsValidFloat(sourceVal, BTypes.typeInt);
 
         if (!isFloatWithinIntRange(sourceVal)) {
-            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
+            throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeInt);
         }
 
         return (long) Math.rint(sourceVal);
@@ -600,16 +603,16 @@ public class TypeConverter {
 
     private static void checkIsValidFloat(double sourceVal, BType targetType) {
         if (Double.isNaN(sourceVal)) {
-            throw BallerinaErrors.createNumericConversionError(NaN, BTypes.typeFloat, targetType);
+            throw ErrorUtils.createNumericConversionError(NaN, BTypes.typeFloat, targetType);
         }
 
         if (Double.isInfinite(sourceVal)) {
             String value = sourceVal > 0 ? POSITIVE_INFINITY : NEGATIVE_INFINITY;
-            throw BallerinaErrors.createNumericConversionError(value, BTypes.typeFloat, targetType);
+            throw ErrorUtils.createNumericConversionError(value, BTypes.typeFloat, targetType);
         }
     }
 
-    static int anyToByte(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static int anyToByte(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Long) {
             return intToByte((Long) sourceVal);
         } else if (sourceVal instanceof Double) {
@@ -631,7 +634,7 @@ public class TypeConverter {
         throw errorFunc.get();
     }
 
-    static int anyToByteCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static int anyToByteCast(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Long) {
             return intToByte((Long) sourceVal);
         } else if (sourceVal instanceof Byte) {
@@ -660,17 +663,17 @@ public class TypeConverter {
         } else if (sourceVal instanceof Boolean) {
             return Boolean.toString((Boolean) sourceVal);
         } else if (sourceVal instanceof DecimalValue) {
-            return ((DecimalValue) sourceVal).stringValue();
+            return ((DecimalValue) sourceVal).stringValue(null);
         } else if (sourceVal instanceof String) {
             return (String) sourceVal;
         } else if (sourceVal == null) {
             return "()";
         }
 
-        throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeString);
+        throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeString);
     }
 
-    private static String anyToStringCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    private static String anyToStringCast(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof String) {
             return (String) sourceVal;
         }
@@ -678,7 +681,7 @@ public class TypeConverter {
         throw errorFunc.get();
     }
 
-    static DecimalValue anyToDecimal(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static DecimalValue anyToDecimal(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Long) {
             return DecimalValue.valueOf((Long) sourceVal);
         } else if (sourceVal instanceof Double) {
@@ -697,7 +700,7 @@ public class TypeConverter {
 
     // JBallerina related casts
 
-    static byte anyToJByteCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static byte anyToJByteCast(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Byte) {
             return (Byte) sourceVal;
         } else {
@@ -705,7 +708,7 @@ public class TypeConverter {
         }
     }
 
-    static char anyToJCharCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static char anyToJCharCast(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Character) {
             return (Character) sourceVal;
         } else {
@@ -713,7 +716,7 @@ public class TypeConverter {
         }
     }
 
-    static short anyToJShortCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static short anyToJShortCast(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Short) {
             return (Short) sourceVal;
         } else {
@@ -721,7 +724,7 @@ public class TypeConverter {
         }
     }
 
-    static int anyToJIntCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static int anyToJIntCast(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Integer) {
             return (Integer) sourceVal;
         } else {
@@ -729,7 +732,7 @@ public class TypeConverter {
         }
     }
 
-    static long anyToJLongCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static long anyToJLongCast(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Long) {
             return (Long) sourceVal;
         } else {
@@ -737,7 +740,7 @@ public class TypeConverter {
         }
     }
 
-    static float anyToJFloatCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static float anyToJFloatCast(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Float) {
             return (Float) sourceVal;
         } else {
@@ -745,7 +748,7 @@ public class TypeConverter {
         }
     }
 
-    static double anyToJDoubleCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static double anyToJDoubleCast(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Double) {
             return (Double) sourceVal;
         } else {
@@ -753,7 +756,7 @@ public class TypeConverter {
         }
     }
 
-    static boolean anyToJBooleanCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+    static boolean anyToJBooleanCast(Object sourceVal, Supplier<BError> errorFunc) {
         if (sourceVal instanceof Boolean) {
             return (Boolean) sourceVal;
         } else {
@@ -765,7 +768,7 @@ public class TypeConverter {
         checkIsValidFloat(sourceVal, BTypes.typeInt);
 
         if (!isFloatWithinIntRange(sourceVal)) {
-            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
+            throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeInt);
         }
 
         return (long) Math.rint(sourceVal);
@@ -775,7 +778,7 @@ public class TypeConverter {
         checkIsValidFloat(sourceVal, BTypes.typeInt);
 
         if (!isFloatWithinIntRange(sourceVal)) {
-            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
+            throw ErrorUtils.createNumericConversionError(sourceVal, BTypes.typeInt);
         }
 
         return (long) Math.rint(sourceVal);

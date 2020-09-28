@@ -205,6 +205,18 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STFailStatementNode transform(
+            STFailStatementNode failStatementNode) {
+        STNode failKeyword = modifyNode(failStatementNode.failKeyword);
+        STNode expression = modifyNode(failStatementNode.expression);
+        STNode semicolonToken = modifyNode(failStatementNode.semicolonToken);
+        return failStatementNode.modify(
+                failKeyword,
+                expression,
+                semicolonToken);
+    }
+
+    @Override
     public STExpressionStatementNode transform(
             STExpressionStatementNode expressionStatementNode) {
         STNode expression = modifyNode(expressionStatementNode.expression);
@@ -269,10 +281,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode whileKeyword = modifyNode(whileStatementNode.whileKeyword);
         STNode condition = modifyNode(whileStatementNode.condition);
         STNode whileBody = modifyNode(whileStatementNode.whileBody);
+        STNode onFailClause = modifyNode(whileStatementNode.onFailClause);
         return whileStatementNode.modify(
                 whileKeyword,
                 condition,
-                whileBody);
+                whileBody,
+                onFailClause);
     }
 
     @Override
@@ -320,9 +334,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STLockStatementNode lockStatementNode) {
         STNode lockKeyword = modifyNode(lockStatementNode.lockKeyword);
         STNode blockStatement = modifyNode(lockStatementNode.blockStatement);
+        STNode onFailClause = modifyNode(lockStatementNode.onFailClause);
         return lockStatementNode.modify(
                 lockKeyword,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     @Override
@@ -347,12 +363,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode inKeyword = modifyNode(forEachStatementNode.inKeyword);
         STNode actionOrExpressionNode = modifyNode(forEachStatementNode.actionOrExpressionNode);
         STNode blockStatement = modifyNode(forEachStatementNode.blockStatement);
+        STNode onFailClause = modifyNode(forEachStatementNode.onFailClause);
         return forEachStatementNode.modify(
                 forEachKeyword,
                 typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     @Override
@@ -389,17 +407,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return checkExpressionNode.modify(
                 checkExpressionNode.kind,
                 checkKeyword,
-                expression);
-    }
-
-    @Override
-    public STFailExpressionNode transform(
-            STFailExpressionNode failExpressionNode) {
-        STNode failKeyword = modifyNode(failExpressionNode.failKeyword);
-        STNode expression = modifyNode(failExpressionNode.expression);
-        return failExpressionNode.modify(
-                failExpressionNode.kind,
-                failKeyword,
                 expression);
     }
 
@@ -535,14 +542,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STDefaultableParameterNode transform(
             STDefaultableParameterNode defaultableParameterNode) {
         STNode annotations = modifyNode(defaultableParameterNode.annotations);
-        STNode visibilityQualifier = modifyNode(defaultableParameterNode.visibilityQualifier);
         STNode typeName = modifyNode(defaultableParameterNode.typeName);
         STNode paramName = modifyNode(defaultableParameterNode.paramName);
         STNode equalsToken = modifyNode(defaultableParameterNode.equalsToken);
         STNode expression = modifyNode(defaultableParameterNode.expression);
         return defaultableParameterNode.modify(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName,
                 equalsToken,
@@ -553,12 +558,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STRequiredParameterNode transform(
             STRequiredParameterNode requiredParameterNode) {
         STNode annotations = modifyNode(requiredParameterNode.annotations);
-        STNode visibilityQualifier = modifyNode(requiredParameterNode.visibilityQualifier);
         STNode typeName = modifyNode(requiredParameterNode.typeName);
         STNode paramName = modifyNode(requiredParameterNode.paramName);
         return requiredParameterNode.modify(
                 annotations,
-                visibilityQualifier,
                 typeName,
                 paramName);
     }
@@ -678,6 +681,26 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STObjectConstructorExpressionNode transform(
+            STObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        STNode annotations = modifyNode(objectConstructorExpressionNode.annotations);
+        STNode objectTypeQualifiers = modifyNode(objectConstructorExpressionNode.objectTypeQualifiers);
+        STNode objectKeyword = modifyNode(objectConstructorExpressionNode.objectKeyword);
+        STNode typeReference = modifyNode(objectConstructorExpressionNode.typeReference);
+        STNode openBraceToken = modifyNode(objectConstructorExpressionNode.openBraceToken);
+        STNode members = modifyNode(objectConstructorExpressionNode.members);
+        STNode closeBraceToken = modifyNode(objectConstructorExpressionNode.closeBraceToken);
+        return objectConstructorExpressionNode.modify(
+                annotations,
+                objectTypeQualifiers,
+                objectKeyword,
+                typeReference,
+                openBraceToken,
+                members,
+                closeBraceToken);
+    }
+
+    @Override
     public STRecordTypeDescriptorNode transform(
             STRecordTypeDescriptorNode recordTypeDescriptorNode) {
         STNode recordKeyword = modifyNode(recordTypeDescriptorNode.recordKeyword);
@@ -730,7 +753,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STObjectFieldNode objectFieldNode) {
         STNode metadata = modifyNode(objectFieldNode.metadata);
         STNode visibilityQualifier = modifyNode(objectFieldNode.visibilityQualifier);
-        STNode readonlyKeyword = modifyNode(objectFieldNode.readonlyKeyword);
+        STNode finalKeyword = modifyNode(objectFieldNode.finalKeyword);
         STNode typeName = modifyNode(objectFieldNode.typeName);
         STNode fieldName = modifyNode(objectFieldNode.fieldName);
         STNode equalsToken = modifyNode(objectFieldNode.equalsToken);
@@ -739,7 +762,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return objectFieldNode.modify(
                 metadata,
                 visibilityQualifier,
-                readonlyKeyword,
+                finalKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -1440,9 +1463,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STFunctionTypeDescriptorNode transform(
             STFunctionTypeDescriptorNode functionTypeDescriptorNode) {
+        STNode qualifierList = modifyNode(functionTypeDescriptorNode.qualifierList);
         STNode functionKeyword = modifyNode(functionTypeDescriptorNode.functionKeyword);
         STNode functionSignature = modifyNode(functionTypeDescriptorNode.functionSignature);
         return functionTypeDescriptorNode.modify(
+                qualifierList,
                 functionKeyword,
                 functionSignature);
     }
@@ -1465,11 +1490,13 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STExplicitAnonymousFunctionExpressionNode transform(
             STExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
         STNode annotations = modifyNode(explicitAnonymousFunctionExpressionNode.annotations);
+        STNode qualifierList = modifyNode(explicitAnonymousFunctionExpressionNode.qualifierList);
         STNode functionKeyword = modifyNode(explicitAnonymousFunctionExpressionNode.functionKeyword);
         STNode functionSignature = modifyNode(explicitAnonymousFunctionExpressionNode.functionSignature);
         STNode functionBody = modifyNode(explicitAnonymousFunctionExpressionNode.functionBody);
         return explicitAnonymousFunctionExpressionNode.modify(
                 annotations,
+                qualifierList,
                 functionKeyword,
                 functionSignature,
                 functionBody);
@@ -1590,6 +1617,60 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STJoinClauseNode transform(
+            STJoinClauseNode joinClauseNode) {
+        STNode outerKeyword = modifyNode(joinClauseNode.outerKeyword);
+        STNode joinKeyword = modifyNode(joinClauseNode.joinKeyword);
+        STNode typedBindingPattern = modifyNode(joinClauseNode.typedBindingPattern);
+        STNode inKeyword = modifyNode(joinClauseNode.inKeyword);
+        STNode expression = modifyNode(joinClauseNode.expression);
+        STNode joinOnCondition = modifyNode(joinClauseNode.joinOnCondition);
+        return joinClauseNode.modify(
+                outerKeyword,
+                joinKeyword,
+                typedBindingPattern,
+                inKeyword,
+                expression,
+                joinOnCondition);
+    }
+
+    @Override
+    public STOnClauseNode transform(
+            STOnClauseNode onClauseNode) {
+        STNode onKeyword = modifyNode(onClauseNode.onKeyword);
+        STNode lhsExpression = modifyNode(onClauseNode.lhsExpression);
+        STNode equalsKeyword = modifyNode(onClauseNode.equalsKeyword);
+        STNode rhsExpression = modifyNode(onClauseNode.rhsExpression);
+        return onClauseNode.modify(
+                onKeyword,
+                lhsExpression,
+                equalsKeyword,
+                rhsExpression);
+    }
+
+    @Override
+    public STLimitClauseNode transform(
+            STLimitClauseNode limitClauseNode) {
+        STNode limitKeyword = modifyNode(limitClauseNode.limitKeyword);
+        STNode expression = modifyNode(limitClauseNode.expression);
+        return limitClauseNode.modify(
+                limitKeyword,
+                expression);
+    }
+
+    @Override
+    public STOnConflictClauseNode transform(
+            STOnConflictClauseNode onConflictClauseNode) {
+        STNode onKeyword = modifyNode(onConflictClauseNode.onKeyword);
+        STNode conflictKeyword = modifyNode(onConflictClauseNode.conflictKeyword);
+        STNode expression = modifyNode(onConflictClauseNode.expression);
+        return onConflictClauseNode.modify(
+                onKeyword,
+                conflictKeyword,
+                expression);
+    }
+
+    @Override
     public STQueryPipelineNode transform(
             STQueryPipelineNode queryPipelineNode) {
         STNode fromClause = modifyNode(queryPipelineNode.fromClause);
@@ -1616,13 +1697,23 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode queryPipeline = modifyNode(queryExpressionNode.queryPipeline);
         STNode selectClause = modifyNode(queryExpressionNode.selectClause);
         STNode onConflictClause = modifyNode(queryExpressionNode.onConflictClause);
-        STNode limitClause = modifyNode(queryExpressionNode.limitClause);
         return queryExpressionNode.modify(
                 queryConstructType,
                 queryPipeline,
                 selectClause,
-                onConflictClause,
-                limitClause);
+                onConflictClause);
+    }
+
+    @Override
+    public STQueryActionNode transform(
+            STQueryActionNode queryActionNode) {
+        STNode queryPipeline = modifyNode(queryActionNode.queryPipeline);
+        STNode doKeyword = modifyNode(queryActionNode.doKeyword);
+        STNode blockStatement = modifyNode(queryActionNode.blockStatement);
+        return queryActionNode.modify(
+                queryPipeline,
+                doKeyword,
+                blockStatement);
     }
 
     @Override
@@ -1794,13 +1885,15 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STFunctionalBindingPatternNode transform(
-            STFunctionalBindingPatternNode functionalBindingPatternNode) {
-        STNode typeReference = modifyNode(functionalBindingPatternNode.typeReference);
-        STNode openParenthesis = modifyNode(functionalBindingPatternNode.openParenthesis);
-        STNode argListBindingPatterns = modifyNode(functionalBindingPatternNode.argListBindingPatterns);
-        STNode closeParenthesis = modifyNode(functionalBindingPatternNode.closeParenthesis);
-        return functionalBindingPatternNode.modify(
+    public STErrorBindingPatternNode transform(
+            STErrorBindingPatternNode errorBindingPatternNode) {
+        STNode errorKeyword = modifyNode(errorBindingPatternNode.errorKeyword);
+        STNode typeReference = modifyNode(errorBindingPatternNode.typeReference);
+        STNode openParenthesis = modifyNode(errorBindingPatternNode.openParenthesis);
+        STNode argListBindingPatterns = modifyNode(errorBindingPatternNode.argListBindingPatterns);
+        STNode closeParenthesis = modifyNode(errorBindingPatternNode.closeParenthesis);
+        return errorBindingPatternNode.modify(
+                errorKeyword,
                 typeReference,
                 openParenthesis,
                 argListBindingPatterns,
@@ -1944,20 +2037,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STQueryActionNode transform(
-            STQueryActionNode queryActionNode) {
-        STNode queryPipeline = modifyNode(queryActionNode.queryPipeline);
-        STNode doKeyword = modifyNode(queryActionNode.doKeyword);
-        STNode blockStatement = modifyNode(queryActionNode.blockStatement);
-        STNode limitClause = modifyNode(queryActionNode.limitClause);
-        return queryActionNode.modify(
-                queryPipeline,
-                doKeyword,
-                blockStatement,
-                limitClause);
-    }
-
-    @Override
     public STOptionalFieldAccessExpressionNode transform(
             STOptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
         STNode expression = modifyNode(optionalFieldAccessExpressionNode.expression);
@@ -2038,9 +2117,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STTransactionStatementNode transactionStatementNode) {
         STNode transactionKeyword = modifyNode(transactionStatementNode.transactionKeyword);
         STNode blockStatement = modifyNode(transactionStatementNode.blockStatement);
+        STNode onFailClause = modifyNode(transactionStatementNode.onFailClause);
         return transactionStatementNode.modify(
                 transactionKeyword,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     @Override
@@ -2062,11 +2143,13 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode typeParameter = modifyNode(retryStatementNode.typeParameter);
         STNode arguments = modifyNode(retryStatementNode.arguments);
         STNode retryBody = modifyNode(retryStatementNode.retryBody);
+        STNode onFailClause = modifyNode(retryStatementNode.onFailClause);
         return retryStatementNode.modify(
                 retryKeyword,
                 typeParameter,
                 arguments,
-                retryBody);
+                retryBody,
+                onFailClause);
     }
 
     @Override
@@ -2171,12 +2254,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode openBrace = modifyNode(matchStatementNode.openBrace);
         STNode matchClauses = modifyNode(matchStatementNode.matchClauses);
         STNode closeBrace = modifyNode(matchStatementNode.closeBrace);
+        STNode onFailClause = modifyNode(matchStatementNode.onFailClause);
         return matchStatementNode.modify(
                 matchKeyword,
                 condition,
                 openBrace,
                 matchClauses,
-                closeBrace);
+                closeBrace,
+                onFailClause);
     }
 
     @Override
@@ -2211,56 +2296,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return distinctTypeDescriptorNode.modify(
                 distinctKeyword,
                 typeDescriptor);
-    }
-
-    @Override
-    public STOnConflictClauseNode transform(
-            STOnConflictClauseNode onConflictClauseNode) {
-        STNode onKeyword = modifyNode(onConflictClauseNode.onKeyword);
-        STNode conflictKeyword = modifyNode(onConflictClauseNode.conflictKeyword);
-        STNode expression = modifyNode(onConflictClauseNode.expression);
-        return onConflictClauseNode.modify(
-                onKeyword,
-                conflictKeyword,
-                expression);
-    }
-
-    @Override
-    public STLimitClauseNode transform(
-            STLimitClauseNode limitClauseNode) {
-        STNode limitKeyword = modifyNode(limitClauseNode.limitKeyword);
-        STNode expression = modifyNode(limitClauseNode.expression);
-        return limitClauseNode.modify(
-                limitKeyword,
-                expression);
-    }
-
-    @Override
-    public STJoinClauseNode transform(
-            STJoinClauseNode joinClauseNode) {
-        STNode outerKeyword = modifyNode(joinClauseNode.outerKeyword);
-        STNode joinKeyword = modifyNode(joinClauseNode.joinKeyword);
-        STNode typedBindingPattern = modifyNode(joinClauseNode.typedBindingPattern);
-        STNode inKeyword = modifyNode(joinClauseNode.inKeyword);
-        STNode expression = modifyNode(joinClauseNode.expression);
-        STNode onCondition = modifyNode(joinClauseNode.onCondition);
-        return joinClauseNode.modify(
-                outerKeyword,
-                joinKeyword,
-                typedBindingPattern,
-                inKeyword,
-                expression,
-                onCondition);
-    }
-
-    @Override
-    public STOnClauseNode transform(
-            STOnClauseNode onClauseNode) {
-        STNode onKeyword = modifyNode(onClauseNode.onKeyword);
-        STNode expression = modifyNode(onClauseNode.expression);
-        return onClauseNode.modify(
-                onKeyword,
-                expression);
     }
 
     @Override
@@ -2411,6 +2446,56 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return orderKeyNode.modify(
                 expression,
                 orderDirection);
+    }
+
+    @Override
+    public STOnFailClauseNode transform(
+            STOnFailClauseNode onFailClauseNode) {
+        STNode onKeyword = modifyNode(onFailClauseNode.onKeyword);
+        STNode failKeyword = modifyNode(onFailClauseNode.failKeyword);
+        STNode typeDescriptor = modifyNode(onFailClauseNode.typeDescriptor);
+        STNode failErrorName = modifyNode(onFailClauseNode.failErrorName);
+        STNode blockStatement = modifyNode(onFailClauseNode.blockStatement);
+        return onFailClauseNode.modify(
+                onKeyword,
+                failKeyword,
+                typeDescriptor,
+                failErrorName,
+                blockStatement);
+    }
+
+    @Override
+    public STDoStatementNode transform(
+            STDoStatementNode doStatementNode) {
+        STNode doKeyword = modifyNode(doStatementNode.doKeyword);
+        STNode blockStatement = modifyNode(doStatementNode.blockStatement);
+        STNode onFailClause = modifyNode(doStatementNode.onFailClause);
+        return doStatementNode.modify(
+                doKeyword,
+                blockStatement,
+                onFailClause);
+    }
+
+    @Override
+    public STClassDefinitionNode transform(
+            STClassDefinitionNode classDefinitionNode) {
+        STNode metadata = modifyNode(classDefinitionNode.metadata);
+        STNode visibilityQualifier = modifyNode(classDefinitionNode.visibilityQualifier);
+        STNode classTypeQualifiers = modifyNode(classDefinitionNode.classTypeQualifiers);
+        STNode classKeyword = modifyNode(classDefinitionNode.classKeyword);
+        STNode className = modifyNode(classDefinitionNode.className);
+        STNode openBrace = modifyNode(classDefinitionNode.openBrace);
+        STNode members = modifyNode(classDefinitionNode.members);
+        STNode closeBrace = modifyNode(classDefinitionNode.closeBrace);
+        return classDefinitionNode.modify(
+                metadata,
+                visibilityQualifier,
+                classTypeQualifiers,
+                classKeyword,
+                className,
+                openBrace,
+                members,
+                closeBrace);
     }
 
     // Tokens

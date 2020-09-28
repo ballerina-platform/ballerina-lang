@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.util.Flags;
 
 import java.util.Map.Entry;
@@ -36,6 +36,7 @@ public class BObjectType extends BStructureType {
 
     private final boolean readonly;
     private BIntersectionType immutableType;
+    public BTypeIdSet typeIdSet;
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
@@ -51,7 +52,7 @@ public class BObjectType extends BStructureType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) BallerinaValues.createObjectValue(this.pkg, this.typeName);
+        return (V) BValueCreator.createObjectValue(this.pkg, this.typeName);
     }
 
     @Override
@@ -88,7 +89,7 @@ public class BObjectType extends BStructureType {
     public String toString() {
         String name = (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ?
                 typeName : pkg.getName() + ":" + typeName;
-        
+
         if (!typeName.contains("$anon")) {
             return name;
         }
@@ -119,5 +120,9 @@ public class BObjectType extends BStructureType {
     @Override
     public void setImmutableType(BIntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    public void setTypeIdSet(BTypeIdSet typeIdSet) {
+        this.typeIdSet = typeIdSet;
     }
 }

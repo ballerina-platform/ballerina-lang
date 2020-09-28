@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class LimitClauseNode extends ClauseNode {
+public class LimitClauseNode extends IntermediateClauseNode {
 
     public LimitClauseNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

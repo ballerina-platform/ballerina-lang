@@ -30,7 +30,6 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
@@ -72,16 +71,21 @@ public class BallerinaTreeModifyUtil {
         put("DELETE", "");
         put("IMPORT", "import $TYPE;\n");
         put("DECLARATION", "$TYPE $VARIABLE = new ($PARAMS);\n");
-        put("REMOTE_SERVICE_CALL_CHECK", "$TYPE $VARIABLE = check $CALLER->$FUNCTION($PARAMS);\n");
+        put("REMOTE_SERVICE_CALL_CHECK", "$TYPE $VARIABLE = checkpanic $CALLER->$FUNCTION($PARAMS);\n");
         put("REMOTE_SERVICE_CALL", "$TYPE $VARIABLE = $CALLER->$FUNCTION($PARAMS);\n");
-        put("SERVICE_CALL_CHECK", "$TYPE $VARIABLE = check $CALLER.$FUNCTION($PARAMS);\n");
+        put("SERVICE_CALL_CHECK", "$TYPE $VARIABLE = checkpanic $CALLER.$FUNCTION($PARAMS);\n");
         put("SERVICE_CALL", "$TYPE $VARIABLE = $CALLER.$FUNCTION($PARAMS);\n");
         put("MAIN_START", "$COMMENTpublic function main() {\n");
+        put("MAIN_START_MODIFY", "$COMMENTpublic function main() {");
         put("MAIN_END", "\n}\n");
         put("SERVICE_START", "@http:ServiceConfig {\n\tbasePath: \"/\"\n}\n" +
                 "service $SERVICE on new http:Listener($PORT) {\n" +
                 "@http:ResourceConfig {\n\tmethods: [$METHODS],\npath: \"/$RES_PATH\"\n}\n" +
                 "    resource function $RESOURCE(http:Caller caller, http:Request req) {\n\n");
+        put("SERVICE_START_MODIFY", "@http:ServiceConfig {\n\tbasePath: \"/\"\n}\n" +
+                "service $SERVICE on new http:Listener($PORT) {\n" +
+                "@http:ResourceConfig {\n\tmethods: [$METHODS],\npath: \"/$RES_PATH\"\n}\n" +
+                "    resource function $RESOURCE(http:Caller caller, http:Request req) {");
         put("SERVICE_END",
                 "    }\n" +
                         "}\n");
@@ -99,9 +103,10 @@ public class BallerinaTreeModifyUtil {
                 "\n}\n");
         put("TYPE_GUARD_ELSE", " else {\n" +
                 "\n}\n");
-        put("RESPOND_WITH_CHECK", "check $CALLER->respond($EXPRESSION);\n");
-        put("PROPERTY_STATEMENT", "$PROPERTY");
-        put("RETURN_STATEMENT", "return $RETURN_EXPR;");
+        put("RESPOND_WITH_CHECK", "checkpanic $CALLER->respond(<@untainted>$EXPRESSION);\n");
+        put("PROPERTY_STATEMENT", "$PROPERTY\n");
+        put("RETURN_STATEMENT", "return $RETURN_EXPR;\n");
+        put("CHECKED_PAYLOAD_FUNCTION_INVOCATION", "$TYPE $VARIABLE = checkpanic $RESPONSE.$PAYLOAD();\n");
     }};
 
     public static String resolveMapping(String type, JsonObject config) {
@@ -184,8 +189,7 @@ public class BallerinaTreeModifyUtil {
                 .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
                 .withCommonParams(null, fileUri, documentManager)
                 .build();
-        LSModuleCompiler.getBLangPackage(astContext, documentManager, LSCustomErrorStrategy.class,
-                false, false, false);
+        LSModuleCompiler.getBLangPackage(astContext, documentManager, false, false);
         BLangPackage oldTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         String fileName = compilationPath.toFile().getName();
 

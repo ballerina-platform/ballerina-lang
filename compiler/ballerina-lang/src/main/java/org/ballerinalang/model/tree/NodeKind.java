@@ -57,6 +57,7 @@ public enum NodeKind {
     TABLE_KEY_TYPE_CONSTRAINT,
     TABLE_MULTI_KEY,
     RETRY_SPEC,
+    CLASS_DEFN,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,
@@ -126,6 +127,7 @@ public enum NodeKind {
     LET_EXPR,
     TABLE_CONSTRUCTOR_EXPR,
     TRANSACTIONAL_EXPRESSION,
+    OBJECT_CTOR_EXPRESSION,
 
     /* Statements */
     ABORT,
@@ -143,6 +145,7 @@ public enum NodeKind {
     FORK_JOIN,
     IF,
     MATCH,
+    MATCH_STATEMENT,
     MATCH_TYPED_PATTERN_CLAUSE,
     MATCH_STATIC_PATTERN_CLAUSE,
     MATCH_STRUCTURED_PATTERN_CLAUSE,
@@ -171,6 +174,7 @@ public enum NodeKind {
     DO_ACTION,
     COMMIT,
     ROLLBACK,
+    DO_STMT,
 
     /* Clauses */
     SELECT,
@@ -184,6 +188,17 @@ public enum NodeKind {
     LIMIT,
     ORDER_BY,
     ORDER_KEY,
+    ON_FAIL,
+    MATCH_CLAUSE,
+
+    /* Match patterns */
+    CONST_MATCH_PATTERN,
+    WILDCARD_MATCH_PATTERN,
+    VAR_BINDING_PATTERN_MATCH_PATTERN,
+
+    /* Binding patterns*/
+    CAPTURE_BINDING_PATTERN,
+    LIST_BINDING_PATTERN,
 
     /* Types */
     ARRAY_TYPE,

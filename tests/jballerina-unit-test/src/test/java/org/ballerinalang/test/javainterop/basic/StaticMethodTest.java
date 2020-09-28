@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.values.BDecimal;
@@ -134,12 +135,14 @@ public class StaticMethodTest {
     @Test(description = "Test static java method that returns error value or MapValue")
     public void testMapValueOrErrorReturn() {
         BValue[] returns = BRunUtil.invoke(result, "testUnionReturn");
-        Assert.assertEquals(returns[0].stringValue(), "resources=path=basePath method=Method string");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"resources\":[{\"path\":\"basePath\",\"method\":\"Method string\"}]}");
 
     }
 
     public static Object returnObjectOrError() {
-        return BallerinaErrors.createError("some reason", new MapValueImpl<>(BTypes.typeErrorDetail));
+        return BErrorCreator.createError(BStringUtils.fromString("some reason"),
+                                         new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     @Test(description = "Test tuple return with null values")
@@ -170,5 +173,31 @@ public class StaticMethodTest {
         BValue[] returns = BRunUtil.invoke(result, "testDecimalParamAndReturn", args);
         Assert.assertTrue(returns[0] instanceof BDecimal);
         Assert.assertEquals(returns[0].stringValue(), "199.7");
+    }
+
+    @Test
+    public void testBalEnvSlowAsyncVoidSig() {
+        BRunUtil.invoke(result, "testBalEnvSlowAsyncVoidSig");
+    }
+
+    @Test
+    public void testBalEnvFastAsyncVoidSig() {
+        BRunUtil.invoke(result, "testBalEnvFastAsyncVoidSig");
+    }
+
+    @Test
+    public void testBalEnvSlowAsync() {
+        BRunUtil.invoke(result, "testBalEnvSlowAsync");
+    }
+
+    @Test
+    public void testBalEnvFastAsync() {
+        BRunUtil.invoke(result, "testBalEnvFastAsync");
+    }
+
+    @Test(description = "When instance and static methods have the same name resolve static method based on the " +
+            "parameter type")
+    public void testStaticResolve() {
+        BRunUtil.invoke(result, "testStaticResolve");
     }
 }

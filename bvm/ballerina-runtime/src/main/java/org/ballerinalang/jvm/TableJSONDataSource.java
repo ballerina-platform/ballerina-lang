@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
@@ -33,7 +35,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.TupleValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -125,46 +126,45 @@ public class TableJSONDataSource implements JSONDataSource {
 
     private static void constructJsonData(MapValueImpl record, MapValue<BString, Object> jsonObject, String name,
                                           int typeTag, BField[] structFields, int index) {
-        BString key = StringUtils.fromString(name);
+        BString key = BStringUtils.fromString(name);
         switch (typeTag) {
             case TypeTags.STRING_TAG:
-                jsonObject.put(StringUtils.fromString(name), record.getStringValue(key));
+                jsonObject.put(BStringUtils.fromString(name), record.getStringValue(key));
                 break;
             case TypeTags.INT_TAG:
                 Long intVal = record.getIntValue(key);
-                jsonObject.put(StringUtils.fromString(name), intVal);
+                jsonObject.put(BStringUtils.fromString(name), intVal);
                 break;
             case TypeTags.FLOAT_TAG:
                 Double floatVal = record.getFloatValue(key);
-                jsonObject.put(StringUtils.fromString(name), floatVal);
+                jsonObject.put(BStringUtils.fromString(name), floatVal);
                 break;
             case TypeTags.DECIMAL_TAG:
                 DecimalValue decimalVal = (DecimalValue) record.get(key);
-                jsonObject.put(StringUtils.fromString(name), decimalVal);
+                jsonObject.put(BStringUtils.fromString(name), decimalVal);
                 break;
             case TypeTags.BOOLEAN_TAG:
                 Boolean boolVal = record.getBooleanValue(key);
-                jsonObject.put(StringUtils.fromString(name), boolVal);
+                jsonObject.put(BStringUtils.fromString(name), boolVal);
                 break;
             case TypeTags.ARRAY_TAG:
-                jsonObject.put(StringUtils.fromString(name), getDataArray(record, key));
+                jsonObject.put(BStringUtils.fromString(name), getDataArray(record, key));
                 break;
             case TypeTags.JSON_TAG:
-                jsonObject.put(StringUtils.fromString(name), record.getStringValue(key) == null ? null :
+                jsonObject.put(BStringUtils.fromString(name), record.getStringValue(key) == null ? null :
                         JSONParser.parse(record.getStringValue(key).toString()));
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                jsonObject.put(StringUtils.fromString(name),
-                        getStructData(record.getMapValue(key), structFields, index, key));
+                jsonObject.put(BStringUtils.fromString(name),
+                               getStructData(record.getMapValue(key), structFields, index, key));
                 break;
             case TypeTags.XML_TAG:
-                BString strVal = org.ballerinalang.jvm.StringUtils.fromString(
-                        org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(record.get(key)));
-                jsonObject.put(StringUtils.fromString(name), strVal);
+                BString strVal = BStringUtils.fromString(BStringUtils.getStringValue(record.get(key), null));
+                jsonObject.put(BStringUtils.fromString(name), strVal);
                 break;
             default:
-                jsonObject.put(StringUtils.fromString(name), record.getStringValue(key));
+                jsonObject.put(BStringUtils.fromString(name), record.getStringValue(key));
                 break;
         }
     }
@@ -204,16 +204,16 @@ public class TableJSONDataSource implements JSONDataSource {
                     BField[] internalStructFields =
                             ((BStructureType) internalType).getFields().values().toArray(new BField[0]);
                     for (int i = 0; i < internalStructFields.length; i++) {
-                        BString internalKeyName = StringUtils.fromString(internalStructFields[i].name);
+                        BString internalKeyName = BStringUtils.fromString(internalStructFields[i].name);
                         Object value = data.get(internalKeyName);
                         if (value instanceof BigDecimal) {
-                            jsonData.put(StringUtils.fromString(internalStructFields[i].name),
-                                    ((BigDecimal) value).doubleValue());
+                            jsonData.put(BStringUtils.fromString(internalStructFields[i].name),
+                                         ((BigDecimal) value).doubleValue());
                         } else if (value instanceof MapValueImpl) {
-                            jsonData.put(StringUtils.fromString(internalStructFields[i].name),
-                                    getStructData((MapValueImpl) value, internalStructFields, i, internalKeyName));
+                            jsonData.put(BStringUtils.fromString(internalStructFields[i].name),
+                                         getStructData((MapValueImpl) value, internalStructFields, i, internalKeyName));
                         } else {
-                            jsonData.put(StringUtils.fromString(internalStructFields[i].name), value);
+                            jsonData.put(BStringUtils.fromString(internalStructFields[i].name), value);
                         }
                         structError = false;
                     }

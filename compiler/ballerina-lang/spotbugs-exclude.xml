@@ -41,6 +41,12 @@
         <Package name="org.wso2.ballerinalang.compiler.tree" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.tree.bindingpatterns" />
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerinalang.compiler.tree.matchpatterns" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.parser" />
     </Match>
     <Match>
@@ -157,16 +163,16 @@
         <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
     </Match>
     <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.writer.BIRInstructionWriter"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
         <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRAnnotationAttachment"/>
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
-    </Match>
-    <Match>
-        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRAnnotationValue"/>
-        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRFunction"/>
@@ -195,5 +201,9 @@
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer"/>
         <Bug pattern="BC_UNCONFIRMED_CAST, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.diagnostic.DiagnosticComparator"/>
+        <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE"/>
     </Match>
 </FindBugsFilter>

@@ -53,7 +53,7 @@ public class ParameterizedTypeDescriptorNodeContext
         }
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
         completionItems.addAll(this.getTypeItems(context));
 
         return completionItems;

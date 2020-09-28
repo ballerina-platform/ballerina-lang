@@ -28,18 +28,17 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
+import org.ballerinalang.docgen.generator.model.AbstractObjectPageContext;
 import org.ballerinalang.docgen.generator.model.AnnotationsPageContext;
+import org.ballerinalang.docgen.generator.model.ClassPageContext;
 import org.ballerinalang.docgen.generator.model.ClientPageContext;
 import org.ballerinalang.docgen.generator.model.ConstantsPageContext;
-import org.ballerinalang.docgen.generator.model.Construct;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.ErrorsPageContext;
 import org.ballerinalang.docgen.generator.model.FunctionsPageContext;
 import org.ballerinalang.docgen.generator.model.ListenerPageContext;
 import org.ballerinalang.docgen.generator.model.ModulePageContext;
-import org.ballerinalang.docgen.generator.model.ObjectPageContext;
 import org.ballerinalang.docgen.generator.model.PageContext;
-import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.RecordPageContext;
 import org.ballerinalang.docgen.generator.model.Type;
 import org.ballerinalang.docgen.generator.model.TypesPageContext;
@@ -106,7 +105,7 @@ public class Writer {
                 Context context = options.context;
                 String root = getRootPath(context);
                 String link = root + type.moduleName + "/" + type.category + "/" + name + ".html";
-                if (type.category.equals("objects") && !name.equals("()")) {
+                if (type.category.equals("classes") && !name.equals("()")) {
                     defaultValue = "<span class=\"default\">(default</span> <span class=\"type\">" +
                             "<a href=\"" + link + "\">" + name + "</a>" + "</span><span class=\"default\">)</span>";
                 } else {
@@ -117,7 +116,9 @@ public class Writer {
 
             handlebars.registerHelper("editDescription", (Helper<String>) (description, options) -> {
                 //remove anything with <pre> tag
-                String newDescription = description.replaceAll("<pre>(.|\\n)*?<\\/pre>", "");
+                String newDescription = description.replaceAll("<pre>(.|\\n)*?<\\/pre>", " ");
+                // replace \n with a space
+                newDescription = newDescription.replaceAll("\\n", " ");
                 // select only the first sentence
                 String[] splits = newDescription.split("\\. ", 2);
                 if (splits.length < 2) {
@@ -126,59 +127,26 @@ public class Writer {
                     return splits[0] + ".";
                 }
             });
-            // used to check if all constructs in the list are anonymous
-            handlebars.registerHelper("areAllAnonymous", (Helper<List<Construct>>) (consList, options) -> {
-                if (consList.get(0) instanceof Record) {
-                    for (Construct construct: consList) {
-                        if (!((Record) construct).isAnonymous) {
-                            return false;
-                        }
-                    }
-                } else if (consList.get(0) instanceof org.ballerinalang.docgen.generator.model.Object) {
-                    for (Construct construct: consList) {
-                        if (!((org.ballerinalang.docgen.generator.model.Object) construct).isAnonymous) {
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            });
 
             handlebars.registerHelper("setStyles", (Helper<String>) (description, options) -> {
                 //set css for table tags
-                String newDescription = description.replaceAll("<table>", "<table class=\"ui table row-border " +
-                        "pad-left\">");
-                return newDescription;
+                return description.replaceAll("<table>", "<table class=\"ui table row-border " + "pad-left\">");
             });
 
-            handlebars.registerHelper("showSidebarList", (Helper<PageContext>) (page, options) -> {
-                if (page.getClass() == ModulePageContext.class || page instanceof ConstantsPageContext) {
-                    return false;
-                } else {
-                    return true;
-                }
-            });
+            handlebars.registerHelper("showSidebarList", (Helper<PageContext>) (page, options) ->
+                    page.getClass() != ModulePageContext.class && !(page instanceof ConstantsPageContext));
 
-            handlebars.registerHelper("isModulePage", (Helper<PageContext>) (page, options) -> {
-                if (page.getClass() == ModulePageContext.class) {
-                    return true;
-                } else {
-                    return false;
-                }
-            });
+            handlebars.registerHelper("isModulePage", (Helper<PageContext>) (page, options) ->
+                    page.getClass() == ModulePageContext.class);
 
-            handlebars.registerHelper("addColon", (Helper<PageContext>) (page, options) -> {
-                if (page.getClass() == ObjectPageContext.class || page.getClass() == RecordPageContext.class ||
-                        page.getClass() == ClientPageContext.class || page.getClass() == ListenerPageContext.class)  {
-                    return true;
-                } else {
-                    return false;
-                }
-            });
+            handlebars.registerHelper("addColon", (Helper<PageContext>) (page, options) ->
+                    page.getClass() == ClassPageContext.class || page.getClass() == AbstractObjectPageContext.class ||
+                    page.getClass() == RecordPageContext.class || page.getClass() == ClientPageContext.class ||
+                    page.getClass() == ListenerPageContext.class);
 
             handlebars.registerHelper("getType", (Helper<PageContext>) (page, options) -> {
-                if (page.getClass() == ObjectPageContext.class) {
-                    return "objects";
+                if (page.getClass() == ClassPageContext.class) {
+                    return "classes";
                 } else if (page.getClass() == ListenerPageContext.class) {
                     return "listeners";
                 } else if (page.getClass() == ClientPageContext.class) {

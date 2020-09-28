@@ -37,16 +37,16 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(0);
     }
 
-    public Token visibilityQualifier() {
-        return childInBucket(1);
+    public Optional<Token> visibilityQualifier() {
+        return optionalChildInBucket(1);
     }
 
     public Token constKeyword() {
         return childInBucket(2);
     }
 
-    public TypeDescriptorNode typeDescriptor() {
-        return childInBucket(3);
+    public Optional<TypeDescriptorNode> typeDescriptor() {
+        return optionalChildInBucket(3);
     }
 
     public Token variableName() {
@@ -143,9 +143,9 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
         public ConstantDeclarationNodeModifier(ConstantDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
-            this.visibilityQualifier = oldNode.visibilityQualifier();
+            this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.constKeyword = oldNode.constKeyword();
-            this.typeDescriptor = oldNode.typeDescriptor();
+            this.typeDescriptor = oldNode.typeDescriptor().orElse(null);
             this.variableName = oldNode.variableName();
             this.equalsToken = oldNode.equalsToken();
             this.initializer = oldNode.initializer();

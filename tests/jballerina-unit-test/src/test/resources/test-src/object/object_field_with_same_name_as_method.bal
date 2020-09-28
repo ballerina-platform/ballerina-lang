@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.package internal;
 
-public type ObjectA object {
+public class ObjectA {
     int someInt = 13;
     float someFloat = 1.1;
 
@@ -36,7 +36,7 @@ public type ObjectA object {
         float f2 = self.someFloat();
         return [f1, f2];
     }
-};
+}
 
 function testFieldWithSameNameAsMethod() returns [int, int, int, float, float, float, float] {
     ObjectA obj = new();

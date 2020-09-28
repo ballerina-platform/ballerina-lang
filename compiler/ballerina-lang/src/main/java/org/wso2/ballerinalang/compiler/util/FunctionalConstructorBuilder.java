@@ -27,10 +27,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 
 /**
  * Build functional constructor symbol.
@@ -42,22 +45,26 @@ public class FunctionalConstructorBuilder {
     private String name;
     private BPackageSymbol langlibPkg;
     private BType constructedType;
+    private DiagnosticPos pos;
 
-    private FunctionalConstructorBuilder(String name, BPackageSymbol langlibPkg, BType constructedType) {
+    private FunctionalConstructorBuilder(String name, BPackageSymbol langlibPkg, BType constructedType,
+                                         DiagnosticPos pos) {
         this.name = name;
         this.langlibPkg = langlibPkg;
         this.constructedType = constructedType;
         this.params = new ArrayList<>();
+        this.pos = pos;
     }
 
     public static FunctionalConstructorBuilder newConstructor(String name,
                                                               BPackageSymbol langlibModule,
-                                                              BType constructedType) {
-        return new FunctionalConstructorBuilder(name, langlibModule, constructedType);
+                                                              BType constructedType,
+                                                              DiagnosticPos pos) {
+        return new FunctionalConstructorBuilder(name, langlibModule, constructedType, pos);
     }
 
     private FunctionalConstructorBuilder addParam(String name, BType type, boolean isDefaultable) {
-        BVarSymbol paramSymbol = new BVarSymbol(0, new Name(name), langlibPkg.pkgID, type, null);
+        BVarSymbol paramSymbol = new BVarSymbol(0, new Name(name), langlibPkg.pkgID, type, null, pos, BUILTIN);
         paramSymbol.defaultableParam = isDefaultable;
         params.add(paramSymbol);
         return this;
@@ -78,12 +85,13 @@ public class FunctionalConstructorBuilder {
         }
 
         BInvokableTypeSymbol invokableTSymbol = new BInvokableTypeSymbol(SymTag.CONSTRUCTOR, Flags.PUBLIC,
-                langlibPkg.pkgID, constructedType, langlibPkg);
+                                                                         langlibPkg.pkgID, constructedType,
+                                                                         langlibPkg, pos, BUILTIN);
         invokableTSymbol.params = params;
         invokableTSymbol.returnType = constructedType;
         BInvokableType invokableType = new BInvokableType(paramTypes, constructedType, invokableTSymbol);
-        BConstructorSymbol symbol = new BConstructorSymbol(Flags.PUBLIC, new Name(name),
-                langlibPkg.pkgID, invokableType, langlibPkg);
+        BConstructorSymbol symbol = new BConstructorSymbol(Flags.PUBLIC, new Name(name), langlibPkg.pkgID,
+                                                           invokableType, langlibPkg, pos, BUILTIN);
         symbol.params = params;
         symbol.kind = SymbolKind.FUNCTIONAL_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);

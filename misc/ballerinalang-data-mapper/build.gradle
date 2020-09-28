@@ -18,6 +18,7 @@ repositories {
 }
 
 dependencies {
+    implementation project(':ballerina-tools-api')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
@@ -36,17 +37,11 @@ dependencies {
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-java')
-    implementation project(':ballerina-email')
     implementation project(':ballerina-file')
-    implementation project(':ballerina-filepath')
-    implementation project(':ballerina-grpc')
     implementation project(':ballerina-http')
     implementation project(':ballerina-io')
-    implementation project(':ballerina-ldap')
     implementation project(':ballerina-log-api')
-    implementation project(':ballerina-math')
     implementation project(':ballerina-mime')
-    implementation project(':ballerina-oauth2')
     implementation project(':ballerina-observability')
     implementation project(':ballerina-openapi')
     implementation project(':ballerina-reflect')
@@ -54,8 +49,6 @@ dependencies {
     implementation project(':ballerina-task')
     implementation project(':ballerina-time')
     implementation project(':ballerina-transactions')
-    implementation project(':ballerina-sql')
-    implementation project(':ballerina-mysql')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-tool')
 

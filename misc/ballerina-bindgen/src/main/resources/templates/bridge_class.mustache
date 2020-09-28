@@ -15,9 +15,9 @@ import ballerina/java.arrays as jarrays;{{/if}}
 # + _{{shortClassName}} - The field that represents this Ballerina object, which is used for Java subtyping.{{#each superClasses}}
 # + _{{this}} - The field that represents the superclass object `{{this}}`.{{/each}}
 @java:Binding {
-    class: "{{className}}"
+    'class: "{{className}}"
 }
-{{accessModifier}}type {{shortClassName}} object {
+{{accessModifier}}class {{shortClassName}} {
 
     *java:JObject;
 
@@ -80,7 +80,7 @@ import ballerina/java.arrays as jarrays;{{/if}}
     {{accessModifier}}function {{fieldMethodName}}() returns {{fieldType}}{{#if isString}}?{{/if}}{{#if returnError}}|error{{/if}} {
         return {{#if isString}}java:toString({{else if isArray}}<{{fieldType}}>check jarrays:fromHandle({{/if}}{{prefix}}_{{fieldMethodName}}(self.jObj){{#if isString}}){{else if isArray}}, "{{returnTypeJava}}"){{/if}};
     }{{/if}}{{/unless}}{{/fieldList}}
-};
+}
 {{#initFunctionList}}
 # Constructor function to generate an object of type `{{shortClassName}}` representing the `{{className}}` Java class.
 #{{#if parameters}}{{#each parameters}}
@@ -146,7 +146,7 @@ import ballerina/java.arrays as jarrays;{{/if}}
 // External interop functions for mapping public constructors.
 {{/if}}{{#constructorList}}
 function {{prefix}}_{{constructorName}}({{#parameters}}{{externalType}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) returns handle{{#if handleException}}|error{{/if}} = {{interopType}} {
-    class: "{{className}}",
+    'class: "{{className}}",
     paramTypes: [{{#parameters}}"{{type}}"{{#if hasNext}}, {{/if}}{{/parameters}}]
 } external;
 {{/constructorList}}{{#if methodList}}
@@ -154,7 +154,7 @@ function {{prefix}}_{{constructorName}}({{#parameters}}{{externalType}} {{fieldN
 {{/if}}{{#methodList}}
 function {{prefix}}_{{methodName}}({{#getInteropMethod this "param"}}{{/getInteropMethod}}){{#getInteropMethod this "return"}}{{/getInteropMethod}} = {{interopType}} {
     name: "{{javaMethodName}}",
-    class: "{{className}}",
+    'class: "{{className}}",
     paramTypes: [{{#parameters}}"{{type}}"{{#if hasNext}}, {{/if}}{{/parameters}}]
 } external;
 {{/methodList}}{{#if fieldList}}
@@ -162,6 +162,6 @@ function {{prefix}}_{{methodName}}({{#getInteropMethod this "param"}}{{/getInter
 {{/if}}{{#fieldList}}
 function {{prefix}}_{{fieldMethodName}}({{#getInteropFieldParam this ""}}{{/getInteropFieldParam}}){{#unless isSetter}} returns {{externalType}}{{/unless}} = {{interopType}} {
     name: "{{fieldName}}",
-    class: "{{className}}"
+    'class: "{{className}}"
 } external;
 {{/fieldList}}

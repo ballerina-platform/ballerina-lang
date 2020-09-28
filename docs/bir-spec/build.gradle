@@ -1,0 +1,96 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath("name.valery1707.kaitai:kaitai-gradle-plugin:0.1.1")
+    }
+}
+
+apply plugin: 'name.valery1707.kaitai'
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+
+
+dependencies {
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-lang')
+
+    implementation 'io.kaitai:kaitai-struct-runtime:0.8'
+    implementation 'org.wso2.orbit.org.yaml:snakeyaml:1.16.0.wso2v1'
+    implementation 'com.github.jknack:handlebars'
+
+    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:floatingpoint', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
+
+    testCompile 'org.testng:testng'
+    testCompile project(':ballerina-test-utils')
+}
+
+kaitai {
+    packageName = 'org.ballerinalang.build.kaitai'
+    cacheDir = new File("${project.gradle.gradleUserHomeDir}/kaitai-cache")
+    executionTimeout = 10_000
+}
+
+sourceSets.main.java.srcDirs += 'build/generated/kaitai/src'
+checkstyleMain.exclude '**/kaitai/**'
+
+task genBirSpec(type: JavaExec) {
+    dependsOn classes
+    classpath += sourceSets.main.runtimeClasspath
+    main = 'org.ballerinalang.birspec.BIRSpecGenerator'
+
+    inputs.dir('src/main/resources')
+    outputs.files('../compiler/bir-spec.md')
+    outputs.cacheIf { true }
+}
+
+build {
+    dependsOn genBirSpec
+}
+
+compileJava {
+    dependsOn 'kaitai'
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}

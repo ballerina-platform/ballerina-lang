@@ -4,12 +4,12 @@ public type Employee record {
     string name = "";
 };
 
-public type Person object {
+public class Person {
     int age = 9;
     public function init(int age) {
         self.age = age;
     }
-};
+}
 
 public function interopWithRefTypesAndMapReturn() returns map<any> {
     Person a = new Person(44);
@@ -23,5 +23,5 @@ public function interopWithRefTypesAndMapReturn() returns map<any> {
 }
 
 public function acceptRefTypesAndReturnMap(Person a, [int, string, Person] b, int|string|Employee c, error d, any e, anydata f, Employee g) returns map<any> = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/PublicStaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/PublicStaticMethods"
 } external;

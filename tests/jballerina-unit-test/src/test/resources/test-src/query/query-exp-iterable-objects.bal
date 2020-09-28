@@ -1,9 +1,9 @@
-type Iterable object {
-    public function __iterator() returns abstract object {
+class Iterable {
+    public function __iterator() returns object {
 
         public function next() returns record {|int value;|}?;
     } {
-        object {
+        return object {
             int[] integers = [12, 34, 56, 34, 78, 21, 90];
             int cursorIndex = 0;
             public function next() returns record {|int value;|}? {
@@ -16,10 +16,9 @@ type Iterable object {
                     return ();
                 }
             }
-        } sample = new;
-        return sample;
+        };
     }
-};
+}
 
 public function testIterableObject() returns int[] {
     Iterable p = new Iterable();
@@ -29,12 +28,12 @@ public function testIterableObject() returns int[] {
     return integers;
 }
 
-type AnotherIterable object {
-    public function __iterator() returns abstract object {
+class AnotherIterable {
+    public function __iterator() returns object {
 
         public function next() returns record {|Iterable value;|}?;
     } {
-        object {
+        return object {
             int cursorIndex = 0;
             public function next() returns record {|Iterable value;|}? {
                 self.cursorIndex += 1;
@@ -46,10 +45,9 @@ type AnotherIterable object {
                     return ();
                 }
             }
-        } sample = new;
-        return sample;
+        };
     }
-};
+}
 
 public function testNestedIterableObject() returns int[] {
     AnotherIterable p = new AnotherIterable();
@@ -60,12 +58,12 @@ public function testNestedIterableObject() returns int[] {
     return integers;
 }
 
-type IterableWithError object {
-    public function __iterator() returns abstract object {
+class IterableWithError {
+    public function __iterator() returns object {
 
         public function next() returns record {|int value;|}|error?;
     } {
-        object {
+        return object {
             int[] integers = [12, 34, 56, 34, 78];
             int cursorIndex = 0;
             public function next() returns record {|int value;|}|error? {
@@ -81,10 +79,9 @@ type IterableWithError object {
                     return ();
                 }
             }
-        } sample = new;
-        return sample;
+        };
     }
-};
+}
 
 public function testIterableWithError() returns int[]|error {
     IterableWithError p = new IterableWithError();
@@ -94,19 +91,19 @@ public function testIterableWithError() returns int[]|error {
     return integers;
 }
 
-type NumberGenerator object {
+class NumberGenerator {
     int i = 0;
-    public function next() returns record {| int value; |}? {
+    public isolated function next() returns record {| int value; |}? {
         self.i += 1;
         if(self.i < 5) {
           return { value: self.i };
         }
     }
-};
+}
 
-type NumberStreamGenerator object {
+class NumberStreamGenerator {
     int i = 0;
-    public function next() returns record {| stream<int> value; |}? {
+    public isolated function next() returns record {| stream<int> value; |}? {
          self.i += 1;
          if (self.i < 5) {
              NumberGenerator numGen = new();
@@ -114,7 +111,7 @@ type NumberStreamGenerator object {
              return { value: numberStream};
          }
     }
-};
+}
 
 public function testStreamOfStreams() returns int[] {
     NumberStreamGenerator numStreamGen = new();
@@ -159,11 +156,11 @@ public function testIteratorInStream() returns int[]|error {
     return integers;
 }
 
-public type _Iterator abstract object {
+public type _Iterator object {
     public function next() returns record {|any|error value;|}|error?;
 };
 
-type IterableFromIterator object {
+class IterableFromIterator {
         _Iterator itr;
         public function init(_Iterator itr) {
             self.itr = itr;
@@ -172,7 +169,7 @@ type IterableFromIterator object {
         public function __iterator() returns _Iterator {
             return self.itr;
         }
-};
+}
 
 function getIterableObject(_Iterator iterator) returns IterableFromIterator {
     return new IterableFromIterator(iterator);

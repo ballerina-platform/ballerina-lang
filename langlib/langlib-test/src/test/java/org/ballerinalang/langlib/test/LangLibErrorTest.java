@@ -100,7 +100,7 @@ public class LangLibErrorTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testErrorStackTrace");
         assertEquals(returns[0].stringValue(), "5");
         assertEquals(returns[1].stringValue(),
-                "getError:errorlib_test.bal stack2:errorlib_test.bal stack1:errorlib_test.bal " +
-                        "stack0:errorlib_test.bal testErrorStackTrace:errorlib_test.bal");
+                "[\"getError:errorlib_test.bal\",\"stack2:errorlib_test.bal\",\"stack1:errorlib_test.bal\"," +
+                        "\"stack0:errorlib_test.bal\",\"testErrorStackTrace:errorlib_test.bal\"]");
     }
 }

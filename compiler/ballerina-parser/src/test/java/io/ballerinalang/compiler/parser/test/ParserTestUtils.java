@@ -446,6 +446,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ANNOTATION_DECLARATION;
             case "ENUM_DECLARATION":
                 return SyntaxKind.ENUM_DECLARATION;
+            case "CLASS_DEFINITION":
+                return SyntaxKind.CLASS_DEFINITION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -622,6 +624,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ROLLBACK_KEYWORD;
             case "TRANSACTIONAL_KEYWORD":
                 return SyntaxKind.TRANSACTIONAL_KEYWORD;
+            case "ISOLATED_KEYWORD":
+                return SyntaxKind.ISOLATED_KEYWORD;
             case "ENUM_KEYWORD":
                 return SyntaxKind.ENUM_KEYWORD;
             case "BASE16_KEYWORD":
@@ -630,6 +634,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BASE64_KEYWORD;
             case "MATCH_KEYWORD":
                 return SyntaxKind.MATCH_KEYWORD;
+            case "CLASS_KEYWORD":
+                return SyntaxKind.CLASS_KEYWORD;
             case "CONFLICT_KEYWORD":
                 return SyntaxKind.CONFLICT_KEYWORD;
             case "LIMIT_KEYWORD":
@@ -818,8 +824,6 @@ public class ParserTestUtils {
                 return SyntaxKind.INDEXED_EXPRESSION;
             case "CHECK_EXPRESSION":
                 return SyntaxKind.CHECK_EXPRESSION;
-            case "FAIL_EXPRESSION":
-                return SyntaxKind.FAIL_EXPRESSION;
             case "MAPPING_CONSTRUCTOR":
                 return SyntaxKind.MAPPING_CONSTRUCTOR;
             case "TYPEOF_EXPRESSION":
@@ -888,8 +892,6 @@ public class ParserTestUtils {
                 return SyntaxKind.BRACED_ACTION;
             case "CHECK_ACTION":
                 return SyntaxKind.CHECK_ACTION;
-            case "FAIL_ACTION":
-                return SyntaxKind.FAIL_ACTION;
             case "START_ACTION":
                 return SyntaxKind.START_ACTION;
             case "TRAP_ACTION":
@@ -922,6 +924,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ELSE_BLOCK;
             case "WHILE_STATEMENT":
                 return SyntaxKind.WHILE_STATEMENT;
+            case "DO_STATEMENT":
+                return SyntaxKind.DO_STATEMENT;
             case "CALL_STATEMENT":
                 return SyntaxKind.CALL_STATEMENT;
             case "PANIC_STATEMENT":
@@ -930,6 +934,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CONTINUE_STATEMENT;
             case "BREAK_STATEMENT":
                 return SyntaxKind.BREAK_STATEMENT;
+            case "FAIL_STATEMENT":
+                return SyntaxKind.FAIL_STATEMENT;
             case "RETURN_STATEMENT":
                 return SyntaxKind.RETURN_STATEMENT;
             case "COMPOUND_ASSIGNMENT_STATEMENT":
@@ -956,6 +962,8 @@ public class ParserTestUtils {
                 return SyntaxKind.INVALID_EXPRESSION_STATEMENT;
 
             // Types
+            case "TYPE_DESC":
+                return SyntaxKind.TYPE_DESC;
             case "INT_TYPE_DESC":
                 return SyntaxKind.INT_TYPE_DESC;
             case "FLOAT_TYPE_DESC":
@@ -990,6 +998,8 @@ public class ParserTestUtils {
                 return SyntaxKind.RECORD_TYPE_DESC;
             case "OBJECT_TYPE_DESC":
                 return SyntaxKind.OBJECT_TYPE_DESC;
+            case "OBJECT_CONSTRUCTOR":
+                return SyntaxKind.OBJECT_CONSTRUCTOR;
             case "UNION_TYPE_DESC":
                 return SyntaxKind.UNION_TYPE_DESC;
             case "ERROR_TYPE_DESC":
@@ -1100,6 +1110,8 @@ public class ParserTestUtils {
                 return SyntaxKind.WHERE_CLAUSE;
             case "LET_CLAUSE":
                 return SyntaxKind.LET_CLAUSE;
+            case "ON_FAIL_CLAUSE":
+                return SyntaxKind.ON_FAIL_CLAUSE;
             case "QUERY_PIPELINE":
                 return SyntaxKind.QUERY_PIPELINE;
             case "SELECT_CLAUSE":
@@ -1128,8 +1140,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FIELD_BINDING_PATTERN;
             case "MAPPING_BINDING_PATTERN":
                 return SyntaxKind.MAPPING_BINDING_PATTERN;
-            case "FUNCTIONAL_BINDING_PATTERN":
-                return SyntaxKind.FUNCTIONAL_BINDING_PATTERN;
+            case "ERROR_BINDING_PATTERN":
+                return SyntaxKind.ERROR_BINDING_PATTERN;
             case "NAMED_ARG_BINDING_PATTERN":
                 return SyntaxKind.NAMED_ARG_BINDING_PATTERN;
             case "TYPE_PARAMETER":

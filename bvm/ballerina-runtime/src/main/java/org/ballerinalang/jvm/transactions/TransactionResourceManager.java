@@ -18,11 +18,11 @@
 package org.ballerinalang.jvm.transactions;
 
 import com.atomikos.icatch.jta.UserTransactionManager;
+import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.api.BArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

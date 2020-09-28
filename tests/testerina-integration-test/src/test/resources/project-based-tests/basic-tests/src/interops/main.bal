@@ -22,5 +22,5 @@ public function formatFruits() returns string {
 }
 
 function format(handle a, handle... args) returns handle = @java:Method {
-    class: "java.lang.String"
+    'class: "java.lang.String"
 } external;

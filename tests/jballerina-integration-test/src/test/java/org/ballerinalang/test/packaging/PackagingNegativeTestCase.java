@@ -121,7 +121,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         moduleBuildLeecher.waitForText(5000);
     }
 
-    @Test(description = "Test pushing a module to central without any content in Module.md")
+    @Test(enabled = false, description = "Test pushing a module to central without any content in Module.md")
     public void testPushWithoutModuleMDContent() throws Exception {
         Path projectPath = Files.createDirectories(tempProjectDirectory).resolve("projectWithoutModuleMDContent");
         createProjectStructureAndGetProjectPath(projectPath, moduleName);
@@ -228,7 +228,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         leecher.waitForText(5000);
     }
 
-    @Test(description = "Test build without any modules in the project")
+    @Test(enabled = false, description = "Test build without any modules in the project")
     public void testBuildAllWithoutPackages() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("projectWithoutPackages");
         initProject(tempProjectDirectory, "projectWithoutPackages");
@@ -245,7 +245,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         leecher.waitForText(5000);
     }
 
-    @Test(description = "Test pushing a package with an invalid org-name")
+    @Test(enabled = false, description = "Test pushing a package with an invalid org-name")
     public void testPushWithInvalidOrg() throws Exception {
         Path projectPath = Files.createDirectories(tempProjectDirectory).resolve("projectWithReservedOrg");
         createProjectStructureAndGetProjectPath(projectPath, moduleName);
@@ -278,7 +278,7 @@ public class PackagingNegativeTestCase extends BaseTest {
     }
 
 
-    @Test(description = "Test pushing a package with an invalid package name")
+    @Test(enabled = false, description = "Test pushing a package with an invalid package name")
     public void testPushWithInvalidPkg() throws Exception {
         Path projectPath = Files.createDirectories(tempProjectDirectory).resolve("projectWithInvalidPkg");
         createProjectStructureAndGetProjectPath(projectPath, "hello-pkg");

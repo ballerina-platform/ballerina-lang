@@ -22,7 +22,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,13 +75,12 @@ public class VariableUtils {
                     && !stringRef.referenceType().name().equals(JVMValueType.NONBMPSTRING.getString())) {
                 // Additional filtering is required, as some ballerina variable type names may contain redundant
                 // double quotes.
-                return stringRef.toString().replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
+                return removeRedundantQuotes(stringRef.toString());
             }
             Optional<Value> valueField = getFieldValue(stringRef, FIELD_VALUE);
             // Additional filtering is required, as some ballerina variable type names may contain redundant
             // double quotes.
-            return valueField.map(value -> value.toString().replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, ""))
-                    .orElse(UNKNOWN_VALUE);
+            return valueField.map(value -> removeRedundantQuotes(value.toString())).orElse(UNKNOWN_VALUE);
         } catch (Exception e) {
             return UNKNOWN_VALUE;
         }
@@ -99,7 +98,8 @@ public class VariableUtils {
             Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_STRINGVALUE);
             if (method.isPresent()) {
                 Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
-                        .getThreadReference(), method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+                                .getThreadReference(), method.get(), Collections.singletonList(null),
+                        ObjectReference.INVOKE_SINGLE_THREADED);
                 return VariableUtils.getStringFrom(stringValue);
             }
             return UNKNOWN_VALUE;
@@ -201,5 +201,12 @@ public class VariableUtils {
                     methodName, parent.toString()));
         }
         return Optional.of(methods.get(0));
+    }
+
+    public static String removeRedundantQuotes(String str) {
+        do {
+            str = str.replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
+        } while (str.startsWith("\"") || str.endsWith("\""));
+        return str;
     }
 }

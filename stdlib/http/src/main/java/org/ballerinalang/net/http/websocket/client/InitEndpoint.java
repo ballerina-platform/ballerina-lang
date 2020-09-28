@@ -18,11 +18,11 @@
 
 package org.ballerinalang.net.http.websocket.client;
 
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketService;
@@ -42,9 +42,9 @@ import java.util.concurrent.CountDownLatch;
  */
 public class InitEndpoint {
 
-    public static void initEndpoint(ObjectValue webSocketClient) {
+    public static void initEndpoint(BObject webSocketClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        MapValue<BString, Object> clientEndpointConfig =  webSocketClient.getMapValue(
+        BMap<BString, Object> clientEndpointConfig =  webSocketClient.getMapValue(
                 WebSocketConstants.CLIENT_ENDPOINT_CONFIG);
         Strand strand = Scheduler.getStrand();
         String remoteUrl = webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG).getValue();

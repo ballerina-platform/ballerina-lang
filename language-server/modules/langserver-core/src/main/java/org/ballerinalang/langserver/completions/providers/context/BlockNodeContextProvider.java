@@ -92,7 +92,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(getStaticCompletionItems(context));
         completionItems.addAll(getStatementCompletionItems(context, node));
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.addAll(this.getModuleCompletionItems(context));
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getSymbolCompletions(context));
 
@@ -103,26 +103,19 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
 
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
-        // Add the xmlns snippet
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_NAMESPACE_DECLARATION.get()));
-        // Add the xmlns keyword
+        completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_FAIL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
-        // Add the var keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-        // Add the wait keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_WAIT.get()));
-        // Add the start keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_START.get()));
-        // Add the flush keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()));
-        // Add the function keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
-        // Add the checkpanic keyword
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
-        // Add the check keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
-        // Add the final keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FAIL.get()));
 
         return completionItems;
     }
@@ -134,6 +127,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_IF.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_WHILE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_DO.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_LOCK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FOREACH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
@@ -240,7 +234,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     snippet.append(restSnippet);
 
                     SnippetBlock cItemSnippet = new SnippetBlock(label, snippet.toString(), detail,
-                            SnippetBlock.SnippetType.SNIPPET);
+                            SnippetBlock.Kind.SNIPPET);
                     return new SnippetCompletionItem(ctx, cItemSnippet);
                 }).collect(Collectors.toList());
     }

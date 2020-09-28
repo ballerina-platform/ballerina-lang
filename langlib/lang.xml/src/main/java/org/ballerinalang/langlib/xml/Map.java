@@ -18,13 +18,14 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.api.values.BXML;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -63,12 +64,13 @@ public class Map {
         }
         List<BXML> elements = new ArrayList<>();
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime()
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
                                                        () -> new Object[]{strand, x.getItem(index.incrementAndGet()),
                                                                true},
                                                        result -> elements.add((XMLValue) result),
-                                                       () -> new XMLSequence(elements));
+                                                       () -> new XMLSequence(elements),
+                                                       Scheduler.getStrand().scheduler);
         return new XMLSequence(elements);
     }
 }

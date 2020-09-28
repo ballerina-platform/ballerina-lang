@@ -30,8 +30,6 @@ public enum CompilerOptionName {
 
     PRESERVE_WHITESPACE("preserveWhitespace"),
 
-    NEW_PARSER_ENABLED("newParserEnabled"),
-
     OFFLINE("offline"),
 
     SKIP_TESTS("skipTests"),
@@ -53,6 +51,8 @@ public enum CompilerOptionName {
     SKIP_MODULE_DEPENDENCIES("skipModuleDependencies"),
 
     DUMP_BIR("dumpBIR"),
+
+    DUMP_BIR_FILE("dumpBIRFile"),
 
     LOCK_ENABLED("lockEnabled"),
 

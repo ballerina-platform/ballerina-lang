@@ -17,6 +17,7 @@
 
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -29,6 +30,7 @@ import org.ballerinalang.jvm.values.TableValue;
 
 import java.util.Map;
 
+import static org.ballerinalang.jvm.CycleUtils.Node;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR;
 
 /**
@@ -58,9 +60,8 @@ public class TableUtils {
             Node node = new Node(obj, parent);
 
             if (node.hasCyclesSoFar()) {
-                throw BallerinaErrors.createError(TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR,
-                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE,
-                                TypeChecker.getType(obj)));
+                throw BErrorCreator.createError(TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper
+                        .getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, TypeChecker.getType(obj)));
             }
 
             RefValue refValue = (RefValue) obj;
@@ -102,30 +103,5 @@ public class TableUtils {
      */
     public static void handleTableStore(TableValue<Object, Object> tableValue, Object key, Object value) {
         tableValue.put(key, value);
-    }
-
-    /**
-     * Internal class which represents the link between the members of ballerina values.
-     * This is used to detect the cycles in a map or array
-     */
-    static class Node {
-        Object obj;
-        Node parent;
-
-        public Node(Object obj, Node parent) {
-            this.obj = obj;
-            this.parent = parent;
-        }
-
-        public boolean hasCyclesSoFar() {
-            Node parent = this.parent;
-            while (parent != null) {
-                if (parent.obj == obj) {
-                    return true;
-                }
-                parent = parent.parent;
-            }
-            return false;
-        }
     }
 }

@@ -4,7 +4,7 @@ public function testObjectFieldDefaultable () returns [int, string, int, string]
     return [p.age, p.name, p.year, p.month];
 }
 
-type Person object {
+class Person {
     public int age = 10;
     public string name = "sample name";
 
@@ -15,4 +15,4 @@ type Person object {
         self.age = age;
         self.name = name;
     }
-};
+}

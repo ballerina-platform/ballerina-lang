@@ -1,8 +1,8 @@
-type TestObject object {
+class TestObject {
     function testFunction (string input) returns string {
         return input;
     }
-};
+}
 
 function secureFunction(@untainted string secureIn, string insecureIn) {
 

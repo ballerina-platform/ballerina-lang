@@ -7,3 +7,5 @@ function foo() {
     function(int a int b = c int... d) f2 = x;
     function int, int = c, int...) f3 = x;
 }
+
+public function() foo = main;

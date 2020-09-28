@@ -41,12 +41,12 @@ public class SpecificFieldNode extends MappingFieldNode {
         return childInBucket(1);
     }
 
-    public Token colon() {
-        return childInBucket(2);
+    public Optional<Token> colon() {
+        return optionalChildInBucket(2);
     }
 
-    public ExpressionNode valueExpr() {
-        return childInBucket(3);
+    public Optional<ExpressionNode> valueExpr() {
+        return optionalChildInBucket(3);
     }
 
     @Override
@@ -108,8 +108,8 @@ public class SpecificFieldNode extends MappingFieldNode {
             this.oldNode = oldNode;
             this.readonlyKeyword = oldNode.readonlyKeyword().orElse(null);
             this.fieldName = oldNode.fieldName();
-            this.colon = oldNode.colon();
-            this.valueExpr = oldNode.valueExpr();
+            this.colon = oldNode.colon().orElse(null);
+            this.valueExpr = oldNode.valueExpr().orElse(null);
         }
 
         public SpecificFieldNodeModifier withReadonlyKeyword(

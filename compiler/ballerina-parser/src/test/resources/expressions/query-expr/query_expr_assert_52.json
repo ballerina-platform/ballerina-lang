@@ -78,32 +78,33 @@
         },
         {
           "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "SELECT_CLAUSE",
-      "children": [
-        {
-          "kind": "SELECT_KEYWORD",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        },
-        {
-          "kind": "SIMPLE_NAME_REFERENCE",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "c",
-              "trailingMinutiae": [
+              "kind": "LIMIT_CLAUSE",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "LIMIT_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "c",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -112,10 +113,10 @@
       ]
     },
     {
-      "kind": "LIMIT_CLAUSE",
+      "kind": "SELECT_CLAUSE",
       "children": [
         {
-          "kind": "LIMIT_KEYWORD",
+          "kind": "SELECT_KEYWORD",
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",

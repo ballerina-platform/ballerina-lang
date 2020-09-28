@@ -16,7 +16,7 @@
 
 import initializers as inp;
 
-public type person object {
+public class person {
 
     public int age = 0;
     public string name = "";
@@ -30,7 +30,7 @@ public type person object {
     public function getAge() {
         self.age = 12;
     }
-};
+}
 
 function testObjectInitializerInSamePackage1() returns [int, string]{
     person p = new(n = "Peter");
@@ -42,7 +42,7 @@ function testObjectInitializerInAnotherPackage() returns [int, string]{
     return [e.age, e.name];
 }
 
-type employee object {
+class employee {
 
     public int age = 0;
     public string name = "A";
@@ -51,14 +51,14 @@ type employee object {
         self.name = self.name + name;
         self.age = a;
     }
-};
+}
 
 function testObjectInitializerOrder() returns [int, string]{
     employee p = new ("B", a = 40);
     return [p.age, p.name];
 }
 
-type Person object {
+class Person {
     string name;
     int age;
 
@@ -66,7 +66,7 @@ type Person object {
         self.name = check getError();
         self.age = 25;
     }
-};
+}
 
 function getError() returns string|error {
     error e = error("failed to create Person object", f = "foo");
@@ -100,7 +100,7 @@ function testTypeInitInReturn() returns Person|error {
     return new();
 }
 
-type Person2 object {
+class Person2 {
     string name;
     int age = 27;
     string profession;
@@ -111,7 +111,7 @@ type Person2 object {
         self.profession = profession;
         self.misc = misc;
     }
-};
+}
 
 function testInitializerWithRestArgs() returns Person2 {
     json adr = {city: "Colombo", country: "Sri Lanka"};
@@ -119,7 +119,7 @@ function testInitializerWithRestArgs() returns Person2 {
     return p;
 }
 
-type Person3 object {
+class Person3 {
     string name;
     int age;
 
@@ -127,7 +127,7 @@ type Person3 object {
         self.name = check getError2(100);
         self.age = 25;
     }
-};
+}
 
 type ErrorDetails record {
     int id;
@@ -148,7 +148,7 @@ function testCustomErrorReturn() returns [Person3|Err, Person3|error] {
     return [p1, p2];
 }
 
-type Person4 object {
+class Person4 {
     string name;
     int age;
 
@@ -156,7 +156,7 @@ type Person4 object {
         self.name = check getMultipleErrors(isFoo);
         self.age = 25;
     }
-};
+}
 
 type FooErrData record {
     string f;
@@ -190,7 +190,7 @@ function testMultipleErrorReturn() returns [Person4|FooErr|BarErr, Person4|FooEr
     return [p1, p2];
 }
 
-type Too object {
+class Too {
     public string name;
 
     public function init(string name) {
@@ -200,7 +200,7 @@ type Too object {
     function updateName(string name) {
         self.init(name);
     }
-};
+}
 
 function testInitActionInsideObjectDescriptor() returns string {
     Too t = new("Java");
@@ -212,7 +212,7 @@ function panicTheStr() returns error|string {
     return error("Panicked");
 }
 
-type PanicReceiver object {
+class PanicReceiver {
 
     public int age = 0;
     public string name = "A";
@@ -222,7 +222,7 @@ type PanicReceiver object {
         self.age = a;
         panic error("init panicked");
     }
-};
+}
 
 function panicWrapper() {
     PanicReceiver r = new(checkpanic panicTheStr());
@@ -242,7 +242,7 @@ function testObjectInitPanic() returns error|PanicReceiver {
     return trap new PanicReceiver("Mr. Panic");
 }
 
-type Student1 object {
+class Student1 {
      public int marks = 75;
 
      public function init() {
@@ -252,7 +252,7 @@ type Student1 object {
          self.init();
          return self.marks;
      }
- };
+}
 
 function testInitInvocationInsideObject() returns (boolean) {
     Student1 student = new;
@@ -262,7 +262,7 @@ function testInitInvocationInsideObject() returns (boolean) {
     return marksBeforeChange == 75 && marksAfterChange == 80;
 }
 
-type Student2 object {
+class Student2 {
     public string grade;
 
     public function init(string grade) {
@@ -273,7 +273,7 @@ type Student2 object {
         self.init(grade);
         return self.grade;
     }
-};
+}
 
 function testInitInvocationInsideObjectWithArgs() returns (boolean) {
     Student2 student = new("B");
@@ -282,7 +282,7 @@ function testInitInvocationInsideObjectWithArgs() returns (boolean) {
     return marksBeforeChange == "B" && marksAfterChange == "B+";
 }
 
-type Student3 object {
+class Student3 {
     public string name;
     public int marks = 90;
 
@@ -294,7 +294,7 @@ type Student3 object {
         var v = self.init(0);
         return self.marks;
     }
-};
+}
 
 function getName(int id) returns string|error {
     if (id == -1) {
@@ -330,7 +330,7 @@ function testObjInitWithCheck2() returns (boolean) {
     return !(s is error) && marksBeforeChange == 90 && marksAfterChange == 95;
 }
 
-type Student4 object {
+class Student4 {
     string[] modules;
 
     public function init(string... modules) {
@@ -340,7 +340,7 @@ type Student4 object {
     public function changeModules(string... modules) {
         self.init(...modules);
     }
-};
+}
 
 function testInitInvocationWithRestArgs() returns (boolean) {
     string[] modules = ["Science", "History"];
@@ -355,7 +355,7 @@ function testInitInvocationWithRestArgs() returns (boolean) {
         nameAfterChange[0] == "Maths" && nameAfterChange[1] == "Physics";
 }
 
-type Student5 object {
+class Student5 {
     public string name;
     string[] modules;
     public int marks = 90;
@@ -369,7 +369,7 @@ type Student5 object {
         var v = self.init(0);
         return self.marks;
     }
-};
+}
 
 function testInitInvocationWithCheckAndRestParams(int id, string... modules) returns ([Student5|error, int, int]) {
     int marksBeforeChange = 0;
@@ -400,7 +400,7 @@ function testInitInvocationWithCheckAndRestParams2() returns (boolean) {
 }
 
 
-type Student6 object {
+class Student6 {
     int id;
 
     public function init(int id = 1) {
@@ -410,14 +410,14 @@ type Student6 object {
     public function getId() returns int {
         return self.id;
     }
-};
+}
 
 function testInitInvocationWithDefaultParams1() returns (boolean) {
     Student6 student = new;
     return student.getId() == 1;
 }
 
-type Student7 object {
+class Student7 {
     int? id;
 
     public function init(int? id = 1) {
@@ -431,7 +431,7 @@ type Student7 object {
         }
         return <int> self.id;
     }
-};
+}
 
 function testInitInvocationWithDefaultParams2() returns (boolean) {
     Student7 student = new(4);
@@ -440,7 +440,7 @@ function testInitInvocationWithDefaultParams2() returns (boolean) {
 
 public type ID int|string;
 
-type Student8 object {
+class Student8 {
     int id;
 
     public function init(ID i=1) {
@@ -450,14 +450,14 @@ type Student8 object {
     public function getId() returns int {
         return self.id;
     }
-};
+}
 
 function testInitInvocationWithFiniteType() returns (boolean) {
     Student8 student = new(4);
     return student.getId() == 4;
 }
 
-type AddError object {
+class AddError {
     error er;
     function init(error simpleError = error("SimpleErrorType", message = "Simple error occurred")) {
         self.er = simpleError;
@@ -466,7 +466,7 @@ type AddError object {
     public function getError() returns error|() {
         return self.er;
     }
-};
+}
 
 function testInitInvocationWithDefaultError() returns (boolean) {
     AddError newError = new;
@@ -478,7 +478,7 @@ function testInitInvocationWithDefaultError() returns (boolean) {
     return e is error;
 }
 
-type Student9 object {
+class Student9 {
     int fullMarks;
 
     public function init(int firstMark = 80, int secondMark = firstMark) {
@@ -488,14 +488,14 @@ type Student9 object {
     public function getMarks() returns int {
         return self.fullMarks;
     }
-};
+}
 
 function testInitInvocationWithReferenceToDefaultValue1() returns (boolean) {
     Student9 student = new;
     return student.getMarks() == 160;
 }
 
-type Calculate1 object {
+class Calculate1 {
     int sum;
 
     public function init(int a, int b, int c, int d = a + b + c*c) {
@@ -505,14 +505,14 @@ type Calculate1 object {
     public function getSum() returns int {
         return self.sum;
     }
-};
+}
 
 function testInitInvocationWithReferenceToDefaultValue2() returns (boolean) {
     Calculate1 cal = new(2, 3, 4);
     return cal.getSum() == 21;
 }
 
-type Calculate2 object {
+class Calculate2 {
     int sum;
     string op;
 
@@ -520,7 +520,7 @@ type Calculate2 object {
         self.op = check checkOperation(operation);
         self.sum = d;
     }
-};
+}
 
 function checkOperation(string operation) returns string|error {
     if (operation == "SUB") {
@@ -539,7 +539,7 @@ public const NAME = "John";
 public const AGE = 11;
 public type TYPE NAME|AGE;
 
-type Student10 object {
+class Student10 {
     string name = "";
     int age = 11;
     TYPE t1;
@@ -555,7 +555,7 @@ type Student10 object {
     function getDetails() returns [string, int, TYPE, TYPE] {
         return [self.name, self.age, self.t1, self.t2];
     }
-};
+}
 
 function testConstRefsAsDefaultValue() returns (boolean) {
     Student10 s = new("Andrew");
@@ -567,7 +567,7 @@ function getData(string n) returns string {
     return n;
 }
 
-type Student11 object {
+class Student11 {
     string name;
     function init(string n, function (string) returns string fn = (x) => "John") {
         self.name = fn(n);
@@ -576,7 +576,7 @@ type Student11 object {
     function getName() returns string {
         return self.name;
     }
-};
+}
 
 function testFunctionPointerAsDefaultableParam1() {
     Student11 s1 = new("Anne", getData);
@@ -594,7 +594,7 @@ function getTotalMarks(int a, int b) returns int {
     return a + b + 10;
 }
 
-type Student12 object {
+class Student12 {
     int marks;
     function init(int x, int y, function (int, int) returns int fn =
                                                         function(int a, int b) returns int {return 100;}) {
@@ -604,7 +604,7 @@ type Student12 object {
     function getMarks() returns int {
         return self.marks;
     }
-};
+}
 
 function testFunctionPointerAsDefaultableParam2() {
     Student12 s1 = new(10, 20, getTotalMarks);

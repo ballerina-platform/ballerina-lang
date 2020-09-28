@@ -87,7 +87,10 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "cannot update 'readonly' value of type 'MyConfig'", 197, 5);
 
         validateError(result, index++, "invalid intersection type '(DEF & readonly)': no intersection", 201, 5);
-        validateError(result, index++, "invalid intersection type '(JKL & readonly)': no intersection", 209, 5);
+        validateError(result, index++, "invalid intersection type with 'readonly', 'JKL' can never be 'readonly'", 209,
+                5);
+        validateError(result, index++, "invalid intersection type with 'readonly', 'JKL' can never be 'readonly'", 211,
+                19);
         validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 230, 12);
         validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 231, 9);
         validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'int[]'", 232, 12);
@@ -99,7 +102,7 @@ public class SelectivelyImmutableTypeTest {
 
         validateError(result, index++, "cannot update 'readonly' value of type " +
                 "'record {| readonly int i; (anydata & readonly)...; |} & readonly'", 259, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'object { readonly int j; } & readonly'",
+        validateError(result, index++, "cannot update 'readonly' value of type 'object { final int j; } & readonly'",
                       262, 5);
 
         assertEquals(result.getErrorCount(), index);

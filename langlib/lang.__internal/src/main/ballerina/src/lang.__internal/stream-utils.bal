@@ -41,7 +41,7 @@ public function setNarrowType(typedesc<Type> td, record {|Type value;|} val) ret
 # + td - A type description.
 # + iteratorObj - An iterator object.
 # + return - New stream containing results of `iteratorObj` object's next function invocations.
-public function construct(typedesc<Type> td, abstract object { public function next() returns
+public function construct(typedesc<Type> td, object { public function next() returns
         record {|Type value;|}|ErrorType?;} iteratorObj) returns stream<Type, ErrorType> = external;
 
 # Takes a typedesc of an array or stream and returns the typedesc of the element or constraint type.
@@ -72,10 +72,10 @@ public function getReturnType(any func) returns typedesc<Type> = external;
 #
 # + strm - The stream
 # + return - An abstract object which is iterable
-public function getIteratorObj(stream<Type, ErrorType> strm) returns abstract object { public function next() returns
-    record {|Type value;|}|ErrorType?;} |
-    abstract object {
-        public function next() returns record {|Type value;|}|ErrorType?;
+public function getIteratorObj(stream<Type, ErrorType> strm) returns
+    object {
+        public isolated function next() returns record {|Type value;|}|ErrorType?;} |
+    object {
+        public isolated function next() returns record {|Type value;|}|ErrorType?;
         public function close() returns ErrorType?;
     } = external;
-

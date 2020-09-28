@@ -60,7 +60,7 @@ function testBinaryExpressionIntAndFloatStmt (int a) returns float {
     return x + a;
 }
 
-public type Client client object {
+public client class Client {
     public remote function foo() returns [int, int] {
         return [0, 0];
     }
@@ -76,7 +76,7 @@ public type Client client object {
     public remote function foo3() returns error {
         return error("foo3 error", failedAttempts = 3);
     }
-};
+}
 
 public function restActionResultAssignment() returns [int, int, string, string, string, int] {
     Client c = new();
