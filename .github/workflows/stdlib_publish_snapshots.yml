@@ -22,7 +22,7 @@ jobs:
                         run publish
                 env:
                     WORKING_DIR: ./stdlib/release
-                    GITHUB_TOKEN: ${{ secrets.BAL_BOT_PAT }}
+                    GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
                     EVENT_TYPE: 'ballerina-lang-push'
 
             -   name: Trigger Dependent Modules for Module Build
@@ -33,6 +33,6 @@ jobs:
                         run publish
                 env:
                     WORKING_DIR: ./stdlib/release
-                    GITHUB_TOKEN: ${{ secrets.BAL_BOT_PAT }}
+                    GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
                     EVENT_TYPE: ${{ github.event.action }}
                     SOURCE_MODULE: ${{ github.event.client_payload.module }}
