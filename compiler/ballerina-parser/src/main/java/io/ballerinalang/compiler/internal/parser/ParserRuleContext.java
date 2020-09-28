@@ -113,6 +113,7 @@ public enum ParserRuleContext {
     SERVICE_DECL_RHS("service-decl-rhs"),
     OPTIONAL_RESOURCE_PATH("optional-resource-path"),
     ABSOLUTE_RESOURCE_PATH("absolute-resource-path"),
+    RELATIVE_RESOURCE_PATH("relative-resource-path"),
     ABSOLUTE_RESOURCE_PATH_END("absolute-resource-path-end"),
     LISTENERS_LIST("listeners-list"),
     LISTENERS_LIST_END("listeners-list-end"),

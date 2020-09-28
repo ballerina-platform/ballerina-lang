@@ -1028,7 +1028,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Optional<Node> doc = getDocumentationString(objFieldNode.metadata());
         simpleVar.markdownDocumentationAttachment = createMarkdownDocumentationAttachment(doc);
 
-        addFinalQualifier(objFieldNode.finalKeyword(), simpleVar);
+        NodeList<Token> qualifierList = objFieldNode.qualifierList();
+        for (Token token : qualifierList) {
+            if (token.kind() == SyntaxKind.FINAL_KEYWORD) {
+                addFinalQualifier(token, simpleVar);
+            }
+        }
+
         simpleVar.pos = getPositionWithoutMetadata(objFieldNode);
         return simpleVar;
     }
@@ -1146,7 +1152,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public void addServiceConstructsToClassDefinition(ServiceBodyNode serviceBodyNode,
                                                       BLangClassDefinition classDefinition) {
         classDefinition.flagSet.add(SERVICE);
-        for (Node resourceNode : serviceBodyNode.resources()) {
+        for (Node resourceNode : serviceBodyNode.members()) {
             BLangNode bLangNode = resourceNode.apply(this);
             if (bLangNode.getKind() == NodeKind.FUNCTION) {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
@@ -1161,7 +1167,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ServiceBodyNode serviceBodyNode) {
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
         objectTypeNode.flagSet.add(SERVICE);
-        for (Node resourceNode : serviceBodyNode.resources()) {
+        for (Node resourceNode : serviceBodyNode.members()) {
             BLangNode bLangNode = resourceNode.apply(this);
             if (bLangNode.getKind() == NodeKind.FUNCTION) {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
@@ -5203,11 +5209,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private void addFinalQualifier(Optional<Token> finalKeyword, BLangSimpleVariable simpleVar) {
-        if (!finalKeyword.isPresent()) {
-            return;
-        }
-
+    private void addFinalQualifier(Token finalKeyword, BLangSimpleVariable simpleVar) {
         simpleVar.flagSet.add(Flag.FINAL);
     }
 

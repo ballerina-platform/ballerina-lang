@@ -32,58 +32,58 @@ import java.util.Collections;
  */
 public class STServiceBodyNode extends STNode {
     public final STNode openBraceToken;
-    public final STNode resources;
+    public final STNode members;
     public final STNode closeBraceToken;
 
     STServiceBodyNode(
             STNode openBraceToken,
-            STNode resources,
+            STNode members,
             STNode closeBraceToken) {
         this(
                 openBraceToken,
-                resources,
+                members,
                 closeBraceToken,
                 Collections.emptyList());
     }
 
     STServiceBodyNode(
             STNode openBraceToken,
-            STNode resources,
+            STNode members,
             STNode closeBraceToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.SERVICE_BODY, diagnostics);
         this.openBraceToken = openBraceToken;
-        this.resources = resources;
+        this.members = members;
         this.closeBraceToken = closeBraceToken;
 
         addChildren(
                 openBraceToken,
-                resources,
+                members,
                 closeBraceToken);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STServiceBodyNode(
                 this.openBraceToken,
-                this.resources,
+                this.members,
                 this.closeBraceToken,
                 diagnostics);
     }
 
     public STServiceBodyNode modify(
             STNode openBraceToken,
-            STNode resources,
+            STNode members,
             STNode closeBraceToken) {
         if (checkForReferenceEquality(
                 openBraceToken,
-                resources,
+                members,
                 closeBraceToken)) {
             return this;
         }
 
         return new STServiceBodyNode(
                 openBraceToken,
-                resources,
+                members,
                 closeBraceToken,
                 diagnostics);
     }

@@ -961,8 +961,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(objectFieldNode.metadata().orElse(null));
         Token visibilityQualifier =
                 modifyToken(objectFieldNode.visibilityQualifier().orElse(null));
-        Token finalKeyword =
-                modifyToken(objectFieldNode.finalKeyword().orElse(null));
+        NodeList<Token> qualifierList =
+                modifyNodeList(objectFieldNode.qualifierList());
         Node typeName =
                 modifyNode(objectFieldNode.typeName());
         Token fieldName =
@@ -976,7 +976,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return objectFieldNode.modify(
                 metadata,
                 visibilityQualifier,
-                finalKeyword,
+                qualifierList,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -1070,13 +1070,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ServiceBodyNode serviceBodyNode) {
         Token openBraceToken =
                 modifyToken(serviceBodyNode.openBraceToken());
-        NodeList<Node> resources =
-                modifyNodeList(serviceBodyNode.resources());
+        NodeList<Node> members =
+                modifyNodeList(serviceBodyNode.members());
         Token closeBraceToken =
                 modifyToken(serviceBodyNode.closeBraceToken());
         return serviceBodyNode.modify(
                 openBraceToken,
-                resources,
+                members,
                 closeBraceToken);
     }
 
@@ -3139,6 +3139,33 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openBrace,
                 members,
                 closeBrace);
+    }
+
+    @Override
+    public ResourceAccessorDefinitionNode transform(
+            ResourceAccessorDefinitionNode resourceAccessorDefinitionNode) {
+        MetadataNode metadata =
+                modifyNode(resourceAccessorDefinitionNode.metadata().orElse(null));
+        Token resourceKeyword =
+                modifyToken(resourceAccessorDefinitionNode.resourceKeyword());
+        Token functionKeyword =
+                modifyToken(resourceAccessorDefinitionNode.functionKeyword());
+        IdentifierToken accessorName =
+                modifyNode(resourceAccessorDefinitionNode.accessorName());
+        NodeList<Token> relativeResourcePath =
+                modifyNodeList(resourceAccessorDefinitionNode.relativeResourcePath());
+        FunctionSignatureNode functionSignature =
+                modifyNode(resourceAccessorDefinitionNode.functionSignature());
+        FunctionBodyNode functionBody =
+                modifyNode(resourceAccessorDefinitionNode.functionBody());
+        return resourceAccessorDefinitionNode.modify(
+                metadata,
+                resourceKeyword,
+                functionKeyword,
+                accessorName,
+                relativeResourcePath,
+                functionSignature,
+                functionBody);
     }
 
     // Tokens

@@ -1279,9 +1279,9 @@
                     "isOptional": true
                 },
                 {
-                    "name": "finalKeyword",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "typeName",
@@ -1426,7 +1426,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "resources",
+                    "name": "members",
                     "type": "Node",
                     "occurrences": "MULTIPLE"
                 },
@@ -4211,6 +4211,43 @@
                 {
                     "name": "closeBrace",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ResourceAccessorDefinitionNode",
+            "base": "Node",
+            "kind": "RESOURCE_ACCESSOR_DEFINITION",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "resourceKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "functionKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "accessorName",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "relativeResourcePath",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "functionSignature",
+                    "type": "FunctionSignatureNode"
+                },
+                {
+                    "name": "functionBody",
+                    "type": "FunctionBodyNode"
                 }
             ]
         }

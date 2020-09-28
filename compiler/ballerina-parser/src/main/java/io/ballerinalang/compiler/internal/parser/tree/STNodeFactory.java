@@ -714,7 +714,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createObjectFieldNode(
             STNode metadata,
             STNode visibilityQualifier,
-            STNode finalKeyword,
+            STNode qualifierList,
             STNode typeName,
             STNode fieldName,
             STNode equalsToken,
@@ -724,7 +724,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STObjectFieldNode(
                 metadata,
                 visibilityQualifier,
-                finalKeyword,
+                qualifierList,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -792,12 +792,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createServiceBodyNode(
             STNode openBraceToken,
-            STNode resources,
+            STNode members,
             STNode closeBraceToken) {
 
         return new STServiceBodyNode(
                 openBraceToken,
-                resources,
+                members,
                 closeBraceToken);
     }
 
@@ -2314,6 +2314,25 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openBrace,
                 members,
                 closeBrace);
+    }
+
+    public static STNode createResourceAccessorDefinitionNode(
+            STNode metadata,
+            STNode resourceKeyword,
+            STNode functionKeyword,
+            STNode accessorName,
+            STNode relativeResourcePath,
+            STNode functionSignature,
+            STNode functionBody) {
+
+        return new STResourceAccessorDefinitionNode(
+                metadata,
+                resourceKeyword,
+                functionKeyword,
+                accessorName,
+                relativeResourcePath,
+                functionSignature,
+                functionBody);
     }
 }
 

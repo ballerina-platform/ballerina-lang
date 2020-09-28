@@ -797,6 +797,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(classDefinitionNode);
     }
 
+    public T transform(STResourceAccessorDefinitionNode resourceAccessorDefinitionNode) {
+        return transformSyntaxNode(resourceAccessorDefinitionNode);
+    }
+
     // Tokens
 
     public T transform(STToken token) {

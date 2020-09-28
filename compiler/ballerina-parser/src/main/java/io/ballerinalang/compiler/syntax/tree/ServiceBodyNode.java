@@ -36,7 +36,7 @@ public class ServiceBodyNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public NodeList<Node> resources() {
+    public NodeList<Node> members() {
         return new NodeList<>(childInBucket(1));
     }
 
@@ -58,24 +58,24 @@ public class ServiceBodyNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "openBraceToken",
-                "resources",
+                "members",
                 "closeBraceToken"};
     }
 
     public ServiceBodyNode modify(
             Token openBraceToken,
-            NodeList<Node> resources,
+            NodeList<Node> members,
             Token closeBraceToken) {
         if (checkForReferenceEquality(
                 openBraceToken,
-                resources.underlyingListNode(),
+                members.underlyingListNode(),
                 closeBraceToken)) {
             return this;
         }
 
         return NodeFactory.createServiceBodyNode(
                 openBraceToken,
-                resources,
+                members,
                 closeBraceToken);
     }
 
@@ -91,13 +91,13 @@ public class ServiceBodyNode extends NonTerminalNode {
     public static class ServiceBodyNodeModifier {
         private final ServiceBodyNode oldNode;
         private Token openBraceToken;
-        private NodeList<Node> resources;
+        private NodeList<Node> members;
         private Token closeBraceToken;
 
         public ServiceBodyNodeModifier(ServiceBodyNode oldNode) {
             this.oldNode = oldNode;
             this.openBraceToken = oldNode.openBraceToken();
-            this.resources = oldNode.resources();
+            this.members = oldNode.members();
             this.closeBraceToken = oldNode.closeBraceToken();
         }
 
@@ -108,10 +108,10 @@ public class ServiceBodyNode extends NonTerminalNode {
             return this;
         }
 
-        public ServiceBodyNodeModifier withResources(
-                NodeList<Node> resources) {
-            Objects.requireNonNull(resources, "resources must not be null");
-            this.resources = resources;
+        public ServiceBodyNodeModifier withMembers(
+                NodeList<Node> members) {
+            Objects.requireNonNull(members, "members must not be null");
+            this.members = members;
             return this;
         }
 
@@ -125,7 +125,7 @@ public class ServiceBodyNode extends NonTerminalNode {
         public ServiceBodyNode apply() {
             return oldNode.modify(
                     openBraceToken,
-                    resources,
+                    members,
                     closeBraceToken);
         }
     }

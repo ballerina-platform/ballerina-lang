@@ -755,7 +755,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STObjectFieldNode objectFieldNode) {
         STNode metadata = modifyNode(objectFieldNode.metadata);
         STNode visibilityQualifier = modifyNode(objectFieldNode.visibilityQualifier);
-        STNode finalKeyword = modifyNode(objectFieldNode.finalKeyword);
+        STNode qualifierList = modifyNode(objectFieldNode.qualifierList);
         STNode typeName = modifyNode(objectFieldNode.typeName);
         STNode fieldName = modifyNode(objectFieldNode.fieldName);
         STNode equalsToken = modifyNode(objectFieldNode.equalsToken);
@@ -764,7 +764,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return objectFieldNode.modify(
                 metadata,
                 visibilityQualifier,
-                finalKeyword,
+                qualifierList,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -838,11 +838,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STServiceBodyNode transform(
             STServiceBodyNode serviceBodyNode) {
         STNode openBraceToken = modifyNode(serviceBodyNode.openBraceToken);
-        STNode resources = modifyNode(serviceBodyNode.resources);
+        STNode members = modifyNode(serviceBodyNode.members);
         STNode closeBraceToken = modifyNode(serviceBodyNode.closeBraceToken);
         return serviceBodyNode.modify(
                 openBraceToken,
-                resources,
+                members,
                 closeBraceToken);
     }
 
@@ -2486,6 +2486,26 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 openBrace,
                 members,
                 closeBrace);
+    }
+
+    @Override
+    public STResourceAccessorDefinitionNode transform(
+            STResourceAccessorDefinitionNode resourceAccessorDefinitionNode) {
+        STNode metadata = modifyNode(resourceAccessorDefinitionNode.metadata);
+        STNode resourceKeyword = modifyNode(resourceAccessorDefinitionNode.resourceKeyword);
+        STNode functionKeyword = modifyNode(resourceAccessorDefinitionNode.functionKeyword);
+        STNode accessorName = modifyNode(resourceAccessorDefinitionNode.accessorName);
+        STNode relativeResourcePath = modifyNode(resourceAccessorDefinitionNode.relativeResourcePath);
+        STNode functionSignature = modifyNode(resourceAccessorDefinitionNode.functionSignature);
+        STNode functionBody = modifyNode(resourceAccessorDefinitionNode.functionBody);
+        return resourceAccessorDefinitionNode.modify(
+                metadata,
+                resourceKeyword,
+                functionKeyword,
+                accessorName,
+                relativeResourcePath,
+                functionSignature,
+                functionBody);
     }
 
     // Tokens
