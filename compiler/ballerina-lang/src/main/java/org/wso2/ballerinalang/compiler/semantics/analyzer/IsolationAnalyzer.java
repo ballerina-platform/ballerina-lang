@@ -272,8 +272,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         boolean prevInferredIsolated = this.inferredIsolated;
+        this.inferredIsolated = true;
 
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+
+        for (BLangSimpleVariable requiredParam : funcNode.requiredParams) {
+            if (!requiredParam.symbol.defaultableParam) {
+                continue;
+            }
+
+            analyzeNode(requiredParam.expr, funcEnv);
+        }
+
         analyzeNode(funcNode.body, funcEnv);
 
         if (isBallerinaModule(env.enclPkg) && !isIsolated(funcNode.symbol) &&
@@ -281,7 +291,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             dlog.warning(funcNode.pos, DiagnosticCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
         }
 
-        this.inferredIsolated = prevInferredIsolated;
+        this.inferredIsolated = this.inferredIsolated && prevInferredIsolated;
     }
 
     @Override

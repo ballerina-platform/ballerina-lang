@@ -219,3 +219,19 @@ listener Listener ln = new;
 isolated function testInvalidIsolatedFunctionAccessingNonIsolatedListener() {
     Listener ln2 = ln;
 }
+
+final map<int> intMap = {a: 1, b: 2};
+
+isolated function testInvalidNonIsolatedFunctionWithNonIsolatedDefaults(int w = a, int[] x = getIntArray()) {
+}
+
+var testInvalidNonIsolatedAnonFunctionWithNonIsolatedDefaults =
+    isolated function (boolean b, int[] y = getIntArray(), map<int> z = intMap) {
+        if b {
+            foreach var val in z {
+                y.push(val);
+            }
+        }
+    };
+
+function getIntArray() returns int[] => d;

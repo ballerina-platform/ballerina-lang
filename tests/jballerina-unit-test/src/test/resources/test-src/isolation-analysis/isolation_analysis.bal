@@ -321,6 +321,38 @@ isolated function testIsolationAnalysisWithRemoteMethods() {
     assertEquality(14, x);
 }
 
+final map<int> & readonly intMap = {a: 1, b: 2};
+
+isolated function testIsolatedFunctionWithDefaultableParams() {
+    isolatedFunctionWithDefaultableParams();
+    
+    // https://github.com/ballerina-platform/ballerina-lang/issues/10639#issuecomment-699952927
+    //assertEquality(<int[]> [2, 3, 4, 1, 2], isolatedAnonFunctionWithDefaultableParams(true));
+    //assertEquality(<int[]> [1, 2], isolatedAnonFunctionWithDefaultableParams(false, y = [1, 2]));
+    //assertEquality(<int[]> [1, 2, 1, 2], isolatedAnonFunctionWithDefaultableParams(true, y = [1, 2]));
+
+    assertEquality(<int[]> [1, 2, 3, 4], isolatedAnonFunctionWithDefaultableParams(true, [1, 2], {c: 3, d: 4}));
+}
+
+isolated function isolatedFunctionWithDefaultableParams(int w = i, int[] x = getIntArray()) {
+    assertEquality(1, w);
+    assertEquality(<int[]> [1, 2, 3], x);
+}
+
+var isolatedAnonFunctionWithDefaultableParams =
+    isolated function (boolean b, int[] y = getMutableIntArray(), map<int> z = intMap) returns any {
+        if b {
+            foreach var val in z {
+                y.push(val);
+            }
+        }
+        return y;
+    };
+
+isolated function getIntArray() returns int[] => arr;
+
+isolated function getMutableIntArray() returns int[] => [2, 3, 4];
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
