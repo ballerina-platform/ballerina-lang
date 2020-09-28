@@ -2001,9 +2001,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LISTENERS_LIST_END:
                 alternativeRules = LISTENERS_LIST_END;
                 break;
-            case NAMED_WORKER_DECL_START:
-                alternativeRules = NAMED_WORKER_DECL_START;
-                break;
             case EXPRESSION_RHS:
                 return seekMatchInExpressionRhs(lookahead, currentDepth, matchingRulesCount, isEntryPoint, false);
             case VARIABLE_REF_RHS:
