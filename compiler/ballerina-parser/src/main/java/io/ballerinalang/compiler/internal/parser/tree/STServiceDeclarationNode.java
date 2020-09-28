@@ -33,7 +33,8 @@ import java.util.Collections;
 public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
     public final STNode serviceKeyword;
-    public final STNode serviceName;
+    public final STNode typeDescriptor;
+    public final STNode absoluteResourcePath;
     public final STNode onKeyword;
     public final STNode expressions;
     public final STNode serviceBody;
@@ -41,14 +42,16 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
     STServiceDeclarationNode(
             STNode metadata,
             STNode serviceKeyword,
-            STNode serviceName,
+            STNode typeDescriptor,
+            STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
             STNode serviceBody) {
         this(
                 metadata,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
                 serviceBody,
@@ -58,7 +61,8 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
     STServiceDeclarationNode(
             STNode metadata,
             STNode serviceKeyword,
-            STNode serviceName,
+            STNode typeDescriptor,
+            STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
             STNode serviceBody,
@@ -66,7 +70,8 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
         super(SyntaxKind.SERVICE_DECLARATION, diagnostics);
         this.metadata = metadata;
         this.serviceKeyword = serviceKeyword;
-        this.serviceName = serviceName;
+        this.typeDescriptor = typeDescriptor;
+        this.absoluteResourcePath = absoluteResourcePath;
         this.onKeyword = onKeyword;
         this.expressions = expressions;
         this.serviceBody = serviceBody;
@@ -74,7 +79,8 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
         addChildren(
                 metadata,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
                 serviceBody);
@@ -84,7 +90,8 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
         return new STServiceDeclarationNode(
                 this.metadata,
                 this.serviceKeyword,
-                this.serviceName,
+                this.typeDescriptor,
+                this.absoluteResourcePath,
                 this.onKeyword,
                 this.expressions,
                 this.serviceBody,
@@ -94,14 +101,16 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
     public STServiceDeclarationNode modify(
             STNode metadata,
             STNode serviceKeyword,
-            STNode serviceName,
+            STNode typeDescriptor,
+            STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
             STNode serviceBody) {
         if (checkForReferenceEquality(
                 metadata,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
                 serviceBody)) {
@@ -111,7 +120,8 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
         return new STServiceDeclarationNode(
                 metadata,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
                 serviceBody,

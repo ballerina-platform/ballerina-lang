@@ -147,7 +147,7 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
         testFile("func-definition/func_def_source_22.bal", "func-definition/func_def_assert_22.json");
     }
     
-    @Test
+    @Test(enabled = false)
     public void testIncompleteExternalFunctionBodyRecovery() {
         testFile("func-definition/func_def_source_23.bal", "func-definition/func_def_assert_23.json");
     }

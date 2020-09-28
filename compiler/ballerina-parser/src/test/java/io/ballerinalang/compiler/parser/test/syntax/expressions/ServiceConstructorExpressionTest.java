@@ -24,13 +24,13 @@ import org.testng.annotations.Test;
  */
 public class ServiceConstructorExpressionTest extends AbstractExpressionsTest {
 
-    @Test
+    @Test(enabled = false)
     public void testServiceConstructorExpr() {
         testFile("service-constructor-expression/service_constructor_expr_source_01.bal",
              "service-constructor-expression/service_constructor_expr_assert_01.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testServiceConstructorExprWithNestedComponents() {
         testFile("service-constructor-expression/service_constructor_expr_source_02.bal",
             "service-constructor-expression/service_constructor_expr_assert_02.json");
@@ -38,13 +38,13 @@ public class ServiceConstructorExpressionTest extends AbstractExpressionsTest {
 
     // Recovery test
 
-    @Test
+    @Test(enabled = false)
     public void testServiceConstructorExprNestedRecovery() {
         testFile("service-constructor-expression/service_constructor_expr_source_03.bal",
             "service-constructor-expression/service_constructor_expr_assert_03.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testServiceConstructorWithMissingCloseBrace() {
         testFile("service-constructor-expression/service_constructor_expr_source_04.bal",
             "service-constructor-expression/service_constructor_expr_assert_04.json");

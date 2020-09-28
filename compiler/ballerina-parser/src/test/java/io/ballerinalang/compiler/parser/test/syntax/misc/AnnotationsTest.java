@@ -36,7 +36,7 @@ public class AnnotationsTest extends AbstractMiscTest {
         testFile("annotations/annotations_source_02.bal", "annotations/annotations_assert_02.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testAnnotsInFuncSignatureAndVars() {
         testFile("annotations/annotations_source_07.bal", "annotations/annotations_assert_07.json");
     }
@@ -63,7 +63,7 @@ public class AnnotationsTest extends AbstractMiscTest {
         testFile("annotations/annotations_source_06.bal", "annotations/annotations_assert_06.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testRecoveryInFuncSigAnnots() {
         testFile("annotations/annotations_source_08.bal", "annotations/annotations_assert_08.json");
     }

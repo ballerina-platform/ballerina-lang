@@ -121,14 +121,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STServiceDeclarationNode serviceDeclarationNode) {
         STNode metadata = modifyNode(serviceDeclarationNode.metadata);
         STNode serviceKeyword = modifyNode(serviceDeclarationNode.serviceKeyword);
-        STNode serviceName = modifyNode(serviceDeclarationNode.serviceName);
+        STNode typeDescriptor = modifyNode(serviceDeclarationNode.typeDescriptor);
+        STNode absoluteResourcePath = modifyNode(serviceDeclarationNode.absoluteResourcePath);
         STNode onKeyword = modifyNode(serviceDeclarationNode.onKeyword);
         STNode expressions = modifyNode(serviceDeclarationNode.expressions);
         STNode serviceBody = modifyNode(serviceDeclarationNode.serviceBody);
         return serviceDeclarationNode.modify(
                 metadata,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
                 serviceBody);

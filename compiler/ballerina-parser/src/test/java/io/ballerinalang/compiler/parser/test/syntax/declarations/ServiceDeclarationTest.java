@@ -80,12 +80,12 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
         test("service-decl/service_decl_source_10.bal", "service-decl/service_decl_assert_10.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMissingCloseBraceBeforeService1() {
         testFile("service-decl/service_decl_source_11.bal", "service-decl/service_decl_assert_11.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMissingCloseBraceBeforeService2() {
         testFile("service-decl/service_decl_source_12.bal", "service-decl/service_decl_assert_12.json");
     }

@@ -194,8 +194,14 @@
                     "type": "Token"
                 },
                 {
-                    "name": "serviceName",
-                    "type": "IdentifierToken"
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "absoluteResourcePath",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "onKeyword",

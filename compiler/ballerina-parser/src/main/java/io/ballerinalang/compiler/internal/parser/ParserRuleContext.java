@@ -109,7 +109,11 @@ public enum ParserRuleContext {
     AFTER_IMPORT_MODULE_NAME("after-import-module-name"),
     MAJOR_MINOR_VERSION_END("major-minor-version-end"),
     SERVICE_DECL("service-decl"),
-    OPTIONAL_SERVICE_NAME("service-rhs"),
+    SERVICE_OBJECT_OR_DECL("service-object-or-decl"),
+    SERVICE_DECL_RHS("service-decl-rhs"),
+    OPTIONAL_RESOURCE_PATH("optional-resource-path"),
+    ABSOLUTE_RESOURCE_PATH("absolute-resource-path"),
+    ABSOLUTE_RESOURCE_PATH_END("absolute-resource-path-end"),
     LISTENERS_LIST("listeners-list"),
     LISTENERS_LIST_END("listeners-list-end"),
     RESOURCE_DEF("resource-def"),
@@ -557,6 +561,7 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_PARENTHESIS("type-desc-in-parenthesis"),
     TYPE_DESC_IN_NEW_EXPR("type-desc-in-new-expr"),
     VAR_DECL_STARTED_WITH_DENTIFIER("var-decl-started-with-dentifier"),
+    TYPE_DESC_IN_SERVICE("type-desc-in-service"),
 
     // XML
     XML_CONTENT("xml-content"),
