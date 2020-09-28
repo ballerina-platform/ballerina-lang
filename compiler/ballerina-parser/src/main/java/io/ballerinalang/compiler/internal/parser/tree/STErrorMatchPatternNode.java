@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionalMatchPatternNode;
+import io.ballerinalang.compiler.syntax.tree.ErrorMatchPatternNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -30,68 +30,78 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STFunctionalMatchPatternNode extends STNode {
-    public final STNode typeRef;
+public class STErrorMatchPatternNode extends STNode {
+    public final STNode errorKeyword;
+    public final STNode typeReference;
     public final STNode openParenthesisToken;
     public final STNode argListMatchPatternNode;
     public final STNode closeParenthesisToken;
 
-    STFunctionalMatchPatternNode(
-            STNode typeRef,
+    STErrorMatchPatternNode(
+            STNode errorKeyword,
+            STNode typeReference,
             STNode openParenthesisToken,
             STNode argListMatchPatternNode,
             STNode closeParenthesisToken) {
         this(
-                typeRef,
+                errorKeyword,
+                typeReference,
                 openParenthesisToken,
                 argListMatchPatternNode,
                 closeParenthesisToken,
                 Collections.emptyList());
     }
 
-    STFunctionalMatchPatternNode(
-            STNode typeRef,
+    STErrorMatchPatternNode(
+            STNode errorKeyword,
+            STNode typeReference,
             STNode openParenthesisToken,
             STNode argListMatchPatternNode,
             STNode closeParenthesisToken,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.FUNCTIONAL_MATCH_PATTERN, diagnostics);
-        this.typeRef = typeRef;
+        super(SyntaxKind.ERROR_MATCH_PATTERN, diagnostics);
+        this.errorKeyword = errorKeyword;
+        this.typeReference = typeReference;
         this.openParenthesisToken = openParenthesisToken;
         this.argListMatchPatternNode = argListMatchPatternNode;
         this.closeParenthesisToken = closeParenthesisToken;
 
         addChildren(
-                typeRef,
+                errorKeyword,
+                typeReference,
                 openParenthesisToken,
                 argListMatchPatternNode,
                 closeParenthesisToken);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STFunctionalMatchPatternNode(
-                this.typeRef,
+        return new STErrorMatchPatternNode(
+                this.errorKeyword,
+                this.typeReference,
                 this.openParenthesisToken,
                 this.argListMatchPatternNode,
                 this.closeParenthesisToken,
                 diagnostics);
     }
 
-    public STFunctionalMatchPatternNode modify(
-            STNode typeRef,
+    public STErrorMatchPatternNode modify(
+            STNode errorKeyword,
+            STNode typeReference,
             STNode openParenthesisToken,
             STNode argListMatchPatternNode,
             STNode closeParenthesisToken) {
         if (checkForReferenceEquality(
-                typeRef,
+                errorKeyword,
+                typeReference,
                 openParenthesisToken,
                 argListMatchPatternNode,
                 closeParenthesisToken)) {
             return this;
         }
 
-        return new STFunctionalMatchPatternNode(
-                typeRef,
+        return new STErrorMatchPatternNode(
+                errorKeyword,
+                typeReference,
                 openParenthesisToken,
                 argListMatchPatternNode,
                 closeParenthesisToken,
@@ -99,7 +109,7 @@ public class STFunctionalMatchPatternNode extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new FunctionalMatchPatternNode(this, position, parent);
+        return new ErrorMatchPatternNode(this, position, parent);
     }
 
     @Override

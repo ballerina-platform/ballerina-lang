@@ -20,32 +20,37 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
  *
  * @since 2.0.0
  */
-public class FunctionalMatchPatternNode extends NonTerminalNode {
+public class ErrorMatchPatternNode extends NonTerminalNode {
 
-    public FunctionalMatchPatternNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ErrorMatchPatternNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Node typeRef() {
+    public Token errorKeyword() {
         return childInBucket(0);
     }
 
+    public Optional<NameReferenceNode> typeReference() {
+        return optionalChildInBucket(1);
+    }
+
     public Token openParenthesisToken() {
-        return childInBucket(1);
+        return childInBucket(2);
     }
 
     public SeparatedNodeList<Node> argListMatchPatternNode() {
-        return new SeparatedNodeList<>(childInBucket(2));
+        return new SeparatedNodeList<>(childInBucket(3));
     }
 
     public Token closeParenthesisToken() {
-        return childInBucket(3);
+        return childInBucket(4);
     }
 
     @Override
@@ -61,34 +66,38 @@ public class FunctionalMatchPatternNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "typeRef",
+                "errorKeyword",
+                "typeReference",
                 "openParenthesisToken",
                 "argListMatchPatternNode",
                 "closeParenthesisToken"};
     }
 
-    public FunctionalMatchPatternNode modify(
-            Node typeRef,
+    public ErrorMatchPatternNode modify(
+            Token errorKeyword,
+            NameReferenceNode typeReference,
             Token openParenthesisToken,
             SeparatedNodeList<Node> argListMatchPatternNode,
             Token closeParenthesisToken) {
         if (checkForReferenceEquality(
-                typeRef,
+                errorKeyword,
+                typeReference,
                 openParenthesisToken,
                 argListMatchPatternNode.underlyingListNode(),
                 closeParenthesisToken)) {
             return this;
         }
 
-        return NodeFactory.createFunctionalMatchPatternNode(
-                typeRef,
+        return NodeFactory.createErrorMatchPatternNode(
+                errorKeyword,
+                typeReference,
                 openParenthesisToken,
                 argListMatchPatternNode,
                 closeParenthesisToken);
     }
 
-    public FunctionalMatchPatternNodeModifier modify() {
-        return new FunctionalMatchPatternNodeModifier(this);
+    public ErrorMatchPatternNodeModifier modify() {
+        return new ErrorMatchPatternNodeModifier(this);
     }
 
     /**
@@ -96,52 +105,62 @@ public class FunctionalMatchPatternNode extends NonTerminalNode {
      *
      * @since 2.0.0
      */
-    public static class FunctionalMatchPatternNodeModifier {
-        private final FunctionalMatchPatternNode oldNode;
-        private Node typeRef;
+    public static class ErrorMatchPatternNodeModifier {
+        private final ErrorMatchPatternNode oldNode;
+        private Token errorKeyword;
+        private NameReferenceNode typeReference;
         private Token openParenthesisToken;
         private SeparatedNodeList<Node> argListMatchPatternNode;
         private Token closeParenthesisToken;
 
-        public FunctionalMatchPatternNodeModifier(FunctionalMatchPatternNode oldNode) {
+        public ErrorMatchPatternNodeModifier(ErrorMatchPatternNode oldNode) {
             this.oldNode = oldNode;
-            this.typeRef = oldNode.typeRef();
+            this.errorKeyword = oldNode.errorKeyword();
+            this.typeReference = oldNode.typeReference().orElse(null);
             this.openParenthesisToken = oldNode.openParenthesisToken();
             this.argListMatchPatternNode = oldNode.argListMatchPatternNode();
             this.closeParenthesisToken = oldNode.closeParenthesisToken();
         }
 
-        public FunctionalMatchPatternNodeModifier withTypeRef(
-                Node typeRef) {
-            Objects.requireNonNull(typeRef, "typeRef must not be null");
-            this.typeRef = typeRef;
+        public ErrorMatchPatternNodeModifier withErrorKeyword(
+                Token errorKeyword) {
+            Objects.requireNonNull(errorKeyword, "errorKeyword must not be null");
+            this.errorKeyword = errorKeyword;
             return this;
         }
 
-        public FunctionalMatchPatternNodeModifier withOpenParenthesisToken(
+        public ErrorMatchPatternNodeModifier withTypeReference(
+                NameReferenceNode typeReference) {
+            Objects.requireNonNull(typeReference, "typeReference must not be null");
+            this.typeReference = typeReference;
+            return this;
+        }
+
+        public ErrorMatchPatternNodeModifier withOpenParenthesisToken(
                 Token openParenthesisToken) {
             Objects.requireNonNull(openParenthesisToken, "openParenthesisToken must not be null");
             this.openParenthesisToken = openParenthesisToken;
             return this;
         }
 
-        public FunctionalMatchPatternNodeModifier withArgListMatchPatternNode(
+        public ErrorMatchPatternNodeModifier withArgListMatchPatternNode(
                 SeparatedNodeList<Node> argListMatchPatternNode) {
             Objects.requireNonNull(argListMatchPatternNode, "argListMatchPatternNode must not be null");
             this.argListMatchPatternNode = argListMatchPatternNode;
             return this;
         }
 
-        public FunctionalMatchPatternNodeModifier withCloseParenthesisToken(
+        public ErrorMatchPatternNodeModifier withCloseParenthesisToken(
                 Token closeParenthesisToken) {
             Objects.requireNonNull(closeParenthesisToken, "closeParenthesisToken must not be null");
             this.closeParenthesisToken = closeParenthesisToken;
             return this;
         }
 
-        public FunctionalMatchPatternNode apply() {
+        public ErrorMatchPatternNode apply() {
             return oldNode.modify(
-                    typeRef,
+                    errorKeyword,
+                    typeReference,
                     openParenthesisToken,
                     argListMatchPatternNode,
                     closeParenthesisToken);
