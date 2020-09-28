@@ -36,6 +36,7 @@ import org.ballerinalang.debugadapter.launchrequest.Launch;
 import org.ballerinalang.debugadapter.launchrequest.LaunchFactory;
 import org.ballerinalang.debugadapter.terminator.OSUtils;
 import org.ballerinalang.debugadapter.terminator.TerminatorFactory;
+import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
@@ -94,7 +95,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -102,6 +102,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getRectifiedSourcePath;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
@@ -531,22 +532,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private Variable[] computeGlobalVariables(SuspendedContext context, long stackFrameReference) {
-        final String INIT_CLASS_NAME = "$_init";
         final String GENERATED_VAR_PREFIX = "$";
-        String classQName;
-        ArrayList<Variable> globalVars = new ArrayList<>();
-        if (context.getSourceType() == DebugSourceType.MODULE) {
-            StringJoiner classNameJoiner = new StringJoiner(".");
-            classNameJoiner.add(context.getOrgName().get()).add(context.getModuleName().get())
-                    .add(context.getVersion().get().replace(".", "_")).add(INIT_CLASS_NAME);
-            classQName = classNameJoiner.toString();
-        } else {
-            classQName = INIT_CLASS_NAME;
-        }
+        String classQName = PackageUtils.getQualifiedClassName(context, INIT_CLASS_NAME);
         List<ReferenceType> cls = context.getAttachedVm().classesByName(classQName);
         if (cls.size() != 1) {
             return new Variable[0];
         }
+        ArrayList<Variable> globalVars = new ArrayList<>();
         ReferenceType initClassReference = cls.get(0);
         for (Field field : initClassReference.allFields()) {
             String fieldName = IdentifierUtils.decodeIdentifier(field.name());

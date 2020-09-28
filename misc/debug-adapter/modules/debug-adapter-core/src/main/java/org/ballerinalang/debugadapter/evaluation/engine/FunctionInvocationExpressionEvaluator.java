@@ -130,15 +130,12 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                 String className = fileName.replace(BAL_FILE_EXT, "").replace(File.separator, ".");
                 className = className.startsWith(".") ? className.substring(1) : className;
                 StringJoiner classNameJoiner = new StringJoiner(".");
-                classNameJoiner.add(context.getOrgName().get()).add(context.getModuleName().get())
-                        .add(context.getVersion().get().replace(".", "_")).add(className);
-
-                ReferenceType referenceType = EvaluationUtils.loadClass(context, classNameJoiner.toString(),
+                String qualifiedClassName = PackageUtils.getQualifiedClassName(context, className);
+                ReferenceType refType = EvaluationUtils.loadClass(context, qualifiedClassName,
                         syntaxNode.functionName().toSourceCode());
-                List<Method> methods = referenceType.methodsByName(syntaxNode.functionName().toSourceCode());
+                List<Method> methods = refType.methodsByName(syntaxNode.functionName().toSourceCode());
                 if (!methods.isEmpty()) {
-                    return Optional.of(new JvmStaticMethod(context, referenceType, methods.get(0), argEvaluators,
-                            null));
+                    return Optional.of(new JvmStaticMethod(context, refType, methods.get(0), argEvaluators, null));
                 }
             }
             return Optional.empty();
