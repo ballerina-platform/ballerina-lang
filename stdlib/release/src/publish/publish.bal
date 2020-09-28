@@ -44,22 +44,21 @@ function waitForModuleBuild(int currentLevel) {
 }
 
 function getWaitTimeForLevel(int level) returns int {
-    return 1;
-    //if (level < 7) {
-    //    // The following modules below level 7 takes more than 3 minutes to build
-    //    // - Email (3m 30s)
-    //    // - Kafka (3m)
-    //    // Since these modules are leaf modules (Modules which does not have dependents), we can ignore these to
-    //    // calculate the max wait time.
-    //    // The non-leaf module with the maximum build time is Auth module. It takes 2m 40s
-    //    return MINUTE_IN_MILLIS * 3;
-    //} else if (level == 7) {
-    //    // Max time - HTTP - 18m 53s
-    //    return MINUTE_IN_MILLIS * 20;
-    //} else {
-    //    // Max time - gRPC - 5m 20s
-    //    return MINUTE_IN_MILLIS * 6;
-    //}
+    if (level < 7) {
+        // The following modules below level 7 takes more than 3 minutes to build
+        // - Email (3m 30s)
+        // - Kafka (3m)
+        // Since these modules are leaf modules (Modules which does not have dependents), we can ignore these to
+        // calculate the max wait time.
+        // The non-leaf module with the maximum build time is Auth module. It takes 2m 40s
+        return MINUTE_IN_MILLIS * 3;
+    } else if (level == 7) {
+        // Max time - HTTP - 18m 53s
+        return MINUTE_IN_MILLIS * 20;
+    } else {
+        // Max time - gRPC - 5m 20s
+        return MINUTE_IN_MILLIS * 6;
+    }
 }
 
 function publishModule(commons:Module module) returns boolean {
