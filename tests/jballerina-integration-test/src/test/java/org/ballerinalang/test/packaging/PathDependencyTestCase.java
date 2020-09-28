@@ -102,7 +102,8 @@ public class PathDependencyTestCase extends BaseTest {
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
         LogLeecher bazTestLeecher = new LogLeecher(bazTestMsg);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
-                new LogLeecher[]{bazModuleBuildLeecher, bazTestLeecher}, caseResources.resolve("TestProject2").toString());
+                new LogLeecher[]{bazModuleBuildLeecher, bazTestLeecher},
+                caseResources.resolve("TestProject2").toString());
         bazModuleBuildLeecher.waitForText(5000);
         bazTestLeecher.waitForText(10000);
     }
@@ -170,7 +171,8 @@ public class PathDependencyTestCase extends BaseTest {
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
         LogLeecher bazTestLeecher = new LogLeecher("1 passing");
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
-                new LogLeecher[]{bazModuleBuildLeecher, bazTestLeecher}, caseResources.resolve("TestProject2").toString());
+                new LogLeecher[]{bazModuleBuildLeecher, bazTestLeecher},
+                caseResources.resolve("TestProject2").toString());
         bazModuleBuildLeecher.waitForText(5000);
         bazTestLeecher.waitForText(5000);
     }
@@ -318,7 +320,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test( description = "Case5: Push with path dependency.", expectedExceptions = BallerinaTestException.class)
+    @Test(description = "Case5: Push with path dependency.", expectedExceptions = BallerinaTestException.class)
     public void testBaloPathCase5() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case5");
         // Build bee module of TestProject1
@@ -488,7 +490,8 @@ public class PathDependencyTestCase extends BaseTest {
         LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
         LogLeecher bazTestLeecher = new LogLeecher("1 passing");
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
-                          new LogLeecher[]{bazModuleBuildLeecher, bazTestLeecher}, caseResources.resolve("TestProject2").toString());
+                          new LogLeecher[]{bazModuleBuildLeecher, bazTestLeecher},
+                caseResources.resolve("TestProject2").toString());
         bazModuleBuildLeecher.waitForText(5000);
         bazTestLeecher.waitForText(5000);
     }
