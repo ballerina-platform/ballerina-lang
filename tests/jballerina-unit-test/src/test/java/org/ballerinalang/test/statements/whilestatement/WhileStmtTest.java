@@ -227,6 +227,30 @@ public class WhileStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test while loop termination with fail statement")
+    public void testWhileStmtLoopEndingWithFail() {
+        BValue[] args = {new BInteger(5)};
+        BValue[] returns = BRunUtil.invoke(onfailCompileResult, "testWhileStmtLoopEndingWithFail", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), " Value: 1-> error caught. " +
+                "Hence value returning-> reached end", "mismatched output value");
+    }
+
+    @Test(description = "Test nested while loop termination with multiple fail statements")
+    public void testNestedWhileStmtLoopTerminationWithFail() {
+        BValue[] returns = BRunUtil.invoke(onfailCompileResult, "testNestedWhileStmtLoopTerminationWithFail");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+
+        String actual = returns[0].stringValue();
+        String expected = "level3-> error caught at level 3, level2-> error caught at level 2, " +
+                "level1-> error caught at level 1.";
+        Assert.assertEquals(actual, expected);
+    }
+
     @Test(description = "Check not incompatible types and reachable statements.")
     public void testNegative1() {
         Assert.assertEquals(onfailNegativeCompileResult.getErrorCount(), 5);

@@ -1527,7 +1527,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.resetLastStatement();
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(whileNode.expr);
-        whileNode.body.isBreakable = whileNode.onFailClause != null;
         analyzeOnFailClause(whileNode.onFailClause);
         this.errorTypes.pop();
     }
