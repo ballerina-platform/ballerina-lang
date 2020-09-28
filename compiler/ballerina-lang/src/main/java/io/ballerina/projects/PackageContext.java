@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects;
 
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -100,11 +99,11 @@ class PackageContext {
     }
 
     PackageOrg packageOrg() {
-        return this.packageOrg();
+        return this.packageOrg;
     }
 
     PackageVersion packageVersion() {
-        return this.packageVersion();
+        return this.packageVersion;
     }
 
     Collection<ModuleId> moduleIds() {

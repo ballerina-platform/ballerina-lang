@@ -21,7 +21,9 @@ package io.ballerina.projects.writers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.model.BaloJson;
 import io.ballerina.projects.model.PackageJson;
@@ -31,10 +33,13 @@ import io.ballerina.projects.utils.ProjectConstants;
 import org.ballerinalang.compiler.BLangCompilerException;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -66,6 +71,7 @@ public class BaloWriter {
      * @param pkg  Package to be written as a .balo.
      * @param path Directory where the .balo should be created.
      * @return Newly created balo path
+     * @throws AccessDeniedException when write access to create balo.
      */
     public static Path write(Package pkg, Path path) throws AccessDeniedException {
         // todo check if the given package is compiled properly
@@ -120,34 +126,6 @@ public class BaloWriter {
     private static void populateBaloArchive(FileSystem baloFS, Package pkg)
             throws IOException {
         Path root = baloFS.getPath("/");
-
-        //   Add spec directory structure items
-        //
-        //   org-foo-any-1.0.0.balo
-        //    ├── balo.json             ---> Details about balo
-        //    ├── package.json          ---> Details about package within balo
-        //    ├── docs/
-        //    │	   ├── Package.md       ---> MD file describing the package
-        //    │	   ├── modules/
-        //    │	   │	├── foo/
-        //    │	   │	│	 └── Module.md
-        //    │	   │    ├── foo.bar/
-        //    │	   │    └── foo.baz/
-        //    │    └── api-docs.json    ---> API Docs json file
-        //    ├── modules/
-        //    │	   ├── foo/             ---> content of default module
-        //    │    ├── foo.bar/         ---> content of sub module
-        //    │    └── foo.baz/         ---> content of sub module
-        //    │		    ├── resources/
-        //    │	        ├── first.bal
-        //    │	        ├── second.bal
-        //    │         └── third.bal
-        //    ├── lib/                  ---> Platform Libraries
-        //    │	   ├──
-        //    │	   └── third-party.jar
-        //    └── ext/
-        //         ├── datamapper/
-        //         └── ext2/
 
         addBaloJson(root);
         addPackageJson(root, pkg);
@@ -276,48 +254,51 @@ public class BaloWriter {
         Path packageInBalo = root.resolve(MODULES_ROOT);
         Files.createDirectory(packageInBalo);
 
-        // add default module
-        Path defaultPkgDirInBalo = packageInBalo.resolve(pkg.packageName().toString());
-        Files.createDirectory(defaultPkgDirInBalo);
+        // add module sources
+        // create temp directory
+        Path tempDir = Files.createTempDirectory("tempDir");
+        for (ModuleId moduleId : pkg.moduleIds()) {
+            Module module = pkg.module(moduleId);
+            Path moduleDirPathInBalo = packageInBalo.resolve(String.valueOf(module.moduleName()));
 
-        // copy resources directory
-        copyResourcesDir(pkg.project().sourceRoot(), defaultPkgDirInBalo);
-        // only add .bal files of default module
-        for (Document document : pkg.getDefaultModule().documents()) {
-            if (document.name().endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
-                Path targetDocumentPath = defaultPkgDirInBalo.resolve(document.name());
-                Files.createFile(targetDocumentPath);
-                try (FileWriter fileWriter = new FileWriter(String.valueOf(targetDocumentPath))) {
-                    fileWriter.write(document.textDocument().toCharArray());
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to write " + targetDocumentPath);
+            // create module directory
+            Files.createDirectory(moduleDirPathInBalo);
+
+            // copy resources directory
+            Path moduleRoot = pkg.project().sourceRoot();
+            if (module.moduleName() != pkg.getDefaultModule().moduleName()) {
+                moduleRoot = moduleRoot.resolve(MODULES_ROOT).resolve(module.moduleName().moduleNamePart());
+            }
+            copyResourcesDir(moduleRoot, moduleDirPathInBalo);
+
+            // only add .bal files of module
+            for (DocumentId docId : module.documentIds()) {
+                Document document = module.document(docId);
+                if (document.name().endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
+                    addSourceFileToBalo(moduleDirPathInBalo, tempDir, document);
                 }
             }
         }
+        // delete temp directory
+        Files.deleteIfExists(tempDir);
+    }
 
-        // add other modules
-        for (Module module : pkg.modules()) {
-            // add module
-            Path moduleDirInBalo = packageInBalo
-                    .resolve(pkg.getDefaultModule().moduleName().toString() + "." + module.moduleName().toString());
-            Files.createDirectory(moduleDirInBalo);
+    private static void addSourceFileToBalo(Path moduleDirInBalo, Path tempDir, Document document)
+            throws IOException {
+        Path targetDocumentPathInBalo = moduleDirInBalo.resolve(document.name());
+        Path tempFilePath = tempDir.resolve(document.name());
 
-            // copy resources directory
-            copyResourcesDir(pkg.project().sourceRoot().resolve(MODULES_ROOT).resolve(module.moduleName().toString()),
-                    moduleDirInBalo);
-
-            // add .bal files
-            for (Document document : module.documents()) {
-                if (document.name().endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
-                    Files.createFile(moduleDirInBalo.resolve(document.name()));
-                    try (FileWriter fileWriter = new FileWriter(
-                            String.valueOf(moduleDirInBalo.resolve(document.name())))) {
-                        fileWriter.write(document.textDocument().toCharArray());
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to write " + moduleDirInBalo.resolve(document.name()));
-                    }
-                }
-            }
+        try (Writer fileWriter = new OutputStreamWriter(new FileOutputStream(String.valueOf(tempFilePath)),
+                StandardCharsets.UTF_8)) {
+            fileWriter.write(document.textDocument().toCharArray());
+            fileWriter.flush();
+            // copy written file to balo
+            Files.copy(tempFilePath, targetDocumentPathInBalo, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Add source file failed:" + targetDocumentPathInBalo, e);
+        } finally {
+            // delete file used to copy content
+            Files.deleteIfExists(tempFilePath);
         }
     }
 
@@ -330,17 +311,6 @@ public class BaloWriter {
             File[] resourceFiles = new File(String.valueOf(resourcesSrcDir)).listFiles();
             if (resourceFiles != null && resourceFiles.length > 0) {
                 Files.walkFileTree(resourcesSrcDir, new CopyResources(resourcesSrcDir, resourcesDir));
-            }
-        }
-    }
-
-    private static void copyBallerinaSrcFiles(Path sourceDirPath, Path targetPath) throws IOException {
-        File[] defaultModuleFiles = new File(String.valueOf(sourceDirPath)).listFiles();
-        if (defaultModuleFiles != null) {
-            for (File file : defaultModuleFiles) {
-                if (file.isFile() && file.getName().endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
-                    Files.copy(file.toPath(), targetPath.resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
-                }
             }
         }
     }

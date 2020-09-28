@@ -30,6 +30,11 @@ dependencies {
     testImplementation 'org.powermock:powermock-module-testng-common'
 }
 
+checkstyleMain {
+    exclude 'io/ballerina/projects/model/BaloJson.java'
+    exclude 'io/ballerina/projects/model/PackageJson.java'
+}
+
 description = 'Ballerina - Projects'
 
 test {

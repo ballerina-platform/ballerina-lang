@@ -18,6 +18,11 @@
 
 package io.ballerina.projects.model;
 
+/**
+ * {@code Dependency} Model for Dependency.
+ *
+ * @since 2.0.0
+ */
 public class Dependency {
     String org;
     String name;
@@ -27,5 +32,17 @@ public class Dependency {
         this.org = org;
         this.name = name;
         this.version = version;
+    }
+
+    public String getOrg() {
+        return org;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getVersion() {
+        return version;
     }
 }

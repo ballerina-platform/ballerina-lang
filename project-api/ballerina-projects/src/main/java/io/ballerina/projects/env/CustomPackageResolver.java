@@ -80,10 +80,8 @@ public class CustomPackageResolver extends PackageResolver {
     // TODO this is a temporary workaround
     private Module loadFromCustomProjectDir(ModuleLoadRequest modLoadRequest) {
         // TODO how about developing a BALRProject to load a package from a .balr file?
-        Path testProjectsDirPath = Paths.get("src/test/resources/test_projects_temporary");
-        String packageName = modLoadRequest.packageName().toString();
-        Path packagePath = testProjectsDirPath.resolve(packageName);
-        BuildProject buildProject = BuildProject.loadProject(packagePath);
+        Path testProjectsDirPath = Paths.get("src/test/resources/test_projects_temporary/http");
+        BuildProject buildProject = BuildProject.loadProject(testProjectsDirPath);
         Package pkg = buildProject.currentPackage();
         pkg.resolveDependencies();
         loadedPackages.put(pkg.packageId(), pkg);
