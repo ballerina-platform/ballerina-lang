@@ -876,8 +876,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             entry.symbol.type = symTable.anydataType;
             entry.symbol.origin = BUILTIN;
 
-            symTable.anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, PackageID.ANNOTATIONS,
-                    symTable.anydataType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
+            symTable.anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA,
+                    PackageID.ANNOTATIONS, symTable.anydataType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
 
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
@@ -926,24 +926,24 @@ public class SymbolResolver extends BLangNodeVisitor {
                             symTable.cloneableType, symTable.langAnnotationModuleSymbol, symTable.builtinPos, BUILTIN);
             symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
             entry.symbol.origin = BUILTIN;
-            symTable.errorType = new BErrorType(null, symTable.detailType);
-            symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
-                    symTable.rootPkgSymbol.pkgID, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos,
-                    BUILTIN);
-            symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
-            symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
-            symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
-            symTable.arrayAllType = new BArrayType(symTable.anyOrErrorType);
-            symTable.typeDesc.constraint = symTable.anyOrErrorType;
-            symTable.futureType.constraint = symTable.anyOrErrorType;
-
-            symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
-            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
-            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
-
-            symTable.initializeType(symTable.mapAnydataType, TypeKind.MAP.typeName(), BUILTIN);
-            symTable.initializeType(symTable.streamType, TypeKind.STREAM.typeName(), BUILTIN);
-            symTable.initializeType(symTable.tableType, TypeKind.TABLE.typeName(), BUILTIN);
+//            symTable.errorType = new BErrorType(null, symTable.detailType);
+//            symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
+//                    symTable.rootPkgSymbol.pkgID, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos,
+//                    BUILTIN);
+//            symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+//            symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
+//            symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
+//            symTable.arrayAllType = new BArrayType(symTable.anyOrErrorType);
+//            symTable.typeDesc.constraint = symTable.anyOrErrorType;
+//            symTable.futureType.constraint = symTable.anyOrErrorType;
+//
+//            symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
+//            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
+//            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
+//
+//            symTable.initializeType(symTable.mapAnydataType, TypeKind.MAP.typeName(), BUILTIN);
+//            symTable.initializeType(symTable.streamType, TypeKind.STREAM.typeName(), BUILTIN);
+//            symTable.initializeType(symTable.tableType, TypeKind.TABLE.typeName(), BUILTIN);
 
             return;
         }

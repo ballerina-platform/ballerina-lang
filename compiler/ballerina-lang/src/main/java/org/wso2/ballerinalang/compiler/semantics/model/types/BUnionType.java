@@ -49,7 +49,7 @@ public class BUnionType extends BType implements UnionType {
     public Boolean isAnyData = null;
     public Boolean isPureType = null;
 
-    protected BUnionType(BTypeSymbol tsymbol, Set<BType> memberTypes, boolean nullable, boolean readonly) {
+    protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
         super(TypeTags.UNION, tsymbol);
 
         if (readonly) {
@@ -60,12 +60,12 @@ public class BUnionType extends BType implements UnionType {
             }
         }
 
-        this.memberTypes = (LinkedHashSet<BType>) memberTypes;
+        this.memberTypes = memberTypes;
         this.nullable = nullable;
     }
 
     @Override
-    public Set<BType> getMemberTypes() {
+    public LinkedHashSet<BType> getMemberTypes() {
         return this.memberTypes;
     }
 

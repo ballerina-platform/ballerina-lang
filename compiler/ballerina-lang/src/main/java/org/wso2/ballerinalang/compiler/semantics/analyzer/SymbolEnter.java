@@ -965,7 +965,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case FUNCTION_TYPE:
                 BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) currentTypeOrClassNode;
-                functionTypeNode.params.forEach(p -> checkErrors(unresolvedType, p.typeNode, visitedNodes, fromStructuredType));
+                functionTypeNode.params.forEach(p -> checkErrors(unresolvedType, p.typeNode, visitedNodes,
+                        fromStructuredType));
                 if (functionTypeNode.restParam != null) {
                     checkErrors(unresolvedType, functionTypeNode.restParam.typeNode, visitedNodes, fromStructuredType);
                 }

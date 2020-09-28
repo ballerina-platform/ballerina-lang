@@ -307,8 +307,6 @@ public class Types {
     private boolean isSameType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
-        // TODO: when duplicate logics are met we cannot return true unless this is a local optimization. Ideally we
-        //  should cache and return actual result
         TypePair pair = new TypePair(source, target);
         if (unresolvedTypes.contains(pair)) {
             return true;
@@ -1243,13 +1241,8 @@ public class Types {
                 return isInherentlyImmutableType(tableConstraintType) ||
                         isSelectivelyImmutableType(tableConstraintType, unresolvedTypes, forceCheck);
             case TypeTags.UNION:
-                BUnionType bUnionType = (BUnionType) type;
-//                if (isAnydataUnionType(bUnionType) || isJSONUnionType(bUnionType)) {
-//                if (isAnydataUnionType(bUnionType)) {
-//                    return true;
-//                }
                 boolean readonlyIntersectionExists = false;
-                for (BType memberType : bUnionType.getMemberTypes()) {
+                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                     if (isInherentlyImmutableType(memberType) ||
                             isSelectivelyImmutableType(memberType, disallowReadOnlyObjects, unresolvedTypes,
                                                        forceCheck)) {
