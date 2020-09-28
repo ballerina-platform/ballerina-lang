@@ -1,25 +1,19 @@
-function workerReturnTest() returns int{
-
+function trxWorkerTest1() returns int{
+    int res = 0;
     transaction {
-        //res = foo();
-        transactional worker wx returns int {
-            int res = 0;
-            	        int x = 50;
-            	        return x + 1;
-                    }
-                    res = wait wx;
+        res = foo();
         var s = commit;
     }
-    return 1 + 1;
+
+    return res + 1;
 }
 
 transactional function foo() returns int {
      int res = 0;
-
-            transactional worker wx returns int {
-    	        int x = 50;
-    	        return x + 1;
-            }
-            res = wait wx;
-            return res;
+     transactional worker wx returns int {
+        int x = 50;
+        return x + 1;
+     }
+     res = wait wx;
+     return res;
 }
