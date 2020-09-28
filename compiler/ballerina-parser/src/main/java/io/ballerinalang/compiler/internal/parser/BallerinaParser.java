@@ -12332,6 +12332,13 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * error-field-match-patterns :=
+     * named-arg-match-pattern (, named-arg-match-pattern)* [, rest-match-pattern]
+     * | rest-match-pattern
+     * named-arg-match-pattern := arg-name = match-pattern
+     * @param argListMatchPatterns
+     */
     private void parseErrorFieldMatchPatterns(List<STNode> argListMatchPatterns) {
         SyntaxKind lastValidArgKind = SyntaxKind.NAMED_ARG_MATCH_PATTERN;
         while (!isEndOfErrorFieldMatchPatterns()) {
