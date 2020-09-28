@@ -2898,7 +2898,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ErrorMatchPatternNode createErrorMatchPatternNode(
             Token errorKeyword,
-            Node typeReference,
+            NameReferenceNode typeReference,
             Token openParenthesisToken,
             SeparatedNodeList<Node> argListMatchPatternNode,
             Token closeParenthesisToken) {

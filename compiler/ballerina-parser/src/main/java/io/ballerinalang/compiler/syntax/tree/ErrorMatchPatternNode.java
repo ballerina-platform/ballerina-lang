@@ -37,7 +37,7 @@ public class ErrorMatchPatternNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Optional<Node> typeReference() {
+    public Optional<NameReferenceNode> typeReference() {
         return optionalChildInBucket(1);
     }
 
@@ -75,7 +75,7 @@ public class ErrorMatchPatternNode extends NonTerminalNode {
 
     public ErrorMatchPatternNode modify(
             Token errorKeyword,
-            Node typeReference,
+            NameReferenceNode typeReference,
             Token openParenthesisToken,
             SeparatedNodeList<Node> argListMatchPatternNode,
             Token closeParenthesisToken) {
@@ -108,7 +108,7 @@ public class ErrorMatchPatternNode extends NonTerminalNode {
     public static class ErrorMatchPatternNodeModifier {
         private final ErrorMatchPatternNode oldNode;
         private Token errorKeyword;
-        private Node typeReference;
+        private NameReferenceNode typeReference;
         private Token openParenthesisToken;
         private SeparatedNodeList<Node> argListMatchPatternNode;
         private Token closeParenthesisToken;
@@ -130,7 +130,7 @@ public class ErrorMatchPatternNode extends NonTerminalNode {
         }
 
         public ErrorMatchPatternNodeModifier withTypeReference(
-                Node typeReference) {
+                NameReferenceNode typeReference) {
             Objects.requireNonNull(typeReference, "typeReference must not be null");
             this.typeReference = typeReference;
             return this;

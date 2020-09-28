@@ -2970,7 +2970,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ErrorMatchPatternNode errorMatchPatternNode) {
         Token errorKeyword =
                 modifyToken(errorMatchPatternNode.errorKeyword());
-        Node typeReference =
+        NameReferenceNode typeReference =
                 modifyNode(errorMatchPatternNode.typeReference().orElse(null));
         Token openParenthesisToken =
                 modifyToken(errorMatchPatternNode.openParenthesisToken());

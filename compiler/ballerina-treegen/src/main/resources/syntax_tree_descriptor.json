@@ -3987,7 +3987,7 @@
                 },
                 {
                     "name": "typeReference",
-                    "type": "Node",
+                    "type": "NameReferenceNode",
                     "isOptional": true
                 },
                 {
