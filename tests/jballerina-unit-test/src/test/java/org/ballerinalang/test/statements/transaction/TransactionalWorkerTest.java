@@ -36,11 +36,10 @@ public class TransactionalWorkerTest {
     }
 
     @Test
-    public void workerReturnTest() {
+    public void trxWorkerTest1() {
         BValue[] returns = BRunUtil.invoke(programFile, "trxWorkerTest1", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         BInteger ret = (BInteger) returns[0];
         Assert.assertEquals(ret.intValue(), 52);
     }
-
 }
