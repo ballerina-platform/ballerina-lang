@@ -2,6 +2,7 @@ import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
+import ballerina/stringutils;
 import ballerina_stdlib/commons;
 
 http:Client httpClient = new (commons:API_PATH);
@@ -14,10 +15,10 @@ public function main() {
     commons:Module[] modules = commons:getModuleArray(modulesJson);
     modules = commons:sortModules(modules);
     addDependentModules(modules);
-    //printModulesWithDependents(modules);
 
     if (eventType == EVENT_TYPE_MODULE_PUSH) {
-        string moduleName = config:getAsString(CONFIG_SOURCE_MODULE);
+        string moduleFullName = config:getAsString(CONFIG_SOURCE_MODULE);
+        string moduleName = stringutils:split(moduleFullName, "/")[1];
         log:printInfo(moduleName);
     } else if (eventType == EVENT_TYPE_LANG_PUSH) {
         log:printInfo(EVENT_TYPE_LANG_PUSH);
