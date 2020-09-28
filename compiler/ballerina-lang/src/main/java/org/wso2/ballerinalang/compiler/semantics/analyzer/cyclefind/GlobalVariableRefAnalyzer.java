@@ -144,28 +144,27 @@ public class GlobalVariableRefAnalyzer {
         }
 
         // Means the current node has dependencies. Lets analyze its dependencies further.
-        Set<BVarSymbol> dependentGlobalVars = new HashSet<>();
+        Set<BVarSymbol> currentDependencies = new HashSet<>();
         for (BSymbol providerSym : providers) {
             NodeInfo providerNode =
                     this.dependencyNodes.computeIfAbsent(providerSym, s -> new NodeInfo(curNodeId++, providerSym));
             if (isGlobalVarSymbol(providerSym)) {
-                dependentGlobalVars.add((BVarSymbol) providerSym);
+                currentDependencies.add((BVarSymbol) providerSym);
             }
-            dependentGlobalVars.addAll(analyzeDependenciesRecursively(providerNode));
+            currentDependencies.addAll(analyzeDependenciesRecursively(providerNode));
         }
 
         node.onStack = false;
 
+        Set<BVarSymbol> dependentGlobalVars;
         if (node.symbol.kind == SymbolKind.FUNCTION) {
-            Set<BVarSymbol> depGlobalVarsOfFunction = ((BInvokableSymbol) node.symbol).dependentGlobalVars;
-            depGlobalVarsOfFunction.addAll(dependentGlobalVars);
-            return dependentGlobalVars;
+            dependentGlobalVars = ((BInvokableSymbol) node.symbol).dependentGlobalVars;
         } else {
-            Set<BVarSymbol> dependenciesOfGlobalVars = this.globalVariablesDependsOn
-                    .computeIfAbsent(node.symbol, s -> new HashSet<>());
-            dependenciesOfGlobalVars.addAll(dependentGlobalVars);
-            return dependenciesOfGlobalVars;
+            dependentGlobalVars = this.globalVariablesDependsOn.computeIfAbsent(node.symbol, s -> new HashSet<>());
         }
+
+        dependentGlobalVars.addAll(currentDependencies);
+        return dependentGlobalVars;
     }
 
     private Set<BVarSymbol> getGlobalVarFromCurrentNode(NodeInfo node) {
