@@ -127,8 +127,8 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 50, 7);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 55, 13);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 68, 13);
-        validateError(result, i++, "invalid worker declaration in an 'isolated' function", 74, 12);
-        validateError(result, i++, "invalid async invocation in an 'isolated' function", 80, 28);
+        validateError(result, i++, "worker declaration not allowed in an 'isolated' function", 74, 12);
+        validateError(result, i++, "async invocation not allowed in an 'isolated' function", 80, 28);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 94, 13);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 101, 22);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 105, 25);
@@ -167,6 +167,8 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 195, 20);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 195, 23);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 195, 26);
+        validateError(result, i++, "fork statement not allowed in an 'isolated' function", 210, 5);
+        validateError(result, i++, "worker declaration not allowed in an 'isolated' function", 211, 16);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

@@ -637,6 +637,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
+        inferredIsolated = false;
+
+        if (isInIsolatedFunction(env.enclInvokable)) {
+            dlog.error(forkJoin.pos, DiagnosticCode.INVALID_FORK_STATEMENT_IN_ISOLATED_FUNCTION);
+        }
     }
 
     @Override

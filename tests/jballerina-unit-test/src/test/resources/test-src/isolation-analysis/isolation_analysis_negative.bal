@@ -201,3 +201,15 @@ client class ClientClass {
 
     remote function baz(int i, string... s) returns int => 1;
 }
+
+final int[] & readonly immutableIntArr = [0, 1];
+
+isolated function invalidIsolatedFunctionWithForkStatement(int i) {
+    int j = immutableIntArr[1] + i;
+
+    fork {
+        worker w1 {
+
+        }
+    }
+}
