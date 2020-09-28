@@ -723,3 +723,11 @@ function testCharConcat() {
     xml xa = sa + x;
     xml ax = x + sa;
 }
+
+function functionWithUnaryOps() {
+    int a;
+    int b = 5;
+    int c = 2;
+    a = -b;
+    c = ~b;
+}

@@ -44,7 +44,7 @@ public abstract class ExpressionEvaluationBaseTest extends DebugAdapterBaseTestC
     protected static final String ARRAY_VAR = "v08_arrayVar";
     protected static final String TUPLE_VAR = "v09_tupleVar";
     protected static final String MAP_VAR = "v10_mapVar";
-    protected static final String RECORD_VAR = "v11_john";
+    protected static final String RECORD_VAR = "v11_recordVar";
     protected static final String ANON_RECORD_VAR = "v12_anonRecord";
     protected static final String ERROR_VAR = "v13_errorVar";
     protected static final String ANON_FUNCTION_VAR = "v14_anonFunctionVar";
@@ -69,7 +69,7 @@ public abstract class ExpressionEvaluationBaseTest extends DebugAdapterBaseTestC
         testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
 
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 154));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 159));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
         this.context = debugHitInfo.getRight();
