@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import io.ballerina.tools.text.LineRange;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
@@ -120,6 +121,8 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+
 /**
  * Common utils to be reuse in language server implementation.
  */
@@ -180,6 +183,20 @@ public class CommonUtil {
     }
 
     /**
+     * Convert the diagnostic position to a zero based positioning diagnostic position.
+     *
+     * @param linePosition - diagnostic position to be cloned
+     * @return {@link DiagnosticPos} converted diagnostic position
+     */
+    public static Range toRange(LineRange linePosition) {
+        int startLine = linePosition.startLine().line();
+        int endLine = linePosition.endLine().line();
+        int startColumn = linePosition.startLine().offset();
+        int endColumn = linePosition.endLine().offset();
+        return new Range(new Position(startLine, startColumn), new Position(endLine, endColumn));
+    }
+
+    /**
      * Clone the diagnostic position given.
      *
      * @param diagnosticPos - diagnostic position to be cloned
@@ -193,41 +210,35 @@ public class CommonUtil {
         return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
     }
 
-    /**
-     * Get the Annotation completion Item.
-     *
-     * @param packageID        Package Id
-     * @param annotationSymbol BLang annotation to extract the completion Item
-     * @param ctx              LS Service operation context, in this case completion context
-     * @param pkgAlias         LS Service operation context, in this case completion context
-     * @return {@link LSCompletionItem} Completion item for the annotation
-     */
-    public static LSCompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
-                                                               LSContext ctx, String pkgAlias,
+    public static LSCompletionItem getAnnotationCompletionItem(PackageID moduleID, BAnnotationSymbol annotationSymbol,
+                                                               LSContext ctx, boolean withAlias,
                                                                Map<String, String> pkgAliasMap) {
         PackageID currentPkgID = ctx.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
         String currentProjectOrgName = currentPkgID == null ? "" : currentPkgID.orgName.value;
 
-        String aliasComponent = "";
-        if (pkgAliasMap.containsKey(packageID.toString())) {
-            // Check if the imported packages contains the particular package with the alias
-            aliasComponent = pkgAliasMap.get(packageID.toString());
-        } else if (currentPkgID != null && !currentPkgID.name.value.equals(packageID.name.value)
-                && !isLangLib(packageID)) {
-            aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
+        String label;
+        String insertText;
+        if (withAlias) {
+            String alias;
+            if (pkgAliasMap.containsKey(moduleID.toString())) {
+                alias = pkgAliasMap.get(moduleID.toString());
+            } else {
+                alias = CommonUtil.getLastItem(moduleID.getNameComps()).getValue();
+            }
+            label = getAnnotationLabel(alias, annotationSymbol);
+            insertText = getAnnotationInsertText(alias, annotationSymbol);
+        } else {
+            label = getAnnotationLabel(annotationSymbol);
+            insertText = getAnnotationInsertText(annotationSymbol);
         }
 
-        boolean withAlias = (pkgAlias == null && !aliasComponent.isEmpty());
-
-        String label = getAnnotationLabel(aliasComponent, annotationSymbol, withAlias);
-        String insertText = getAnnotationInsertText(aliasComponent, annotationSymbol, withAlias);
         CompletionItem annotationItem = new CompletionItem();
         annotationItem.setLabel(label);
         annotationItem.setInsertText(insertText);
         annotationItem.setInsertTextFormat(InsertTextFormat.Snippet);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
         annotationItem.setKind(CompletionItemKind.Property);
-        if (currentPkgID != null && currentPkgID.name.value.equals(packageID.name.value)) {
+        if (currentPkgID != null && currentPkgID.name.value.equals(moduleID.name.value)) {
             // If the annotation resides within the current package, no need to set the additional text edits
             return new SymbolCompletionItem(ctx, annotationSymbol, annotationItem);
         }
@@ -237,18 +248,18 @@ public class CommonUtil {
                     String orgName = bLangImportPackage.orgName.value;
                     String importPkgName = (orgName.equals("") ? currentProjectOrgName : orgName) + "/"
                             + CommonUtil.getPackageNameComponentsCombined(bLangImportPackage);
-                    String annotationPkgOrgName = packageID.orgName.getValue();
+                    String annotationPkgOrgName = moduleID.orgName.getValue();
                     String annotationPkgName = annotationPkgOrgName + "/"
-                            + packageID.nameComps.stream()
+                            + moduleID.nameComps.stream()
                             .map(Name::getValue)
                             .collect(Collectors.joining("."));
                     return importPkgName.equals(annotationPkgName);
                 })
                 .findAny();
         // if the particular import statement not available we add the additional text edit to auto import
-        if (!pkgImport.isPresent() && !isLangLib(packageID)) {
-            annotationItem.setAdditionalTextEdits(getAutoImportTextEdits(packageID.orgName.getValue(),
-                    packageID.name.getValue(), ctx));
+        if (!pkgImport.isPresent() && !isLangLib(moduleID)) {
+            annotationItem.setAdditionalTextEdits(getAutoImportTextEdits(moduleID.orgName.getValue(),
+                    moduleID.name.getValue(), ctx));
         }
         return new SymbolCompletionItem(ctx, annotationSymbol, annotationItem);
     }
@@ -264,7 +275,7 @@ public class CommonUtil {
      */
     public static LSCompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
                                                                LSContext ctx, Map<String, String> pkgAliasMap) {
-        return getAnnotationCompletionItem(packageID, annotationSymbol, ctx, null, pkgAliasMap);
+        return getAnnotationCompletionItem(packageID, annotationSymbol, ctx, false, pkgAliasMap);
     }
 
     /**
@@ -302,13 +313,11 @@ public class CommonUtil {
      *
      * @param aliasComponent   Package ID
      * @param annotationSymbol Annotation to get the insert text
-     * @param withAlias        insert text with alias
      * @return {@link String} Insert text
      */
-    private static String getAnnotationInsertText(String aliasComponent, BAnnotationSymbol annotationSymbol,
-                                                  boolean withAlias) {
+    private static String getAnnotationInsertText(@Nonnull String aliasComponent, BAnnotationSymbol annotationSymbol) {
         StringBuilder annotationStart = new StringBuilder();
-        if (withAlias) {
+        if (!aliasComponent.isEmpty()) {
             annotationStart.append(aliasComponent).append(CommonKeys.PKG_DELIMITER_KEYWORD);
         }
         if (annotationSymbol.attachedType != null) {
@@ -340,16 +349,35 @@ public class CommonUtil {
     }
 
     /**
+     * Get the annotation Insert text.
+     *
+     * @param annotationSymbol Annotation to get the insert text
+     * @return {@link String} Insert text
+     */
+    public static String getAnnotationInsertText(BAnnotationSymbol annotationSymbol) {
+        return getAnnotationInsertText("", annotationSymbol);
+    }
+
+    /**
      * Get the completion Label for the annotation.
      *
      * @param aliasComponent package alias
      * @param annotation     BLang annotation
-     * @param withAlias      label with alias
      * @return {@link String} Label string
      */
-    public static String getAnnotationLabel(String aliasComponent, BAnnotationSymbol annotation, boolean withAlias) {
-        String pkgComponent = withAlias ? aliasComponent + CommonKeys.PKG_DELIMITER_KEYWORD : "";
+    public static String getAnnotationLabel(@Nonnull String aliasComponent, BAnnotationSymbol annotation) {
+        String pkgComponent = !aliasComponent.isEmpty() ? aliasComponent + CommonKeys.PKG_DELIMITER_KEYWORD : "";
         return pkgComponent + annotation.getName().getValue();
+    }
+
+    /**
+     * Get the completion Label for the annotation.
+     *
+     * @param annotation BLang annotation
+     * @return {@link String} Label string
+     */
+    public static String getAnnotationLabel(BAnnotationSymbol annotation) {
+        return getAnnotationLabel("", annotation);
     }
 
     /**

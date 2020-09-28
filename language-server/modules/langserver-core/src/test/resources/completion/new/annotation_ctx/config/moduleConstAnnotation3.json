@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 11,
+    "character": 9
+  },
+  "source": "annotation_ctx/source/moduleConstAnnotation3.bal",
+  "items": [
+    {
+      "label": "sourceConstAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceConstAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceConstAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceConstAnnotation2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

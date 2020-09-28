@@ -2634,7 +2634,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, env);
 
         if (transactionNode.onFailClause != null) {
-            this.analyzeNode(transactionNode.onFailClause, env);
+            this.analyzeNode(transactionNode.onFailClause, transactionEnv);
         }
         analyzeStmt(transactionNode.transactionBody, transactionEnv);
     }
