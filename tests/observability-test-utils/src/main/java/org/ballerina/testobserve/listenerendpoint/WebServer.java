@@ -47,6 +47,8 @@ import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.AttachedFunction;
@@ -65,6 +67,10 @@ import java.util.concurrent.TimeUnit;
 import static org.ballerina.testobserve.listenerendpoint.Constants.CALLER_TYPE_NAME;
 import static org.ballerina.testobserve.listenerendpoint.Constants.NETTY_CONTEXT_NATIVE_DATA_KEY;
 import static org.ballerina.testobserve.listenerendpoint.Constants.TEST_OBSERVE_PACKAGE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
 
 /**
  * Web Server used in the mock listener.
@@ -205,11 +211,23 @@ public class WebServer {
                 args[3] = true;
             }
 
+            ObserverContext observerContext = new ObserverContext();
+            observerContext.setObjectName("testobserve_listener");
+            Map<String, String> httpHeaders = new HashMap<>();
+            request.headers().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
+            observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
+            observerContext.addMainTag(TAG_KEY_HTTP_METHOD, request.method().name());
+            observerContext.addMainTag(TAG_KEY_PROTOCOL, "http");
+            observerContext.addMainTag(TAG_KEY_HTTP_URL, request.uri());
+
+            Map<String, Object> properties = new HashMap<String, Object>() {{
+                put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
+            }};
             StrandMetadata strandMetadata = new StrandMetadata(TEST_OBSERVE_PACKAGE.getOrg(),
                     TEST_OBSERVE_PACKAGE.getName(), TEST_OBSERVE_PACKAGE.getVersion(), resourceName);
             Utils.logInfo("Dispatching resource function " + serviceName + "." + resourceName);
             BExecutor.submit(WebServer.this.scheduler, serviceObject, resourceName, null, strandMetadata,
-                    new WebServerCallableUnitCallback(ctx, serviceName, resourceName), new HashMap<>(), args);
+                    new WebServerCallableUnitCallback(ctx, serviceName, resourceName), properties, args);
         }
 
         @Override
