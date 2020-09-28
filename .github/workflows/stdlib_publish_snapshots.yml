@@ -1,4 +1,4 @@
-name: Publish Ballerina Snapshot
+name: Publish Stdlib Snapshots
 
 on:
     repository_dispatch:
