@@ -484,6 +484,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token newKeywordToken = formatToken(explicitNewExpressionNode.newKeyword(), 1, 0);
         TypeDescriptorNode typeDescriptorNode = formatNode(explicitNewExpressionNode.typeDescriptor(), 0, 0);
         ParenthesizedArgList parenthesizedArgList = formatNode(explicitNewExpressionNode.parenthesizedArgList(), 0, 0);
+
         return explicitNewExpressionNode.modify()
                 .withNewKeyword(newKeywordToken)
                 .withTypeDescriptor(typeDescriptorNode)
@@ -497,6 +498,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(parenthesizedArgList
                 .arguments(), 0, 0, 0, 0);
         Token closeParenToken = formatToken(parenthesizedArgList.closeParenToken(), 1, 0);
+
         return parenthesizedArgList.modify()
                 .withOpenParenToken(openParenToken)
                 .withArguments(arguments)
@@ -511,6 +513,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         NodeList<Node> resources = formatNodeList(serviceBodyNode.resources(), 0, 1, 0, 1);
         unindent(); // reset the indentation
         Token closeBraceToken = formatToken(serviceBodyNode.closeBraceToken(), this.trailingWS, this.trailingNL);
+
         return serviceBodyNode.modify()
                 .withOpenBraceToken(openBraceToken)
                 .withResources(resources)
@@ -522,7 +525,9 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public QualifiedNameReferenceNode transform(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
         Token modulePrefix = formatToken(qualifiedNameReferenceNode.modulePrefix(), 0, 0);
         Token colon = formatToken((Token) qualifiedNameReferenceNode.colon(), 0, 0);
-        IdentifierToken identifier = formatToken(qualifiedNameReferenceNode.identifier(), this.trailingWS, 0);
+        IdentifierToken identifier = formatToken(qualifiedNameReferenceNode.identifier(),
+                this.trailingWS, this.trailingNL);
+
         return qualifiedNameReferenceNode.modify()
                 .withModulePrefix(modulePrefix)
                 .withColon(colon)
@@ -535,6 +540,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token returnsKeyword = formatToken(returnTypeDescriptorNode.returnsKeyword(), 1, 0);
         NodeList<AnnotationNode> annotations = formatNodeList(returnTypeDescriptorNode.annotations(), 0, 0, 1, 0);
         Node type = formatNode(returnTypeDescriptorNode.type(), 1, 0);
+
         return returnTypeDescriptorNode.modify()
                 .withReturnsKeyword(returnsKeyword)
                 .withAnnotations(annotations)
@@ -546,6 +552,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public OptionalTypeDescriptorNode transform(OptionalTypeDescriptorNode optionalTypeDescriptorNode) {
         Node typeDescriptor = formatNode(optionalTypeDescriptorNode.typeDescriptor(), 0, 0);
         Token questionMarkToken = formatToken(optionalTypeDescriptorNode.questionMarkToken(), 1, 0);
+
         return optionalTypeDescriptorNode.modify()
                 .withTypeDescriptor(typeDescriptor)
                 .withQuestionMarkToken(questionMarkToken)
@@ -556,6 +563,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public ExpressionStatementNode transform(ExpressionStatementNode expressionStatementNode) {
         ExpressionNode expression = formatNode(expressionStatementNode.expression(), this.trailingWS, this.trailingNL);
         Token semicolonToken = formatToken(expressionStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+
         return expressionStatementNode.modify()
                 .withExpression(expression)
                 .withSemicolonToken(semicolonToken)
@@ -566,6 +574,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public CheckExpressionNode transform(CheckExpressionNode checkExpressionNode) {
         Token checkKeyword = formatToken(checkExpressionNode.checkKeyword(), 1, 0);
         ExpressionNode expressionNode = formatNode(checkExpressionNode.expression(), this.trailingWS, this.trailingNL);
+
         return checkExpressionNode.modify()
                 .withCheckKeyword(checkKeyword)
                 .withExpression(expressionNode)
@@ -581,6 +590,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(remoteMethodCallActionNode
                 .arguments(), 1, 0, 0, 0);
         Token closeParenToken = formatToken(remoteMethodCallActionNode.closeParenToken(), 0, 0);
+
         return remoteMethodCallActionNode.modify()
                 .withExpression(expression)
                 .withRightArrowToken(rightArrowToken)
@@ -594,6 +604,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public SimpleNameReferenceNode transform(SimpleNameReferenceNode simpleNameReferenceNode) {
         Token name = formatToken(simpleNameReferenceNode.name(), this.trailingWS, 0);
+
         return simpleNameReferenceNode.modify()
                 .withName(name)
                 .apply();
