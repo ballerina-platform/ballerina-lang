@@ -431,29 +431,67 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public ImportDeclarationNode transform(ImportDeclarationNode importDeclarationNode) {
-        Token importKeyword = formatToken(importDeclarationNode.importKeyword(), 0, 0);
+        Token importKeyword = formatToken(importDeclarationNode.importKeyword(), 1, 0);
 
-        if (importDeclarationNode.orgName().isPresent()) {
+        boolean hasOrgName = importDeclarationNode.orgName().isPresent();
+        boolean hasVersion = importDeclarationNode.version().isPresent();
+        boolean hasPrefix = importDeclarationNode.prefix().isPresent();
+
+        if (hasOrgName) {
             ImportOrgNameNode orgName = formatNode(importDeclarationNode.orgName().get(), 0, 0);
             importDeclarationNode = importDeclarationNode.modify().withOrgName(orgName).apply();
         }
         SeparatedNodeList<IdentifierToken> moduleNames = formatSeparatedNodeList(importDeclarationNode.moduleName(),
-                0, 0, 0, 0, 0, 0);
+                0, 0, 0, 0, (hasVersion || hasPrefix) ? 1 : 0, 0);
 
-        if (importDeclarationNode.version().isPresent()) {
-            ImportVersionNode version = formatNode(importDeclarationNode.version().get(), 0, 0);
+        if (hasVersion) {
+            ImportVersionNode version = formatNode(importDeclarationNode.version().get(), hasPrefix ? 1 : 0, 0);
             importDeclarationNode = importDeclarationNode.modify().withVersion(version).apply();
         }
-        if (importDeclarationNode.prefix().isPresent()) {
+        if (hasPrefix) {
             ImportPrefixNode prefix = formatNode(importDeclarationNode.prefix().get(), 0, 0);
             importDeclarationNode = importDeclarationNode.modify().withPrefix(prefix).apply();
         }
-        Token semicolon = formatToken(importDeclarationNode.semicolon(), 0, 1);
+        Token semicolon = formatToken(importDeclarationNode.semicolon(), this.trailingWS, this.trailingNL);
 
         return importDeclarationNode.modify()
                 .withImportKeyword(importKeyword)
                 .withModuleName(moduleNames)
                 .withSemicolon(semicolon)
+                .apply();
+    }
+
+    @Override
+    public ImportOrgNameNode transform(ImportOrgNameNode importOrgNameNode) {
+        Token orgName = formatToken(importOrgNameNode.orgName(), 0, 0);
+        Token slashToken = formatToken(importOrgNameNode.slashToken(), 0, 0);
+
+        return importOrgNameNode.modify()
+                .withOrgName(orgName)
+                .withSlashToken(slashToken)
+                .apply();
+    }
+
+    @Override
+    public ImportPrefixNode transform(ImportPrefixNode importPrefixNode) {
+        Token asKeyword = formatToken(importPrefixNode.asKeyword(), 1, 0);
+        Token prefix = formatToken(importPrefixNode.prefix(), 0, 0);
+
+        return importPrefixNode.modify()
+                .withAsKeyword(asKeyword)
+                .withPrefix(prefix)
+                .apply();
+    }
+
+    @Override
+    public ImportVersionNode transform(ImportVersionNode importVersionNode) {
+        Token versionKeyword = formatToken(importVersionNode.versionKeyword(), 1, 0);
+        SeparatedNodeList<Token> versionNumber = formatSeparatedNodeList(importVersionNode.versionNumber(),
+                0, 0, 0, 0, this.trailingWS, 0);
+
+        return importVersionNode.modify()
+                .withVersionKeyword(versionKeyword)
+                .withVersionNumber(versionNumber)
                 .apply();
     }
 
