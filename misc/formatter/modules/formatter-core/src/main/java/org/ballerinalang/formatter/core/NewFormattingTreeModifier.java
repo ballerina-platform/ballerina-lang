@@ -30,6 +30,7 @@ import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.DoStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
@@ -61,6 +62,7 @@ import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.OnFailClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
+import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
@@ -81,6 +83,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
@@ -917,6 +920,65 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         return nilTypeDescriptorNode.modify()
                 .withOpenParenToken(openParenToken)
                 .withCloseParenToken(closeParenToken)
+                .apply();
+    }
+
+    @Override
+    public ConstantDeclarationNode transform(ConstantDeclarationNode constantDeclarationNode) {
+        if (constantDeclarationNode.metadata().isPresent()) {
+            MetadataNode metadata = formatNode(constantDeclarationNode.metadata().get(), 1, 0);
+            constantDeclarationNode = constantDeclarationNode.modify()
+                    .withMetadata(metadata).apply();
+        }
+
+        if (constantDeclarationNode.visibilityQualifier().isPresent()) {
+            Token visibilityQualifier = formatToken(constantDeclarationNode.visibilityQualifier().get(), 1, 0);
+            constantDeclarationNode = constantDeclarationNode.modify()
+                    .withVisibilityQualifier(visibilityQualifier).apply();
+        }
+        Token constKeyword = formatToken(constantDeclarationNode.constKeyword(), 1, 0);
+
+        if (constantDeclarationNode.typeDescriptor().isPresent()) {
+            TypeDescriptorNode typeDescriptorNode = formatNode(constantDeclarationNode.typeDescriptor().get(), 1, 0);
+            constantDeclarationNode = constantDeclarationNode.modify().withTypeDescriptor(typeDescriptorNode).apply();
+        }
+
+        Token variableName = formatToken(constantDeclarationNode.variableName(), 1, 0);
+        Token equalsToken = formatToken(constantDeclarationNode.equalsToken(), 1, 0);
+        Node initializer = formatNode(constantDeclarationNode.initializer(), 0, 0);
+        Token semicolonToken = formatToken(constantDeclarationNode.semicolonToken(), this.trailingWS, this.trailingNL);
+
+        return constantDeclarationNode.modify()
+                .withConstKeyword(constKeyword)
+                .withEqualsToken(equalsToken)
+                .withInitializer(initializer)
+                .withSemicolonToken(semicolonToken)
+                .withVariableName(variableName)
+                .apply();
+    }
+
+    @Override
+    public ParameterizedTypeDescriptorNode transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        Token parameterizedType = formatToken(parameterizedTypeDescriptorNode.parameterizedType(), 0, 0);
+        TypeParameterNode typeParameter = formatNode(parameterizedTypeDescriptorNode.typeParameter(),
+                this.trailingWS, this.trailingNL);
+
+        return parameterizedTypeDescriptorNode.modify()
+                .withParameterizedType(parameterizedType)
+                .withTypeParameter(typeParameter)
+                .apply();
+    }
+
+    @Override
+    public TypeParameterNode transform(TypeParameterNode typeParameterNode) {
+        Token ltToken = formatToken(typeParameterNode.ltToken(), 0, 0);
+        TypeDescriptorNode typeNode = formatNode(typeParameterNode.typeNode(), 0, 0);
+        Token gtToken = formatToken(typeParameterNode.gtToken(), this.trailingWS, this.trailingNL);
+
+        return typeParameterNode.modify()
+                .withTypeNode(typeNode)
+                .withLtToken(ltToken)
+                .withGtToken(gtToken)
                 .apply();
     }
 
