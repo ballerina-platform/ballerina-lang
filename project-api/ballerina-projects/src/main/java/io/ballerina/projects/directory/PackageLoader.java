@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.utils.ProjectConstants.BALLERINA_TOML;
+import static org.wso2.ballerinalang.util.RepoUtils.isBallerinaStandaloneFile;
 
 /**
  * Contains a set of utility methods that creates the config hierarchy from the project directory.
@@ -62,17 +63,28 @@ public class PackageLoader {
         }
 
         // TODO: Should replace with Ballerina Toml parser generic model.
-        // load Ballerina.toml
-        BallerinaToml ballerinaToml;
-        try {
-            ballerinaToml = BallerinaTomlProcessor.parse(packagePath.resolve(BALLERINA_TOML));
-        } catch (IOException | TomlException e) {
-            throw new RuntimeException(e.getMessage(), e);
+        PackageName packageName;
+        PackageOrg packageOrg;
+        PackageVersion packageVersion;
+
+        if (isBallerinaStandaloneFile(packageData.packagePath())) {
+            packageName = PackageName.from(".");
+            packageOrg = PackageOrg.from(System.getProperty("user.name"));
+            packageVersion = PackageVersion.from("0.0.0");
+        } else {
+            // load Ballerina.toml
+            BallerinaToml ballerinaToml;
+            try {
+                ballerinaToml = BallerinaTomlProcessor.parse(packagePath.resolve(BALLERINA_TOML));
+            } catch (IOException | TomlException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+
+            packageName = PackageName.from(ballerinaToml.getPackage().getName());
+            packageOrg = PackageOrg.from(ballerinaToml.getPackage().getOrg());
+            packageVersion = PackageVersion.from(ballerinaToml.getPackage().getVersion());
         }
 
-        PackageName packageName = PackageName.from(fileName.toString());
-        PackageOrg packageOrg = PackageOrg.from(ballerinaToml.getPackage().getOrg());
-        PackageVersion packageVersion = PackageVersion.from(ballerinaToml.getPackage().getVersion());
         PackageId packageId = PackageId.create(packageName.toString());
 
         List<ModuleConfig> moduleConfigs = packageData.otherModules()

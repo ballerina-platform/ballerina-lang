@@ -18,9 +18,46 @@
 
 package io.ballerina.projects.model;
 
+/**
+ * {@code PlatformLibrary} Model for Platform Library.
+ *
+ * @since 2.0.0
+ */
 public class PlatformLibrary {
     String path;
     String artifactId; //?
     String groupId; //?
     String version; //?
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public String getArtifactId() {
+        return artifactId;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public String getVersion() {
+        return version;
+    }
 }

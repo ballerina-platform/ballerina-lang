@@ -25,6 +25,11 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+/**
+ * Contains utils to test the balo writer.
+ *
+ * @since 2.0.0
+ */
 public class TestUtils {
 
     static void unzip(String fileZipPath, String destinationDirectory) throws IOException {
