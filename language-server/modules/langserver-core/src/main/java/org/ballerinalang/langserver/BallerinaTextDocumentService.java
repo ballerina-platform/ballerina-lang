@@ -495,9 +495,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             Path compilationPath = getUntitledFilePath(docSymbolFilePath.toString()).orElse(docSymbolFilePath.get());
             Optional<Lock> lock = docManager.lockFile(compilationPath);
+
+            LSContext codeLensContext = new DocumentServiceOperationContext
+                    .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_LENS)
+                    .withCommonParams(null, fileUri, docManager)
+                    .build();
+
             try {
-                // Compile source document
-                lenses = CodeLensUtil.compileAndGetCodeLenses(fileUri, docManager);
+                lenses = CodeLensUtil.getCodeLenses(codeLensContext);
                 docManager.setCodeLenses(compilationPath, lenses);
                 return lenses;
             } catch (UserErrorException e) {
