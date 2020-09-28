@@ -48,8 +48,8 @@
             "level": 1,
             "release": false,
             "dependents": [
-                "module-ballerina-encoding",
                 "module-ballerina-config",
+                "module-ballerina-encoding",
                 "module-ballerina-time",
                 "module-ballerina-xslt"
             ]
@@ -82,9 +82,9 @@
             "level": 2,
             "release": false,
             "dependents": [
-                "module-ballerina-file",
+                "module-ballerina-cache",
                 "module-ballerina-crypto",
-                "module-ballerina-cache"
+                "module-ballerina-file"
             ]
         },
         {
@@ -100,8 +100,8 @@
             "level": 2,
             "release": false,
             "dependents": [
-                "module-ballerina-email",
-                "module-ballerina-cache"
+                "module-ballerina-cache",
+                "module-ballerina-email"
             ]
         },
 
@@ -111,8 +111,8 @@
             "level": 3,
             "release": false,
             "dependents": [
-                "module-ballerina-websub",
-                "module-ballerina-jwt"
+                "module-ballerina-jwt",
+                "module-ballerina-websub"
             ]
         },
         {
@@ -121,8 +121,8 @@
             "level": 3,
             "release": false,
             "dependents": [
-                "module-ballerina-reflect",
-                "module-ballerina-log"
+                "module-ballerina-log",
+                "module-ballerina-reflect"
             ]
         },
         {
@@ -131,9 +131,9 @@
             "level": 3,
             "release": false,
             "dependents": [
-                "module-ballerina-http",
                 "module-ballerina-email",
-                "module-ballerina-filepath"
+                "module-ballerina-filepath",
+                "module-ballerina-http"
             ]
         },
         {
@@ -155,9 +155,9 @@
             "level": 4,
             "release": false,
             "dependents": [
-                "module-ballerina-mime",
-                "module-ballerina-filepath",
                 "module-ballerina-cache",
+                "module-ballerina-filepath",
+                "module-ballerina-mime",
                 "module-ballerina-socket",
                 "module-ballerinax-nats",
                 "module-ballerinax-rabbitmq"
@@ -256,7 +256,7 @@
             "level": 7,
             "release": false,
             "dependents": [
-                "module-ballerinax-jdbc",
+                "module-ballerina-java.jdbc",
                 "module-ballerinax-mysql"
             ]
         },
@@ -273,10 +273,10 @@
             "level": 7,
             "release": false,
             "dependents": [
-                "module-ballerina-websub",
+                "module-ballerina-grpc",
                 "module-ballerina-jwt",
                 "module-ballerina-oauth2",
-                "module-ballerina-grpc"
+                "module-ballerina-websub"
             ]
         },
 
