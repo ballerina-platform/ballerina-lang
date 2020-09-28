@@ -125,6 +125,8 @@ public class EvaluatorBuilder extends NodeVisitor {
     public Evaluator build(String expression) throws EvaluationException {
         // Validates and converts the expression into a parsed syntax-tree node.
         ExpressionNode parsedExpr = DebugExpressionParser.validateAndParse(expression);
+        // Encodes all the identifiers in order to be aligned with identifier representation in the JVM runtime.
+        parsedExpr = (ExpressionNode) parsedExpr.apply(new ExpressionIdentifierModifier());
         // transforms the parsed ballerina expression into a java expression using a node transformer implementation.
         parsedExpr.accept(this);
         if (unsupportedSyntaxDetected()) {

@@ -338,6 +338,7 @@ public class Desugar extends BLangNodeVisitor {
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
     private BLangSimpleVariableDef onFailCallFuncDef;
     private BLangOnFailClause onFailClause;
+    private BType forceCastReturnType = null;
 
     private SymbolEnv env;
     private int lambdaFunctionCount = 0;
@@ -1054,7 +1055,10 @@ public class Desugar extends BLangNodeVisitor {
             funcNode.returnTypeNode = rewrite(funcNode.returnTypeNode, funcEnv);
         }
 
+        BType currentReturnType = this.forceCastReturnType;
+        this.forceCastReturnType = null;
         funcNode.body = rewrite(funcNode.body, funcEnv);
+        this.forceCastReturnType = currentReturnType;
         funcNode.annAttachments.forEach(attachment -> rewrite(attachment, env));
         if (funcNode.returnTypeNode != null) {
             funcNode.returnTypeAnnAttachments.forEach(attachment -> rewrite(attachment, env));
@@ -2709,6 +2713,9 @@ public class Desugar extends BLangNodeVisitor {
         // If the return node do not have an expression, we add `done` statement instead of a return statement. This is
         // to distinguish between returning nil value specifically and not returning any value.
         if (returnNode.expr != null) {
+            if (forceCastReturnType != null && returnNode.expr.type != null) {
+                returnNode.expr = addConversionExprIfRequired(returnNode.expr, forceCastReturnType);
+            }
             returnNode.expr = rewriteExpr(returnNode.expr);
         }
         result = returnNode;
@@ -3439,7 +3446,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         body.scope = bodyScope;
         SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        this.forceCastReturnType = ((BLangType) returnType).type;
         body.stmts = rewriteStmt(fnBodyStmts, bodyEnv);
+        this.forceCastReturnType = null;
         return createLambdaFunction(pos, functionNamePrefix, lambdaFunctionVariable, returnType, body);
     }
 
