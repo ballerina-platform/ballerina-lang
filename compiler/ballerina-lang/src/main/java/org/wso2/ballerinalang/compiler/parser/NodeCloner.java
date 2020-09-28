@@ -851,6 +851,22 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangMappingMatchPattern source) {
+        BLangMappingMatchPattern clone = new BLangMappingMatchPattern();
+        source.cloneRef = clone;
+        clone.fieldMatchPatterns = cloneList(source.fieldMatchPatterns);
+        clone.matchExpr = source.matchExpr;
+    }
+
+    @Override
+    public void visit(BLangFieldMatchPattern source) {
+        BLangFieldMatchPattern clone = new BLangFieldMatchPattern();
+        source.cloneRef = clone;
+        clone.matchPattern = source.matchPattern;
+        clone.fieldName = source.fieldName;
+    }
+
+    @Override
     public void visit(BLangMatchTypedBindingPatternClause source) {
 
         BLangMatchTypedBindingPatternClause clone = new BLangMatchTypedBindingPatternClause();
