@@ -43,6 +43,7 @@ import io.ballerinalang.compiler.syntax.tree.FunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
@@ -63,6 +64,7 @@ import io.ballerinalang.compiler.syntax.tree.OnFailClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
@@ -979,6 +981,34 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .withTypeNode(typeNode)
                 .withLtToken(ltToken)
                 .withGtToken(gtToken)
+                .apply();
+    }
+
+    @Override
+    public FunctionTypeDescriptorNode transform(FunctionTypeDescriptorNode functionTypeDescriptorNode) {
+        NodeList<Token> qualifierList = formatNodeList(functionTypeDescriptorNode.qualifierList(), 1, 0, 0, 1);
+        Token functionKeyword = formatToken(functionTypeDescriptorNode.functionKeyword(), 1, 0);
+        FunctionSignatureNode functionSignature = formatNode(functionTypeDescriptorNode.functionSignature(),
+                this.trailingWS, this.trailingNL);
+
+        return functionTypeDescriptorNode.modify()
+                .withQualifierList(qualifierList)
+                .withFunctionKeyword(functionKeyword)
+                .withFunctionSignature(functionSignature)
+                .apply();
+    }
+
+    @Override
+    public ParenthesisedTypeDescriptorNode transform(ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode) {
+        Token openParenToken = formatToken(parenthesisedTypeDescriptorNode.openParenToken(), 0, 0);
+        TypeDescriptorNode typedesc = formatNode(parenthesisedTypeDescriptorNode.typedesc(), 0, 0);
+        Token closeParenToken = formatToken(parenthesisedTypeDescriptorNode.closeParenToken(),
+                this.trailingWS, this.trailingNL);
+
+        return parenthesisedTypeDescriptorNode.modify()
+                .withOpenParenToken(openParenToken)
+                .withTypedesc(typedesc)
+                .withCloseParenToken(closeParenToken)
                 .apply();
     }
 
