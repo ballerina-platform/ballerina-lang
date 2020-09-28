@@ -107,7 +107,7 @@ public class MockObject {
 public class MemberFunctionStub {
     object {} mockObject;
     string functionName = "";
-    anydata[] args = [];
+    anydata|error args = [];
     any|error returnValue = ();
     any|error returnValueSeq = [];
 
@@ -154,7 +154,7 @@ public class MemberFunctionStub {
              error err = error("function to mock is not specified.");
              panic err;
         }
-        if (self.args.length() != 0) {
+        if (self.args != []) {
             error err = error("'withArguments' function cannot be specified with a return sequence");
             panic err;
         }
