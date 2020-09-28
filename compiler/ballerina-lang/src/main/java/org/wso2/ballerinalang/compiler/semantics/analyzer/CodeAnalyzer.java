@@ -161,7 +161,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
@@ -861,6 +863,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.hasLastPatternInStatement =
                     this.hasLastPatternInStatement || (matchClause.matchGuard == null && hasLastPatternInClause);
     }
+
+    @Override
+    public void visit(BLangMappingMatchPattern mappingMatchPattern) {}
+
+    @Override
+    public void visit(BLangFieldMatchPattern fieldMatchPattern) {}
 
     private void checkSimilarMatchPatternsBetweenClauses(BLangMatchClause firstClause, BLangMatchClause secondClause) {
         for (BLangMatchPattern firstMatchPattern : firstClause.matchPatterns) {
