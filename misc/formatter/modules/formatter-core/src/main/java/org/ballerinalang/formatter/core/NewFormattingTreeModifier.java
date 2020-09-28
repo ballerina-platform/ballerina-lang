@@ -632,7 +632,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token openParenToken = formatToken(remoteMethodCallActionNode.openParenToken(), 0, 0);
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(remoteMethodCallActionNode
                 .arguments(), 1, 0, 0, 0);
-        Token closeParenToken = formatToken(remoteMethodCallActionNode.closeParenToken(), this.trailingWS, this.trailingNL);
+        Token closeParenToken = formatToken(remoteMethodCallActionNode.closeParenToken(),
+                this.trailingWS, this.trailingNL);
 
         return remoteMethodCallActionNode.modify()
                 .withExpression(expression)
@@ -821,7 +822,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token failKeyword = formatToken(onFailClauseNode.failKeyword(), 1, 0);
         TypeDescriptorNode typeDescriptor = formatNode(onFailClauseNode.typeDescriptor(), 1, 0);
         IdentifierToken failErrorName = formatToken(onFailClauseNode.failErrorName(), 1, 0);
-        BlockStatementNode blockStatement = formatNode(onFailClauseNode.blockStatement(), 0, 1);
+        BlockStatementNode blockStatement = formatNode(onFailClauseNode.blockStatement(),
+                this.trailingWS, this.trailingNL);
 
         return onFailClauseNode.modify()
                 .withOnKeyword(onKeyword)
