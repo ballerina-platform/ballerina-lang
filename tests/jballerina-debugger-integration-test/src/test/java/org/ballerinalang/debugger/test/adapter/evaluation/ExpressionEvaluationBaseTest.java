@@ -69,7 +69,7 @@ public abstract class ExpressionEvaluationBaseTest extends DebugAdapterBaseTestC
         testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
 
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 159));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 172));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
         this.context = debugHitInfo.getRight();

@@ -82,7 +82,7 @@ public class LanguageConstructDebugTest extends DebugAdapterBaseTestCase {
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = waitForDebugHit(10000);
 
-        Variable[] variables = fetchDebugHitVariables(debugHitInfo.getRight());
+        Variable[] variables = fetchVariables(debugHitInfo.getRight(), VariableScope.LOCAL);
         Arrays.sort(variables, compareByName);
 
         // Variable visibility test for object method

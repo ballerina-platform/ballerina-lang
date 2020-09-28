@@ -342,7 +342,8 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
      * @return Variable array with debug hit variables information.
      * @throws BallerinaTestException if an error occurs when fetching debug hit variables.
      */
-    protected Variable[] fetchDebugHitVariables(StoppedEventArguments args) throws BallerinaTestException {
+    protected Variable[] fetchVariables(StoppedEventArguments args, VariableScope scope)
+            throws BallerinaTestException {
         if (!DebugHitListener.connector.isConnected()) {
             return new Variable[0];
         }
@@ -359,7 +360,11 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
                 return new Variable[0];
             }
 
-            scopeArgs.setFrameId(stackFrames[0].getId());
+            if (scope == VariableScope.LOCAL) {
+                scopeArgs.setFrameId(stackFrames[0].getId());
+            } else {
+                scopeArgs.setFrameId(-stackFrames[0].getId());
+            }
             ScopesResponse scopesResp = DebugHitListener.connector.getRequestManager().scopes(scopeArgs);
             variableArgs.setVariablesReference(scopesResp.getScopes()[0].getVariablesReference());
             VariablesResponse variableResp = DebugHitListener.connector.getRequestManager().variables(variableArgs);
@@ -485,6 +490,14 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         STEP_IN,
         STEP_OUT,
         STEP_OVER
+    }
+
+    /**
+     * Debug variable scope types.
+     */
+    public enum VariableScope {
+        GLOBAL,
+        LOCAL
     }
 
     @AfterSuite(alwaysRun = true)
