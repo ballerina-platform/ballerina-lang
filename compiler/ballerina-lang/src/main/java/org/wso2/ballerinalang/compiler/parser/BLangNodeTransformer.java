@@ -359,7 +359,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
@@ -4001,8 +4003,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
 
             for (Node matchPattern : matchClauseNode.matchPatterns()) {
-                Location matchPatternPos = getPosition(matchPattern);
-                BLangMatchPattern bLangMatchPattern = transformMatchPattern(matchPattern, matchPatternPos);
+                BLangMatchPattern bLangMatchPattern = transformMatchPattern(matchPattern);
                 // TODO : Remove this check after all binding patterns are implemented
                 if (bLangMatchPattern != null) {
                     bLangMatchPattern.matchExpr = matchStmtExpr;
@@ -4042,30 +4043,30 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangMatchPattern transformMatchPattern(Node matchPattern, Location matchPatternPos) {
-
-        if (matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
+        SyntaxKind kind = matchPattern.kind();
+        if (kind == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                 ((SimpleNameReferenceNode) matchPattern).name().isMissing()) {
             dlog.error(matchPatternPos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
             return null;
-        } else if (matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
+        } else if (kind == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                 ((SimpleNameReferenceNode) matchPattern).name().text().equals("_")) {
             // wildcard match
             BLangWildCardMatchPattern bLangWildCardMatchPattern =
                     (BLangWildCardMatchPattern) TreeBuilder.createWildCardMatchPattern();
             bLangWildCardMatchPattern.pos = matchPatternPos;
             return bLangWildCardMatchPattern;
-        } else if (matchPattern.kind() == SyntaxKind.NUMERIC_LITERAL ||
-                matchPattern.kind() == SyntaxKind.STRING_LITERAL ||
-                matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                matchPattern.kind() == SyntaxKind.NULL_LITERAL ||
-                matchPattern.kind() == SyntaxKind.NIL_LITERAL ||
-                matchPattern.kind() == SyntaxKind.BOOLEAN_LITERAL) {
+        } else if (kind == SyntaxKind.NUMERIC_LITERAL ||
+                kind == SyntaxKind.STRING_LITERAL ||
+                kind == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                kind == SyntaxKind.NULL_LITERAL ||
+                kind == SyntaxKind.NIL_LITERAL ||
+                kind == SyntaxKind.BOOLEAN_LITERAL) {
             BLangConstPattern bLangConstMatchPattern =
                     (BLangConstPattern) TreeBuilder.createConstMatchPattern();
             bLangConstMatchPattern.setExpression(createExpression(matchPattern));
             bLangConstMatchPattern.pos = matchPatternPos;
             return bLangConstMatchPattern;
-        } else if (matchPattern.kind() == SyntaxKind.TYPED_BINDING_PATTERN) { // var a
+        } else if (kind == SyntaxKind.TYPED_BINDING_PATTERN) { // var a
             TypedBindingPatternNode typedBindingPatternNode = (TypedBindingPatternNode) matchPattern;
             BLangVarBindingPatternMatchPattern bLangVarBindingPattern =
                     (BLangVarBindingPatternMatchPattern) TreeBuilder.createVarBindingPattern();
@@ -4087,7 +4088,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     return null;
             }
             return bLangVarBindingPattern;
-        } else if (matchPattern.kind() == SyntaxKind.LIST_MATCH_PATTERN) {
+        } else if (kind == SyntaxKind.LIST_MATCH_PATTERN) {
             ListMatchPatternNode listMatchPatternNode = (ListMatchPatternNode) matchPattern;
             BLangListMatchPattern bLangListMatchPattern =
                     (BLangListMatchPattern) TreeBuilder.createListMatchPattern();
@@ -4109,7 +4110,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                 getPosition(restMatchPatternNode)));
             }
             return bLangListMatchPattern;
-        } else if (matchPattern.kind() == SyntaxKind.REST_MATCH_PATTERN) {
+        } else if (kind == SyntaxKind.REST_MATCH_PATTERN) {
             RestMatchPatternNode restMatchPatternNode = (RestMatchPatternNode) matchPattern;
             BLangRestMatchPattern bLangRestMatchPattern = (BLangRestMatchPattern) TreeBuilder.createRestMatchPattern();
             bLangRestMatchPattern.pos = matchPatternPos;
@@ -4117,6 +4118,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             SimpleNameReferenceNode variableName = restMatchPatternNode.variableName();
             bLangRestMatchPattern.setIdentifier(createIdentifier(getPosition(variableName), variableName.name()));
             return bLangRestMatchPattern;
+        } else if (kind == SyntaxKind.MAPPING_MATCH_PATTERN) {
+            MappingMatchPatternNode mappingMatchPatternNode = (MappingMatchPatternNode) matchPattern;
+            BLangMappingMatchPattern bLangMappingMatchPattern =
+                    (BLangMappingMatchPattern) TreeBuilder.createMappingMatchPattern();
+            bLangMappingMatchPattern.pos = matchPatternPos;
+
+            for (FieldMatchPatternNode fieldMatchPatternNode : mappingMatchPatternNode.fieldMatchPatterns()) {
+                bLangMappingMatchPattern.fieldMatchPatterns.add((BLangFieldMatchPattern)
+                        transformMatchPattern(fieldMatchPatternNode));
+            }
+
+            return bLangMappingMatchPattern;
+        } else if (kind == SyntaxKind.FIELD_MATCH_PATTERN) {
+            FieldMatchPatternNode fieldMatchPatternNode = (FieldMatchPatternNode) matchPattern;
+            BLangFieldMatchPattern bLangFieldMatchPattern =
+                    (BLangFieldMatchPattern) TreeBuilder.createFieldMatchPattern();
+
+            bLangFieldMatchPattern.fieldName =
+                    createIdentifier(fieldMatchPatternNode.fieldNameNode());
+            bLangFieldMatchPattern.matchPattern = transformMatchPattern(fieldMatchPatternNode.matchPattern());
+            return bLangFieldMatchPattern;
         } else {
             // TODO : Remove this after all binding patterns are implemented
             dlog.error(matchPatternPos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);

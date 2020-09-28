@@ -2857,7 +2857,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static FieldMatchPatternNode createFieldMatchPatternNode(
-            SimpleNameReferenceNode fieldNameNode,
+            IdentifierToken fieldNameNode,
             Token colonToken,
             Node matchPattern) {
         Objects.requireNonNull(fieldNameNode, "fieldNameNode must not be null");
