@@ -18,6 +18,8 @@
 package org.ballerinalang.jvm;
 
 import org.apache.axiom.om.ds.AbstractPushOMDataSource;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
@@ -29,7 +31,6 @@ import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.TupleValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -91,7 +92,7 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
                               BField[] structFields) throws XMLStreamException {
         boolean isArray = false;
         xmlStreamWriter.writeStartElement("", name, "");
-        BString key = StringUtils.fromString(name);
+        BString key = BStringUtils.fromString(name);
         String value = null;
         switch (type) {
             case TypeTags.BOOLEAN_TAG:
@@ -161,7 +162,7 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
                     .values().toArray(new BField[0]);
             if (internalStructFields != null) {
                 for (int i = 0; i < internalStructFields.length; i++) {
-                    BString internalKeyName = StringUtils.fromString(internalStructFields[i].name);
+                    BString internalKeyName = BStringUtils.fromString(internalStructFields[i].name);
                     Object val = structData.get(internalKeyName);
                     xmlStreamWriter.writeStartElement("", internalStructFields[i].getFieldName(), "");
                     if (val instanceof MapValueImpl) {

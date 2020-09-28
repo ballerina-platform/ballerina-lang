@@ -712,7 +712,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createObjectFieldNode(
             STNode metadata,
             STNode visibilityQualifier,
-            STNode readonlyKeyword,
+            STNode finalKeyword,
             STNode typeName,
             STNode fieldName,
             STNode equalsToken,
@@ -722,7 +722,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STObjectFieldNode(
                 metadata,
                 visibilityQualifier,
-                readonlyKeyword,
+                finalKeyword,
                 typeName,
                 fieldName,
                 equalsToken,

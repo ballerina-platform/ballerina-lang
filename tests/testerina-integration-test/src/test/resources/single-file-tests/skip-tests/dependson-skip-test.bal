@@ -15,14 +15,15 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/io;
 
 // Tests skipping of dependsOn functions when a test func fails.
+
+int j = 0;
 
 // This test should pass
 @test:Config {}
 public function test1() {
-    io:println("test1");
+    j = j+1;
 }
 
 // This test should fail and the consecutive depends on tests will be skipped
@@ -30,7 +31,6 @@ public function test1() {
     dependsOn:["test1"]
 }
 public function test2() {
-    io:println("test2");
     int i = 12/0;
 }
 
@@ -38,18 +38,19 @@ public function test2() {
     dependsOn:["test2"]
 }
 public function test3() {
-    io:println("test3");
+    j = j+1;
 }
 
 @test:Config {
     dependsOn:["test3"]
 }
 public function test4() {
-    io:println("test4");
+    j = j+1;
 }
 
 // This test should pass
 @test:Config {}
 public function test5() {
-    io:println("test5");
+    j = j+1;
+    test:assertEquals(j, 2);
 }

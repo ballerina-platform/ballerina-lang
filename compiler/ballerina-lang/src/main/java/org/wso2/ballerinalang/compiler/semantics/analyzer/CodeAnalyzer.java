@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -214,7 +215,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -258,11 +258,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean failureHandled;
     private boolean matchClauseReturns;
     private boolean lastStatement;
-    private boolean hasLastPattern = false;
+    private boolean hasLastPatternInClause = false;
     private boolean withinLockBlock;
     private SymbolTable symTable;
     private Types types;
-    private BLangDiagnosticLogHelper dlog;
+    private BLangDiagnosticLog dlog;
     private TypeChecker typeChecker;
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
     private Stack<Boolean> loopWithinTransactionCheckStack = new Stack<>();
@@ -302,7 +302,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         context.put(CODE_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
@@ -794,20 +794,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         matchExprType = matchStatement.expr.type;
 
-        boolean matchStmtReturns = false;
+        this.matchClauseReturns = false;
+        this.hasLastPatternInClause = false;
+        boolean containsLastPatternInStatement = false;
+        boolean allClausesReturns = true;
         for (BLangMatchClause matchClause : matchStatement.matchClauses) {
             analyzeNode(matchClause, env);
-            matchStmtReturns = this.matchClauseReturns && matchClause.matchGuard == null && hasLastPattern;
+            allClausesReturns = allClausesReturns && this.matchClauseReturns;
+            containsLastPatternInStatement =
+                    containsLastPatternInStatement || (matchClause.matchGuard == null && this.hasLastPatternInClause);
         }
-        this.statementReturns = matchStmtReturns;
-        hasLastPattern = false;
+        this.statementReturns = allClausesReturns && containsLastPatternInStatement;
         analyzeOnFailClause(matchStatement.onFailClause);
     }
 
     @Override
     public void visit(BLangMatchClause matchClause) {
         for (BLangMatchPattern matchPattern : matchClause.matchPatterns) {
-            if (hasLastPattern && matchClause.matchGuard == null) {
+            if (this.hasLastPatternInClause && matchClause.matchGuard == null) {
                 dlog.error(matchPattern.pos, DiagnosticCode.MATCH_STMT_PATTERN_UNREACHABLE);
             }
             if (matchPattern.type == symTable.noType) {
@@ -816,6 +820,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             this.isJSONContext = types.isJSONContext(matchExprType);
             analyzeNode(matchPattern, env);
+            matchPattern.isLastPattern = this.hasLastPatternInClause;
         }
 
         analyzeNode(matchClause.blockStmt, env);
@@ -829,20 +834,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
-        hasLastPattern = wildCardMatchPattern.matchesAll = types.isAssignable(wildCardMatchPattern.matchExpr.type,
-                symTable.anyType);
+        this.hasLastPatternInClause = wildCardMatchPattern.matchesAll =
+                types.isAssignable(wildCardMatchPattern.matchExpr.type, symTable.anyType);
     }
 
     @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         BLangBindingPattern bindingPattern = varBindingPattern.getBindingPattern();
         analyzeNode(bindingPattern, env);
-        hasLastPattern = hasLastPattern && !varBindingPattern.matchGuardIsAvailable;
+        this.hasLastPatternInClause = this.hasLastPatternInClause && !varBindingPattern.matchGuardIsAvailable;
     }
 
     @Override
     public void visit(BLangCaptureBindingPattern captureBindingPattern) {
-        hasLastPattern = true;
+        this.hasLastPatternInClause = true;
     }
 
     @Override

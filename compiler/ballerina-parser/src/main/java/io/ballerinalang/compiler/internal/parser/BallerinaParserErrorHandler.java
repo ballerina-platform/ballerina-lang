@@ -207,7 +207,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY };
 
     private static final ParserRuleContext[] OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY =
-            { ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER, ParserRuleContext.OBJECT_METHOD_START };
+            { ParserRuleContext.OBJECT_FIELD_START, ParserRuleContext.OBJECT_METHOD_START };
+
+    private static final ParserRuleContext[] OBJECT_FIELD_QUALIFIER =
+            { ParserRuleContext.FINAL_KEYWORD, ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER };
 
     private static final ParserRuleContext[] OBJECT_METHOD_START =
             { ParserRuleContext.REMOTE_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD,
@@ -1411,6 +1414,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ANON_FUNC_EXPRESSION_START:
             case MODULE_CLASS_DEFINITION_START:
             case OBJECT_CONSTRUCTOR_TYPE_REF:
+            case OBJECT_FIELD_QUALIFIER:
                 return true;
             default:
                 return false;
@@ -1630,6 +1634,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case OBJECT_CONSTRUCTOR_TYPE_REF:
                 alternativeRules = OBJECT_CONSTRUCTOR_RHS;
+                break;
+            case OBJECT_FIELD_QUALIFIER:
+                alternativeRules = OBJECT_FIELD_QUALIFIER;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -2839,6 +2846,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OPEN_BRACE;
             case OBJECT_MEMBER_QUALIFIER:
                 return ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
+            case OBJECT_FIELD_START:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR) {
+                    return ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER;
+                }
+                return ParserRuleContext.OBJECT_FIELD_QUALIFIER;
             case ON_FAIL_CLAUSE:
                 return ParserRuleContext.ON_KEYWORD;
             case OBJECT_FIELD_RHS:
@@ -2891,7 +2904,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LISTENER_KEYWORD:
                 return ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER;
             case FINAL_KEYWORD:
-                // Assume the final keyword is only used in var-decl.
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.OBJECT_MEMBER || parentCtx == ParserRuleContext.CLASS_MEMBER) {
+                    return ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER;
+                }
                 return ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN;
             case CONST_KEYWORD:
                 return ParserRuleContext.CONST_DECL_TYPE;

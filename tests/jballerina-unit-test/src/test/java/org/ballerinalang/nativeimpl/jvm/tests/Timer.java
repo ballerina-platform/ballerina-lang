@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.api.BRuntime;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 /**

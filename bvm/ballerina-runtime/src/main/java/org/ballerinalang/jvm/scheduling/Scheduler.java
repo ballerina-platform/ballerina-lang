@@ -16,17 +16,17 @@
  */
 package org.ballerinalang.jvm.scheduling;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ChannelDetails;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
 import java.io.PrintStream;
 import java.util.Map;
@@ -278,7 +278,7 @@ public class Scheduler {
                     panic = createError(e);
                     notifyChannels(item, panic);
 
-                    if (!(panic instanceof ErrorValue)) {
+                    if (!(panic instanceof BError)) {
                         RuntimeUtils.printCrashLog(panic);
                     }
                     // Please refer #18763.
@@ -333,7 +333,7 @@ public class Scheduler {
                 // TODO clean, better move it to future value itself
                 if (item.future.callback != null) {
                     if (item.future.panic != null) {
-                        item.future.callback.notifyFailure(BallerinaErrors.createError(panic));
+                        item.future.callback.notifyFailure(BErrorCreator.createError(panic));
                         if (item.future.strand.currentTrxContext != null) {
                             item.future.strand.currentTrxContext.notifyLocalRemoteParticipantFailure();
                         }
@@ -384,7 +384,7 @@ public class Scheduler {
 
     private Throwable createError(Throwable t) {
         if (t instanceof StackOverflowError) {
-            ErrorValue error = BallerinaErrors.createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
+            BError error = BErrorCreator.createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
             error.setStackTrace(t.getStackTrace());
             return error;
         }

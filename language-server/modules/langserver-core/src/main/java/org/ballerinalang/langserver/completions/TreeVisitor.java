@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -98,8 +99,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -923,6 +926,33 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
         CompletionVisitorUtil.isCursorWithinBlock(waitForAllExpr.parent.getPosition(),
                 this.symbolEnv, this.lsContext, this);
+    }
+
+    @Override
+    public void visit(BLangDo doNode) {
+        CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
+        if (cpr.isCursorBeforeNode(doNode.getPosition(), this, this.lsContext, doNode, null)) {
+            return;
+        }
+        this.acceptNode(doNode.body, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangFail failNode) {
+        CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
+        if (cpr.isCursorBeforeNode(failNode.getPosition(), this, this.lsContext, failNode, null)) {
+            return;
+        }
+        this.acceptNode(failNode.expr, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
+        if (cpr.isCursorBeforeNode(onFailClause.getPosition(), this, this.lsContext, onFailClause, null)) {
+            return;
+        }
+        this.acceptNode(onFailClause.body, this.symbolEnv);
     }
 
     ///////////////////////////////////

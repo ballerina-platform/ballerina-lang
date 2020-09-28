@@ -38,7 +38,7 @@ public class BehaviouralTypesTest extends FormatterTest {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList("object_initialization_type_1.bal", "object_method_type_1.bal", "service_type_1.bal");
+        return Arrays.asList("service_type_1.bal", "streams_type_1.bal");
     }
 
     @DataProvider(name = "test-file-provider")

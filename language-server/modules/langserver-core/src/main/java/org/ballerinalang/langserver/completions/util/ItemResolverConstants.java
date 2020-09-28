@@ -35,6 +35,7 @@ public class ItemResolverConstants {
     public static final String RETRY_TRANSACTION = "retry transaction";
     public static final String TRAP = "trap";
     public static final String WHILE = "while";
+    public static final String DO = "do";
     public static final String ERROR = "error";
     public static final String LOCK = "lock";
     public static final String ON = "on";
@@ -79,6 +80,7 @@ public class ItemResolverConstants {
     public static final String FROM_CLAUSE = "from clause";
     public static final String LET_CLAUSE = "let clause";
     public static final String JOIN_CLAUSE = "join clause";
+    public static final String ON_FAIL_CLAUSE = "on fail clause";
 
     // End of Basic Constructs
 
@@ -100,9 +102,12 @@ public class ItemResolverConstants {
     public static final String NONE = "none";
     public static final String BOOLEAN_TYPE = "boolean";
     public static final String OBJECT_TYPE = "type <ObjectName> object";
+    public static final String OBJECT_TYPE_DESC = "object {}";
     public static final String RECORD_TYPE = "type <RecordName> record";
+    public static final String RECORD_TYPE_DESC = "record {}";
     public static final String ERROR_TYPE = "type <ErrorName> error<?>";
     public static final String CLOSED_RECORD_TYPE = "type <RecordName> closed record";
+    public static final String CLOSED_RECORD_TYPE_DESC = "record {||}";
     public static final String TYPE_TYPE = "type";
     public static final String REMOTE_FUNCTION_TYPE = "remote function";
     public static final String NEW_OBJECT_INITIALIZER_TYPE = "init function";
@@ -138,8 +143,10 @@ public class ItemResolverConstants {
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
     public static final String PUBLIC_KEYWORD = "public";
+    public static final String ISOLATED_KEYWORD = "isolated";
     public static final String PRIVATE_KEYWORD = "private";
     public static final String FINAL_KEYWORD = "final";
+    public static final String FAIL_KEYWORD = "fail";
     public static final String REMOTE_KEYWORD = "remote";
     public static final String CONST_KEYWORD = "const";
     public static final String RECORD_KEYWORD = "record";

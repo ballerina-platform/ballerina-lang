@@ -13,17 +13,17 @@ private mapInits function() -> (string | (), int | ()) {
     %13(TEMP) Employee;
     %16(TEMP) string;
     %18(TEMP) int;
-    %19(LOCAL) string | ();
-    %20(LOCAL) Employee | ();
+    %19(SYNTHETIC) string | ();
+    %20(SYNTHETIC) Employee | ();
     %25(TEMP) ();
     %26(TEMP) boolean;
-    %27(LOCAL) ();
-    %33(LOCAL) Employee;
+    %27(SYNTHETIC) ();
+    %33(SYNTHETIC) Employee;
     %37(TEMP) string;
-    %45(LOCAL) int | ();
-    %46(LOCAL) Employee | ();
-    %53(LOCAL) ();
-    %59(LOCAL) Employee;
+    %45(SYNTHETIC) int | ();
+    %46(SYNTHETIC) Employee | ();
+    %53(SYNTHETIC) ();
+    %59(SYNTHETIC) Employee;
     %63(TEMP) int;
 
     bb0 {

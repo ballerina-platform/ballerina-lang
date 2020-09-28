@@ -686,7 +686,7 @@ function testImmutableRecordWithDefaultValues() {
 }
 
 class MyOwner {
-    readonly int id = 238475;
+    final int id = 238475;
 
     function getId() returns int {
         return self.id;
@@ -694,8 +694,8 @@ class MyOwner {
 }
 
 class MyController {
-    readonly Owner owner;
-    readonly Printer printer;
+    final Owner & readonly owner;
+    final readonly & Printer printer;
 
     function init(Owner & readonly ow, Printer pr) {
         self.owner = ow;
@@ -717,7 +717,7 @@ type Owner object {
 };
 
 class MyPrinter {
-    readonly int id;
+    final int id;
 
     function init(int id) {
         self.id = id;
@@ -842,7 +842,7 @@ type IdentifierAbstractObj object {
 };
 
 class IdentifierObj {
-    readonly string id;
+    final string id;
 
     function init() {
         self.id = "object";

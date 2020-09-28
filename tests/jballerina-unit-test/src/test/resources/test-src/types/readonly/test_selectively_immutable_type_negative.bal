@@ -178,7 +178,7 @@ type Config object {
 };
 
 class MyConfig {
-    readonly string name;
+    final string name;
 
     public function init(string name) {
         self.name = name;

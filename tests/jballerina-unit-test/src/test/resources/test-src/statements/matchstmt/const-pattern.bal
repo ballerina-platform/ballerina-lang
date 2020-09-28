@@ -297,6 +297,114 @@ function testConstPattern8() {
     assertEquals("null", result);
 }
 
+function constPattern9(int v) returns string {
+    string s;
+
+    match v {
+        1 => {
+            s = "ONE";
+        }
+        2 => {
+            s = "TWO";
+        }
+        3 => {
+            s = "THREE";
+        }
+        _ => {
+            s = "OTHER";
+        }
+    }
+    return s;
+}
+
+function testConstPattern9() {
+    assertEquals("ONE", constPattern9(1));
+    assertEquals("TWO", constPattern9(2));
+    assertEquals("THREE", constPattern9(3));
+    assertEquals("OTHER", constPattern9(4));
+}
+
+function constPattern10(int v) returns string {
+    string s;
+
+    match v {
+        1 => {
+            s = "ONE";
+        }
+        _ => {
+            match v {
+                2 => {
+                    s = "TWO";
+                }
+                _ => {
+                    s = "OTHER";
+                }
+            }
+        }
+    }
+    return s;
+}
+
+function testConstPattern10() {
+    assertEquals("ONE", constPattern10(1));
+    assertEquals("TWO", constPattern10(2));
+    assertEquals("OTHER", constPattern10(3));
+}
+
+function constPattern11(int v1, int v2) returns string {
+    string s;
+
+    match v1 {
+        1 => {
+            s = "ONE";
+        }
+        2 => {
+            s = "TWO";
+        }
+        _ => {
+            match v2 {
+                2 => {
+                    s = "TWO";
+                }
+                _ => {
+                    s = "OTHER";
+                }
+            }
+        }
+    }
+    return s;
+}
+
+function testConstPattern11() {
+    assertEquals("ONE", constPattern11(1, 1));
+    assertEquals("TWO", constPattern11(2, 5));
+    assertEquals("TWO", constPattern11(3, 2));
+    assertEquals("OTHER", constPattern11(3, 3));
+}
+
+function constPattern12(int v) returns string {
+    string s = "";
+
+    match v {
+        1 => {
+            s = "ONE";
+        }
+        2 => {
+            s = "TWO";
+        }
+        _ => {
+            return "OTHER";
+        }
+    }
+    return s;
+}
+
+function testConstPattern12() {
+    assertEquals("ONE", constPattern12(1));
+    assertEquals("TWO", constPattern12(2));
+    assertEquals("OTHER", constPattern12(3));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

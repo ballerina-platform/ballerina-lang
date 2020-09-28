@@ -5,4 +5,3 @@ public function foo() {
                    <author>${title} Arthur Conan Doyle</author>
                  </book>`;
 }
-

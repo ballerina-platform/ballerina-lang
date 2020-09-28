@@ -125,7 +125,7 @@ type Config record {|
 |};
 
 readonly class DefaultController {
-    readonly string id = "default";
+    final string id = "default";
     map<int>? & readonly mp = ();
 
     function getValue() returns int {

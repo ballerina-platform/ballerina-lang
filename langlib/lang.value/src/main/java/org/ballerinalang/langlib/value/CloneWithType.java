@@ -18,12 +18,14 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.values.BError;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.internal.ErrorUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
@@ -45,7 +47,6 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -56,7 +57,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.jvm.BallerinaErrors.createError;
+import static org.ballerinalang.jvm.api.BErrorCreator.createError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
@@ -104,7 +105,7 @@ public class CloneWithType {
         } catch (ErrorValue e) {
             return e;
         } catch (BallerinaException e) {
-            return createError(CONSTRUCT_FROM_CONVERSION_ERROR, e.getDetail());
+            return createError(CONSTRUCT_FROM_CONVERSION_ERROR, BStringUtils.fromString(e.getDetail()));
         }
     }
 
@@ -118,10 +119,8 @@ public class CloneWithType {
             if (targetType.isNilable()) {
                 return null;
             }
-            return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR),
-                    StringUtils.fromString(
-                            BLangExceptionHelper
-                                    .getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType)));
+            return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
+                              BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
 
         List<BType> convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType);
@@ -189,8 +188,10 @@ public class CloneWithType {
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
 
         if (unresolvedValues.contains(typeValuePair)) {
-            throw new BallerinaException(CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, value.getType()));
+            throw new BallerinaException(CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR.getValue(),
+                                         BLangExceptionHelper
+                                                 .getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, value.getType())
+                                                 .getValue());
         }
 
         unresolvedValues.add(typeValuePair);
@@ -215,7 +216,7 @@ public class CloneWithType {
                 break;
             default:
                 // should never reach here
-                throw BallerinaErrors.createConversionError(value, targetType);
+                throw ErrorUtils.createConversionError(value, targetType);
         }
 
         unresolvedValues.remove(typeValuePair);
@@ -238,7 +239,7 @@ public class CloneWithType {
                 if (t != null && t.getDescribingType() == targetType) {
                     newRecord = (MapValueImpl<BString, Object>) t.instantiate(strand);
                 } else {
-                    newRecord = (MapValueImpl<BString, Object>) BallerinaValues
+                    newRecord = (MapValueImpl<BString, Object>) BValueCreator
                             .createRecordValue(recordType.getPackage(), recordType.getName());
                 }
 
@@ -260,7 +261,7 @@ public class CloneWithType {
                 break;
         }
         // should never reach here
-        throw BallerinaErrors.createConversionError(map, targetType);
+        throw ErrorUtils.createConversionError(map, targetType);
     }
 
 
@@ -296,26 +297,26 @@ public class CloneWithType {
                 break;
         }
         // should never reach here
-        throw BallerinaErrors.createConversionError(array, targetType);
+        throw ErrorUtils.createConversionError(array, targetType);
     }
 
     private static void putToMap(MapValue<BString, Object> map, Map.Entry entry, BType fieldType,
                                  List<TypeValuePair> unresolvedValues, TypedescValue t, Strand strand) {
         Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, true, t, strand);
-        map.put(StringUtils.fromString(entry.getKey().toString()), newValue);
+        map.put(BStringUtils.fromString(entry.getKey().toString()), newValue);
     }
 
-    private static ErrorValue createConversionError(Object inputValue, BType targetType) {
-        return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR), StringUtils.fromString(
-                BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                        TypeChecker.getType(inputValue), targetType)));
+    private static BError createConversionError(Object inputValue, BType targetType) {
+        return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
+                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                        TypeChecker.getType(inputValue), targetType));
     }
 
-    private static ErrorValue createConversionError(Object inputValue, BType targetType, String detailMessage) {
-        return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR),
-                StringUtils.fromString(BLangExceptionHelper.getErrorMessage(
-                        INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
-                        .concat(": ".concat(detailMessage))));
+    private static BError createConversionError(Object inputValue, BType targetType, String detailMessage) {
+        return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
+                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                                                                TypeChecker.getType(inputValue), targetType)
+                                   .concat(BStringUtils.fromString(": ".concat(detailMessage))));
     }
 
 }

@@ -36,6 +36,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -112,6 +113,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -126,7 +128,6 @@ import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -188,7 +189,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final SymbolTable symTable;
     private final Names names;
     private final SymbolResolver symResolver;
-    private final BLangDiagnosticLogHelper dlog;
+    private final BLangDiagnosticLog dlog;
     private final Types types;
     private final SourceDirectory sourceDirectory;
     private List<BLangNode> unresolvedTypes;
@@ -220,7 +221,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
@@ -596,8 +597,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         boolean isPublicType = flags.contains(Flag.PUBLIC);
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags),
-                names.fromIdNode(classDefinition.name),
-                env.enclPkg.symbol.pkgID, null, env.scope.owner, classDefinition.pos, SOURCE);
+                                                        names.fromIdNode(classDefinition.name),
+                                                        env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                                                        classDefinition.name.pos, SOURCE);
         tSymbol.scope = new Scope(tSymbol);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
@@ -953,10 +955,19 @@ public class SymbolEnter extends BLangNodeVisitor {
             case BUILT_IN_REF_TYPE:
                 // Eg - `xml`. This is not needed to be checked because no types are available in the `xml`.
             case FINITE_TYPE_NODE:
-            case FUNCTION_TYPE:
             case VALUE_TYPE:
             case ERROR_TYPE:
                 // Do nothing.
+                break;
+            case FUNCTION_TYPE:
+                BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) currentTypeOrClassNode;
+                functionTypeNode.params.forEach(p -> checkErrors(unresolvedType, p.typeNode, visitedNodes));
+                if (functionTypeNode.restParam != null) {
+                    checkErrors(unresolvedType, functionTypeNode.restParam.typeNode, visitedNodes);
+                }
+                if (functionTypeNode.returnTypeNode != null) {
+                    checkErrors(unresolvedType, functionTypeNode.returnTypeNode, visitedNodes);
+                }
                 break;
             case RECORD_TYPE:
                 for (TypeNode typeNode : ((BLangRecordTypeNode) currentTypeOrClassNode).getTypeReferences()) {
@@ -1051,9 +1062,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private String getTypeOrClassName(BLangNode node) {
-        return node instanceof TypeDefinition
-                ? ((TypeDefinition) node).getName().getValue()
-                : ((BLangClassDefinition) node).getName().getValue();
+        if (node.getKind() == NodeKind.TYPE_DEFINITION || node.getKind() == NodeKind.CONSTANT) {
+            return ((TypeDefinition) node).getName().getValue();
+        } else  {
+            return ((BLangClassDefinition) node).getName().getValue();
+        }
     }
 
     public boolean isUnknownTypeRef(BLangUserDefinedType bLangUserDefinedType) {
@@ -1338,10 +1351,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             funcNode.flagSet.add(Flag.LANG_LIB);
         }
 
+        DiagnosticPos symbolPos = funcNode.flagSet.contains(Flag.LAMBDA) ? symTable.builtinPos : funcNode.name.pos;
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                                                                    getFuncSymbolName(funcNode),
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                   funcNode.hasBody(), funcNode.pos, SOURCE);
+                                                                   funcNode.hasBody(), symbolPos, SOURCE);
         funcSymbol.source = funcNode.pos.src.cUnitName;
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
@@ -1449,7 +1463,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         Name name = names.fromIdNode(constant.name);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         return new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
-                                   symTable.semanticError, symTable.noType, env.scope.owner, constant.pos, SOURCE);
+                                   symTable.semanticError, symTable.noType, env.scope.owner, constant.name.pos, SOURCE);
     }
 
     @Override
@@ -2107,7 +2121,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // type-definitions we can revisit the newly added type-definitions and define the fields and members for them.
         populateImmutableTypeFieldsAndMembers(typeDefNodes, pkgEnv);
 
-        // If all the fields of a structure are readonly, mark the structure type itself as readonly.
+        // If all the fields of a structure are readonly or final, mark the structure type itself as readonly.
         // If the type is a `readonly object` validate if all fields are compatible.
         validateFieldsAndSetReadOnlyType(typDefs, pkgEnv);
     }
@@ -2216,7 +2230,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            boolean allReadOnlyFields = true;
+            boolean allReadOnlyOrFinalFields = true;
 
             Collection<BField> fields = structureType.fields.values();
 
@@ -2224,14 +2238,16 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
+            int flagToCheck = nodeKind == NodeKind.RECORD_TYPE ? Flags.READONLY : Flags.FINAL;
+
             for (BField field : fields) {
-                if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
-                    allReadOnlyFields = false;
+                if (!Symbols.isFlagOn(field.symbol.flags, flagToCheck)) {
+                    allReadOnlyOrFinalFields = false;
                     break;
                 }
             }
 
-            if (allReadOnlyFields) {
+            if (allReadOnlyOrFinalFields) {
                 structureType.tsymbol.flags |= Flags.READONLY;
                 structureType.flags |= Flags.READONLY;
             }
@@ -2263,7 +2279,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 }
 
-                field.symbol.flags |= Flags.READONLY;
+                field.symbol.flags |= Flags.FINAL;
             }
         } else {
             Collection<BField> fields = objectType.fields.values();
@@ -2272,7 +2288,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             for (BField field : fields) {
-                if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL)) {
                     return;
                 }
             }
@@ -2381,7 +2397,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv, pos, isInternal);
+        BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv, symbol.pos, isInternal);
         if (type.tag == TypeTags.INVOKABLE && type.tsymbol != null) {
             BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) type.tsymbol;
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) varSymbol;
@@ -2870,7 +2886,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void resolveAndSetFunctionTypeFromRHSLambda(BLangSimpleVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
-        BInvokableType invokableType = symResolver.createInvokableType(function.getParameters(),
+        BInvokableType invokableType = (BInvokableType) symResolver.createInvokableType(function.getParameters(),
                                                                        function.restParam, function.returnTypeNode,
                                                                        Flags.asMask(variable.flagSet), env,
                                                                        function.pos);
