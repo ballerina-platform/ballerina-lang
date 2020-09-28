@@ -213,3 +213,9 @@ isolated function invalidIsolatedFunctionWithForkStatement(int i) {
         }
     }
 }
+
+listener Listener ln = new;
+
+isolated function testInvalidIsolatedFunctionAccessingNonIsolatedListener() {
+    Listener ln2 = ln;
+}

@@ -169,6 +169,7 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 195, 26);
         validateError(result, i++, "fork statement not allowed in an 'isolated' function", 210, 5);
         validateError(result, i++, "worker declaration not allowed in an 'isolated' function", 211, 16);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 220, 20);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
