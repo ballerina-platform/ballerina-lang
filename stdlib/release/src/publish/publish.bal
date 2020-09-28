@@ -14,10 +14,13 @@ public function main() {
     commons:Module[] modules = commons:getModuleArray(modulesJson);
     modules = commons:sortModules(modules);
     addDependentModules(modules);
-    printModulesWithDependents(modules);
+    //printModulesWithDependents(modules);
 
     if (eventType == EVENT_TYPE_MODULE_PUSH) {
         string moduleName = config:getAsString(CONFIG_SOURCE_MODULE);
+        log:println(moduleName);
+    } else if (eventType == EVENT_TYPE_LANG_PUSH) {
+        log:println(EVENT_TYPE_LANG_PUSH);
     }
 }
 
