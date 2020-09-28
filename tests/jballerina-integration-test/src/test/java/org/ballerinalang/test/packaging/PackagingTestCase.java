@@ -328,28 +328,6 @@ public class PackagingTestCase extends BaseTest {
         buildLeecher.waitForText(5000);
     }
 
-    @Test(enabled = false, description = "Test modules with org-name `ballerina` " +
-            "resolving from central, if new version is available")
-    public void testResolveBallerinaModulesFromCentral() throws BallerinaTestException, IOException {
-        // copy `ballerina-central-module` project from resources to a temp
-        Path originalTestProject = Paths
-                .get("src", "test", "resources", "packaging", "scope", "ballerina-central-module").toAbsolutePath();
-        Path projectPath = tempProjectDirectory.resolve("ballerinaCentralModuleProject");
-        copyFolder(originalTestProject, projectPath);
-
-        // Build module
-        LogLeecher buildLeecher = new LogLeecher("ballerina/socket:9.0.0 pulled from central successfully");
-        balClient.runMain("build", new String[] { "-c", "-a" }, envVariables, new String[] {},
-                new LogLeecher[] { buildLeecher }, projectPath.toString());
-        buildLeecher.waitForText(60000);
-
-        // Run module
-        LogLeecher runLeecher = new LogLeecher("Hello World from new socket module!");
-        balClient.runMain("run", new String[] { moduleName }, envVariables, new String[] {},
-                new LogLeecher[] { runLeecher }, projectPath.toString());
-        buildLeecher.waitForText(5000);
-    }
-
     /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *
