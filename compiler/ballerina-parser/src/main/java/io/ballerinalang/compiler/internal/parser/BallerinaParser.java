@@ -12333,6 +12333,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse error field match patterns.
      * error-field-match-patterns :=
      * named-arg-match-pattern (, named-arg-match-pattern)* [, rest-match-pattern]
      * | rest-match-pattern
