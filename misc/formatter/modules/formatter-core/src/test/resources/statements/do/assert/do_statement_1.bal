@@ -2,8 +2,7 @@ function foo() {
     do {
         check foo();
         check bar();
-    }
-    on fail var e {
+    } on fail var e {
        // this will be executed if the block-stmt following do fails
        // which will happen if and only if one of the two
        // check actions fails

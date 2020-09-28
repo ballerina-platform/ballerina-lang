@@ -506,7 +506,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         IdentifierToken serviceName = formatToken(serviceDeclarationNode.serviceName(), 1, 0);
         Token onKeyword = formatToken(serviceDeclarationNode.onKeyword(), 1, 0);
         SeparatedNodeList<ExpressionNode> expressions =
-                formatSeparatedNodeList(serviceDeclarationNode.expressions(), 0, 0, 0, 0);
+                formatSeparatedNodeList(serviceDeclarationNode.expressions(), 0, 0, 1, 0);
         Node serviceBody = formatNode(serviceDeclarationNode.serviceBody(), this.trailingWS, this.trailingNL);
 
         return serviceDeclarationNode.modify()
@@ -642,7 +642,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public SimpleNameReferenceNode transform(SimpleNameReferenceNode simpleNameReferenceNode) {
-        Token name = formatToken(simpleNameReferenceNode.name(), this.trailingWS, 0);
+        Token name = formatToken(simpleNameReferenceNode.name(), this.trailingWS, this.trailingNL);
 
         return simpleNameReferenceNode.modify()
                 .withName(name)
@@ -748,11 +748,13 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public DoStatementNode transform(DoStatementNode doStatementNode) {
+        boolean hasOnFailClause = doStatementNode.onFailClause().isPresent();
+
         Token doKeyword = formatToken(doStatementNode.doKeyword(), 1, 0);
         BlockStatementNode blockStatement = formatNode(doStatementNode.blockStatement(),
-                this.trailingWS, this.trailingNL);
+                hasOnFailClause ? 1 : this.trailingWS, hasOnFailClause ? 0 : this.trailingNL);
 
-        if (doStatementNode.onFailClause().isPresent()) {
+        if (hasOnFailClause) {
             OnFailClauseNode onFailClause = formatNode(doStatementNode.onFailClause().get(),
                     this.trailingWS, this.trailingNL);
             doStatementNode = doStatementNode.modify().withOnFailClause(onFailClause).apply();
@@ -766,14 +768,16 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public ForEachStatementNode transform(ForEachStatementNode forEachStatementNode) {
+        boolean hasOnFailClause = forEachStatementNode.onFailClause().isPresent();
+
         Token forEachKeyword = formatToken(forEachStatementNode.forEachKeyword(), 1, 0);
-        TypedBindingPatternNode typedBindingPattern = formatNode(forEachStatementNode.typedBindingPattern(), 0, 0);
+        TypedBindingPatternNode typedBindingPattern = formatNode(forEachStatementNode.typedBindingPattern(), 1, 0);
         Token inKeyword = formatToken(forEachStatementNode.inKeyword(), 1, 0);
         Node actionOrExpressionNode = formatNode(forEachStatementNode.actionOrExpressionNode(), 1, 0);
         StatementNode blockStatement = formatNode(forEachStatementNode.blockStatement(),
-                this.trailingWS, this.trailingNL);
+                hasOnFailClause ? 1 : this.trailingWS, hasOnFailClause ? 0 : this.trailingNL);
 
-        if (forEachStatementNode.onFailClause().isPresent()) {
+        if (hasOnFailClause) {
             OnFailClauseNode onFailClause = formatNode(forEachStatementNode.onFailClause().get(),
                     this.trailingWS, this.trailingNL);
             forEachStatementNode = forEachStatementNode.modify().withOnFailClause(onFailClause).apply();
@@ -792,7 +796,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public BinaryExpressionNode transform(BinaryExpressionNode binaryExpressionNode) {
         Node lhsExpr = formatNode(binaryExpressionNode.lhsExpr(), 1, 0);
         Token operator = formatToken(binaryExpressionNode.operator(), 1, 0);
-        Node rhsExpr = formatNode(binaryExpressionNode.rhsExpr(), 0, 0);
+        Node rhsExpr = formatNode(binaryExpressionNode.rhsExpr(), this.trailingWS, this.trailingNL);
 
         return binaryExpressionNode.modify()
                 .withLhsExpr(lhsExpr)
@@ -807,8 +811,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token failKeyword = formatToken(onFailClauseNode.failKeyword(), 1, 0);
         TypeDescriptorNode typeDescriptor = formatNode(onFailClauseNode.typeDescriptor(), 1, 0);
         IdentifierToken failErrorName = formatToken(onFailClauseNode.failErrorName(), 1, 0);
-        BlockStatementNode blockStatement = formatNode(onFailClauseNode.blockStatement(),
-                0, 1);
+        BlockStatementNode blockStatement = formatNode(onFailClauseNode.blockStatement(), 0, 1);
 
         return onFailClauseNode.modify()
                 .withOnKeyword(onKeyword)
@@ -823,12 +826,12 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public ReturnStatementNode transform(ReturnStatementNode returnStatementNode) {
         Token returnKeyword = formatToken(returnStatementNode.returnKeyword(),
                 returnStatementNode.expression().isPresent() ? 1 : 0, 0);
-        Token semicolonToken = formatToken(returnStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+
         if (returnStatementNode.expression().isPresent()) {
             ExpressionNode expressionNode = formatNode(returnStatementNode.expression().get(), 0, 0);
-            returnStatementNode = returnStatementNode.modify()
-                    .withExpression(expressionNode).apply();
+            returnStatementNode = returnStatementNode.modify().withExpression(expressionNode).apply();
         }
+        Token semicolonToken = formatToken(returnStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
 
         return returnStatementNode.modify()
                 .withReturnKeyword(returnKeyword)
@@ -838,12 +841,12 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public FunctionCallExpressionNode transform(FunctionCallExpressionNode functionCallExpressionNode) {
-        NameReferenceNode functionName = formatNode(functionCallExpressionNode.functionName(), 1, 0);
+        NameReferenceNode functionName = formatNode(functionCallExpressionNode.functionName(), 0, 0);
         Token functionCallOpenPara = formatToken(functionCallExpressionNode.openParenToken(), 0, 0);
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(functionCallExpressionNode
                 .arguments(), 0, 0, 0, 0);
         Token functionCallClosePara = formatToken(functionCallExpressionNode.closeParenToken(),
-                this.trailingWS, this.trailingNL);
+                this.trailingWS, 0);
 
         return functionCallExpressionNode.modify()
                 .withFunctionName(functionName)
