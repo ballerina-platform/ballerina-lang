@@ -19,9 +19,14 @@ public function main() {
     if (eventType == EVENT_TYPE_MODULE_PUSH) {
         string moduleFullName = config:getAsString(CONFIG_SOURCE_MODULE);
         string moduleName = stringutils:split(moduleFullName, "/")[1];
-        log:printInfo(moduleName);
+        commons:Module? module = commons:getModuleFromModuleArray(modules, moduleName);
+        if (module is commons:Module) {
+            publishModuleWithDependents(module);
+        } else {
+            log:printWarn("Module '" + moduleName + "' not found in module array");
+        }
     } else if (eventType == EVENT_TYPE_LANG_PUSH) {
-        log:printInfo(EVENT_TYPE_LANG_PUSH);
+        handlePublish(modules);
     }
 }
 
@@ -60,10 +65,10 @@ function getWaitTimeForLevel(int level) returns int {
         return MINUTE_IN_MILLIS * 3;
     } else if (level == 7) {
         // Max time - HTTP - 18m 53s
-        return MINUTE_IN_MILLIS * 20;
+        return MINUTE_IN_MILLIS * 5;
     } else {
         // Max time - gRPC - 5m 20s
-        return MINUTE_IN_MILLIS * 6;
+        return MINUTE_IN_MILLIS * 0;
     }
 }
 
@@ -90,15 +95,36 @@ function publishModule(commons:Module module) returns boolean {
     return commons:validateResponse(response, moduleName);
 }
 
+function publishModuleWithDependents(commons:Module module) {
+    boolean[] published = [];
+
+    boolean publishStarted = publishModule(module);
+    if (publishStarted) {
+        log:printInfo("Module " + module.name + " publish triggerred successfully.");
+    } else {
+        log:printWarn("Module " + module.name + " publish did not triggerred successfully.");
+    }
+    int currentLevel = module.level;
+    foreach commons:Module dependentModule in module.dependentModules {
+        if (currentLevel < dependentModule.level) {
+            waitForModuleBuild(currentLevel);
+        }
+        publishModuleWithDependents(dependentModule);
+    }
+}
+
 function addDependentModules(commons:Module[] modules) {
     foreach commons:Module module in modules {
+        commons:Module[] dependentModules = [];
         string[] dependentModuleNames = module.dependents;
         foreach string dependentModuleName in dependentModuleNames {
             commons:Module? dependentModule = commons:getModuleFromModuleArray(modules, dependentModuleName);
             if (dependentModule is commons:Module) {
-                module.dependentModules.push(dependentModule);
+                dependentModules.push(dependentModule);
             }
         }
+        dependentModules = commons:sortModules(dependentModules);
+        module.dependentModules = dependentModules;
     }
 }
 

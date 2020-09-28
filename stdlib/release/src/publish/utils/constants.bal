@@ -6,4 +6,4 @@ const CONFIG_SOURCE_MODULE = "SOURCE_MODULE";
 const EVENT_TYPE_MODULE_PUSH = "stdlib-module-push";
 const EVENT_TYPE_LANG_PUSH = "ballerina-lang-push";
 
-const MINUTE_IN_MILLIS = 100; // TODO: Change to 60000
+const MINUTE_IN_MILLIS = 1000; // TODO: Change to 60000
