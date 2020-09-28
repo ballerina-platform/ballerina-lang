@@ -9,7 +9,7 @@ jobs:
     publish-stdlib-modules:
         name: Publish Standard Library Modules
         runs-on: ubuntu-latest
-        if: github.repository_owner == 'ThisaruGuruge'
+        if: github.repository_owner == 'ballerina-platform'
         steps:
             -   name: Checkout Repository
                 uses: actions/checkout@v2

@@ -123,15 +123,3 @@ function addDependentModules(commons:Module[] modules) {
         module.dependentModules = dependentModules;
     }
 }
-
-function printModulesWithDependents(commons:Module[] modules) {
-    foreach commons:Module module in modules {
-        log:printInfo(module.name);
-        log:printInfo("    " + module.'version);
-        log:printInfo("    " + module.level.toString());
-        log:printInfo("    Dependents: ");
-        foreach commons:Module dependent in module.dependentModules {
-            log:printInfo("        " + dependent.name);
-        }
-    }
-}
