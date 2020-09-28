@@ -2526,7 +2526,7 @@ public class Desugar extends BLangNodeVisitor {
                                                              Collections.emptyList(), retryLambdaReturnType,
                                                              retryNode.retryBody.stmts, env,
                                                              retryNode.retryBody.scope);
-        ((BLangBlockFunctionBody) retryFunc.function.body).isBreakable = retryNode.onFailClause != null;
+        ((BLangBlockFunctionBody) retryFunc.function.body).isBreakable = this.onFailClause != null;
         BVarSymbol retryFuncVarSymbol = new BVarSymbol(0, names.fromString("$retryFunc$"),
                                                        env.scope.owner.pkgID, retryFunc.type,
                                                        retryFunc.function.symbol, pos, VIRTUAL);
@@ -2678,7 +2678,7 @@ public class Desugar extends BLangNodeVisitor {
                                                   boolean retryReturns, SymbolEnv env) {
 
         if (retryReturns) {
-            BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(pos, retryTransactionStmtExpr);
+            BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(pos, rewrite(retryTransactionStmtExpr, env));
             return rewrite(bLangReturn, env);
         } else {
             BLangExpressionStmt transactionExprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
@@ -2932,8 +2932,14 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchStatement matchStatement) {
+        BLangOnFailClause currentOnFailClause = this.onFailClause;
+        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
         matchBlockStmt.pos = matchStatement.pos;
+        matchBlockStmt.isBreakable = matchStatement.onFailClause != null;
+        if (matchStatement.onFailClause != null) {
+            rewrite(matchStatement.onFailClause, env);
+        }
 
         String matchExprVarName = GEN_VAR_PREFIX.value;
 
@@ -2949,6 +2955,8 @@ public class Desugar extends BLangNodeVisitor {
         rewrite(matchBlockStmt, this.env);
 
         result = matchBlockStmt;
+        this.onFailClause = currentOnFailClause;
+        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     private BLangStatement convertMatchClausesToIfElseStmt(List<BLangMatchClause> matchClauses,
@@ -3147,6 +3155,7 @@ public class Desugar extends BLangNodeVisitor {
                                                             BLangOnFailClause onFailClause, BLangExpression failExpr) {
         BLangStatementExpression expression;
         BLangSimpleVarRef onFailFuncRef = new BLangSimpleVarRef.BLangLocalVarRef(onFailCallFuncDef.var.symbol);
+        onFailFuncRef.type = onFailCallFuncDef.var.type;
         BLangBlockStmt onFailFuncBlock = ASTBuilderUtil.createBlockStmt(onFailClause.pos);
         onFailFuncBlock.stmts.add(onFailCallFuncDef);
 
