@@ -18,9 +18,9 @@ public function main() {
 
     if (eventType == EVENT_TYPE_MODULE_PUSH) {
         string moduleName = config:getAsString(CONFIG_SOURCE_MODULE);
-        log:println(moduleName);
+        log:printInfo(moduleName);
     } else if (eventType == EVENT_TYPE_LANG_PUSH) {
-        log:println(EVENT_TYPE_LANG_PUSH);
+        log:printInfo(EVENT_TYPE_LANG_PUSH);
     }
 }
 
