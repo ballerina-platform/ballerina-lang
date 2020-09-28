@@ -1,0 +1,44 @@
+{
+  "position": {
+    "line": 11,
+    "character": 2
+  },
+  "source": "annotation_ctx/source/moduleConstAnnotation2.bal",
+  "items": [
+    {
+      "label": "module1:sourceConstAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:sourceConstAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:sourceConstAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:sourceConstAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceConstAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceConstAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceConstAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceConstAnnotation2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
