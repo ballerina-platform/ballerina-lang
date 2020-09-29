@@ -24,22 +24,40 @@ import org.wso2.ballerinalang.programfile.PackageFileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 /**
  * Write a bir to a provided path.
  */
-class BirWriter {
+public class BirWriter {
 
     /**
      * Write the compiled module to a bir file.
      *
-     * @param bLangPackage      The compiled module.
+     * @param module      module to create the BIR for
      * @param birFilePath The path to the bir file.
      */
-    static void write(BLangPackage bLangPackage, Path birFilePath) {
+    public static void write(Module module, Path birFilePath) {
+        write(module, birFilePath, false);
+    }
+
+    /**
+     * Write the compiled module to a bir file.
+     *
+     * @param module      module to create the BIR for
+     * @param birFilePath The path to the bir file.
+     * @param forceOverwrite whether the file should be overwritten
+     */
+    public static void write(Module module, Path birFilePath, boolean forceOverwrite) {
+        BLangPackage bLangPackage = module.getCompilation().bLangPackage();
         try {
+            //TODO: write our own utility for writePackage
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(bLangPackage.symbol.birPackageFile);
-            Files.write(birFilePath, pkgBirBinaryContent);
+            if (forceOverwrite) {
+                Files.write(birFilePath, pkgBirBinaryContent);
+            } else {
+                Files.write(birFilePath, pkgBirBinaryContent, StandardOpenOption.CREATE_NEW);
+            }
         } catch (IOException e) {
             String msg = "error writing the compiled module(BIR) of '" +
                     bLangPackage.packageID + "' to '" + birFilePath + "': " + e.getMessage();

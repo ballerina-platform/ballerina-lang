@@ -22,9 +22,9 @@ import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -97,13 +97,8 @@ public class ModuleCompilation {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Write the BIR of the compiled module to the provided path.
-     *
-     * @param birFilePath BIR filepath
-     */
-    public void writeBir(Path birFilePath) {
-        BirWriter.write(this.moduleContext.bLangPackage(), birFilePath);
+    BLangPackage bLangPackage() {
+        return this.moduleContext.bLangPackage();
     }
 }
 

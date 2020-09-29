@@ -17,13 +17,16 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.BirWriter;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.directory.BuildProject;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,9 +55,30 @@ public class TestBirWriter {
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
 
-        Path tempFile = Files.createTempFile("ballerina-test-" + System.nanoTime(), ".bir");
-        Assert.assertEquals(tempFile.toFile().length(), 0);
-        defaultModule.getCompilation().writeBir(tempFile);
+        Path tempDirectory = Files.createTempDirectory("ballerina-test-" + System.nanoTime());
+        Path tempFile = tempDirectory.resolve("test.bir");
+        Assert.assertFalse(tempFile.toFile().exists());
+        BirWriter.write(defaultModule, tempFile);
+        long lastModifiedTime = Files.getLastModifiedTime(tempFile).toMillis();
+        Assert.assertTrue(tempFile.toFile().exists());
         Assert.assertTrue(tempFile.toFile().length() > 0);
+
+        // Test writing to an existing file
+        try {
+            BirWriter.write(defaultModule, tempFile);
+        } catch (BLangCompilerException e) {
+            Assert.assertTrue(e.getCause() instanceof FileAlreadyExistsException);
+        }
+
+        // Test force write to an existing file
+        try {
+            Thread.sleep(1000); // Added to ensure the document is updated
+        } catch (InterruptedException e) {
+            // ignore exception
+        }
+        BirWriter.write(defaultModule, tempFile, true);
+        Assert.assertTrue(tempFile.toFile().length() > 0);
+        long newLastModifiedTime = Files.getLastModifiedTime(tempFile).toMillis();
+        Assert.assertTrue(newLastModifiedTime > lastModifiedTime);
     }
 }
