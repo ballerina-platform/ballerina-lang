@@ -29,7 +29,7 @@ type foo object {
 service foo on bar {
 
     @annot9{}
-    resource function getName() {
+    resource function get Name() {
     }
 
     @annot10{}

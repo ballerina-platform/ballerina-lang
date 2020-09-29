@@ -5,6 +5,6 @@ service on listner1 {
     }
 
     # This is second function
-    resource function bar() {
+    resource function get bar() {
     }
 }

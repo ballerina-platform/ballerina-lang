@@ -1184,6 +1184,8 @@ public class ParserTestUtils {
                 return SyntaxKind.JOIN_CLAUSE;
             case "ON_CLAUSE":
                 return SyntaxKind.ON_CLAUSE;
+            case "RESOURCE_ACCESSOR_DEFINITION":
+                return SyntaxKind.RESOURCE_ACCESSOR_DEFINITION;
 
             // XML template
             case "XML_ELEMENT":

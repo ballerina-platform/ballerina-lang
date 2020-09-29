@@ -11,6 +11,10 @@
       ]
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "ON_KEYWORD",
       "trailingMinutiae": [
         {
@@ -55,7 +59,64 @@
           "kind": "LIST",
           "children": [
             {
-              "kind": "FUNCTION_DEFINITION",
+              "kind": "OBJECT_FIELD",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "RESOURCE_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "Person",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "person"
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "OBJECT_METHOD_DEFINITION",
               "children": [
                 {
                   "kind": "LIST",
@@ -141,29 +202,24 @@
               ]
             },
             {
-              "kind": "FUNCTION_DEFINITION",
+              "kind": "RESOURCE_ACCESSOR_DEFINITION",
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": [
+                  "kind": "RESOURCE_KEYWORD",
+                  "leadingMinutiae": [
                     {
-                      "kind": "RESOURCE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -178,7 +234,22 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "bar"
+                  "value": "get",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "bar"
+                    }
+                  ]
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",
@@ -237,38 +308,24 @@
               ]
             },
             {
-              "kind": "FUNCTION_DEFINITION",
+              "kind": "RESOURCE_ACCESSOR_DEFINITION",
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": [
+                  "kind": "RESOURCE_KEYWORD",
+                  "leadingMinutiae": [
                     {
-                      "kind": "TRANSACTIONAL_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
                     },
                     {
-                      "kind": "RESOURCE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
@@ -283,7 +340,22 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "bar"
+                  "value": "set",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "baz"
+                    }
+                  ]
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",

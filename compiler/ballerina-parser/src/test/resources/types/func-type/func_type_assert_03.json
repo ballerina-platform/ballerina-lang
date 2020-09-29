@@ -752,6 +752,10 @@
                       "kind": "OBJECT_FIELD",
                       "children": [
                         {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
                           "kind": "FUNCTION_TYPE_DESC",
                           "children": [
                             {

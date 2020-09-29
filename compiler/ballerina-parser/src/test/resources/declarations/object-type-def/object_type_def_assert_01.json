@@ -88,6 +88,10 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "INT_TYPE_DESC",
                   "children": [
                     {
@@ -129,6 +133,10 @@
             {
               "kind": "OBJECT_FIELD",
               "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
                 {
                   "kind": "STRING_TYPE_DESC",
                   "children": [
@@ -183,6 +191,10 @@
                   ]
                 },
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "INT_TYPE_DESC",
                   "children": [
                     {
@@ -228,6 +240,10 @@
                       "value": " "
                     }
                   ]
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FLOAT_TYPE_DESC",
@@ -495,6 +511,10 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "OBJECT_TYPE_DESC",
                   "children": [
                     {
@@ -568,6 +588,10 @@
                           "kind": "OBJECT_FIELD",
                           "children": [
                             {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
                               "kind": "INT_TYPE_DESC",
                               "children": [
                                 {
@@ -605,6 +629,10 @@
                         {
                           "kind": "OBJECT_FIELD",
                           "children": [
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
                             {
                               "kind": "STRING_TYPE_DESC",
                               "children": [
@@ -659,6 +687,10 @@
                               ]
                             },
                             {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
                               "kind": "INT_TYPE_DESC",
                               "children": [
                                 {
@@ -704,6 +736,10 @@
                                   "value": " "
                                 }
                               ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
                             },
                             {
                               "kind": "FLOAT_TYPE_DESC",
