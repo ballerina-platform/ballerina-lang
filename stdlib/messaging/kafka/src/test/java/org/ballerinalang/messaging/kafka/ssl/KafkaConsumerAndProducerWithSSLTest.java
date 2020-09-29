@@ -79,7 +79,7 @@ public class KafkaConsumerAndProducerWithSSLTest {
         result = BCompileUtil.compile(Paths.get(resourceDir, configFile).toAbsolutePath().toString());
     }
 
-    @Test(description = "Test SSL producer and consumer")
+    @Test(enabled = false, description = "Test SSL producer and consumer")
     public void testKafkaProducerWithSSL() {
         BValue[] args = new BValue[1];
         args[0] = new BString(message);

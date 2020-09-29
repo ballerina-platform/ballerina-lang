@@ -152,7 +152,8 @@ public class LockFileTestCase extends BaseTest {
      * @throws IOException            When updating the module names.
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test building and running TestProject2")
+    @Test(enabled = false, description = "Test building and running TestProject2",
+            dependsOnMethods = "testBuildAndPushTestProject1")
     public void testBuildTestProject2() throws IOException, BallerinaTestException {
         // Replace module names in source file
         Path fooSayBal = testProj2Path.resolve("src").resolve("foo").resolve("foo_say.bal");
@@ -258,7 +259,8 @@ public class LockFileTestCase extends BaseTest {
      *
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test rebuilding and running TestProject2", dependsOnMethods = "testBuildTestProject2")
+    @Test(enabled = false, description = "Test rebuilding and running TestProject2",
+            dependsOnMethods = "testModifyProj1AndPush")
     public void testRebuildTestProj2() throws BallerinaTestException {
         // Build module
         String fooBaloFileName = "foo-"
