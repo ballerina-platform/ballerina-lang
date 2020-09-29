@@ -108,6 +108,19 @@ public class ModuleCoverage {
             } catch (IOException e) {
                 errStream.println("error while updating source file coverage : " + e);
             }
+        } else {
+            Path jsonCache = Paths.get(jsonCachePath);
+
+            if (!jsonCache.toFile().exists()) {
+                try {
+                    Files.createDirectories(jsonCache);
+                    ModuleCoverage moduleCoverage = new ModuleCoverage();
+                    moduleCoverage.addSourceFileCoverage(moduleName, fileName, coveredLines, missedLines);
+                    CoverageMain.writeCoverageToJsonFile(moduleCoverage, jsonTmpSummaryPath);
+                } catch (Exception e) {
+                    errStream.println("error while updating source file coverage : " + e);
+                }
+            }
         }
     }
 

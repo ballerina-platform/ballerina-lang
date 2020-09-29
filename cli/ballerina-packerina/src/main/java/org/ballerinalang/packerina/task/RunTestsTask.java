@@ -219,11 +219,14 @@ public class RunTestsTask implements Task {
             // Check and update coverage
             Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
             Path coverageJsonPath = jsonPath.resolve(TesterinaConstants.COVERAGE_FILE);
-            try {
-                ModuleCoverage moduleCoverage = loadModuleCoverageFromFile(coverageJsonPath);
-                testReport.addCoverage(String.valueOf(bLangPackage.packageID.name), moduleCoverage);
-            } catch (IOException e) {
-                throw createLauncherException("error while generating test report", e);
+
+            if (coverageJsonPath.toFile().exists()) {
+                try {
+                    ModuleCoverage moduleCoverage = loadModuleCoverageFromFile(coverageJsonPath);
+                    testReport.addCoverage(String.valueOf(bLangPackage.packageID.name), moduleCoverage);
+                } catch (IOException e) {
+                    throw createLauncherException("error while generating test report :", e);
+                }
             }
         }
 

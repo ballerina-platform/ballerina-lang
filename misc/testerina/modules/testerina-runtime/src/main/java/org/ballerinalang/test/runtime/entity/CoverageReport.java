@@ -70,7 +70,7 @@ public class CoverageReport {
         this.executionDataFile = projectDir.resolve(TesterinaConstants.EXEC_FILE_NAME);
         this.execFileLoader = new ExecFileLoader();
 
-        this.jarCache = targetDirPath.resolve("caches/jar_cache/").resolve(orgName).resolve(moduleName);
+        this.jarCache = targetDirPath.resolve("caches/jar_cache/").resolve(orgName);
         this.jsonCache = targetDirPath.resolve("caches/json_cache/");
     }
 
@@ -84,7 +84,7 @@ public class CoverageReport {
         // Obtain a path list of all the .jar files generated
         List<Path> pathList;
         try (Stream<Path> walk = Files.walk(this.jarCache, 5)) {
-            pathList = walk.map(path -> path).filter(f -> f.toString().endsWith("testable.jar")).collect(
+            pathList = walk.map(path -> path).filter(f -> f.toString().endsWith(version + ".jar")).collect(
                     Collectors.toList());
         } catch (IOException e) {
             return;
@@ -102,7 +102,6 @@ public class CoverageReport {
             }
 
             execFileLoader.load(executionDataFile.toFile());
-
             final IBundleCoverage bundleCoverage = analyzeStructure();
             createReport(bundleCoverage);
         } else {
@@ -120,11 +119,9 @@ public class CoverageReport {
     }
 
     private void createReport(final IBundleCoverage bundleCoverage) {
-        boolean containsSourceFiles;
+        boolean containsSourceFiles = true;
 
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
-            containsSourceFiles = true;
-
             // I havent tested the behaviour of single files
             if (TesterinaConstants.DOT.equals(moduleName)) {
                 containsSourceFiles = packageCoverage.getName().isEmpty();
@@ -138,11 +135,10 @@ public class CoverageReport {
                     // sourceFileCoverage : "<orgname>/<moduleName>:<version>
                     String sourceFileModule = sourceFileCoverage.getPackageName().split("/")[1];
 
-                    if (sourceFileCoverage.getName().contains(
-                            BLangConstants.BLANG_SRC_FILE_SUFFIX) && !sourceFileCoverage.getName().contains("tests/")) {
+                    if (sourceFileCoverage.getName().contains(BLangConstants.BLANG_SRC_FILE_SUFFIX)
+                            && !sourceFileCoverage.getName().contains("tests/")) {
                         List<Integer> coveredLines = new ArrayList<>();
                         List<Integer> missedLines = new ArrayList<>();
-
 
                         for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine(); i++) {
                             ILine line = sourceFileCoverage.getLine(i);
@@ -168,11 +164,10 @@ public class CoverageReport {
                             ModuleCoverage.getInstance().updateSourceFileCoverage(jsonCachePath, sourceFileModule,
                                     sourceFileCoverage.getName(), coveredLines, missedLines);
                         }
-
                     }
                 }
             }
-        }
 
+        }
     }
 }

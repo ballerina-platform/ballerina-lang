@@ -50,11 +50,11 @@ public class CodeCoverageUtils {
     /**
      * Util method to extract required class files for code coverage analysis.
      *
-     * @param source path of testable jar
+     * @param source      path of testable jar
      * @param destination path to extract the classes
-     * @param orgName org name of the project being executed
-     * @param moduleName name of the module being executed
-     * @param version version of the module being executed
+     * @param orgName     org name of the project being executed
+     * @param moduleName  name of the module being executed
+     * @param version     version of the module being executed
      * @throws NoSuchFileException if source file doesnt exist
      */
     public static void unzipCompiledSource(Path source, Path destination, String orgName, String moduleName,
@@ -91,7 +91,6 @@ public class CodeCoverageUtils {
         }
     }
 
-
     public static void copyClassFilesToBinPath(Path destination, String destjarDir, String orgName, String moduleName,
                                                 String version) throws IOException {
         Path binClassDirPath;
@@ -109,27 +108,50 @@ public class CodeCoverageUtils {
             Files.createDirectories(binClassDirPath);
         }
 
-
         //Next we walk through extractedJarPath and copy only the class files
         List<Path> pathList;
         try (Stream<Path> walk = Files.walk(extractedJarPath, 5)) {
-            pathList = walk.map(path -> path)
-                    .filter(f -> f.toString().endsWith(".class"))
-                    .collect(Collectors.toList());
+            pathList = walk.map(path -> path).filter(f -> f.toString().endsWith(".class")).collect(Collectors.toList());
         } catch (IOException e) {
             return;
         }
 
         // If the path list is empty there are no .class files extracted
         if (!pathList.isEmpty()) {
-
-            // For every .class found we move it to /target/coverage/bin/<moduleName>
+            // For every .class found we move it to /target/coverage/bin/<moduleName>/<version>/<class_module>/
             for (Path classPath : pathList) {
-                Path target = binClassDirPath.resolveSibling(classPath.getFileName());
-                // target/coverage/bin/<moduleName>/(.class)
-                Files.move(classPath, target, StandardCopyOption.REPLACE_EXISTING);
+                if (classPath != null) {
+                    String resolvedClassDir = resolveClassDir(classPath, version);
+                    // Create a directory with the module name if it doesnt exist
+                    // This is to prevent class files with same names from different modules getting overwritten
+                    if (!binClassDirPath.endsWith(resolvedClassDir)) {
+                        binClassDirPath = binClassDirPath.resolve(resolvedClassDir);
+                        if (!binClassDirPath.toFile().exists()) {
+                            Files.createDirectories(binClassDirPath);
+                        }
+                    }
+
+                    Path target = binClassDirPath.resolve(classPath.getFileName());
+                    // target/coverage/bin/<moduleName>/<version>/<class_module>
+                    Files.move(classPath, target, StandardCopyOption.REPLACE_EXISTING);
+                }
             }
         }
+    }
+
+    private static String resolveClassDir(Path classPath, String version) {
+        // Typical class path is .jar/<moduleName>/<version>/class
+        // This function extracts the <moduleName> to create a unique directory
+        version = version.replace(".", "_");
+        Path resolvedPath = classPath;
+        String pathVersion;
+
+        do {
+            resolvedPath = resolvedPath.getParent();
+            pathVersion = resolvedPath.getFileName().toString();
+        } while (!pathVersion.equals(version));
+
+        return resolvedPath.getParent().getFileName().toString();
     }
 
     private static boolean isRequiredFile(String path, String orgName, String moduleName, String version) {
@@ -139,8 +161,8 @@ public class CodeCoverageUtils {
             return false;
         } else if (path.contains("Frame") && path.contains(orgName)) {
             return false;
-        } else if (path.contains(orgName + "/" + moduleName + "/" + version.replace(".", "_") + "/" + moduleName +
-                                         ".class")) {
+        } else if (path.contains(
+                orgName + "/" + moduleName + "/" + version.replace(".", "_") + "/" + moduleName + ".class")) {
             return false;
         }
         return true;
