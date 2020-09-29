@@ -96,7 +96,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -127,10 +127,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private SuspendedContext suspendedContext;
 
     private final Map<Long, ThreadReferenceProxyImpl> threadsMap = new HashMap<>();
-    private final AtomicInteger nextVarReference = new AtomicInteger();
+    private final AtomicLong nextVarReference = new AtomicLong();
     private final Map<Long, StackFrameProxyImpl> stackFramesMap = new HashMap<>();
     private final Map<Long, BCompoundVariable> loadedVariables = new HashMap<>();
     private final Map<Long, Long> variableToStackFrameMap = new HashMap<>();
+    private Map<Long, Long> scopeIdToFrameIdMap = new HashMap<>();
     private static int systemExit = 1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
@@ -183,7 +184,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> launch(Map<String, Object> args) {
-        nextVarReference.set(1);
+        clearState();
         Launch launcher = new LaunchFactory().getLauncher(args);
         String balFile = args.get("script").toString();
         updateProjectRoot(balFile);
@@ -236,7 +237,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> attach(Map<String, Object> args) {
-        nextVarReference.set(1);
+        clearState();
         try {
             String hostName = args.get("debuggeeHost") == null ? "" : args.get("debuggeeHost").toString();
             String portName = args.get("debuggeePort").toString();
@@ -301,11 +302,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         // Creates local variable scope.
         Scope localScope = new Scope();
         localScope.setName("Local");
-        localScope.setVariablesReference(args.getFrameId());
+        scopeIdToFrameIdMap.put(nextVarReference.get(), args.getFrameId());
+        localScope.setVariablesReference(nextVarReference.getAndIncrement());
         // Creates global variable scope.
         Scope globalScope = new Scope();
         globalScope.setName("Global");
-        globalScope.setVariablesReference(-args.getFrameId());
+        scopeIdToFrameIdMap.put(nextVarReference.get(), -args.getFrameId());
+        globalScope.setVariablesReference(nextVarReference.getAndIncrement());
 
         Scope[] scopes = {localScope, globalScope};
         ScopesResponse scopesResponse = new ScopesResponse();
@@ -316,24 +319,25 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<VariablesResponse> variables(VariablesArguments args) {
         VariablesResponse variablesResponse = new VariablesResponse();
+        variablesResponse.setVariables(new Variable[0]);
         try {
-            // if variableReference < 0, returns global variables.
-            if (args.getVariablesReference() < 0L) {
-                StackFrameProxyImpl stackFrame = stackFramesMap.get(-args.getVariablesReference());
+            // If frameId < 0, returns global variables.
+            // IF frameId >= 0, returns local variables.
+            Long frameId = scopeIdToFrameIdMap.get(args.getVariablesReference());
+            if (frameId != null && frameId < 0) {
+                StackFrameProxyImpl stackFrame = stackFramesMap.get(-frameId);
                 if (stackFrame == null) {
                     variablesResponse.setVariables(new Variable[0]);
                     return CompletableFuture.completedFuture(variablesResponse);
                 }
                 suspendedContext = new SuspendedContext(projectRoot, debuggeeVM, activeThread, stackFrame);
                 variablesResponse.setVariables(computeGlobalVariables(suspendedContext, args.getVariablesReference()));
-                return CompletableFuture.completedFuture(variablesResponse);
-
-            }
-            // If variableReference >= 0, returns local variables.
-            StackFrameProxyImpl stackFrame = stackFramesMap.get(args.getVariablesReference());
-            if (stackFrame != null) {
-                // SuspendedContext instance should be created in order to avoid InvalidStackFrameExceptions,
-                // as we may use(resume) the suspended thread to invoke methods during variable computations.
+            } else if (frameId != null) {
+                StackFrameProxyImpl stackFrame = stackFramesMap.get(frameId);
+                if (stackFrame == null) {
+                    variablesResponse.setVariables(new Variable[0]);
+                    return CompletableFuture.completedFuture(variablesResponse);
+                }
                 suspendedContext = new SuspendedContext(projectRoot, debuggeeVM, activeThread, stackFrame);
                 variablesResponse.setVariables(computeStackFrameVariables(args));
             } else {
@@ -498,7 +502,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         this.client = client;
     }
 
-    private synchronized void updateVariableToStackFrameMap(Long parent, long child) {
+    private synchronized void updateVariableToStackFrameMap(long parent, long child) {
         if (variableToStackFrameMap.get(parent) == null) {
             variableToStackFrameMap.put(child, parent);
             return;
@@ -632,9 +636,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         suspendedContext = null;
         activeThread = null;
         threadsMap.clear();
-        nextVarReference.set(1);
         stackFramesMap.clear();
         loadedVariables.clear();
         variableToStackFrameMap.clear();
+        nextVarReference.set(1);
     }
 }
