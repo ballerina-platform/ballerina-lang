@@ -28,10 +28,8 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
-import org.ballerinalang.docgen.generator.model.Construct;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.PageContext;
-import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.Type;
 import org.ballerinalang.docgen.generator.model.Variable;
 
@@ -108,23 +106,6 @@ public class Writer {
                 // select only the first sentence
                 newDescription = newDescription.replaceAll("\\.(.|\\n)*", ".");
                 return newDescription;
-            });
-            // used to check if all constructs in the list are anonymous
-            handlebars.registerHelper("areAllAnonymous", (Helper<List<Construct>>) (consList, options) -> {
-                if (consList.get(0) instanceof Record) {
-                    for (Construct construct: consList) {
-                        if (!((Record) construct).isAnonymous) {
-                            return false;
-                        }
-                    }
-                } else if (consList.get(0) instanceof org.ballerinalang.docgen.generator.model.Object) {
-                    for (Construct construct: consList) {
-                        if (!((org.ballerinalang.docgen.generator.model.Object) construct).isAnonymous) {
-                            return false;
-                        }
-                    }
-                }
-                return true;
             });
 
             handlebars.registerHelper("setStyles", (Helper<String>) (description, options) -> {
