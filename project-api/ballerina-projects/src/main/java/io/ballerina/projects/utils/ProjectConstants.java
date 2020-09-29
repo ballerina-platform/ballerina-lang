@@ -28,6 +28,8 @@ public class ProjectConstants {
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String GITIGNORE_FILE_NAME = ".gitignore";
+    public static final String MODULE_MD_FILE_NAME = "Module.md";
+    public static final String PACKAGE_MD_FILE_NAME = "Package.md";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
@@ -46,4 +48,5 @@ public class ProjectConstants {
     public static final String JAR_CACHE_DIR_NAME = "jar_cache";
     public static final String JSON_CACHE_DIR_NAME = "json_cache";
     public static final String TEST_DIR_NAME = "tests";
+    public static final String RESOURCE_DIR_NAME = "resources";
 }
