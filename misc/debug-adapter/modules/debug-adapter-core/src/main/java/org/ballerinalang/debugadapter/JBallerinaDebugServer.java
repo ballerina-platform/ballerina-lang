@@ -102,6 +102,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getRectifiedSourcePath;
@@ -532,7 +533,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private Variable[] computeGlobalVariables(SuspendedContext context, long stackFrameReference) {
-        final String GENERATED_VAR_PREFIX = "$";
         String classQName = PackageUtils.getQualifiedClassName(context, INIT_CLASS_NAME);
         List<ReferenceType> cls = context.getAttachedVm().classesByName(classQName);
         if (cls.size() != 1) {

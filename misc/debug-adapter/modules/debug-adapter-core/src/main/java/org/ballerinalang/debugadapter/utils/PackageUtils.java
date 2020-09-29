@@ -47,6 +47,7 @@ public class PackageUtils {
     public static final String BAL_FILE_EXT = ".bal";
     public static final String MANIFEST_FILE_NAME = "Ballerina.toml";
     public static final String INIT_CLASS_NAME = "$_init";
+    public static final String GENERATED_VAR_PREFIX = "$";
 
     private static final String MODULE_VERSION_REGEX = "\\d+_\\d+_\\d+";
     private static final String SERVICE_REGEX = "(\\w+\\.){3}(\\$value\\$)(.*)(__service_)";

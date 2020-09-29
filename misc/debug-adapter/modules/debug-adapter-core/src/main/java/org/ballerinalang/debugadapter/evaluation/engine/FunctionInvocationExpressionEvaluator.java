@@ -32,7 +32,6 @@ import org.ballerinalang.debugadapter.utils.PackageUtils;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
-import java.util.StringJoiner;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
@@ -129,7 +128,6 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
             for (String fileName : moduleFileNames) {
                 String className = fileName.replace(BAL_FILE_EXT, "").replace(File.separator, ".");
                 className = className.startsWith(".") ? className.substring(1) : className;
-                StringJoiner classNameJoiner = new StringJoiner(".");
                 String qualifiedClassName = PackageUtils.getQualifiedClassName(context, className);
                 ReferenceType refType = EvaluationUtils.loadClass(context, qualifiedClassName,
                         syntaxNode.functionName().toSourceCode());
