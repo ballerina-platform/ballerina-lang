@@ -140,6 +140,20 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // anonymous object variable test (AnonPerson object)
         assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~⌤_ƮέŞŢ", "object");
 
+        // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26139
+        // assertExpression(context, GL, "Ballerina", "string");
+        // assertExpression(context, "gv02_nameWithType", "Ballerina", "string");
+        assertExpression(context, GLOBAL_VAR_03, "map", "map");
+        assertExpression(context, GLOBAL_VAR_04, "()", "nil");
+        assertExpression(context, GLOBAL_VAR_05, "()", "nil");
+        // global variables
+        assertExpression(context, GLOBAL_VAR_06, "Ballerina", "string");
+        assertExpression(context, GLOBAL_VAR_07, "100.0", "decimal");
+        assertExpression(context, GLOBAL_VAR_08, "2", "int");
+        assertExpression(context, GLOBAL_VAR_09, "2.0", "float");
+        assertExpression(context, GLOBAL_VAR_10, "object", "json");
+        assertExpression(context, GLOBAL_VAR_11, "IL with global var", "string");
+
         // Todo - add test for qualified name references, after adding support
     }
 

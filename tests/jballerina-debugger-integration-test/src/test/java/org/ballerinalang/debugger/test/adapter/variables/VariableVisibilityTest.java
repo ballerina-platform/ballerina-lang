@@ -50,12 +50,33 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
 
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 172));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 174));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
 
         globalVariables = fetchVariables(debugHitInfo.getRight(), VariableScope.GLOBAL);
         localVariables = fetchVariables(debugHitInfo.getRight(), VariableScope.LOCAL);
+    }
+
+    @Test
+    public void globalVariableVisibilityTest() {
+        // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26139
+        // Asserts the number of globally visible variables (should be 11).
+        // Assert.assertEquals(globalVariables.size(), 11);
+        // global constants
+        // assertVariable(globalVariables, "gv01_nameWithoutType", "Ballerina", "string");
+        // assertVariable(globalVariables, "gv02_nameWithType", "Ballerina", "string");
+
+        assertVariable(globalVariables, "gv03_nameMap", "map", "map");
+        assertVariable(globalVariables, "gv04_nilWithoutType", "()", "nil");
+        assertVariable(globalVariables, "gv05_nilWithType", "()", "nil");
+        // global variables
+        assertVariable(globalVariables, "gv06_stringValue", "Ballerina", "string");
+        assertVariable(globalVariables, "gv07_decimalValue", "100.0", "decimal");
+        assertVariable(globalVariables, "gv08_byteValue", "2", "int");
+        assertVariable(globalVariables, "gv09_floatValue", "2.0", "float");
+        assertVariable(globalVariables, "gv10_jsonVar", "object", "json");
+        assertVariable(globalVariables, "gv11_ /:@[`{~⌤_IL", "IL with global var", "string");
     }
 
     @Test

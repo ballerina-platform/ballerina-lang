@@ -88,15 +88,17 @@ class OddNumberGenerator {
 // constants
 const gv01_nameWithoutType = "Ballerina";
 const string gv02_nameWithType = "Ballerina";
-const gv03_nilWithoutType = ();
-const () gv04_nilWithType = ();
+const map<string> gv03_nameMap = {"name":"John"};
+const gv04_nilWithoutType = ();
+const () gv05_nilWithType = ();
+
 // global variables
-var gv05_stringValue = "Ballerina";
-var gv06_decimalValue = 100.0d;
-var gv07_byteValue = <byte>2;
-var gv08_floatValue = 2.0;
-json gv09_jsonVar = {name:"John", age:20};
-var 'gv10_\ \/\:\@\[\`\{\~\u{2324}_IL = "IL with global var";
+var gv06_stringValue = "Ballerina";
+var gv07_decimalValue = 100.0d;
+var gv08_byteValue = <byte>2;
+var gv09_floatValue = 2.0;
+json gv10_jsonVar = {name:"John", age:20};
+var 'gv11_\ \/\:\@\[\`\{\~\u{2324}_IL = "IL with global var";
 
 public function main() {
     //------------------------ basic, simple type variables ------------------------//
