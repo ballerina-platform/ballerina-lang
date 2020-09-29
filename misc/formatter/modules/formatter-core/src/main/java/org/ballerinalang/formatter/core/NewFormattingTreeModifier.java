@@ -139,6 +139,12 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      */
     private int lineLength = 0;
 
+    /**
+     * Flag indicating whether to preserve the user added newlines. Preserves up to
+     * two newlines per each line-of-code.
+     */
+    private boolean preserveNewlines = false;
+
     public NewFormattingTreeModifier(FormattingOptions options, LineRange lineRange) {
         super(options, lineRange);
     }
@@ -146,7 +152,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public ModulePartNode transform(ModulePartNode modulePartNode) {
         NodeList<ImportDeclarationNode> imports = formatNodeList(modulePartNode.imports(), 0, 1, 0, 2);
-        NodeList<ModuleMemberDeclarationNode> members = formatNodeList(modulePartNode.members(), 0, 2, 0, 1);
+        NodeList<ModuleMemberDeclarationNode> members = formatNodeList(modulePartNode.members(), 0, 2, 0, 1, true);
         Token eofToken = formatToken(modulePartNode.eofToken(), 0, 0);
         return modulePartNode.modify(imports, members, eofToken);
     }
@@ -185,11 +191,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, 0, 0);
         setIndentation(currentIndentation);
 
-        Token closePara = formatToken(functionSignatureNode.closeParenToken(), 1, 0);
+        Token closePara;
         if (functionSignatureNode.returnTypeDesc().isPresent()) {
+            closePara = formatToken(functionSignatureNode.closeParenToken(), 1, 0);
             ReturnTypeDescriptorNode returnTypeDesc =
                     formatNode(functionSignatureNode.returnTypeDesc().get(), this.trailingWS, this.trailingNL);
             functionSignatureNode = functionSignatureNode.modify().withReturnTypeDesc(returnTypeDesc).apply();
+        } else {
+            closePara = formatToken(functionSignatureNode.closeParenToken(), this.trailingWS, this.trailingNL);
         }
 
         return functionSignatureNode.modify()
@@ -202,15 +211,17 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public RequiredParameterNode transform(RequiredParameterNode requiredParameterNode) {
         NodeList<AnnotationNode> annotations = formatNodeList(requiredParameterNode.annotations(), 0, 1, 0, 0);
-        Node typeName = formatNode(requiredParameterNode.typeName(), 1, 0);
+        Node typeName;
         if (requiredParameterNode.paramName().isPresent()) {
-            Token paramName = formatToken(requiredParameterNode.paramName().get(), 0, 0);
+            typeName = formatNode(requiredParameterNode.typeName(), 1, 0);
+            Token paramName = formatToken(requiredParameterNode.paramName().get(), this.trailingWS, this.trailingNL);
             return requiredParameterNode.modify()
                     .withAnnotations(annotations)
                     .withTypeName(typeName)
                     .withParamName(paramName)
                     .apply();
         } else {
+            typeName = formatNode(requiredParameterNode.typeName(), this.trailingWS, this.trailingNL);
             return requiredParameterNode.modify()
                     .withAnnotations(annotations)
                     .withTypeName(typeName)
@@ -222,7 +233,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public FunctionBodyBlockNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
         Token openBrace = formatToken(functionBodyBlockNode.openBraceToken(), 0, 1);
         indent(); // increase indentation for the statements to follow.
-        NodeList<StatementNode> statements = formatNodeList(functionBodyBlockNode.statements(), 0, 1, 0, 1);
+        NodeList<StatementNode> statements = formatNodeList(functionBodyBlockNode.statements(), 0, 1, 0, 1, true);
         unindent(); // reset the indentation
         Token closeBrace = formatToken(functionBodyBlockNode.closeBraceToken(), this.trailingWS, this.trailingNL);
 
@@ -330,7 +341,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public BlockStatementNode transform(BlockStatementNode blockStatementNode) {
         Token openBrace = formatToken(blockStatementNode.openBraceToken(), 0, 1);
         indent(); // start an indentation
-        NodeList<StatementNode> statements = formatNodeList(blockStatementNode.statements(), 0, 1, 0, 1);
+        NodeList<StatementNode> statements = formatNodeList(blockStatementNode.statements(), 0, 1, 0, 1, true);
         unindent(); // end the indentation
         Token closeBrace = formatToken(blockStatementNode.closeBraceToken(), this.trailingWS, this.trailingNL);
 
@@ -357,7 +368,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         int prevIndentation = this.indentation;
         setIndentation(recordKeyword.location().lineRange().startLine().offset() + DEFAULT_INDENTATION);
         NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), fieldTrailingWS, fieldTrailingNL,
-                fieldTrailingWS, fieldTrailingNL);
+                fieldTrailingWS, fieldTrailingNL, true);
 
         if (recordTypeDesc.recordRestDescriptor().isPresent()) {
             RecordRestDescriptorNode recordRestDescriptor =
@@ -552,7 +563,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public ServiceBodyNode transform(ServiceBodyNode serviceBodyNode) {
         Token openBraceToken = formatToken(serviceBodyNode.openBraceToken(), 0, 1);
         indent(); // increase indentation for the statements to follow.
-        NodeList<Node> resources = formatNodeList(serviceBodyNode.resources(), 0, 1, 0, 1);
+        NodeList<Node> resources = formatNodeList(serviceBodyNode.resources(), 0, 1, 0, 1, true);
         unindent(); // reset the indentation
         Token closeBraceToken = formatToken(serviceBodyNode.closeBraceToken(), this.trailingWS, this.trailingNL);
 
@@ -680,7 +691,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public SingletonTypeDescriptorNode transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
-        ExpressionNode simpleContExprNode = formatNode(singletonTypeDescriptorNode.simpleContExprNode(), 1, 0);
+        ExpressionNode simpleContExprNode =
+                formatNode(singletonTypeDescriptorNode.simpleContExprNode(), this.trailingWS, this.trailingNL);
         return singletonTypeDescriptorNode.modify()
                 .withSimpleContExprNode(simpleContExprNode)
                 .apply();
@@ -997,8 +1009,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     private <T extends Node> void checkForNewline(T node) {
-        for (Minutiae mintiae : node.trailingMinutiae()) {
-            if (mintiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+        for (Minutiae minutiae : node.trailingMinutiae()) {
+            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
                 this.hasNewline = true;
                 return;
             }
@@ -1007,7 +1019,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     /**
      * Format a list of nodes.
-     * 
+     *
      * @param <T> Type of the list item
      * @param nodeList Node list to be formatted
      * @param itemTrailingWS Number of single-length spaces to be added after each item of the list
@@ -1016,12 +1028,33 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      * @param listTrailingNL Number of newlines to be added after the last item of the list
      * @return Formatted node list
      */
-    @SuppressWarnings("unchecked")
     protected <T extends Node> NodeList<T> formatNodeList(NodeList<T> nodeList,
                                                           int itemTrailingWS,
                                                           int itemTrailingNL,
                                                           int listTrailingWS,
                                                           int listTrailingNL) {
+        return formatNodeList(nodeList, itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, false);
+    }
+
+    /**
+     * Format a list of nodes.
+     *
+     * @param <T> Type of the list item
+     * @param nodeList Node list to be formatted
+     * @param itemTrailingWS Number of single-length spaces to be added after each item of the list
+     * @param itemTrailingNL Number of newlines to be added after each item of the list
+     * @param listTrailingWS Number of single-length spaces to be added after the last item of the list
+     * @param listTrailingNL Number of newlines to be added after the last item of the list
+     * @param preserveNL Flag indicating whether to preserve the user added newlines
+     * @return Formatted node list
+     */
+    @SuppressWarnings("unchecked")
+    protected <T extends Node> NodeList<T> formatNodeList(NodeList<T> nodeList,
+                                                          int itemTrailingWS,
+                                                          int itemTrailingNL,
+                                                          int listTrailingWS,
+                                                          int listTrailingNL,
+                                                          boolean preserveNL) {
         if (nodeList.isEmpty()) {
             return nodeList;
         }
@@ -1032,6 +1065,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         for (int index = 0; index < size; index++) {
             T oldNode = nodeList.get(index);
             T newNode;
+            boolean prevPreserveNL = this.preserveNewlines;
+            this.preserveNewlines = preserveNL;
             if (index == size - 1) {
                 // This is the last item of the list. Trailing WS and NL for the last item on the list
                 // should be the WS and NL of the entire list
@@ -1039,6 +1074,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             } else {
                 newNode = formatNode(oldNode, itemTrailingWS, itemTrailingNL);
             }
+            this.preserveNewlines = prevPreserveNL;
 
             if (oldNode != newNode) {
                 nodeModified = true;
@@ -1056,7 +1092,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     /**
      * Format a delimited list of nodes. This method assumes the delimiters are followed by a
      * single whitespace character only.
-     * 
+     *
      * @param <T> Type of the list item
      * @param nodeList Node list to be formatted
      * @param itemTrailingWS Number of single-length spaces to be added after each item in the list
@@ -1075,7 +1111,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     /**
      * Format a delimited list of nodes.
-     * 
+     *
      * @param <T> Type of the list item
      * @param nodeList Node list to be formatted
      * @param itemTrailingWS Number of single-length spaces to be added after each item in the list
@@ -1140,57 +1176,235 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     /**
      * Format a token.
-     * 
+     *
      * @param <T> Type of the token
      * @param token Token to be formatted
      * @return Formatted token
      */
     @SuppressWarnings("unchecked")
     private <T extends Token> T formatTokenInternal(T token) {
-        MinutiaeList newLeadingMinutiaeList = getLeadingMinutiae();
+        MinutiaeList newLeadingMinutiaeList = getLeadingMinutiae(token);
         this.lineLength += token.text().length();
-        MinutiaeList newTrailingMinutiaeList = getTrailingMinutiae();
+        MinutiaeList newTrailingMinutiaeList = getTrailingMinutiae(token);
+
+        if (this.preserveNewlines) {
+            // We reach here for the first token in a list item (i.e: first token
+            // after making 'this.preserveNewlines = true').
+            // However, rest of the token in the same item don't need to preserve the newlines.
+            this.preserveNewlines = false;
+        }
+
         return (T) token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
     }
 
     /**
      * Get leading minutiae.
-     * 
+     *
      * @return Leading minutiae list
      */
-    private MinutiaeList getLeadingMinutiae() {
+    private MinutiaeList getLeadingMinutiae(Token token) {
         List<Minutiae> leadingMinutiae = new ArrayList<>();
-        if (this.hasNewline) {
-            for (int i = 0; i < this.leadingNL; i++) {
-                leadingMinutiae.add(getNewline());
-            }
 
-            if (this.indentation > 0) {
-                String wsContent = getWSContent(this.indentation);
-                leadingMinutiae.add(NodeFactory.createWhitespaceMinutiae(wsContent));
+        int consecutiveNewlines = 0;
+        Minutiae prevMinutiae = null;
+        if (this.hasNewline) {
+            // 'hasNewlines == true' means a newline has already been added.
+            // Therefore increase the 'consecutiveNewlines' count
+            consecutiveNewlines++;
+
+            for (int i = 0; i < this.leadingNL; i++) {
+                prevMinutiae = getNewline();
+                leadingMinutiae.add(prevMinutiae);
+                consecutiveNewlines++;
             }
         }
+
+        // Preserve the necessary leading minutiae coming from the original token
+        for (Minutiae minutiae : token.leadingMinutiae()) {
+            switch (minutiae.kind()) {
+                case END_OF_LINE_MINUTIAE:
+                    if (!shouldAddLeadingNewline(prevMinutiae)) {
+                        // Shouldn't update the prevMinutiae
+                        continue;
+                    }
+
+                    if (consecutiveNewlines <= 1) {
+                        consecutiveNewlines++;
+                        leadingMinutiae.add(getNewline());
+                        break;
+                    }
+
+                    continue;
+                case WHITESPACE_MINUTIAE:
+                    if (!shouldAddWS(prevMinutiae)) {
+                        // Shouldn't update the prevMinutiae
+                        continue;
+                    }
+
+                    addWhitespace(1, leadingMinutiae);
+                    break;
+                case COMMENT_MINUTIAE:
+                    if (consecutiveNewlines > 0) {
+                        // If there's a newline before this, then add padding to
+                        // match the current indentation level
+                        addWhitespace(this.indentation, leadingMinutiae);
+                    } else {
+                        // Else, add a single whitespace
+                        addWhitespace(1, leadingMinutiae);
+                    }
+
+                    leadingMinutiae.add(minutiae);
+                    consecutiveNewlines = 0;
+                    break;
+                case INVALID_TOKEN_MINUTIAE_NODE:
+                case INVALID_NODE_MINUTIAE:
+                default:
+                    consecutiveNewlines = 0;
+                    leadingMinutiae.add(minutiae);
+                    break;
+            }
+
+            prevMinutiae = minutiae;
+        }
+
+        if (consecutiveNewlines > 0) {
+            addWhitespace(this.indentation, leadingMinutiae);
+        }
+
         MinutiaeList newLeadingMinutiaeList = NodeFactory.createMinutiaeList(leadingMinutiae);
         return newLeadingMinutiaeList;
     }
 
     /**
-     * Get trailing minutiae.
+     * Add whitespace of a given length to a minutiae list.
      * 
-     * @return Trailing minutiae list
+     * @param wsLength Length of the whitespace
+     * @param minutiaeList List of minutiae to add the whitespace
      */
-    private MinutiaeList getTrailingMinutiae() {
-        List<Minutiae> trailingMinutiae = new ArrayList<>();
-        if (this.trailingWS > 0) {
-            String wsContent = getWSContent(this.trailingWS);
-            trailingMinutiae.add(NodeFactory.createWhitespaceMinutiae(wsContent));
+    private void addWhitespace(int wsLength, List<Minutiae> minutiaeList) {
+        if (wsLength <= 0) {
+            return;
         }
 
-        if (this.trailingNL > 0) {
+        String wsContent = getWSContent(wsLength);
+        minutiaeList.add(NodeFactory.createWhitespaceMinutiae(wsContent));
+    }
+
+    /**
+     * Check whether a leading newline needs to be added.
+     * 
+     * @param prevMinutiae Mintiae that precedes the current token
+     * @return <code>true</code> if a leading newline needs to be added. <code>false</code> otherwise
+     */
+    private boolean shouldAddLeadingNewline(Minutiae prevMinutiae) {
+        if (this.preserveNewlines) {
+            return true;
+        }
+
+        if (prevMinutiae == null) {
+            return false;
+        }
+
+        switch (prevMinutiae.kind()) {
+            case COMMENT_MINUTIAE:
+            case INVALID_TOKEN_MINUTIAE_NODE:
+            case INVALID_NODE_MINUTIAE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Check whether a whitespace needs to be added.
+     * 
+     * @param prevMinutiae Mintiae that precedes the current token
+     * @return <code>true</code> if a whitespace needs to be added. <code>false</code> otherwise
+     */
+    private boolean shouldAddWS(Minutiae prevMinutiae) {
+        if (prevMinutiae == null) {
+            return false;
+        }
+
+        return prevMinutiae.kind() == SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE ||
+                prevMinutiae.kind() == SyntaxKind.INVALID_NODE_MINUTIAE;
+    }
+
+    /**
+     * Get trailing minutiae.
+     *
+     * @return Trailing minutiae list
+     */
+    private MinutiaeList getTrailingMinutiae(Token token) {
+        List<Minutiae> trailingMinutiae = new ArrayList<>();
+        Minutiae prevMinutiae = null;
+        if (this.trailingWS > 0) {
+            addWhitespace(this.trailingWS, trailingMinutiae);
+        }
+
+        // Preserve the necessary trailing minutiae coming from the original token
+        int consecutiveNewlines = 0;
+        for (Minutiae minutiae : token.trailingMinutiae()) {
+            switch (minutiae.kind()) {
+                case END_OF_LINE_MINUTIAE:
+                    if (!shouldAddTrailingNewline(prevMinutiae)) {
+                        // Shouldn't update the prevMinutiae
+                        continue;
+                    }
+
+                    trailingMinutiae.add(minutiae);
+                    consecutiveNewlines++;
+                    break;
+                case WHITESPACE_MINUTIAE:
+                    if (!shouldAddWS(prevMinutiae)) {
+                        // Shouldn't update the prevMinutiae
+                        continue;
+                    }
+
+                    addWhitespace(this.trailingWS, trailingMinutiae);
+                    break;
+                case COMMENT_MINUTIAE:
+                    addWhitespace(1, trailingMinutiae);
+                    trailingMinutiae.add(minutiae);
+                    consecutiveNewlines = 0;
+                    break;
+                case INVALID_TOKEN_MINUTIAE_NODE:
+                case INVALID_NODE_MINUTIAE:
+                default:
+                    trailingMinutiae.add(minutiae);
+                    consecutiveNewlines = 0;
+                    break;
+            }
+
+            prevMinutiae = minutiae;
+        }
+
+        if (consecutiveNewlines == 0 && this.trailingNL > 0) {
             trailingMinutiae.add(getNewline());
         }
         MinutiaeList newTrailingMinutiaeList = NodeFactory.createMinutiaeList(trailingMinutiae);
         return newTrailingMinutiaeList;
+    }
+
+    /**
+     * Check whether a trailing newline needs to be added.
+     * 
+     * @param prevMinutiae Mintiae that precedes the current token
+     * @return <code>true</code> if a trailing newline needs to be added. <code>false</code> otherwise
+     */
+    private boolean shouldAddTrailingNewline(Minutiae prevMinutiae) {
+        if (prevMinutiae == null) {
+            return false;
+        }
+
+        switch (prevMinutiae.kind()) {
+            case COMMENT_MINUTIAE:
+            case INVALID_TOKEN_MINUTIAE_NODE:
+            case INVALID_NODE_MINUTIAE:
+                return true;
+            default:
+                return false;
+        }
     }
 
     private Minutiae getNewline() {
@@ -1220,7 +1434,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     /**
      * Set the indentation for the code to follow.
-     * 
+     *
      * @param value Number of characters to set the indentation from the start of the line.
      */
     private void setIndentation(int value) {
@@ -1238,7 +1452,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         return sb.toString();
     }
-    
+
+    /**
+     * Check whether a record type descriptor needs to be expanded in to multiple lines.
+     * 
+     * @param recordTypeDesc Record type descriptor
+     * @return <code>true</code> If the record type descriptor needs to be expanded in to multiple lines.
+     *         <code>false</code> otherwise
+     */
     private boolean shouldExpand(RecordTypeDescriptorNode recordTypeDesc) {
         int fieldCount = recordTypeDesc.fields().size();
         fieldCount += recordTypeDesc.recordRestDescriptor().isPresent() ? 1 : 0;
@@ -1256,7 +1477,34 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             if ((textRange.endOffset() - textRange.startOffset()) > 15) {
                 return true;
             }
+
+            if (hasNonWSMinutiae(field.leadingMinutiae()) || hasNonWSMinutiae(field.trailingMinutiae())) {
+                return true;
+            }
         }
+        return false;
+    }
+
+    /**
+     * Check whether a minutiae list contains any minutiae other than whitespaces.
+     * 
+     * @param minutaieList List of minutiae to check.
+     * @return <code>true</code> If the list contains any minutiae other than whitespaces. <code>false</code> otherwise
+     */
+    private boolean hasNonWSMinutiae(MinutiaeList minutaieList) {
+        for (Minutiae minutiae : minutaieList) {
+            switch (minutiae.kind()) {
+                case WHITESPACE_MINUTIAE:
+                    continue;
+                case COMMENT_MINUTIAE:
+                case INVALID_TOKEN_MINUTIAE_NODE:
+                case INVALID_NODE_MINUTIAE:
+                case END_OF_LINE_MINUTIAE:
+                default:
+                    return true;
+            }
+        }
+
         return false;
     }
 }
