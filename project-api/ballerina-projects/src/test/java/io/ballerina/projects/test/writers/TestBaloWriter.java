@@ -73,36 +73,42 @@ public class TestBaloWriter {
         // balo.json
         Path baloJsonPath = BALO_PATH.resolve("balo.json");
         Assert.assertTrue(baloJsonPath.toFile().exists());
-        BaloJson baloJson = gson.fromJson(new FileReader(String.valueOf(baloJsonPath)), BaloJson.class);
-        Assert.assertEquals(baloJson.getBalo_version(), "2.0.0");
-        Assert.assertEquals(baloJson.getBuilt_by(), "WSO2");
+
+        try (FileReader reader = new FileReader(String.valueOf(baloJsonPath))) {
+            BaloJson baloJson = gson.fromJson(reader, BaloJson.class);
+            Assert.assertEquals(baloJson.getBalo_version(), "2.0.0");
+            Assert.assertEquals(baloJson.getBuilt_by(), "WSO2");
+        }
 
         // package.json
         Path packageJsonPath = BALO_PATH.resolve("package.json");
         Assert.assertTrue(packageJsonPath.toFile().exists());
-        PackageJson packageJson = gson.fromJson(new FileReader(String.valueOf(packageJsonPath)), PackageJson.class);
-        Assert.assertEquals(packageJson.getOrganization(), "foo");
-        Assert.assertEquals(packageJson.getName(), "winery");
-        Assert.assertEquals(packageJson.getVersion(), "0.1.0");
 
-//        Assert.assertFalse(packageJson.getLicenses().isEmpty());
-//        Assert.assertEquals(packageJson.getLicenses().get(0), "MIT");
-//        Assert.assertEquals(packageJson.getLicenses().get(1), "Apache-2.0");
+        try (FileReader reader = new FileReader(String.valueOf(packageJsonPath))) {
+            PackageJson packageJson = gson.fromJson(reader, PackageJson.class);
+            Assert.assertEquals(packageJson.getOrganization(), "foo");
+            Assert.assertEquals(packageJson.getName(), "winery");
+            Assert.assertEquals(packageJson.getVersion(), "0.1.0");
+
+//            Assert.assertFalse(packageJson.getLicenses().isEmpty());
+//            Assert.assertEquals(packageJson.getLicenses().get(0), "MIT");
+//            Assert.assertEquals(packageJson.getLicenses().get(1), "Apache-2.0");
 //
-//        Assert.assertFalse(packageJson.getAuthors().isEmpty());
-//        Assert.assertEquals(packageJson.getAuthors().get(0), "jo@wso2.com");
-//        Assert.assertEquals(packageJson.getAuthors().get(1), "pramodya@wso2.com");
+//            Assert.assertFalse(packageJson.getAuthors().isEmpty());
+//            Assert.assertEquals(packageJson.getAuthors().get(0), "jo@wso2.com");
+//            Assert.assertEquals(packageJson.getAuthors().get(1), "pramodya@wso2.com");
 //
-//        Assert.assertEquals(packageJson.getSourceRepository(), "https://github.com/ballerinalang/ballerina");
+//            Assert.assertEquals(packageJson.getSourceRepository(), "https://github.com/ballerinalang/ballerina");
 //
-//        Assert.assertFalse(packageJson.getKeywords().isEmpty());
-//        Assert.assertEquals(packageJson.getKeywords().get(0), "ballerina");
-//        Assert.assertEquals(packageJson.getKeywords().get(1), "security");
-//        Assert.assertEquals(packageJson.getKeywords().get(2), "crypto");
+//            Assert.assertFalse(packageJson.getKeywords().isEmpty());
+//            Assert.assertEquals(packageJson.getKeywords().get(0), "ballerina");
+//            Assert.assertEquals(packageJson.getKeywords().get(1), "security");
+//            Assert.assertEquals(packageJson.getKeywords().get(2), "crypto");
 //
-//        Assert.assertFalse(packageJson.getExported().isEmpty());
-//        Assert.assertEquals(packageJson.getExported().get(0), "winery");
-//        Assert.assertEquals(packageJson.getExported().get(1), "service");
+//            Assert.assertFalse(packageJson.getExported().isEmpty());
+//            Assert.assertEquals(packageJson.getExported().get(0), "winery");
+//            Assert.assertEquals(packageJson.getExported().get(1), "service");
+        }
 
         // docs
         Path packageMdPath = BALO_PATH.resolve("docs").resolve("Package.md");
@@ -162,18 +168,24 @@ public class TestBaloWriter {
         // balo.json
         Path baloJsonPath = BALO_PATH.resolve("balo.json");
         Assert.assertTrue(baloJsonPath.toFile().exists());
-        BaloJson baloJson = gson.fromJson(new FileReader(String.valueOf(baloJsonPath)), BaloJson.class);
-        Assert.assertEquals(baloJson.getBalo_version(), "2.0.0");
-        Assert.assertEquals(baloJson.getBuilt_by(), "WSO2");
+
+        try (FileReader reader = new FileReader(String.valueOf(baloJsonPath))) {
+            BaloJson baloJson = gson.fromJson(reader, BaloJson.class);
+            Assert.assertEquals(baloJson.getBalo_version(), "2.0.0");
+            Assert.assertEquals(baloJson.getBuilt_by(), "WSO2");
+        }
 
         // package.json
         Path packageJsonPath = BALO_PATH.resolve("package.json");
         Assert.assertTrue(packageJsonPath.toFile().exists());
-        PackageJson packageJson = gson.fromJson(new FileReader(String.valueOf(packageJsonPath)), PackageJson.class);
-        Assert.assertEquals(packageJson.getOrganization(), "bar");
-        Assert.assertEquals(packageJson.getName(), "winery");
-        Assert.assertEquals(packageJson.getVersion(), "0.1.0");
-//        Assert.assertEquals(packageJson.getBallerinaVersion(), "unknown");
+
+        try (FileReader reader = new FileReader(String.valueOf(packageJsonPath))) {
+            PackageJson packageJson = gson.fromJson(reader, PackageJson.class);
+            Assert.assertEquals(packageJson.getOrganization(), "bar");
+            Assert.assertEquals(packageJson.getName(), "winery");
+            Assert.assertEquals(packageJson.getVersion(), "0.1.0");
+            //        Assert.assertEquals(packageJson.getBallerinaVersion(), "unknown");
+        }
 
         // docs should not exists
         Assert.assertFalse(BALO_PATH.resolve("docs").toFile().exists());

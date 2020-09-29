@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -76,6 +77,10 @@ public class TestUtils {
                 deleteDirectory(f);
             }
         }
-        file.delete();
+        try {
+            Files.delete(file.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException("cannot delete file:" + file.toPath(), e);
+        }
     }
 }
