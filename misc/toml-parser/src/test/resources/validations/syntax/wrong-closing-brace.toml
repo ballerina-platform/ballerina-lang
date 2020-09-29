@@ -14,7 +14,5 @@
 # specific language governing permissions and limitations
 # under the License.
 
-
-
-key1  false
-key2  true
+[[hello]
+hello = "hi"

@@ -16,15 +16,14 @@
  * under the License.
  */
 
-import api.TOML;
-import internal.parser.ParserFactory;
-import internal.parser.TomlParser;
-import internal.parser.tree.STNode;
-import sementic.TomlTransformer;
-import sementic.nodes.DiagnosticSource;
-import sementic.nodes.TomlNode;
-import syntax.tree.ModulePartNode;
-import syntax.tree.Node;
+import io.ballerina.toml.Toml;
+import io.ballerina.toml.ast.TomlNode;
+import io.ballerina.toml.ast.TomlTransformer;
+import io.ballerina.toml.internal.parser.ParserFactory;
+import io.ballerina.toml.internal.parser.TomlParser;
+import io.ballerina.toml.internal.parser.tree.STNode;
+import io.ballerina.toml.syntax.tree.ModulePartNode;
+import io.ballerina.toml.syntax.tree.Node;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -58,16 +57,15 @@ public class TestToml {
         OUT.println("__________________________________________________");
         OUT.println("Time: " + (System.currentTimeMillis() - sTime) / 1000.0);
         Node externalNode = node.createUnlinkedFacade();
-        DiagnosticSource diagnosticSource = new DiagnosticSource("basic-toml.toml");
-        TomlTransformer nodeTransformer = new TomlTransformer(diagnosticSource);
+        TomlTransformer nodeTransformer = new TomlTransformer();
         TomlNode transform = nodeTransformer.transform((ModulePartNode) externalNode);
         OUT.println(transform);
     }
 
     private static void testAPI(String path) throws IOException {
-        TOML toml = new TOML();
+        Toml toml = new Toml();
         InputStream inputStream = new FileInputStream(path);
-        TOML read = toml.read(inputStream);
+        Toml read = toml.read(inputStream);
         Boolean key1 = read.getBoolean("key1");
         OUT.println(key1);
 
