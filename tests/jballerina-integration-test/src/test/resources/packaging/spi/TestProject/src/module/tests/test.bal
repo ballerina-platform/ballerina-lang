@@ -7,6 +7,5 @@ import ballerina/test;
 }
 function testFunction() {
     string result =  <string>java:toString(getDriversAsString());
-    test:assertEquals(result, "class org.h2.Driver class org.hsqldb.jdbc.JDBCDriver ");
+    test:assertEquals(result, "class org.hsqldb.jdbc.JDBCDriver class org.h2.Driver ");
 }
-

@@ -4,7 +4,6 @@ public function main() {
 
 }
 
-public function  getDriversAsString() returns handle = @java:Method {
+public function getDriversAsString() returns handle = @java:Method {
       'class:"PrintDrivers"
 } external;
-

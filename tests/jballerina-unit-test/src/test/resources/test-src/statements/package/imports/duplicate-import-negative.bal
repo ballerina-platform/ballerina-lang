@@ -1,6 +1,7 @@
-import suganya/ex1;
-import suganya/ex1;
+import ballerina/java;
+import ballerina/java;
 
-public function main() {
-    ex1:say();
-}
+function systemOut() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java.lang.System"
+} external;

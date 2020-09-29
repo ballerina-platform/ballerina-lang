@@ -39,7 +39,7 @@ public class PackageImportTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BAssertUtil.validateError(result, 0, "redeclared import module 'suganya/ex1'", 2, 1);
+        BAssertUtil.validateError(result, 0, "redeclared import module 'ballerina/java'", 2, 1);
     }
 
     @Test
