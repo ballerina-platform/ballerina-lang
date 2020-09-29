@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
@@ -71,14 +72,57 @@ public class ProjectUtils {
      * @return project root
      */
     public static Path findProjectRoot(Path filePath) {
-        Path parent = filePath.getParent();
-        if (null != parent) {
-            if (Files.exists(parent.resolve(ProjectConstants.BALLERINA_TOML))) {
-                return parent;
+        if (filePath != null) {
+            if (filePath.toFile().isDirectory()) {
+                if (Files.exists(filePath.resolve(ProjectConstants.BALLERINA_TOML))) {
+                    return filePath;
+                }
             }
-            return findProjectRoot(parent);
+            return findProjectRoot(filePath.getParent());
         }
         return null;
+    }
+
+    /**
+     * Checks if the path is a Ballerina project.
+     *
+     * @param sourceRoot source root of the project.
+     * @return true if the directory is a project repo, false if its the home repo
+     */
+    public static boolean isBallerinaProject(Path sourceRoot) {
+        Path ballerinaToml = sourceRoot.resolve(ProjectConstants.BALLERINA_TOML);
+        return Files.isDirectory(sourceRoot)
+                && Files.exists(ballerinaToml)
+                && Files.isRegularFile(ballerinaToml);
+    }
+
+    /**
+     * Guess organization name based on user name in system.
+     *
+     * @return organization name
+     */
+    public static String guessOrgName() {
+        String guessOrgName = System.getProperty(ProjectConstants.USER_NAME);
+        if (guessOrgName == null) {
+            guessOrgName = "my_org";
+        } else {
+            guessOrgName = guessOrgName.toLowerCase(Locale.getDefault());
+        }
+        return guessOrgName;
+    }
+
+    /**
+     * Guess package name with valid pattern.
+     *
+     * @param packageName package name
+    This conversation was marked as resolved by suganyasuven
+     * @return package name
+     */
+    public static String guessPkgName (String packageName) {
+        if (!validatePkgName(packageName)) {
+            return packageName.replaceAll("[^a-z0-9_]", "_");
+        }
+        return packageName;
     }
 
     /**

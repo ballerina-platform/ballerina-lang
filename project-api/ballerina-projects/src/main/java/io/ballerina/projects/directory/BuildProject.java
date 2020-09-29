@@ -53,9 +53,16 @@ public class BuildProject extends Project {
         if (!absProjectPath.toFile().exists()) {
             throw new RuntimeException("project path does not exist:" + projectPath);
         }
-        if (!isBallerinaProject(absProjectPath)) {
+
+        if (!ProjectUtils.isBallerinaProject(absProjectPath)) {
             throw new RuntimeException("provided path is not a valid Ballerina project: " + projectPath);
         }
+
+        if (ProjectUtils.findProjectRoot(Optional.of(absProjectPath.getParent()).get()) != null) {
+            throw new RuntimeException("provided path is already within a Ballerina project: " +
+                    absProjectPath.getParent());
+        }
+
         return new BuildProject(BuildEnvContext.getInstance(), absProjectPath);
     }
 
