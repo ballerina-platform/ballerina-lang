@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -260,6 +261,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         for (BLangSimpleVariable globalVar : pkgNode.globalVars) {
             analyzeNode(globalVar, env);
+        }
+
+        for (BLangTestablePackage testablePkg : pkgNode.testablePkgs) {
+            analyze(testablePkg);
         }
 
         pkgNode.completedPhases.add(CompilerPhase.ISOLATION_ANALYZE);
