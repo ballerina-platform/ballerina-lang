@@ -36,6 +36,7 @@ import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
@@ -50,6 +51,9 @@ import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
+import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
 import io.ballerinalang.compiler.syntax.tree.MetadataNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
@@ -80,6 +84,7 @@ import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
@@ -1009,6 +1014,103 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .withOpenParenToken(openParenToken)
                 .withTypedesc(typedesc)
                 .withCloseParenToken(closeParenToken)
+                .apply();
+    }
+
+    @Override
+    public ExternalFunctionBodyNode transform(ExternalFunctionBodyNode externalFunctionBodyNode) {
+        Token equalsToken = formatToken(externalFunctionBodyNode.equalsToken(), 1, 0);
+        NodeList<AnnotationNode> annotations = formatNodeList(externalFunctionBodyNode.annotations(), 0, 1, 1, 0);
+        Token externalKeyword = formatToken(externalFunctionBodyNode.externalKeyword(), 0, 0);
+        Token semicolonToken = formatToken(externalFunctionBodyNode.semicolonToken(), this.trailingWS, this.trailingNL);
+
+        return externalFunctionBodyNode.modify()
+                .withEqualsToken(equalsToken)
+                .withAnnotations(annotations)
+                .withExternalKeyword(externalKeyword)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public AnnotationNode transform(AnnotationNode annotationNode) {
+        Token atToken = formatToken(annotationNode.atToken(), 0, 0);
+        Node annotReference = formatNode(annotationNode.annotReference(), 1, 0);
+
+        if (annotationNode.annotValue().isPresent()) {
+            MappingConstructorExpressionNode annotValue = formatNode(annotationNode.annotValue().get(),
+                    this.trailingWS, this.trailingNL);
+            annotationNode = annotationNode.modify().withAnnotValue(annotValue).apply();
+        }
+
+        return annotationNode.modify()
+                .withAtToken(atToken)
+                .withAnnotReference(annotReference)
+                .apply();
+    }
+
+    @Override
+    public MappingConstructorExpressionNode transform(
+            MappingConstructorExpressionNode mappingConstructorExpressionNode) {
+        Token openBrace = formatToken(mappingConstructorExpressionNode.openBrace(), 0, 1);
+        indent();
+        SeparatedNodeList<MappingFieldNode> fields = formatSeparatedNodeList(
+                mappingConstructorExpressionNode.fields(), 0, 0, 0, 1, 0, 1);
+        unindent();
+        Token closeBrace = formatToken(mappingConstructorExpressionNode.closeBrace(), this.trailingWS, this.trailingNL);
+
+        return mappingConstructorExpressionNode.modify()
+                .withOpenBrace(openBrace)
+                .withFields(fields)
+                .withCloseBrace(closeBrace)
+                .apply();
+    }
+
+    @Override
+    public SpecificFieldNode transform(SpecificFieldNode specificFieldNode) {
+        if (specificFieldNode.readonlyKeyword().isPresent()) {
+            Token readOnlyKeyword = formatToken(specificFieldNode.readonlyKeyword().get(), 1, 0);
+            specificFieldNode = specificFieldNode.modify()
+                    .withReadonlyKeyword(readOnlyKeyword).apply();
+        }
+
+        Token fieldName;
+        if (specificFieldNode.fieldName() instanceof BasicLiteralNode) {
+            fieldName = ((BasicLiteralNode) specificFieldNode.fieldName()).literalToken();
+        } else {
+            fieldName = (Token) specificFieldNode.fieldName();
+        }
+
+        if (specificFieldNode.colon().isPresent()) {
+            fieldName = formatToken(fieldName, 1, 0);
+            Token colon = formatToken(specificFieldNode.colon().get(), 1, 0);
+            ExpressionNode expressionNode = formatNode(specificFieldNode.valueExpr().get(),
+                    this.trailingWS, this.trailingNL);
+            return specificFieldNode.modify()
+                    .withFieldName(fieldName)
+                    .withColon(colon)
+                    .withValueExpr(expressionNode)
+                    .apply();
+        } else {
+            fieldName = formatToken(fieldName, this.trailingWS, this.trailingNL);
+            return specificFieldNode.modify()
+                    .withFieldName(fieldName)
+                    .apply();
+        }
+    }
+
+    @Override
+    public ListConstructorExpressionNode transform(ListConstructorExpressionNode listConstructorExpressionNode) {
+        Token openBracket = formatToken(listConstructorExpressionNode.openBracket(), 0, 0);
+        SeparatedNodeList<Node> expressions = formatSeparatedNodeList(listConstructorExpressionNode.expressions(),
+                0, 0, 0, 0);
+        Token closeBracket = formatToken(listConstructorExpressionNode.closeBracket(),
+                this.trailingWS, this.trailingNL);
+
+        return listConstructorExpressionNode.modify()
+                .withOpenBracket(openBracket)
+                .withExpressions(expressions)
+                .withCloseBracket(closeBracket)
                 .apply();
     }
 
