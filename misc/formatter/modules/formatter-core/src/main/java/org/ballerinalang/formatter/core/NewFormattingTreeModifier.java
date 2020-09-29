@@ -354,7 +354,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public RecordTypeDescriptorNode transform(RecordTypeDescriptorNode recordTypeDesc) {
-        Token recordKeyword = formatNode(recordTypeDesc.recordKeyword(), 1, 0);
+        final int recorKeywordTrailingWS = 1;
+        Token recordKeyword = formatNode(recordTypeDesc.recordKeyword(), recorKeywordTrailingWS, 0);
         int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
         if (shouldExpand(recordTypeDesc)) {
@@ -363,10 +364,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             fieldTrailingWS++;
         }
 
+        // Set indentation for record body
+        int recordKeywordStart = this.lineLength - recordKeyword.text().length() - recorKeywordTrailingWS;
+        int prevIndentation = this.indentation;
+        setIndentation(recordKeywordStart);
         Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), fieldTrailingWS, fieldTrailingNL);
 
-        int prevIndentation = this.indentation;
-        setIndentation(recordKeyword.location().lineRange().startLine().offset() + DEFAULT_INDENTATION);
+        // Set indentation for record fields
+        indent();
         NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), fieldTrailingWS, fieldTrailingNL,
                 fieldTrailingWS, fieldTrailingNL, true);
 
@@ -376,8 +381,13 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             recordTypeDesc = recordTypeDesc.modify().withRecordRestDescriptor(recordRestDescriptor).apply();
         }
 
-        setIndentation(prevIndentation);
+        // Revert indentation for record fields
+        unindent();
+
         Token bodyEndDelimiter = formatToken(recordTypeDesc.bodyEndDelimiter(), this.trailingWS, this.trailingNL);
+
+        // Revert indentation for record body
+        setIndentation(prevIndentation);
 
         return recordTypeDesc.modify()
                 .withRecordKeyword(recordKeyword)
