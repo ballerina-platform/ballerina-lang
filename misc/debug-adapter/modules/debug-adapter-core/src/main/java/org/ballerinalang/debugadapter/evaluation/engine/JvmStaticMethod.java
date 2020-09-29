@@ -37,8 +37,9 @@ public class JvmStaticMethod extends JvmMethod {
 
     private final ReferenceType classRef;
 
-    JvmStaticMethod(SuspendedContext context, ReferenceType classRef, Method methodRef, List<Evaluator> argEvaluators) {
-        super(context, methodRef, argEvaluators);
+    public JvmStaticMethod(SuspendedContext context, ReferenceType classRef, Method methodRef,
+                           List<Evaluator> argEvaluators, List<Value> argsList) {
+        super(context, methodRef, argEvaluators, argsList);
         this.classRef = classRef;
     }
 
