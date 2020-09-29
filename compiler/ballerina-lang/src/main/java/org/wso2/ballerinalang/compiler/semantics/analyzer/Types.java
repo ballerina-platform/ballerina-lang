@@ -2493,19 +2493,21 @@ public class Types {
             if (s.tag == TypeTags.NEVER) {
                 continue;
             }
+            if (s.tag == TypeTags.FINITE && isAssignable(s, target, unresolvedTypes)) {
+                continue;
+            }
+            if (s.tag == TypeTags.XML && isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes)) {
+                continue;
+            }
 
-            boolean isAssignableToAnyTargetType = true;
-
+            boolean sourceTypeIsNotAssignableToAnyTargetType = true;
             for (BType t : targetTypes) {
                 if (isAssignable(s, t, unresolvedTypes)) {
-                    isAssignableToAnyTargetType = false;
+                    sourceTypeIsNotAssignableToAnyTargetType = false;
                     break;
                 }
             }
-
-            if (isAssignableToAnyTargetType && (s.tag != TypeTags.FINITE || !isAssignable(s, target, unresolvedTypes))
-                    && (s.tag != TypeTags.XML ||
-                                !isAssignableToUnionType(expandedXMLBuiltinSubtypes, target, unresolvedTypes))) {
+            if (sourceTypeIsNotAssignableToAnyTargetType) {
                 return false;
             }
         }
