@@ -145,6 +145,11 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      */
     private boolean preserveNewlines = false;
 
+    /**
+     * Flag indicating whether to line-wrap the currently processing node.
+     */
+    private boolean wrapLine = false;
+
     public NewFormattingTreeModifier(FormattingOptions options, LineRange lineRange) {
         super(options, lineRange);
     }
@@ -954,12 +959,66 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         node = (T) node.apply(this);
         if (this.lineLength > COLUMN_LIMIT) {
-            node = wrap(node);
+            // If at-least one child node exceeds the column-limit,
+            // then the parent should be wrapped. Therefore we only
+            // set the flag, but do not un-set it.
+            this.wrapLine = true;
+        }
+
+        if (shouldWrapLine(node)) {
+            node = wrapLine(node);
         }
 
         this.trailingNL = prevTrailingNL;
         this.trailingWS = prevTrailingWS;
         return node;
+    }
+
+    private <T extends Node> void checkForNewline(T node) {
+        for (Minutiae minutiae : node.trailingMinutiae()) {
+            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                this.hasNewline = true;
+                return;
+            }
+        }
+    }
+
+    /**
+     * Check whether the current line should be wrapped.
+     * 
+     * @param node Node that is being formatted
+     * @return Flag indicating whether to wrap the current line or not
+     */
+    private boolean shouldWrapLine(Node node) {
+        if (!this.wrapLine) {
+            return false;
+        }
+
+        // Currently wrapping a line is supported at following levels:
+        SyntaxKind kind = node.kind();
+        switch (kind) {
+            // Parameters
+            case DEFAULTABLE_PARAM:
+            case REQUIRED_PARAM:
+            case REST_PARAM:
+
+                // Func-call arguments
+            case POSITIONAL_ARG:
+            case NAMED_ARG:
+            case REST_ARG:
+
+            case RETURN_TYPE_DESCRIPTOR:
+                return true;
+            default:
+                // Expressions
+                if (SyntaxKind.BINARY_EXPRESSION.compareTo(kind) <= 0 &&
+                        SyntaxKind.OBJECT_CONSTRUCTOR.compareTo(kind) >= 0) {
+                    return true;
+                }
+
+                // Everything else is not supported
+                return false;
+        }
     }
 
     /**
@@ -972,11 +1031,18 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      * @return Wrapped node
      */
     @SuppressWarnings("unchecked")
-    private <T extends Node> T wrap(T node) {
+    private <T extends Node> T wrapLine(T node) {
         this.leadingNL += 1;
         this.lineLength = 0;
         this.hasNewline = true;
-        return (T) node.apply(this);
+        node = (T) node.apply(this);
+
+        // Sometimes wrapping the current node wouldn't be enough.
+        // Therefore set the flag so that the parent node will also
+        // get wrapped, if needed.
+        this.wrapLine = this.lineLength > COLUMN_LIMIT;
+
+        return node;
     }
 
     /**
@@ -1016,15 +1082,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         this.trailingNL = prevTrailingNL;
         this.trailingWS = prevTrailingWS;
         return token;
-    }
-
-    private <T extends Node> void checkForNewline(T node) {
-        for (Minutiae minutiae : node.trailingMinutiae()) {
-            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
-                this.hasNewline = true;
-                return;
-            }
-        }
     }
 
     /**
