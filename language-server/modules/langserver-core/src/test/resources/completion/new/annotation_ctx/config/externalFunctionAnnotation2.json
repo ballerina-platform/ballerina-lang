@@ -1,0 +1,37 @@
+{
+  "position": {
+    "line": 2,
+    "character": 28
+  },
+  "source": "annotation_ctx/source/externalFunctionAnnotation2.bal",
+  "items": [
+    {
+      "label": "module1:sourceExternalAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:sourceExternalAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:sourceExternalAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:sourceExternalAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceExternalAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceExternalAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceExternalAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceExternalAnnotation2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

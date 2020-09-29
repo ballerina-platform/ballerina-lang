@@ -1,11 +1,11 @@
-enum   Color   {
+public   enum   Color   {
      RED  ,
    GREEN  ,BLUE
 }
-enum   Language  {
+public   enum   Language  {
    EN   =   "English"  ,       TA   = "Tamil"
 }
-enum Bands   {
+public   enum Bands   {
      QUEEN  ,
   PF   =   "Pink "  +  "Floyd"
 }

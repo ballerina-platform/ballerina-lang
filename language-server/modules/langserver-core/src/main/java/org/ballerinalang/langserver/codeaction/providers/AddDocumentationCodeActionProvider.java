@@ -39,10 +39,12 @@ public class AddDocumentationCodeActionProvider extends AbstractCodeActionProvid
     public AddDocumentationCodeActionProvider() {
         super(Arrays.asList(CodeActionNodeType.FUNCTION,
                             CodeActionNodeType.OBJECT,
+                            CodeActionNodeType.CLASS,
                             CodeActionNodeType.SERVICE,
                             CodeActionNodeType.RESOURCE,
                             CodeActionNodeType.RECORD,
-                            CodeActionNodeType.OBJECT_FUNCTION));
+                            CodeActionNodeType.OBJECT_FUNCTION,
+                            CodeActionNodeType.CLASS_FUNCTION));
     }
 
     /**
