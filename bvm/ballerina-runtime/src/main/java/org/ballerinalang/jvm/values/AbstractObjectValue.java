@@ -106,7 +106,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
         String moduleLocalName = pkg.org != null && pkg.org.equals("$anon") ||
                 pkg.name == null ? type.getName() :
                 String.valueOf(BallerinaErrorReasons.getModulePrefixedReason(pkg.name, type.getName()));
-        return "object " + moduleLocalName + " " + type.toString().hashCode();
+        return "object " + moduleLocalName + " " + this.hashCode();
     }
 
     @Override

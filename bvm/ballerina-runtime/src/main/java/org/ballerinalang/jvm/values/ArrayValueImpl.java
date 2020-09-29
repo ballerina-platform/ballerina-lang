@@ -623,34 +623,33 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(Long.toString(intValues[i]));
+                    sj.add(BStringUtils.getExpressionStringValue(intValues[i],
+                            new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.BOOLEAN_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(Boolean.toString(booleanValues[i]));
+                    sj.add(BStringUtils.getExpressionStringValue(booleanValues[i],
+                            new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.BYTE_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(Long.toString(Byte.toUnsignedLong(byteValues[i])));
+                    sj.add(BStringUtils.getExpressionStringValue(byteValues[i],
+                            new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.FLOAT_TAG:
                 for (int i = 0; i < size; i++) {
-                    if (Double.isNaN(floatValues[i])) {
-                        sj.add("float:" + Double.toString(floatValues[i]));
-                    } else if (Double.isInfinite(floatValues[i])) {
-                        sj.add("float:" + Double.toString(floatValues[i]));
-                    } else {
-                        sj.add(Double.toString(floatValues[i]));
-                    }
+                    sj.add(BStringUtils.getExpressionStringValue(floatValues[i],
+                            new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(((BValue) (bStringValues[i])).expressionStringValue(parent));
+                    sj.add(BStringUtils.getExpressionStringValue(bStringValues[i],
+                            new CycleUtils.Node(this, parent)));
                 }
                 break;
             default:

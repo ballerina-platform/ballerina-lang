@@ -25,12 +25,6 @@ type Address1 record {|
     json...;
 |};
 
-type UndergradStudent record {|
-    readonly int id;
-    readonly string name;
-    int grade;
-|};
-
 function testToJsonString() returns map<string> {
     json aNil = ();
     json aString = "aString";
@@ -463,94 +457,6 @@ public function xmlSequenceFragmentToString() returns string {
    xml x = xml `<abc><def>DEF</def><ghi>1</ghi></abc>`;
 
    return (x/*).toString();
-}
-
-function testToBalStringMethod() returns [string, string, string, string] {
-    string a = "Tom";
-    anydata b = a;
-    any c = b;
-    var d = c.toBalString();
-    return [a.toBalString(), b.toBalString(), c.toBalString(), d];
-}
-
-function testToBalString() returns string[] {
-    int varInt = 6;
-    float varFloat = 6.0;
-    string varStr = "toString";
-    () varNil = ();
-    Address addr = {country : "Sri Lanka", city: "Colombo", street: "Palm Grove"};
-    Person p = {name : "Gima", address: addr, age: 12};
-    boolean varBool = true;
-    decimal varDecimal = 345.2425341;
-    map<any|error> varMap = {};
-    json varJson = {a: "STRING", b: 12, c: 12.4, d: true, e: {x:"x", y: ()}};
-    error varSimpleErr = error("Failed to get account balance", details = true, val1 = (0.0/0.0), val2 = "This Error",
-        val3 = varDecimal, val4={"x":"AA","y":(1.0/0.0)});
-    xml varXml = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`;
-    table<UndergradStudent> underGradTable = table key(id,name) [
-            { id: 1, name: "Mary", grade: 12 },
-            { id: 2, name: "John", grade: 13 }
-    ];
-    (any|error)[] varArr = ["str", 23, 23.4, true, {"x":"AA","y":(1.0/0.0),"z":1.23}, varDecimal, ["X", (0.0/0.0),
-    varDecimal],underGradTable,varSimpleErr,varXml];
-    FirstError varErr = FirstError(REASON_1, message = "Test passing error union to a function");
-    Student varObj = new("Alaa", "MMV");
-    Teacher varObj2 = new("Rola", "MMV");
-    any[] varObjArr = [varObj, varObj2];
-    [float, string][] varTupleArr = [[(0.0/0.0), "ABC"], [(1.0/0.0), "LMN"]];
-    table<Employee> varTable = table key(id) [
-                { id: 1, age: 30,  salary: 300.5, name: "Mary", married: true },
-                { id: 2, age: 20,  salary: 300.5, name: "John", married: true }
-    ];
-
-    varMap["varInt"] = varInt;
-    varMap["varFloat"] = varFloat;
-    varMap["varStr"] = varStr;
-    varMap["varNil"] = varNil;
-    varMap["varBool"] = varBool;
-    varMap["varDecimal"] = varDecimal;
-    varMap["varjson"] = varJson;
-    varMap["varXml"] = varXml;
-    varMap["varArr"] = varArr;
-    varMap["varErr"] = varErr;
-    varMap["varObj"] = varObj;
-    varMap["varObj2"] = varObj2;
-    varMap["varObjArr"] = varObjArr;
-    varMap["varRecord"] = p;
-    varMap["varTupleArr"] = varTupleArr;
-    varMap["varTable"] = varTable;
-    varMap["varSimpleErr"] = varSimpleErr;
-
-    return [varInt.toBalString(), varFloat.toBalString(), varStr.toBalString(), varNil.toBalString(),
-    varBool.toBalString(), varDecimal.toBalString(), varJson.toBalString(), varXml.toBalString(), varArr.toBalString(),
-    varErr.toBalString(), varObj.toBalString(), varObj2.toBalString(), varObjArr.toBalString(), p.toBalString(),
-    varTupleArr.toBalString(), varTable.toBalString(), varSimpleErr.toBalString(), varMap.toBalString()];
-}
-
-function testXmlSequenceFragmentToBalString() returns string {
-   xml x = xml `<abc><def>DEF</def><ghi>1</ghi></abc>`;
-
-   return (x/*).toBalString();
-}
-
-function testToBalStringOnCycles() {
-     map<anydata> x = {"ee" : 3};
-     map<anydata> y = {"qq" : 5};
-     map<anydata> z = {"mm" : 5};
-     anydata[] arr = [2 , 3, 5];
-     x["1"] = z;
-     x["2"] = y;
-     x["3"] = x;
-     y["1"] = arr;
-     y["2"] = x;
-     y["3"] = y;
-     y["4"] = z;
-     z["1"] = x;
-     z["2"] = y;
-     arr.push(x);
-     assert(x.toBalString(), "{\"ee\":3,\"1\":{\"mm\":5,\"1\":...[1],\"2\":{\"qq\":5,\"1\":[2,3,5,...[1]]," +
-     "\"2\":...[1],\"3\":...[1],\"4\":...[1]}},\"2\":{\"qq\":5,\"1\":[2,3,5,...[1]],\"2\":...[1],\"3\":...[1]," +
-     "\"4\":{\"mm\":5,\"1\":...[1],\"2\":...[1]}},\"3\":...[1]}");
 }
 
 type AssertionError distinct error;
