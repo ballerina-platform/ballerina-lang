@@ -18,10 +18,11 @@
 
 package toml.parser.test.core;
 
-import api.TOML;
+import io.ballerina.toml.Toml;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,12 +33,12 @@ import java.util.List;
 public class KeyValueTest {
 
     @Test
-    public void testKeys() {
+    public void testKeys() throws IOException {
 
-        TOML toml = new TOML();
+        Toml toml = new Toml();
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("core/keys.toml");
-        TOML read = toml.read(inputStream);
+        Toml read = toml.read(inputStream);
         String basicKey = read.getString("key");
         String underscoreKey = read.getString("underscore_key");
         String dashKey = read.getString("dash-key");
@@ -62,12 +63,12 @@ public class KeyValueTest {
     }
 
     @Test
-    public void testValues() {
+    public void testValues() throws IOException {
 
-        TOML toml = new TOML();
+        Toml toml = new Toml();
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("core/values.toml");
-        TOML read = toml.read(inputStream);
+        Toml read = toml.read(inputStream);
         String stringValue = read.getString("key1");
         Long longValue = read.getLong("key2");
         Double doubleValue = read.getDouble("key3");
@@ -90,4 +91,5 @@ public class KeyValueTest {
         Assert.assertFalse(boolfalse);
         Assert.assertTrue(booltrue);
     }
+
 }

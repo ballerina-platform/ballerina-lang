@@ -18,10 +18,11 @@
 
 package toml.parser.test.core;
 
-import api.TOML;
+import io.ballerina.toml.Toml;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -31,19 +32,19 @@ import java.util.List;
 public class TableTest {
 
     @Test
-    public void testTable() {
+    public void testTable() throws IOException {
 
-        TOML toml = new TOML();
+        Toml toml = new Toml();
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("core/table.toml");
-        TOML read = toml.read(inputStream);
+        Toml read = toml.read(inputStream);
         Long rootKey = read.getLong("rootKey");
         String dotNotation = read.getString("first.key");
-        TOML firstTable = read.getTable("first");
+        Toml firstTable = read.getTable("first");
         String queryFromSubTable = firstTable.getString("key");
 
         String subDotNotation = read.getString("first.sub.key");
-        TOML subTable = read.getTable("first.sub");
+        Toml subTable = read.getTable("first.sub");
         String queryFromDeepSubTable = subTable.getString("key");
 
         Assert.assertEquals(rootKey, new Long(22L));
@@ -55,16 +56,16 @@ public class TableTest {
     }
 
     @Test
-    public void testArrayOfTable() {
+    public void testArrayOfTable() throws IOException {
 
-        TOML toml = new TOML();
+        Toml toml = new Toml();
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("core/array-of-tables.toml");
-        TOML read = toml.read(inputStream);
+        Toml read = toml.read(inputStream);
         String valueInTable = read.getString("products.hello1");
         Assert.assertEquals(valueInTable, "hi");
 
-        List<TOML> tables = read.getTables("products.hello");
+        List<Toml> tables = read.getTables("products.hello");
         String firstElement = tables.get(0).getString("name");
         String nullElement = tables.get(1).getString("name");
         String thridElement = tables.get(2).getString("name");

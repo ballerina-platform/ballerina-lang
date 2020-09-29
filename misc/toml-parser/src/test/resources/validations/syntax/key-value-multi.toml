@@ -14,7 +14,13 @@
 # specific language governing permissions and limitations
 # under the License.
 
+key"value"
 
+key1 = 12
 
-key1  false
-key2  true
+="value"
+
+key2 = 33
+
+key =
+

@@ -14,7 +14,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
+table]
 
 
-key1  false
-key2  true
+key] = "value"
