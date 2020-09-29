@@ -84,7 +84,7 @@ public class DependencyScopeTest extends CommandTest {
         }
     }
 
-    @Test(description = "Test if platform libs are packed with the balo for default scope.", enabled = false)
+    @Test(description = "Test if platform libs are packed with the balo for default scope.")
     public void testDefaultScope() throws IOException {
         buildCommand.execute();
         Assert.assertTrue(Files.exists(balo), "Check if balo directory exists");
@@ -94,8 +94,7 @@ public class DependencyScopeTest extends CommandTest {
         Assert.assertTrue(isJarExists(baloZipFile, storedJarPath));
     }
 
-    @Test(description = "Test if platform libs are packed with the balo for 'provided' scope.", priority = 1
-            , enabled = false)
+    @Test(description = "Test if platform libs are packed with the balo for 'provided' scope.", priority = 1)
     public void testCompileScope() throws IOException {
         copy(scopeToml.resolve("case1").resolve(ProjectDirConstants.MANIFEST_FILE_NAME),
                 this.testResources.resolve(ProjectDirConstants.MANIFEST_FILE_NAME));
@@ -107,8 +106,7 @@ public class DependencyScopeTest extends CommandTest {
         Assert.assertFalse(isJarExists(baloZipFile, storedJarPath));
     }
 
-    @Test(description = "Test if platform libs are packed with the balo for 'TestOnly' scope.", priority = 2
-            , enabled = false)
+    @Test(description = "Test if platform libs are packed with the balo for 'TestOnly' scope.", priority = 2)
     public void testTestScope() throws IOException {
         copy(scopeToml.resolve("case2").resolve(ProjectDirConstants.MANIFEST_FILE_NAME),
                 this.testResources.resolve(ProjectDirConstants.MANIFEST_FILE_NAME));
