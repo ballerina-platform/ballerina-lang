@@ -53,10 +53,7 @@ public class BuildProjectEnvContext extends ProjectEnvironmentContext {
         CompilerContext compilerContext = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, "../../langlib/lang.annotations/src/main/ballerina");
-        options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
-
-        // TODO This is a temporary property to compile lang lib modules from source
-        System.setProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", "true");
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
 
         // This is a temporary workaround. This can be removed once we migrate all the old projects to the new model
         SourceDirectoryManager.getInstance(compilerContext);

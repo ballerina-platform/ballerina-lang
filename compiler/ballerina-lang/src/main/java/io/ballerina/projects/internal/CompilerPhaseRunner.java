@@ -44,6 +44,25 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 
 import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
+import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
+import static org.ballerinalang.model.elements.PackageID.ARRAY;
+import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
+import static org.ballerinalang.model.elements.PackageID.DECIMAL;
+import static org.ballerinalang.model.elements.PackageID.ERROR;
+import static org.ballerinalang.model.elements.PackageID.FLOAT;
+import static org.ballerinalang.model.elements.PackageID.FUTURE;
+import static org.ballerinalang.model.elements.PackageID.INT;
+import static org.ballerinalang.model.elements.PackageID.INTERNAL;
+import static org.ballerinalang.model.elements.PackageID.MAP;
+import static org.ballerinalang.model.elements.PackageID.OBJECT;
+import static org.ballerinalang.model.elements.PackageID.QUERY;
+import static org.ballerinalang.model.elements.PackageID.STREAM;
+import static org.ballerinalang.model.elements.PackageID.STRING;
+import static org.ballerinalang.model.elements.PackageID.TABLE;
+import static org.ballerinalang.model.elements.PackageID.TRANSACTION;
+import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
+import static org.ballerinalang.model.elements.PackageID.VALUE;
+import static org.ballerinalang.model.elements.PackageID.XML;
 
 /**
  * This class drives the compilation of packages through various phases
@@ -122,6 +141,36 @@ public class CompilerPhaseRunner {
         }
 
         return codeGen(birGen(desugar(pkg))).symbol;
+    }
+
+    /**
+     * Load required lang modules needed for compilation.
+     */
+    public void loadRequiredLangModules() {
+        symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
+        symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
+        symResolver.reloadErrorAndDependentTypes();
+        symResolver.reloadIntRangeType();
+        symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
+        symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
+        symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
+        symbolTable.langFloatModuleSymbol = pkgLoader.loadPackageSymbol(FLOAT, null, null);
+        symbolTable.langFutureModuleSymbol = pkgLoader.loadPackageSymbol(FUTURE, null, null);
+        symbolTable.langIntModuleSymbol = pkgLoader.loadPackageSymbol(INT, null, null);
+        symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
+        symbolTable.langObjectModuleSymbol = pkgLoader.loadPackageSymbol(OBJECT, null, null);
+        symResolver.loadRawTemplateType();
+        symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
+        symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
+        symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
+        symbolTable.langTypedescModuleSymbol = pkgLoader.loadPackageSymbol(TYPEDESC, null, null);
+        symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
+        symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
+        symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
+        symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
+        symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
+        symbolTable.loadPredeclaredModules();
+        symResolver.loadFunctionalConstructors();
     }
 
     public void compile(BLangPackage pkgNode) {

@@ -20,8 +20,6 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
-import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Collection;
@@ -30,8 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
 
 /**
  *
@@ -75,13 +71,9 @@ public class ModuleCompilation {
     }
 
     private void compile() {
-        SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
-        PackageCache packageCache = PackageCache.getInstance(compilerContext);
-
         // TODO This is a temporary workaround to compile and store the lang.annotations modules
         CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
-        symbolTable.langAnnotationModuleSymbol = compilerPhaseRunner.getLangModuleFromSource(ANNOTATIONS);
-        packageCache.putSymbol(ANNOTATIONS, symbolTable.langAnnotationModuleSymbol);
+        compilerPhaseRunner.loadRequiredLangModules();
 
         // Compile all the modules
         List<ModuleId> sortedModuleIds = dependencyGraph.toTopologicallySortedList();
