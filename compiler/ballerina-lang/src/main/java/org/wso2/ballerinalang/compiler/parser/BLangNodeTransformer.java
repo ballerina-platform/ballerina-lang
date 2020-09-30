@@ -4024,7 +4024,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                             }
                             // Fall through.
                         case ERROR_BINDING_PATTERN:
-                            bLangErrorVariable.cause = (BLangSimpleVariable) getBLangVariableNode(bindingPatternNode);
+                            bLangErrorVariable.cause = getBLangVariableNode(bindingPatternNode);
                             break;
                         case NAMED_ARG_BINDING_PATTERN:
                             NamedArgBindingPatternNode namedArgBindingPatternNode =
