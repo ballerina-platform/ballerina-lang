@@ -154,8 +154,7 @@ public class DependencyScopeTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false, description = "Validate if all dependency jars of the balo dependency " +
-            "are added to the project toml")
+    @Test(description = "Validate if all dependency jars of the balo dependency are added to the project toml")
     public void testValidatingDependenciesFromBaloToml() throws BallerinaTestException {
         copy(tempTestResources.resolve("validate-dependency").resolve("TestProject1").resolve(MANIFEST_FILE_NAME),
                 projectResources.resolve("TestProject1").resolve(MANIFEST_FILE_NAME));
@@ -169,7 +168,7 @@ public class DependencyScopeTestCase extends BaseTest {
         moduleUtilsBuildLeecher.waitForText(5000);
 
         // Build TestProject3 without adding the provided scope jars to the toml
-        String warningMsg = "warning: wso2/utils:0.1.0::utils:1:1: native dependency 'utils.jar' is missing";
+        String warningMsg = "warning: native dependency 'utils.jar' is missing";
         LogLeecher moduleFooWarningLeecher = new LogLeecher(warningMsg, LogLeecher.LeecherType.ERROR);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{moduleFooWarningLeecher}, projectResources.resolve("TestProject3").toString());
