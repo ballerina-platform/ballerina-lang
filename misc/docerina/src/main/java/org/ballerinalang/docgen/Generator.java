@@ -58,7 +58,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -81,13 +80,11 @@ public class Generator {
 
         // Check for type definitions in the package
         for (BLangTypeDefinition typeDefinition : balPackage.getTypeDefinitions()) {
-            if (typeDefinition.getFlags().contains(Flag.PUBLIC)) {
+            if (typeDefinition.getFlags().contains(Flag.PUBLIC) &&
+                    !typeDefinition.getFlags().contains(Flag.ANONYMOUS)) {
                 createTypeDefModels(typeDefinition, module);
             }
         }
-        // Sort records in case new records were added that are not in type definitions (i.e anonymous records defined
-        // in function returns)
-        module.records.sort(Comparator.comparing(a -> a.name));
 
         // Check for functions in the package
         for (BLangFunction function : balPackage.getFunctions()) {
@@ -241,26 +238,6 @@ public class Generator {
             String dataType = getTypeName(returnType);
             if (!dataType.equals("null")) {
                 String desc = returnParamAnnotation(functionNode);
-                if (returnType instanceof BLangUnionTypeNode) {
-                    // Adds anonymous records defined in function return types to module.records
-                    for (BLangType memberTypeNode: ((BLangUnionTypeNode) returnType).getMemberTypeNodes()) {
-                        if (memberTypeNode.getKind() == NodeKind.RECORD_TYPE) {
-                            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) memberTypeNode;
-                            if (recordTypeNode.isAnonymous) {
-                                String recordName = "T" + recordTypeNode.symbol.name.toString()
-                                        .substring(recordTypeNode.symbol.name.toString().lastIndexOf('$') + 1);
-                                BLangMarkdownDocumentation documentationNode = functionNode.
-                                        getMarkdownDocumentationAttachment();
-                                List<DefaultableVariable> fields = getFields(recordTypeNode, recordTypeNode.fields,
-                                        documentationNode, module);
-
-                                module.records.add(new Record(recordName, desc,
-                                        isDeprecated(functionNode.getAnnotationAttachments()),
-                                        recordTypeNode.isAnonymous, fields));
-                            }
-                        }
-                    }
-                }
                 Variable variable = new Variable(EMPTY_STRING, desc, false, Type.fromTypeNode(returnType, module.id));
                 returnParams.add(variable);
             }
@@ -295,10 +272,6 @@ public class Generator {
     private static void addDocForRecordType(BLangTypeDefinition typeDefinition, BLangRecordTypeNode recordType,
                                             Module module) {
         String recordName = typeDefinition.getName().getValue();
-        // Check if its an anonymous struct
-        if (recordType.isAnonymous) {
-            recordName = "T" + recordName.substring(recordName.lastIndexOf('$') + 1);
-        }
         BLangMarkdownDocumentation documentationNode = typeDefinition.getMarkdownDocumentationAttachment();
         List<DefaultableVariable> fields = getFields(recordType, recordType.fields, documentationNode, module);
         // only add records that are not empty
@@ -367,14 +340,6 @@ public class Generator {
                                             Module module) {
         List<Function> functions = new ArrayList<>();
         String name = parent.getName().getValue();
-
-        boolean isAnonymous = false;
-        // handle anonymous names
-        if (name != null && name.contains("$anonType$")) {
-            name = "T" + name.substring(name.lastIndexOf('$') + 1);
-            isAnonymous = true;
-        }
-        
         String description = description(parent);
         boolean isDeprecated = isDeprecated(parent.getAnnotationAttachments());
 
@@ -402,12 +367,12 @@ public class Generator {
         }
 
         if (isEndpoint(objectType)) {
-            module.clients.add(new Client(name, description, isDeprecated, fields, functions, isAnonymous));
+            module.clients.add(new Client(name, description, isDeprecated, fields, functions));
         } else if (isListener(objectType)) {
-            module.listeners.add(new Listener(name, description, isDeprecated, fields, functions, isAnonymous));
+            module.listeners.add(new Listener(name, description, isDeprecated, fields, functions));
         } else {
             module.objects.add(new Object(name, description, isDeprecated(parent.getAnnotationAttachments()), fields,
-                    functions, isAnonymous));
+                    functions));
         }
     }
 

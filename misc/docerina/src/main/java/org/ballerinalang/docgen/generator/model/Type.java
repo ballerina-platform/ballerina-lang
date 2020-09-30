@@ -208,12 +208,13 @@ public class Type {
         // If anonymous type substitute the name
         if (typeModel.name != null && typeModel.name.contains("$anonType$")) {
             // if anonymous empty record
-            if (type.type instanceof BRecordType && ((BRecordType) type.type).fields.isEmpty()) {
-                    typeModel.name = type.type.toString();
-                    typeModel.generateUserDefinedTypeLink = false;
+            if (type.type instanceof BRecordType && ((BRecordType) type.type).fields.isEmpty() &&
+                    type.type.isAnydata()) {
+                typeModel.name = "record {}";
             } else {
-                typeModel.name = "T" + typeModel.name.substring(typeModel.name.lastIndexOf('$') + 1);
+                typeModel.name = type.type.toString();
             }
+            typeModel.generateUserDefinedTypeLink = false;
         }
         return typeModel;
     }
