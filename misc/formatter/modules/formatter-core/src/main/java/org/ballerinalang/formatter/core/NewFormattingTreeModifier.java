@@ -41,6 +41,7 @@ import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
+import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
@@ -60,6 +61,7 @@ import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
 import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.LockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
 import io.ballerinalang.compiler.syntax.tree.MatchClauseNode;
@@ -1422,6 +1424,55 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         return matchGuardNode.modify()
                 .withIfKeyword(ifKeyword)
                 .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public LockStatementNode transform(LockStatementNode lockStatementNode) {
+        Token lockKeyword = formatToken(lockStatementNode.lockKeyword(), 1, 0);
+        StatementNode blockStatement;
+
+        if (lockStatementNode.onFailClause().isPresent()) {
+            blockStatement = formatNode(lockStatementNode.blockStatement(), 1, 0);
+            OnFailClauseNode onFailClause = formatNode(lockStatementNode.onFailClause().get(),
+                    this.trailingWS, this.trailingNL);
+            lockStatementNode = lockStatementNode.modify().withOnFailClause(onFailClause).apply();
+        } else {
+            blockStatement = formatNode(lockStatementNode.blockStatement(), this.trailingWS, this.trailingNL);
+        }
+
+        return lockStatementNode.modify()
+                .withLockKeyword(lockKeyword)
+                .withBlockStatement(blockStatement)
+                .apply();
+    }
+
+    @Override
+    public FieldAccessExpressionNode transform(FieldAccessExpressionNode fieldAccessExpressionNode) {
+        ExpressionNode expression = formatNode(fieldAccessExpressionNode.expression(), 0, 0);
+        Token dotToken = formatToken(fieldAccessExpressionNode.dotToken(), 0, 0);
+        NameReferenceNode fieldName = formatNode(fieldAccessExpressionNode.fieldName(),
+                this.trailingWS, this.trailingNL);
+
+        return fieldAccessExpressionNode.modify()
+                .withExpression(expression)
+                .withDotToken(dotToken)
+                .withFieldName(fieldName)
+                .apply();
+    }
+
+    @Override
+    public MetadataNode transform(MetadataNode metadataNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(metadataNode.annotations(), 0, 1, 0, 1);
+
+        if (metadataNode.documentationString().isPresent()) {
+            Node documentationString = formatNode(metadataNode.documentationString().get(),
+                    this.trailingWS, this.trailingNL);
+            metadataNode = metadataNode.modify().withDocumentationString(documentationString).apply();
+        }
+
+        return metadataNode.modify()
+                .withAnnotations(annotations)
                 .apply();
     }
 
