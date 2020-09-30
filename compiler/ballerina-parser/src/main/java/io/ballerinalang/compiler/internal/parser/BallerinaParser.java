@@ -1780,6 +1780,23 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    private boolean isClassDefnStart(int lookahead) {
+        switch (peek(lookahead + 1).kind) {
+            case READONLY_KEYWORD:
+            case DISTINCT_KEYWORD:
+            case CLASS_KEYWORD:
+                return true;
+            case ISOLATED_KEYWORD:
+            case CLIENT_KEYWORD:
+                return isClassDefnStart(lookahead + 1);
+            case OBJECT_KEYWORD:
+            case SERVICE_KEYWORD: // service service object { } on ...
+            case ON_KEYWORD: // service on ...
+            default:
+                return false;
+        }
+    }
+
     /**
      * Parse distinct type descriptor.
      * <p>
@@ -4689,6 +4706,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case CLIENT_KEYWORD:
+            case SERVICE_KEYWORD:
             case ISOLATED_KEYWORD: // Here we allow parsing isolated qualifier and then log an error
                 return consume();
             case OBJECT_KEYWORD:
