@@ -34,6 +34,8 @@ import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.DoStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
+import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.EnumMemberNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
@@ -1474,6 +1476,62 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         return metadataNode.modify()
                 .withAnnotations(annotations)
                 .apply();
+    }
+
+    @Override
+    public EnumDeclarationNode transform(EnumDeclarationNode enumDeclarationNode) {
+        if (enumDeclarationNode.metadata().isPresent()) {
+            MetadataNode metadata = formatNode(enumDeclarationNode.metadata().get(), 0, 1);
+            enumDeclarationNode = enumDeclarationNode.modify()
+                    .withMetadata(metadata).apply();
+        }
+
+        Token qualifier = formatToken(enumDeclarationNode.qualifier(), 1, 0);
+        Token enumKeywordToken = formatToken(enumDeclarationNode.enumKeywordToken(), 1, 0);
+        IdentifierToken identifier = formatNode(enumDeclarationNode.identifier(), 1, 0);
+        Token openBraceToken = formatToken(enumDeclarationNode.openBraceToken(), 0, 1);
+        indent();
+        SeparatedNodeList<Node> enumMemberList = formatSeparatedNodeList(enumDeclarationNode.enumMemberList(),
+                0, 0, 0, 1, 0, 1);
+        unindent();
+        Token closeBraceToken = formatToken(enumDeclarationNode.closeBraceToken(), this.trailingWS, this.trailingNL);
+
+        return enumDeclarationNode.modify()
+                .withQualifier(qualifier)
+                .withEnumKeywordToken(enumKeywordToken)
+                .withIdentifier(identifier)
+                .withOpenBraceToken(openBraceToken)
+                .withEnumMemberList(enumMemberList)
+                .withCloseBraceToken(closeBraceToken)
+                .apply();
+    }
+
+    @Override
+    public EnumMemberNode transform(EnumMemberNode enumMemberNode) {
+        if (enumMemberNode.metadata().isPresent()) {
+            MetadataNode metadata = formatNode(enumMemberNode.metadata().get(), 0, 1);
+            enumMemberNode = enumMemberNode.modify().withMetadata(metadata).apply();
+        }
+        IdentifierToken identifier;
+
+        if (enumMemberNode.equalToken().isPresent()) {
+            identifier = formatNode(enumMemberNode.identifier(), 1, 0);
+            Token equalToken = formatToken(enumMemberNode.equalToken().get(), 1, 0);
+            ExpressionNode constExprNode = formatNode(enumMemberNode.constExprNode().get(),
+                    this.trailingWS, this.trailingNL);
+
+            return enumMemberNode.modify()
+                    .withIdentifier(identifier)
+                    .withEqualToken(equalToken)
+                    .withConstExprNode(constExprNode)
+                    .apply();
+        } else {
+            identifier = formatNode(enumMemberNode.identifier(), this.trailingWS, this.trailingNL);
+
+            return enumMemberNode.modify()
+                    .withIdentifier(identifier)
+                    .apply();
+        }
     }
 
     @Override
