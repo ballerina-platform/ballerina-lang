@@ -30,10 +30,14 @@ import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.DoStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
+import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
@@ -51,14 +55,22 @@ import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
+import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
+import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
+import io.ballerinalang.compiler.syntax.tree.MatchClauseNode;
+import io.ballerinalang.compiler.syntax.tree.MatchGuardNode;
+import io.ballerinalang.compiler.syntax.tree.MatchStatementNode;
 import io.ballerinalang.compiler.syntax.tree.MetadataNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
+import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
@@ -66,6 +78,7 @@ import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.OnFailClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
@@ -77,6 +90,7 @@ import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerinalang.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
@@ -87,7 +101,11 @@ import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.TypeCastParamNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
@@ -703,7 +721,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         Token typeKeyword = formatToken(typeDefinitionNode.typeKeyword(), 1, 0);
         Token typeName = formatToken(typeDefinitionNode.typeName(), 1, 0);
-        Node typeDescriptor = formatNode(typeDefinitionNode.typeDescriptor(), 1, 0);
+        Node typeDescriptor = formatNode(typeDefinitionNode.typeDescriptor(), 0, 0);
         Token semicolonToken = formatToken(typeDefinitionNode.semicolonToken(), this.trailingWS, this.trailingNL);
 
         return typeDefinitionNode.modify()
@@ -1111,6 +1129,299 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .withOpenBracket(openBracket)
                 .withExpressions(expressions)
                 .withCloseBracket(closeBracket)
+                .apply();
+    }
+
+    @Override
+    public ErrorTypeDescriptorNode transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
+        if (errorTypeDescriptorNode.errorTypeParamsNode().isPresent()) {
+            Token errorKeywordToken = formatToken(errorTypeDescriptorNode.errorKeywordToken(), 1, 0);
+            ErrorTypeParamsNode errorTypeParamsNode = formatNode(errorTypeDescriptorNode.errorTypeParamsNode().get(),
+                    this.trailingWS, this.trailingNL);
+
+            return errorTypeDescriptorNode.modify()
+                    .withErrorKeywordToken(errorKeywordToken)
+                    .withErrorTypeParamsNode(errorTypeParamsNode)
+                    .apply();
+        } else {
+            Token errorKeywordToken = formatToken(errorTypeDescriptorNode.errorKeywordToken(),
+                    this.trailingWS, this.trailingNL);
+
+            return errorTypeDescriptorNode.modify()
+                    .withErrorKeywordToken(errorKeywordToken)
+                    .apply();
+        }
+    }
+
+    @Override
+    public PanicStatementNode transform(PanicStatementNode panicStatementNode) {
+        Token panicKeyword = formatToken(panicStatementNode.panicKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(panicStatementNode.expression(), 0, 0);
+        Token semicolonToken = formatToken(panicStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+
+        return panicStatementNode.modify()
+                .withPanicKeyword(panicKeyword)
+                .withExpression(expression)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public IntersectionTypeDescriptorNode transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
+        Node leftTypeDesc = formatNode(intersectionTypeDescriptorNode.leftTypeDesc(), 1, 0);
+        Token bitwiseAndToken = formatToken(intersectionTypeDescriptorNode.bitwiseAndToken(), 1, 0);
+        Node rightTypeDesc = formatNode(intersectionTypeDescriptorNode.rightTypeDesc(),
+                this.trailingWS, this.trailingNL);
+
+        return intersectionTypeDescriptorNode.modify()
+                .withLeftTypeDesc(leftTypeDesc)
+                .withBitwiseAndToken(bitwiseAndToken)
+                .withRightTypeDesc(rightTypeDesc)
+                .apply();
+    }
+
+    @Override
+    public ModuleVariableDeclarationNode transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
+        if (moduleVariableDeclarationNode.metadata().isPresent()) {
+            MetadataNode metadata = formatNode(moduleVariableDeclarationNode.metadata().get(), 1, 0);
+            moduleVariableDeclarationNode = moduleVariableDeclarationNode.modify().withMetadata(metadata).apply();
+        }
+
+        if (moduleVariableDeclarationNode.finalKeyword().isPresent()) {
+            Token finalKeyword = formatToken(moduleVariableDeclarationNode.finalKeyword().get(), 1, 0);
+            moduleVariableDeclarationNode = moduleVariableDeclarationNode.modify()
+                    .withFinalKeyword(finalKeyword).apply();
+        }
+
+        TypedBindingPatternNode typedBindingPatternNode =
+                formatNode(moduleVariableDeclarationNode.typedBindingPattern(), 1, 0);
+        Token equalsToken = formatToken(moduleVariableDeclarationNode.equalsToken(), 1, 0);
+        ExpressionNode initializer = formatNode(moduleVariableDeclarationNode.initializer(), 0, 0);
+        Token semicolonToken = formatToken(moduleVariableDeclarationNode.semicolonToken(),
+                this.trailingWS, this.trailingNL);
+
+        return moduleVariableDeclarationNode.modify()
+                .withTypedBindingPattern(typedBindingPatternNode)
+                .withEqualsToken(equalsToken)
+                .withInitializer(initializer)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public ExpressionFunctionBodyNode transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
+        Token rightDoubleArrow = formatToken(expressionFunctionBodyNode.rightDoubleArrow(), 1, 0);
+
+        if (expressionFunctionBodyNode.semicolon().isPresent()) {
+            ExpressionNode expression = formatNode(expressionFunctionBodyNode.expression(), 0, 0);
+            Token semicolon = formatToken(expressionFunctionBodyNode.semicolon().get(),
+                    this.trailingWS, this.trailingNL);
+
+            return expressionFunctionBodyNode.modify()
+                    .withRightDoubleArrow(rightDoubleArrow)
+                    .withExpression(expression)
+                    .withSemicolon(semicolon)
+                    .apply();
+        } else {
+            ExpressionNode expression = formatNode(expressionFunctionBodyNode.expression(),
+                    this.trailingWS, this.trailingNL);
+
+            return expressionFunctionBodyNode.modify()
+                    .withRightDoubleArrow(rightDoubleArrow)
+                    .withExpression(expression)
+                    .apply();
+        }
+    }
+
+    @Override
+    public TypeCastExpressionNode transform(TypeCastExpressionNode typeCastExpressionNode) {
+        Token ltToken = formatToken(typeCastExpressionNode.ltToken(), 0, 0);
+        TypeCastParamNode typeCastParam = formatNode(typeCastExpressionNode.typeCastParam(), 0, 0);
+        Token gtToken = formatToken(typeCastExpressionNode.gtToken(), 0, 0);
+        ExpressionNode expression = formatNode(typeCastExpressionNode.expression(), this.trailingWS, this.trailingNL);
+
+        return typeCastExpressionNode.modify()
+                .withLtToken(ltToken)
+                .withTypeCastParam(typeCastParam)
+                .withGtToken(gtToken)
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public TypeCastParamNode transform(TypeCastParamNode typeCastParamNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(typeCastParamNode.annotations(), 0, 1, 1, 0);
+        Node type = formatNode(typeCastParamNode.type(), this.trailingWS, this.trailingNL);
+
+        return typeCastParamNode.modify()
+                .withAnnotations(annotations)
+                .withType(type)
+                .apply();
+    }
+
+    @Override
+    public IndexedExpressionNode transform(IndexedExpressionNode indexedExpressionNode) {
+        ExpressionNode containerExpression = formatNode(indexedExpressionNode.containerExpression(), 0, 0);
+        Token openBracket = formatToken(indexedExpressionNode.openBracket(), 0, 0);
+        SeparatedNodeList<ExpressionNode> keyExpression = formatSeparatedNodeList(indexedExpressionNode.keyExpression(),
+                0, 0, 0, 0);
+        Token closeBracket = formatToken(indexedExpressionNode.closeBracket(), this.trailingWS, this.trailingNL);
+
+        return indexedExpressionNode.modify()
+                .withContainerExpression(containerExpression)
+                .withOpenBracket(openBracket)
+                .withKeyExpression(keyExpression)
+                .withCloseBracket(closeBracket)
+                .apply();
+    }
+
+    @Override
+    public ComputedNameFieldNode transform(ComputedNameFieldNode computedNameFieldNode) {
+        Token openBracket = formatToken(computedNameFieldNode.openBracket(), 0, 0);
+        ExpressionNode fieldNameExpr = formatNode(computedNameFieldNode.fieldNameExpr(), 0, 0);
+        Token closeBracket = formatToken(computedNameFieldNode.closeBracket(), 1, 0);
+        Token colonToken = formatToken(computedNameFieldNode.colonToken(), 1, 0);
+        ExpressionNode valueExpr = formatNode(computedNameFieldNode.valueExpr(), this.trailingWS, this.trailingNL);
+
+        return computedNameFieldNode.modify()
+                .withOpenBracket(openBracket)
+                .withFieldNameExpr(fieldNameExpr)
+                .withCloseBracket(closeBracket)
+                .withColonToken(colonToken)
+                .withValueExpr(valueExpr)
+                .apply();
+    }
+
+    @Override
+    public TupleTypeDescriptorNode transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
+        Token openBracketToken = formatToken(tupleTypeDescriptorNode.openBracketToken(), 0, 0);
+        SeparatedNodeList<Node> memberTypeDesc = formatSeparatedNodeList(tupleTypeDescriptorNode.memberTypeDesc(),
+                0, 0, 0, 0);
+        Token closeBracketToken = formatToken(tupleTypeDescriptorNode.closeBracketToken(),
+                this.trailingWS, this.trailingNL);
+
+        return tupleTypeDescriptorNode.modify()
+                .withOpenBracketToken(openBracketToken)
+                .withMemberTypeDesc(memberTypeDesc)
+                .withCloseBracketToken(closeBracketToken)
+                .apply();
+    }
+
+    @Override
+    public ListBindingPatternNode transform(ListBindingPatternNode listBindingPatternNode) {
+        Token openBracket = formatToken(listBindingPatternNode.openBracket(), 0, 0);
+        SeparatedNodeList<BindingPatternNode> bindingPatternNodes =
+                formatSeparatedNodeList(listBindingPatternNode.bindingPatterns(), 0, 0, 0, 0);
+        Token closeBracket = formatToken(listBindingPatternNode.closeBracket(), this.trailingWS, this.trailingNL);
+
+        if (listBindingPatternNode.restBindingPattern().isPresent()) {
+            RestBindingPatternNode restBindingPattern = formatNode(listBindingPatternNode.restBindingPattern().get(),
+                    this.trailingWS, this.trailingNL);
+            listBindingPatternNode = listBindingPatternNode.modify().withRestBindingPattern(restBindingPattern).apply();
+        }
+
+        return listBindingPatternNode.modify()
+                .withOpenBracket(openBracket)
+                .withBindingPatterns(bindingPatternNodes)
+                .withCloseBracket(closeBracket)
+                .apply();
+    }
+
+    @Override
+    public RestBindingPatternNode transform(RestBindingPatternNode restBindingPatternNode) {
+        Token ellipsisToken = formatToken(restBindingPatternNode.ellipsisToken(), 0, 0);
+        SimpleNameReferenceNode variableName = formatNode(restBindingPatternNode.variableName(),
+                this.trailingWS, this.trailingNL);
+
+        return restBindingPatternNode.modify()
+                .withEllipsisToken(ellipsisToken)
+                .withVariableName(variableName)
+                .apply();
+    }
+
+    @Override
+    public TableTypeDescriptorNode transform(TableTypeDescriptorNode tableTypeDescriptorNode) {
+        Token tableKeywordToken = formatToken(tableTypeDescriptorNode.tableKeywordToken(), 0, 0);
+        Node rowTypeParameterNode = formatNode(tableTypeDescriptorNode.rowTypeParameterNode(), 1, 0);
+        Node keyConstraintNode = formatNode(tableTypeDescriptorNode.keyConstraintNode(), 1, 0);
+
+        return tableTypeDescriptorNode.modify()
+                .withTableKeywordToken(tableKeywordToken)
+                .withRowTypeParameterNode(rowTypeParameterNode)
+                .withKeyConstraintNode(keyConstraintNode)
+                .apply();
+    }
+
+    @Override
+    public KeyTypeConstraintNode transform(KeyTypeConstraintNode keyTypeConstraintNode) {
+        Token keyKeywordToken = formatToken(keyTypeConstraintNode.keyKeywordToken(), 0, 0);
+        Node typeParameterNode = formatNode(keyTypeConstraintNode.typeParameterNode(),
+                this.trailingWS, this.trailingNL);
+
+        return keyTypeConstraintNode.modify()
+                .withKeyKeywordToken(keyKeywordToken)
+                .withTypeParameterNode(typeParameterNode)
+                .apply();
+    }
+
+    @Override
+    public MatchStatementNode transform(MatchStatementNode matchStatementNode) {
+        boolean hasOnFailClause = matchStatementNode.onFailClause().isPresent();
+        Token matchKeyword = formatToken(matchStatementNode.matchKeyword(), 1, 0);
+        ExpressionNode condition = formatNode(matchStatementNode.condition(), 1, 0);
+        Token openBrace = formatToken(matchStatementNode.openBrace(), 0, 1);
+        indent();
+        NodeList<MatchClauseNode> matchClauses = formatNodeList(matchStatementNode.matchClauses(), 0, 1, 0, 1);
+        unindent();
+        Token closeBrace;
+
+        if (hasOnFailClause) {
+            closeBrace = formatToken(matchStatementNode.closeBrace(), 1, 0);
+            OnFailClauseNode onFailClause = formatNode(matchStatementNode.onFailClause().get(),
+                    this.trailingWS, this.trailingNL);
+            matchStatementNode = matchStatementNode.modify().withOnFailClause(onFailClause).apply();
+        } else {
+            closeBrace = formatToken(matchStatementNode.closeBrace(), this.trailingWS, this.trailingNL);
+        }
+
+        return matchStatementNode.modify()
+                .withMatchKeyword(matchKeyword)
+                .withCondition(condition)
+                .withOpenBrace(openBrace)
+                .withMatchClauses(matchClauses)
+                .withCloseBrace(closeBrace)
+                .apply();
+    }
+
+    @Override
+    public MatchClauseNode transform(MatchClauseNode matchClauseNode) {
+        SeparatedNodeList<Node> matchPatterns = formatSeparatedNodeList(matchClauseNode.matchPatterns(),
+                0, 0, 0, 0, 1, 0);
+
+        if (matchClauseNode.matchGuard().isPresent()) {
+            MatchGuardNode matchGuard = formatNode(matchClauseNode.matchGuard().get(), 1, 0);
+            matchClauseNode = matchClauseNode.modify().withMatchGuard(matchGuard).apply();
+        }
+
+        Token rightDoubleArrow = formatToken(matchClauseNode.rightDoubleArrow(), 1, 0);
+        BlockStatementNode blockStatement = formatNode(matchClauseNode.blockStatement(),
+                this.trailingWS, this.trailingNL);
+
+        return matchClauseNode.modify()
+                .withMatchPatterns(matchPatterns)
+                .withRightDoubleArrow(rightDoubleArrow)
+                .withBlockStatement(blockStatement)
+                .apply();
+    }
+
+    @Override
+    public MatchGuardNode transform(MatchGuardNode matchGuardNode) {
+        Token ifKeyword = formatToken(matchGuardNode.ifKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(matchGuardNode.expression(), this.trailingWS, this.trailingNL);
+
+        return matchGuardNode.modify()
+                .withIfKeyword(ifKeyword)
+                .withExpression(expression)
                 .apply();
     }
 
