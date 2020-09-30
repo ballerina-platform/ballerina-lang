@@ -33,6 +33,7 @@ import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.DoStatementNode;
+import io.ballerinalang.compiler.syntax.tree.DocumentationReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.EnumMemberNode;
@@ -66,6 +67,9 @@ import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.LockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
+import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationLineNode;
+import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationNode;
+import io.ballerinalang.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
 import io.ballerinalang.compiler.syntax.tree.MatchClauseNode;
 import io.ballerinalang.compiler.syntax.tree.MatchGuardNode;
 import io.ballerinalang.compiler.syntax.tree.MatchStatementNode;
@@ -1532,6 +1536,63 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .withIdentifier(identifier)
                     .apply();
         }
+    }
+
+    @Override
+    public MarkdownDocumentationNode transform(MarkdownDocumentationNode markdownDocumentationNode) {
+        NodeList<Node> documentationLines = formatNodeList(markdownDocumentationNode.documentationLines(), 0, 0, 0, 1);
+
+        return markdownDocumentationNode.modify()
+                .withDocumentationLines(documentationLines)
+                .apply();
+    }
+
+    @Override
+    public MarkdownDocumentationLineNode transform(MarkdownDocumentationLineNode markdownDocumentationLineNode) {
+        Token hashToken = formatToken(markdownDocumentationLineNode.hashToken(), 0, 0);
+        NodeList<Node> documentElements = formatNodeList(markdownDocumentationLineNode.documentElements(), 0, 0, 0, 1);
+
+        return markdownDocumentationLineNode.modify()
+                .withDocumentElements(documentElements)
+                .withHashToken(hashToken)
+                .apply();
+    }
+
+    @Override
+    public MarkdownParameterDocumentationLineNode transform(
+            MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
+        Token hashToken = formatToken(markdownParameterDocumentationLineNode.hashToken(), 1, 0);
+        Token plusToken = formatToken(markdownParameterDocumentationLineNode.plusToken(), 1, 0);
+        Token parameterName = formatToken(markdownParameterDocumentationLineNode.parameterName(), 1, 0);
+        Token minusToken = formatToken(markdownParameterDocumentationLineNode.minusToken(), 0, 0);
+        NodeList<Node> documentElements =
+                formatNodeList(markdownParameterDocumentationLineNode.documentElements(), 0, 0, 0, 1);
+
+        return markdownParameterDocumentationLineNode.modify()
+                .withHashToken(hashToken)
+                .withPlusToken(plusToken)
+                .withParameterName(parameterName)
+                .withMinusToken(minusToken)
+                .withDocumentElements(documentElements)
+                .apply();
+    }
+
+    @Override
+    public DocumentationReferenceNode transform(DocumentationReferenceNode documentationReferenceNode) {
+        if (documentationReferenceNode.referenceType().isPresent()) {
+            Token referenceType = formatToken(documentationReferenceNode.referenceType().get(), 1, 0);
+            documentationReferenceNode = documentationReferenceNode.modify().withReferenceType(referenceType).apply();
+        }
+
+        Token startBacktick = formatToken(documentationReferenceNode.startBacktick(), 0, 0);
+        Node backtickContent = formatNode(documentationReferenceNode.backtickContent(), 0, 0);
+        Token endBacktick = formatToken(documentationReferenceNode.endBacktick(), this.trailingWS, this.trailingNL);
+
+        return documentationReferenceNode.modify()
+                .withStartBacktick(startBacktick)
+                .withBacktickContent(backtickContent)
+                .withEndBacktick(endBacktick)
+                .apply();
     }
 
     @Override
