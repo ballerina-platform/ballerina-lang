@@ -282,6 +282,7 @@ import javax.xml.XMLConstants;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
+import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createErrorVariableDef;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createExpressionStmt;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createLiteral;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createStatementExpression;
@@ -1506,9 +1507,16 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (parentErrorVariable.cause != null) {
-            BLangSimpleVariableDef causeVariableDef =
-                    ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.cause.pos, parentBlockStmt);
-            causeVariableDef.var = parentErrorVariable.cause;
+            BLangVariable errorCause = parentErrorVariable.cause;
+            if (errorCause.getKind() == NodeKind.ERROR_VARIABLE) {
+                BLangErrorVariableDef errorVarDef = createErrorVariableDef(errorCause.pos,
+                        (BLangErrorVariable) errorCause);
+                parentBlockStmt.addStatement(errorVarDef);
+            } else {
+                BLangSimpleVariableDef causeVariableDef =
+                        ASTBuilderUtil.createVariableDefStmt(parentErrorVariable.cause.pos, parentBlockStmt);
+                causeVariableDef.var = (BLangSimpleVariable) parentErrorVariable.cause;
+            }
             parentErrorVariable.cause.expr = generateErrorCauseLanglibFunction(parentErrorVariable.cause.pos,
                     parentErrorVariable.cause.type, convertedErrorVarSymbol, null);
         }
