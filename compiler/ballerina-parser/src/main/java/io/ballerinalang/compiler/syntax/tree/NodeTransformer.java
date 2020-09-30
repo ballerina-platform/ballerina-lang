@@ -272,10 +272,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(typeReferenceNode);
     }
 
-    public T transform(ServiceBodyNode serviceBodyNode) {
-        return transformSyntaxNode(serviceBodyNode);
-    }
-
     public T transform(AnnotationNode annotationNode) {
         return transformSyntaxNode(annotationNode);
     }
@@ -310,6 +306,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(AnnotationAttachPointNode annotationAttachPointNode) {
         return transformSyntaxNode(annotationAttachPointNode);
+    }
+
+    public T transform(RemoteServiceAttachPointIdentifierNode remoteServiceAttachPointIdentifierNode) {
+        return transformSyntaxNode(remoteServiceAttachPointIdentifierNode);
     }
 
     public T transform(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {

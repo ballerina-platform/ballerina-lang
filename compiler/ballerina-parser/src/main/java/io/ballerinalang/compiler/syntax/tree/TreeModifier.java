@@ -164,8 +164,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(serviceDeclarationNode.onKeyword());
         SeparatedNodeList<ExpressionNode> expressions =
                 modifySeparatedNodeList(serviceDeclarationNode.expressions());
-        Node serviceBody =
-                modifyNode(serviceDeclarationNode.serviceBody());
+        Token openBraceToken =
+                modifyToken(serviceDeclarationNode.openBraceToken());
+        NodeList<Node> members =
+                modifyNodeList(serviceDeclarationNode.members());
+        Token closeBraceToken =
+                modifyToken(serviceDeclarationNode.closeBraceToken());
         return serviceDeclarationNode.modify(
                 metadata,
                 serviceKeyword,
@@ -173,7 +177,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody);
+                openBraceToken,
+                members,
+                closeBraceToken);
     }
 
     @Override
@@ -1066,21 +1072,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ServiceBodyNode transform(
-            ServiceBodyNode serviceBodyNode) {
-        Token openBraceToken =
-                modifyToken(serviceBodyNode.openBraceToken());
-        NodeList<Node> members =
-                modifyNodeList(serviceBodyNode.members());
-        Token closeBraceToken =
-                modifyToken(serviceBodyNode.closeBraceToken());
-        return serviceBodyNode.modify(
-                openBraceToken,
-                members,
-                closeBraceToken);
-    }
-
-    @Override
     public AnnotationNode transform(
             AnnotationNode annotationNode) {
         Token atToken =
@@ -1232,14 +1223,26 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             AnnotationAttachPointNode annotationAttachPointNode) {
         Token sourceKeyword =
                 modifyToken(annotationAttachPointNode.sourceKeyword());
-        Token firstIdent =
-                modifyToken(annotationAttachPointNode.firstIdent());
+        Node firstIdent =
+                modifyNode(annotationAttachPointNode.firstIdent());
         Token secondIdent =
                 modifyToken(annotationAttachPointNode.secondIdent());
         return annotationAttachPointNode.modify(
                 sourceKeyword,
                 firstIdent,
                 secondIdent);
+    }
+
+    @Override
+    public RemoteServiceAttachPointIdentifierNode transform(
+            RemoteServiceAttachPointIdentifierNode remoteServiceAttachPointIdentifierNode) {
+        Token serviceKeyword =
+                modifyToken(remoteServiceAttachPointIdentifierNode.serviceKeyword());
+        Token remoteKeyword =
+                modifyToken(remoteServiceAttachPointIdentifierNode.remoteKeyword());
+        return remoteServiceAttachPointIdentifierNode.modify(
+                serviceKeyword,
+                remoteKeyword);
     }
 
     @Override

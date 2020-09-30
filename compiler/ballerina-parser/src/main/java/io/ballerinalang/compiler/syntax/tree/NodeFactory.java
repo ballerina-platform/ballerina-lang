@@ -152,12 +152,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             NodeList<Token> absoluteResourcePath,
             Token onKeyword,
             SeparatedNodeList<ExpressionNode> expressions,
-            Node serviceBody) {
+            Token openBraceToken,
+            NodeList<Node> members,
+            Token closeBraceToken) {
         Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
         Objects.requireNonNull(absoluteResourcePath, "absoluteResourcePath must not be null");
         Objects.requireNonNull(onKeyword, "onKeyword must not be null");
         Objects.requireNonNull(expressions, "expressions must not be null");
-        Objects.requireNonNull(serviceBody, "serviceBody must not be null");
+        Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+        Objects.requireNonNull(members, "members must not be null");
+        Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
 
         STNode stServiceDeclarationNode = STNodeFactory.createServiceDeclarationNode(
                 getOptionalSTNode(metadata),
@@ -166,7 +170,9 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 absoluteResourcePath.underlyingListNode().internalNode(),
                 onKeyword.internalNode(),
                 expressions.underlyingListNode().internalNode(),
-                serviceBody.internalNode());
+                openBraceToken.internalNode(),
+                members.underlyingListNode().internalNode(),
+                closeBraceToken.internalNode());
         return stServiceDeclarationNode.createUnlinkedFacade();
     }
 
@@ -1035,21 +1041,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stTypeReferenceNode.createUnlinkedFacade();
     }
 
-    public static ServiceBodyNode createServiceBodyNode(
-            Token openBraceToken,
-            NodeList<Node> members,
-            Token closeBraceToken) {
-        Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
-        Objects.requireNonNull(members, "members must not be null");
-        Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
-
-        STNode stServiceBodyNode = STNodeFactory.createServiceBodyNode(
-                openBraceToken.internalNode(),
-                members.underlyingListNode().internalNode(),
-                closeBraceToken.internalNode());
-        return stServiceBodyNode.createUnlinkedFacade();
-    }
-
     public static AnnotationNode createAnnotationNode(
             Token atToken,
             Node annotReference,
@@ -1194,7 +1185,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static AnnotationAttachPointNode createAnnotationAttachPointNode(
             Token sourceKeyword,
-            Token firstIdent,
+            Node firstIdent,
             Token secondIdent) {
         Objects.requireNonNull(sourceKeyword, "sourceKeyword must not be null");
         Objects.requireNonNull(firstIdent, "firstIdent must not be null");
@@ -1205,6 +1196,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 firstIdent.internalNode(),
                 secondIdent.internalNode());
         return stAnnotationAttachPointNode.createUnlinkedFacade();
+    }
+
+    public static RemoteServiceAttachPointIdentifierNode createRemoteServiceAttachPointIdentifierNode(
+            Token serviceKeyword,
+            Token remoteKeyword) {
+        Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
+        Objects.requireNonNull(remoteKeyword, "remoteKeyword must not be null");
+
+        STNode stRemoteServiceAttachPointIdentifierNode = STNodeFactory.createRemoteServiceAttachPointIdentifierNode(
+                serviceKeyword.internalNode(),
+                remoteKeyword.internalNode());
+        return stRemoteServiceAttachPointIdentifierNode.createUnlinkedFacade();
     }
 
     public static XMLNamespaceDeclarationNode createXMLNamespaceDeclarationNode(

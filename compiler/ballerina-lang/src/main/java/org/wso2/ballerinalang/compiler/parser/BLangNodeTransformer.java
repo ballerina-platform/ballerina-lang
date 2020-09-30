@@ -159,8 +159,6 @@ import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RollbackStatementNode;
 import io.ballerinalang.compiler.syntax.tree.SelectClauseNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
@@ -1039,38 +1037,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return simpleVar;
     }
 
-    public void addServiceConstructsToClassDefinition(ServiceBodyNode serviceBodyNode,
-                                                      BLangClassDefinition classDefinition) {
-        classDefinition.flagSet.add(SERVICE);
-        for (Node resourceNode : serviceBodyNode.members()) {
-            BLangNode bLangNode = resourceNode.apply(this);
-            if (bLangNode.getKind() == NodeKind.FUNCTION) {
-                BLangFunction bLangFunction = (BLangFunction) bLangNode;
-                bLangFunction.attachedFunction = true;
-                bLangFunction.flagSet.add(Flag.ATTACHED);
-                classDefinition.addFunction(bLangFunction);
-            }
-        }
-    }
-
-    @Override
-    public BLangNode transform(ServiceBodyNode serviceBodyNode) {
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
-        objectTypeNode.flagSet.add(SERVICE);
-        for (Node resourceNode : serviceBodyNode.members()) {
-            BLangNode bLangNode = resourceNode.apply(this);
-            if (bLangNode.getKind() == NodeKind.FUNCTION) {
-                BLangFunction bLangFunction = (BLangFunction) bLangNode;
-                bLangFunction.attachedFunction = true;
-                bLangFunction.flagSet.add(Flag.ATTACHED);
-                objectTypeNode.addFunction(bLangFunction);
-            }
-        }
-        objectTypeNode.isAnonymous = false;
-        objectTypeNode.pos = getPosition(serviceBodyNode);
-        return objectTypeNode;
-    }
-
     @Override
     public BLangNode transform(ExpressionFunctionBodyNode expressionFunctionBodyNode) {
         BLangExprFunctionBody bLExprFunctionBody = (BLangExprFunctionBody) TreeBuilder.createExprFunctionBodyNode();
@@ -1564,11 +1530,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             AnnotationAttachPointNode attachPoint = (AnnotationAttachPointNode) child;
             boolean source = attachPoint.sourceKeyword() != null;
             AttachPoint bLAttachPoint;
-            Token firstIndent =  attachPoint.firstIdent();
+            Node firstIndent =  attachPoint.firstIdent();
 
+            Token secondIndent;
             switch (firstIndent.kind()) {
                 case OBJECT_KEYWORD:
-                    Token secondIndent = attachPoint.secondIdent();
+                    secondIndent = attachPoint.secondIdent();
                     switch (secondIndent.kind()) {
                         case FUNCTION_KEYWORD:
                             bLAttachPoint =
@@ -1582,14 +1549,23 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                             throw new RuntimeException("Syntax kind is not supported: " + secondIndent.kind());
                     }
                     break;
-                case RESOURCE_KEYWORD:
-                    bLAttachPoint = AttachPoint.getAttachmentPoint(AttachPoint.Point.RESOURCE.getValue(), source);
+                case SERVICE_KEYWORD:
+                    secondIndent = attachPoint.secondIdent();
+                    String value;
+                    if (secondIndent == null) {
+                       value = AttachPoint.Point.SERVICE.getValue();
+                    } else if (secondIndent.kind() == SyntaxKind.REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER) {
+                        value = AttachPoint.Point.SERVICE_REMOTE.getValue();
+                    } else {
+                        throw new RuntimeException("Syntax kind is not supported: " + secondIndent.kind());
+                    }
+                    bLAttachPoint = AttachPoint.getAttachmentPoint(value, source);
                     break;
                 case RECORD_KEYWORD:
                     bLAttachPoint = AttachPoint.getAttachmentPoint(AttachPoint.Point.RECORD_FIELD.getValue(), source);
                     break;
                 default:
-                    bLAttachPoint = AttachPoint.getAttachmentPoint(firstIndent.text(), source);
+                    bLAttachPoint = AttachPoint.getAttachmentPoint(((Token) firstIndent).text(), source);
             }
             annotationDecl.addAttachPoint(bLAttachPoint);
         }

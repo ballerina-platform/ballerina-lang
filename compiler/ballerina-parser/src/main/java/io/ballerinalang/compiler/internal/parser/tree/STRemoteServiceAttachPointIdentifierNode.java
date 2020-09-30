@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
+import io.ballerinalang.compiler.syntax.tree.RemoteServiceAttachPointIdentifierNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,66 +30,56 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STServiceBodyNode extends STNode {
-    public final STNode openBraceToken;
-    public final STNode members;
-    public final STNode closeBraceToken;
+public class STRemoteServiceAttachPointIdentifierNode extends STNode {
+    public final STNode serviceKeyword;
+    public final STNode remoteKeyword;
 
-    STServiceBodyNode(
-            STNode openBraceToken,
-            STNode members,
-            STNode closeBraceToken) {
+    STRemoteServiceAttachPointIdentifierNode(
+            STNode serviceKeyword,
+            STNode remoteKeyword) {
         this(
-                openBraceToken,
-                members,
-                closeBraceToken,
+                serviceKeyword,
+                remoteKeyword,
                 Collections.emptyList());
     }
 
-    STServiceBodyNode(
-            STNode openBraceToken,
-            STNode members,
-            STNode closeBraceToken,
+    STRemoteServiceAttachPointIdentifierNode(
+            STNode serviceKeyword,
+            STNode remoteKeyword,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.SERVICE_BODY, diagnostics);
-        this.openBraceToken = openBraceToken;
-        this.members = members;
-        this.closeBraceToken = closeBraceToken;
+        super(SyntaxKind.REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER, diagnostics);
+        this.serviceKeyword = serviceKeyword;
+        this.remoteKeyword = remoteKeyword;
 
         addChildren(
-                openBraceToken,
-                members,
-                closeBraceToken);
+                serviceKeyword,
+                remoteKeyword);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STServiceBodyNode(
-                this.openBraceToken,
-                this.members,
-                this.closeBraceToken,
+        return new STRemoteServiceAttachPointIdentifierNode(
+                this.serviceKeyword,
+                this.remoteKeyword,
                 diagnostics);
     }
 
-    public STServiceBodyNode modify(
-            STNode openBraceToken,
-            STNode members,
-            STNode closeBraceToken) {
+    public STRemoteServiceAttachPointIdentifierNode modify(
+            STNode serviceKeyword,
+            STNode remoteKeyword) {
         if (checkForReferenceEquality(
-                openBraceToken,
-                members,
-                closeBraceToken)) {
+                serviceKeyword,
+                remoteKeyword)) {
             return this;
         }
 
-        return new STServiceBodyNode(
-                openBraceToken,
-                members,
-                closeBraceToken,
+        return new STRemoteServiceAttachPointIdentifierNode(
+                serviceKeyword,
+                remoteKeyword,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ServiceBodyNode(this, position, parent);
+        return new RemoteServiceAttachPointIdentifierNode(this, position, parent);
     }
 
     @Override

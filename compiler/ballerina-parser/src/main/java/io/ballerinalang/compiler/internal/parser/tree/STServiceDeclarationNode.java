@@ -37,7 +37,9 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
     public final STNode absoluteResourcePath;
     public final STNode onKeyword;
     public final STNode expressions;
-    public final STNode serviceBody;
+    public final STNode openBraceToken;
+    public final STNode members;
+    public final STNode closeBraceToken;
 
     STServiceDeclarationNode(
             STNode metadata,
@@ -46,7 +48,9 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
-            STNode serviceBody) {
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken) {
         this(
                 metadata,
                 serviceKeyword,
@@ -54,7 +58,9 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody,
+                openBraceToken,
+                members,
+                closeBraceToken,
                 Collections.emptyList());
     }
 
@@ -65,7 +71,9 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
-            STNode serviceBody,
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.SERVICE_DECLARATION, diagnostics);
         this.metadata = metadata;
@@ -74,7 +82,9 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
         this.absoluteResourcePath = absoluteResourcePath;
         this.onKeyword = onKeyword;
         this.expressions = expressions;
-        this.serviceBody = serviceBody;
+        this.openBraceToken = openBraceToken;
+        this.members = members;
+        this.closeBraceToken = closeBraceToken;
 
         addChildren(
                 metadata,
@@ -83,7 +93,9 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody);
+                openBraceToken,
+                members,
+                closeBraceToken);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -94,7 +106,9 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 this.absoluteResourcePath,
                 this.onKeyword,
                 this.expressions,
-                this.serviceBody,
+                this.openBraceToken,
+                this.members,
+                this.closeBraceToken,
                 diagnostics);
     }
 
@@ -105,7 +119,9 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
-            STNode serviceBody) {
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken) {
         if (checkForReferenceEquality(
                 metadata,
                 serviceKeyword,
@@ -113,7 +129,9 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody)) {
+                openBraceToken,
+                members,
+                closeBraceToken)) {
             return this;
         }
 
@@ -124,7 +142,9 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody,
+                openBraceToken,
+                members,
+                closeBraceToken,
                 diagnostics);
     }
 

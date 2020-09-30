@@ -245,6 +245,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_DUPLICATE_QUALIFIER("BCE208", "error.duplicate.qualifier"),
     // Cannot apply a particular qualifier in a certain context
     ERROR_QUALIFIER_NOT_ALLOWED("BCE209", "error.qualifier.not.allowed"),
+    // Cannot have service and client qualifiers at the same time
+    ERROR_MORE_THAN_ONE_OBJECT_NETWORK_QUALIFIERS("BCE210", "error.more.than.one.object.network.qualifiers"),
     // Cannot have type inclusions in object constructor
     ERROR_TYPE_INCLUSION_IN_OBJECT_CONSTRUCTOR("BCE214", "error.type.inclusion.in.object.constructor"),
     // Mapping constructor expression cannot be used as a wait expression

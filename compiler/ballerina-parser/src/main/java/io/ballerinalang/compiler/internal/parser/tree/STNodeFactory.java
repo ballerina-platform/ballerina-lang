@@ -128,7 +128,9 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
-            STNode serviceBody) {
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken) {
 
         return new STServiceDeclarationNode(
                 metadata,
@@ -137,7 +139,9 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody);
+                openBraceToken,
+                members,
+                closeBraceToken);
     }
 
     public static STNode createAssignmentStatementNode(
@@ -790,17 +794,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createServiceBodyNode(
-            STNode openBraceToken,
-            STNode members,
-            STNode closeBraceToken) {
-
-        return new STServiceBodyNode(
-                openBraceToken,
-                members,
-                closeBraceToken);
-    }
-
     public static STNode createAnnotationNode(
             STNode atToken,
             STNode annotReference,
@@ -916,6 +909,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 sourceKeyword,
                 firstIdent,
                 secondIdent);
+    }
+
+    public static STNode createRemoteServiceAttachPointIdentifierNode(
+            STNode serviceKeyword,
+            STNode remoteKeyword) {
+
+        return new STRemoteServiceAttachPointIdentifierNode(
+                serviceKeyword,
+                remoteKeyword);
     }
 
     public static STNode createXMLNamespaceDeclarationNode(

@@ -730,7 +730,6 @@ public class SyntaxErrors {
             case ANNOT_DECL_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_ON_KEYWORD;
             case RESOURCE_KEYWORD:
-            case RESOURCE_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_RESOURCE_KEYWORD;
             case FINAL_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_FINAL_KEYWORD;

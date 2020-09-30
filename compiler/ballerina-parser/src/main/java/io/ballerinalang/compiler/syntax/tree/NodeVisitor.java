@@ -271,10 +271,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(typeReferenceNode);
     }
 
-    public void visit(ServiceBodyNode serviceBodyNode) {
-        visitSyntaxNode(serviceBodyNode);
-    }
-
     public void visit(AnnotationNode annotationNode) {
         visitSyntaxNode(annotationNode);
     }
@@ -309,6 +305,10 @@ public abstract class NodeVisitor {
 
     public void visit(AnnotationAttachPointNode annotationAttachPointNode) {
         visitSyntaxNode(annotationAttachPointNode);
+    }
+
+    public void visit(RemoteServiceAttachPointIdentifierNode remoteServiceAttachPointIdentifierNode) {
+        visitSyntaxNode(remoteServiceAttachPointIdentifierNode);
     }
 
     public void visit(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {

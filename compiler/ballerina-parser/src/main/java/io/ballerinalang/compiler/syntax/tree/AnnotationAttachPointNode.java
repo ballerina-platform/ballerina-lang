@@ -36,7 +36,7 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Token firstIdent() {
+    public Node firstIdent() {
         return childInBucket(1);
     }
 
@@ -64,7 +64,7 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
 
     public AnnotationAttachPointNode modify(
             Token sourceKeyword,
-            Token firstIdent,
+            Node firstIdent,
             Token secondIdent) {
         if (checkForReferenceEquality(
                 sourceKeyword,
@@ -91,7 +91,7 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
     public static class AnnotationAttachPointNodeModifier {
         private final AnnotationAttachPointNode oldNode;
         private Token sourceKeyword;
-        private Token firstIdent;
+        private Node firstIdent;
         private Token secondIdent;
 
         public AnnotationAttachPointNodeModifier(AnnotationAttachPointNode oldNode) {
@@ -109,7 +109,7 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
         }
 
         public AnnotationAttachPointNodeModifier withFirstIdent(
-                Token firstIdent) {
+                Node firstIdent) {
             Objects.requireNonNull(firstIdent, "firstIdent must not be null");
             this.firstIdent = firstIdent;
             return this;

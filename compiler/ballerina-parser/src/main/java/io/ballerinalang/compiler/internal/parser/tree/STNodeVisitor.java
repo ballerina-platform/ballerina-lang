@@ -261,10 +261,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(typeReferenceNode);
     }
 
-    public void visit(STServiceBodyNode serviceBodyNode) {
-        visitSyntaxNode(serviceBodyNode);
-    }
-
     public void visit(STAnnotationNode annotationNode) {
         visitSyntaxNode(annotationNode);
     }
@@ -299,6 +295,10 @@ public abstract class STNodeVisitor {
 
     public void visit(STAnnotationAttachPointNode annotationAttachPointNode) {
         visitSyntaxNode(annotationAttachPointNode);
+    }
+
+    public void visit(STRemoteServiceAttachPointIdentifierNode remoteServiceAttachPointIdentifierNode) {
+        visitSyntaxNode(remoteServiceAttachPointIdentifierNode);
     }
 
     public void visit(STXMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {

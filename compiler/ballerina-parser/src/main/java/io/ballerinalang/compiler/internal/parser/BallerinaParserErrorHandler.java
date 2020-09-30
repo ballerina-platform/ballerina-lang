@@ -349,7 +349,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.SOURCE_KEYWORD, ParserRuleContext.ATTACH_POINT_IDENT };
 
     private static final ParserRuleContext[] ATTACH_POINT_IDENT = { ParserRuleContext.SINGLE_KEYWORD_ATTACH_POINT_IDENT,
-            ParserRuleContext.OBJECT_IDENT, ParserRuleContext.RESOURCE_IDENT, ParserRuleContext.RECORD_IDENT };
+            ParserRuleContext.OBJECT_IDENT, ParserRuleContext.SERVICE_IDENT, ParserRuleContext.RECORD_IDENT };
+
+    private static final ParserRuleContext[] SERVICE_IDENT_RHS =
+            { ParserRuleContext.REMOTE_IDENT, ParserRuleContext.ATTACH_POINT_END };
 
     private static final ParserRuleContext[] ATTACH_POINT_END =
             { ParserRuleContext.COMMA, ParserRuleContext.SEMICOLON };
@@ -1001,8 +1004,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case RECORD_IDENT:
                     hasMatch = nextToken.kind == SyntaxKind.RECORD_KEYWORD;
                     break;
-                case RESOURCE_IDENT:
-                    hasMatch = nextToken.kind == SyntaxKind.RESOURCE_KEYWORD;
+                case SERVICE_IDENT:
+                    hasMatch = nextToken.kind == SyntaxKind.SERVICE_KEYWORD;
+                    break;
+                case REMOTE_IDENT:
+                    hasMatch = nextToken.kind == SyntaxKind.REMOTE_KEYWORD;
                     break;
                 case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
                     hasMatch = nextToken.kind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN;
@@ -1431,6 +1437,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_CONSTRUCTOR_TYPE_REF:
             case OBJECT_FIELD_QUALIFIER:
             case SERVICE_DECL_RHS:
+            case SERVICE_IDENT_RHS:
                 return true;
             default:
                 return false;
@@ -1659,6 +1666,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case SERVICE_DECL_RHS:
                 alternativeRules = SERVICE_DECL_RHS;
+                break;
+            case SERVICE_IDENT_RHS:
+                alternativeRules = SERVICE_IDENT_RHS;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -2538,7 +2548,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.IDENT_AFTER_OBJECT_IDENT;
             case RECORD_IDENT:
                 return ParserRuleContext.FIELD_IDENT;
-            case RESOURCE_IDENT:
+            case SERVICE_IDENT:
+                return ParserRuleContext.SERVICE_IDENT_RHS;
+            case REMOTE_IDENT:
                 return ParserRuleContext.FUNCTION_IDENT;
             case ANNOTATION_DECL:
                 return ParserRuleContext.ANNOTATION_KEYWORD;
@@ -4782,6 +4794,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PRIVATE_KEYWORD:
                 return SyntaxKind.PRIVATE_KEYWORD;
             case REMOTE_KEYWORD:
+            case REMOTE_IDENT:
                 return SyntaxKind.REMOTE_KEYWORD;
             case ABSTRACT_KEYWORD:
                 return SyntaxKind.ABSTRACT_KEYWORD;
@@ -4817,6 +4830,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RETURN_KEYWORD:
                 return SyntaxKind.RETURN_KEYWORD;
             case SERVICE_KEYWORD:
+            case SERVICE_IDENT:
                 return SyntaxKind.SERVICE_KEYWORD;
             case BREAK_KEYWORD:
                 return SyntaxKind.BREAK_KEYWORD;
@@ -4863,8 +4877,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.OBJECT_KEYWORD;
             case RECORD_IDENT:
                 return SyntaxKind.RECORD_KEYWORD;
-            case RESOURCE_IDENT:
-                return SyntaxKind.RESOURCE_KEYWORD;
             case XMLNS_KEYWORD:
             case XML_NAMESPACE_DECLARATION:
                 return SyntaxKind.XMLNS_KEYWORD;
@@ -5020,7 +5032,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNCTION_KEYWORD:
             case PARAMETER_KEYWORD:
             case RETURN_KEYWORD:
-            case SERVICE_KEYWORD:
             case FIELD_KEYWORD:
             case CLASS_KEYWORD:
                 return true;

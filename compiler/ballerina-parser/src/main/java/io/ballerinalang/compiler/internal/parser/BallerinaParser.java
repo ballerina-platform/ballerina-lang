@@ -873,13 +873,6 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-//    private STNode parseFuncDefinition(STNode metadata, boolean isObjectMember, STNode qualifiers) {
-//        startContext(ParserRuleContext.FUNC_DEF);
-//        STNode functionKeyword = parseFunctionKeyword();
-//        STNode funcDef = parseFunctionKeywordRhs(metadata, functionKeyword, qualifiers, true, isObjectMember, false);
-//        return funcDef;
-//    }
-
     /**
      * Parse function definition for the function type descriptor.
      * <p>
@@ -2440,8 +2433,6 @@ public class BallerinaParser extends AbstractParser {
      * </p>
      * <code>
      * module-class-defn := metadata [public] class-type-quals class identifier { class-member* }
-     * <br/>
-     * class-type-quals := (distinct | client | readonly | isolated)*
      * </code>
      *
      * @param metadata Metadata
@@ -2462,12 +2453,21 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * <p>
      * Parse class type qualifiers.
+     * </p>
+     * <code>
+     * class-type-quals := (isolated | distinct | readonly | object-network-qual)*
+     * <br/>
+     * object-network-qual := client | service
+     * </code>
      *
      * @return Parsed node
      */
     private STNode parseClassTypeQualifiers() {
         List<STNode> qualifiers = new ArrayList<>();
+        boolean hasNetworkQual = false;
+
         STNode qualifier;
         for (int i = 0; i < 5; i++) {
             STNode nextToken = peek();
@@ -2479,8 +2479,21 @@ public class BallerinaParser extends AbstractParser {
             }
 
             qualifier = parseSingleClassTypeQualifier();
+
+            // Validate parsed qualifier
             if (qualifier == null) {
                 return STNodeFactory.createNodeList(qualifiers);
+            }
+
+            if (qualifier.kind == SyntaxKind.CLIENT_KEYWORD || qualifier.kind == SyntaxKind.SERVICE_KEYWORD) {
+                if (hasNetworkQual) {
+                    updateLastNodeInListWithInvalidNode(qualifiers, qualifier,
+                            DiagnosticErrorCode.ERROR_MORE_THAN_ONE_OBJECT_NETWORK_QUALIFIERS,
+                            ((STToken) qualifier).text());
+                    continue;
+                } else {
+                    hasNetworkQual = true;
+                }
             }
 
             qualifiers.add(qualifier);
@@ -4623,7 +4636,7 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * Parse object type descriptor.
      * </p>
-     * <code>(client | isolated)* object { object-member-descriptor* }</code>
+     * <code>object-type-descriptor := object-type-quals object { object-member-descriptor* }</code>
      *
      * @return Parsed node
      */
@@ -4644,7 +4657,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse object constructor expression.
      * </p>
      * <code>
-     * object-constructor-expr := [annots] [client] object [type-reference] { object-member* }
+     * object-constructor-expr := [annots] [object-network-qual] object [type-reference] { object-member* }
      * <br/>
      * object-member := object-field | method-defn
      * </code>
@@ -4669,66 +4682,50 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * Parse object constructor qualifiers.
      * </p>
-     * <code>object-constructor-qualifier := (client | service)*</code>
+     * <code>
+     * object-constructor-quals := [object-network-qual]
+     * <br/>
+     * object-network-qual := client | service
+     * </code>
      *
      * @return Parsed node
      */
     private STNode parseObjectConstructorQualifiers() {
         List<STNode> qualifiers = new ArrayList<>();
-        STNode qualifier;
-        for (int i = 0; i < 2; i++) {
-            STToken nextToken = peek();
-            if (isNodeWithSyntaxKindInList(qualifiers, nextToken.kind)) {
-                qualifier = consume();
-                updateLastNodeInListOrAddInvalidNodeToNextToken(qualifiers, nextToken,
-                        DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
-                continue;
-            }
-
-            qualifier = parseSingleObjectConstructorQualifier();
-            if (qualifier == null) {
-                return STNodeFactory.createNodeList(qualifiers);
-            }
-
-            if (qualifier.kind == SyntaxKind.ISOLATED_KEYWORD) {
-                updateLastNodeInListOrAddInvalidNodeToNextToken(qualifiers, qualifier,
-                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
-                continue;
-            }
-
-            qualifiers.add(qualifier);
-        }
-
-        return STNodeFactory.createNodeList(qualifiers);
-    }
-
-    private STNode parseSingleObjectConstructorQualifier() {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case CLIENT_KEYWORD:
             case SERVICE_KEYWORD:
-            case ISOLATED_KEYWORD: // Here we allow parsing isolated qualifier and then log an error
-                return consume();
+                STNode qualifier = consume();
+                qualifiers.add(qualifier);
+                break;
             case OBJECT_KEYWORD:
             case EOF_TOKEN:
-                // null indicates the end of qualifiers
-                return null;
+                break;
             default:
                 recover(nextToken, ParserRuleContext.OBJECT_TYPE_QUALIFIER);
-                return parseSingleObjectConstructorQualifier();
+                return parseObjectConstructorQualifiers();
         }
+
+        return STNodeFactory.createNodeList(qualifiers);
     }
 
     /**
      * <p>
      * Parse object type descriptor qualifiers.
      * </p>
-     * <code>object-type-descriptor-qualifiers := (client | isolated)*</code>
+     * <code>
+     * object-type-quals := (object-network-qual | isolated)*
+     * <br/>
+     * object-network-qual := client | service
+     * </code>
      *
      * @return Parsed node
      */
     private STNode parseObjectTypeQualifiers() {
         List<STNode> qualifiers = new ArrayList<>();
+        boolean hasNetworkQual = false;
+
         STNode qualifier;
         for (int i = 0; i < 5; i++) {
             STToken nextToken = peek();
@@ -4740,6 +4737,8 @@ public class BallerinaParser extends AbstractParser {
             }
 
             qualifier = parseSingleObjectTypeQualifier();
+
+            // Validate parsed qualifier
             if (qualifier == null) {
                 return STNodeFactory.createNodeList(qualifiers);
             }
@@ -4748,6 +4747,17 @@ public class BallerinaParser extends AbstractParser {
                 updateLastNodeInListOrAddInvalidNodeToNextToken(qualifiers, qualifier,
                         DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
                 continue;
+            }
+
+            if (qualifier.kind == SyntaxKind.CLIENT_KEYWORD || qualifier.kind == SyntaxKind.SERVICE_KEYWORD) {
+                if (hasNetworkQual) {
+                    updateLastNodeInListWithInvalidNode(qualifiers, qualifier,
+                            DiagnosticErrorCode.ERROR_MORE_THAN_ONE_OBJECT_NETWORK_QUALIFIERS,
+                            ((STToken) qualifier).text());
+                    continue;
+                } else {
+                    hasNetworkQual = true;
+                }
             }
 
             qualifiers.add(qualifier);
@@ -5989,13 +5999,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse service declaration.
      * <p>
-     * <code>
-     * service-decl := metadata service [type-descriptor] [absolute-resource-path] on expression-list service-body-block
-     * <br/>
-     * absolute-resource-path := "/" | ("/" identifier)+
-     * <br/>
-     * expression-list := expression (, expression)*
-     * </code>
+     * <code>service-decl := metadata `service` [type-descriptor] service-rhs</code>
      *
      * @param metadata Metadata
      * @return Parsed node
@@ -6043,24 +6047,32 @@ public class BallerinaParser extends AbstractParser {
      * Parse rhs of the service declaration.
      * <p>
      * <code>
-     * service-rhs := [type-descriptor] [absolute-resource-path] on expression-list service-body-block
+     * service-rhs := [absolute-resource-path] `on` expression-list object-constructor-block
+     * <br/>
+     * absolute-resource-path := "/" | ("/" identifier)+
+     * <br/>
+     * expression-list := expression (, expression)*
+     * <br/>
+     * object-constructor-block := { object-member* }
      * </code>
      *
      * @param metadata       Metadata
      * @param serviceKeyword Service keyword
+     * @param serviceType    type descriptor
      * @return Parsed node
      */
     private STNode parseServiceDecl(STNode metadata, STNode serviceKeyword, STNode serviceType) {
-//        STNode serviceType = parseOptionalTypeDescriptor();
         STNode absolutePath = parseOptionalResourcePath();
         STNode onKeyword = parseOnKeyword();
         STNode expressionList = parseListeners();
-        STNode serviceBody = parseServiceBody();
+        STNode openBrace = parseOpenBrace();
+        STNode objectMembers = parseObjectMembers(ParserRuleContext.OBJECT_MEMBER);
+        STNode closeBrace = parseCloseBrace();
 
         onKeyword =
                 cloneWithDiagnosticIfListEmpty(expressionList, onKeyword, DiagnosticErrorCode.ERROR_MISSING_EXPRESSION);
         return STNodeFactory.createServiceDeclarationNode(metadata, serviceKeyword, serviceType, absolutePath,
-                onKeyword, expressionList, serviceBody);
+                onKeyword, expressionList, openBrace, objectMembers, closeBrace);
     }
 
 /**
@@ -6294,99 +6306,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse service body.
-     * <p>
-     * <code>
-     * service-body-block := { service-method-defn* }
-     * </code>
-     *
-     * @return Parsed node
-     */
-    private STNode parseServiceBody() {
-        STNode openBrace = parseOpenBrace();
-        STNode serviceMembers = parseObjectMembers(ParserRuleContext.OBJECT_MEMBER);
-        STNode closeBrace = parseCloseBrace();
-        return STNodeFactory.createServiceBodyNode(openBrace, serviceMembers, closeBrace);
-    }
-
-    /**
-     * Parse service resource definitions.
-     *
-     * @return Parsed node
-     */
-//    private STNode parseResources() {
-//        List<STNode> resources = new ArrayList<>();
-//        STToken nextToken = peek();
-//        while (!isEndOfServiceDecl(nextToken.kind)) {
-//            STNode serviceMethod = parseResource();
-//            if (serviceMethod == null) {
-//                break;
-//            }
-//            resources.add(serviceMethod);
-//            nextToken = peek();
-//        }
-//
-//        return STNodeFactory.createNodeList(resources);
-//    }
-
-//    private boolean isEndOfServiceDecl(SyntaxKind tokenKind) {
-//        switch (tokenKind) {
-//            case CLOSE_BRACE_TOKEN:
-//            case EOF_TOKEN:
-//            case CLOSE_BRACE_PIPE_TOKEN:
-//            case TYPE_KEYWORD:
-//            case SERVICE_KEYWORD:
-//                return true;
-//            default:
-//                return false;
-//        }
-//    }
-
-    /**
-     * Parse resource definition (i.e. service-method-defn).
-     * <p>
-     * <code>
-     * service-body-block := { service-method-defn* }
-     * <br/>
-     * service-method-defn := metadata [resource] function identifier function-signature method-defn-body
-     * </code>
-     *
-     * @return Parsed node
-     */
-//    private STNode parseResource() {
-//        STNode metadata;
-//        STToken nextToken = peek();
-//        switch (nextToken.kind) {
-//            case RESOURCE_KEYWORD:
-//            case TRANSACTIONAL_KEYWORD:
-//            case ISOLATED_KEYWORD:
-//            case FUNCTION_KEYWORD:
-//            case REMOTE_KEYWORD: // remote qualifier is not allowed but let it pass here and validate in
-//                // parseFunctionQualifiers method
-//                metadata = STNodeFactory.createEmptyNode();
-//                break;
-//            case DOCUMENTATION_STRING:
-//            case AT_TOKEN:
-//                metadata = parseMetaData();
-//                break;
-//            default:
-//                if (isEndOfServiceDecl(nextToken.kind)) {
-//                    return null;
-//                }
-//
-//                recover(peek(), ParserRuleContext.RESOURCE_DEF);
-//                return parseResource();
-//        }
-//
-//        return parseResource(metadata);
-//    }
-
-//    private STNode parseResource(STNode metadata) {
-//        STNode qualifierList = parseFunctionQualifiers(ParserRuleContext.RESOURCE_DEF_QUALIFIERS, new ArrayList<>());
-//        return parseFuncDefinition(metadata, false, qualifierList);
-//    }
-
-    /**
      * Check whether next construct is a service declaration or not. This method is
      * used to determine whether an end-of-block is reached, if the next token is
      * a service-keyword. Because service-keyword can be used in statements as well
@@ -6397,6 +6316,7 @@ public class BallerinaParser extends AbstractParser {
      * <code>false</code> otherwise
      */
     private boolean isServiceDeclStart(ParserRuleContext currentContext, int lookahead) {
+        // TODO: Revisit
         // Assume we always reach here after a peek()
         switch (peek(lookahead + 1).kind) {
             case IDENTIFIER_TOKEN:
@@ -7451,9 +7371,9 @@ public class BallerinaParser extends AbstractParser {
      * dual-attach-point := [source] dual-attach-point-ident
      * <br/><br/>
      * dual-attach-point-ident :=
-     *     type
-     *     | class
-     * | [object|resource] function
+     * type
+     * | class
+     * | [object|service remote] function
      * | parameter
      * | return
      * | service
@@ -7547,7 +7467,8 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseAnnotationAttachPoint() {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case EOF_TOKEN:
                 return null;
 
@@ -7567,7 +7488,6 @@ public class BallerinaParser extends AbstractParser {
             // Dual attach points
             case OBJECT_KEYWORD:
             case TYPE_KEYWORD:
-            case RESOURCE_KEYWORD:
             case FUNCTION_KEYWORD:
             case PARAMETER_KEYWORD:
             case RETURN_KEYWORD:
@@ -7579,7 +7499,7 @@ public class BallerinaParser extends AbstractParser {
                 STNode firstIdent = consume();
                 return parseDualAttachPointIdent(sourceKeyword, firstIdent);
             default:
-                recover(peek(), ParserRuleContext.ATTACH_POINT);
+                recover(nextToken, ParserRuleContext.ATTACH_POINT);
                 return parseAnnotationAttachPoint();
         }
     }
@@ -7605,7 +7525,7 @@ public class BallerinaParser extends AbstractParser {
      * <code>
      * source-only-attach-point-ident := annotation | external | var | const | listener | worker
      * <br/><br/>
-     * dual-attach-point-ident := [object] type | [object|resource] function | parameter
+     * dual-attach-point-ident := type | class | [object|service remote] function | parameter
      * | return | service | [object|record] field
      * </code>
      *
@@ -7660,16 +7580,62 @@ public class BallerinaParser extends AbstractParser {
             case RECORD_KEYWORD:
                 secondIdent = parseFieldIdent();
                 break;
+            case SERVICE_KEYWORD:
+                return parseServiceAttachPoint(sourceKeyword, firstIdent);
             case TYPE_KEYWORD:
             case FUNCTION_KEYWORD:
             case PARAMETER_KEYWORD:
             case RETURN_KEYWORD:
-            case SERVICE_KEYWORD:
             case FIELD_KEYWORD:
             case CLASS_KEYWORD:
             default: // default case should never be reached.
                 secondIdent = STNodeFactory.createEmptyNode();
                 break;
+        }
+
+        return STNodeFactory.createAnnotationAttachPointNode(sourceKeyword, firstIdent, secondIdent);
+    }
+
+    /**
+     * Parse remote ident.
+     *
+     * @return Parsed node
+     */
+    private STNode parseRemoteIdent() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.REMOTE_KEYWORD) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.REMOTE_IDENT);
+            return parseRemoteIdent();
+        }
+    }
+
+    /**
+     * Parse service attach point.
+     * <code>service-attach-point := service | service remote function</code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseServiceAttachPoint(STNode sourceKeyword, STNode serviceKeyword) {
+        STNode firstIdent;
+        STNode secondIdent;
+
+        STToken token = peek();
+        switch (token.kind) {
+            case REMOTE_KEYWORD:
+                STNode remoteKeyword = parseRemoteIdent();
+                firstIdent = STNodeFactory.createRemoteServiceAttachPointIdentifierNode(serviceKeyword, remoteKeyword);
+                secondIdent = parseFunctionIdent();
+                break;
+            case COMMA_TOKEN:
+            case SEMICOLON_TOKEN:
+                firstIdent = serviceKeyword;
+                secondIdent = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                recover(token, ParserRuleContext.SERVICE_IDENT_RHS);
+                return parseServiceAttachPoint(sourceKeyword, serviceKeyword);
         }
 
         return STNodeFactory.createAnnotationAttachPointNode(sourceKeyword, firstIdent, secondIdent);

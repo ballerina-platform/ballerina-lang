@@ -213,8 +213,17 @@
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
-                    "name": "serviceBody",
-                    "type": "Node"
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "members",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
                 }
             ]
         },
@@ -1417,26 +1426,6 @@
             ]
         },
         {
-            "name": "ServiceBodyNode",
-            "base": "Node",
-            "kind": "SERVICE_BODY",
-            "attributes": [
-                {
-                    "name": "openBraceToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "members",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "closeBraceToken",
-                    "type": "Token"
-                }
-            ]
-        },
-        {
             "name": "AnnotationNode",
             "base": "Node",
             "kind": "ANNOTATION",
@@ -1648,10 +1637,25 @@
                 },
                 {
                     "name": "firstIdent",
-                    "type": "Token"
+                    "type": "Node"
                 },
                 {
                     "name": "secondIdent",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "RemoteServiceAttachPointIdentifierNode",
+            "base": "Node",
+            "kind": "REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER",
+            "attributes": [
+                {
+                    "name": "serviceKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "remoteKeyword",
                     "type": "Token"
                 }
             ]

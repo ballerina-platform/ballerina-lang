@@ -1070,8 +1070,6 @@ public class ParserTestUtils {
                 return SyntaxKind.COMPUTED_NAME_FIELD;
             case "SPREAD_FIELD":
                 return SyntaxKind.SPREAD_FIELD;
-            case "SERVICE_BODY":
-                return SyntaxKind.SERVICE_BODY;
             case "ARRAY_DIMENSION":
                 return SyntaxKind.ARRAY_DIMENSION;
             case "METADATA":
@@ -1186,6 +1184,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ON_CLAUSE;
             case "RESOURCE_ACCESSOR_DEFINITION":
                 return SyntaxKind.RESOURCE_ACCESSOR_DEFINITION;
+            case "REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER":
+                return SyntaxKind.REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER;
 
             // XML template
             case "XML_ELEMENT":

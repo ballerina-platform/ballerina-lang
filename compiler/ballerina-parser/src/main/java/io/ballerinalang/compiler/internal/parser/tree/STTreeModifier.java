@@ -125,7 +125,9 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode absoluteResourcePath = modifyNode(serviceDeclarationNode.absoluteResourcePath);
         STNode onKeyword = modifyNode(serviceDeclarationNode.onKeyword);
         STNode expressions = modifyNode(serviceDeclarationNode.expressions);
-        STNode serviceBody = modifyNode(serviceDeclarationNode.serviceBody);
+        STNode openBraceToken = modifyNode(serviceDeclarationNode.openBraceToken);
+        STNode members = modifyNode(serviceDeclarationNode.members);
+        STNode closeBraceToken = modifyNode(serviceDeclarationNode.closeBraceToken);
         return serviceDeclarationNode.modify(
                 metadata,
                 serviceKeyword,
@@ -133,7 +135,9 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody);
+                openBraceToken,
+                members,
+                closeBraceToken);
     }
 
     @Override
@@ -835,18 +839,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STServiceBodyNode transform(
-            STServiceBodyNode serviceBodyNode) {
-        STNode openBraceToken = modifyNode(serviceBodyNode.openBraceToken);
-        STNode members = modifyNode(serviceBodyNode.members);
-        STNode closeBraceToken = modifyNode(serviceBodyNode.closeBraceToken);
-        return serviceBodyNode.modify(
-                openBraceToken,
-                members,
-                closeBraceToken);
-    }
-
-    @Override
     public STAnnotationNode transform(
             STAnnotationNode annotationNode) {
         STNode atToken = modifyNode(annotationNode.atToken);
@@ -970,6 +962,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 sourceKeyword,
                 firstIdent,
                 secondIdent);
+    }
+
+    @Override
+    public STRemoteServiceAttachPointIdentifierNode transform(
+            STRemoteServiceAttachPointIdentifierNode remoteServiceAttachPointIdentifierNode) {
+        STNode serviceKeyword = modifyNode(remoteServiceAttachPointIdentifierNode.serviceKeyword);
+        STNode remoteKeyword = modifyNode(remoteServiceAttachPointIdentifierNode.remoteKeyword);
+        return remoteServiceAttachPointIdentifierNode.modify(
+                serviceKeyword,
+                remoteKeyword);
     }
 
     @Override

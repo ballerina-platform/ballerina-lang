@@ -141,17 +141,31 @@
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "children": [
                     {
-                      "kind": "RESOURCE_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "                  "
-                        }
-                      ],
-                      "trailingMinutiae": [
+                          "kind": "SERVICE_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "                  "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "REMOTE_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -481,11 +495,25 @@
                       ]
                     },
                     {
-                      "kind": "RESOURCE_KEYWORD",
-                      "trailingMinutiae": [
+                      "kind": "REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "SERVICE_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "REMOTE_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
