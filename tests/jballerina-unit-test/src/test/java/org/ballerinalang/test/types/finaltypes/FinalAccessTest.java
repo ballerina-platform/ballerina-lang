@@ -43,8 +43,8 @@ public class FinalAccessTest {
         finalLocalNoInitVarResult = BCompileUtil.compile("test-src/types/finaltypes/test_final_local_no_init_var.bal");
     }
 
-    @Test(description = "Test negative cases for implicitly final params/variables")
-    public void testImplicitlyFinalNegative() {
+    @Test(description = "Test final field access failures", enabled = false)
+    public void testFinalFailCase() {
         CompileResult compileResultNegative = BCompileUtil.compile(
                 "test-src/types/finaltypes/test_implicitly_final_negative.bal");
         Assert.assertEquals(compileResultNegative.getErrorCount(), 9);

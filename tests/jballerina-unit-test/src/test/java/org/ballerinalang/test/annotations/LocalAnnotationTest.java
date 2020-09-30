@@ -40,7 +40,7 @@ public class LocalAnnotationTest {
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testLocalServiceAnnotEvaluation() {
         BValue[] returns = BRunUtil.invoke(result, "testAnnotEvaluation");
         Assert.assertEquals(returns.length, 1);

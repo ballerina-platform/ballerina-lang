@@ -277,7 +277,7 @@ public class RecordVariableDefinitionTest {
                 "\"year\":1990}, \"married\":true, \"work\":\"SE\"}");
     }
 
-    @Test(description = "Test record variables rest param types")
+    @Test(description = "Test record variables rest param types", enabled = false)
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
         Assert.assertEquals(returns.length, 5);

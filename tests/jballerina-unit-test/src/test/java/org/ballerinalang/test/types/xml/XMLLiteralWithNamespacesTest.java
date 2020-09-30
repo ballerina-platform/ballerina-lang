@@ -50,7 +50,7 @@ public class XMLLiteralWithNamespacesTest {
         literalWithNamespacesResult = BCompileUtil.compile("test-src/types/xml/xml-literals-with-namespaces.bal");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testElementLiteralWithNamespaces() {
         BValue[] returns =
                 BRunUtil.invoke(literalWithNamespacesResult, "testElementLiteralWithNamespaces");
@@ -73,7 +73,7 @@ public class XMLLiteralWithNamespacesTest {
         Assert.assertEquals(items.size(), 2);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testElementWithQualifiedName() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testElementWithQualifiedName");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -88,7 +88,7 @@ public class XMLLiteralWithNamespacesTest {
                 "<ns1:root xmlns:ns1=\"http://ballerina.com/b\" xmlns=\"http://ballerina.com/\">hello</ns1:root>");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testDefineInlineNamespace() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineNamespace");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -96,7 +96,7 @@ public class XMLLiteralWithNamespacesTest {
                 "<nsx:foo xmlns:nsx=\"http://wso2.com\" nsx:id=\"123\">hello</nsx:foo>");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testDefineInlineDefaultNamespace() {
         BValue[] returns =
                 BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineDefaultNamespace");
@@ -152,7 +152,7 @@ public class XMLLiteralWithNamespacesTest {
         Assert.assertEquals(returns[2].stringValue(), "{http://ballerina.com/b}foo");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testPackageLevelXML() {
         CompileResult result = BCompileUtil.compile("test-src/types/xml/package_level_xml_literals.bal");
         BValue[] returns = BRunUtil.invoke(result, "testPackageLevelXML");
@@ -165,7 +165,7 @@ public class XMLLiteralWithNamespacesTest {
                 "<ns1:student xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:student>");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testObjectLevelXML() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testObjectLevelXML");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -187,7 +187,7 @@ public class XMLLiteralWithNamespacesTest {
                         "    </Order>");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testXMLSerialize() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "getXML");
         Assert.assertTrue(returns[0] instanceof BXML);

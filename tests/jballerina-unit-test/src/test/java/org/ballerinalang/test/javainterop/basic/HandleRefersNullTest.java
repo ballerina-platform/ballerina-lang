@@ -17,15 +17,15 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+//import org.ballerinalang.core.model.values.BBoolean;
+//import org.ballerinalang.core.model.values.BHandleValue;
+//import org.ballerinalang.core.model.values.BValue;
+//import org.ballerinalang.test.util.BCompileUtil;
+//import org.ballerinalang.test.util.BRunUtil;
+//import org.ballerinalang.test.util.CompileResult;
+//import org.testng.Assert;
+//import org.testng.annotations.BeforeClass;
+//import org.testng.annotations.Test;
 
 /**
  * Test cases for ballerinax/java functions related to Java null.
@@ -34,26 +34,26 @@ import org.testng.annotations.Test;
  */
 public class HandleRefersNullTest {
 
-    private CompileResult result;
-
-    @BeforeClass
-    public void setup() {
-        result = BCompileUtil.compile("test-src/javainterop/basic/handle_null_test.bal");
-    }
-
-    @Test(description = "Test java:createNull method in ballerinax/java")
-    public void testCreateNullHandle() {
-        BValue[] returns = BRunUtil.invoke(result, "testCreateNullHandle");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNull(((BHandleValue) returns[0]).getValue());
-    }
-
-    @Test(description = "Test java:isNull method in ballerinax/java")
-    public void testIsNull() {
-        BValue[] args = new BValue[1];
-        args[0] = new BHandleValue(null);
-        BValue[] returns = BRunUtil.invoke(result, "testIsNull", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
+//    private CompileResult result;
+//
+//    @BeforeClass
+//    public void setup() {
+//        result = BCompileUtil.compile("test-src/javainterop/basic/handle_null_test.bal");
+//    }
+//
+//    @Test(description = "Test java:createNull method in ballerinax/java")
+//    public void testCreateNullHandle() {
+//        BValue[] returns = BRunUtil.invoke(result, "testCreateNullHandle");
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertNull(((BHandleValue) returns[0]).getValue());
+//    }
+//
+//    @Test(description = "Test java:isNull method in ballerinax/java")
+//    public void testIsNull() {
+//        BValue[] args = new BValue[1];
+//        args[0] = new BHandleValue(null);
+//        BValue[] returns = BRunUtil.invoke(result, "testIsNull", args);
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+//    }
 }

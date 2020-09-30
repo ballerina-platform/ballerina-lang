@@ -356,7 +356,7 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "Foo {message:\"error msg\"}");
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test(groups = { "disableOnOldParser" }, enabled = false)
     public void testStackTraceInNative() {
         Exception expectedException = null;
         try {

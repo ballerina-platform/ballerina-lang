@@ -154,7 +154,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertFalse(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error")
+    @Test(description = "Test simple error var def inside tuple with destructuring error", enabled = false)
     public void testErrorInTupleWithDestructure() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure");
         Assert.assertEquals(returns.length, 5);
@@ -176,7 +176,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error")
+    @Test(description = "Test simple error var def inside tuple with destructuring error", enabled = false)
     public void testErrorInRecordWithDestructure() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInRecordWithDestructure");
         Assert.assertEquals(returns.length, 3);
