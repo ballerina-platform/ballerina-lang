@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for Invalid error destructure binding pattern.
  *
- * @since 2.0 Swan Lake
+ * @since Swan Lake
  */
 public class ErrorDestructureNegetiveTest {
 
