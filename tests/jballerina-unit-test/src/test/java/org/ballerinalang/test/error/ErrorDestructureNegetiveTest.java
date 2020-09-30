@@ -34,7 +34,8 @@ public class ErrorDestructureNegetiveTest {
     public void testErrorDestructuring() {
         CompileResult destructuringResult = BCompileUtil.
                 compile("test-src/error/error_destructure_binding_pattern_error_cause.bal");
-        BAssertUtil.validateError(destructuringResult, 0, "incompatible types: expected 'error?', found 'error'", 4, 21);
+        BAssertUtil.validateError(destructuringResult, 0,
+                "incompatible types: expected 'error?', found 'error'", 4, 21);
         Assert.assertEquals(1, destructuringResult.getErrorCount());
     }
 }
