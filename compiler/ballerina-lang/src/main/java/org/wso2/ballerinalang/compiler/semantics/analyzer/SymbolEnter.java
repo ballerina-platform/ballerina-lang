@@ -597,8 +597,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         boolean isPublicType = flags.contains(Flag.PUBLIC);
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags),
-                names.fromIdNode(classDefinition.name),
-                env.enclPkg.symbol.pkgID, null, env.scope.owner, classDefinition.pos, SOURCE);
+                                                        names.fromIdNode(classDefinition.name),
+                                                        env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                                                        classDefinition.name.pos, SOURCE);
         tSymbol.scope = new Scope(tSymbol);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
@@ -1350,10 +1351,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             funcNode.flagSet.add(Flag.LANG_LIB);
         }
 
+        DiagnosticPos symbolPos = funcNode.flagSet.contains(Flag.LAMBDA) ? symTable.builtinPos : funcNode.name.pos;
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                                                                    getFuncSymbolName(funcNode),
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                   funcNode.hasBody(), funcNode.pos, SOURCE);
+                                                                   funcNode.hasBody(), symbolPos, SOURCE);
         funcSymbol.source = funcNode.pos.src.cUnitName;
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
@@ -1461,7 +1463,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         Name name = names.fromIdNode(constant.name);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         return new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID,
-                                   symTable.semanticError, symTable.noType, env.scope.owner, constant.pos, SOURCE);
+                                   symTable.semanticError, symTable.noType, env.scope.owner, constant.name.pos, SOURCE);
     }
 
     @Override
@@ -2395,7 +2397,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv, pos, isInternal);
+        BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv, symbol.pos, isInternal);
         if (type.tag == TypeTags.INVOKABLE && type.tsymbol != null) {
             BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) type.tsymbol;
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) varSymbol;

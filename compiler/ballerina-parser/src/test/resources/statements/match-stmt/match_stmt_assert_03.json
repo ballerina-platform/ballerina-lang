@@ -274,7 +274,6 @@
                       "children": [
                         {
                           "kind": "LIST",
-                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "STRING_LITERAL",
@@ -296,79 +295,90 @@
                                   ]
                                 }
                               ]
-                            },
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MATCH_GUARD",
+                          "hasDiagnostics": true,
+                          "children": [
                             {
-                              "kind": "PIPE_TOKEN",
+                              "kind": "IF_KEYWORD",
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_PIPE_TOKEN"
+                                "ERROR_MISSING_IF_KEYWORD"
                               ]
                             },
                             {
-                              "kind": "FUNCTIONAL_MATCH_PATTERN",
+                              "kind": "BINARY_EXPRESSION",
                               "children": [
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "kind": "FUNCTION_CALL",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "bar"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "bar"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "OPEN_PAREN_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": []
+                                    },
+                                    {
+                                      "kind": "CLOSE_PAREN_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "OPEN_PAREN_TOKEN"
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "CLOSE_PAREN_TOKEN",
+                                  "kind": "PIPE_TOKEN",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": " "
                                     }
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "PIPE_TOKEN",
-                              "trailingMinutiae": [
+                                },
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "FUNCTIONAL_MATCH_PATTERN",
-                              "children": [
-                                {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "kind": "FUNCTION_CALL",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "baz"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "OPEN_PAREN_TOKEN"
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "CLOSE_PAREN_TOKEN",
-                                  "trailingMinutiae": [
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "baz"
+                                        }
+                                      ]
+                                    },
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "OPEN_PAREN_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": []
+                                    },
+                                    {
+                                      "kind": "CLOSE_PAREN_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
                                 }

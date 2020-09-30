@@ -2896,22 +2896,24 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stFieldMatchPatternNode.createUnlinkedFacade();
     }
 
-    public static FunctionalMatchPatternNode createFunctionalMatchPatternNode(
-            Node typeRef,
+    public static ErrorMatchPatternNode createErrorMatchPatternNode(
+            Token errorKeyword,
+            NameReferenceNode typeReference,
             Token openParenthesisToken,
             SeparatedNodeList<Node> argListMatchPatternNode,
             Token closeParenthesisToken) {
-        Objects.requireNonNull(typeRef, "typeRef must not be null");
+        Objects.requireNonNull(errorKeyword, "errorKeyword must not be null");
         Objects.requireNonNull(openParenthesisToken, "openParenthesisToken must not be null");
         Objects.requireNonNull(argListMatchPatternNode, "argListMatchPatternNode must not be null");
         Objects.requireNonNull(closeParenthesisToken, "closeParenthesisToken must not be null");
 
-        STNode stFunctionalMatchPatternNode = STNodeFactory.createFunctionalMatchPatternNode(
-                typeRef.internalNode(),
+        STNode stErrorMatchPatternNode = STNodeFactory.createErrorMatchPatternNode(
+                errorKeyword.internalNode(),
+                getOptionalSTNode(typeReference),
                 openParenthesisToken.internalNode(),
                 argListMatchPatternNode.underlyingListNode().internalNode(),
                 closeParenthesisToken.internalNode());
-        return stFunctionalMatchPatternNode.createUnlinkedFacade();
+        return stErrorMatchPatternNode.createUnlinkedFacade();
     }
 
     public static NamedArgMatchPatternNode createNamedArgMatchPatternNode(

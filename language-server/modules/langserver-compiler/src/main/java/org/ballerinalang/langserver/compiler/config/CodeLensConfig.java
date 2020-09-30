@@ -21,14 +21,10 @@ package org.ballerinalang.langserver.compiler.config;
 public class CodeLensConfig {
     private final Enabled all;
     private final Enabled docs;
-    private final Enabled services;
-    private final Enabled endpoints;
 
     CodeLensConfig() {
         this.all = new Enabled(true);
         this.docs = new Enabled(true);
-        this.services = new Enabled(true);
-        this.endpoints = new Enabled(true);
     }
 
     /**
@@ -47,24 +43,6 @@ public class CodeLensConfig {
      */
     public Enabled getDocs() {
         return (all.isEnabled()) ? docs : all;
-    }
-
-    /**
-     * Returns true if `all` is Enabled and `services` is Enabled, False otherwise.
-     *
-     * @return True or False
-     */
-    public Enabled getServices() {
-        return (all.isEnabled()) ? services : all;
-    }
-
-    /**
-     * Returns true if `all` is Enabled and `endpoints` is Enabled, False otherwise.
-     *
-     * @return True or False
-     */
-    public Enabled getEndpoints() {
-        return (all.isEnabled()) ? endpoints : all;
     }
 
     /**
