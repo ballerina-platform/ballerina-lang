@@ -164,6 +164,13 @@ public isolated function createProcessingInstruction(string target, string conte
 # + return - an xml sequence consisting of a comment with content `content`
 public isolated function createComment(string content) returns Comment = external;
 
+# Constructs an xml sequence representing zero of more parsed characters.
+#
+# + chars - the characters
+# + return - an xml sequence that is either empty or consists of one text item
+# The constructed sequence will be empty when the length of `chars` is zero.
+public isolated function createText(string chars) returns Text = external;
+
 # Returns a subsequence of an xml value.
 #
 # + x - the xml value

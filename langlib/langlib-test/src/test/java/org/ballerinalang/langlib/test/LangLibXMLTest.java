@@ -188,6 +188,12 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testCreateText() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateText");
+        assertEquals((returns[0]).stringValue(), "This is xml text");
+    }
+
+    @Test
     public void testForEach() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
         assertEquals((returns[0]).size(), 3);
@@ -262,16 +268,6 @@ public class LangLibXMLTest {
     @Test
     public void testElementChildrenNS()  {
         BValue[] returns = BRunUtil.invoke(compileResult, "testElementChildrenNS");
-    }
-
-    @Test
-    public void testXMLFunctionalCtor() {
-        BRunUtil.invoke(compileResult, "testXMLFunctionalCtor");
-        BRunUtil.invoke(compileResult, "testXMLFunctionalConstructorWithAttributes");
-        BRunUtil.invoke(compileResult, "testXMLFunctionalConstructorWithAChild");
-        BRunUtil.invoke(compileResult, "testXMLCommentCtor");
-        BRunUtil.invoke(compileResult, "testXMLPICtor");
-        BRunUtil.invoke(compileResult, "testXMLTextCtor");
     }
 
     @Test
