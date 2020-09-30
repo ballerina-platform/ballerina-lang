@@ -9,19 +9,19 @@
 
 Ballerina is an open source programming language and platform for cloud-era application programmers to easily write software that just works.
 
-#### Providing and consuming services
+#### Providing and Consuming Services
 It has inherently concurrent first-class language constructs for providing and consuming services.
 
-#### Sequence diagrams
-Sequence diagram based graphical view shows the most fundamental aspect of the semantics of a network distributed application.
+#### Sequence Diagrams
+Sequence Diagram based graphical view shows the most fundamental aspect of the semantics of a network distributed application.
 
-#### Structural typing
+#### Structural Typing
 It allows for looser coupling between distributed components and eliminates the friction of data binding.
 
 #### Metadata
 Extensible metadata enables easy integration of Ballerina programs with cloud platforms. 
 
-## Getting started
+## Getting Started
 
 You can use one of the following options to try out Ballerina.
 
@@ -29,15 +29,15 @@ You can use one of the following options to try out Ballerina.
 * [Ballerina by Example](https://ballerina.io/learn/by-example/) 
 * [Playground](https://play.ballerina.io/)
 
-## Downloading and installing
+## Downloading and Installing
 
 For instructions on downloading and installing, see [Installing Ballerina](https://ballerina.io/v1-2/learn/installing-ballerina/).
 
-## Building from source
+## Building from Source
 
 For prerequisites and instructions on building from source, see [Installing from source](https://ballerina.io/v1-2/learn/installing-ballerina/#installing-from-source).
 
-## Reporting issues and security flaws
+## Reporting Issues and Security Flaws
 
 Report an issue in the relevant repo out of the GitHub repos listed below. 
 
@@ -58,7 +58,7 @@ Check the issue tracker for open issues that interest you. We look forward to re
 
 Ballerina code is distributed under [Apache license 2.0](https://github.com/ballerina-platform/ballerina-lang/blob/master/LICENSE).
 
-## Useful links
+## Useful Links
 
 * The ballerina-dev@googlegroups.com mailing list is for discussing code changes to the Ballerina project.
 * Chat live with us on our [Slack channel](https://ballerina.io/community/slack/).
