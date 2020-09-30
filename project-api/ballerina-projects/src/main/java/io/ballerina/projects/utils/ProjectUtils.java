@@ -47,7 +47,7 @@ public class ProjectUtils {
      * Validates the package name.
      *
      * @param packageName The package name.
-     * @return True if valid org name, else false.
+     * @return True if valid package name, else false.
      */
     public static boolean validatePkgName(String packageName) {
         String validRegex = "^[a-z0-9_]*$";

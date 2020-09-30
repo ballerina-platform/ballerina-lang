@@ -84,7 +84,7 @@ public class PackagingTestCase extends BaseTest {
         balClient = new BMainInstance(balServer);
     }
 
-    @Test(description = "Test create a ballerina project and module to be pushed to central")
+    @Test(enabled = false, description = "Test create a ballerina project and module to be pushed to central")
     public void testCreateProject() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
 
