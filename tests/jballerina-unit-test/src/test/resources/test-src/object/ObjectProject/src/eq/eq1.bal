@@ -1,5 +1,5 @@
 
-public type person object {
+public class person {
     public int age = 0;
     public string name = "";
     public string address = "";
@@ -22,9 +22,9 @@ public type person object {
     public function setSSN(string s) {
         self.ssn = s;
     }
-};
+}
 
-public type employee object {
+public class employee {
     public int age = 0;
     public string name = "";
     public string address = "";
@@ -57,9 +57,9 @@ public type employee object {
     public function getEmployeeId() returns (int) {
         return self.employeeId;
     }
-};
+}
 
-public type BarObj object {
+public class BarObj {
     public int age = 0;
     public string name = "";
 
@@ -70,4 +70,4 @@ public type BarObj object {
     function getAge() returns (int) {
         return self.age;
     }
-};
+}

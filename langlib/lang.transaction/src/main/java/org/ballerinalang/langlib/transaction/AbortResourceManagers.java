@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.transaction;
 
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.transactions.TransactionResourceManager;
-import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Extern function transaction:abortResourceManagers.

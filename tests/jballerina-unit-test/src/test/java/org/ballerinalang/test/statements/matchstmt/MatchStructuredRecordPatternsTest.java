@@ -72,7 +72,7 @@ public class MatchStructuredRecordPatternsTest {
 
         BString bString = (BString) returns[0];
 
-        Assert.assertEquals(bString.stringValue(), "Matched Values : 12, s=S i=23 f=5.6");
+        Assert.assertEquals(bString.stringValue(), "Matched Values : 12, {\"s\":\"S\", \"i\":23, \"f\":5.6}");
     }
 
     @Test(description = "Test basics of structured pattern match statement 4")
@@ -83,7 +83,8 @@ public class MatchStructuredRecordPatternsTest {
 
         BString bString = (BString) returns[0];
 
-        Assert.assertEquals(bString.stringValue(), "Matched Values : b=12 f=s=S i=23 f=5.6");
+        Assert.assertEquals(bString.stringValue(), "Matched Values : {\"b\":12, \"f\":{\"s\":\"S\", \"i\":23, "
+                + "\"f\":5.6}}");
     }
 
     @Test(description = "Test basics of structured pattern match statement 5")
@@ -191,9 +192,9 @@ public class MatchStructuredRecordPatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getString(++i), msg + "restparam : ");
-        Assert.assertEquals(results.getString(++i), msg + "restparam : var2=true");
-        Assert.assertEquals(results.getString(++i), msg + "restparam : var2=true var3=true");
+        Assert.assertEquals(results.getString(++i), msg + "restparam : {}");
+        Assert.assertEquals(results.getString(++i), msg + "restparam : {\"var2\":true}");
+        Assert.assertEquals(results.getString(++i), msg + "restparam : {\"var2\":true, \"var3\":true}");
     }
 
     // TODO : Syntax used in test case should be invalid per spec. Please refer git issue #16961.

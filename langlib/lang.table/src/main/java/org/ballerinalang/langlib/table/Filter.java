@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
@@ -57,7 +57,7 @@ public class Filter {
         // accessing the parent strand here to use it with each iteration
         Strand parentStrand = Scheduler.getStrand();
 
-        BRuntime.getCurrentRuntime()
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                         () -> new Object[]{parentStrand,
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
@@ -67,7 +67,7 @@ public class Filter {
                                 Object value = tbl.get(key);
                                 newTable.put(key, value);
                             }
-                        }, () -> newTable);
+                        }, () -> newTable, Scheduler.getStrand().scheduler);
         return newTable;
     }
 

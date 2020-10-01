@@ -111,15 +111,15 @@ public class ClosedRecordOptionalFieldsTest {
     }
 
     @Test(description = "Test non-defaultable optional field access", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: '\\(\\)' cannot be cast to " +
-                  "'Address3'.*")
+          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: '\\(\\)' " +
+                  "cannot be cast to 'Address3'.*")
     public void testOptionalNonDefField2() {
         BRunUtil.invoke(compileResult, "testOptionalNonDefField2");
     }
 
     @Test(description = "Test non-defaultable optional field access",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*KeyNotFound message=cannot find key 'adrs'.*")
+          expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key 'adrs'.*")
     public void testOptionalNonDefField3() {
         BRunUtil.invoke(compileResult, "testOptionalNonDefField3");
     }

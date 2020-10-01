@@ -22,7 +22,7 @@ import ballerina/java;
 # and terminate abnormally if the flag is set.
 #
 # + f - the future to be cancelled
-public function cancel(future<any|error> f) returns () = @java:Method {
-    class: "org.ballerinalang.langlib.future.Cancel",
+public isolated function cancel(future<any|error> f) returns () = @java:Method {
+    'class: "org.ballerinalang.langlib.future.Cancel",
     name: "cancel"
 } external;

@@ -96,7 +96,7 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: error3 message=msg3\n" + "\tat sync-send:$lambda$14(sync-send.bal:291)";
+        String result = "error: error3 {\"message\":\"msg3\"}\n" + "\tat sync-send:$lambda$14(sync-send.bal:291)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 

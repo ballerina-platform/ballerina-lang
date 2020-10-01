@@ -37,7 +37,7 @@ public type Type1 any|error;
 # + val - The value of which the type being set.
 # + return - The value with the narrowed type.
 public function setNarrowType(typedesc<Type> td, record {|Type value;|} val) returns record {|Type value;|} = @java:Method {
-    class: "org.ballerinalang.langlib.internal.SetNarrowType",
+    'class: "org.ballerinalang.langlib.internal.SetNarrowType",
     name: "setNarrowType"
 } external;
 
@@ -46,9 +46,9 @@ public function setNarrowType(typedesc<Type> td, record {|Type value;|} val) ret
 # + td - A type description.
 # + iteratorObj - An iterator object.
 # + return - New stream containing results of `iteratorObj` object's next function invocations.
-public function construct(typedesc<Type> td, abstract object { public function next() returns
+public function construct(typedesc<Type> td, object { public function next() returns
         record {|Type value;|}|ErrorType?;} iteratorObj) returns stream<Type, ErrorType> = @java:Method {
-            class: "org.ballerinalang.langlib.internal.Construct",
+            'class: "org.ballerinalang.langlib.internal.Construct",
             name: "construct"
         } external;
 
@@ -57,7 +57,7 @@ public function construct(typedesc<Type> td, abstract object { public function n
 # + td - An array or stream type desc.
 # + return - The typedesc of the element, constraint type.
 public function getElementType(typedesc<Type[]> | typedesc<stream<Type>> td) returns typedesc<Type> = @java:Method {
-    class: "org.ballerinalang.langlib.internal.GetElementType",
+    'class: "org.ballerinalang.langlib.internal.GetElementType",
     name: "getElementType"
 } external;
 
@@ -66,7 +66,7 @@ public function getElementType(typedesc<Type[]> | typedesc<stream<Type>> td) ret
 # + func - The input filter function
 # + return - The input function with the changed parameter type
 public function getFilterFunc(any func) returns function(Type) returns boolean = @java:Method {
-    class: "org.ballerinalang.langlib.internal.GetFilterFunc",
+    'class: "org.ballerinalang.langlib.internal.GetFilterFunc",
     name: "getFilterFunc"
 } external;
 
@@ -75,7 +75,7 @@ public function getFilterFunc(any func) returns function(Type) returns boolean =
 # + func - The input map function
 # + return - The input function with the changed parameter type
 public function getMapFunc(any func) returns function(Type) returns Type1 = @java:Method {
-    class: "org.ballerinalang.langlib.internal.GetMapFunc",
+    'class: "org.ballerinalang.langlib.internal.GetMapFunc",
     name: "getMapFunc"
 } external;
 
@@ -84,7 +84,7 @@ public function getMapFunc(any func) returns function(Type) returns Type1 = @jav
 # + func - The input function
 # + return - The typedesc of the return type of the input function
 public function getReturnType(any func) returns typedesc<Type> = @java:Method {
-    class: "org.ballerinalang.langlib.internal.GetReturnType",
+    'class: "org.ballerinalang.langlib.internal.GetReturnType",
     name: "getReturnType"
 } external;
 
@@ -92,13 +92,13 @@ public function getReturnType(any func) returns typedesc<Type> = @java:Method {
 #
 # + strm - The stream
 # + return - An abstract object which is iterable
-public function getIteratorObj(stream<Type, ErrorType> strm) returns abstract object { public function next() returns
-    record {|Type value;|}|ErrorType?;} |
-    abstract object {
-        public function next() returns record {|Type value;|}|ErrorType?;
+public function getIteratorObj(stream<Type, ErrorType> strm) returns
+    object {
+        public isolated function next() returns record {|Type value;|}|ErrorType?;} |
+    object {
+        public isolated function next() returns record {|Type value;|}|ErrorType?;
         public function close() returns ErrorType?;
     } = @java:Method {
-        class: "org.ballerinalang.langlib.internal.GetIteratorObj",
+        'class: "org.ballerinalang.langlib.internal.GetIteratorObj",
         name: "getIteratorObj"
     } external;
-

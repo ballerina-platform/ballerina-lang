@@ -20,8 +20,8 @@ import ballerina/java;
 #
 # + xs - decimal values to sum
 # + return - sum of all the `xs`; 0 if `xs` is empty
-public function sum(decimal... xs) returns decimal = @java:Method {
-    class: "org.ballerinalang.langlib.decimal.Sum",
+public isolated function sum(decimal... xs) returns decimal = @java:Method {
+    'class: "org.ballerinalang.langlib.decimal.Sum",
     name: "sum"
 } external;
 
@@ -30,8 +30,8 @@ public function sum(decimal... xs) returns decimal = @java:Method {
 # + x - first decimal value
 # + xs - other decimal values
 # + return - maximum value of `x` and all the `xs`
-public function max(decimal x, decimal... xs) returns decimal = @java:Method {
-    class: "org.ballerinalang.langlib.decimal.Max",
+public isolated function max(decimal x, decimal... xs) returns decimal = @java:Method {
+    'class: "org.ballerinalang.langlib.decimal.Max",
     name: "max"
 } external;
 
@@ -40,8 +40,8 @@ public function max(decimal x, decimal... xs) returns decimal = @java:Method {
 # + x - first decimal value
 # + xs - other decimal values
 # + return - minimum value of `x` and all the `xs`.
-public function min(decimal x, decimal... xs) returns decimal = @java:Method {
-    class: "org.ballerinalang.langlib.decimal.Min",
+public isolated function min(decimal x, decimal... xs) returns decimal = @java:Method {
+    'class: "org.ballerinalang.langlib.decimal.Min",
     name: "min"
 } external;
 
@@ -49,8 +49,8 @@ public function min(decimal x, decimal... xs) returns decimal = @java:Method {
 #
 # + x - decimal value to operate on
 # + return - absolute value of `x`
-public function abs(decimal x) returns decimal = @java:Method {
-    class: "org.ballerinalang.langlib.decimal.Abs",
+public isolated function abs(decimal x) returns decimal = @java:Method {
+    'class: "org.ballerinalang.langlib.decimal.Abs",
     name: "abs"
 } external;
 
@@ -66,8 +66,8 @@ public function abs(decimal x) returns decimal = @java:Method {
 #
 # + x - decimal value to operate on
 # + return - closest decimal value to `x` that is a mathematical integer
-public function round(decimal x) returns decimal = @java:Method {
-    class: "org.ballerinalang.langlib.decimal.Round",
+public isolated function round(decimal x) returns decimal =  @java:Method {
+    'class: "org.ballerinalang.langlib.decimal.Round",
     name: "round"
 } external;
 
@@ -75,8 +75,8 @@ public function round(decimal x) returns decimal = @java:Method {
 #
 # + x - decimal value to operate on
 # + return - largest (closest to +∞) decimal value not greater than `x` that is a mathematical integer.
-public function floor(decimal x) returns decimal = @java:Method {
-    class: "org.ballerinalang.langlib.decimal.Floor",
+public isolated function floor(decimal x) returns decimal = @java:Method {
+    'class: "org.ballerinalang.langlib.decimal.Floor",
     name: "floor"
 } external;
 
@@ -84,8 +84,8 @@ public function floor(decimal x) returns decimal = @java:Method {
 #
 # + x - decimal value to operate on
 # + return - smallest (closest to -∞) decimal value not less than `x` that is a mathematical integer
-public function ceiling(decimal x) returns decimal = @java:Method {
-    class: "org.ballerinalang.langlib.decimal.Ceiling",
+public isolated function ceiling(decimal x) returns decimal = @java:Method {
+    'class: "org.ballerinalang.langlib.decimal.Ceiling",
     name: "ceiling"
 } external;
 
@@ -98,7 +98,7 @@ public function ceiling(decimal x) returns decimal = @java:Method {
 #
 # + s - string representation of a decimal
 # + return - decimal representation of the argument or error
-public function fromString(string s) returns decimal|error = @java:Method {
-    class: "org.ballerinalang.langlib.decimal.FromString",
+public isolated function fromString(string s) returns decimal|error = @java:Method {
+    'class: "org.ballerinalang.langlib.decimal.FromString",
     name: "fromString"
 } external;

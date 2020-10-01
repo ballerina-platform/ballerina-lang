@@ -288,7 +288,7 @@ public class IOPrintTest {
         fArgs.add(0, arr);
         BValue[] args = {new BString("%s"), fArgs};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSprintf", args);
-        Assert.assertEquals(returns[0].stringValue(), "111 222 333");
+        Assert.assertEquals(returns[0].stringValue(), "[111,222,333]");
     }
 
     @Test

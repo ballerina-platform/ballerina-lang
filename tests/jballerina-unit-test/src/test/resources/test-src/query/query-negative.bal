@@ -104,22 +104,6 @@ function testQueryWithInvalidExpressions() returns Person[]{
     return  outputPersonList;
 }
 
-function testQueryActionWithMutableParams() returns Person[]{
-
-    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
-    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-    Person p3 = {firstName: "John", lastName: "David", age: 33};
-
-    Person[] personList = [p1, p2, p3];
-
-    var x = from var person in personList
-            do {
-                person = {firstName: "XYZ", lastName: "George", age: 30};
-            };
-
-    return personList;
-}
-
 function testMissingRequiredRecordField() returns Student[]{
 
     Student s1 = {firstName: "Alex", lastName: "George", score: 82.5};
@@ -368,4 +352,39 @@ function testVariableShadowingWithQueryExpressions() {
         ];
 
     Employee[] records = from var {fname, lname, age} in entities select {fname, lname, age};
+}
+
+public function testMethodParamWithLet(int age) {
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    Person[] outputPersonList =
+            from var person in personList
+            let int age = 35
+            select {
+                   firstName: person.firstName,
+                   lastName: person.lastName,
+                   age: age
+             };
+}
+
+public function testMethodParamInQuery(int age) {
+
+    Person p1 = {firstName: "Alex", lastName: "George", age: 23};
+    Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName: "John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    Person[] outputPersonList =
+            from var {firstName, lastName, age} in personList
+            select {
+                   firstName: firstName,
+                   lastName: lastName,
+                   age: age
+             };
 }

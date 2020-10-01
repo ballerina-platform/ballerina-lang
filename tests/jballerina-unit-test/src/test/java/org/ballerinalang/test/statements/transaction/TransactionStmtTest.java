@@ -222,4 +222,11 @@ public class TransactionStmtTest {
     public void testInvokeRemoteTransactionalMethodInTransactionalScope() {
         BRunUtil.invoke(programFile, "testInvokeRemoteTransactionalMethodInTransactionalScope");
     }
+
+    @Test
+    public void testAsyncReturn() {
+        BValue[] result = BRunUtil.invoke(programFile, "testAsyncReturn");
+        Assert.assertTrue(result[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
+    }
 }

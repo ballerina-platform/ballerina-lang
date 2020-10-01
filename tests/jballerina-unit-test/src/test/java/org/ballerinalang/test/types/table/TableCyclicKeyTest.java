@@ -36,8 +36,8 @@ public class TableCyclicKeyTest {
     }
 
     @Test(enabled = false, expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}CyclicValueReferenceError message=" +
-                    "'Address' value has cyclic reference.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}CyclicValueReferenceError " +
+                    "\\{\"message\":\"'Address' value has cyclic reference.*")
     public void testCyclesInRecords() {
         BRunUtil.invoke(result, "testCyclesInRecords");
     }

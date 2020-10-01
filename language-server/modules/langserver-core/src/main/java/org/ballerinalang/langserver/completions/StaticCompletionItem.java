@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.completions;
 
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 
 /**
@@ -27,21 +27,29 @@ import org.eclipse.lsp4j.CompletionItem;
  *
  * @since 1.2.0
  */
-public class StaticCompletionItem implements LSCompletionItem {
-    LSContext lsContext;
-    CompletionItem completionItem;
+public class StaticCompletionItem extends AbstractLSCompletionItem {
+    
+    private final Kind kind;
 
-    public StaticCompletionItem(LSContext lsContext, CompletionItem completionItem) {
-        this.lsContext = lsContext;
-        this.completionItem = completionItem;
+    public StaticCompletionItem(LSContext lsContext, CompletionItem completionItem, Kind kind) {
+        super(lsContext, completionItem);
+        this.kind = kind;
     }
 
-    @Override
-    public CompletionItem getCompletionItem() {
-        return this.completionItem;
+    public Kind kind() {
+        return kind;
     }
 
-    public LSContext getLsContext() {
-        return lsContext;
+    /**
+     * Static completion item Kind.
+     * 
+     * @since 2.0.0
+     */
+    public enum Kind {
+        LANG_LIB_MODULE,
+        MODULE,
+        TYPE,
+        KEYWORD,
+        OTHER
     }
 }

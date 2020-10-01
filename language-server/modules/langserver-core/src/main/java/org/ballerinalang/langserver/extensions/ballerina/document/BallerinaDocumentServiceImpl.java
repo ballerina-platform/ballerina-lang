@@ -24,7 +24,7 @@
 //import io.ballerina.tools.text.TextDocuments;
 //import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 //import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-////import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiConverterUtils;
+//import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiConverterUtils;
 //import org.ballerinalang.compiler.CompilerPhase;
 //import org.ballerinalang.langserver.BallerinaLanguageServer;
 //import org.ballerinalang.langserver.LSContextOperation;
@@ -34,7 +34,6 @@
 //import org.ballerinalang.langserver.commons.LSContext;
 //import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 //import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-//import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 //import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 //import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 //import org.ballerinalang.langserver.compiler.LSModuleCompiler;
@@ -47,11 +46,10 @@
 //import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 //import org.ballerinalang.model.tree.ServiceNode;
 //import org.ballerinalang.model.tree.TopLevelNode;
-////import org.ballerinalang.openapi.CodeGenerator;
-////import org.ballerinalang.openapi.model.GenSrcFile;
-////import org.ballerinalang.openapi.utils.GeneratorConstants;
-//import org.ballerinalang.util.diagnostic.DiagnosticCode;
-//import org.ballerinalang.util.diagnostic.DiagnosticListener;
+//import org.ballerinalang.openapi.CodeGenerator;
+//import org.ballerinalang.openapi.cmd.Filter;
+//import org.ballerinalang.openapi.model.GenSrcFile;
+//import org.ballerinalang.openapi.utils.GeneratorConstants;
 //import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 //import org.eclipse.lsp4j.Position;
 //import org.eclipse.lsp4j.Range;
@@ -127,7 +125,6 @@
 //        }
 //
 //        return CompletableFuture.supplyAsync(() -> reply);
-//
 //    }
 //
 //    private static String convertToJson(String yamlString) throws IOException {
@@ -140,85 +137,88 @@
 //
 //    @Override
 //    public void apiDesignDidChange(ApiDesignDidChangeParams params) {
-////        String fileUri = params.getDocumentIdentifier().getUri();
-////        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
-////        if (!filePath.isPresent()) {
-////            return;
-////        }
-////        Optional<Lock> lock = documentManager.lockFile(filePath.get());
-////
-////        try {
-////            //Generate compilation unit for provided Open Api Sep JSON
-////            File tempOasJsonFile = getOpenApiFile(params.getOASDefinition());
-////            CodeGenerator generator = new CodeGenerator();
-////            List<GenSrcFile> oasSources = generator.generateBalSource(GeneratorConstants.GenType.GEN_SERVICE,
-////                    tempOasJsonFile.getPath(), "", null);
-////
-////            Optional<GenSrcFile> oasServiceFile = oasSources.stream()
-////                    .filter(genSrcFile -> genSrcFile.getType().equals(GenSrcFile.GenFileType.GEN_SRC)).findAny();
-////
-////            if (!oasServiceFile.isPresent()) {
-////                throw new OASGenerationException("OAS Service file is empty.");
-////            }
-////
-////            //Generate ballerina file to get services
-////            BallerinaFile oasServiceBal = ExtendedLSCompiler.compileContent(oasServiceFile.get().getContent(),
-////                    CompilerPhase.CODE_ANALYZE);
-////
-////            Optional<BLangPackage> oasFilePackage = oasServiceBal.getBLangPackage();
-////
-////            String fileContent = documentManager.getFileContent(filePath.get());
-////            String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
-////            int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
-////            int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
-////            int totalLines = contentComponents.length;
-////            Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
-////
-////            BallerinaFile ballerinaFile = ExtendedLSCompiler
-//                                              .compileContent(fileContent, CompilerPhase.CODE_ANALYZE);
-////            Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
-////
-////            if (bLangPackage.isPresent() && bLangPackage.get().symbol != null && oasFilePackage.isPresent()) {
-////                Optional<BLangCompilationUnit> compilationUnit = bLangPackage.get().getCompilationUnits()
-////                        .stream().findFirst();
-////                Optional<BLangCompilationUnit> oasCompilationUnit = oasFilePackage.get().getCompilationUnits()
-////                        .stream().findFirst();
-////
-////                if (!oasCompilationUnit.isPresent() || !compilationUnit.isPresent()) {
-////                    return;
-////                }
-////
-////                JsonObject targetAST = TextDocumentFormatUtil.generateJSON(compilationUnit.get(), new HashMap<>(),
-////                        new HashMap<>()).getAsJsonObject();
-////                FormattingSourceGen.build(targetAST, "CompilationUnit");
-////                JsonObject generatedAST = TextDocumentFormatUtil
-//                                                  .generateJSON(oasCompilationUnit.get(), new HashMap<>(),
-////                        new HashMap<>()).getAsJsonObject();
-////                FormattingSourceGen.build(generatedAST, "CompilationUnit");
-////                mergeAst(targetAST, generatedAST);
-////
-////                // generate source for the new ast.
-////                String textEditContent = FormattingSourceGen.getSourceOf(targetAST);
-////
-////                // create text edit
-////                TextEdit textEdit = new TextEdit(range, textEditContent);
-////                ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
-////                TextDocumentEdit textDocumentEdit = new TextDocumentEdit(params.getDocumentIdentifier(),
-////                        Collections.singletonList(textEdit));
-////                WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections
-////                        .singletonList(
-////                                Either.forLeft(textDocumentEdit)));
-////                applyWorkspaceEditParams.setEdit(workspaceEdit);
-////
-////                ballerinaLanguageServer.getClient().applyEdit(applyWorkspaceEditParams);
-////            }
-////        } catch (Throwable e) {
-////            String msg = "Operation 'ballerinaDocument/apiDesignDidChange' failed!";
-////            logError(msg, e, params.getDocumentIdentifier(), (Position) null);
-////        } finally {
-////            lock.ifPresent(Lock::unlock);
-////        }
-////
+//        String fileUri = params.getDocumentIdentifier().getUri();
+//        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+//        if (!filePath.isPresent()) {
+//            return;
+//        }
+//        Optional<Lock> lock = documentManager.lockFile(filePath.get());
+//
+//        try {
+//            //Generate compilation unit for provided Open Api Sep JSON
+//            File tempOasJsonFile = getOpenApiFile(params.getOASDefinition());
+//            CodeGenerator generator = new CodeGenerator();
+//
+//            List<String> tag = new ArrayList<>();
+//            List<String> operation = new ArrayList<>();
+//            Filter filter = new Filter(tag, operation);
+//
+//            List<GenSrcFile> oasSources = generator.generateBalSource(GeneratorConstants.GenType.GEN_SERVICE,
+//                    tempOasJsonFile.getPath(), "", null, filter);
+//
+//            Optional<GenSrcFile> oasServiceFile = oasSources.stream()
+//                    .filter(genSrcFile -> genSrcFile.getType().equals(GenSrcFile.GenFileType.GEN_SRC)).findAny();
+//
+//            if (!oasServiceFile.isPresent()) {
+//                throw new OASGenerationException("OAS Service file is empty.");
+//            }
+//
+//            //Generate ballerina file to get services
+//            BallerinaFile oasServiceBal = ExtendedLSCompiler.compileContent(oasServiceFile.get().getContent(),
+//                    CompilerPhase.CODE_ANALYZE);
+//
+//            Optional<BLangPackage> oasFilePackage = oasServiceBal.getBLangPackage();
+//
+//            String fileContent = documentManager.getFileContent(filePath.get());
+//            String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
+//            int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
+//            int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
+//            int totalLines = contentComponents.length;
+//            Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
+//
+//            BallerinaFile ballerinaFile = ExtendedLSCompiler.compileContent(fileContent, CompilerPhase.CODE_ANALYZE);
+//            Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
+//
+//            if (bLangPackage.isPresent() && bLangPackage.get().symbol != null && oasFilePackage.isPresent()) {
+//                Optional<BLangCompilationUnit> compilationUnit = bLangPackage.get().getCompilationUnits()
+//                        .stream().findFirst();
+//                Optional<BLangCompilationUnit> oasCompilationUnit = oasFilePackage.get().getCompilationUnits()
+//                        .stream().findFirst();
+//
+//                if (!oasCompilationUnit.isPresent() || !compilationUnit.isPresent()) {
+//                    return;
+//                }
+//
+//                JsonObject targetAST = TextDocumentFormatUtil.generateJSON(compilationUnit.get(), new HashMap<>(),
+//                        new HashMap<>()).getAsJsonObject();
+//                FormattingSourceGen.build(targetAST, "CompilationUnit");
+//                JsonObject generatedAST = TextDocumentFormatUtil.generateJSON(oasCompilationUnit.get(),
+//                new HashMap<>(), new HashMap<>()).getAsJsonObject();
+//                FormattingSourceGen.build(generatedAST, "CompilationUnit");
+//                mergeAst(targetAST, generatedAST);
+//
+//                // generate source for the new ast.
+//                String textEditContent = FormattingSourceGen.getSourceOf(targetAST);
+//
+//                // create text edit
+//                TextEdit textEdit = new TextEdit(range, textEditContent);
+//                ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
+//                TextDocumentEdit textDocumentEdit = new TextDocumentEdit(params.getDocumentIdentifier(),
+//                        Collections.singletonList(textEdit));
+//                WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections
+//                        .singletonList(
+//                                Either.forLeft(textDocumentEdit)));
+//                applyWorkspaceEditParams.setEdit(workspaceEdit);
+//
+//                ballerinaLanguageServer.getClient().applyEdit(applyWorkspaceEditParams);
+//            }
+//        } catch (Throwable e) {
+//            String msg = "Operation 'ballerinaDocument/apiDesignDidChange' failed!";
+//            logError(msg, e, params.getDocumentIdentifier(), (Position) null);
+//        } finally {
+//            lock.ifPresent(Lock::unlock);
+//        }
+//
 //    }
 //
 //    @Override
@@ -281,7 +281,7 @@
 //                    .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
 //                    .withCommonParams(null, fileUri, documentManager)
 //                    .build();
-//            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
+//            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
 //            reply.setAst(getTreeForContent(astContext));
 //            reply.setParseSuccess(isParseSuccess(astContext));
 //        } catch (Throwable e) {
@@ -295,25 +295,8 @@
 //    }
 //
 //    private boolean isParseSuccess(LSContext astContext) {
-//        BLangPackage bLangPackage = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-//        if (bLangPackage != null) {
-//            List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
-//            CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-//            if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-//                diagnostics = ((CollectDiagnosticListener) compilerContext
-//                        .get(DiagnosticListener.class)).getDiagnostics();
-//            }
-//            return !diagnostics.stream().anyMatch(diagnostic -> {
-//                DiagnosticCode code = diagnostic.getCode();
-//                return (code == DiagnosticCode.SYNTAX_ERROR)
-//                        || (code == DiagnosticCode.INVALID_TOKEN)
-//                        || (code == DiagnosticCode.MISSING_TOKEN)
-//                        || (code == DiagnosticCode.EXTRANEOUS_INPUT)
-//                        || (code == DiagnosticCode.MISMATCHED_INPUT)
-//                        || (code == DiagnosticCode.INVALID_SHIFT_OPERATOR);
-//            });
-//        }
-//        return false;
+//        // TODO: Revisit this. Can never be false.
+//        return true;
 //    }
 //
 //    @Override
@@ -390,7 +373,7 @@
 //            oldContent = documentManager.getFileContent(compilationPath);
 //            LSContext astContext = BallerinaTreeModifyUtil.modifyTree(request.getAstModifications(),
 //                    fileUri, compilationPath, documentManager);
-//            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
+//            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
 //            reply.setSource(astContext.get(UPDATED_SOURCE));
 //            reply.setAst(getTreeForContent(astContext));
 //            reply.setParseSuccess(isParseSuccess(astContext));
@@ -429,7 +412,7 @@
 //            oldContent = documentManager.getFileContent(compilationPath);
 //            LSContext astContext = BallerinaTriggerModifyUtil.modifyTrigger(request.getType(), request.getConfig(),
 //                    fileUri, compilationPath, documentManager);
-//            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
+//            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, false, false);
 //            reply.setSource(astContext.get(UPDATED_SOURCE));
 //            reply.setAst(getTreeForContent(astContext));
 //            reply.setParseSuccess(isParseSuccess(astContext));
@@ -486,8 +469,8 @@
 //            TextDocumentEdit txtDocumentEdit = new TextDocumentEdit(notification.getTextDocumentIdentifier(),
 //                    Collections.singletonList(textEdit));
 //
-//            WorkspaceEdit workspaceEdit =
-//                  new WorkspaceEdit(Collections.singletonList(Either.forLeft(txtDocumentEdit)));
+//            WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(
+//            Either.forLeft(txtDocumentEdit)));
 //            applyWorkspaceEditParams.setEdit(workspaceEdit);
 //
 //            // update the document
@@ -549,14 +532,14 @@
 //     * @return Temporary file created with provided string
 //     * @throws IOException will throw IO Exception if file error
 //     */
-////    private File getOpenApiFile(String oasDefinition) throws IOException {
-////        File oasTempFile = File.createTempFile("oasTempFile", ".json");
-////        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(oasTempFile),
-////                StandardCharsets.UTF_8))) {
-////            bw.write(oasDefinition);
-////        }
-////        return oasTempFile;
-////    }
+//    private File getOpenApiFile(String oasDefinition) throws IOException {
+//        File oasTempFile = File.createTempFile("oasTempFile", ".json");
+//        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(oasTempFile),
+//                StandardCharsets.UTF_8))) {
+//            bw.write(oasDefinition);
+//        }
+//        return oasTempFile;
+//    }
 //
 //    /**
 //     * Util method to merge updated compilation unit to the current compilation unit.
@@ -774,8 +757,8 @@
 //                                    // Add a new comma to separate the new key value pair.
 //                                    int startIndex = FormattingSourceGen.extractWS(sourceKeyValue).get(0)
 //                                            .getAsJsonObject().get("i").getAsInt();
-//                                    FormattingSourceGen
-//                                          .addNewWS(matchedTargetRecord, tree, "", ",", true, startIndex);
+//                                    FormattingSourceGen.addNewWS(matchedTargetRecord, tree, "", ",", true,
+//                                    startIndex);
 //                                }
 //                            }
 //                        }

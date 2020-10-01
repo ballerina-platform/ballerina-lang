@@ -46,8 +46,8 @@ public class TypeCastActionTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'int' cannot be cast to " +
-                  "'string'.*")
+          expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: " +
+                  "'int' cannot be cast to 'string'.*")
     public void testCastingToIncorrectType() {
         BRunUtil.invoke(result, "testCastingToIncorrectType");
     }

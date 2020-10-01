@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
@@ -73,14 +73,13 @@ public class Map {
                 throw createOpNotSupportedError(arrType, "map()");
         }
         AtomicInteger index = new AtomicInteger(-1);
-        // accessing the parent strand here to use it with each iteration
         Strand parentStrand = Scheduler.getStrand();
-        BRuntime.getCurrentRuntime()
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{parentStrand,
                                                                getFn.get(arr, index.incrementAndGet()), true},
                                                        result -> retArr.add(index.get(), result),
-                                                       () -> retArr);
+                                                       () -> retArr, Scheduler.getStrand().scheduler);
 
         return retArr;
     }

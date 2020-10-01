@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
 /**
  * @since 0.985.0
  */
-public interface VariableNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
+public interface VariableNode extends AnnotatableNode, DocumentableNode, TopLevelNode, IdentifiableNode {
     
     TypeNode getTypeNode();
     

@@ -4,7 +4,7 @@ type StringArray string[];
 
 //------------ Testing a function with all types of parameters ---------
 
-public function functionWithAllTypesParams(int a, float b, public string c = "John", public int d = 5, public string e = "Doe")
+public function functionWithAllTypesParams(int a, float b, string c = "John", int d = 5, string e = "Doe")
         returns [int, float, string, int, string, int[]] {
     return [a, b, c, d, e, []];
 }
@@ -16,7 +16,7 @@ public function getIntArray() returns int[] {
 
 //------------- Testing a function having required and rest parameters --------
 
-public function functionWithoutRestParams(public int a, public float b, public string c = "John", public int d = 5, public string e = "Doe") returns
+public function functionWithoutRestParams(int a, float b, string c = "John", int d = 5, string e = "Doe") returns
             [int, float, string, int, string] {
     return [a, b, c, d, e];
 }
@@ -24,7 +24,7 @@ public function functionWithoutRestParams(public int a, public float b, public s
 
 //------------- Testing a function having only named parameters --------
 
-public function functionWithOnlyNamedParams(public int a=5, public float b=6.0, public string c = "John", public int d = 7, public string e = "Doe")
+public function functionWithOnlyNamedParams(int a=5, float b=6.0, string c = "John", int d = 7, string e = "Doe")
                                                                                                     returns [int, float, string, int, string] {
     return [a, b, c, d, e];
 }
@@ -65,11 +65,11 @@ public function funcWithNilDefaultParamExpr_2(Student? s = ()) returns Student? 
 }
 
 // ------------------- Test function signature with rest param
-public function bar(public int i, boolean... b) returns int {
+public function bar(int i, boolean... b) returns int {
     return i;
 }
 
-public function baz(string s, public float f = 2.0, boolean... b) {
+public function baz(string s, float f = 2.0, boolean... b) {
 }
 
 public function bazTwo(int i, boolean... b) returns [int, boolean[]] {
@@ -88,7 +88,7 @@ public function sigma() returns never {
 
 // ------------------- Test function signature for attached functions ------------------
 
-public type Employee object {
+public class Employee {
 
     public string name;
     public int salary;
@@ -98,38 +98,38 @@ public type Employee object {
         self.salary = salary;
     }
 
-    public function getSalary (string n, public int b = 0) returns int {
+    public function getSalary (string n, int b = 0) returns int {
         return self.salary + b;
     }
-};
+}
 
 
-public type Person object {
+public class Person {
     public int age = 0;
 
-    public function test1(public int a = 77, string n = "hello") returns [int, string] {
+    public function test1(int a = 77, string n = "hello") returns [int, string] {
         string val = n + " world";
         int intVal = a + 10;
         return [intVal, val];
     }
 
-    public function test2(public int a = 89, string n = "hello") returns [int, string] {
+    public function test2(int a = 89, string n = "hello") returns [int, string] {
         string val = n + " world";
         int intVal = a + 10;
         return [intVal, val];
     }
-};
+}
 
-public type Foo client object {
-    public function bar(public int i, boolean... b) returns int {
+public client class Foo {
+    public function bar(int i, boolean... b) returns int {
         return i;
     }
 
-    public remote function baz(string s, public float f = 2.0, boolean... b) {
+    public remote function baz(string s, float f = 2.0, boolean... b) {
     }
-};
+}
 
-public type FooTwo client object {
+public client class FooTwo {
     public function baz(int i, boolean... b) returns [int, boolean[]] {
         return [i, checkpanic b.cloneWithType(BooleanArray)];
     }
@@ -137,4 +137,4 @@ public type FooTwo client object {
     public remote function bar(int i, string s = "hello", string... t) returns [int, string, string[]] {
         return [i, s, checkpanic t.cloneWithType(StringArray)];
     }
-};
+}

@@ -18,8 +18,9 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
+
 /**
  * Create XML comment value from string.
  *

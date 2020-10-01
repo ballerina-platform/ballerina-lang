@@ -161,7 +161,7 @@ public class CookieNativeFunctionNegativeTest {
     @Test(description = "Test to remove a specific cookie which is not in the cookie store, when there is a " +
             "persistent cookie store",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*KeyNotFound message=cannot find key.*")
+            expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key.*")
     public void testRemovePersistentCookieFromCookieStore_1() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemovePersistentCookieFromCookieStore_1");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,

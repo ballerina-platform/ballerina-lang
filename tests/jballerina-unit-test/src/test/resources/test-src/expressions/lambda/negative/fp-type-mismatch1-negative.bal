@@ -6,3 +6,7 @@ function test1() returns (boolean) {
 function test2(string a, float b) returns (boolean){
     return false;
 }
+
+type FunctionType function (Context, anydata) returns json|error; // Unknown type `Context` in param
+type FunctionEntry [FunctionType, typedesc<anydata>];
+map<FunctionEntry> functions = { };

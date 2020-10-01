@@ -1,7 +1,7 @@
 function add(int a, int b) returns int {
-   return a + b;
+    return a + b;
 }
 
 public function foo() {
-   int result = add(5, 6);
+    int result = add(5, 6);
 }

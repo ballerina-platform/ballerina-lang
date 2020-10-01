@@ -72,7 +72,7 @@ public class LangLibRecordTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*error: \\{ballerina/lang.map\\}KeyNotFound message=cannot find key 'NonExistent'.*")
+                  ".*error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key 'NonExistent'\"\\}.*")
     public void testGetNonExistentKey() {
         BRunUtil.invoke(compileResult, "testGet", new BValue[]{new BString("NonExistent")});
     }
@@ -91,14 +91,14 @@ public class LangLibRecordTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*OperationNotSupported message=failed .*")
+                  ".*OperationNotSupported \\{\"message\":\"failed .*")
     public void testRemove() {
         BRunUtil.invoke(compileResult, "testRemove", new BValue[]{new BString("name")});
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*OperationNotSupported message=failed .*")
+                  ".*OperationNotSupported \\{\"message\":\"failed .*")
     public void testRemoveAll() {
         BRunUtil.invoke(compileResult, "testRemoveAll");
     }

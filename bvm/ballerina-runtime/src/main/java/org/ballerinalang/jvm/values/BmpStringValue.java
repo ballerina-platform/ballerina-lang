@@ -18,7 +18,8 @@
 
 package org.ballerinalang.jvm.values;
 
- import org.ballerinalang.jvm.values.api.BString;
+ import org.ballerinalang.jvm.api.values.BLink;
+ import org.ballerinalang.jvm.api.values.BString;
 
  /**
   * Represent ballerina strings containing only unicode basic multilingual plane characters.
@@ -60,8 +61,13 @@ package org.ballerinalang.jvm.values;
      }
 
      @Override
-     public String stringValue() {
+     public String stringValue(BLink parent) {
          return value;
+     }
+
+     @Override
+     public String informalStringValue(BLink parent) {
+         return "\"" + toString() + "\"";
      }
 
      @Override

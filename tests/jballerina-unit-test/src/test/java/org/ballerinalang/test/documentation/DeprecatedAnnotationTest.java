@@ -20,6 +20,7 @@ package org.ballerinalang.test.documentation;
 
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.Annotation;
+import org.ballerinalang.docgen.generator.model.BClass;
 import org.ballerinalang.docgen.generator.model.Constant;
 import org.ballerinalang.docgen.generator.model.Construct;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
@@ -27,7 +28,6 @@ import org.ballerinalang.docgen.generator.model.Error;
 import org.ballerinalang.docgen.generator.model.FiniteType;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Module;
-import org.ballerinalang.docgen.generator.model.Object;
 import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.UnionType;
@@ -117,23 +117,23 @@ public class DeprecatedAnnotationTest {
         Assert.assertFalse(nonDepFiniteType.isDeprecated);
     }
 
-    @Test(description = "Test @deprecated annotation for module-level object type definitions")
+    @Test(description = "Test @deprecated annotation for module-level bClass type definitions")
     public void testDeprecatedObjectTypeDef() {
-        List<Object> objTypes = testModule.objects;
-        Object deprecatedObj = null;
-        Object nonDeprecatedObj = null;
+        List<BClass> classes = testModule.classes;
+        BClass deprecatedClass = null;
+        BClass nonDeprecatedClass = null;
 
-        for (Object object : objTypes) {
-            String objName = object.name;
-            if ("Person".equals(objName)) {
-                deprecatedObj = object;
-            } else if ("Student".equals(objName)) {
-                nonDeprecatedObj = object;
+        for (BClass bClass : classes) {
+            String clsName = bClass.name;
+            if ("Person".equals(clsName)) {
+                deprecatedClass = bClass;
+            } else if ("Student".equals(clsName)) {
+                nonDeprecatedClass = bClass;
             }
         }
 
-        testDeprecated(deprecatedObj);
-        testNonDeprecated(nonDeprecatedObj);
+        testDeprecated(deprecatedClass);
+        testNonDeprecated(nonDeprecatedClass);
     }
 
     @Test(description = "Test @deprecated annotation for module-level record type definitions")
@@ -262,24 +262,24 @@ public class DeprecatedAnnotationTest {
         }
     }
 
-    @Test(description = "Test @deprecated annotation for object member method")
+    @Test(description = "Test @deprecated annotation for bClass member method")
     public void testDeprecatedObjectMemberMethod() {
-        List<Object> objects = testModule.objects;
-        Object personObj = null;
-        Object studentObj = null;
+        List<BClass> bClasses = testModule.classes;
+        BClass personClass = null;
+        BClass studentClass = null;
 
-        for (Object obj : objects) {
-            String objName = obj.name;
-            if ("Person".equals(objName)) {
-                personObj = obj;
-            } else if ("Student".equals(objName)) {
-                studentObj = obj;
+        for (BClass cls : bClasses) {
+            String clsName = cls.name;
+            if ("Person".equals(clsName)) {
+                personClass = cls;
+            } else if ("Student".equals(clsName)) {
+                studentClass = cls;
             }
         }
 
-        // test deprecated object member methods
-        Assert.assertNotNull(personObj);
-        for (Function method : personObj.methods) {
+        // test deprecated bClass member methods
+        Assert.assertNotNull(personClass);
+        for (Function method : personClass.methods) {
             String methodName = method.name;
             if ("getFullName".equals(methodName)) {
                 testDeprecated(method);
@@ -288,9 +288,9 @@ public class DeprecatedAnnotationTest {
             }
         }
 
-        // test non-deprecated object member methods
-        Assert.assertNotNull(studentObj);
-        for (Function method : personObj.methods) {
+        // test non-deprecated bClass member methods
+        Assert.assertNotNull(studentClass);
+        for (Function method : personClass.methods) {
             String methodName = method.name;
             if ("getName".equals(methodName)) {
                 testDeprecated(method);
@@ -300,20 +300,20 @@ public class DeprecatedAnnotationTest {
         }
     }
 
-    @Test(description = "Test @deprecated annotation for object member field")
+    @Test(description = "Test @deprecated annotation for bClass member field")
     public void testDeprecatedObjectMemberField() {
-        List<Object> objects = testModule.objects;
-        Object playerObj = null;
+        List<BClass> bClasses = testModule.classes;
+        BClass playerClass = null;
 
-        for (Object obj : objects) {
-            String objName = obj.name;
-            if ("Player".equals(objName)) {
-                playerObj = obj;
+        for (BClass cls : bClasses) {
+            String clsName = cls.name;
+            if ("Player".equals(clsName)) {
+                playerClass = cls;
             }
         }
 
-        Assert.assertNotNull(playerObj);
-        for (DefaultableVariable field : playerObj.fields) {
+        Assert.assertNotNull(playerClass);
+        for (DefaultableVariable field : playerClass.fields) {
             String fieldName = field.name;
             if ("name".equals(fieldName)) {
                 testDeprecated(field);

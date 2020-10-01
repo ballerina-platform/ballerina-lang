@@ -239,13 +239,13 @@ type Foo record {
     function() returns Baz bazFunc = getBaz;
 };
 
-type Bar object {
+class Bar {
     int i;
 
     public function init(int i) {
         self.i = i;
     }
-};
+}
 
 type Baz record {
     float f = 2.0;

@@ -19,21 +19,14 @@
 package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * XML Comment constructor function.
  *
  * @since 2.0.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "commentCtor",
-//        args = {
-//                @Argument(name = "content", type = TypeKind.STRING)
-//        },
-//        returnType = {@ReturnType(type = TypeKind.XML)}
-//)
 public class CommentCtor {
 
     public static XMLValue commentCtor(BString content) {

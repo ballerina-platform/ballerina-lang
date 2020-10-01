@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.internal;
 
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +31,6 @@ import java.util.List;
  * 
  * @since 0.92
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.__internal",
-//        functionName = "selectDescendants",
-//        args = {@Argument(name = "qname", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
 public class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";

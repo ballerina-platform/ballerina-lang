@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 
@@ -32,20 +32,6 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_
  *
  * @since 2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina",
-//        packageName = "lang.value", version = VALUE_VERSION,
-//        functionName = "fromJsonStringWithType",
-//        args = {
-//                @Argument(name = "str", type = TypeKind.STRING),
-//                @Argument(name = "t", type = TypeKind.TYPEDESC)
-//        },
-//        returnType = {
-//                @ReturnType(type = TypeKind.ANYDATA),
-//                @ReturnType(type = TypeKind.ERROR)
-//        },
-//        isPublic = true
-//)
 public class FromJsonStringWithType {
 
     public static Object fromJsonStringWithType(BString value, TypedescValue t) {
@@ -59,8 +45,8 @@ public class FromJsonStringWithType {
                 return FromJsonWithType.fromJsonWithType(jsonFromString, t);
             }
         } catch (BallerinaException e) {
-            return BallerinaErrors.createError(StringUtils.fromString(VALUE_LANG_LIB_CONVERSION_ERROR),
-                    StringUtils.fromString(e.getMessage()));
+            return BErrorCreator.createError(VALUE_LANG_LIB_CONVERSION_ERROR,
+                                             BStringUtils.fromString(e.getMessage()));
         }
     }
 }

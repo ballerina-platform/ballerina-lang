@@ -59,7 +59,7 @@ public class VarDeclrSemanticTest {
         assertEquals(result.getErrorCount(), indx);
     }
 
-    @Test(groups = "disableOnOldParser")
+    @Test(groups = {"disableOnOldParser", "brokenOnClassChange"})
     public void testIncompleteListenerDecl2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/incomplete_listener_decl_2.bal");
         int indx = 0;

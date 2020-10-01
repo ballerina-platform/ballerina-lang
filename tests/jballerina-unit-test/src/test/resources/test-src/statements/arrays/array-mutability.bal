@@ -110,15 +110,15 @@ function testOpenSealedArrays() {
     x20[4] = 5; // Runtime Exception
 }
 
-type Animal object {
+class Animal {
     public string name = "";
 
     public function getName() returns string {
         return self.name;
     }
-};
+}
 
-type Dog object { // Assignable to Animal Object
+class Dog { // Assignable to Animal Object
     public string name = "";
     public int age = 0;
 
@@ -129,7 +129,7 @@ type Dog object { // Assignable to Animal Object
     public function getNameAndAge() returns [string, int] {
         return [self.name, self.age];
     }
-};
+}
 
 function testObjectTypes() {
     Animal animal1 = new;

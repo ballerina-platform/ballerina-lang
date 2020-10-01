@@ -18,15 +18,14 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.HashMap;
 
@@ -35,37 +34,18 @@ import java.util.HashMap;
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.__internal", functionName = "setNarrowType",
-//        args = {@Argument(name = "td", type = TypeKind.TYPEDESC), @Argument(name = "val", type = TypeKind.RECORD)},
-//        returnType = {@ReturnType(type = TypeKind.RECORD)}
-//)
 public class SetNarrowType {
-
-    public static MapValue setNarrowType(Strand strand, TypedescValue td, MapValue value) {
-        BRecordType recordType = (BRecordType) value.getType();
-        BRecordType newRecordType = new BRecordType("narrowType", recordType.getPackage(), recordType.flags,
-                                                    recordType.sealed, recordType.typeFlags);
-        newRecordType.setFields(new HashMap<String, BField>() {{
-            put("value", new BField(td.getDescribingType(), "value", Flags.PUBLIC + Flags.REQUIRED));
-        }});
-
-        MapValueImpl<BString, Object> newRecord = new MapValueImpl<>(newRecordType);
-        newRecord.put(StringUtils.fromString("value"), value.get(StringUtils.fromString("value")));
-        return newRecord;
-    }
-
 
     public static MapValue setNarrowType(TypedescValue td, MapValue value) {
         BRecordType recordType = (BRecordType) value.getType();
         BRecordType newRecordType = new BRecordType("narrowType", recordType.getPackage(), recordType.flags,
                 recordType.sealed, recordType.typeFlags);
-        newRecordType.setFields(new HashMap<String, BField>() {{
+        newRecordType.setFields(new HashMap<>() {{
             put("value", new BField(td.getDescribingType(), "value", Flags.PUBLIC + Flags.REQUIRED));
         }});
 
         MapValueImpl<BString, Object> newRecord = new MapValueImpl<>(newRecordType);
-        newRecord.put(StringUtils.fromString("value"), value.get(StringUtils.fromString("value")));
+        newRecord.put(BStringUtils.fromString("value"), value.get(BStringUtils.fromString("value")));
         return newRecord;
     }
 }

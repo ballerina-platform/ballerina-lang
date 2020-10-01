@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type XML object {
+class XML {
     function getXML() {
         xml person = xml `<employees>
                         <employee id="1">
@@ -475,4 +475,4 @@ type XML object {
                         </employee>
                       </employees>`;
     }
-};
+}

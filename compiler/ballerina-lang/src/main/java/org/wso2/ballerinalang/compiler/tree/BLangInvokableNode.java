@@ -19,8 +19,8 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.FunctionBodyNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
@@ -54,7 +54,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
-    public List<BLangEndpoint> endpoints;
     public List<BLangWorker> workers;
     public BLangSimpleVariable restParam;
 
@@ -73,7 +72,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.requiredParams = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.returnTypeAnnAttachments = new ArrayList<>();
-        this.endpoints = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.workers = new ArrayList<>();
         this.defaultWorkerName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
@@ -186,8 +184,13 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     }
 
     @Override
-    public List<? extends EndpointNode> getEndpointNodes() {
-        return endpoints;
+    public Symbol getSymbol() {
+        return this.symbol;
+    }
+
+    @Override
+    public void setSymbol(Symbol symbol) {
+        this.symbol = (BInvokableSymbol) symbol;
     }
 
     @Override

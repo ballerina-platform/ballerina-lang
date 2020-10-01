@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
@@ -38,12 +38,6 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "filter",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
-//        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-//        isPublic = true
-//)
 public class Filter {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
@@ -54,18 +48,17 @@ public class Filter {
         int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
         AtomicInteger index = new AtomicInteger(-1);
-        // accessing the parent strand here to use it with each iteration
         Strand parentStrand = Scheduler.getStrand();
-        BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{parentStrand, arr.get(index.incrementAndGet()),
-                                true},
-                        result -> {
-                            if ((Boolean) result) {
-                                newArr.add(newArraySize.incrementAndGet(),
-                                        arr.get(index.get()));
-                            }
-                        }, () -> newArr);
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                                                         () -> new Object[]{parentStrand,
+                                                                 arr.get(index.incrementAndGet()),
+                                                                 true},
+                                                         result -> {
+                                                             if ((Boolean) result) {
+                                                                 newArr.add(newArraySize.incrementAndGet(),
+                                                                            arr.get(index.get()));
+                                                             }
+                                                         }, () -> newArr, Scheduler.getStrand().scheduler);
         return newArr;
     }
 }

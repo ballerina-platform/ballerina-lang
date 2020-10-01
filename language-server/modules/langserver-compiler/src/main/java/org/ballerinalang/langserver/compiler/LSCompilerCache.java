@@ -19,14 +19,11 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
-import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -95,14 +92,7 @@ public class LSCompilerCache {
                 ((isSinglePkg) ? !cacheEntry.get().isLeft() : !cacheEntry.get().isRight())) {
             return null;
         }
-        List<Diagnostic> diagnostics = cacheEntry.diagnostics;
-        DiagnosticListener diagnosticListener = cacheEntry.compilerContext.get(DiagnosticListener.class);
-        if (diagnostics != null && diagnosticListener instanceof CollectDiagnosticListener) {
-            // Restore diagnostics, since same CompilerContext is shared between different operations
-            CollectDiagnosticListener listener = (CollectDiagnosticListener) diagnosticListener;
-            listener.clearAll();
-            diagnostics.forEach(listener::received);
-        }
+
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, cacheEntry.compilerContext);
         return cacheEntry;
     }
@@ -240,20 +230,12 @@ public class LSCompilerCache {
     public static class CacheEntry {
         private EitherPair<BLangPackage, List<BLangPackage>> bLangPackages;
         private CompilerContext compilerContext;
-        private final List<Diagnostic> diagnostics;
         private boolean isOutdated = false;
 
         CacheEntry(EitherPair<BLangPackage, List<BLangPackage>> bLangPackages,
                    CompilerContext compilerContext) {
             this.bLangPackages = bLangPackages;
             this.compilerContext = compilerContext;
-            DiagnosticListener diagnosticListener = compilerContext.get(DiagnosticListener.class);
-            List<Diagnostic> diagnostics = null;
-            if (diagnosticListener instanceof CollectDiagnosticListener) {
-                CollectDiagnosticListener listener = (CollectDiagnosticListener) diagnosticListener;
-                diagnostics = new ArrayList<>(listener.getDiagnostics());
-            }
-            this.diagnostics = diagnostics;
         }
 
         /**

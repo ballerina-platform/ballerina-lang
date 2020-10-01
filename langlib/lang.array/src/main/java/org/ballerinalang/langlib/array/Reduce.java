@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
@@ -40,13 +40,6 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.array", functionName = "reduce",
-//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION),
-//                @Argument(name = "initial", type = TypeKind.ANY)},
-//        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-//        isPublic = true
-//)
 public class Reduce {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
@@ -58,13 +51,12 @@ public class Reduce {
         GetFunction getFn = getElementAccessFunction(arrType, "reduce()");
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
-        // accessing the parent strand here to use it with each iteration of the reduce
         Strand parentStrand = Scheduler.getStrand();
-        BRuntime.getCurrentRuntime()
+        AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{parentStrand, accum.get(), true,
                                                                getFn.get(arr, index.incrementAndGet()), true},
-                                                       accum::set, accum::get);
+                                                       accum::set, accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
 
         

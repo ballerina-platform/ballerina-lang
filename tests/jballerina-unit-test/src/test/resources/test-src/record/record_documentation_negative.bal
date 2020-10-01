@@ -34,7 +34,7 @@ type Test record {
 # Documentation for File object
 #
 # + path - file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
-public type File object {
+public class File {
 
     public string path = "";
 
@@ -49,7 +49,7 @@ public type File object {
         boolean successful = false;
         return successful;
     }
-};
+}
 
 type Person record {
     string firstName;

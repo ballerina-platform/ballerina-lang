@@ -5,17 +5,17 @@ public function testObjectWithInterface () returns [int, string] {
     return [p.age, p.month];
 }
 
-public type Person object {
+public class Person {
     public int age = 10;
     string month = "february";
 
-    function init (int age) {
+    isolated function init (int age) {
         self.age = age;
     }
-};
+}
 
-public type Employee object {
+public class Employee {
     public int age = 10;
     public Person p = new(30);
     private string month = "february";
-};
+}

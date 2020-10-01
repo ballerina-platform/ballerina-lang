@@ -53,7 +53,7 @@ public class InvalidDataProviderTestCase extends BaseTestCase {
         Files.deleteIfExists(errorlogFile);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testInvalidDataProvider() throws BallerinaTestException {
         String errMsg = "error: Error while invoking function 'testInvalidDataProvider'";
         String errMsg2 = "If you are using data providers please check if types return from data provider match test " +

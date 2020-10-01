@@ -18,10 +18,11 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Parse a string in JSON format and return the the value that it represents.
@@ -39,7 +40,8 @@ public class FromJsonString {
         try {
             return JSONParser.parse(str);
         } catch (BallerinaException e) {
-            return BallerinaErrors.createError("{ballerina}FromJsonStringError", e.getMessage());
+            return BErrorCreator.createError(BStringUtils.fromString("{ballerina/lang.value}FromJsonStringError"),
+                                             BStringUtils.fromString(e.getMessage()));
         }
     }
 }

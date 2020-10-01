@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 
@@ -43,7 +43,7 @@ public class FromString {
             return new DecimalValue(new BigDecimal(s.getValue()));
         } catch (NumberFormatException e) {
             // TODO: 6/21/19 Improve this error value
-            return new ErrorValue(StringUtils.fromString(e.getMessage()), null);
+            return new ErrorValue(BStringUtils.fromString(e.getMessage()), null);
         }
     }
 }

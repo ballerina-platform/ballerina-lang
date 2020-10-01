@@ -22,7 +22,7 @@ import ballerina/java;
 # + elemNames - ualified name of the elements to filter
 # + return - All elements that match elemNames
 public function getElements(xml x, string... elemNames) returns xml = @java:Method {
-    class: "org.ballerinalang.langlib.internal.GetElements",
+    'class: "org.ballerinalang.langlib.internal.GetElements",
     name: "getElements"
 } external;
 
@@ -36,7 +36,7 @@ public function getElements(xml x, string... elemNames) returns xml = @java:Meth
 # + elemNames - Qualified name of the elements to filter,
 # + return - All child elements matching `index` condition and  `elemNames` condition.
 public function getFilteredChildrenFlat(xml x, int index, string... elemNames) returns xml = @java:Method {
-    class: "org.ballerinalang.langlib.internal.GetFilteredChildrenFlat",
+    'class: "org.ballerinalang.langlib.internal.GetFilteredChildrenFlat",
     name: "getFilteredChildrenFlat"
 } external;
 
@@ -47,7 +47,7 @@ public function getFilteredChildrenFlat(xml x, int index, string... elemNames) r
 # + qname - Qualified name of the element
 # + return - All the descendants that matches the given qualified name, as a sequence
 public function selectDescendants(xml x, string... qname) returns xml = @java:Method {
-    class: "org.ballerinalang.langlib.internal.SelectDescendants",
+    'class: "org.ballerinalang.langlib.internal.SelectDescendants",
     name: "selectDescendants"
 } external;
 
@@ -58,7 +58,7 @@ public function selectDescendants(xml x, string... qname) returns xml = @java:Me
 # + isOptionalAccess - Is this a optoinal access expression or not
 # + return - Attribute value
 public function getAttribute(xml x, string attributeName, boolean isOptionalAccess) returns string|error? = @java:Method {
-    class: "org.ballerinalang.langlib.internal.GetAttribute",
+    'class: "org.ballerinalang.langlib.internal.GetAttribute",
     name: "getAttribute"
 } external;
 
@@ -67,7 +67,7 @@ public function getAttribute(xml x, string attributeName, boolean isOptionalAcce
 # + x - The xml value
 # + return - Element name
 public function getElementNameNilLifting(xml x) returns string|error? = @java:Method {
-    class: "org.ballerinalang.langlib.internal.GetElementNameNilLifting",
+    'class: "org.ballerinalang.langlib.internal.GetElementNameNilLifting",
     name: "getElementNameNilLifting"
 } external;
 
@@ -78,7 +78,7 @@ public function getElementNameNilLifting(xml x) returns string|error? = @java:Me
 # + children - Optional children
 # + return - Constructed Element value
 public function elementCtor(string name, map<string> attributeMap = {}, xml children = textCtor()) returns xml = @java:Method {
-    class: "org.ballerinalang.langlib.internal.ElementCtor",
+    'class: "org.ballerinalang.langlib.internal.ElementCtor",
     name: "elementCtor"
 } external;
 # Functional constructor for xml:ProcessingInstruction subtype.
@@ -87,7 +87,7 @@ public function elementCtor(string name, map<string> attributeMap = {}, xml chil
 # + content - Content potion
 # + return - Constructed ProcessingInstruction value
 public function processingInstructionCtor(string target, string content = "") returns xml = @java:Method {
-    class: "org.ballerinalang.langlib.internal.ProcessingInstructionCtor",
+    'class: "org.ballerinalang.langlib.internal.ProcessingInstructionCtor",
     name: "processingInstructionCtor"
 } external;
 # Functional constructor for xml:Comment subtype.
@@ -95,7 +95,7 @@ public function processingInstructionCtor(string target, string content = "") re
 # + content - Comment content
 # + return - Constructed Comment value
 public function commentCtor(string content = "") returns xml = @java:Method {
-    class: "org.ballerinalang.langlib.internal.CommentCtor",
+    'class: "org.ballerinalang.langlib.internal.CommentCtor",
     name: "commentCtor"
 } external;
 
@@ -104,6 +104,6 @@ public function commentCtor(string content = "") returns xml = @java:Method {
 # + characters - Text content
 # + return - Constructed Text value
 public function textCtor(string characters = "") returns xml = @java:Method {
-    class: "org.ballerinalang.langlib.internal.TextCtor",
+    'class: "org.ballerinalang.langlib.internal.TextCtor",
     name: "textCtor"
 } external;

@@ -23,7 +23,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -271,7 +270,7 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        serviceNode.getTypeDefinition().accept(this);
+        serviceNode.getServiceClass().accept(this);
         serviceNode.getResources().forEach(resource -> resource.accept(this));
         serviceNode.getAttachedExprs().forEach(expr -> expr.accept(this));
     }
@@ -305,11 +304,6 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangEndpoint endpointNode) {
         // No implementation
     }
 

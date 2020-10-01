@@ -28,10 +28,10 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.model.values.BValueType;
 import org.ballerinalang.core.model.values.BXML;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -57,6 +57,7 @@ import javax.xml.namespace.QName;
  *
  * @since 1.0.0
  */
+@Test(groups = { "brokenOnOldParser" })
 public class RefTypeTests {
 
     private CompileResult result;
@@ -225,8 +226,8 @@ public class RefTypeTests {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible types: 'int'" +
-                    " cannot be cast to 'MIX_TYPE'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'int' cannot be cast to 'MIX_TYPE'.*")
     public void testGetInvalidIntegerAsMixType() {
         BValue[] returns = BRunUtil.invoke(result, "getInvalidIntegerAsMixType");
         Assert.assertTrue(returns[0] instanceof BValueType);
@@ -269,7 +270,7 @@ public class RefTypeTests {
     public void testGetTypeDesc() {
         BValue[] returns = BRunUtil.invoke(result, "testGetTypeDesc");
         Assert.assertTrue(returns[0] instanceof BTypeDescValue);
-        Assert.assertEquals(((BTypeDescValue) returns[0]).stringValue(), "xml");
+        Assert.assertEquals(returns[0].stringValue(), "xml");
     }
 
     @Test
@@ -348,8 +349,8 @@ public class RefTypeTests {
         return new XMLItem(new QName("hello"));
     }
 
-    public static org.ballerinalang.jvm.values.api.BString getStringFromXML(XMLValue x) {
-        return StringUtils.fromString(x.toString());
+    public static org.ballerinalang.jvm.api.values.BString getStringFromXML(XMLValue x) {
+        return BStringUtils.fromString(x.toString());
     }
 
     public static int getAllInts() {
@@ -388,8 +389,8 @@ public class RefTypeTests {
         return (FPValue) fp;
     }
 
-    public static org.ballerinalang.jvm.values.api.BString useTypeDesc(TypedescValue type) {
-        return StringUtils.fromString(type.stringValue());
+    public static org.ballerinalang.jvm.api.values.BString useTypeDesc(TypedescValue type) {
+        return BStringUtils.fromString(type.stringValue(null));
     }
 
     public static TypedescValue getTypeDesc() {
@@ -410,8 +411,8 @@ public class RefTypeTests {
         return new HandleValue(m);
     }
 
-    public static org.ballerinalang.jvm.values.api.BString useHandle(HandleValue h) {
+    public static org.ballerinalang.jvm.api.values.BString useHandle(HandleValue h) {
         Map<String, String> m = (Map<String, String>) h.getValue();
-        return StringUtils.fromString(m.get("name"));
+        return BStringUtils.fromString(m.get("name"));
     }
 }

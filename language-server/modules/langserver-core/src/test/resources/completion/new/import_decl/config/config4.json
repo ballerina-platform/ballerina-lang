@@ -9,7 +9,7 @@
       "label": "lang.object",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'object;",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "lang.boolean",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'boolean;",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +25,7 @@
       "label": "lang.xml",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'xml;",
       "insertTextFormat": "Snippet"
     },
@@ -33,7 +33,7 @@
       "label": "lang.array",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'array;",
       "insertTextFormat": "Snippet"
     },
@@ -41,7 +41,7 @@
       "label": "lang.transaction",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'transaction;",
       "insertTextFormat": "Snippet"
     },
@@ -49,7 +49,7 @@
       "label": "lang.string",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'string;",
       "insertTextFormat": "Snippet"
     },
@@ -57,7 +57,7 @@
       "label": "lang.future",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'future;",
       "insertTextFormat": "Snippet"
     },
@@ -65,7 +65,7 @@
       "label": "lang.value",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'value;",
       "insertTextFormat": "Snippet"
     },
@@ -73,7 +73,7 @@
       "label": "lang.float",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'float;",
       "insertTextFormat": "Snippet"
     },
@@ -81,7 +81,7 @@
       "label": "lang.decimal",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'decimal;",
       "insertTextFormat": "Snippet"
     },
@@ -89,7 +89,7 @@
       "label": "lang.table",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'table;",
       "insertTextFormat": "Snippet"
     },
@@ -97,7 +97,7 @@
       "label": "lang.stream",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'stream;",
       "insertTextFormat": "Snippet"
     },
@@ -105,7 +105,7 @@
       "label": "lang.error",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'error;",
       "insertTextFormat": "Snippet"
     },
@@ -113,7 +113,7 @@
       "label": "lang.typedesc",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'typedesc;",
       "insertTextFormat": "Snippet"
     },
@@ -121,7 +121,7 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
@@ -129,7 +129,7 @@
       "label": "lang.map",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'map;",
       "insertTextFormat": "Snippet"
     },
@@ -137,7 +137,7 @@
       "label": "lang.query",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'query;",
       "insertTextFormat": "Snippet"
     },
@@ -145,7 +145,7 @@
       "label": "lang.int",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "140",
+      "sortText": "C",
       "insertText": "lang.'int;",
       "insertTextFormat": "Snippet"
     }

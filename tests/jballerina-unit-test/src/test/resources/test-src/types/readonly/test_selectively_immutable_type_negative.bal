@@ -64,13 +64,13 @@ function testNonReadOnlyValueForReadOnlyCET() {
 
 type AB "A"|"B";
 
-type Obj object {
+class Obj {
     int i;
 
     function init(int i) {
         self.i = i;
     }
-};
+}
 
 type ABAny AB|any;
 
@@ -146,9 +146,9 @@ function testInvalidReaoOnlyRecordFieldUpdates() {
     e["dept"] = dept2;
 }
 
-type Foo object {
+class Foo {
 
-};
+}
 
 type Bar record {|
     readonly string name;
@@ -161,7 +161,7 @@ function testInvalidNeverReadOnlyConstraint() {
     ];
 }
 
-type Baz abstract object {
+type Baz object {
     future<()> ft;
 
     function getFt();
@@ -171,14 +171,14 @@ function testNeverReadOnlyObject() {
     Baz & readonly bz;
 }
 
-type Config abstract object {
+type Config object {
     string name;
 
     function getName() returns string;
 };
 
-type MyConfig object {
-    readonly string name;
+class MyConfig {
+    final string name;
 
     public function init(string name) {
         self.name = name;
@@ -187,7 +187,7 @@ type MyConfig object {
     function getName() returns string {
         return self.name;
     }
-};
+}
 
 function testInvalidObjectUpdate() {
     Config & readonly config = new MyConfig("client config");
@@ -205,15 +205,15 @@ type DEF record {|
     future<int> fr;
 |};
 
-type GHI object {
+class GHI {
     JKL & readonly j;
 
     function init(JKL & readonly j) {
         self.j = j;
     }
-};
+}
 
-type JKL abstract object {
+type JKL object {
     future<int> fr;
 };
 
@@ -250,14 +250,14 @@ type NeverImmutable record {
 
 function getInt() returns int => 1;
 
-type ReadOnlyObj readonly object {
+readonly class ReadOnlyObj {
     int j = 3;
-};
+}
 
 function testInvalidUpdateOfAnonTypeField() {
     readonly & record {int i;} x = {i: 1};
     x.i = 2; // error
 
-    readonly & abstract object {int j;} y = new ReadOnlyObj();
+    readonly & object {int j;} y = new ReadOnlyObj();
     y.j = 4; // error
 }

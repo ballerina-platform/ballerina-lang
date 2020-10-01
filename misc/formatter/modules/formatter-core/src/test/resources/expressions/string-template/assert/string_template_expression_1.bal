@@ -3,5 +3,5 @@ public function foo() {
     string template = string `Hello ${name}!!!`;
     string s1 = "foo";
     string s2 = "s";
-    string s3 = string `${ string `hello ${ string `${s1}${s2}` } world` }`;
+    string s3 = string `${string `hello ${string `${s1}${s2}`} world`}`;
 }

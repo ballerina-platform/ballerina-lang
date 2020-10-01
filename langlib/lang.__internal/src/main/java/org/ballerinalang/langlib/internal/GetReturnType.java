@@ -18,21 +18,16 @@
 
 package org.ballerinalang.langlib.internal;
 
+import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 
 /**
  * Native implementation of lang.internal:getReturnType(func).
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.__internal", functionName = "getReturnType",
-//        args = {@Argument(name = "func", type = TypeKind.ANY)},
-//        returnType = {@ReturnType(type = TypeKind.TYPEDESC)}
-//)
 public class GetReturnType {
 
     public static TypedescValue getReturnType(Object obj) {

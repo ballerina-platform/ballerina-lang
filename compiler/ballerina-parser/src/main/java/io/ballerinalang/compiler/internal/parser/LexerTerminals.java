@@ -65,6 +65,7 @@ public class LexerTerminals {
     public static final String WORKER = "worker";
     public static final String PARAMETER = "parameter";
     public static final String FIELD = "field";
+    public static final String ISOLATED = "isolated";
     public static final String XMLNS = "xmlns";
     public static final String FORK = "fork";
     public static final String TRAP = "trap";
@@ -104,6 +105,7 @@ public class LexerTerminals {
     public static final String BY = "by";
     public static final String ASCENDING = "ascending";
     public static final String DESCENDING = "descending";
+    public static final String CLASS = "class";
 
     // For BFM only
     public static final String VARIABLE = "variable";

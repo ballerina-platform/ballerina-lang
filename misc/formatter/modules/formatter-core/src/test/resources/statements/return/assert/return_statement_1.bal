@@ -1,3 +1,3 @@
 function getInt() returns int {
-   return 20;
+    return 20;
 }

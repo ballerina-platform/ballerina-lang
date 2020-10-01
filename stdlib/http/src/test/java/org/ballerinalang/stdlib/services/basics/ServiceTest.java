@@ -28,9 +28,13 @@ import org.ballerinalang.core.model.util.StringUtils;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.ResponseReader;
@@ -78,7 +82,7 @@ public class ServiceTest {
     public void testMostSpecificBasePathIdentificationWithDuplicatedPath() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/message/echo/message", "GET");
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
-        String responseMsgPayload = StringUtils
+        String responseMsgPayload = org.ballerinalang.model.util.StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload,
                             "no matching resource found for path : /echo/message/echo/message , method : GET");
@@ -88,7 +92,7 @@ public class ServiceTest {
     public void testMostSpecificBasePathIdentificationWithUnmatchedBasePath() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/abcd/message/echo/message", "GET");
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
-        String responseMsgPayload = StringUtils
+        String responseMsgPayload = org.ballerinalang.model.util.StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "no matching service found for path : /abcd/message/echo/message");
     }
@@ -105,7 +109,7 @@ public class ServiceTest {
     public void testServiceAvailabilityCheck() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
-        String responseMsgPayload = StringUtils
+        String responseMsgPayload = org.ballerinalang.model.util.StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "no matching service found for path : /foo/message");
     }
@@ -114,7 +118,7 @@ public class ServiceTest {
     public void testResourceAvailabilityCheck() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
-        String responseMsgPayload = StringUtils
+        String responseMsgPayload = org.ballerinalang.model.util.StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "no matching resource found for path : /echo/bar , method : GET");
     }
@@ -136,7 +140,7 @@ public class ServiceTest {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/getString", "GET");
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         Assert.assertNotNull(responseMsg);
-        String responseMsgPayload = StringUtils
+        String responseMsgPayload = org.ballerinalang.model.util.StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
         Assert.assertEquals(responseMsgPayload, "hello");
@@ -148,7 +152,7 @@ public class ServiceTest {
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         Assert.assertNotNull(responseMsg);
 
-        String responseMsgPayload = StringUtils
+        String responseMsgPayload = org.ballerinalang.model.util.StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "constant path test");
     }
@@ -169,7 +173,7 @@ public class ServiceTest {
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
         Assert.assertNotNull(responseMsg);
 
-        String responseMsgPayload = StringUtils
+        String responseMsgPayload = org.ballerinalang.model.util.StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
         Assert.assertEquals(responseMsgPayload, stringresponseMsgPayload);
@@ -213,7 +217,7 @@ public class ServiceTest {
         Assert.assertTrue(bJson instanceof MapValue);
 
         Assert.assertTrue(((MapValueImpl<BString, BString>) bJson).get(
-                org.ballerinalang.jvm.StringUtils.fromString("Team")).toString().isEmpty(),
+                BStringUtils.fromString("Team")).toString().isEmpty(),
                           "Team variable not set properly");
     }
 
@@ -311,7 +315,7 @@ public class ServiceTest {
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        String responseMsgPayload = StringUtils
+        String responseMsgPayload = org.ballerinalang.model.util.StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "Uninitialized configs");
     }
@@ -323,7 +327,7 @@ public class ServiceTest {
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        String responseMsgPayload = StringUtils
+        String responseMsgPayload = org.ballerinalang.model.util.StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertEquals(responseMsgPayload, "Non remote function invoked");
     }

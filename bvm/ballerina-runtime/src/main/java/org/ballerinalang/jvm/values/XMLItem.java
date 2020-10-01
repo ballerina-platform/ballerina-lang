@@ -19,18 +19,19 @@ package org.ballerinalang.jvm.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BLink;
+import org.ballerinalang.jvm.api.values.BMap;
+import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.api.values.BXML;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BXML;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
@@ -117,8 +118,8 @@ public final class XMLItem extends XMLValue {
             prefix = XMLNS;
         }
 
-        attributes.populateInitialValue(StringUtils.fromString(XMLNS_URL_PREFIX + prefix),
-                                        StringUtils.fromString(namespace));
+        attributes.populateInitialValue(BStringUtils.fromString(XMLNS_URL_PREFIX + prefix),
+                                        BStringUtils.fromString(namespace));
     }
 
     /**
@@ -191,16 +192,16 @@ public final class XMLItem extends XMLValue {
     @Override
     public BString getAttribute(String localName, String namespace, String prefix) {
         if (prefix != null && !prefix.isEmpty()) {
-            String ns = attributes.get(StringUtils.fromString(XMLNS_URL_PREFIX + prefix)).getValue();
-            BString attrVal = attributes.get(StringUtils.fromString("{" + ns + "}" + localName));
+            String ns = attributes.get(BStringUtils.fromString(XMLNS_URL_PREFIX + prefix)).getValue();
+            BString attrVal = attributes.get(BStringUtils.fromString("{" + ns + "}" + localName));
             if (attrVal != null) {
                 return attrVal;
             }
         }
         if (namespace != null && !namespace.isEmpty()) {
-            return attributes.get(StringUtils.fromString("{" + namespace + "}" + localName));
+            return attributes.get(BStringUtils.fromString("{" + namespace + "}" + localName));
         }
-        return attributes.get(StringUtils.fromString(localName));
+        return attributes.get(BStringUtils.fromString(localName));
     }
 
     /**
@@ -363,7 +364,7 @@ public final class XMLItem extends XMLValue {
     }
 
     private BallerinaException createXMLCycleError() {
-        return new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR, "Cycle detected");
+        return new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR.getValue(), "Cycle detected");
     }
 
     private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXML> appendingList) {
@@ -417,16 +418,16 @@ public final class XMLItem extends XMLValue {
     @Override
     public OMNode value() {
         try {
-            String xmlStr = this.stringValue();
+            String xmlStr = this.stringValue(null);
             OMElement omElement = XMLFactory.stringToOM(xmlStr);
             return omElement;
         } catch (ErrorValue e) {
             throw e;
         } catch (OMException | XMLStreamException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();
-            throw BallerinaErrors.createError(cause.getMessage());
+            throw BErrorCreator.createError(BStringUtils.fromString((cause.getMessage())));
         } catch (Throwable e) {
-            throw BallerinaErrors.createError("failed to parse xml: " + e.getMessage());
+            throw BErrorCreator.createError(BStringUtils.fromString(("failed to parse xml: " + e.getMessage())));
         }
     }
 
@@ -435,15 +436,16 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public String toString() {
-        return this.stringValue();
+        return this.stringValue(null);
     }
 
     /**
      * {@inheritDoc}
+     * @param parent The link to the parent node
      */
     @Override
     @Deprecated
-    public String stringValue() {
+    public String stringValue(BLink parent) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             BallerinaXMLSerializer ballerinaXMLSerializer = new BallerinaXMLSerializer(outputStream);
@@ -458,6 +460,10 @@ public final class XMLItem extends XMLValue {
         return STRING_NULL_VALUE;
     }
 
+    @Override
+    public String informalStringValue(BLink parent) {
+        return "`" + toString() + "`";
+    }
 
     /**
      * {@inheritDoc}

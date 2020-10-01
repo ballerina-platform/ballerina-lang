@@ -22,7 +22,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -40,6 +42,8 @@ import java.util.zip.ZipInputStream;
  */
 public class CodeCoverageUtils {
 
+    private static final PrintStream errStream = System.err;
+
     /**
      * Util method to extract required class files for code coverage analysis.
      *
@@ -48,9 +52,10 @@ public class CodeCoverageUtils {
      * @param orgName org name of the project being executed
      * @param moduleName name of the module being executed
      * @param version version of the module being executed
+     * @throws NoSuchFileException if source file doesnt exist
      */
     public static void unzipCompiledSource(Path source, Path destination, String orgName, String moduleName,
-                                           String version) {
+                                           String version) throws NoSuchFileException {
         String destJarDir = destination.resolve(source.getFileName()).toString();
 
         try (JarFile jarFile = new JarFile(source.toFile())) {
@@ -70,8 +75,14 @@ public class CodeCoverageUtils {
                 }
 
             }
+
             copyClassFilesToBinPath(destination, destJarDir, orgName, moduleName, version);
             deleteDirectory(new File(destJarDir));
+        } catch (NoSuchFileException e) {
+            String msg = "Unable to generate code coverage for the module " + moduleName + ". Source file does not " +
+                    "exist";
+            errStream.println(msg);
+            throw new NoSuchFileException(msg);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -97,7 +108,7 @@ public class CodeCoverageUtils {
     }
 
     private static boolean isRequiredFile(String path, String orgName, String moduleName, String version) {
-        if (path.contains("___init") || path.contains("META-INF") || path.contains("tests/")) {
+        if (path.contains("$_init") || path.contains("META-INF") || path.contains("tests/")) {
             return false;
         } else if (path.contains("Frame") && path.contains("module")) {
             return false;

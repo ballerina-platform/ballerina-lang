@@ -16,16 +16,16 @@
  */
 package org.ballerinalang.test.object;
 
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 
 /**
  * Test cases for user defined documentation attachment in ballerina.
@@ -44,7 +44,7 @@ public class ObjectDocumentationTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_annotation.bal");
         Assert.assertEquals(compileResult.getWarnCount(), 3);
         PackageNode packageNode = compileResult.getAST();
-        BLangMarkdownDocumentation docNode = ((BLangTypeDefinition) packageNode.getTypeDefinitions()
+        BLangMarkdownDocumentation docNode = ((BLangClassDefinition) packageNode.getClassDefinitions()
                 .get(0)).markdownDocumentationAttachment;
         Assert.assertNotNull(docNode);
         Assert.assertEquals(docNode.getDocumentation().replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
@@ -71,7 +71,7 @@ public class ObjectDocumentationTest {
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation dNode =
-                ((BLangTypeDefinition) packageNode.getTypeDefinitions().get(0)).markdownDocumentationAttachment;
+                ((BLangClassDefinition) packageNode.getClassDefinitions().get(0)).markdownDocumentationAttachment;
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.getDocumentation().replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
                 "Documentation for Test struct\n");

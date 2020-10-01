@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type EmployeeObj object {
+class EmployeeObj {
     public int age = 10;
     public string name = "raj";
 
-};
+}
 
 
 function stampJSONToXML() returns xml|error {

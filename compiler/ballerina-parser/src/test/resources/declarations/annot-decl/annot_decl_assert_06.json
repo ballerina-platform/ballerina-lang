@@ -54,11 +54,11 @@
                       "kind": "OBJECT_KEYWORD"
                     },
                     {
-                      "kind": "TYPE_KEYWORD",
+                      "kind": "FUNCTION_KEYWORD",
                       "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_MISSING_TYPE_KEYWORD"
+                        "ERROR_MISSING_FUNCTION_KEYWORD"
                       ]
                     }
                   ]

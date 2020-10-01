@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.map;
 
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Extern function to check existence of key.

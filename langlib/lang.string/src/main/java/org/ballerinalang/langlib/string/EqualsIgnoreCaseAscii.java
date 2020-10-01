@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.api.values.BString;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -30,13 +30,6 @@ import java.nio.charset.CharsetDecoder;
  *
  * @since 1.2
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.string", functionName = "equalsIgnoreCaseAscii",
-//        args = {@Argument(name = "str1", type = TypeKind.STRING), @Argument(name = "str2", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
-
 public class EqualsIgnoreCaseAscii {
     private static CharsetDecoder decoder;
 

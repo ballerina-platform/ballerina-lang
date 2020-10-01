@@ -25,7 +25,7 @@ import ballerina/java;
 #
 # + s - string representing a boolean value
 # + return - boolean that `s` represents, or an error if there is no such boolean
-public function fromString(string s) returns boolean|error = @java:Method {
-    class: "org.ballerinalang.langlib.bool.FromString",
+public isolated function fromString(string s) returns boolean|error = @java:Method {
+    'class: "org.ballerinalang.langlib.bool.FromString",
     name: "fromString"
 } external;

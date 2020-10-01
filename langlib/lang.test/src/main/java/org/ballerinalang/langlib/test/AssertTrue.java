@@ -18,23 +18,19 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
 
 /**
  * Native implementation of assertTrue(boolean value).
  *
  * @since 1.3.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.test", functionName = "assertTrue",
-//        args = {@Argument(name = "value", type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
 public class AssertTrue {
     public static void assertTrue(boolean value) {
         if (!value) {
-            throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError",
-                    "expected a true value");
+            throw BErrorCreator.createError(BStringUtils.fromString("{ballerina/lang.test}AssertionError"),
+                                            BStringUtils.fromString("expected a true value"));
         }
     }
 }

@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.nativeimpl.java;
 
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * This class contains the implementation of the "fromString" ballerina function in ballerina/java module.

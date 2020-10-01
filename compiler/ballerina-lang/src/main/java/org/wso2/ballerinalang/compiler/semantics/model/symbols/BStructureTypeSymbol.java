@@ -19,8 +19,10 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +38,8 @@ public abstract class BStructureTypeSymbol extends BTypeSymbol {
     public BAttachedFunction initializerFunc;
 
     BStructureTypeSymbol(SymbolKind kind, int symTag, int flags, Name name, PackageID pkgID, BType type,
-                         BSymbol owner) {
-        super(symTag, flags, name, pkgID, type, owner);
+                         BSymbol owner, DiagnosticPos pos, SymbolOrigin origin) {
+        super(symTag, flags, name, pkgID, type, owner, pos, origin);
         this.attachedFuncs = new ArrayList<>(0);
         this.kind = kind;
     }

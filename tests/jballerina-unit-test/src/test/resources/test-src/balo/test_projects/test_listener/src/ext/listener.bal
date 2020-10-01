@@ -23,7 +23,7 @@ public function getStartAndAttachCount() returns string {
     return attachCount.toString() + "_" + startCount.toString();
 }
 
-public type ABCD object {
+public class ABCD {
 
     *'object:Listener;
 
@@ -40,4 +40,4 @@ public type ABCD object {
     }
 
     public function __detach(service s) returns error? {}
-};
+}

@@ -18,13 +18,13 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
+import org.ballerinalang.jvm.api.BalEnv;
+import org.ballerinalang.jvm.api.values.BObject;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -42,8 +42,8 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_U
  */
 public class HttpClientAction extends AbstractHTTPAction {
 
-    public static Object executeClientAction(ObjectValue httpClient, BString path,
-                                             ObjectValue requestObj, BString httpMethod) {
+    public static Object executeClientAction(BalEnv env, BObject httpClient, BString path,
+                                             BObject requestObj, BString httpMethod) {
         Strand strand = Scheduler.getStrand();
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue();
         MapValue<BString, Object> config = (MapValue<BString, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
@@ -51,13 +51,13 @@ public class HttpClientAction extends AbstractHTTPAction {
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path.getValue().
                 replaceAll(HttpConstants.REGEX, HttpConstants.SINGLE_SLASH), requestObj);
         outboundRequestMsg.setHttpMethod(httpMethod.getValue());
-        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
-                                                  outboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, clientConnector, env.markAsync(),
+                                                  requestObj, outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);
         return null;
     }
 
-    public static void rejectPromise(ObjectValue clientObj, ObjectValue pushPromiseObj) {
+    public static void rejectPromise(BObject clientObj, BObject pushPromiseObj) {
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);
         if (http2PushPromise == null) {
             throw new BallerinaException("invalid push promise");

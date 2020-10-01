@@ -60,9 +60,9 @@ function testJsonToString() returns int {
     return j9.toString().length();
 }
 
-type Person object {
+class Person {
     public string name = "Riyafa";
-};
+}
 
 function testObjectToString() returns int {
     Person p3 = new Person();

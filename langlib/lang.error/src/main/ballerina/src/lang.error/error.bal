@@ -31,8 +31,8 @@ type DetailType Detail;
 #
 # + e - the error value
 # + return - error message
-public function message(error e) returns string = @java:Method {
-    class: "org.ballerinalang.langlib.error.Message",
+public isolated function message(error e) returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.error.Message",
     name: "message"
 } external;
 
@@ -40,8 +40,8 @@ public function message(error e) returns string = @java:Method {
 #
 # + e - the error value
 # + return - error cause
-public function cause(error e) returns error? = @java:Method {
-   class: "org.ballerinalang.langlib.error.Cause",
+public isolated function cause(error e) returns error? = @java:Method {
+   'class: "org.ballerinalang.langlib.error.Cause",
    name: "cause"
 } external;
 
@@ -49,8 +49,8 @@ public function cause(error e) returns error? = @java:Method {
 # The returned value will be immutable.
 # + e - the error value
 # + return - error detail value
-public function detail(error<DetailType> e) returns DetailType = @java:Method {
-    class: "org.ballerinalang.langlib.error.Detail",
+public isolated function detail(error<DetailType> e) returns DetailType = @java:Method {
+    'class: "org.ballerinalang.langlib.error.Detail",
     name: "detail"
 } external;
 //public function detail(error<DetailType> e) returns readonly & DetailType = external;
@@ -59,8 +59,8 @@ public function detail(error<DetailType> e) returns DetailType = @java:Method {
 #
 # + e - the error value
 # + return - a new object representing the stack trace of the error value
-public function stackTrace(error e) returns CallStack = @java:Method {
-    class: "org.ballerinalang.langlib.error.StackTrace",
+public isolated function stackTrace(error e) returns CallStack = @java:Method {
+    'class: "org.ballerinalang.langlib.error.StackTrace",
     name: "stackTrace"
 } external;
 
@@ -80,6 +80,6 @@ public type CallStackElement record {|
 # Represent error call stack.
 #
 # + callStack - call stack
-public type CallStack object {
+public class CallStack {
     public CallStackElement[] callStack = [];
-};
+}

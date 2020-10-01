@@ -9,7 +9,6 @@
       "label": "Element",
       "kind": "Unit",
       "detail": "Xml",
-      "sortText": "230",
       "insertText": "Element",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +16,6 @@
       "label": "ProcessingInstruction",
       "kind": "Unit",
       "detail": "Xml",
-      "sortText": "230",
       "insertText": "ProcessingInstruction",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +23,6 @@
       "label": "Comment",
       "kind": "Unit",
       "detail": "Xml",
-      "sortText": "230",
       "insertText": "Comment",
       "insertTextFormat": "Snippet"
     },
@@ -33,7 +30,6 @@
       "label": "Text",
       "kind": "Unit",
       "detail": "Xml",
-      "sortText": "230",
       "insertText": "Text",
       "insertTextFormat": "Snippet"
     }

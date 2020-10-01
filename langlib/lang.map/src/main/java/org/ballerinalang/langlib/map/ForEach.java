@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
@@ -36,11 +36,6 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map", functionName = "forEach",
-//        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION)},
-//        isPublic = true
-//)
 public class ForEach {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
@@ -49,13 +44,11 @@ public class ForEach {
     public static void forEach(MapValue<?, ?> m, FPValue<Object, Object> func) {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
-        // accessing the parent strand here to use it with each iteration
         Strand parentStrand = Scheduler.getStrand();
-        BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{parentStrand,
-                                                               m.get(m.getKeys()[index.incrementAndGet()]), true},
-                                                       result -> {
-                                                       }, () -> null);
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                                                         () -> new Object[]{parentStrand,
+                                                                 m.get(m.getKeys()[index.incrementAndGet()]), true},
+                                                         result -> {
+                                                         }, () -> null, Scheduler.getStrand().scheduler);
     }
 }

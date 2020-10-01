@@ -17,7 +17,7 @@
 import ballerina/java;
 
 # Represent the iterator type returned when `iterator` method is invoked.
-type XMLIterator object {
+class XMLIterator {
 
     private xml m;
 
@@ -27,12 +27,12 @@ type XMLIterator object {
 
     # Return next member or nil if end of iteration is reached.
     # + return - iterator result
-    public function next() returns record {| (xml|string) value; |}? {
+    public isolated function next() returns record {| (xml|string) value; |}? {
         return externNext(self);
     }
-};
+}
 
 function externNext(XMLIterator iterator) returns record {| (xml|string) value; |}? = @java:Method {
-    class: "org.ballerinalang.langlib.xml.Next",
+    'class: "org.ballerinalang.langlib.xml.Next",
     name: "next"
 } external;

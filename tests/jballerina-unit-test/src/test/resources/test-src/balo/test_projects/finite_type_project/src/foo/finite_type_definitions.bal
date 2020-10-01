@@ -14,18 +14,18 @@ public type Person record {
 
 public type PreparedResult "ss"|"sss"|"qqq";
 
-public type Channel object {
+public class Channel {
 
     public State? b;
 
-    public function init(public State b = "off", public boolean a = true){
+    public function init(State b = "off", boolean a = true){
         self.b = b;
         State o =  "on";
         if(b == o) {
            int i = 4;
         }
     }
-};
+}
 
 public type CombinedState "on"|"off"|int;
 

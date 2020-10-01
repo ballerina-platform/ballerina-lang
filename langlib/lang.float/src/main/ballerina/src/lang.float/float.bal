@@ -34,17 +34,18 @@ public const float Infinity = 1.0/0.0;
 #
 # + x - the float to be tested
 # + return - true if `x` is finite, i.e. neither NaN nor +∞ nor -∞
-public function isFinite(float x) returns boolean = @java:Method {
-     class: "org.ballerinalang.langlib.floatingpoint.IsFinite",
+public isolated function isFinite(float x) returns boolean = @java:Method {
+     'class: "org.ballerinalang.langlib.floatingpoint.IsFinite",
      name: "isFinite"
 } external;
+
 # Tests whether a float is infinite.
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value
 #
 # + x - the float to be tested
 # + return - true if `x` is either +∞ or -∞
-public function isInfinite(float x) returns boolean = @java:Method {
-   class: "org.ballerinalang.langlib.floatingpoint.IsInfinite",
+public isolated function isInfinite(float x) returns boolean = @java:Method {
+   'class: "org.ballerinalang.langlib.floatingpoint.IsInfinite",
    name: "isInfinite"
 } external;
 
@@ -53,8 +54,8 @@ public function isInfinite(float x) returns boolean = @java:Method {
 #
 # + x - the float to be tested
 # + return - true if `x` is NaN
-public function isNaN(float x) returns boolean = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.IsNaN",
+public isolated function isNaN(float x) returns boolean = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.IsNaN",
     name: "isNaN"
 } external;
 
@@ -63,8 +64,8 @@ public function isNaN(float x) returns boolean = @java:Method {
 #
 # + xs - float values to sum
 # + return - sum of all the `xs`, +0.0 if `xs` is empty
-public function sum(float... xs) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Sum",
+public isolated function sum(float... xs) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Sum",
     name: "sum"
 } external;
 
@@ -74,8 +75,8 @@ public function sum(float... xs) returns float = @java:Method {
 #
 # + xs - float values to operate on
 # + return - maximum value of all the `xs`
-public function max(float... xs) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Max",
+public isolated function max(float... xs) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Max",
     name: "max"
 } external;
 
@@ -85,8 +86,8 @@ public function max(float... xs) returns float = @java:Method {
 #
 # + xs - float values to operate on
 # + return - minimum value of all the `xs`
-public function min(float... xs) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Min",
+public isolated function min(float... xs) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Min",
     name: "min"
 } external;
 
@@ -94,8 +95,8 @@ public function min(float... xs) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - absolute value of `x`
-public function abs(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Abs",
+public isolated function abs(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Abs",
     name: "abs"
 } external;
 
@@ -110,8 +111,8 @@ public function abs(float x) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - closest float value to `x` that is a mathematical integer
-public function round(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Round",
+public isolated function round(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Round",
     name: "round"
 } external;
 
@@ -119,8 +120,8 @@ public function round(float x) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - largest (closest to +∞) float value not greater than `x` that is a mathematical integer.
-public function floor(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Floor",
+public isolated function floor(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Floor",
     name: "floor"
 } external;
 
@@ -128,8 +129,8 @@ public function floor(float x) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - smallest (closest to -∞) decimal value not less than `x` that is a mathematical integer
-public function ceiling(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Ceiling",
+public isolated function ceiling(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Ceiling",
     name: "ceiling"
 } external;
 
@@ -138,8 +139,8 @@ public function ceiling(float x) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - square root of `x`
-public function sqrt(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Sqrt",
+public isolated function sqrt(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Sqrt",
     name: "sqrt"
 } external;
 
@@ -148,8 +149,8 @@ public function sqrt(float x) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - cube root of `x`
-public function cbrt(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Cbrt",
+public isolated function cbrt(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Cbrt",
     name: "cbrt"
 } external;
 
@@ -159,8 +160,8 @@ public function cbrt(float x) returns float = @java:Method {
 # + x - base value
 # + y - the exponent
 # + return - `x` raised to the power of `y`
-public function pow(float x, float y) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Pow",
+public isolated function pow(float x, float y) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Pow",
     name: "pow"
 } external;
 
@@ -169,8 +170,8 @@ public function pow(float x, float y) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - natural logarithm of `x`
-public function log(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Log",
+public isolated function log(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Log",
     name: "log"
 } external;
 
@@ -179,8 +180,8 @@ public function log(float x) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - base 10 logarithm of `x`
-public function log10(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Log10",
+public isolated function log10(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Log10",
     name: "log10"
 } external;
 
@@ -189,8 +190,8 @@ public function log10(float x) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - Euler's number raised to the power `x`
-public function exp(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Exp",
+public isolated function exp(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Exp",
     name: "exp"
 } external;
 
@@ -199,8 +200,8 @@ public function exp(float x) returns float = @java:Method {
 #
 # + x - float value, specifying an angle in radians
 # + return - the sine of `x`
-public function sin(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Sin",
+public isolated function sin(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Sin",
     name: "sin"
 } external;
 
@@ -209,8 +210,8 @@ public function sin(float x) returns float = @java:Method {
 #
 # + x - float value, specifying an angle in radians
 # + return - the cosine of `x`
-public function cos(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Cos",
+public isolated function cos(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Cos",
     name: "cos"
 } external;
 
@@ -219,8 +220,8 @@ public function cos(float x) returns float = @java:Method {
 #
 # + x - float value, specifying an angle in radians
 # + return - the tangent of `x`
-public function tan(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Tan",
+public isolated function tan(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Tan",
     name: "tan"
 } external;
 
@@ -229,8 +230,8 @@ public function tan(float x) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - the arccosine of `x` in radians
-public function acos(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Acos",
+public isolated function acos(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Acos",
     name: "acos"
 } external;
 
@@ -239,8 +240,8 @@ public function acos(float x) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - the arctangent of `x` in radians
-public function atan(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Atan",
+public isolated function atan(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Atan",
     name: "atan"
 } external;
 
@@ -249,8 +250,8 @@ public function atan(float x) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - the arcsine of `x` in radians
-public function asin(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Asin",
+public isolated function asin(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Asin",
     name: "asin"
 } external;
 
@@ -261,8 +262,8 @@ public function asin(float x) returns float = @java:Method {
 # + x - the x-coordinate
 # + return - the angle in radians from the positive x-axis to the point
 #   whose Cartesian coordinates are `(x, y)`
-public function atan2(float y, float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Atan2",
+public isolated function atan2(float y, float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Atan2",
     name: "atan2"
 } external;
 
@@ -271,8 +272,8 @@ public function atan2(float y, float x) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - hyperbolic sine of `x`
-public function sinh(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Sinh",
+public isolated function sinh(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Sinh",
     name: "sinh"
 } external;
 
@@ -281,8 +282,8 @@ public function sinh(float x) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - hyperbolic cosine of `x`
-public function cosh(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Cosh",
+public isolated function cosh(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Cosh",
     name: "cosh"
 } external;
 
@@ -291,8 +292,8 @@ public function cosh(float x) returns float = @java:Method {
 #
 # + x - float value to operate on
 # + return - hyperbolic tangent of `x`
-public function tanh(float x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.Tanh",
+public isolated function tanh(float x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Tanh",
     name: "tanh"
 } external;
 
@@ -307,8 +308,8 @@ public function tanh(float x) returns float = @java:Method {
 #
 # + s - string representation of a float
 # + return - float value or error
-public function fromString(string s) returns float|error = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.FromString",
+public isolated function fromString(string s) returns float|error = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.FromString",
     name: "fromString"
 } external;
 
@@ -323,8 +324,8 @@ public function fromString(string s) returns float|error = @java:Method {
 #
 # + x - float value
 # + return - hexadecimal floating point hex string representation
-public function toHexString(float x) returns string = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.ToHexString",
+public isolated function toHexString(float x) returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.ToHexString",
     name: "toHexString"
 } external;
 
@@ -337,8 +338,8 @@ public function toHexString(float x) returns string = @java:Method {
 #
 # + s - hexadecimal floating point hex string representation
 # + return - float value or error
-public function fromHexString(string s) returns float|error = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.FromHexString",
+public isolated function fromHexString(string s) returns float|error = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.FromHexString",
     name: "fromHexString"
 } external;
 
@@ -346,8 +347,8 @@ public function fromHexString(string s) returns float|error = @java:Method {
 #
 # + x - float value
 # + return - `x` bit pattern as an int
-public function toBitsInt(float x) returns int = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.ToBitsInt",
+public isolated function toBitsInt(float x) returns int = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.ToBitsInt",
     name: "toBitsInt"
 } external;
 
@@ -356,7 +357,7 @@ public function toBitsInt(float x) returns int = @java:Method {
 #
 # + x - int value
 # + return - `x` bit pattern as a float
-public function fromBitsInt(int x) returns float = @java:Method {
-    class: "org.ballerinalang.langlib.floatingpoint.FromBitsInt",
+public isolated function fromBitsInt(int x) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.FromBitsInt",
     name: "fromBitsInt"
 } external;

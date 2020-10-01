@@ -18,11 +18,12 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.MapUtils;
+import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
@@ -32,12 +33,6 @@ import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
  * Extern function to remove element from the map.
  * ballerina.model.map:remove(string)
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.map", functionName = "remove",
-//        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.ANY)},
-//        isPublic = true
-//)
 public class Remove {
 
     public static Object remove(MapValue<?, ?> m, BString k) {
@@ -49,11 +44,13 @@ public class Remove {
             try {
                 return m.remove(k);
             } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-                throw BallerinaErrors.createError(e.getMessage(),
-                                                  "Failed to remove element from map: " + e.getDetail());
+                throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
+                                                BStringUtils.fromString(
+                                                        "Failed to remove element from map: " + e.getDetail()));
             }
         }
 
-        throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + k + "'");
+        throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
+                .fromString("cannot find key '" + k + "'"));
     }
 }

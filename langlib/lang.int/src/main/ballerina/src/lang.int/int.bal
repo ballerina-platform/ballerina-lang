@@ -83,8 +83,8 @@ public const int UNSIGNED8_MAX_VALUE = 255;
 #
 # + n - int value to be operated on
 # + return - absolute value of `n`
-public function abs(int n) returns int = @java:Method {
-    class: "org.ballerinalang.langlib.integer.Abs",
+public isolated function abs(int n) returns int = @java:Method {
+    'class: "org.ballerinalang.langlib.integer.Abs",
     name: "abs"
 } external;
 
@@ -92,8 +92,8 @@ public function abs(int n) returns int = @java:Method {
 #
 # + ns - int values to sum
 # + return - sum of all the `ns`; 0 is `ns` is empty
-public function sum(int... ns) returns int = @java:Method {
-    class: "org.ballerinalang.langlib.integer.Sum",
+public isolated function sum(int... ns) returns int = @java:Method {
+    'class: "org.ballerinalang.langlib.integer.Sum",
     name: "sum"
 } external;
 
@@ -102,8 +102,8 @@ public function sum(int... ns) returns int = @java:Method {
 # + n - first int value
 # + ns - other int values
 # + return - maximum value of value of `x` and all the `xs`
-public function max(int n, int... ns) returns int = @java:Method {
-    class: "org.ballerinalang.langlib.integer.Max",
+public isolated function max(int n, int... ns) returns int = @java:Method {
+    'class: "org.ballerinalang.langlib.integer.Max",
     name: "max"
 } external;
 
@@ -112,8 +112,8 @@ public function max(int n, int... ns) returns int = @java:Method {
 # + n - first int value
 # + ns - other int values
 # + return - minimum value of `n` and all the `ns`
-public function min(int n, int... ns) returns int = @java:Method {
-    class: "org.ballerinalang.langlib.integer.Min",
+public isolated function min(int n, int... ns) returns int = @java:Method {
+    'class: "org.ballerinalang.langlib.integer.Min",
     name: "min"
 } external;
 
@@ -124,8 +124,8 @@ public function min(int n, int... ns) returns int = @java:Method {
 #
 # + s - string representation of a integer value
 # + return - int representation of the argument or error
-public function fromString(string s) returns int|error = @java:Method {
-    class: "org.ballerinalang.langlib.integer.FromString",
+public isolated function fromString(string s) returns int|error = @java:Method {
+    'class: "org.ballerinalang.langlib.integer.FromString",
     name: "fromString"
 } external;
 
@@ -136,8 +136,8 @@ public function fromString(string s) returns int|error = @java:Method {
 #
 # + n - int value
 # + return - hexadecimal string representation of int value
-public function toHexString(int n) returns string = @java:Method {
-    class: "org.ballerinalang.langlib.integer.ToHexString",
+public isolated function toHexString(int n) returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.integer.ToHexString",
     name: "toHexString"
 } external;
 
@@ -149,7 +149,7 @@ public function toHexString(int n) returns string = @java:Method {
 #
 # + s - hexadecimal string representation of int value
 # + return - int value or error
-public function fromHexString(string s) returns int|error = @java:Method {
-    class: "org.ballerinalang.langlib.integer.FromHexString",
+public isolated function fromHexString(string s) returns int|error = @java:Method {
+    'class: "org.ballerinalang.langlib.integer.FromHexString",
     name: "fromHexString"
 } external;

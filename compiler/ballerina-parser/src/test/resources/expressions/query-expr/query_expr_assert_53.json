@@ -78,32 +78,33 @@
         },
         {
           "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "SELECT_CLAUSE",
-      "children": [
-        {
-          "kind": "SELECT_KEYWORD",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        },
-        {
-          "kind": "SIMPLE_NAME_REFERENCE",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "c",
-              "trailingMinutiae": [
+              "kind": "LIMIT_CLAUSE",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "LIMIT_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "c",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -112,19 +113,10 @@
       ]
     },
     {
-      "kind": "ON_CONFLICT_CLAUSE",
+      "kind": "SELECT_CLAUSE",
       "children": [
         {
-          "kind": "ON_KEYWORD",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        },
-        {
-          "kind": "CONFLICT_KEYWORD",
+          "kind": "SELECT_KEYWORD",
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
@@ -150,10 +142,19 @@
       ]
     },
     {
-      "kind": "LIMIT_CLAUSE",
+      "kind": "ON_CONFLICT_CLAUSE",
       "children": [
         {
-          "kind": "LIMIT_KEYWORD",
+          "kind": "ON_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "CONFLICT_KEYWORD",
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",

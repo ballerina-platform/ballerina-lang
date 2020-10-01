@@ -13,7 +13,6 @@ module io.ballerina.language.server.compiler {
     requires org.eclipse.lsp4j.jsonrpc;
     requires slf4j.api;
     requires guava;
-    requires antlr4.runtime;
     requires jsr305;
     requires gson;
     requires org.apache.commons.lang3;
