@@ -25,14 +25,12 @@ package io.ballerina.projects.utils;
 public class ProjectConstants {
 
     public static final String BLANG_SOURCE_EXT = ".bal";
-    public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".balo";
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
     public static final String TARGET_DIR_NAME = "target";
-    public static final String TARGET_BALO_DIRECTORY = "balo";
 
     public static final String CACHES_DIR_NAME = "caches";
 
@@ -42,10 +40,15 @@ public class ProjectConstants {
     public static final String MODULES_ROOT = "modules";
     public static final String LIB_DIR = "lib";
 
+    public static final String BALO_CACHE_DIR_NAME = "balo_cache";
     public static final String BIR_CACHE_DIR_NAME = "bir_cache";
     public static final String JAR_CACHE_DIR_NAME = "jar_cache";
     public static final String JSON_CACHE_DIR_NAME = "json_cache";
     public static final String TEST_DIR_NAME = "tests";
+
+    public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".balo";
+    public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
+    public static final String BLANG_COMPILED_JAR_EXT = ".jar";
     public static final String RESOURCE_DIR_NAME = "resources";
 
     public static final String BALLERINA_VERSION = "ballerina.version";

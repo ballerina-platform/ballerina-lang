@@ -64,4 +64,4 @@ public class BirWriter {
             throw new BLangCompilerException(msg, e);
         }
     }
-   }
+}
