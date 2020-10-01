@@ -22,7 +22,7 @@ import ballerina/test;
 function testAssertIntValues() {
     error? err = trap test:assertEquals(124, 123);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '123'\nactual\t: '124'\n\nDiff\t:\n\n\n--- expected\n+++ actual\n@@ -1,3 +1,3 @@\n\n12\n-4\n+3\n\n\n");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '123'\nactual\t: '124'");
 }
 
 @test:Config {}
@@ -31,7 +31,7 @@ function testAssertDecimalValues() {
     decimal f = 27.6;
     error? err = trap test:assertEquals(d, f);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '27.6'\nactual\t: '27.5'\n\nDiff\t:\n\n\n--- expected\n+++ actual\n@@ -1,4 +1,4 @@\n\n27.\n-5\n+6\n\n\n");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '27.6'\nactual\t: '27.5'");
 }
 
 @test:Config {}
@@ -40,7 +40,8 @@ function testAssertJsonValues() {
     json bioData2 = {name:"John Doe New", age:25, address:{city:"Colombo", country:"Sri Lanka"}};
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"address\":{\"city\":\"Colombo\",\"country\":\"Sri Lanka'\nactual\t: '{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\",\"country\":\"Sri Lanka\"}}'\n\nDiff\t:\n\n\n--- expected\n+++ actual\n@@ -1,79 +1,83 @@\n\n{\"name\":\"John Doe\n+ \n+N\n+e\n+w\n\",\"age\":25,\"address\":{\"city\":\"Colombo\",\"country\":\"Sri Lanka\"}}\n\n");
+    test:assertEquals(result.message().toString(),
+    "Assertion Failed!\nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"address\":{\"city\":\"Colombo\",\"country\":\"Sri Lanka'\nactual\t: '{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\",\"country\":\"Sri Lanka\"}}'");
 }
 
 @test:Config {}
@@ -49,7 +50,7 @@ function testAssertLongJsonValues() {
     json bioData2 = {name:"John Doe New", age:25, designation: "SSE", address:{city:"Colombo", country:"Sri Lanka"}};
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",'\nactual\t: '{\"name\":\"John Doe Old\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",'\n\nDiff\t:\n\n\n--- expected\n+++ actual\n@@ -1,104 +1,103 @@\n\n{\"name\":\"John Doe \n-O\n-l\n-d\n+N\n+e\n+w\n\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",\"country\":\"Sri Lanka\n-a\n\"}}\n\n");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",'\nactual\t: '{\"name\":\"John Doe Old\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",'");
 }
 
 @test:Config {}
@@ -58,7 +59,7 @@ function testAssertTuples() {
     [int, string] b = [12, "John"];
     error? err = trap test:assertEquals(a, b);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '12 John'\nactual\t: '10 John'\n\nDiff\t:\n\n\n--- expected\n+++ actual\n@@ -1,7 +1,7 @@\n\n1\n-0\n+2\n John\n\n");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '12 John'\nactual\t: '10 John'");
 }
 
 @test:Config {}

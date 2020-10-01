@@ -7,6 +7,7 @@ import com.github.difflib.patch.Patch;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,18 +16,31 @@ import java.util.List;
  */
 public class AssertionDiffEvaluator {
 
+    private static final String PARTITION_REGEX = "(?<=\\G.{80})";
     private static final int MAX_ARG_LENGTH = 80;
 
+    private static List<String> getValueList(String value) {
+        String[] valueArray = value.split("\n");
+        List<String> valueList = new ArrayList<>();
+        for (int i = 0; i < valueArray.length; i++) {
+            if (valueArray[i].length() > MAX_ARG_LENGTH) {
+                String[] partitions = valueArray[i].split(PARTITION_REGEX);
+                valueList.addAll(Arrays.asList(partitions));
+            }
+        }
+        return valueList;
+    }
+
     public static BString getStringDiff(BString expected, BString actual) {
+        List<String> expectedValueList = getValueList(expected.toString());
         List<String> difference = null;
-        String output = "";
+        String output = "\n";
         try {
-            Patch<String> patch = DiffUtils.diff(Arrays.asList(expected.toString().split("(?!^)")),
-                    Arrays.asList(actual.toString().split("(?!^)")));
+            Patch<String> patch = DiffUtils.diff(expectedValueList, getValueList(actual.toString()));
             difference = UnifiedDiffUtils.generateUnifiedDiff("expected", "actual",
-                    Arrays.asList(expected.toString().split("(?!^)")), patch, MAX_ARG_LENGTH);
+                    expectedValueList, patch, MAX_ARG_LENGTH);
         } catch (DiffException e) {
-            output = "Warning: Could not generate diff.";
+            output = "\nWarning: Could not generate diff.";
         }
         if (difference != null) {
             for (String line : difference) {
@@ -39,11 +53,12 @@ public class AssertionDiffEvaluator {
                 } else if (line.startsWith("@@ -")) {
                     output = output.concat(line + "\n\n");
                 } else {
-                    output = output.concat(line.replaceFirst(" ", ""));
+                    output = output.concat(line + "\n");
                 }
             }
         }
         return BStringUtils.fromString(output);
     }
+
 }
 

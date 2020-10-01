@@ -146,14 +146,15 @@ isolated function getInequalityErrorMsg(any|error actual, any|error expected, st
             actualStr = actualStr.substring(0, maxArgLength);
         }
         if (expectedType != actualType) {
-            errorMsg = string `${msg}` + "\nexpected: " + string `<${expectedType}> '${expectedStr}'` + "\nactual\t: " + string `<${actualType}> '${actualStr}'`;
-        } else {
-            string diff = getStringDiff(sprintf("%s", actual), sprintf("%s", expected));
-            if (diff != "") {
-                diff = "\n\nDiff\t:\n\n" + string `${diff}` + "\n\n";
-            }
+            errorMsg = string `${msg}` + "\nexpected: " + string `<${expectedType}> '${expectedStr}'` + "\nactual\t: "
+                + string `<${actualType}> '${actualStr}'`;
+        } else if (actual is string && expected is string) {
+            string diff = getStringDiff(<string>actual, <string>expected);
             errorMsg = string `${msg}` + "\nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
-                         + string `'${actualStr}'` + string `${diff}`;
+                                     + string `'${actualStr}'` + "\n\nDiff\t:\n\n" + string `${diff}` + "\n\n";
+        } else {
+            errorMsg = string `${msg}` + "\nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
+                                                 + string `'${actualStr}'`;
         }
         return errorMsg;
 }
