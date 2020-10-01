@@ -40,7 +40,7 @@ public class Package {
         return new Package(packageContext, project);
     }
 
-    public PackageContext packageContext() {
+    PackageContext packageContext() {
         return this.packageContext;
     }
 

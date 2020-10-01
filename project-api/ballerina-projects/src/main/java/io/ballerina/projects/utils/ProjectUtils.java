@@ -24,6 +24,8 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.regex.Pattern;
 
+import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+
 /**
  * Project related util methods.
  *
@@ -114,7 +116,7 @@ public class ProjectUtils {
         if (platform == null || "".equals(platform)) {
             platform = "any";
         }
-        return org + "-" + pkgName + "-" + platform + "-" + version + ".balo";
+        return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
 }
