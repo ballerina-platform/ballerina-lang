@@ -161,6 +161,37 @@ public function testRestType() {
     [int...] x = [1, 2];
     any y = x;
     assertEquality(y is string[], false);
+    assertEquality(y is [int...], true);
+    assertEquality(y is int[0], false);
+    assertEquality(y is int[], true);
+    assertEquality(y is [int], false);
+    assertEquality(y is int[2], false);
+
+    [int, int, int...] a = [1, 2];
+    any b = a;
+    assertEquality(b is int[2], false);
+}
+
+public function testClosedArrayType(){
+      int[2] b=[1,2];
+      any y = b;
+      assertEquality(y is [int, int], true);
+      assertEquality(y is [int...], true);
+      assertEquality(y is [int, int, int...], true);
+      assertEquality(y is [string, string, int...], false);
+      assertEquality(y is [int, int, int], false);
+      assertEquality(y is [int, int, int, int...], false);
+}
+
+public function testInferredArrayType() {
+    int[*] b=[1,2];
+    any y = b;
+    assertEquality(y is [int, int], true);
+    assertEquality(y is [int...], true);
+    assertEquality(y is [int, int, int...], true);
+    assertEquality(y is [string, string, int...], false);
+    assertEquality(y is [int, int, int], false);
+    assertEquality(y is [int, int, int, int...], false);
 }
 
 public function testEmptyArrayType() {
@@ -168,6 +199,7 @@ public function testEmptyArrayType() {
     any a = x;
     assertEquality(a is int[2], false);
     assertEquality(a is int[], true);
+    assertEquality(a is [int...], true);
 
     string[] sa = [];
     any arr = sa;
@@ -178,6 +210,11 @@ public function testEmptyArrayType() {
     any iarr = ia;
     assertEquality(iarr is int[0], true);
     assertEquality(iarr is int[], true);
+
+    int[] b=[1,2];
+    any c = b;
+    assertEquality(c is [int...], true);
+    assertEquality(c is int[], true);
 }
 
 function divideBy([int,int] d) returns [int, int] {
