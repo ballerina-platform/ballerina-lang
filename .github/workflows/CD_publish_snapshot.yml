@@ -33,8 +33,8 @@ jobs:
 
             -   name: Build and Publish
                 env:
-                    NEXUS_USERNAME: ${{ github.actor }}
-                    NEXUS_PASSWORD: ${{ secrets.BAL_BOT_PAT }}
+                    NEXUS_USERNAME: ${{ secrets.BALLERINA_BOT_USERNAME }}
+                    NEXUS_PASSWORD: ${{ secrets.BALLERINA_BOT_TOKEN }}
                 run: |
                     ./gradlew build -x createJavadoc -x test -x check --max-workers=2 --no-daemon
                     ./gradlew publish -PpublishToGithub
@@ -44,7 +44,7 @@ jobs:
                     echo "Triggering stdlib module builds"
                     curl --request POST 'https://api.github.com/repos/ballerina-platform/ballerina-lang/dispatches' \
                     --header 'Accept: application/vnd.github.v3+json' \
-                    --header 'Authorization: Bearer ${{ secrets.BAL_BOT_PAT }}' \
+                    --header 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
                     --header 'Content-Type: application/json' \
                     --data-raw '{
                         "event_type": "ballerina-lang-push"

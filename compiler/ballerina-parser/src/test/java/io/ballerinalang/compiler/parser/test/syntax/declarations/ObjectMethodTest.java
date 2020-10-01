@@ -36,7 +36,7 @@ public class ObjectMethodTest extends AbstractDeclarationTest {
 
     // Recovery tests
 
-    @Test
+    @Test(enabled = false) // Disabled temporary
     public void testMissingFunctionKeywordWithQualifiers() {
         testFile("isolated-object-methods/isolated_object_method_source_02.bal",
                  "isolated-object-methods/isolated_object_method_assert_02.json");

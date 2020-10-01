@@ -1,0 +1,38 @@
+name: Publish Stdlib Snapshots
+
+on:
+    repository_dispatch:
+        types: [ stdlib-module-push, ballerina-lang-push ]
+    workflow_dispatch:
+
+jobs:
+    publish-stdlib-modules:
+        name: Publish Standard Library Modules
+        runs-on: ubuntu-latest
+        if: github.repository_owner == 'ballerina-platform'
+        steps:
+            -   name: Checkout Repository
+                uses: actions/checkout@v2
+
+            -   name: Trigger the Standard Library Module Builds
+                if: github.event.action != 'stdlib-module-push'
+                uses: ballerina-platform/ballerina-action@master
+                with:
+                    args:
+                        run publish
+                env:
+                    WORKING_DIR: ./stdlib/release
+                    GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+                    EVENT_TYPE: 'ballerina-lang-push'
+
+            -   name: Trigger Dependent Modules for Module Build
+                if: github.event.action == 'stdlib-module-push'
+                uses: ballerina-platform/ballerina-action@master
+                with:
+                    args:
+                        run publish
+                env:
+                    WORKING_DIR: ./stdlib/release
+                    GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+                    EVENT_TYPE: ${{ github.event.action }}
+                    SOURCE_MODULE: ${{ github.event.client_payload.module }}
