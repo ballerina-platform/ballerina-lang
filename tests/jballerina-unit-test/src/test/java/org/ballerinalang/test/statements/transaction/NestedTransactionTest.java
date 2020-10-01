@@ -124,4 +124,9 @@ public class NestedTransactionTest {
         BValue[] result = BRunUtil.invoke(programFile, "testUnreachableCode");
         Assert.assertEquals(result[0].stringValue(), "trxStarted -> trxCommited -> trxEnded.");
     }
+
+    @Test
+    public void testNestedReturns() {
+        BRunUtil.invoke(programFile, "testNestedReturns");
+    }
 }
