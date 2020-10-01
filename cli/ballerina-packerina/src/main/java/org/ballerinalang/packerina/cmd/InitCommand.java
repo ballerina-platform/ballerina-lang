@@ -138,7 +138,8 @@ public class InitCommand implements BLauncherCmd {
                 CommandUtil.initProjectByTemplate(userDir, packageName, template);
             }
         } catch (AccessDeniedException e) {
-            errStream.println("error: Error occurred while initializing project : " + "Access Denied");
+            errStream.println("error: Error occurred while initializing project : " + " Access Denied : " +
+                    e.getMessage());
             return;
         } catch (IOException | URISyntaxException e) {
             errStream.println("error: Error occurred while initializing project : " + e.getMessage());
