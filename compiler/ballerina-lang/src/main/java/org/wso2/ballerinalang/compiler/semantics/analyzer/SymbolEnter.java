@@ -593,7 +593,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangClassDefinition classDefinition) {
         EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
-        boolean isReadOnly = flags.contains(Flag.READONLY);
         boolean isPublicType = flags.contains(Flag.PUBLIC);
 
         BTypeSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags),
@@ -608,7 +607,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (flags.contains(Flag.SERVICE)) {
             objectType = new BServiceType(tSymbol);
         } else {
-            objectType = isReadOnly ? new BObjectType(tSymbol, Flags.READONLY) : new BObjectType(tSymbol);
+            int typeFlags = 0;
+
+            if (flags.contains(Flag.READONLY)) {
+                typeFlags |= Flags.READONLY;
+            }
+
+            if (flags.contains(Flag.ISOLATED)) {
+                typeFlags |= Flags.ISOLATED;
+            }
+
+            objectType = new BObjectType(tSymbol, typeFlags);
         }
 
         if (flags.contains(Flag.DISTINCT)) {
