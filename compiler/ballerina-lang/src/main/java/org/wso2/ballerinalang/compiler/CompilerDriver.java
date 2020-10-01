@@ -169,7 +169,6 @@ public class CompilerDriver {
             symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
             symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
             symbolTable.loadPredeclaredModules();
-            symResolver.loadFunctionalConstructors();
             return;
         }
 
