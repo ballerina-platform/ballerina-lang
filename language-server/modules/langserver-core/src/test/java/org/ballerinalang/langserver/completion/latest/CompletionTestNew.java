@@ -41,6 +41,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -124,7 +125,7 @@ public abstract class CompletionTestNew {
     }
     
     public List<String> skipList() {
-        return new ArrayList<>();
+        return Arrays.asList("config3.json", "config4.json");
     }
     
     public abstract String getTestResourceDir();
