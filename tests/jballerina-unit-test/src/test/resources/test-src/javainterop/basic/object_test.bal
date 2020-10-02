@@ -70,6 +70,10 @@ public class Person {
             'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
 
+    function getModuleInfoForObject(int a) returns string  = @java:Method {
+            'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    } external;
+
     function getBIntFromJInt(handle receiver) returns int = @java:Method {
         name:"longValue",
         'class:"java.lang.Integer"
@@ -121,6 +125,8 @@ public function testInteropsInsideObject() {
     assertEquality(p.height, 123.45);
     float f = p.floor(p.height);
     assertEquality(f, 123.0);
+    string moduleString =  p.getModuleInfoForObject(4);
+    assertEquality(moduleString, "$anon#.#0.0.0#12#4");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

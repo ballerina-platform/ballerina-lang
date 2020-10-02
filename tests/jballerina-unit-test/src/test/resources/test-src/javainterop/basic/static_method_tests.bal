@@ -79,6 +79,10 @@ function testStaticResolve() {
     test:assertEquals(val, 2);
 }
 
+function testStringParamAndReturn(string a1) returns string {
+    return stringParamAndReturn(a1);
+}
+
 // Interop functions
 public function acceptNothingAndReturnNothing() = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
@@ -184,6 +188,10 @@ public function testUnionReturn() returns string {
     return value:toString(getMapOrError("swagger", apiDef));
 }
 
+public function testGetObjectOrError() returns Person|error {
+    return getObjectOrError();
+}
+
 function getMapOrError(string swaggerFilePath, ApiDefinition apiDef) returns ApiDefinition | error  = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
@@ -225,6 +233,10 @@ function decimalParamAndReturn(decimal a1) returns decimal = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
+function getModuleInfo(int a) returns string  = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
 public function testBalEnvSlowAsyncVoidSig() {
     int added = addTwoNumbersSlowAsyncVoidSig(1, 2);
     assertEquality(3, added);
@@ -243,6 +255,11 @@ public function testBalEnvSlowAsync() {
 public function testBalEnvFastAsync() {
     int added = addTwoNumbersFastAsync(1, 2);
     assertEquality(3, added);
+}
+
+public function testGetModuleInfo() {
+     string moduleString =  getModuleInfo(4);
+     assertEquality(moduleString, "$anon#.#0.0.0#4");
 }
 
 function hashCode(int receiver) returns int = @java:Method {
