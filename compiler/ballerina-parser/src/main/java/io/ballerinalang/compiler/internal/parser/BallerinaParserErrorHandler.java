@@ -228,8 +228,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.REMOTE_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD,
                     ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
-    private static final ParserRuleContext[] OBJECT_TYPE_OR_CONSTRUCTOR_START =
+    private static final ParserRuleContext[] OBJECT_TYPE_START =
             { ParserRuleContext.OBJECT_TYPE_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
+
+    private static final ParserRuleContext[] OBJECT_CONSTRUCTOR_START =
+            { ParserRuleContext.OBJECT_CONSTRUCTOR_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
 
     private static final ParserRuleContext[] OBJECT_CONSTRUCTOR_RHS =
             { ParserRuleContext.OPEN_BRACE, ParserRuleContext.TYPE_REFERENCE };
@@ -655,6 +658,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] REGULAR_COMPOUND_STMT_RHS =
             { ParserRuleContext.STATEMENT, ParserRuleContext.ON_FAIL_CLAUSE };
 
+    private static final ParserRuleContext[] NAMED_WORKER_DECL_START =
+            { ParserRuleContext.WORKER_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -684,6 +690,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLASS_MEMBER:
             case OBJECT_MEMBER_DESCRIPTOR:
             case OBJECT_TYPE_QUALIFIER:
+            case OBJECT_CONSTRUCTOR_QUALIFIER:
             case CLASS_TYPE_QUALIFIER:
             case ELSE_BODY:
             case IMPORT_DECL_RHS:
@@ -787,6 +794,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
             case TYPE_DESC_OR_EXPR_RHS:
             case FUNC_TYPE_DESC_START:
+            case NAMED_WORKER_DECL_START:
             case ANON_FUNC_EXPRESSION_START:
                 return true;
             default:
@@ -915,13 +923,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case ARG_LIST_END:
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN;
                     break;
-                case OBJECT_TYPE_QUALIFIER:
+                case OBJECT_CONSTRUCTOR_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD;
+                    break;
+                case OBJECT_TYPE_QUALIFIER:
+                    hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD ||
+                            nextToken.kind == SyntaxKind.ISOLATED_KEYWORD;
                     break;
                 case CLASS_TYPE_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.DISTINCT_KEYWORD ||
                             nextToken.kind == SyntaxKind.CLIENT_KEYWORD ||
-                            nextToken.kind == SyntaxKind.READONLY_KEYWORD;
+                            nextToken.kind == SyntaxKind.READONLY_KEYWORD ||
+                            nextToken.kind == SyntaxKind.ISOLATED_KEYWORD;
                     break;
                 case OPEN_BRACKET:
                 case TUPLE_TYPE_DESC_START:
@@ -1274,7 +1287,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_METHOD_START:
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
-            case OBJECT_TYPE_OR_CONSTRUCTOR_START:
+            case OBJECT_TYPE_START:
+            case OBJECT_CONSTRUCTOR_START:
             case ELSE_BLOCK:
             case ELSE_BODY:
             case CALL_STMT_START:
@@ -1418,6 +1432,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_OR_EXPR_RHS:
             case LISTENERS_LIST_END:
             case REGULAR_COMPOUND_STMT_RHS:
+            case NAMED_WORKER_DECL_START:
             case FUNC_TYPE_DESC_START:
             case ANON_FUNC_EXPRESSION_START:
             case MODULE_CLASS_DEFINITION_START:
@@ -1548,8 +1563,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
                 alternativeRules = OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
                 break;
-            case OBJECT_TYPE_OR_CONSTRUCTOR_START:
-                alternativeRules = OBJECT_TYPE_OR_CONSTRUCTOR_START;
+            case OBJECT_TYPE_START:
+                alternativeRules = OBJECT_TYPE_START;
+                break;
+            case OBJECT_CONSTRUCTOR_START:
+                alternativeRules = OBJECT_CONSTRUCTOR_START;
                 break;
             case IMPORT_PREFIX_DECL:
                 alternativeRules = IMPORT_PREFIX_DECL;
@@ -1878,6 +1896,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case REGULAR_COMPOUND_STMT_RHS:
                 alternativeRules = REGULAR_COMPOUND_STMT_RHS;
+                break;
+            case NAMED_WORKER_DECL_START:
+                alternativeRules = NAMED_WORKER_DECL_START;
                 break;
             default:
                 return seekMatchInExprRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -2382,8 +2403,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_NAME:
                 return ParserRuleContext.TYPE_DESC_IN_TYPE_DEF;
             case OBJECT_TYPE_DESCRIPTOR:
-                return ParserRuleContext.OBJECT_TYPE_OR_CONSTRUCTOR_START;
+                return ParserRuleContext.OBJECT_TYPE_START;
             case OBJECT_TYPE_QUALIFIER:
+            case OBJECT_CONSTRUCTOR_QUALIFIER:
                 return ParserRuleContext.OBJECT_KEYWORD;
             case CLASS_TYPE_QUALIFIER:
                 return ParserRuleContext.CLASS_KEYWORD;
@@ -2540,7 +2562,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case XML_NAMESPACE_PREFIX_DECL:
                 return ParserRuleContext.SEMICOLON;
             case NAMED_WORKER_DECL:
-                return ParserRuleContext.WORKER_KEYWORD;
+                return ParserRuleContext.NAMED_WORKER_DECL_START;
             case WORKER_NAME:
                 return ParserRuleContext.WORKER_NAME_RHS;
             case FORK_STMT:
@@ -2563,7 +2585,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SLASH_LT_TOKEN:
                 return ParserRuleContext.XML_NAME_PATTERN;
             case OBJECT_CONSTRUCTOR:
-                return ParserRuleContext.OBJECT_TYPE_OR_CONSTRUCTOR_START;
+                return ParserRuleContext.OBJECT_CONSTRUCTOR_START;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
         }
@@ -3107,6 +3129,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case SERVICE_CONSTRUCTOR_EXPRESSION:
                     case SERVICE_DECL:
                         return ParserRuleContext.RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL;
+                    case NAMED_WORKER_DECL:
+                        return ParserRuleContext.WORKER_KEYWORD;
                     default:
                         return ParserRuleContext.EXPRESSION_RHS;
                 }
@@ -4812,6 +4836,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLIENT_KEYWORD:
                 return SyntaxKind.CLIENT_KEYWORD;
             case OBJECT_TYPE_QUALIFIER:
+            case OBJECT_CONSTRUCTOR_QUALIFIER:
                 return SyntaxKind.OBJECT_KEYWORD;
             case CLASS_TYPE_QUALIFIER:
                 return SyntaxKind.CLASS_KEYWORD;

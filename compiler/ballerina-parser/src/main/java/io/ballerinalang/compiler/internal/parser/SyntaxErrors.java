@@ -719,6 +719,7 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_RECORD_KEYWORD;
             case OBJECT_KEYWORD:
             case OBJECT_TYPE_QUALIFIER:
+            case OBJECT_CONSTRUCTOR_QUALIFIER:
             case OBJECT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
             case VERSION_KEYWORD:

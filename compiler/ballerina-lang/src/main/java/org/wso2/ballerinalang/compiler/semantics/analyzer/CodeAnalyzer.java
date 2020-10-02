@@ -2724,6 +2724,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         boolean isWorker = false;
+
+        if (bLangLambdaFunction.function.flagSet.contains(Flag.TRANSACTIONAL) &&
+                bLangLambdaFunction.function.flagSet.contains(Flag.WORKER) && !withinTransactionScope) {
+            dlog.error(bLangLambdaFunction.pos, DiagnosticCode.TRANSACTIONAL_WORKER_OUT_OF_TRANSACTIONAL_SCOPE,
+                    bLangLambdaFunction);
+            return;
+        }
         if (bLangLambdaFunction.parent.getKind() == NodeKind.VARIABLE) {
             String workerVarName = ((BLangSimpleVariable) bLangLambdaFunction.parent).name.value;
             if (workerVarName.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
@@ -2734,11 +2741,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                                                                                   bLangLambdaFunction.function);
             }
         }
-
         boolean statementReturn = this.statementReturns;
-
         this.visitFunction(bLangLambdaFunction.function);
-
         this.statementReturns = statementReturn;
 
         if (isWorker) {

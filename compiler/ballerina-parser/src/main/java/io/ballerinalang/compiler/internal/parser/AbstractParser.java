@@ -174,6 +174,26 @@ public abstract class AbstractParser {
     }
 
     /**
+     * Clones the last node in list with the invalid node as minutiae and update the list if the nodeList is not empty.
+     * Otherwise adds the invalid node as minutiae to the next consumed token.
+     *
+     * @param nodeList       node list to be updated if not empty
+     * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
+     * @param diagnosticCode diagnostic code related to the invalid node
+     * @param args           additional arguments used in diagnostic message
+     */
+    protected void updateLastNodeInListOrAddInvalidNodeToNextToken(List<STNode> nodeList,
+                                                             STNode invalidParam,
+                                                             DiagnosticCode diagnosticCode,
+                                                             Object... args) {
+        if (nodeList.isEmpty()) {
+            addInvalidNodeToNextToken(invalidParam, diagnosticCode, args);
+        } else {
+            updateLastNodeInListWithInvalidNode(nodeList, invalidParam, diagnosticCode, args);
+        }
+    }
+
+    /**
      * Clones the last node in list with the invalid node as minutiae and update the list.
      *
      * @param nodeList       node list to be updated

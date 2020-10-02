@@ -32,6 +32,7 @@ import java.util.Collections;
  */
 public class STNamedWorkerDeclarationNode extends STNode {
     public final STNode annotations;
+    public final STNode transactionalKeyword;
     public final STNode workerKeyword;
     public final STNode workerName;
     public final STNode returnTypeDesc;
@@ -39,12 +40,14 @@ public class STNamedWorkerDeclarationNode extends STNode {
 
     STNamedWorkerDeclarationNode(
             STNode annotations,
+            STNode transactionalKeyword,
             STNode workerKeyword,
             STNode workerName,
             STNode returnTypeDesc,
             STNode workerBody) {
         this(
                 annotations,
+                transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
@@ -54,6 +57,7 @@ public class STNamedWorkerDeclarationNode extends STNode {
 
     STNamedWorkerDeclarationNode(
             STNode annotations,
+            STNode transactionalKeyword,
             STNode workerKeyword,
             STNode workerName,
             STNode returnTypeDesc,
@@ -61,6 +65,7 @@ public class STNamedWorkerDeclarationNode extends STNode {
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.NAMED_WORKER_DECLARATION, diagnostics);
         this.annotations = annotations;
+        this.transactionalKeyword = transactionalKeyword;
         this.workerKeyword = workerKeyword;
         this.workerName = workerName;
         this.returnTypeDesc = returnTypeDesc;
@@ -68,6 +73,7 @@ public class STNamedWorkerDeclarationNode extends STNode {
 
         addChildren(
                 annotations,
+                transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
@@ -77,6 +83,7 @@ public class STNamedWorkerDeclarationNode extends STNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STNamedWorkerDeclarationNode(
                 this.annotations,
+                this.transactionalKeyword,
                 this.workerKeyword,
                 this.workerName,
                 this.returnTypeDesc,
@@ -86,12 +93,14 @@ public class STNamedWorkerDeclarationNode extends STNode {
 
     public STNamedWorkerDeclarationNode modify(
             STNode annotations,
+            STNode transactionalKeyword,
             STNode workerKeyword,
             STNode workerName,
             STNode returnTypeDesc,
             STNode workerBody) {
         if (checkForReferenceEquality(
                 annotations,
+                transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
@@ -101,6 +110,7 @@ public class STNamedWorkerDeclarationNode extends STNode {
 
         return new STNamedWorkerDeclarationNode(
                 annotations,
+                transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
