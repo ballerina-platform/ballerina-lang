@@ -130,6 +130,7 @@ public class InteropMethodGen {
                                          JvmPackageGen jvmPackageGen,
                                          JvmMethodGen jvmMethodGen,
                                          String moduleClassName,
+                                         String moduleInitClass,
                                          AsyncDataCollector asyncDataCollector) {
 
         // Create a local variable for the strand
@@ -138,6 +139,9 @@ public class InteropMethodGen {
                 null, VarKind.ARG);
         int strandParamIndex = indexMap.addToMapIfNotFoundAndGetIndex(strandVarDcl);
 
+        BIRVariableDcl moduleVarDcl = new BIRVariableDcl(jvmPackageGen.symbolTable.handleType, new Name("$_module_$"),
+                                                         null, VarKind.ARG);
+        indexMap.addToMapIfNotFoundAndGetIndex(moduleVarDcl);
         // Generate method desc
         BIRFunction birFunc = jFieldFuncWrapper.func;
         BType retType = birFunc.type.retType;
@@ -146,7 +150,7 @@ public class InteropMethodGen {
             retType = JvmCodeGenUtil.TYPE_BUILDER.build(birFunc.type.retType);
         }
 
-        String desc = JvmCodeGenUtil.getMethodDesc(birFunc.type.paramTypes, retType);
+        String desc = JvmCodeGenUtil.getMethodDescForExtern(birFunc.type.paramTypes, retType);
         int access = birFunc.receiver != null ? ACC_PUBLIC : ACC_PUBLIC + ACC_STATIC;
         MethodVisitor mv = classWriter.visitMethod(access, birFunc.name.value, desc, null, null);
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, birModule, jvmPackageGen);
@@ -195,7 +199,7 @@ public class InteropMethodGen {
 
             List<BIRBasicBlock> basicBlocks = birFunc.parameters.get(birFuncParam);
             generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, moduleClassName,
-                                asyncDataCollector);
+                                moduleInitClass, asyncDataCollector);
 
             mv.visitLabel(paramNextLabel);
 
@@ -290,7 +294,7 @@ public class InteropMethodGen {
 
     private static void generateBasicBlocks(MethodVisitor mv, List<BIRBasicBlock> basicBlocks, LabelGenerator labelGen,
                                             JvmErrorGen errorGen, JvmInstructionGen instGen, JvmTerminatorGen termGen,
-                                            BIRFunction func, String moduleClassName,
+                                            BIRFunction func, String moduleClassName, String moduleInitClass,
                                             AsyncDataCollector asyncDataCollector) {
         String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
         BirScope lastScope = null;
@@ -307,7 +311,8 @@ public class InteropMethodGen {
             // process terminator
             if (!(terminator instanceof BIRTerminator.Return)) {
                 JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
-                termGen.genTerminator(terminator, moduleClassName, func, funcName, -1, -1, null, asyncDataCollector);
+                termGen.genTerminator(terminator, moduleClassName, moduleInitClass, func, funcName, -1, -1,
+                                      null, asyncDataCollector);
             }
             errorGen.generateTryCatch(func, funcName, basicBlock, termGen, labelGen);
 

@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
@@ -65,6 +66,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTRUCTOR_INIT_METHOD;
@@ -95,7 +97,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  */
 public class JvmCodeGenUtil {
     public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
-    public static final String INITIAL_MEHOD_DESC = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
+    public static final String INITIAL_MEHOD_DESC = String.format("(L%s;", STRAND_CLASS);
+    public static final String INITIAL_MEHOD_DESC_WITH_MODULE =
+            INITIAL_MEHOD_DESC.concat(String.format("L%s;", B_MODULE));
     private static final Pattern IMMUTABLE_TYPE_CHAR_PATTERN = Pattern.compile("[/.]");
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
 
@@ -276,6 +280,10 @@ public class JvmCodeGenUtil {
         return (func.flags & Flags.NATIVE) == Flags.NATIVE;
     }
 
+    static boolean isExternFunc(BInvokableSymbol funcSymbol) {
+        return (funcSymbol.flags & Flags.NATIVE) == Flags.NATIVE;
+    }
+
     public static String getPackageName(PackageID packageID) {
         return getPackageName(packageID.orgName, packageID.name, packageID.version);
     }
@@ -348,6 +356,15 @@ public class JvmCodeGenUtil {
 
     public static String getMethodDesc(List<BType> paramTypes, BType retType, BType attachedType) {
         return INITIAL_MEHOD_DESC + getArgTypeSignature(attachedType) + populateMethodDesc(paramTypes) +
+                generateReturnType(retType);
+    }
+
+    public static String getMethodDescForExtern(List<BType> paramTypes, BType retType) {
+        return INITIAL_MEHOD_DESC_WITH_MODULE + populateMethodDesc(paramTypes) + generateReturnType(retType);
+    }
+
+    public static String getMethodDescForExtern(List<BType> paramTypes, BType retType, BType attachedType) {
+        return INITIAL_MEHOD_DESC_WITH_MODULE + getArgTypeSignature(attachedType) + populateMethodDesc(paramTypes) +
                 generateReturnType(retType);
     }
 

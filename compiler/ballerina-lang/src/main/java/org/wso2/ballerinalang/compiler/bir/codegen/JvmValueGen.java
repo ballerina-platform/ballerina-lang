@@ -67,6 +67,7 @@ import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.DUP2;
 import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
@@ -87,6 +88,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.cleanupReadOnlyTypeName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
@@ -94,8 +96,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_OPTIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_RUNTIME_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -307,10 +311,10 @@ class JvmValueGen {
         throw new BLangCompilerException(String.format("Invalid node: %s", node));
     }
 
-    private void createLambdas(ClassWriter cw, AsyncDataCollector asyncDataCollector) {
+    private void createLambdas(ClassWriter cw, AsyncDataCollector asyncDataCollector, String moduleInitClass) {
 
         for (Map.Entry<String, BIRInstruction> entry : asyncDataCollector.getLambdas().entrySet()) {
-            jvmMethodGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
+            jvmMethodGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey(), moduleInitClass);
         }
     }
 
@@ -330,14 +334,14 @@ class JvmValueGen {
     }
 
     private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs,
-                                     String moduleClassName, BObjectType currentObjectType,
+                                     String moduleClassName, String moduleInitClass, BObjectType currentObjectType,
                                      AsyncDataCollector asyncDataCollector) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
+            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName, moduleInitClass,
                                         asyncDataCollector);
         }
     }
@@ -377,7 +381,7 @@ class JvmValueGen {
     }
 
     private void createCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
-                                  boolean isService) {
+                                  String moduleInitClass, boolean isService) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "call", String.format(
                 "(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT), null, null);
@@ -398,6 +402,7 @@ class JvmValueGen {
         int i = 0;
         for (BIRNode.BIRFunction optionalFunc : functions) {
             BIRNode.BIRFunction func = getFunction(optionalFunc);
+            boolean externFunc = isExternFunc(func);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
 
@@ -407,13 +412,21 @@ class JvmValueGen {
             String methodSig;
 
             // use index access, since retType can be nil.
-            methodSig = JvmCodeGenUtil.getMethodDesc(paramTypes, retType);
+            if (externFunc) {
+                methodSig = JvmCodeGenUtil.getMethodDescForExtern(paramTypes, retType);
+            } else {
+                methodSig = JvmCodeGenUtil.getMethodDesc(paramTypes, retType);
+            }
 
             // load self
             mv.visitVarInsn(ALOAD, 0);
 
             // load strand
             mv.visitVarInsn(ALOAD, 1);
+            if (externFunc) {
+                // load current module
+                mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", B_MODULE));
+            }
             int j = 0;
             for (BType paramType : paramTypes) {
                 // load parameters
@@ -657,7 +670,7 @@ class JvmValueGen {
         return closureParamSignature;
     }
 
-    private byte[] createRecordValueClass(BRecordType recordType, String className,
+    private byte[] createRecordValueClass(BRecordType recordType, String className, String moduleInitClass,
                                           BIRNode.BIRTypeDefinition typeDef) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
@@ -673,7 +686,7 @@ class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createRecordMethods(cw, attachedFuncs, className, asyncDataCollector);
+            this.createRecordMethods(cw, attachedFuncs, className, moduleInitClass, asyncDataCollector);
         }
 
         Map<String, BField> fields = recordType.fields;
@@ -692,7 +705,7 @@ class JvmValueGen {
         this.createRecordConstructor(cw, TYPEDESC_VALUE);
         this.createRecordConstructor(cw, BTYPE);
         this.createRecordInitWrapper(cw, className, typeDef);
-        this.createLambdas(cw, asyncDataCollector);
+        this.createLambdas(cw, asyncDataCollector, moduleInitClass);
         JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
         this.generateStaticInitializer(cw, className, module, asyncDataCollector);
         cw.visitEnd();
@@ -701,13 +714,14 @@ class JvmValueGen {
     }
 
     private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
-                                     AsyncDataCollector asyncDataCollector) {
+                                     String moduleInitClass, AsyncDataCollector asyncDataCollector) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, this.module, null, moduleClassName, asyncDataCollector);
+            jvmMethodGen.generateMethod(func, cw, this.module, null, moduleClassName, moduleInitClass,
+                                        asyncDataCollector);
         }
     }
 
@@ -1341,25 +1355,27 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    void generateValueClasses(Map<String, byte[]> jarEntries) {
+    void generateValueClasses(Map<String, byte[]> jarEntries, String moduleInitClass) {
 
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
             BType bType = optionalTypeDef.type;
             if (bType instanceof BServiceType) {
                 BServiceType serviceType = (BServiceType) bType;
                 String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
-                byte[] bytes = this.createObjectValueClass(serviceType, className, optionalTypeDef, true);
+                byte[] bytes = this.createObjectValueClass(serviceType, className, moduleInitClass, optionalTypeDef,
+                                                           true);
                 jarEntries.put(className + ".class", bytes);
             } else if (bType.tag == TypeTags.OBJECT &&
                     Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
                 String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
-                byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, false);
+                byte[] bytes = this.createObjectValueClass(objectType, className, moduleInitClass, optionalTypeDef,
+                                                           false);
                 jarEntries.put(className + ".class", bytes);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
                 String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
-                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef);
+                byte[] bytes = this.createRecordValueClass(recordType, className, moduleInitClass, optionalTypeDef);
                 jarEntries.put(className + ".class", bytes);
 
                 String typedescClass = getTypeDescClassName(this.module, optionalTypeDef.name.value);
@@ -1369,7 +1385,7 @@ class JvmValueGen {
         });
     }
 
-    private byte[] createObjectValueClass(BObjectType objectType, String className,
+    private byte[] createObjectValueClass(BObjectType objectType, String className, String moduleInitClass,
                                           BIRNode.BIRTypeDefinition typeDef, boolean isService) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
@@ -1383,16 +1399,14 @@ class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createObjectMethods(cw, attachedFuncs, className, objectType,
-                                     asyncDataCollector);
+            this.createObjectMethods(cw, attachedFuncs, className, moduleInitClass, objectType, asyncDataCollector);
         }
-
         this.createObjectInit(cw, fields, className);
-        this.createCallMethod(cw, attachedFuncs, className, isService);
+        this.createCallMethod(cw, attachedFuncs, className, moduleInitClass, isService);
         this.createObjectGetMethod(cw, fields, className);
         this.createObjectSetMethod(cw, fields, className);
         this.createObjectSetOnInitializationMethod(cw, fields, className);
-        this.createLambdas(cw, asyncDataCollector);
+        this.createLambdas(cw, asyncDataCollector, moduleInitClass);
         JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
         this.generateStaticInitializer(cw, className, module, asyncDataCollector);
 

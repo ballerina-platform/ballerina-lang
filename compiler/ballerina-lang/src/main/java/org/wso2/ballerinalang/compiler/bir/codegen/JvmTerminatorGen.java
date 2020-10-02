@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.jvm.IdentifierEncoder;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -101,8 +102,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_O
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTRUCTOR_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -262,9 +265,9 @@ public class JvmTerminatorGen {
         }
     }
 
-    public void genTerminator(BIRTerminator terminator, String moduleClassName, BIRNode.BIRFunction func,
-                       String funcName, int localVarOffset, int returnVarRefIndex,
-                       BType attachedType, AsyncDataCollector asyncDataCollector) {
+    public void genTerminator(BIRTerminator terminator, String moduleClassName, String moduleInitClass,
+                              BIRNode.BIRFunction func, String funcName, int localVarOffset, int returnVarRefIndex,
+                              BType attachedType, AsyncDataCollector asyncDataCollector) {
 
         switch (terminator.kind) {
             case LOCK:
@@ -277,7 +280,7 @@ public class JvmTerminatorGen {
                 this.genGoToTerm((BIRTerminator.GOTO) terminator, funcName);
                 return;
             case CALL:
-                this.genCallTerm((BIRTerminator.Call) terminator, localVarOffset);
+                this.genCallTerm((BIRTerminator.Call) terminator, localVarOffset, moduleInitClass);
                 return;
             case ASYNC_CALL:
                 this.genAsyncCallTerm((BIRTerminator.AsyncCall) terminator, localVarOffset, moduleClassName,
@@ -420,7 +423,7 @@ public class JvmTerminatorGen {
         this.mv.visitJumpInsn(GOTO, falseBBLabel);
     }
 
-    private void genCallTerm(BIRTerminator.Call callIns, int localVarOffset) {
+    private void genCallTerm(BIRTerminator.Call callIns, int localVarOffset, String moduleInitClass) {
 
         PackageID calleePkgId = callIns.calleePkg;
 
@@ -429,7 +432,7 @@ public class JvmTerminatorGen {
         String version = calleePkgId.version.value;
 
         // invoke the function
-        this.genCall(callIns, orgName, moduleName, version, localVarOffset);
+        this.genCall(callIns, orgName, moduleName, version, localVarOffset, moduleInitClass);
 
         // store return
         this.storeReturnFromCallIns(callIns.lhsOp != null ? callIns.lhsOp.variableDcl : null);
@@ -542,8 +545,9 @@ public class JvmTerminatorGen {
             mv.visitTypeInsn(NEW, BAL_ENV);
             mv.visitInsn(DUP);
             this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
-            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, CONSTRUCTOR_INIT_METHOD, String.format("(L%s;)V", STRAND_CLASS),
-                               false);
+            this.mv.visitVarInsn(ALOAD, localVarOffset + 1); // load the current Module
+            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, CONSTRUCTOR_INIT_METHOD,
+                               String.format("(L%s;L%s;)V", STRAND_CLASS, B_MODULE), false);
         }
 
         int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();
@@ -666,10 +670,10 @@ public class JvmTerminatorGen {
 
 
     private void genCall(BIRTerminator.Call callIns, String orgName, String moduleName,
-                             String version, int localVarOffset) {
+                             String version, int localVarOffset, String moduleInitClass) {
 
         if (!callIns.isVirtual) {
-            this.genFuncCall(callIns, orgName, moduleName, version, localVarOffset);
+            this.genFuncCall(callIns, orgName, moduleName, version, localVarOffset, moduleInitClass);
             return;
         }
 
@@ -678,32 +682,38 @@ public class JvmTerminatorGen {
             this.genVirtualCall(callIns, orgName, moduleName, localVarOffset);
         } else {
             // then this is a function attached to a built-in type
-            this.genBuiltinTypeAttachedFuncCall(callIns, orgName, moduleName, version, localVarOffset);
+            this.genBuiltinTypeAttachedFuncCall(callIns, orgName, moduleName, version, localVarOffset, moduleInitClass);
         }
     }
 
     private void genFuncCall(BIRTerminator.Call callIns, String orgName, String moduleName, String version,
-                             int localVarOffset) {
+                             int localVarOffset, String moduleInitClass) {
 
         String methodName = IdentifierEncoder.encodeIdentifier(callIns.name.value);
-        this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodName);
+        this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodName,
+                           moduleInitClass);
     }
 
     private void genBuiltinTypeAttachedFuncCall(BIRTerminator.Call callIns, String orgName,
-                                                String moduleName,  String version, int localVarOffset) {
+                                                String moduleName,  String version, int localVarOffset,
+                                                String moduleInitClass) {
 
         String methodLookupName = callIns.name.value;
         int optionalIndex = methodLookupName.indexOf(".");
         int index = optionalIndex != -1 ? optionalIndex + 1 : 0;
         String methodName = methodLookupName.substring(index);
-        this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodLookupName);
+        this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodLookupName,
+                           moduleInitClass);
     }
 
     private void genStaticCall(BIRTerminator.Call callIns, String orgName, String moduleName,
                                String version, int localVarOffset,
-                               String methodName, String methodLookupName) {
+                               String methodName, String methodLookupName, String moduleInitClass) {
         // load strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
+        if (callIns.calleeFlags.contains(Flag.NATIVE)) {
+            mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", B_MODULE));
+        }
         String lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + methodLookupName;
 
         int argsCount = callIns.args.size();
@@ -743,7 +753,11 @@ public class JvmTerminatorGen {
                                                               JvmCodeGenUtil.cleanupPathSeparators(balFileName));
             //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
             BType retType = typeBuilder.build(type.retType);
-            methodDesc = JvmCodeGenUtil.getMethodDesc(params, retType);
+            if (callIns.calleeFlags.contains(Flag.NATIVE)) {
+                methodDesc = JvmCodeGenUtil.getMethodDescForExtern(params, retType);
+            } else {
+                methodDesc = JvmCodeGenUtil.getMethodDesc(params, retType);
+            }
         }
         this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
     }

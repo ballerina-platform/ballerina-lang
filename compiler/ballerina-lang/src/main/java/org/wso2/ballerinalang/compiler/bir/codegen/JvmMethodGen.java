@@ -132,6 +132,9 @@ import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SIPUSH;
 import static org.objectweb.asm.Opcodes.V1_8;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.INITIAL_MEHOD_DESC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.INITIAL_MEHOD_DESC_WITH_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARGUMENT_PARSER;
@@ -142,10 +145,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_O
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULTABLE_ARGS_ANOT_NAME;
@@ -214,12 +219,18 @@ public class JvmMethodGen {
     }
 
     public void genJMethodForBFunc(BIRFunction func, ClassWriter cw, BIRPackage module, String moduleClassName,
-                                   BType attachedType, AsyncDataCollector asyncDataCollector) {
+                                   String moduleInitClass, BType attachedType, AsyncDataCollector asyncDataCollector) {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
         BIRVariableDcl strandVar = new BIRVariableDcl(symbolTable.stringType, new Name(STRAND), VarScope.FUNCTION,
                                                       VarKind.ARG);
+        boolean isExtern = isExternFunc(func);
         indexMap.addToMapIfNotFoundAndGetIndex(strandVar);
+        if (isExtern) {
+            BIRVariableDcl runtimeModuleVar = new BIRVariableDcl(symbolTable.handleType, new Name("module"),
+                                                                 VarScope.FUNCTION, VarKind.ARG);
+            indexMap.addToMapIfNotFoundAndGetIndex(runtimeModuleVar);
+        }
 
         // generate method desc
         int access = Opcodes.ACC_PUBLIC;
@@ -237,7 +248,12 @@ public class JvmMethodGen {
 
         String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
         BType retType = getReturnType(func);
-        String desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
+        String desc;
+        if (isExtern) {
+            desc = JvmCodeGenUtil.getMethodDescForExtern(func.type.paramTypes, retType);
+        } else {
+            desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
+        }
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
         mv.visitCode();
 
@@ -284,7 +300,7 @@ public class JvmMethodGen {
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
                             stateVarIndex, localVarOffset, module, attachedType,
-                            moduleClassName, asyncDataCollector);
+                            moduleClassName, moduleInitClass, asyncDataCollector);
         mv.visitLabel(resumeLabel);
         String frameName = getFrameClassName(JvmCodeGenUtil.getPackageName(module), funcName, attachedType);
         genGetFrameOnResumeIndex(localVarOffset, mv, frameName);
@@ -462,7 +478,7 @@ public class JvmMethodGen {
 
     private BType getReturnType(BIRFunction func) {
         BType retType = func.type.retType;
-        if (JvmCodeGenUtil.isExternFunc(func) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+        if (isExternFunc(func) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
             retType = JvmCodeGenUtil.TYPE_BUILDER.build(func.type.retType);
         }
         return retType;
@@ -1209,14 +1225,23 @@ public class JvmMethodGen {
     }
 
     private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount) {
+        StringBuilder desc = new StringBuilder(INITIAL_MEHOD_DESC);
+        getLambdaMethoddesc(paramTypes, retType, closureMapsCount, desc);
+        return desc.toString();
+    }
 
-        StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
+    private String getLambdaMethodDescForNative(List<BType> paramTypes, BType retType, int closureMapsCount) {
+        StringBuilder desc = new StringBuilder(INITIAL_MEHOD_DESC_WITH_MODULE);
+        getLambdaMethoddesc(paramTypes, retType, closureMapsCount, desc);
+        return desc.toString();
+    }
+
+    private void getLambdaMethoddesc(List<BType> paramTypes, BType retType, int closureMapsCount, StringBuilder desc) {
         int j = 0;
         while (j < closureMapsCount) {
             j += 1;
             desc.append("L").append(MAP_VALUE).append(";").append("Z");
         }
-
         int i = 0;
         while (i < paramTypes.size()) {
             BType paramType = paramTypes.get(i);
@@ -1225,8 +1250,6 @@ public class JvmMethodGen {
         }
         String returnType = JvmCodeGenUtil.generateReturnType(retType);
         desc.append(returnType);
-
-        return desc.toString();
     }
 
     private String getFrameClassName(String pkgName, String funcName, BType attachedType) {
@@ -1284,7 +1307,8 @@ public class JvmMethodGen {
     public void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen,
                                     JvmInstructionGen instGen, JvmTerminatorGen termGen, BIRFunction func,
                                     int returnVarRefIndex, int stateVarIndex, int localVarOffset, BIRPackage module,
-                                    BType attachedType, String moduleClassName, AsyncDataCollector asyncDataCollector) {
+                                    BType attachedType, String moduleClassName, String moduleInitClass,
+                                    AsyncDataCollector asyncDataCollector) {
 
         String funcName = JvmCodeGenUtil.cleanupFunctionName(func.name.value);
         BirScope lastScope = null;
@@ -1314,8 +1338,8 @@ public class JvmMethodGen {
             caseIndex += 1;
 
             processTerminator(mv, func, module, funcName, terminator);
-            termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
-                                  attachedType, asyncDataCollector);
+            termGen.genTerminator(terminator, moduleClassName, moduleInitClass, func, funcName, localVarOffset,
+                                  returnVarRefIndex, attachedType, asyncDataCollector);
 
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
 
@@ -1348,7 +1372,7 @@ public class JvmMethodGen {
         mv.visitVarInsn(ISTORE, stateVarIndex);
     }
 
-    void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName) {
+    void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName, String moduleInitClass) {
 
         BType lhsType;
         String orgName;
@@ -1378,7 +1402,7 @@ public class JvmMethodGen {
                     String.format("%s", ins));
         }
 
-        boolean isExternFunction = isExternStaticFunctionCall(ins);
+        boolean isExternFunction = !isVirtual && isExternStaticFunctionCall(ins);
         boolean isBuiltinModule = JvmCodeGenUtil.isBallerinaBuiltinModule(orgName, moduleName);
 
         BType returnType;
@@ -1435,6 +1459,10 @@ public class JvmMethodGen {
                     }
                 }
             } else {
+                if (isExternFunction) {
+                    mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME,
+                                      String.format("L%s;", B_MODULE));
+                }
                 // load and cast param values
                 int argIndex = 1;
                 for (BIROperand paramType : paramTypes) {
@@ -1463,7 +1491,9 @@ public class JvmMethodGen {
                 mv.visitInsn(ICONST_1);
                 i += 1;
             }
-
+            if (isExternFunction) {
+                mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", B_MODULE));
+            }
             List<BIRVariableDcl> paramTypes = ((FPLoad) ins).params;
             // load and cast param values
 
@@ -1495,7 +1525,12 @@ public class JvmMethodGen {
             String encodedFuncName = IdentifierEncoder.encodeIdentifier(funcName);
             String lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + encodedFuncName;
             BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
-            String methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
+            String methodDesc;
+            if (isExternFunction) {
+                methodDesc = getLambdaMethodDescForNative(paramBTypes, returnType, closureMapsCount);
+            } else {
+                methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
+            }
             if (functionWrapper != null) {
                 jvmClass = functionWrapper.fullQualifiedClassName;
             } else {
@@ -1622,7 +1657,13 @@ public class JvmMethodGen {
         String key = JvmCodeGenUtil.getPackageName(packageID) + methodName;
 
         BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(key);
-        return functionWrapper != null && JvmCodeGenUtil.isExternFunc(functionWrapper.func);
+        if (functionWrapper != null) {
+            return isExternFunc(functionWrapper.func);
+        } else {
+            BPackageSymbol symbol = jvmPackageGen.packageCache.getSymbol(packageID.orgName + "/" + packageID.name);
+            BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(methodName)).symbol;
+            return isExternFunc(funcSymbol);
+        }
     }
 
     private void addBooleanTypeToLambdaParamTypes(MethodVisitor mv, int arrayIndex, int paramIndex) {
@@ -2179,7 +2220,7 @@ public class JvmMethodGen {
 
 
         PackageID currentModId = packageToModuleId(module);
-        String moduleInitClass = getModuleInitClassName(currentModId);
+        String moduleInitClass = getmoduleInitClass(currentModId);
         String fullFuncName = calculateModuleSpecialFuncName(currentModId, STOP_FUNCTION_SUFFIX);
 
         scheduleStopMethod(mv, initClass, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), schedulerIndex,
@@ -2189,7 +2230,7 @@ public class JvmMethodGen {
             PackageID id = imprtMods.get(i);
             i -= 1;
             fullFuncName = calculateModuleSpecialFuncName(id, STOP_FUNCTION_SUFFIX);
-            moduleInitClass = getModuleInitClassName(id);
+            moduleInitClass = getmoduleInitClass(id);
             scheduleStopMethod(mv, initClass, JvmCodeGenUtil.cleanupFunctionName(fullFuncName), schedulerIndex,
                                futureIndex, moduleInitClass, asyncDataCollector);
         }
@@ -2198,7 +2239,7 @@ public class JvmMethodGen {
         mv.visitEnd();
     }
 
-    private String getModuleInitClassName(PackageID id) {
+    private String getmoduleInitClass(PackageID id) {
         return JvmCodeGenUtil.getModuleLevelClassName(id.orgName.value, id.name.value, id.version.value,
                                                       MODULE_INIT_CLASS_NAME);
     }
@@ -2224,12 +2265,12 @@ public class JvmMethodGen {
     }
 
     void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
-                        String moduleClassName, AsyncDataCollector asyncDataCollector) {
-        if (JvmCodeGenUtil.isExternFunc(birFunc)) {
+                        String moduleClassName, String moduleInitClass, AsyncDataCollector asyncDataCollector) {
+        if (isExternFunc(birFunc)) {
             ExternalMethodGen.genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
-                                                         moduleClassName, asyncDataCollector);
+                                                         moduleClassName, moduleInitClass, asyncDataCollector);
         } else {
-            genJMethodForBFunc(birFunc, cw, birModule, moduleClassName, attachedType,
+            genJMethodForBFunc(birFunc, cw, birModule, moduleClassName, moduleInitClass, attachedType,
                                asyncDataCollector);
         }
     }

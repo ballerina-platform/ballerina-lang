@@ -106,6 +106,7 @@ public class JvmConstants {
     public static final String SCHEDULER = "org/ballerinalang/jvm/scheduling/Scheduler";
     public static final String JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
     public static final String STRAND_CLASS = "org/ballerinalang/jvm/scheduling/Strand";
+    public static final String B_MODULE = "org/ballerinalang/jvm/api/runtime/BModule";
     public static final String STRAND_METADATA = "org/ballerinalang/jvm/scheduling/StrandMetadata";
     public static final String BAL_ENV = "org/ballerinalang/jvm/api/BalEnv";
     public static final String BAL_FUTURE = "org/ballerinalang/jvm/api/BalFuture";
@@ -199,6 +200,7 @@ public class JvmConstants {
     public static final String BUILT_IN_PACKAGE_NAME = "lang.annotations";
     public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
     public static final String MODULE_STARTED = "$moduleStarted";
+    public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
     public static final String DESUGARED_BB_ID_NAME = "desugaredBB";
     public static final String WRAPPER_GEN_BB_ID_NAME = "wrapperGen";
     public static final String JVM_INIT_METHOD = "<init>";
