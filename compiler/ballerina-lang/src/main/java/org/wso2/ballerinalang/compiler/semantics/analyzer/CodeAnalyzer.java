@@ -679,6 +679,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         retryNode.retryBodyReturns = this.returnWithinLambdaWrappingCheckStack.peek();
         this.returnWithinLambdaWrappingCheckStack.pop();
         this.resetLastStatement();
+        this.resetErrorThrown();
         retryNode.retryBody.isBreakable = retryNode.onFailClause != null;
         analyzeOnFailClause(retryNode.onFailClause);
         this.errorTypes.pop();
@@ -1527,7 +1528,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.resetLastStatement();
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(whileNode.expr);
-        whileNode.body.isBreakable = whileNode.onFailClause != null;
         analyzeOnFailClause(whileNode.onFailClause);
         this.errorTypes.pop();
     }
