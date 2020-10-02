@@ -19,33 +19,56 @@ package org.ballerinalang.formatter.core;
 
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
+import io.ballerinalang.compiler.syntax.tree.AnnotAccessExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.AnnotationAttachPointNode;
+import io.ballerinalang.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
+import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.AsyncSendActionNode;
 import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.BreakStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerinalang.compiler.syntax.tree.CommitActionNode;
 import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
+import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
+import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerinalang.compiler.syntax.tree.DistinctTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.DoStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DocumentationReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.DoubleGTTokenNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.EnumMemberNode;
+import io.ballerinalang.compiler.syntax.tree.ErrorBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
+import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
+import io.ballerinalang.compiler.syntax.tree.FailStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternFullNode;
+import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternVarnameNode;
+import io.ballerinalang.compiler.syntax.tree.FieldMatchPatternNode;
+import io.ballerinalang.compiler.syntax.tree.FlushActionNode;
 import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ForkStatementNode;
+import io.ballerinalang.compiler.syntax.tree.FromClauseNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyNode;
@@ -53,20 +76,36 @@ import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionalMatchPatternNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionParameters;
+import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
 import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.JoinClauseNode;
+import io.ballerinalang.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
+import io.ballerinalang.compiler.syntax.tree.LetClauseNode;
+import io.ballerinalang.compiler.syntax.tree.LetExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.LimitClauseNode;
 import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ListMatchPatternNode;
+import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.LocalTypeDefinitionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.LockStatementNode;
+import io.ballerinalang.compiler.syntax.tree.MappingBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
+import io.ballerinalang.compiler.syntax.tree.MappingMatchPatternNode;
 import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationLineNode;
 import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerinalang.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
@@ -74,53 +113,124 @@ import io.ballerinalang.compiler.syntax.tree.MatchClauseNode;
 import io.ballerinalang.compiler.syntax.tree.MatchGuardNode;
 import io.ballerinalang.compiler.syntax.tree.MatchStatementNode;
 import io.ballerinalang.compiler.syntax.tree.MetadataNode;
+import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.NamedArgBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.NamedArgMatchPatternNode;
+import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarator;
+import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
+import io.ballerinalang.compiler.syntax.tree.ObjectConstructorExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
+import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OnFailClauseNode;
+import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.OrderByClauseNode;
+import io.ballerinalang.compiler.syntax.tree.OrderKeyNode;
 import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
+import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.QueryActionNode;
+import io.ballerinalang.compiler.syntax.tree.QueryConstructTypeNode;
+import io.ballerinalang.compiler.syntax.tree.QueryExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.QueryPipelineNode;
+import io.ballerinalang.compiler.syntax.tree.ReceiveActionNode;
+import io.ballerinalang.compiler.syntax.tree.ReceiveFieldsNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.RestBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.RestMatchPatternNode;
+import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
+import io.ballerinalang.compiler.syntax.tree.RetryStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.RollbackStatementNode;
+import io.ballerinalang.compiler.syntax.tree.SelectClauseNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
+import io.ballerinalang.compiler.syntax.tree.ServiceConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
+import io.ballerinalang.compiler.syntax.tree.StartActionNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
+import io.ballerinalang.compiler.syntax.tree.StreamTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.StreamTypeParamsNode;
+import io.ballerinalang.compiler.syntax.tree.SyncSendActionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TableTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.syntax.tree.TransactionStatementNode;
+import io.ballerinalang.compiler.syntax.tree.TransactionalExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.TrippleGTTokenNode;
 import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeCastParamNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
+import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.TypeReferenceTypeDescNode;
+import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.TypedescTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
+import io.ballerinalang.compiler.syntax.tree.WaitFieldNode;
+import io.ballerinalang.compiler.syntax.tree.WaitFieldsListNode;
+import io.ballerinalang.compiler.syntax.tree.WhereClauseNode;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
+import io.ballerinalang.compiler.syntax.tree.WildcardBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.XMLAtomicNamePatternNode;
+import io.ballerinalang.compiler.syntax.tree.XMLAttributeNode;
+import io.ballerinalang.compiler.syntax.tree.XMLAttributeValue;
+import io.ballerinalang.compiler.syntax.tree.XMLComment;
+import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
+import io.ballerinalang.compiler.syntax.tree.XMLEmptyElementNode;
+import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
+import io.ballerinalang.compiler.syntax.tree.XMLFilterExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.XMLNamePatternChainingNode;
+import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
+import io.ballerinalang.compiler.syntax.tree.XMLQualifiedNameNode;
+import io.ballerinalang.compiler.syntax.tree.XMLSimpleNameNode;
+import io.ballerinalang.compiler.syntax.tree.XMLStartTagNode;
+import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
+import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -1608,6 +1718,678 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .withBacktickContent(backtickContent)
                 .withEndBacktick(endBacktick)
                 .apply();
+    }
+
+    @Override
+    public PositionalArgumentNode transform(PositionalArgumentNode positionalArgumentNode) {
+
+        return super.transform(positionalArgumentNode);
+    }
+
+    @Override
+    public MappingBindingPatternNode transform(MappingBindingPatternNode mappingBindingPatternNode) {
+
+        return super.transform(mappingBindingPatternNode);
+    }
+
+    @Override
+    public FieldBindingPatternFullNode transform(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+
+        return super.transform(fieldBindingPatternFullNode);
+    }
+
+    @Override
+    public FieldBindingPatternVarnameNode transform(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+
+        return super.transform(fieldBindingPatternVarnameNode);
+    }
+
+    @Override
+    public TypeTestExpressionNode transform(TypeTestExpressionNode typeTestExpressionNode) {
+
+        return super.transform(typeTestExpressionNode);
+    }
+
+    @Override
+    public ListenerDeclarationNode transform(ListenerDeclarationNode listenerDeclarationNode) {
+
+        return super.transform(listenerDeclarationNode);
+    }
+
+    @Override
+    public ArrayTypeDescriptorNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+
+        return super.transform(arrayTypeDescriptorNode);
+    }
+
+    @Override
+    public MethodCallExpressionNode transform(MethodCallExpressionNode methodCallExpressionNode) {
+
+        return super.transform(methodCallExpressionNode);
+    }
+
+    @Override
+    public NilLiteralNode transform(NilLiteralNode nilLiteralNode) {
+
+        return super.transform(nilLiteralNode);
+    }
+
+    @Override
+    public XMLNamespaceDeclarationNode transform(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
+
+        return super.transform(xMLNamespaceDeclarationNode);
+    }
+
+    @Override
+    public ModuleXMLNamespaceDeclarationNode transform(ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
+
+        return super.transform(moduleXMLNamespaceDeclarationNode);
+    }
+
+    @Override
+    public XmlTypeDescriptorNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+
+        return super.transform(xmlTypeDescriptorNode);
+    }
+
+    @Override
+    public XMLElementNode transform(XMLElementNode xMLElementNode) {
+
+        return super.transform(xMLElementNode);
+    }
+
+    @Override
+    public XMLStartTagNode transform(XMLStartTagNode xMLStartTagNode) {
+
+        return super.transform(xMLStartTagNode);
+    }
+
+    @Override
+    public XMLEndTagNode transform(XMLEndTagNode xMLEndTagNode) {
+
+        return super.transform(xMLEndTagNode);
+    }
+
+    @Override
+    public XMLSimpleNameNode transform(XMLSimpleNameNode xMLSimpleNameNode) {
+
+        return super.transform(xMLSimpleNameNode);
+    }
+
+    @Override
+    public XMLQualifiedNameNode transform(XMLQualifiedNameNode xMLQualifiedNameNode) {
+
+        return super.transform(xMLQualifiedNameNode);
+    }
+
+    @Override
+    public XMLEmptyElementNode transform(XMLEmptyElementNode xMLEmptyElementNode) {
+
+        return super.transform(xMLEmptyElementNode);
+    }
+
+    @Override
+    public XMLTextNode transform(XMLTextNode xMLTextNode) {
+
+        return super.transform(xMLTextNode);
+    }
+
+    @Override
+    public XMLAttributeNode transform(XMLAttributeNode xMLAttributeNode) {
+
+        return super.transform(xMLAttributeNode);
+    }
+
+    @Override
+    public XMLAttributeValue transform(XMLAttributeValue xMLAttributeValue) {
+
+        return super.transform(xMLAttributeValue);
+    }
+
+    @Override
+    public XMLComment transform(XMLComment xMLComment) {
+
+        return super.transform(xMLComment);
+    }
+
+    @Override
+    public XMLProcessingInstruction transform(XMLProcessingInstruction xMLProcessingInstruction) {
+
+        return super.transform(xMLProcessingInstruction);
+    }
+
+    @Override
+    public XMLFilterExpressionNode transform(XMLFilterExpressionNode xMLFilterExpressionNode) {
+
+        return super.transform(xMLFilterExpressionNode);
+    }
+
+    @Override
+    public XMLStepExpressionNode transform(XMLStepExpressionNode xMLStepExpressionNode) {
+
+        return super.transform(xMLStepExpressionNode);
+    }
+
+    @Override
+    public XMLNamePatternChainingNode transform(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+
+        return super.transform(xMLNamePatternChainingNode);
+    }
+
+    @Override
+    public XMLAtomicNamePatternNode transform(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+
+        return super.transform(xMLAtomicNamePatternNode);
+    }
+
+    @Override
+    public TemplateExpressionNode transform(TemplateExpressionNode templateExpressionNode) {
+
+        return super.transform(templateExpressionNode);
+    }
+
+    @Override
+    public ByteArrayLiteralNode transform(ByteArrayLiteralNode byteArrayLiteralNode) {
+
+        return super.transform(byteArrayLiteralNode);
+    }
+
+    @Override
+    public TypeReferenceNode transform(TypeReferenceNode typeReferenceNode) {
+
+        return super.transform(typeReferenceNode);
+    }
+
+    @Override
+    public MappingMatchPatternNode transform(MappingMatchPatternNode mappingMatchPatternNode) {
+
+        return super.transform(mappingMatchPatternNode);
+    }
+
+    @Override
+    public StartActionNode transform(StartActionNode startActionNode) {
+
+        return super.transform(startActionNode);
+    }
+
+    @Override
+    public FlushActionNode transform(FlushActionNode flushActionNode) {
+
+        return super.transform(flushActionNode);
+    }
+
+    @Override
+    public NamedWorkerDeclarationNode transform(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+
+        return super.transform(namedWorkerDeclarationNode);
+    }
+
+    @Override
+    public FailStatementNode transform(FailStatementNode failStatementNode) {
+
+        return super.transform(failStatementNode);
+    }
+
+    @Override
+    public ContinueStatementNode transform(ContinueStatementNode continueStatementNode) {
+
+        return super.transform(continueStatementNode);
+    }
+
+    @Override
+    public LocalTypeDefinitionStatementNode transform(LocalTypeDefinitionStatementNode localTypeDefinitionStatementNode) {
+
+        return super.transform(localTypeDefinitionStatementNode);
+    }
+
+    @Override
+    public ForkStatementNode transform(ForkStatementNode forkStatementNode) {
+
+        return super.transform(forkStatementNode);
+    }
+
+    @Override
+    public TypeofExpressionNode transform(TypeofExpressionNode typeofExpressionNode) {
+
+        return super.transform(typeofExpressionNode);
+    }
+
+    @Override
+    public UnaryExpressionNode transform(UnaryExpressionNode unaryExpressionNode) {
+
+        return super.transform(unaryExpressionNode);
+    }
+
+    @Override
+    public DefaultableParameterNode transform(DefaultableParameterNode defaultableParameterNode) {
+
+        return super.transform(defaultableParameterNode);
+    }
+
+    @Override
+    public RestParameterNode transform(RestParameterNode restParameterNode) {
+
+        return super.transform(restParameterNode);
+    }
+
+    @Override
+    public SpreadFieldNode transform(SpreadFieldNode spreadFieldNode) {
+
+        return super.transform(spreadFieldNode);
+    }
+
+    @Override
+    public NamedArgumentNode transform(NamedArgumentNode namedArgumentNode) {
+
+        return super.transform(namedArgumentNode);
+    }
+
+    @Override
+    public RestArgumentNode transform(RestArgumentNode restArgumentNode) {
+
+        return super.transform(restArgumentNode);
+    }
+
+    @Override
+    public ObjectTypeDescriptorNode transform(ObjectTypeDescriptorNode objectTypeDescriptorNode) {
+
+        return super.transform(objectTypeDescriptorNode);
+    }
+
+    @Override
+    public ObjectConstructorExpressionNode transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
+
+        return super.transform(objectConstructorExpressionNode);
+    }
+
+    @Override
+    public ObjectFieldNode transform(ObjectFieldNode objectFieldNode) {
+
+        return super.transform(objectFieldNode);
+    }
+
+    @Override
+    public RecordRestDescriptorNode transform(RecordRestDescriptorNode recordRestDescriptorNode) {
+
+        return super.transform(recordRestDescriptorNode);
+    }
+
+    @Override
+    public AnnotationDeclarationNode transform(AnnotationDeclarationNode annotationDeclarationNode) {
+
+        return super.transform(annotationDeclarationNode);
+    }
+
+    @Override
+    public AnnotationAttachPointNode transform(AnnotationAttachPointNode annotationAttachPointNode) {
+
+        return super.transform(annotationAttachPointNode);
+    }
+
+    @Override
+    public NamedWorkerDeclarator transform(NamedWorkerDeclarator namedWorkerDeclarator) {
+
+        return super.transform(namedWorkerDeclarator);
+    }
+
+    @Override
+    public TrapExpressionNode transform(TrapExpressionNode trapExpressionNode) {
+
+        return super.transform(trapExpressionNode);
+    }
+
+    @Override
+    public TableConstructorExpressionNode transform(TableConstructorExpressionNode tableConstructorExpressionNode) {
+
+        return super.transform(tableConstructorExpressionNode);
+    }
+
+    @Override
+    public KeySpecifierNode transform(KeySpecifierNode keySpecifierNode) {
+
+        return super.transform(keySpecifierNode);
+    }
+
+    @Override
+    public ErrorTypeParamsNode transform(ErrorTypeParamsNode errorTypeParamsNode) {
+
+        return super.transform(errorTypeParamsNode);
+    }
+
+    @Override
+    public StreamTypeDescriptorNode transform(StreamTypeDescriptorNode streamTypeDescriptorNode) {
+
+        return super.transform(streamTypeDescriptorNode);
+    }
+
+    @Override
+    public StreamTypeParamsNode transform(StreamTypeParamsNode streamTypeParamsNode) {
+
+        return super.transform(streamTypeParamsNode);
+    }
+
+    @Override
+    public TypedescTypeDescriptorNode transform(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
+
+        return super.transform(typedescTypeDescriptorNode);
+    }
+
+    @Override
+    public LetExpressionNode transform(LetExpressionNode letExpressionNode) {
+
+        return super.transform(letExpressionNode);
+    }
+
+    @Override
+    public LetVariableDeclarationNode transform(LetVariableDeclarationNode letVariableDeclarationNode) {
+
+        return super.transform(letVariableDeclarationNode);
+    }
+
+    @Override
+    public InterpolationNode transform(InterpolationNode interpolationNode) {
+
+        return super.transform(interpolationNode);
+    }
+
+    @Override
+    public ExplicitAnonymousFunctionExpressionNode transform(ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+
+        return super.transform(explicitAnonymousFunctionExpressionNode);
+    }
+
+    @Override
+    public ImplicitNewExpressionNode transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+
+        return super.transform(implicitNewExpressionNode);
+    }
+
+    @Override
+    public QueryConstructTypeNode transform(QueryConstructTypeNode queryConstructTypeNode) {
+
+        return super.transform(queryConstructTypeNode);
+    }
+
+    @Override
+    public FromClauseNode transform(FromClauseNode fromClauseNode) {
+
+        return super.transform(fromClauseNode);
+    }
+
+    @Override
+    public WhereClauseNode transform(WhereClauseNode whereClauseNode) {
+
+        return super.transform(whereClauseNode);
+    }
+
+    @Override
+    public LetClauseNode transform(LetClauseNode letClauseNode) {
+
+        return super.transform(letClauseNode);
+    }
+
+    @Override
+    public QueryPipelineNode transform(QueryPipelineNode queryPipelineNode) {
+
+        return super.transform(queryPipelineNode);
+    }
+
+    @Override
+    public SelectClauseNode transform(SelectClauseNode selectClauseNode) {
+
+        return super.transform(selectClauseNode);
+    }
+
+    @Override
+    public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
+
+        return super.transform(queryExpressionNode);
+    }
+
+    @Override
+    public ImplicitAnonymousFunctionParameters transform(ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+
+        return super.transform(implicitAnonymousFunctionParameters);
+    }
+
+    @Override
+    public ImplicitAnonymousFunctionExpressionNode transform(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+
+        return super.transform(implicitAnonymousFunctionExpressionNode);
+    }
+
+    @Override
+    public MethodDeclarationNode transform(MethodDeclarationNode methodDeclarationNode) {
+
+        return super.transform(methodDeclarationNode);
+    }
+
+    @Override
+    public WildcardBindingPatternNode transform(WildcardBindingPatternNode wildcardBindingPatternNode) {
+
+        return super.transform(wildcardBindingPatternNode);
+    }
+
+    @Override
+    public ErrorBindingPatternNode transform(ErrorBindingPatternNode errorBindingPatternNode) {
+
+        return super.transform(errorBindingPatternNode);
+    }
+
+    @Override
+    public NamedArgBindingPatternNode transform(NamedArgBindingPatternNode namedArgBindingPatternNode) {
+
+        return super.transform(namedArgBindingPatternNode);
+    }
+
+    @Override
+    public AsyncSendActionNode transform(AsyncSendActionNode asyncSendActionNode) {
+
+        return super.transform(asyncSendActionNode);
+    }
+
+    @Override
+    public SyncSendActionNode transform(SyncSendActionNode syncSendActionNode) {
+
+        return super.transform(syncSendActionNode);
+    }
+
+    @Override
+    public ReceiveActionNode transform(ReceiveActionNode receiveActionNode) {
+
+        return super.transform(receiveActionNode);
+    }
+
+    @Override
+    public ReceiveFieldsNode transform(ReceiveFieldsNode receiveFieldsNode) {
+
+        return super.transform(receiveFieldsNode);
+    }
+
+    @Override
+    public RestDescriptorNode transform(RestDescriptorNode restDescriptorNode) {
+
+        return super.transform(restDescriptorNode);
+    }
+
+    @Override
+    public DoubleGTTokenNode transform(DoubleGTTokenNode doubleGTTokenNode) {
+
+        return super.transform(doubleGTTokenNode);
+    }
+
+    @Override
+    public TrippleGTTokenNode transform(TrippleGTTokenNode trippleGTTokenNode) {
+
+        return super.transform(trippleGTTokenNode);
+    }
+
+    @Override
+    public WaitActionNode transform(WaitActionNode waitActionNode) {
+
+        return super.transform(waitActionNode);
+    }
+
+    @Override
+    public WaitFieldsListNode transform(WaitFieldsListNode waitFieldsListNode) {
+
+        return super.transform(waitFieldsListNode);
+    }
+
+    @Override
+    public WaitFieldNode transform(WaitFieldNode waitFieldNode) {
+
+        return super.transform(waitFieldNode);
+    }
+
+    @Override
+    public AnnotAccessExpressionNode transform(AnnotAccessExpressionNode annotAccessExpressionNode) {
+
+        return super.transform(annotAccessExpressionNode);
+    }
+
+    @Override
+    public QueryActionNode transform(QueryActionNode queryActionNode) {
+
+        return super.transform(queryActionNode);
+    }
+
+    @Override
+    public OptionalFieldAccessExpressionNode transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+
+        return super.transform(optionalFieldAccessExpressionNode);
+    }
+
+    @Override
+    public ConditionalExpressionNode transform(ConditionalExpressionNode conditionalExpressionNode) {
+
+        return super.transform(conditionalExpressionNode);
+    }
+
+    @Override
+    public TransactionStatementNode transform(TransactionStatementNode transactionStatementNode) {
+
+        return super.transform(transactionStatementNode);
+    }
+
+    @Override
+    public RollbackStatementNode transform(RollbackStatementNode rollbackStatementNode) {
+
+        return super.transform(rollbackStatementNode);
+    }
+
+    @Override
+    public RetryStatementNode transform(RetryStatementNode retryStatementNode) {
+
+        return super.transform(retryStatementNode);
+    }
+
+    @Override
+    public CommitActionNode transform(CommitActionNode commitActionNode) {
+
+        return super.transform(commitActionNode);
+    }
+
+    @Override
+    public TransactionalExpressionNode transform(TransactionalExpressionNode transactionalExpressionNode) {
+
+        return super.transform(transactionalExpressionNode);
+    }
+
+    @Override
+    public ServiceConstructorExpressionNode transform(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+
+        return super.transform(serviceConstructorExpressionNode);
+    }
+
+    @Override
+    public TypeReferenceTypeDescNode transform(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+
+        return super.transform(typeReferenceTypeDescNode);
+    }
+
+    @Override
+    public DistinctTypeDescriptorNode transform(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+
+        return super.transform(distinctTypeDescriptorNode);
+    }
+
+    @Override
+    public OnConflictClauseNode transform(OnConflictClauseNode onConflictClauseNode) {
+
+        return super.transform(onConflictClauseNode);
+    }
+
+    @Override
+    public LimitClauseNode transform(LimitClauseNode limitClauseNode) {
+
+        return super.transform(limitClauseNode);
+    }
+
+    @Override
+    public JoinClauseNode transform(JoinClauseNode joinClauseNode) {
+
+        return super.transform(joinClauseNode);
+    }
+
+    @Override
+    public OnClauseNode transform(OnClauseNode onClauseNode) {
+
+        return super.transform(onClauseNode);
+    }
+
+    @Override
+    public ListMatchPatternNode transform(ListMatchPatternNode listMatchPatternNode) {
+
+        return super.transform(listMatchPatternNode);
+    }
+
+    @Override
+    public RestMatchPatternNode transform(RestMatchPatternNode restMatchPatternNode) {
+
+        return super.transform(restMatchPatternNode);
+    }
+
+    @Override
+    public FieldMatchPatternNode transform(FieldMatchPatternNode fieldMatchPatternNode) {
+
+        return super.transform(fieldMatchPatternNode);
+    }
+
+    @Override
+    public FunctionalMatchPatternNode transform(FunctionalMatchPatternNode functionalMatchPatternNode) {
+
+        return super.transform(functionalMatchPatternNode);
+    }
+
+    @Override
+    public NamedArgMatchPatternNode transform(NamedArgMatchPatternNode namedArgMatchPatternNode) {
+
+        return super.transform(namedArgMatchPatternNode);
+    }
+
+    @Override
+    public OrderByClauseNode transform(OrderByClauseNode orderByClauseNode) {
+
+        return super.transform(orderByClauseNode);
+    }
+
+    @Override
+    public OrderKeyNode transform(OrderKeyNode orderKeyNode) {
+
+        return super.transform(orderKeyNode);
+    }
+
+    @Override
+    public ClassDefinitionNode transform(ClassDefinitionNode classDefinitionNode) {
+
+        return super.transform(classDefinitionNode);
+    }
+
+    @Override
+    public BreakStatementNode transform(BreakStatementNode breakStatementNode) {
+
+        return super.transform(breakStatementNode);
     }
 
     @Override
