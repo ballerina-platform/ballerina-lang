@@ -181,7 +181,7 @@ public class RefTypeTests {
 
     @Test
     public void testGetXML() {
-        BValue[] returns = BRunUtil.invoke(result, "getXML");
+        BValue[] returns = BRunUtil.invoke(result, "testGetXML");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<hello></hello>");
     }
@@ -195,7 +195,7 @@ public class RefTypeTests {
 
     @Test
     public void testGetAllInts() {
-        BValue[] returns = BRunUtil.invoke(result, "getAllInts");
+        BValue[] returns = BRunUtil.invoke(result, "testGetAllInts");
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
@@ -213,14 +213,14 @@ public class RefTypeTests {
 
     @Test
     public void testGetMixType() {
-        BValue[] returns = BRunUtil.invoke(result, "getMixType");
+        BValue[] returns = BRunUtil.invoke(result, "testGetMixType");
         Assert.assertTrue(returns[0] instanceof BValueType);
         Assert.assertEquals(((BValueType) returns[0]).intValue(), 5);
     }
 
     @Test
     public void testGetIntegersAsMixType() {
-        BValue[] returns = BRunUtil.invoke(result, "getIntegersAsMixType");
+        BValue[] returns = BRunUtil.invoke(result, "testGetIntegersAsMixType");
         Assert.assertTrue(returns[0] instanceof BValueType);
         Assert.assertEquals(((BValueType) returns[0]).intValue(), 2);
     }
@@ -229,7 +229,7 @@ public class RefTypeTests {
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
                     "types: 'int' cannot be cast to 'MIX_TYPE'.*")
     public void testGetInvalidIntegerAsMixType() {
-        BValue[] returns = BRunUtil.invoke(result, "getInvalidIntegerAsMixType");
+        BValue[] returns = BRunUtil.invoke(result, "testGetInvalidIntegerAsMixType");
         Assert.assertTrue(returns[0] instanceof BValueType);
         Assert.assertEquals(((BValueType) returns[0]).intValue(), 3);
     }
@@ -318,9 +318,9 @@ public class RefTypeTests {
         Assert.assertTrue(returns instanceof ErrorValue);
         ErrorValue error = (ErrorValue) returns;
         Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException\n" +
-                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:400)\n" +
+                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:420)\n" +
                 "\t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:" +
-                "392)");
+                "412)");
     }
 
     @Test

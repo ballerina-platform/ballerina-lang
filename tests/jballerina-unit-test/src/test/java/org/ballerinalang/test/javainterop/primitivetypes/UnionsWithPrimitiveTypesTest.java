@@ -69,28 +69,28 @@ public class UnionsWithPrimitiveTypesTest {
         BValue[] args = new BValue[1];
         args[0] = new BHandleValue(dataIS);
 
-        BValue[] returns = BRunUtil.invoke(result, "readBoolean", args);
+        BValue[] returns = BRunUtil.invoke(result, "testReadBoolean", args);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), aBoolean);
 
-        returns = BRunUtil.invoke(result, "readByte", args);
+        returns = BRunUtil.invoke(result, "testReadByte", args);
         Assert.assertEquals(((BByte) returns[0]).byteValue(), aByte);
 
-        returns = BRunUtil.invoke(result, "readShort", args);
+        returns = BRunUtil.invoke(result, "testReadShort", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), aShort);
 
-        returns = BRunUtil.invoke(result, "readChar", args);
+        returns = BRunUtil.invoke(result, "testReadChar", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), aChar);
 
-        returns = BRunUtil.invoke(result, "readInt", args);
+        returns = BRunUtil.invoke(result, "testReadInt", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), anInt);
 
-        returns = BRunUtil.invoke(result, "readLong", args);
+        returns = BRunUtil.invoke(result, "testReadLong", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), aLong);
 
-        returns = BRunUtil.invoke(result, "readFloat", args);
+        returns = BRunUtil.invoke(result, "testReadFloat", args);
         Assert.assertEquals((float) ((BFloat) returns[0]).floatValue(), aFloat);
 
-        returns = BRunUtil.invoke(result, "readDouble", args);
+        returns = BRunUtil.invoke(result, "testReadDouble", args);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), aDouble);
     }
 

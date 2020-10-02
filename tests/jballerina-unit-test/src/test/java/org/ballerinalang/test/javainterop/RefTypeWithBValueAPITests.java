@@ -179,7 +179,7 @@ public class RefTypeWithBValueAPITests {
 
     @Test
     public void testGetXML() {
-        BValue[] returns = BRunUtil.invoke(result, "getXML");
+        BValue[] returns = BRunUtil.invoke(result, "testGetXML");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<hello></hello>");
     }
@@ -193,7 +193,7 @@ public class RefTypeWithBValueAPITests {
 
     @Test
     public void testGetAllInts() {
-        BValue[] returns = BRunUtil.invoke(result, "getAllInts");
+        BValue[] returns = BRunUtil.invoke(result, "testGetAllInts");
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
@@ -211,14 +211,14 @@ public class RefTypeWithBValueAPITests {
 
     @Test
     public void testGetMixType() {
-        BValue[] returns = BRunUtil.invoke(result, "getMixType");
+        BValue[] returns = BRunUtil.invoke(result, "testGetMixType");
         Assert.assertTrue(returns[0] instanceof BValueType);
         Assert.assertEquals(((BValueType) returns[0]).intValue(), 5);
     }
 
     @Test
     public void testGetIntegersAsMixType() {
-        BValue[] returns = BRunUtil.invoke(result, "getIntegersAsMixType");
+        BValue[] returns = BRunUtil.invoke(result, "testGetIntegersAsMixType");
         Assert.assertTrue(returns[0] instanceof BValueType);
         Assert.assertEquals(((BValueType) returns[0]).intValue(), 2);
     }
@@ -227,7 +227,7 @@ public class RefTypeWithBValueAPITests {
           expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
                   "types: 'int' cannot be cast to 'MIX_TYPE'.*")
     public void testGetInvalidIntegerAsMixType() {
-        BValue[] returns = BRunUtil.invoke(result, "getInvalidIntegerAsMixType");
+        BValue[] returns = BRunUtil.invoke(result, "testGetInvalidIntegerAsMixType");
         Assert.assertTrue(returns[0] instanceof BValueType);
         Assert.assertEquals(((BValueType) returns[0]).intValue(), 3);
     }

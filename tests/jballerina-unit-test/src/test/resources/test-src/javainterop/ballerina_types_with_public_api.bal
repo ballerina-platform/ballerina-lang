@@ -231,6 +231,10 @@ function testPassingXML() returns string {
     return getStringFromXML(xml `<foo/>`);
 }
 
+function testGetXML() returns xml {
+    return getXML();
+}
+
 function getXML() returns xml = @java:Method {
     'class:"org/ballerinalang/test/javainterop/RefTypeWithBValueAPITests"
 } external;
@@ -253,6 +257,22 @@ function testAcceptAllInts() returns [int, float, int] {
 function testAcceptMixTypes() returns [any, any, any] {
     ALL_INT i = 4;
     return [acceptMixType(2), acceptMixType("hello"), acceptMixType(false)];
+}
+
+function testGetAllInts() returns ALL_INT {
+    return getAllInts();
+}
+
+function testGetIntegersAsMixType() returns MIX_TYPE {
+    return getIntegersAsMixType();
+}
+
+function testGetInvalidIntegerAsMixType() returns MIX_TYPE {
+    return getInvalidIntegerAsMixType();
+}
+
+function testGetMixType() returns MIX_TYPE {
+    return getMixType();
 }
 
 function getAllInts() returns ALL_INT = @java:Method {

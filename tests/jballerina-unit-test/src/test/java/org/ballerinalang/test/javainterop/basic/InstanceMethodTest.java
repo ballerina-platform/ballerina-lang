@@ -103,12 +103,12 @@ public class InstanceMethodTest {
         BValue[] args = new BValue[1];
         args[0] = new BHandleValue(testIns);
 
-        BValue[] returns = BRunUtil.invoke(result, "handleOrErrorWithObjectReturn", args);
+        BValue[] returns = BRunUtil.invoke(result, "testHandleOrErrorWithObjectReturn", args);
         Assert.assertEquals(returns.length, 1);
         Object value = ((BHandleValue) returns[0]).getValue();
         Assert.assertEquals((int) value, 70);
 
-        returns = BRunUtil.invoke(result, "handleOrErrorWithObjectReturnThrows", args);
+        returns = BRunUtil.invoke(result, "testHandleOrErrorWithObjectReturnThrows", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].getType().getName(), "error");
@@ -221,7 +221,7 @@ public class InstanceMethodTest {
         BValue[] args = new BValue[1];
         args[0] = new BHandleValue(testIns);
 
-        BValue[] returns = BRunUtil.invoke(result, "errorDetail", args);
+        BValue[] returns = BRunUtil.invoke(result, "testErrorDetail", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getType().getName(), "error");
         Assert.assertEquals(((BError) returns[0]).getReason(),
@@ -241,7 +241,7 @@ public class InstanceMethodTest {
         args[0] = new BHandleValue(testIns);
 
         try {
-            BRunUtil.invoke(result, "uncheckedErrorDetail", args);
+            BRunUtil.invoke(result, "testUncheckedErrorDetail", args);
             Assert.fail("Unchecked exception not thrown");
         } catch (Throwable e) {
             Assert.assertTrue(e.getMessage().contains("error: java.lang.RuntimeException"));
@@ -255,5 +255,13 @@ public class InstanceMethodTest {
             "parameter type")
     public void testInstanceResolve() {
         BRunUtil.invoke(result, "testInstanceResolve");
+    }
+
+    @Test
+    public void testGetModuleInfo() {
+        InstanceMethods testIns = new InstanceMethods();
+        BValue[] args = new BValue[1];
+        args[0] = new BHandleValue(testIns);
+        BRunUtil.invoke(result, "testGetModuleInfo", args);
     }
 }

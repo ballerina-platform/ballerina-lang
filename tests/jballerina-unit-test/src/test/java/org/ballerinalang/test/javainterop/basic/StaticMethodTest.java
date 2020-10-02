@@ -88,7 +88,7 @@ public class StaticMethodTest {
     public void testStringParamAndReturn() {
         BValue[] args = new BValue[1];
         args[0] = new BString("Royce");
-        BValue[] returns = BRunUtil.invoke(result, "stringParamAndReturn", args);
+        BValue[] returns = BRunUtil.invoke(result, "testStringParamAndReturn", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Royce and Hadrian");
     }
@@ -127,7 +127,7 @@ public class StaticMethodTest {
 
     @Test(description = "Test static java method that returns error value as objects")
     public void testReturnObjectValueOrError() {
-        BValue[] returns = BRunUtil.invoke(result, "getObjectOrError");
+        BValue[] returns = BRunUtil.invoke(result, "testGetObjectOrError");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BError) returns[0]).getReason(), "some reason");
     }
@@ -199,5 +199,10 @@ public class StaticMethodTest {
             "parameter type")
     public void testStaticResolve() {
         BRunUtil.invoke(result, "testStaticResolve");
+    }
+
+    @Test
+    public void testGetModuleInfo() {
+        BRunUtil.invoke(result, "testGetModuleInfo");
     }
 }

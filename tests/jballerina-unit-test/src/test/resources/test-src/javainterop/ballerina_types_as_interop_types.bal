@@ -255,6 +255,26 @@ function testAcceptMixTypes() returns [any, any, any] {
     return [acceptMixType(2), acceptMixType("hello"), acceptMixType(false)];
 }
 
+function testGetAllInts() returns ALL_INT {
+    return getAllInts();
+}
+
+function testGetXML() returns xml {
+    return getXML();
+}
+
+function testGetMixType() returns MIX_TYPE {
+    return getMixType();
+}
+
+function testGetIntegersAsMixType() returns MIX_TYPE {
+    return getIntegersAsMixType();
+}
+
+function testGetInvalidIntegerAsMixType() returns MIX_TYPE {
+    return getInvalidIntegerAsMixType();
+}
+
 function getAllInts() returns ALL_INT = @java:Method {
     'class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
