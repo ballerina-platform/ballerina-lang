@@ -612,6 +612,57 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
+    public String expressionStringValue(BLink parent) {
+        StringJoiner sj = new StringJoiner(",");
+        switch (this.elementType.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
+                for (int i = 0; i < size; i++) {
+                    sj.add(BStringUtils.getExpressionStringValue(intValues[i],
+                            new CycleUtils.Node(this, parent)));
+                }
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                for (int i = 0; i < size; i++) {
+                    sj.add(BStringUtils.getExpressionStringValue(booleanValues[i],
+                            new CycleUtils.Node(this, parent)));
+                }
+                break;
+            case TypeTags.BYTE_TAG:
+                for (int i = 0; i < size; i++) {
+                    sj.add(BStringUtils.getExpressionStringValue(byteValues[i],
+                            new CycleUtils.Node(this, parent)));
+                }
+                break;
+            case TypeTags.FLOAT_TAG:
+                for (int i = 0; i < size; i++) {
+                    sj.add(BStringUtils.getExpressionStringValue(floatValues[i],
+                            new CycleUtils.Node(this, parent)));
+                }
+                break;
+            case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
+                for (int i = 0; i < size; i++) {
+                    sj.add(BStringUtils.getExpressionStringValue(bStringValues[i],
+                            new CycleUtils.Node(this, parent)));
+                }
+                break;
+            default:
+                for (int i = 0; i < size; i++) {
+                    sj.add(BStringUtils.getExpressionStringValue(refValues[i],
+                            new CycleUtils.Node(this, parent)));
+                }
+                break;
+        }
+        return "[" + sj.toString() + "]";
+    }
+
+    @Override
     public BType getType() {
         return this.arrayType;
     }

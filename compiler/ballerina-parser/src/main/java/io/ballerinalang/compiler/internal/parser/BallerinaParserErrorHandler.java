@@ -228,8 +228,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.REMOTE_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD,
                     ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
-    private static final ParserRuleContext[] OBJECT_TYPE_OR_CONSTRUCTOR_START =
+    private static final ParserRuleContext[] OBJECT_TYPE_START =
             { ParserRuleContext.OBJECT_TYPE_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
+
+    private static final ParserRuleContext[] OBJECT_CONSTRUCTOR_START =
+            { ParserRuleContext.OBJECT_CONSTRUCTOR_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
 
     private static final ParserRuleContext[] OBJECT_CONSTRUCTOR_RHS =
             { ParserRuleContext.OPEN_BRACE, ParserRuleContext.TYPE_REFERENCE };
@@ -582,7 +585,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] MATCH_PATTERN_START = { ParserRuleContext.CONSTANT_EXPRESSION,
             ParserRuleContext.VAR_KEYWORD, ParserRuleContext.LIST_MATCH_PATTERN,
-            ParserRuleContext.MAPPING_MATCH_PATTERN, ParserRuleContext.FUNCTIONAL_MATCH_PATTERN };
+            ParserRuleContext.MAPPING_MATCH_PATTERN, ParserRuleContext.ERROR_MATCH_PATTERN };
 
     private static final ParserRuleContext[] LIST_MATCH_PATTERNS_START =
             { ParserRuleContext.LIST_MATCH_PATTERN_MEMBER, ParserRuleContext.CLOSE_BRACKET };
@@ -602,19 +605,27 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] FIELD_MATCH_PATTERN_MEMBER_RHS =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACE };
 
-    private static final ParserRuleContext[] FUNC_MATCH_PATTERN_OR_CONST_PATTERN =
+    private static final ParserRuleContext[] ERROR_MATCH_PATTERN_OR_CONST_PATTERN =
             { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.MATCH_PATTERN_END };
 
-    private static final ParserRuleContext[] FUNCTIONAL_MATCH_PATTERN_START =
-            { ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.TYPE_REFERENCE };
+    private static final ParserRuleContext[] ERROR_MATCH_PATTERN_ERROR_KEYWORD_RHS =
+            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.TYPE_REFERENCE };
 
-    private static final ParserRuleContext[] ARG_LIST_MATCH_PATTERN_START =
-            { ParserRuleContext.ARG_MATCH_PATTERN, ParserRuleContext.CLOSE_PARENTHESIS };
+    private static final ParserRuleContext[] ERROR_ARG_LIST_MATCH_PATTERN_START =
+            { ParserRuleContext.CONSTANT_EXPRESSION, ParserRuleContext.VAR_KEYWORD,
+                    ParserRuleContext.ERROR_FIELD_MATCH_PATTERN, ParserRuleContext.CLOSE_PARENTHESIS };
 
-    private static final ParserRuleContext[] ARG_MATCH_PATTERN = { ParserRuleContext.MATCH_PATTERN,
-            ParserRuleContext.NAMED_ARG_MATCH_PATTERN, ParserRuleContext.REST_MATCH_PATTERN };
+    private static final ParserRuleContext[] ERROR_MESSAGE_MATCH_PATTERN_END =
+            { ParserRuleContext.ERROR_MESSAGE_MATCH_PATTERN_END_COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
-    private static final ParserRuleContext[] ARG_MATCH_PATTERN_RHS =
+    private static final ParserRuleContext[] ERROR_MESSAGE_MATCH_PATTERN_RHS =
+            { ParserRuleContext.ERROR_CAUSE_MATCH_PATTERN, ParserRuleContext.ERROR_MATCH_PATTERN,
+                    ParserRuleContext.ERROR_FIELD_MATCH_PATTERN };
+
+    private static final ParserRuleContext[] ERROR_FIELD_MATCH_PATTERN =
+            {  ParserRuleContext.NAMED_ARG_MATCH_PATTERN, ParserRuleContext.REST_MATCH_PATTERN };
+
+    private static final ParserRuleContext[] ERROR_FIELD_MATCH_PATTERN_RHS =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
     private static final ParserRuleContext[] NAMED_ARG_MATCH_PATTERN_RHS =
@@ -679,6 +690,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLASS_MEMBER:
             case OBJECT_MEMBER_DESCRIPTOR:
             case OBJECT_TYPE_QUALIFIER:
+            case OBJECT_CONSTRUCTOR_QUALIFIER:
             case CLASS_TYPE_QUALIFIER:
             case ELSE_BODY:
             case IMPORT_DECL_RHS:
@@ -762,11 +774,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FIELD_MATCH_PATTERNS_START:
             case FIELD_MATCH_PATTERN_MEMBER:
             case FIELD_MATCH_PATTERN_MEMBER_RHS:
-            case FUNC_MATCH_PATTERN_OR_CONST_PATTERN:
-            case FUNCTIONAL_MATCH_PATTERN_START:
-            case ARG_LIST_MATCH_PATTERN_START:
-            case ARG_MATCH_PATTERN:
-            case ARG_MATCH_PATTERN_RHS:
+            case ERROR_MATCH_PATTERN_OR_CONST_PATTERN:
+            case ERROR_MATCH_PATTERN_ERROR_KEYWORD_RHS:
+            case ERROR_ARG_LIST_MATCH_PATTERN_START:
+            case ERROR_MESSAGE_MATCH_PATTERN_END:
+            case ERROR_MESSAGE_MATCH_PATTERN_RHS:
+            case ERROR_FIELD_MATCH_PATTERN:
+            case ERROR_FIELD_MATCH_PATTERN_RHS:
             case NAMED_ARG_MATCH_PATTERN_RHS:
             case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
             case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
@@ -888,6 +902,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case COMMA:
                 case ERROR_MESSAGE_BINDING_PATTERN_END_COMMA:
+                case ERROR_MESSAGE_MATCH_PATTERN_END_COMMA:
                     hasMatch = nextToken.kind == SyntaxKind.COMMA_TOKEN;
                     break;
                 case CLOSED_RECORD_BODY_END:
@@ -908,13 +923,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case ARG_LIST_END:
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN;
                     break;
-                case OBJECT_TYPE_QUALIFIER:
+                case OBJECT_CONSTRUCTOR_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD;
+                    break;
+                case OBJECT_TYPE_QUALIFIER:
+                    hasMatch = nextToken.kind == SyntaxKind.CLIENT_KEYWORD ||
+                            nextToken.kind == SyntaxKind.ISOLATED_KEYWORD;
                     break;
                 case CLASS_TYPE_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.DISTINCT_KEYWORD ||
                             nextToken.kind == SyntaxKind.CLIENT_KEYWORD ||
-                            nextToken.kind == SyntaxKind.READONLY_KEYWORD;
+                            nextToken.kind == SyntaxKind.READONLY_KEYWORD ||
+                            nextToken.kind == SyntaxKind.ISOLATED_KEYWORD;
                     break;
                 case OPEN_BRACKET:
                 case TUPLE_TYPE_DESC_START:
@@ -1267,7 +1287,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_METHOD_START:
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
-            case OBJECT_TYPE_OR_CONSTRUCTOR_START:
+            case OBJECT_TYPE_START:
+            case OBJECT_CONSTRUCTOR_START:
             case ELSE_BLOCK:
             case ELSE_BODY:
             case CALL_STMT_START:
@@ -1388,11 +1409,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FIELD_MATCH_PATTERNS_START:
             case FIELD_MATCH_PATTERN_MEMBER:
             case FIELD_MATCH_PATTERN_MEMBER_RHS:
-            case FUNC_MATCH_PATTERN_OR_CONST_PATTERN:
-            case FUNCTIONAL_MATCH_PATTERN_START:
-            case ARG_LIST_MATCH_PATTERN_START:
-            case ARG_MATCH_PATTERN:
-            case ARG_MATCH_PATTERN_RHS:
+            case ERROR_MATCH_PATTERN_OR_CONST_PATTERN:
+            case ERROR_MATCH_PATTERN_ERROR_KEYWORD_RHS:
+            case ERROR_ARG_LIST_MATCH_PATTERN_START:
+            case ERROR_MESSAGE_MATCH_PATTERN_END:
+            case ERROR_MESSAGE_MATCH_PATTERN_RHS:
+            case ERROR_FIELD_MATCH_PATTERN:
+            case ERROR_FIELD_MATCH_PATTERN_RHS:
             case NAMED_ARG_MATCH_PATTERN_RHS:
             case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
             case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
@@ -1540,8 +1563,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
                 alternativeRules = OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
                 break;
-            case OBJECT_TYPE_OR_CONSTRUCTOR_START:
-                alternativeRules = OBJECT_TYPE_OR_CONSTRUCTOR_START;
+            case OBJECT_TYPE_START:
+                alternativeRules = OBJECT_TYPE_START;
+                break;
+            case OBJECT_CONSTRUCTOR_START:
+                alternativeRules = OBJECT_CONSTRUCTOR_START;
                 break;
             case IMPORT_PREFIX_DECL:
                 alternativeRules = IMPORT_PREFIX_DECL;
@@ -1838,20 +1864,26 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FIELD_MATCH_PATTERN_MEMBER_RHS:
                 alternativeRules = FIELD_MATCH_PATTERN_MEMBER_RHS;
                 break;
-            case FUNC_MATCH_PATTERN_OR_CONST_PATTERN:
-                alternativeRules = FUNC_MATCH_PATTERN_OR_CONST_PATTERN;
+            case ERROR_MATCH_PATTERN_OR_CONST_PATTERN:
+                alternativeRules = ERROR_MATCH_PATTERN_OR_CONST_PATTERN;
                 break;
-            case FUNCTIONAL_MATCH_PATTERN_START:
-                alternativeRules = FUNCTIONAL_MATCH_PATTERN_START;
+            case ERROR_MATCH_PATTERN_ERROR_KEYWORD_RHS:
+                alternativeRules = ERROR_MATCH_PATTERN_ERROR_KEYWORD_RHS;
                 break;
-            case ARG_LIST_MATCH_PATTERN_START:
-                alternativeRules = ARG_LIST_MATCH_PATTERN_START;
+            case ERROR_ARG_LIST_MATCH_PATTERN_START:
+                alternativeRules = ERROR_ARG_LIST_MATCH_PATTERN_START;
                 break;
-            case ARG_MATCH_PATTERN:
-                alternativeRules = ARG_MATCH_PATTERN;
+            case ERROR_MESSAGE_MATCH_PATTERN_END:
+                alternativeRules = ERROR_MESSAGE_MATCH_PATTERN_END;
                 break;
-            case ARG_MATCH_PATTERN_RHS:
-                alternativeRules = ARG_MATCH_PATTERN_RHS;
+            case ERROR_MESSAGE_MATCH_PATTERN_RHS:
+                alternativeRules = ERROR_MESSAGE_MATCH_PATTERN_RHS;
+                break;
+            case ERROR_FIELD_MATCH_PATTERN:
+                alternativeRules = ERROR_FIELD_MATCH_PATTERN;
+                break;
+            case ERROR_FIELD_MATCH_PATTERN_RHS:
+                alternativeRules = ERROR_FIELD_MATCH_PATTERN_RHS;
                 break;
             case NAMED_ARG_MATCH_PATTERN_RHS:
                 alternativeRules = NAMED_ARG_MATCH_PATTERN_RHS;
@@ -2371,8 +2403,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_NAME:
                 return ParserRuleContext.TYPE_DESC_IN_TYPE_DEF;
             case OBJECT_TYPE_DESCRIPTOR:
-                return ParserRuleContext.OBJECT_TYPE_OR_CONSTRUCTOR_START;
+                return ParserRuleContext.OBJECT_TYPE_START;
             case OBJECT_TYPE_QUALIFIER:
+            case OBJECT_CONSTRUCTOR_QUALIFIER:
                 return ParserRuleContext.OBJECT_KEYWORD;
             case CLASS_TYPE_QUALIFIER:
                 return ParserRuleContext.CLASS_KEYWORD;
@@ -2552,7 +2585,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SLASH_LT_TOKEN:
                 return ParserRuleContext.XML_NAME_PATTERN;
             case OBJECT_CONSTRUCTOR:
-                return ParserRuleContext.OBJECT_TYPE_OR_CONSTRUCTOR_START;
+                return ParserRuleContext.OBJECT_CONSTRUCTOR_START;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
         }
@@ -2830,8 +2863,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ASSIGN_OP;
             case MAPPING_MATCH_PATTERN:
                 return ParserRuleContext.OPEN_BRACE;
-            case FUNCTIONAL_MATCH_PATTERN:
-                return ParserRuleContext.FUNCTIONAL_MATCH_PATTERN_START;
+            case ERROR_MATCH_PATTERN:
+                return ParserRuleContext.ERROR_KEYWORD;
+            case ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG:
+                return ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_START;
+            case ERROR_MESSAGE_MATCH_PATTERN_END_COMMA:
+                return ParserRuleContext.ERROR_MESSAGE_MATCH_PATTERN_RHS;
+            case ERROR_CAUSE_MATCH_PATTERN:
+                return ParserRuleContext.ERROR_FIELD_MATCH_PATTERN_RHS;
             case NAMED_ARG_MATCH_PATTERN:
                 return ParserRuleContext.IDENTIFIER;
             case MODULE_CLASS_DEFINITION:
@@ -3001,8 +3040,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.ERROR_TYPE_PARAM_START;
                 }
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.FUNCTIONAL_MATCH_PATTERN) {
-                    return ParserRuleContext.OPEN_PARENTHESIS;
+                if (parentCtx == ParserRuleContext.ERROR_MATCH_PATTERN) {
+                    return ParserRuleContext.ERROR_MATCH_PATTERN_ERROR_KEYWORD_RHS;
                 }
                 if (parentCtx == ParserRuleContext.ERROR_BINDING_PATTERN) {
                     return ParserRuleContext.ERROR_BINDING_PATTERN_ERROR_KEYWORD_RHS;
@@ -3129,7 +3168,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case VAR_KEYWORD:
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.REST_MATCH_PATTERN) {
+                if (parentCtx == ParserRuleContext.REST_MATCH_PATTERN ||
+                        parentCtx == ParserRuleContext.ERROR_MATCH_PATTERN ||
+                        parentCtx == ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG) {
                     return ParserRuleContext.VARIABLE_NAME;
                 }
                 return ParserRuleContext.BINDING_PATTERN;
@@ -3243,7 +3284,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case REST_MATCH_PATTERN:
             case ERROR_BINDING_PATTERN:
             case MAPPING_MATCH_PATTERN:
-            case FUNCTIONAL_MATCH_PATTERN:
+            case ERROR_MATCH_PATTERN:
+            case ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG:
             case NAMED_ARG_MATCH_PATTERN:
             case SELECT_CLAUSE:
             case JOIN_CLAUSE:
@@ -3308,14 +3350,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS) {
             endContext(); // end infered-param/parenthesised-expr context
             return ParserRuleContext.INFER_PARAM_END_OR_PARENTHESIS_END;
-        } else if (parentCtx == ParserRuleContext.FUNCTIONAL_MATCH_PATTERN) {
+        } else if (parentCtx == ParserRuleContext.ERROR_MATCH_PATTERN) {
             endContext();
             return getNextRuleForMatchPattern();
         } else if (parentCtx == ParserRuleContext.NAMED_ARG_MATCH_PATTERN) {
             endContext(); // end named arg math pattern context
-            endContext(); // end functional match pattern context
+            endContext(); // end error match pattern context
             return getNextRuleForMatchPattern();
         } else if (parentCtx == ParserRuleContext.ERROR_BINDING_PATTERN) {
+            endContext(); // end error-binding-pattern
+            return getNextRuleForBindingPattern();
+        } else if (parentCtx == ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG) {
+            endContext();
             endContext(); // end error-binding-pattern
             return getNextRuleForBindingPattern();
         }
@@ -3346,14 +3392,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             return ParserRuleContext.KEY_SPECIFIER_RHS;
         } else if (isParameter(parentCtx)) {
             return ParserRuleContext.EXPRESSION;
-        } else if (parentCtx == ParserRuleContext.FUNCTIONAL_MATCH_PATTERN) {
-            return ParserRuleContext.ARG_LIST_MATCH_PATTERN_START;
+        } else if (parentCtx == ParserRuleContext.ERROR_MATCH_PATTERN) {
+            return ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG;
         } else if (isInMatchPatternCtx(parentCtx)) {
-            // This is a special case which occurs because of FUNC_MATCH_PATTERN_OR_CONST_PATTERN context,
-            // If this is the case we are in a functional match pattern but the context is not started, hence
+            // This is a special case which occurs because of ERROR_MATCH_PATTERN_OR_CONST_PATTERN context,
+            // If this is the case we are in a error match pattern but the context is not started, hence
             // start the context.
-            startContext(ParserRuleContext.FUNCTIONAL_MATCH_PATTERN);
-            return ParserRuleContext.ARG_LIST_MATCH_PATTERN_START;
+            startContext(ParserRuleContext.ERROR_MATCH_PATTERN);
+            return ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG;
         } else if (parentCtx == ParserRuleContext.ERROR_BINDING_PATTERN) {
             return ParserRuleContext.ERROR_ARG_LIST_BINDING_PATTERN_START;
         }
@@ -3365,7 +3411,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MATCH_PATTERN:
             case LIST_MATCH_PATTERN:
             case MAPPING_MATCH_PATTERN:
-            case FUNCTIONAL_MATCH_PATTERN:
+            case ERROR_MATCH_PATTERN:
             case NAMED_ARG_MATCH_PATTERN:
                 return true;
             default:
@@ -3508,8 +3554,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ERROR_FIELD_BINDING_PATTERN;
             case MAPPING_MATCH_PATTERN:
                 return ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER;
-            case FUNCTIONAL_MATCH_PATTERN:
-                return ParserRuleContext.ARG_MATCH_PATTERN;
+            case ERROR_MATCH_PATTERN:
+                return ParserRuleContext.ERROR_FIELD_MATCH_PATTERN;
             case NAMED_ARG_MATCH_PATTERN:
                 endContext();
                 return ParserRuleContext.NAMED_ARG_MATCH_PATTERN_RHS;
@@ -3826,6 +3872,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_MATCH_PATTERN:
                 endContext();
                 return getNextRuleForMatchPattern();
+            case MATCH_STMT:
+                endContext();
+                return ParserRuleContext.REGULAR_COMPOUND_STMT_RHS;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
@@ -3965,7 +4014,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (parentCtx == ParserRuleContext.MAPPING_MATCH_PATTERN) {
                     return ParserRuleContext.CLOSE_BRACE;
                 }
-                if (parentCtx == ParserRuleContext.FUNCTIONAL_MATCH_PATTERN) {
+                if (parentCtx == ParserRuleContext.ERROR_MATCH_PATTERN ||
+                        parentCtx == ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG) {
                     return ParserRuleContext.CLOSE_PARENTHESIS;
                 }
                 return ParserRuleContext.CLOSE_BRACKET;
@@ -3973,6 +4023,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.COLON;
             case ON_FAIL_CLAUSE:
                 return ParserRuleContext.BLOCK_STMT;
+            case ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG:
+                endContext();
+                return ParserRuleContext.ERROR_MESSAGE_MATCH_PATTERN_END;
+            case ERROR_MATCH_PATTERN:
+                return ParserRuleContext.ERROR_FIELD_MATCH_PATTERN_RHS;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }
@@ -4302,6 +4357,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.LIST_MATCH_PATTERN_MEMBER_RHS;
             case ERROR_BINDING_PATTERN:
                 return ParserRuleContext.ERROR_FIELD_BINDING_PATTERN_END;
+            case ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG:
+                endContext();
+                return ParserRuleContext.ERROR_FIELD_MATCH_PATTERN_RHS;
             default:
                 return getNextRuleForMatchPattern();
         }
@@ -4326,7 +4384,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.FUNCTIONAL_MATCH_PATTERN ||
+                if (parentCtx == ParserRuleContext.ERROR_MATCH_PATTERN ||
                         parentCtx == ParserRuleContext.ERROR_BINDING_PATTERN) {
                     return ParserRuleContext.OPEN_PARENTHESIS;
                 }
@@ -4394,9 +4452,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER_RHS;
             case MATCH_PATTERN:
                 return ParserRuleContext.MATCH_PATTERN_RHS;
-            case FUNCTIONAL_MATCH_PATTERN:
+            case ERROR_MATCH_PATTERN:
             case NAMED_ARG_MATCH_PATTERN:
-                return ParserRuleContext.ARG_MATCH_PATTERN_RHS;
+                return ParserRuleContext.ERROR_FIELD_MATCH_PATTERN_RHS;
+            case ERROR_ARG_LIST_MATCH_PATTERN_FIRST_ARG:
+                endContext();
+                return ParserRuleContext.ERROR_MESSAGE_MATCH_PATTERN_END;
             default:
                 return ParserRuleContext.OPTIONAL_MATCH_GUARD;
         }
@@ -4620,7 +4681,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MATCH_PATTERN_RHS:
             case OPTIONAL_MATCH_GUARD:
                 return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
-            case FUNCTIONAL_MATCH_PATTERN:
+            case ERROR_MATCH_PATTERN:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
             case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
             case TOP_LEVEL_NODE_WITHOUT_METADATA:
@@ -4775,6 +4836,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLIENT_KEYWORD:
                 return SyntaxKind.CLIENT_KEYWORD;
             case OBJECT_TYPE_QUALIFIER:
+            case OBJECT_CONSTRUCTOR_QUALIFIER:
                 return SyntaxKind.OBJECT_KEYWORD;
             case CLASS_TYPE_QUALIFIER:
                 return SyntaxKind.CLASS_KEYWORD;

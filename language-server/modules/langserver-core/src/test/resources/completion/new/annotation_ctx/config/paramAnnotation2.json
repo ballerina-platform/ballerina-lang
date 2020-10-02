@@ -1,0 +1,58 @@
+{
+  "position": {
+    "line": 11,
+    "character": 16
+  },
+  "source": "annotation_ctx/source/paramAnnotation2.bal",
+  "items": [
+    {
+      "label": "module1:parameterAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:parameterAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:parameterAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:parameterAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "tainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "tainted",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "untainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "untainted",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "parameterAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "parameterAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "pa2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "pa2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

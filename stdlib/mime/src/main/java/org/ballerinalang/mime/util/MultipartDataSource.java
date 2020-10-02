@@ -226,6 +226,11 @@ public class MultipartDataSource implements RefValue {
     }
 
     @Override
+    public String expressionStringValue(BLink parent) {
+        return stringValue(parent);
+    }
+
+    @Override
     public org.ballerinalang.jvm.types.BType getType() {
         return null;
     }

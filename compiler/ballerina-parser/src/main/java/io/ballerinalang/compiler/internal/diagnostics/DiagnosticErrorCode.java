@@ -241,17 +241,12 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_ANNOTATIONS_ATTACHED_TO_EXPRESSION("BCE206", "error.annotations.attached.to.expression"),
     // Expression followed by the start keyword must be a func-call, a method-call or a remote-method-call
     ERROR_INVALID_EXPRESSION_IN_START_ACTION("BCE207", "error.invalid.expression.in.start.action"),
-    // Cannot have the  same qualifier twice
-    ERROR_DUPLICATE_OBJECT_TYPE_QUALIFIER("BCE208", "error.duplicate.object.type.qualifier"),
-    ERROR_DUPLICATE_CLASS_TYPE_QUALIFIER("BCE209", "error.duplicate.class.type.qualifier"),
-    ERROR_DUPLICATE_OBJECT_METHOD_QUALIFIER("BCE210", "error.duplicate.object.method.qualifier"),
-    ERROR_QUALIFIER_NOT_ALLOWED("BCE211", "error.qualifier.not.allowed"),
-    ERROR_ABSTRACT_QUALIFIER_NOT_ALLOWED_IN_OBJECT("BCE212", "error.abstract.qualifier.not.allowed.in.object"),
-    ERROR_READONLY_QUALIFIER_NOT_ALLOWED_IN_OBJECT("BCE213", "error.readonly.qualifier.not.allowed.in.object"),
+    // Cannot have the same qualifier twice
+    ERROR_DUPLICATE_QUALIFIER("BCE208", "error.duplicate.qualifier"),
+    // Cannot apply a particular qualifier in a certain context
+    ERROR_QUALIFIER_NOT_ALLOWED("BCE209", "error.qualifier.not.allowed"),
     // Cannot have type inclusions in object constructor
     ERROR_TYPE_INCLUSION_IN_OBJECT_CONSTRUCTOR("BCE214", "error.type.inclusion.in.object.constructor"),
-    ERROR_SAME_OBJECT_TYPE_QUALIFIER("BCE215", "error.same.object.type.qualifier"),
-    ERROR_DUPLICATE_QUALIFIER("BCE216", "error.duplicate.qualifier"),
     // Mapping constructor expression cannot be used as a wait expression
     ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR("BCE217", "error.mapping.constructor.expr.as.a.wait.expr"),
     // lhs must be an identifier or a param list
@@ -280,6 +275,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_USAGE_OF_VAR("BCE232", "error.invalid.usage.of.var"),
     ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN("BCE233",
             "error.more.match.patterns.after.rest.match.pattern"),
+    ERROR_MATCH_PATTERN_NOT_ALLOWED("BCE234", "error-match-pattern-not-allowed"),
 
     ERROR_PARAMETER_AFTER_THE_REST_PARAMETER("BCE300", "error.parameter.after.the.rest.parameter"),
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE301",
