@@ -13,12 +13,16 @@ public function removeDuplicates(Module[] modules) returns Module[] {
         return modules;
     }
     Module[] newModules = [];
-    int count = 0;
-    while(count < length - 1) {
-        if (modules[count] != modules[count + 1]) {
-            newModules.push(modules[count]);
+    int i = 0;
+    int j = 0;
+    while (i < length) {
+        if (i < length -1 && modules[i] == modules[i + 1]) {
+            i += 1;
+            continue;
         }
-        count += 1;
+        newModules[j] = modules[i];
+        i += 1;
+        j += 1;
     }
     return newModules;
 }
@@ -91,12 +95,13 @@ public function logAndPanicError(string message, error e) {
 }
 
 public function printModules(Module[] modules) {
-    string[] moduleStrings = modules.map(function (Module m) returns string {
-        return m.name + " " + m.'version;
-    });
-    foreach string moduleString in moduleStrings {
-        log:printInfo(moduleString);
+    foreach Module module in modules {
+        printModule(module);
     }
+}
+
+public function printModule (Module module) {
+    log:printInfo(module.name + " " + module.'version);
 }
 
 public function logNewLine() {

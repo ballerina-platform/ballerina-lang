@@ -99,7 +99,11 @@ function getModulesToBeReleased(commons:Module module) returns commons:Module[] 
     commons:Module[] toBeReleased = [];
     populteToBeReleasedModules(module, toBeReleased);
     toBeReleased = commons:sortModules(toBeReleased);
-    return commons:removeDuplicates(toBeReleased);
+    toBeReleased = commons:removeDuplicates(toBeReleased);
+    // Removing the parent module
+    int parentModuleIndex = <int>toBeReleased.indexOf(module);
+    _ = toBeReleased.remove(parentModuleIndex);
+    return toBeReleased;
 }
 
 function populteToBeReleasedModules(commons:Module module, commons:Module[] toBeReleased) {
