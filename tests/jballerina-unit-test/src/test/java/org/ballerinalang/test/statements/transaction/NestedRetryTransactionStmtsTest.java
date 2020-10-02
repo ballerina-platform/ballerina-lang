@@ -119,4 +119,9 @@ public class NestedRetryTransactionStmtsTest {
                 + "-> attempt 1:error, -> inside trx2  -> attempt 2:error, -> inside trx2  -> attempt 3 "
                 + "-> result commited -> trx2 end. -> result commited -> trx1 end.");
     }
+
+    @Test
+    public void testNestedReturns() {
+        BRunUtil.invoke(programFile, "testNestedReturns", new BValue[]{});
+    }
 }
