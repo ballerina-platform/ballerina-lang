@@ -193,4 +193,8 @@ class ModuleContext {
         compilerPhaseRunner.compile(pkgNode);
         this.bLangPackage = pkgNode;
     }
+
+    BLangPackage bLangPackage() {
+        return bLangPackage;
+    }
 }

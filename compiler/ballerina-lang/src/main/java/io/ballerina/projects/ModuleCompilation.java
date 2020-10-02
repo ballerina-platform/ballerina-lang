@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Collection;
@@ -86,6 +87,10 @@ public class ModuleCompilation {
 
     public void getSemanticModel() {
         throw new UnsupportedOperationException();
+    }
+
+    BLangPackage bLangPackage() {
+        return this.moduleContext.bLangPackage();
     }
 }
 
