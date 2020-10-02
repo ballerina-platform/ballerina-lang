@@ -1486,6 +1486,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLFunction.addFlag(Flag.ANONYMOUS);
         bLFunction.addFlag(Flag.WORKER);
 
+        if (namedWorkerDeclNode.transactionalKeyword().isPresent()) {
+            bLFunction.addFlag(Flag.TRANSACTIONAL);
+        }
+
         // change default worker name
         String workerName = namedWorkerDeclNode.workerName().text();
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
@@ -1527,6 +1531,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 .isDeclaredWithVar()
                 .isFinal()
                 .build();
+
+        if (namedWorkerDeclNode.transactionalKeyword().isPresent()) {
+            var.addFlag(Flag.TRANSACTIONAL);
+        }
 
         BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         lamdaWrkr.pos = workerBodyPos;

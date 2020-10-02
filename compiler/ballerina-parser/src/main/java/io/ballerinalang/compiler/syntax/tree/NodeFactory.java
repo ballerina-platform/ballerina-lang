@@ -1263,6 +1263,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static NamedWorkerDeclarationNode createNamedWorkerDeclarationNode(
             NodeList<AnnotationNode> annotations,
+            Token transactionalKeyword,
             Token workerKeyword,
             IdentifierToken workerName,
             Node returnTypeDesc,
@@ -1274,6 +1275,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stNamedWorkerDeclarationNode = STNodeFactory.createNamedWorkerDeclarationNode(
                 annotations.underlyingListNode().internalNode(),
+                getOptionalSTNode(transactionalKeyword),
                 workerKeyword.internalNode(),
                 workerName.internalNode(),
                 getOptionalSTNode(returnTypeDesc),
