@@ -97,7 +97,7 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
             return this;
         }
 
-        public VariableSymbolBuilder withAccessModifier(Qualifier qualifier) {
+        public VariableSymbolBuilder withQualifier(Qualifier qualifier) {
             this.qualifiers.add(qualifier);
             return this;
         }

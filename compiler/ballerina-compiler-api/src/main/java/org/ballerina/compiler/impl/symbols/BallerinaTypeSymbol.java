@@ -84,7 +84,7 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
             return this;
         }
 
-        public TypeDefSymbolBuilder withAccessModifier(Qualifier qualifier) {
+        public TypeDefSymbolBuilder withQualifier(Qualifier qualifier) {
             this.qualifiers.add(qualifier);
             return this;
         }

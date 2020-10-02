@@ -96,13 +96,24 @@ public class SymbolFactory {
         PackageID pkgID = invokableSymbol.pkgID;
         BallerinaFunctionSymbol.FunctionSymbolBuilder builder =
                 new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID, invokableSymbol);
-        if ((invokableSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+        if (isFlagOn(invokableSymbol.flags, Flags.PUBLIC)) {
             builder.withQualifier(Qualifier.PUBLIC);
         }
-        if ((invokableSymbol.flags & Flags.PRIVATE) == Flags.PRIVATE) {
+        if (isFlagOn(invokableSymbol.flags, Flags.PRIVATE)) {
             builder.withQualifier(Qualifier.PRIVATE);
         }
-
+        if (isFlagOn(invokableSymbol.flags, Flags.ISOLATED)) {
+            builder.withQualifier(Qualifier.ISOLATED);
+        }
+        if (isFlagOn(invokableSymbol.flags, Flags.REMOTE)) {
+            builder.withQualifier(Qualifier.REMOTE);
+        }
+        if (isFlagOn(invokableSymbol.flags, Flags.RESOURCE)) {
+            builder.withQualifier(Qualifier.RESOURCE);
+        }
+        if (isFlagOn(invokableSymbol.flags, Flags.TRANSACTIONAL)) {
+            builder.withQualifier(Qualifier.TRANSACTIONAL);
+        }
         return builder.build();
     }
 
@@ -135,6 +146,12 @@ public class SymbolFactory {
         BallerinaVariableSymbol.VariableSymbolBuilder symbolBuilder =
                 new BallerinaVariableSymbol.VariableSymbolBuilder(name, pkgID, symbol);
 
+        if (isFlagOn(symbol.flags, Flags.FINAL) || isFlagOn(symbol.flags, Flags.FUNCTION_FINAL)) {
+            symbolBuilder.withQualifier(Qualifier.FINAL);
+        }
+        if (isFlagOn(symbol.flags, Flags.LISTENER)) {
+            symbolBuilder.withQualifier(Qualifier.LISTENER);
+        }
         return symbolBuilder
                 .withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.type))
                 .build();
@@ -174,11 +191,19 @@ public class SymbolFactory {
      */
     public static BallerinaTypeSymbol createTypeDefinition(BTypeSymbol typeSymbol, String name) {
         BallerinaTypeSymbol.TypeDefSymbolBuilder symbolBuilder =
-                new BallerinaTypeSymbol.TypeDefSymbolBuilder(name,
-                        typeSymbol.pkgID,
-                        typeSymbol);
-        if ((typeSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            symbolBuilder.withAccessModifier(Qualifier.PUBLIC);
+                new BallerinaTypeSymbol.TypeDefSymbolBuilder(name, typeSymbol.pkgID, typeSymbol);
+
+        if (isFlagOn(typeSymbol.flags, Flags.PUBLIC)) {
+            symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+        if (isFlagOn(typeSymbol.flags, Flags.DISTINCT)) {
+            symbolBuilder.withQualifier(Qualifier.DISTINCT);
+        }
+        if (isFlagOn(typeSymbol.flags, Flags.CLIENT)) {
+            symbolBuilder.withQualifier(Qualifier.CLIENT);
+        }
+        if (isFlagOn(typeSymbol.flags, Flags.READONLY)) {
+            symbolBuilder.withQualifier(Qualifier.READONLY);
         }
 
         return symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(typeSymbol.type))
@@ -216,10 +241,15 @@ public class SymbolFactory {
      * Create a module symbol.
      *
      * @param symbol Package Symbol to evaluate
-     * @param name symbol name
+     * @param name   symbol name
      * @return {@link BallerinaModule} symbol generated
      */
     public static BallerinaModule createModuleSymbol(BPackageSymbol symbol, String name) {
         return new BallerinaModule.ModuleSymbolBuilder(name, symbol.pkgID, symbol).build();
+    }
+
+    // Private methods
+    public static boolean isFlagOn(int mask, int flag) {
+        return (mask & flag) == flag;
     }
 }
