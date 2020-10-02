@@ -183,7 +183,7 @@ public class TransactionResourceManager {
                 }
 
             } catch (SystemException | HeuristicMixedException | HeuristicRollbackException | RollbackException e) {
-                log.error("error in commit the transaction, " + combinedId + ":" + e.getMessage(), e);
+                log.error("error when committing the transaction, " + combinedId + ":" + e.getMessage(), e);
                 commitSuccess = false;
             }
 
@@ -194,7 +194,7 @@ public class TransactionResourceManager {
                         ctx.commit();
                     }
                 } catch (Throwable e) {
-                    log.error("error in commit the transaction, " + combinedId + ":" + e.getMessage(), e);
+                    log.error("error when committing the transaction, " + combinedId + ":" + e.getMessage(), e);
                     commitSuccess = false;
                 } finally {
                     ctx.close();
@@ -231,7 +231,7 @@ public class TransactionResourceManager {
                 }
 
             } catch (SystemException e) {
-                log.error("error in abort the transaction, " + combinedId + ":" + e.getMessage(), e);
+                log.error("error when aborting the transaction, " + combinedId + ":" + e.getMessage(), e);
                 abortSuccess = false;
             }
 
@@ -242,7 +242,7 @@ public class TransactionResourceManager {
                         ctx.rollback();
                     }
                 } catch (Throwable e) {
-                    log.error("error in abort the transaction, " + combinedId + ":" + e.getMessage(), e);
+                    log.error("error when aborting the transaction, " + combinedId + ":" + e.getMessage(), e);
                     abortSuccess = false;
                 } finally {
                     ctx.close();
