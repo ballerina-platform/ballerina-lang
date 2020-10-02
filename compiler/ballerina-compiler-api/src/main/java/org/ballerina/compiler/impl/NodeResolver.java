@@ -919,7 +919,7 @@ class NodeResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangValueType valueType) {
-        // ignore
+        this.enclosingNode = valueType;
     }
 
     @Override
@@ -929,12 +929,16 @@ class NodeResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        // ignore
+        this.enclosingNode = builtInRefType;
     }
 
     @Override
     public void visit(BLangConstrainedType constrainedType) {
         lookupNode(constrainedType.constraint);
+
+        if (this.enclosingNode == null) {
+            this.enclosingNode = constrainedType;
+        }
     }
 
     @Override

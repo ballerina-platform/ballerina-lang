@@ -25,6 +25,7 @@ import org.ballerina.compiler.api.symbols.Symbol;
 import org.ballerina.compiler.impl.symbols.SymbolFactory;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifiableNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -34,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -48,6 +48,7 @@ import java.util.Optional;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
+import static org.ballerinalang.model.tree.NodeKind.USER_DEFINED_TYPE;
 
 /**
  * Semantic model representation of a given syntax tree.
@@ -112,7 +113,12 @@ public class BallerinaSemanticModel implements SemanticModel {
         if (node instanceof IdentifiableNode) {
             BSymbol symbol = (BSymbol) ((IdentifiableNode) node).getSymbol();
             return Optional.ofNullable(SymbolFactory.getBCompiledSymbol(symbol, symbol.name.value));
-        } else if (node instanceof BLangUserDefinedType) {
+        } else if (node != null && (node.getKind() == USER_DEFINED_TYPE
+                || node.getKind() == NodeKind.UNION_TYPE_NODE
+                || node.getKind() == NodeKind.INTERSECTION_TYPE_NODE
+                || node.getKind() == NodeKind.VALUE_TYPE
+                || node.getKind() == NodeKind.BUILT_IN_REF_TYPE
+                || node.getKind() == NodeKind.CONSTRAINED_TYPE)) {
             return Optional.ofNullable(
                     SymbolFactory.createTypeDefinition(node.type.tsymbol, node.type.tsymbol.name.value));
         }
