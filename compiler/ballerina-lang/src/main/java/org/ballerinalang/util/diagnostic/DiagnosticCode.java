@@ -598,6 +598,10 @@ public enum DiagnosticCode {
     INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION("invalid.worker.declaration.in.isolated.function"),
     FUNCTION_CAN_BE_MARKED_ISOLATED("function.can.be.marked.isolated"),
 
+    INVALID_NON_PRIVATE_MUTABLE_FIELD_IN_ISOLATED_OBJECT("invalid.non.private.mutable.field.in.isolated.object"),
+    INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK(
+            "invalid.mutable.field.access.in.isolated.object.outside.lock"),
+
     COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
     ;
     private String value;
