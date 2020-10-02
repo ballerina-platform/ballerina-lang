@@ -26,8 +26,8 @@ import org.ballerina.compiler.api.symbols.Qualifier;
 import org.ballerina.compiler.api.symbols.SymbolKind;
 import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents a ballerina method.
@@ -68,7 +68,7 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
-    public List<Qualifier> qualifiers() {
+    public Set<Qualifier> qualifiers() {
         return this.functionSymbol.qualifiers();
     }
 

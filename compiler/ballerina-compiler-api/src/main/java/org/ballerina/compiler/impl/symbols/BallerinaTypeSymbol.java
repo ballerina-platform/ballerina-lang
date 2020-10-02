@@ -24,10 +24,10 @@ import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents a ballerina type definition implementation.
@@ -36,17 +36,17 @@ import java.util.Optional;
  */
 public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
 
-    private final List<Qualifier> qualifiers;
+    private final Set<Qualifier> qualifiers;
 
     private final BallerinaTypeDescriptor typeDescriptor;
 
     protected BallerinaTypeSymbol(String name,
-                                 PackageID moduleID,
-                                 List<Qualifier> qualifiers,
-                                 BallerinaTypeDescriptor typeDescriptor,
-                                 BSymbol bSymbol) {
+                                  PackageID moduleID,
+                                  Set<Qualifier> qualifiers,
+                                  BallerinaTypeDescriptor typeDescriptor,
+                                  BSymbol bSymbol) {
         super(name, moduleID, SymbolKind.TYPE, bSymbol);
-        this.qualifiers = Collections.unmodifiableList(qualifiers);
+        this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptor = typeDescriptor;
     }
 
@@ -56,7 +56,7 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
     }
 
     @Override
-    public List<Qualifier> qualifiers() {
+    public Set<Qualifier> qualifiers() {
         return qualifiers;
     }
 
@@ -72,7 +72,7 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
      */
     public static class TypeDefSymbolBuilder extends SymbolBuilder<TypeDefSymbolBuilder> {
 
-        protected List<Qualifier> qualifiers = new ArrayList<>();
+        protected Set<Qualifier> qualifiers = new HashSet<>();
         protected BallerinaTypeDescriptor typeDescriptor;
 
         public TypeDefSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {

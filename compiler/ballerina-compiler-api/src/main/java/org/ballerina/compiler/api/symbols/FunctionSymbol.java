@@ -19,7 +19,6 @@ package org.ballerina.compiler.api.symbols;
 
 import org.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,14 +26,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface FunctionSymbol extends Symbol {
-
-    /**
-     * Get the list of qualifiers.
-     *
-     * @return {@link List} of qualifiers
-     */
-    List<Qualifier> qualifiers();
+public interface FunctionSymbol extends Symbol, Qualifiable {
 
     /**
      * Get the Function Type Descriptor.

@@ -30,8 +30,10 @@ import org.wso2.ballerinalang.util.AttachPoints;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represent Annotation Symbol.
@@ -40,14 +42,15 @@ import java.util.Optional;
  */
 public class BallerinaAnnotationSymbol extends BallerinaSymbol implements AnnotationSymbol {
 
-    private final List<Qualifier> qualifiers;
+    private final Set<Qualifier> qualifiers;
     private final BallerinaTypeDescriptor typeDescriptor;
     private final List<AnnotationAttachPoint> attachPoints;
 
-    private BallerinaAnnotationSymbol(String name, PackageID moduleID, List<Qualifier> qualifiers,
-            BallerinaTypeDescriptor typeDescriptor, List<AnnotationAttachPoint> attachPoints, BSymbol bSymbol) {
+    private BallerinaAnnotationSymbol(String name, PackageID moduleID, Set<Qualifier> qualifiers,
+                                      BallerinaTypeDescriptor typeDescriptor, List<AnnotationAttachPoint> attachPoints,
+                                      BSymbol bSymbol) {
         super(name, moduleID, SymbolKind.ANNOTATION, bSymbol);
-        this.qualifiers = Collections.unmodifiableList(qualifiers);
+        this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.attachPoints = Collections.unmodifiableList(attachPoints);
     }
@@ -58,7 +61,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
      * @return {@link List} of qualifiers
      */
     @Override
-    public List<Qualifier> qualifiers() {
+    public Set<Qualifier> qualifiers() {
         return qualifiers;
     }
 
@@ -89,7 +92,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
      */
     public static class AnnotationSymbolBuilder extends SymbolBuilder<AnnotationSymbolBuilder> {
 
-        private List<Qualifier> qualifiers = new ArrayList<>();
+        private Set<Qualifier> qualifiers = new HashSet<>();
         private BallerinaTypeDescriptor typeDescriptor;
         private List<AnnotationAttachPoint> attachPoints;
 
