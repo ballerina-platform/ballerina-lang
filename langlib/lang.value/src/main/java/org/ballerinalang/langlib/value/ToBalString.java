@@ -20,13 +20,6 @@ package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
  * Returns expression style representation of the given value as a String.
