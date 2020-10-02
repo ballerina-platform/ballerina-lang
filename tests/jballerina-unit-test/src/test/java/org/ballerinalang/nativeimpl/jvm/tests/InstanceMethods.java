@@ -19,7 +19,7 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.runtime.BModule;
+import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.HandleValue;
@@ -178,7 +178,7 @@ public class InstanceMethods {
     }
 
     public BString getModuleInfo(BalEnv env, long b) {
-        BModule callerModule = env.getFunctionCallerModule();
+        Module callerModule = env.getFunctionCallerModule();
         return BStringUtils.fromString(callerModule.getModuleOrg() + "#" + callerModule.getModuleName() + "#" +
                                                callerModule.getModuleVersion() + "#" + b);
     }

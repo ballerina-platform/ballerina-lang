@@ -160,15 +160,15 @@ function getModule(handle strandMetadata) returns handle = @java:Method {
 } external;
 
 function getModuleOrg(handle module) returns handle = @java:Method {
-    'class: "org.ballerinalang.jvm.api.runtime.BModule"
+    'class: "org.ballerinalang.jvm.api.runtime.Module"
 } external;
 
 function getModuleName(handle module) returns handle = @java:Method {
-    'class: "org.ballerinalang.jvm.api.runtime.BModule"
+    'class: "org.ballerinalang.jvm.api.runtime.Module"
 } external;
 
 function getModuleVersion(handle module) returns handle = @java:Method {
-    'class: "org.ballerinalang.jvm.api.runtime.BModule"
+    'class: "org.ballerinalang.jvm.api.runtime.Module"
 } external;
 
 function getParentFunctionName(handle strandMetadata) returns handle = @java:Method {

@@ -23,7 +23,7 @@ import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.BalEnv;
 import org.ballerinalang.jvm.api.BalFuture;
-import org.ballerinalang.jvm.api.runtime.BModule;
+import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.api.values.BDecimal;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BFuture;
@@ -481,13 +481,13 @@ public class StaticMethods {
     }
 
     public static BString getModuleInfo(BalEnv env, long b) {
-        BModule callerModule = env.getFunctionCallerModule();
+        Module callerModule = env.getFunctionCallerModule();
         return BStringUtils.fromString(callerModule.getModuleOrg() + "#" + callerModule.getModuleName() + "#" +
                                                callerModule.getModuleVersion() + "#" + b);
     }
 
     public static BString getModuleInfoForObject(BalEnv env, ObjectValue a, long b) {
-        BModule callerModule = env.getFunctionCallerModule();
+        Module callerModule = env.getFunctionCallerModule();
         return BStringUtils.fromString(callerModule.getModuleOrg() + "#" + callerModule.getModuleName() + "#" +
                                                callerModule.getModuleVersion() + "#" +
                                                a.get(BStringUtils.fromString("age")) + "#" + b);
