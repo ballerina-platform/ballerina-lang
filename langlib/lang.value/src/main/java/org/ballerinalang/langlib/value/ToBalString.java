@@ -33,15 +33,8 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
  *
  * @since Swan Lake
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
-        functionName = "toBalString",
-        args = {@Argument(name = "value", type = TypeKind.ANY)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class ToBalString {
-    public static BString toBalString(Strand strand, Object value) {
+    public static BString toBalString(Object value) {
         return BStringUtils.fromString(BStringUtils.getExpressionStringValue(value, null));
     }
 }
