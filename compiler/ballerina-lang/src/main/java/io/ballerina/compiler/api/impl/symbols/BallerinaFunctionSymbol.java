@@ -25,10 +25,11 @@ import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represent Function Symbol.
@@ -38,15 +39,15 @@ import java.util.Optional;
 public class BallerinaFunctionSymbol extends BallerinaSymbol implements FunctionSymbol {
 
     private final FunctionTypeDescriptor typeDescriptor;
-    private final List<Qualifier> qualifiers;
+    private final Set<Qualifier> qualifiers;
 
     protected BallerinaFunctionSymbol(String name,
-                                     PackageID moduleID,
-                                     List<Qualifier> qualifiers,
-                                     FunctionTypeDescriptor typeDescriptor,
-                                     BInvokableSymbol invokableSymbol) {
+                                      PackageID moduleID,
+                                      Set<Qualifier> qualifiers,
+                                      FunctionTypeDescriptor typeDescriptor,
+                                      BInvokableSymbol invokableSymbol) {
         super(name, moduleID, SymbolKind.FUNCTION, invokableSymbol);
-        this.qualifiers = Collections.unmodifiableList(qualifiers);
+        this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptor = typeDescriptor;
     }
 
@@ -56,7 +57,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
      * @return {@link List} of qualifiers
      */
     @Override
-    public List<Qualifier> qualifiers() {
+    public Set<Qualifier> qualifiers() {
         return qualifiers;
     }
 
@@ -70,7 +71,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
      */
     static class FunctionSymbolBuilder extends SymbolBuilder<FunctionSymbolBuilder> {
 
-        protected List<Qualifier> qualifiers = new ArrayList<>();
+        protected Set<Qualifier> qualifiers = new HashSet<>();
         protected FunctionTypeDescriptor typeDescriptor;
 
         public FunctionSymbolBuilder(String name, PackageID moduleID, BInvokableSymbol bSymbol) {

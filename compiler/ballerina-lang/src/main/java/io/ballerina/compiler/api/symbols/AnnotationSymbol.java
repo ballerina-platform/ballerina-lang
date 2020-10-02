@@ -27,14 +27,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface AnnotationSymbol extends Symbol {
-
-    /**
-     * Get the qualifiers.
-     *
-     * @return {@link List} of qualifiers
-     */
-    List<Qualifier> qualifiers();
+public interface AnnotationSymbol extends Symbol, Qualifiable {
 
     /**
      * Get the type descriptor.

@@ -19,7 +19,6 @@ package io.ballerina.compiler.api.symbols;
 
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,25 +26,18 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface TypeSymbol extends Symbol {
+public interface TypeSymbol extends Symbol, Qualifiable {
 
     /**
      * Get the module qualified name.
-     * 
+     *
      * @return {@link String} name
      */
     String moduleQualifiedName();
 
     /**
-     * List of qualifiers attached to the type definition.
-     * 
-     * @return {@link List} of qualifiers
-     */
-    List<Qualifier> qualifiers();
-
-    /**
      * Type descriptor of the definition.
-     * 
+     *
      * @return {@link BallerinaTypeDescriptor} attached
      */
     Optional<BallerinaTypeDescriptor> typeDescriptor();
