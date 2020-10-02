@@ -41,7 +41,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
                                      BallerinaTypeDescriptor typeDescriptor,
                                      Object constValue,
                                      BSymbol bSymbol) {
-        super(name, moduleID, SymbolKind.CONST, qualifiers, typeDescriptor, bSymbol);
+        super(name, moduleID, SymbolKind.CONSTANT, qualifiers, typeDescriptor, bSymbol);
         this.constValue = constValue;
     }
 
