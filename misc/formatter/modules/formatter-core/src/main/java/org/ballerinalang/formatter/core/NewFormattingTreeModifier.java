@@ -1061,12 +1061,15 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public AnnotationNode transform(AnnotationNode annotationNode) {
         Token atToken = formatToken(annotationNode.atToken(), 0, 0);
-        Node annotReference = formatNode(annotationNode.annotReference(), 1, 0);
+        Node annotReference;
 
         if (annotationNode.annotValue().isPresent()) {
+            annotReference = formatNode(annotationNode.annotReference(), 1, 0);
             MappingConstructorExpressionNode annotValue = formatNode(annotationNode.annotValue().get(),
                     this.trailingWS, this.trailingNL);
             annotationNode = annotationNode.modify().withAnnotValue(annotValue).apply();
+        } else {
+            annotReference = formatNode(annotationNode.annotReference(), this.trailingWS, this.trailingNL);
         }
 
         return annotationNode.modify()
@@ -1078,10 +1081,19 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public MappingConstructorExpressionNode transform(
             MappingConstructorExpressionNode mappingConstructorExpressionNode) {
-        Token openBrace = formatToken(mappingConstructorExpressionNode.openBrace(), 0, 1);
+        int fieldTrailingWS = 0;
+        int fieldTrailingNL = 0;
+        if (shouldExpand(mappingConstructorExpressionNode)) {
+            fieldTrailingNL++;
+        } else {
+            fieldTrailingWS++;
+        }
+
+        Token openBrace = formatToken(mappingConstructorExpressionNode.openBrace(), fieldTrailingWS, fieldTrailingNL);
         indent();
         SeparatedNodeList<MappingFieldNode> fields = formatSeparatedNodeList(
-                mappingConstructorExpressionNode.fields(), 0, 0, 0, 1, 0, 1);
+                mappingConstructorExpressionNode.fields(), 0, 0, fieldTrailingWS, fieldTrailingNL,
+                fieldTrailingWS, fieldTrailingNL);
         unindent();
         Token closeBrace = formatToken(mappingConstructorExpressionNode.closeBrace(), this.trailingWS, this.trailingNL);
 
@@ -1351,7 +1363,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public TableTypeDescriptorNode transform(TableTypeDescriptorNode tableTypeDescriptorNode) {
         Token tableKeywordToken = formatToken(tableTypeDescriptorNode.tableKeywordToken(), 0, 0);
         Node rowTypeParameterNode = formatNode(tableTypeDescriptorNode.rowTypeParameterNode(), 1, 0);
-        Node keyConstraintNode = formatNode(tableTypeDescriptorNode.keyConstraintNode(), 1, 0);
+        Node keyConstraintNode = formatNode(tableTypeDescriptorNode.keyConstraintNode(),
+                this.trailingWS, this.trailingNL);
 
         return tableTypeDescriptorNode.modify()
                 .withTableKeywordToken(tableKeywordToken)
@@ -1540,7 +1553,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public MarkdownDocumentationNode transform(MarkdownDocumentationNode markdownDocumentationNode) {
-        NodeList<Node> documentationLines = formatNodeList(markdownDocumentationNode.documentationLines(), 0, 0, 0, 1);
+        NodeList<Node> documentationLines = formatNodeList(markdownDocumentationNode.documentationLines(),
+                0, 0, this.trailingWS, this.trailingNL);
 
         return markdownDocumentationNode.modify()
                 .withDocumentationLines(documentationLines)
@@ -1550,7 +1564,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public MarkdownDocumentationLineNode transform(MarkdownDocumentationLineNode markdownDocumentationLineNode) {
         Token hashToken = formatToken(markdownDocumentationLineNode.hashToken(), 0, 0);
-        NodeList<Node> documentElements = formatNodeList(markdownDocumentationLineNode.documentElements(), 0, 0, 0, 1);
+        NodeList<Node> documentElements = formatNodeList(markdownDocumentationLineNode.documentElements(),
+                0, 0, this.trailingWS, this.trailingNL);
 
         return markdownDocumentationLineNode.modify()
                 .withDocumentElements(documentElements)
@@ -1565,8 +1580,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token plusToken = formatToken(markdownParameterDocumentationLineNode.plusToken(), 1, 0);
         Token parameterName = formatToken(markdownParameterDocumentationLineNode.parameterName(), 1, 0);
         Token minusToken = formatToken(markdownParameterDocumentationLineNode.minusToken(), 0, 0);
-        NodeList<Node> documentElements =
-                formatNodeList(markdownParameterDocumentationLineNode.documentElements(), 0, 0, 0, 1);
+        NodeList<Node> documentElements = formatNodeList(markdownParameterDocumentationLineNode.documentElements(),
+                0, 0, this.trailingWS, this.trailingNL);
 
         return markdownParameterDocumentationLineNode.modify()
                 .withHashToken(hashToken)
@@ -2193,6 +2208,37 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Check whether a mapping constructor expression needs to be expanded in to multiple lines.
+     *
+     * @param mappingConstructorExpressionNode mapping constructor expression
+     * @return <code>true</code> If the mapping constructor expression needs to be expanded in to multiple lines.
+     *         <code>false</code> otherwise
+     */
+    private boolean shouldExpand(MappingConstructorExpressionNode mappingConstructorExpressionNode) {
+        int fieldCount = mappingConstructorExpressionNode.fields().size();
+
+        if (fieldCount <= 1) {
+            return false;
+        }
+
+        if (fieldCount > 3) {
+            return true;
+        }
+
+        for (Node field : mappingConstructorExpressionNode.fields()) {
+            TextRange textRange = field.textRange();
+            if ((textRange.endOffset() - textRange.startOffset()) > 15) {
+                return true;
+            }
+
+            if (hasNonWSMinutiae(field.leadingMinutiae()) || hasNonWSMinutiae(field.trailingMinutiae())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
