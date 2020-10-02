@@ -11779,7 +11779,19 @@ public class BallerinaParser extends AbstractParser {
         STNode actionOrExpr = parseActionOrExpression();
         startContext(ParserRuleContext.MATCH_BODY);
         STNode openBrace = parseOpenBrace();
-        STNode matchClauses = parseMatchClauses();
+        // Parse match clauses list
+        List<STNode> matchClausesList = new ArrayList<>();
+        while (!isEndOfMatchClauses(peek().kind)) {
+            STNode clause = parseMatchClause();
+            matchClausesList.add(clause);
+        }
+        STNode matchClauses =  STNodeFactory.createNodeList(matchClausesList);
+        // At least one match clause required
+        if (isNodeListEmpty(matchClauses)) {
+            return SyntaxErrors.addDiagnostic(openBrace,
+                    DiagnosticErrorCode.ERROR_AT_LEAST_ONE_MATCH_CLAUSE_REQUIRED);
+        }
+
         STNode closeBrace = parseCloseBrace();
         endContext();
         endContext();
@@ -11801,20 +11813,6 @@ public class BallerinaParser extends AbstractParser {
             recover(nextToken, ParserRuleContext.MATCH_KEYWORD);
             return parseMatchKeyword();
         }
-    }
-
-    /**
-     * Parse match clauses list.
-     *
-     * @return Match clauses list
-     */
-    private STNode parseMatchClauses() {
-        List<STNode> matchClauses = new ArrayList<>();
-        while (!isEndOfMatchClauses(peek().kind)) {
-            STNode clause = parseMatchClause();
-            matchClauses.add(clause);
-        }
-        return STNodeFactory.createNodeList(matchClauses);
     }
 
     private boolean isEndOfMatchClauses(SyntaxKind nextTokenKind) {
