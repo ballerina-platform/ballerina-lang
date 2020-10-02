@@ -105,7 +105,7 @@ public function printModule (Module module) {
 }
 
 public function logNewLine() {
-    log:printInfo("------------------------------");
+    log:printInfo("-------------------------------");
 }
 
 public function getModuleFromModuleArray(Module[] modules, string name) returns Module? {
