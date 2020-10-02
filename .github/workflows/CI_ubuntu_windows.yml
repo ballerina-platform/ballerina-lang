@@ -2,6 +2,8 @@ name: CI Ubuntu/Windows
 
 on:
   push:
+    paths-ignore:
+      - 'stdlib/release/**'
     branches-ignore:
       - master
       - next-release
