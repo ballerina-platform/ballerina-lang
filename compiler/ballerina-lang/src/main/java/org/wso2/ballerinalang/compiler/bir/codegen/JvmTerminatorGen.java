@@ -102,7 +102,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_O
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTRUCTOR_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
@@ -547,7 +547,7 @@ public class JvmTerminatorGen {
             this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
             this.mv.visitVarInsn(ALOAD, localVarOffset + 1); // load the current Module
             mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, CONSTRUCTOR_INIT_METHOD,
-                               String.format("(L%s;L%s;)V", STRAND_CLASS, B_MODULE), false);
+                               String.format("(L%s;L%s;)V", STRAND_CLASS, RUNTIME_MODULE), false);
         }
 
         int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();
@@ -712,7 +712,8 @@ public class JvmTerminatorGen {
         // load strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         if (callIns.calleeFlags.contains(Flag.NATIVE)) {
-            mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", B_MODULE));
+            mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;",
+                                                                                                 RUNTIME_MODULE));
         }
         String lookupKey = JvmCodeGenUtil.getPackageName(orgName, moduleName, version) + methodLookupName;
 

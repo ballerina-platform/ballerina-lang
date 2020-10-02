@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
  * @since 2.0.0
  */
 
-public class BModule {
+public class Module {
 
     /**
      * Organization name of module @{@link Strand} was initiated.
@@ -43,7 +43,7 @@ public class BModule {
     private final String moduleVersion;
 
 
-    public BModule(String moduleOrg, String moduleName, String moduleVersion) {
+    public Module(String moduleOrg, String moduleName, String moduleVersion) {
         this.moduleOrg = moduleOrg;
         this.moduleName = moduleName;
         this.moduleVersion = moduleVersion;

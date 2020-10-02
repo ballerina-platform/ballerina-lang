@@ -88,7 +88,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTRUCTOR_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
@@ -249,17 +249,18 @@ public class JvmPackageGen {
     private static void setCurrentModuleField(ClassWriter cw, MethodVisitor mv, BIRPackage module,
                                               String moduleInitClass) {
         FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_VAR_NAME,
-                                        String.format("L%s;", B_MODULE), null, null);
+                                        String.format("L%s;", RUNTIME_MODULE), null, null);
         fv.visitEnd();
-        mv.visitTypeInsn(Opcodes.NEW, B_MODULE);
+        mv.visitTypeInsn(Opcodes.NEW, RUNTIME_MODULE);
         mv.visitInsn(Opcodes.DUP);
         mv.visitLdcInsn(module.org.value);
         mv.visitLdcInsn(module.name.value);
         mv.visitLdcInsn(module.version.value);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, B_MODULE,
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, RUNTIME_MODULE,
                            CONSTRUCTOR_INIT_METHOD, String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE,
                                                                   STRING_VALUE), false);
-        mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", B_MODULE));
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;",
+                                                                                                     RUNTIME_MODULE));
     }
 
     private static void setLockStoreField(MethodVisitor mv, String className) {

@@ -96,7 +96,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_OPTIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_RUNTIME_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
@@ -425,7 +425,8 @@ class JvmValueGen {
             mv.visitVarInsn(ALOAD, 1);
             if (externFunc) {
                 // load current module
-                mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", B_MODULE));
+                mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;",
+                                                                                                     RUNTIME_MODULE));
             }
             int j = 0;
             for (BType paramType : paramTypes) {

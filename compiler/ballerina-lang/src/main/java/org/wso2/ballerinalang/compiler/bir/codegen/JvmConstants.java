@@ -106,7 +106,7 @@ public class JvmConstants {
     public static final String SCHEDULER = "org/ballerinalang/jvm/scheduling/Scheduler";
     public static final String JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
     public static final String STRAND_CLASS = "org/ballerinalang/jvm/scheduling/Strand";
-    public static final String B_MODULE = "org/ballerinalang/jvm/api/runtime/BModule";
+    public static final String RUNTIME_MODULE = "org/ballerinalang/jvm/api/runtime/Module";
     public static final String STRAND_METADATA = "org/ballerinalang/jvm/scheduling/StrandMetadata";
     public static final String BAL_ENV = "org/ballerinalang/jvm/api/BalEnv";
     public static final String BAL_FUTURE = "org/ballerinalang/jvm/api/BalFuture";

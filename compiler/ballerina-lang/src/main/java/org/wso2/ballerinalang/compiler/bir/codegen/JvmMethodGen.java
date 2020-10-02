@@ -145,7 +145,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_O
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
@@ -1461,7 +1461,7 @@ public class JvmMethodGen {
             } else {
                 if (isExternFunction) {
                     mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME,
-                                      String.format("L%s;", B_MODULE));
+                                      String.format("L%s;", RUNTIME_MODULE));
                 }
                 // load and cast param values
                 int argIndex = 1;
@@ -1492,7 +1492,8 @@ public class JvmMethodGen {
                 i += 1;
             }
             if (isExternFunction) {
-                mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", B_MODULE));
+                mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;",
+                                                                                                     RUNTIME_MODULE));
             }
             List<BIRVariableDcl> paramTypes = ((FPLoad) ins).params;
             // load and cast param values

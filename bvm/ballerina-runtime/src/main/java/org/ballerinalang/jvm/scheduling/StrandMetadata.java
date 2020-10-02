@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.scheduling;
 
-import org.ballerinalang.jvm.api.runtime.BModule;
+import org.ballerinalang.jvm.api.runtime.Module;
 
 /**
  * Holds metadata of the @{@link Strand}.
@@ -30,7 +30,7 @@ public class StrandMetadata {
     /**
      * Runtime module @{@link Strand} was initiated.
      */
-    private final BModule bModule;
+    private final Module bModule;
 
     /**
      * Type name if @{@link Strand} was initiated inside type.
@@ -44,7 +44,7 @@ public class StrandMetadata {
 
     public StrandMetadata(String moduleOrg, String moduleName, String moduleVersion, String typeName,
                           String parentFunctionName) {
-        this.bModule = new BModule(moduleOrg, moduleName, moduleVersion);
+        this.bModule = new Module(moduleOrg, moduleName, moduleVersion);
         this.typeName = typeName;
         this.parentFunctionName = parentFunctionName;
     }
@@ -59,7 +59,7 @@ public class StrandMetadata {
      *
      * @return Strand module name.
      */
-    public BModule getModule() {
+    public Module getModule() {
         return bModule;
     }
 

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.api;
 
-import org.ballerinalang.jvm.api.runtime.BModule;
+import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -32,13 +32,13 @@ import org.ballerinalang.jvm.scheduling.Strand;
 public class BalEnv {
     private Strand strand;
 
-    private BModule functionCallerModule = null;
+    private Module functionCallerModule = null;
 
     public BalEnv(Strand strand) {
         this.strand = strand;
     }
 
-    public BalEnv(Strand strand, BModule functionCallerModule) {
+    public BalEnv(Strand strand, Module functionCallerModule) {
         this.strand = strand;
         this.functionCallerModule = functionCallerModule;
     }
@@ -59,11 +59,11 @@ public class BalEnv {
     }
 
     /**
-     * Gets function caller @{@link BModule}.
+     * Gets function caller @{@link Module}.
      *
      * @return module of the interop function caller.
      */
-    public BModule getFunctionCallerModule() {
+    public Module getFunctionCallerModule() {
         return functionCallerModule;
     }
 }
