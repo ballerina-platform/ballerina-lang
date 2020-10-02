@@ -961,6 +961,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createNamedWorkerDeclarationNode(
             STNode annotations,
+            STNode transactionalKeyword,
             STNode workerKeyword,
             STNode workerName,
             STNode returnTypeDesc,
@@ -968,6 +969,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STNamedWorkerDeclarationNode(
                 annotations,
+                transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
@@ -2186,14 +2188,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 matchPattern);
     }
 
-    public static STNode createFunctionalMatchPatternNode(
-            STNode typeRef,
+    public static STNode createErrorMatchPatternNode(
+            STNode errorKeyword,
+            STNode typeReference,
             STNode openParenthesisToken,
             STNode argListMatchPatternNode,
             STNode closeParenthesisToken) {
 
-        return new STFunctionalMatchPatternNode(
-                typeRef,
+        return new STErrorMatchPatternNode(
+                errorKeyword,
+                typeReference,
                 openParenthesisToken,
                 argListMatchPatternNode,
                 closeParenthesisToken);

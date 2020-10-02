@@ -49,6 +49,7 @@ import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.EnumMemberNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.ErrorMatchPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
@@ -74,7 +75,6 @@ import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionalMatchPatternNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
@@ -235,11 +235,13 @@ import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 import static org.ballerinalang.formatter.core.FormatterUtils.addNewTrailingLine;
 import static org.ballerinalang.formatter.core.FormatterUtils.formatToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.getChildLocation;
+import static org.ballerinalang.formatter.core.FormatterUtils.getIndentation;
 import static org.ballerinalang.formatter.core.FormatterUtils.getParent;
 import static org.ballerinalang.formatter.core.FormatterUtils.getPosition;
 import static org.ballerinalang.formatter.core.FormatterUtils.getToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.getTrailingNewLines;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
+import static org.ballerinalang.formatter.core.FormatterUtils.nestedIfBlock;
 import static org.ballerinalang.formatter.core.FormatterUtils.preserveNewLine;
 import static org.ballerinalang.formatter.core.NodeIndentation.blockStatementNode;
 
@@ -912,7 +914,8 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public IfElseStatementNode transform(IfElseStatementNode ifElseStatementNode) {
-        if (!isInLineRange(ifElseStatementNode, lineRange)) {
+        // TODO: Enable the nested if else statements
+        if (!isInLineRange(ifElseStatementNode, lineRange) || !nestedIfBlock(ifElseStatementNode).isEmpty()) {
             return ifElseStatementNode;
         }
         Token ifKeyword = getToken(ifElseStatementNode.ifKeyword());
@@ -925,7 +928,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withElseBody(elseBody).apply();
         }
         return ifElseStatementNode.modify()
-                .withIfKeyword(formatToken(ifKeyword, startColumn, 0, 0, 0))
+                .withIfKeyword(formatToken(ifKeyword, startColumn, 1, 0, 0))
                 .withIfBody(ifBody)
                 .withCondition(condition)
                 .apply();
@@ -936,10 +939,14 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(elseBlockNode, lineRange)) {
             return elseBlockNode;
         }
+        int trailingSpaces = 0;
+        if (elseBlockNode.children().get(1).kind() == SyntaxKind.IF_ELSE_STATEMENT) {
+            trailingSpaces = 1;
+        }
         Token elseKeyword = getToken(elseBlockNode.elseKeyword());
         StatementNode elseBody = this.modifyNode(elseBlockNode.elseBody());
         return elseBlockNode.modify()
-                .withElseKeyword(formatToken(elseKeyword, 1, 0, 0, 0))
+                .withElseKeyword(formatToken(elseKeyword, 1, trailingSpaces, 0, 0))
                 .withElseBody(elseBody)
                 .apply();
     }
@@ -953,7 +960,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token closeParen = getToken(bracedExpressionNode.closeParen());
         ExpressionNode expression = this.modifyNode(bracedExpressionNode.expression());
         return bracedExpressionNode.modify()
-                .withOpenParen(formatToken(openParen, 1, 0, 0, 0))
+                .withOpenParen(formatToken(openParen, 0, 0, 0, 0))
                 .withCloseParen(formatToken(closeParen, 0, 0, 0, 0))
                 .withExpression(expression)
                 .apply();
@@ -1108,6 +1115,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 (parentKind == SyntaxKind.FUNCTION_BODY_BLOCK ||
                         parentKind == SyntaxKind.IF_ELSE_STATEMENT ||
                         parentKind == SyntaxKind.MATCH_CLAUSE ||
+                        parentKind == SyntaxKind.WHILE_STATEMENT ||
                         parentKind == SyntaxKind.DO_STATEMENT ||
                         parentKind == SyntaxKind.FOREACH_STATEMENT ||
                         parentKind == SyntaxKind.ELSE_BLOCK)) {
@@ -1326,7 +1334,7 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode condition = this.modifyNode(whileStatementNode.condition());
         OnFailClauseNode onFailClause = this.modifyNode(whileStatementNode.onFailClause().orElse(null));
         whileStatementNode = whileStatementNode.modify()
-                .withWhileKeyword(formatToken(whileKeyword, startColumn, 0, 0, 0)).apply();
+                .withWhileKeyword(formatToken(whileKeyword, startColumn, 1, 0, 0)).apply();
         BlockStatementNode whileBody = this.modifyNode(whileStatementNode.whileBody());
         if (onFailClause != null) {
             whileStatementNode = whileStatementNode.modify()
@@ -2680,6 +2688,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(streamTypeDescriptorNode, lineRange)) {
             return streamTypeDescriptorNode;
         }
+        int startColumn = getStartColumn(streamTypeDescriptorNode, true);
         Token streamKeywordToken = getToken(streamTypeDescriptorNode.streamKeywordToken());
         Node streamTypeParamsNode = this.modifyNode(streamTypeDescriptorNode.streamTypeParamsNode().orElse(null));
         if (streamTypeParamsNode != null) {
@@ -2687,7 +2696,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withStreamTypeParamsNode(streamTypeParamsNode).apply();
         }
         return streamTypeDescriptorNode.modify()
-                .withStreamKeywordToken(formatToken(streamKeywordToken, 0, 1, 0, 0))
+                .withStreamKeywordToken(formatToken(streamKeywordToken, startColumn, 1, 0, 0))
                 .apply();
     }
 
@@ -2878,8 +2887,9 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openParenToken = getToken(parenthesisedTypeDescriptorNode.openParenToken());
         TypeDescriptorNode typedesc = this.modifyNode(parenthesisedTypeDescriptorNode.typedesc());
         Token closeParenToken = getToken(parenthesisedTypeDescriptorNode.closeParenToken());
+        int startColumn = getStartColumn(parenthesisedTypeDescriptorNode, true);
         return parenthesisedTypeDescriptorNode.modify()
-                .withOpenParenToken(formatToken(openParenToken, 0, 0, 0, 0))
+                .withOpenParenToken(formatToken(openParenToken, startColumn, 0, 0, 0))
                 .withTypedesc(typedesc)
                 .withCloseParenToken(formatToken(closeParenToken, 0, 0, 0, 0))
                 .apply();
@@ -2994,28 +3004,29 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+    // TODO: Enable the QueryExpressionNode
     @Override
     public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
-        if (!isInLineRange(queryExpressionNode, lineRange)) {
+//        if (!isInLineRange(queryExpressionNode, lineRange)) {
             return queryExpressionNode;
-        }
-        QueryConstructTypeNode queryConstructType =
-                this.modifyNode(queryExpressionNode.queryConstructType().orElse(null));
-        QueryPipelineNode queryPipeline = this.modifyNode(queryExpressionNode.queryPipeline());
-        SelectClauseNode selectClause = this.modifyNode(queryExpressionNode.selectClause());
-        OnConflictClauseNode onConflictClause = this.modifyNode(queryExpressionNode.onConflictClause().orElse(null));
-        if (queryConstructType != null) {
-            queryExpressionNode = queryExpressionNode.modify()
-                    .withQueryConstructType(queryConstructType).apply();
-        }
-        if (onConflictClause != null) {
-            queryExpressionNode = queryExpressionNode.modify()
-                    .withOnConflictClause(onConflictClause).apply();
-        }
-        return queryExpressionNode.modify()
-                .withQueryPipeline(queryPipeline)
-                .withSelectClause(selectClause)
-                .apply();
+//        }
+//        QueryConstructTypeNode queryConstructType =
+//                this.modifyNode(queryExpressionNode.queryConstructType().orElse(null));
+//        QueryPipelineNode queryPipeline = this.modifyNode(queryExpressionNode.queryPipeline());
+//        SelectClauseNode selectClause = this.modifyNode(queryExpressionNode.selectClause());
+//        OnConflictClauseNode onConflictClause = this.modifyNode(queryExpressionNode.onConflictClause().orElse(null));
+//        if (queryConstructType != null) {
+//            queryExpressionNode = queryExpressionNode.modify()
+//                    .withQueryConstructType(queryConstructType).apply();
+//        }
+//        if (onConflictClause != null) {
+//            queryExpressionNode = queryExpressionNode.modify()
+//                    .withOnConflictClause(onConflictClause).apply();
+//        }
+//        return queryExpressionNode.modify()
+//                .withQueryPipeline(queryPipeline)
+//                .withSelectClause(selectClause)
+//                .apply();
     }
 
     @Override
@@ -3734,17 +3745,19 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
-    public FunctionalMatchPatternNode transform(FunctionalMatchPatternNode functionalMatchPatternNode) {
-        if (!isInLineRange(functionalMatchPatternNode, lineRange)) {
-            return functionalMatchPatternNode;
+    public ErrorMatchPatternNode transform(ErrorMatchPatternNode errorMatchPatternNode) {
+        if (!isInLineRange(errorMatchPatternNode, lineRange)) {
+            return errorMatchPatternNode;
         }
-        Node typeRef = this.modifyNode(functionalMatchPatternNode.typeRef());
-        Token openParenthesisToken = getToken(functionalMatchPatternNode.openParenthesisToken());
+        Token errorKeywordToken = getToken(errorMatchPatternNode.errorKeyword());
+        Node typeRef = this.modifyNode(errorMatchPatternNode.typeReference().orElse(null));
+        Token openParenthesisToken = getToken(errorMatchPatternNode.openParenthesisToken());
         SeparatedNodeList<Node> argListMatchPatternNode =
-                this.modifySeparatedNodeList(functionalMatchPatternNode.argListMatchPatternNode());
-        Token closeParenthesisToken = getToken(functionalMatchPatternNode.closeParenthesisToken());
-        return functionalMatchPatternNode.modify()
-                .withTypeRef(typeRef)
+                this.modifySeparatedNodeList(errorMatchPatternNode.argListMatchPatternNode());
+        Token closeParenthesisToken = getToken(errorMatchPatternNode.closeParenthesisToken());
+        return errorMatchPatternNode.modify()
+                .withErrorKeyword(formatToken(errorKeywordToken, 0, 1, 0, 0))
+                .withTypeReference((NameReferenceNode) typeRef)
                 .withOpenParenthesisToken(formatToken(openParenthesisToken, 0, 0, 0, 0))
                 .withArgListMatchPatternNode(argListMatchPatternNode)
                 .withCloseParenthesisToken(formatToken(closeParenthesisToken, 0, 0, 0, 0))
@@ -3982,7 +3995,7 @@ public class FormattingTreeModifier extends TreeModifier {
     private int getStartColumn(Node node, boolean addSpaces) {
         Node parent = getParent(node, node.kind());
         if (parent != null) {
-            return getPosition(parent).sCol + (addSpaces ? FormatterUtils.getIndentation(node, 0, options) : 0);
+            return getPosition(parent).sCol + (addSpaces ? getIndentation(node, 0, options) : 0);
         }
         return 0;
     }

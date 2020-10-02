@@ -219,6 +219,7 @@ import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
 import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.jvm.IdentifierUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
@@ -420,7 +421,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.ballerinalang.model.elements.Flag.SERVICE;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
@@ -439,7 +439,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BDiagnosticSource diagnosticSource;
 
     private BLangCompilationUnit currentCompilationUnit;
-    private static final Pattern UNICODE_PATTERN = Pattern.compile(Constants.UNICODE_REGEX);
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
 
@@ -1487,11 +1486,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLFunction.addFlag(Flag.ANONYMOUS);
         bLFunction.addFlag(Flag.WORKER);
 
+        if (namedWorkerDeclNode.transactionalKeyword().isPresent()) {
+            bLFunction.addFlag(Flag.TRANSACTIONAL);
+        }
+
         // change default worker name
         String workerName = namedWorkerDeclNode.workerName().text();
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLFunction.defaultWorkerName.originalValue = workerName;
-            workerName = unescapeUnicodeCodepoints(workerName.substring(1));
+            workerName = IdentifierUtils.unescapeUnicodeCodepoints(workerName.substring(1));
         }
         bLFunction.defaultWorkerName.value = workerName;
         bLFunction.defaultWorkerName.pos = getPosition(namedWorkerDeclNode.workerName());
@@ -1528,6 +1531,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 .isDeclaredWithVar()
                 .isFinal()
                 .build();
+
+        if (namedWorkerDeclNode.transactionalKeyword().isPresent()) {
+            var.addFlag(Flag.TRANSACTIONAL);
+        }
 
         BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         lamdaWrkr.pos = workerBodyPos;
@@ -1581,17 +1588,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         this.additionalStatements.push(workerInvoc);
 
         return lamdaWrkr;
-    }
-
-    private String unescapeUnicodeCodepoints(String identifier) {
-        Matcher matcher = UNICODE_PATTERN.matcher(identifier);
-        StringBuffer buffer = new StringBuffer(identifier.length());
-        while (matcher.find()) {
-            String ch = String.valueOf((char) Integer.parseInt(matcher.group(1), 16));
-            matcher.appendReplacement(buffer, Matcher.quoteReplacement(ch));
-        }
-        matcher.appendTail(buffer);
-        return String.valueOf(buffer);
     }
 
     private <A extends BLangNode, B extends Node> List<A> applyAll(NodeList<B> annotations) {
@@ -2339,6 +2335,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 case WILDCARD_BINDING_PATTERN:
                     if (position == 0) {
                         errorVarRef.message = (BLangVariableReference) createExpression(bindingPatternNode);
+                        break;
                     }
                     // Fall through.
                 case ERROR_BINDING_PATTERN:
@@ -2353,6 +2350,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         errorVarRef.detail = namedArgs;
         return errorVarRef;
+    }
+
+    @Override
+    public BLangNode transform(NamedArgBindingPatternNode namedArgBindingPatternNode) {
+        BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) TreeBuilder.createNamedArgNode();
+        namedArgsExpression.pos = getPosition(namedArgBindingPatternNode);
+        namedArgsExpression.name = createIdentifier(namedArgBindingPatternNode.argName());
+        namedArgsExpression.expr = createExpression(namedArgBindingPatternNode.bindingPattern());
+        return namedArgsExpression;
     }
 
     // -----------------------------------------------Statements--------------------------------------------------------
@@ -2529,7 +2535,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(IfElseStatementNode ifElseStmtNode) {
         BLangIf bLIf = (BLangIf) TreeBuilder.createIfElseStatementNode();
         bLIf.pos = getPosition(ifElseStmtNode);
-        trimRight(bLIf.pos, getPosition(ifElseStmtNode.ifBody()));
         bLIf.setCondition(createExpression(ifElseStmtNode.condition()));
         bLIf.setBody((BLangBlockStmt) ifElseStmtNode.ifBody().apply(this));
 
@@ -3797,7 +3802,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     bLangMatchClause.addMatchPattern(bLangMatchPattern);
                 }
             }
-            
+
             bLangMatchClause.setBlockStatement((BLangBlockStmt) transform(matchClauseNode.blockStatement()));
             matchStatement.addMatchClause(bLangMatchClause);
         }
@@ -4027,7 +4032,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                             }
                             // Fall through.
                         case ERROR_BINDING_PATTERN:
-                            bLangErrorVariable.cause = (BLangSimpleVariable) getBLangVariableNode(bindingPatternNode);
+                            bLangErrorVariable.cause = getBLangVariableNode(bindingPatternNode);
                             break;
                         case NAMED_ARG_BINDING_PATTERN:
                             NamedArgBindingPatternNode namedArgBindingPatternNode =
@@ -4349,7 +4354,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            bLIdentifer.setValue(unescapeUnicodeCodepoints(value.substring(1)));
+            bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1)));
             bLIdentifer.originalValue = value;
             bLIdentifer.setLiteral(true);
         } else {
@@ -4440,7 +4445,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 text = text.substring(1, text.length() - 1);
             }
             String originalText = text; // to log the errors
-            Matcher matcher = UNICODE_PATTERN.matcher(text);
+            Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
             int position = 0;
             while (matcher.find(position)) {
                 String hexStringVal = matcher.group(1);
@@ -4456,7 +4461,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 }
                 text = matcher.replaceFirst("\\\\u" + fillWithZeros(hexStringVal));
                 position = matcher.end() - 2;
-                matcher = UNICODE_PATTERN.matcher(text);
+                matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
             }
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
                 text = StringEscapeUtils.unescapeJava(text);

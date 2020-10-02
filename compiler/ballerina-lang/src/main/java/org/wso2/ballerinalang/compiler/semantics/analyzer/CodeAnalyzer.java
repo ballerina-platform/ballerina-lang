@@ -258,6 +258,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean failureHandled;
     private boolean matchClauseReturns;
     private boolean lastStatement;
+    private boolean errorThrown;
     private boolean hasLastPatternInClause = false;
     private boolean withinLockBlock;
     private SymbolTable symTable;
@@ -312,6 +313,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void resetFunction() {
         this.resetStatementReturns();
+        this.resetErrorThrown();
     }
 
     private void resetStatementReturns() {
@@ -320,6 +322,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void resetLastStatement() {
         this.lastStatement = false;
+    }
+
+    private void resetErrorThrown() {
+        this.errorThrown = false;
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -673,6 +679,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         retryNode.retryBodyReturns = this.returnWithinLambdaWrappingCheckStack.peek();
         this.returnWithinLambdaWrappingCheckStack.pop();
         this.resetLastStatement();
+        this.resetErrorThrown();
         retryNode.retryBody.isBreakable = retryNode.onFailClause != null;
         analyzeOnFailClause(retryNode.onFailClause);
         this.errorTypes.pop();
@@ -705,6 +712,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (lastStatement) {
             this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
             this.resetLastStatement();
+        }
+        if (errorThrown) {
+            this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
+            this.resetErrorThrown();
         }
     }
 
@@ -771,7 +782,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.withinTransactionScope = prevTxMode;
         }
         boolean ifStmtReturns = this.statementReturns;
+        boolean currentErrorThrown = this.errorThrown;
         this.resetStatementReturns();
+        this.resetErrorThrown();
         if (ifStmt.elseStmt != null) {
             if (independentBlocks) {
                 commitRollbackAllowed = true;
@@ -782,29 +795,34 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 commitRollbackAllowed = false;
             }
             this.statementReturns = ifStmtReturns && this.statementReturns;
+            this.errorThrown = currentErrorThrown && this.errorThrown;
         }
         analyzeExpr(ifStmt.expr);
     }
 
     @Override
     public void visit(BLangMatchStatement matchStatement) {
+        this.errorTypes.push(new LinkedHashSet<>());
         analyzeExpr(matchStatement.expr);
         if (!this.failureHandled) {
             this.failureHandled = matchStatement.onFailClause != null;
         }
         matchExprType = matchStatement.expr.type;
 
+        boolean currentErrorThrown = this.errorThrown;
         this.matchClauseReturns = false;
         this.hasLastPatternInClause = false;
         boolean containsLastPatternInStatement = false;
         boolean allClausesReturns = true;
         for (BLangMatchClause matchClause : matchStatement.matchClauses) {
+            this.resetErrorThrown();
             analyzeNode(matchClause, env);
             allClausesReturns = allClausesReturns && this.matchClauseReturns;
             containsLastPatternInStatement =
                     containsLastPatternInStatement || (matchClause.matchGuard == null && this.hasLastPatternInClause);
         }
         this.statementReturns = allClausesReturns && containsLastPatternInStatement;
+        this.errorThrown = currentErrorThrown;
         analyzeOnFailClause(matchStatement.onFailClause);
     }
 
@@ -881,6 +899,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeNode(patternClause.matchExpr, env);
         analyzeNode(patternClause.body, env);
         resetStatementReturns();
+        resetErrorThrown();
     }
 
     @Override
@@ -888,6 +907,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeNode(patternClause.matchExpr, env);
         analyzeNode(patternClause.body, env);
         resetStatementReturns();
+        resetErrorThrown();
     }
 
     private void analyzeMatchedPatterns(BLangMatch matchStmt, boolean staticLastPattern,
@@ -906,6 +926,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 analyzeNode(patternClause.body, env);
                 matchStmtReturns = matchStmtReturns && this.statementReturns;
                 this.resetStatementReturns();
+                this.resetErrorThrown();
             }
             this.statementReturns = matchStmtReturns;
         }
@@ -1507,7 +1528,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.resetLastStatement();
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(whileNode.expr);
-        whileNode.body.isBreakable = whileNode.onFailClause != null;
         analyzeOnFailClause(whileNode.onFailClause);
         this.errorTypes.pop();
     }
@@ -1530,7 +1550,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFail failNode) {
-        this.lastStatement = true;
+        this.checkStatementExecutionValidity(failNode);
+        this.errorThrown = true;
         analyzeExpr(failNode.expr);
         if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
             // Check at module level.
@@ -2703,6 +2724,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         boolean isWorker = false;
+
+        if (bLangLambdaFunction.function.flagSet.contains(Flag.TRANSACTIONAL) &&
+                bLangLambdaFunction.function.flagSet.contains(Flag.WORKER) && !withinTransactionScope) {
+            dlog.error(bLangLambdaFunction.pos, DiagnosticCode.TRANSACTIONAL_WORKER_OUT_OF_TRANSACTIONAL_SCOPE,
+                    bLangLambdaFunction);
+            return;
+        }
         if (bLangLambdaFunction.parent.getKind() == NodeKind.VARIABLE) {
             String workerVarName = ((BLangSimpleVariable) bLangLambdaFunction.parent).name.value;
             if (workerVarName.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
@@ -2713,11 +2741,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                                                                                   bLangLambdaFunction.function);
             }
         }
-
         boolean statementReturn = this.statementReturns;
-
         this.visitFunction(bLangLambdaFunction.function);
-
         this.statementReturns = statementReturn;
 
         if (isWorker) {
@@ -2989,6 +3014,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangOnFailClause onFailClause) {
         this.resetLastStatement();
+        this.resetErrorThrown();
         this.returnWithinLambdaWrappingCheckStack.push(false);
         BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
         for (BType errorType : errorTypes.peek()) {

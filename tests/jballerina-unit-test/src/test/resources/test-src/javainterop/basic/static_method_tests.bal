@@ -226,7 +226,8 @@ function decimalParamAndReturn(decimal a1) returns decimal = @java:Method {
 } external;
 
  public function addTwoNumbersSlowAsync(int a, int b) returns int = @java:Method {
-    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+    paramTypes: ["long" ,"long"]
 } external;
 
  public function addTwoNumbersFastAsync(int a, int b) returns int = @java:Method {

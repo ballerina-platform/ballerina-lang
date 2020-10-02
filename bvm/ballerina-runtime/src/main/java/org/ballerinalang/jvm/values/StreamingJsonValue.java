@@ -150,6 +150,11 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
     }
 
     @Override
+    public String expressionStringValue(BLink parent) {
+        return stringValue(parent);
+    }
+
+    @Override
     public int size() {
         if (datasource.hasNext()) {
             buildDatasource();
