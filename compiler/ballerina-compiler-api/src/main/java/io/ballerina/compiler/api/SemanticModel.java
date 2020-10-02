@@ -17,10 +17,10 @@
  */
 package io.ballerina.compiler.api;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import io.ballerina.compiler.api.symbols.Symbol;
 
 import java.util.List;
 import java.util.Optional;

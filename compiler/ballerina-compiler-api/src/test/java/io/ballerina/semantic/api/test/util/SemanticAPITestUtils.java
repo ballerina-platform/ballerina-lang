@@ -17,10 +17,10 @@
 
 package io.ballerina.semantic.api.test.util;
 
-import io.ballerina.tools.text.LinePosition;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.impl.BallerinaSemanticModel;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;

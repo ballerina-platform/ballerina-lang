@@ -18,11 +18,11 @@
 package io.ballerina.compiler.impl;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.impl.symbols.SymbolFactory;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.impl.symbols.SymbolFactory;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifiableNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;

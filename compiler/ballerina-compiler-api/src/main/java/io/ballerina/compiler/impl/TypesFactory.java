@@ -18,8 +18,8 @@
 package io.ballerina.compiler.impl;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.impl.types.BallerinaArrayTypeDescriptor;
 import io.ballerina.compiler.impl.types.BallerinaErrorTypeDescriptor;
 import io.ballerina.compiler.impl.types.BallerinaFunctionTypeDescriptor;
