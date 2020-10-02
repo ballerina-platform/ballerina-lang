@@ -320,6 +320,7 @@ public enum ParserRuleContext {
     EXPRESSION_STATEMENT_START("expression-statement-start"),
     LOCK_STMT("lock-stmt"),
     NAMED_WORKER_DECL("named-worker-decl"),
+    NAMED_WORKER_DECL_START("named-worker-decl-start"),
     FORK_STMT("fork-stmt"),
     FOREACH_STMT("foreach-stmt"),
     TRANSACTION_STMT("transaction-stmt"),

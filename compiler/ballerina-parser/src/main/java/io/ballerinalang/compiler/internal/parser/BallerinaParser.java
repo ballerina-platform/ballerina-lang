@@ -3137,8 +3137,12 @@ public class BallerinaParser extends AbstractParser {
                 // any statement starts with `[` can be either a var-decl with tuple type
                 // or a destructuring assignment with list-binding-pattern.
                 return parseStatementStartsWithOpenBracket(getAnnotations(annots), false);
-            case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+                if (peek(2).kind == SyntaxKind.WORKER_KEYWORD) {
+                    return parseNamedWorkerDeclaration(getAnnotations(annots));
+                }
+                return parseStmtStartsWithTypeOrExpr(getAnnotations(annots));
+            case FUNCTION_KEYWORD:
             case OPEN_PAREN_TOKEN:
             case IDENTIFIER_TOKEN:
                 // Can be a singleton type or expression.
@@ -7593,20 +7597,39 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse named worker declaration.
      * <p>
-     * <code>named-worker-decl := [annots] worker worker-name return-type-descriptor { sequence-stmt }</code>
+     * <code>named-worker-decl := [annots] [transactional] worker worker-name return-type-descriptor { sequence-stmt }
+     * </code>
      *
      * @param annots Annotations attached to the worker decl
      * @return Parsed node
      */
     private STNode parseNamedWorkerDeclaration(STNode annots) {
         startContext(ParserRuleContext.NAMED_WORKER_DECL);
+
+        STNode transactionalKeyword = parseOptionalTransactionalKeyword();
         STNode workerKeyword = parseWorkerKeyword();
         STNode workerName = parseWorkerName();
         STNode returnTypeDesc = parseReturnTypeDescriptor();
         STNode workerBody = parseBlockNode();
         endContext();
-        return STNodeFactory.createNamedWorkerDeclarationNode(annots, workerKeyword, workerName, returnTypeDesc,
-                workerBody);
+        return STNodeFactory.createNamedWorkerDeclarationNode(annots, transactionalKeyword, workerKeyword, workerName,
+                returnTypeDesc, workerBody);
+    }
+
+    private STNode parseOptionalTransactionalKeyword() {
+        STNode transactionalKeyword = STNodeFactory.createEmptyNode();
+        STToken token = peek();
+        switch (token.kind) {
+            case TRANSACTIONAL_KEYWORD:
+                transactionalKeyword = parseTransactionalKeyword();
+                break;
+            case WORKER_KEYWORD:
+                break;
+            default:
+                recover(token, ParserRuleContext.NAMED_WORKER_DECL_START);
+                parseOptionalTransactionalKeyword();
+        }
+        return transactionalKeyword;
     }
 
     private STNode parseReturnTypeDescriptor() {

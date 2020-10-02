@@ -2,8 +2,6 @@ name: CI Windows
 
 on: 
   pull_request:
-    paths-ignore:
-      - 'stdlib/release/**'
     branches:
       - master
       - next-release
