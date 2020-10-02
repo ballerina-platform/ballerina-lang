@@ -44,7 +44,7 @@ import static org.testng.Assert.assertNull;
 @Test
 public class LangLibValueTest {
 
-    private CompileResult compileResult;
+    private CompileResult compileResult, testFile;
 
     @BeforeClass
     public void setup() {
@@ -71,15 +71,15 @@ public class LangLibValueTest {
         assertEquals(arr.get("anObject").stringValue(),
                 "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
         assertEquals(arr.get("anotherMap").stringValue(),
-                     "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", " +
-                     "\"intVal\":2324, \"boolVal\":true, \"floatVal\":45.4, " +
-                     "\"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, \"nilVal\":null}}");
+                "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", " +
+                        "\"intVal\":2324, \"boolVal\":true, \"floatVal\":45.4, " +
+                        "\"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, \"nilVal\":null}}");
         assertEquals(arr.get("aStringMap").stringValue(),
-                     "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}");
+                "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}");
         assertEquals(arr.get("aArr").stringValue(),
-                     "[{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", \"intVal\":2324, " +
-                     "\"boolVal\":true, \"floatVal\":45.4, \"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, " +
-                     "\"nilVal\":null}}, {\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}]");
+                "[{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", \"intVal\":2324, " +
+                        "\"boolVal\":true, \"floatVal\":45.4, \"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, " +
+                        "\"nilVal\":null}}, {\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}]");
         assertEquals(arr.get("iArr").stringValue(), "[0, 1, 255]");
         assertEquals(arr.get("arr1").stringValue(), "{\"country\":\"x\", \"city\":\"y\", \"street\":\"z\", \"no\":3}");
         assertEquals(arr.size(), 11);
@@ -186,10 +186,10 @@ public class LangLibValueTest {
                 "\"e\":{\"x\":\"x\",\"y\":null}}");
         Assert.assertEquals(array.getString(i++),
                 "<CATALOG>" +
-                "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
-                "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
-                "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
-                "</CATALOG>");
+                        "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
+                        "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
+                        "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
+                        "</CATALOG>");
         Assert.assertEquals(array.getString(i++), "[\"str\",23,23.4,true]");
         Assert.assertEquals(array.getString(i++), "error FirstError (\"Reason1\",message=\"Test passing error " +
                 "union to a function\")");
@@ -200,26 +200,23 @@ public class LangLibValueTest {
                 "{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\",\"city\":\"Colombo\"," +
                         "\"street\":\"Palm Grove\"},\"age\":12}");
         Assert.assertEquals(array.getString(i),
-                            "{\"varInt\":6," +
-                                    "\"varFloat\":6.0," +
-                                    "\"varStr\":\"toString\"," +
-                                    "\"varNil\":null," +
-                                    "\"varBool\":true," +
-                                    "\"varDecimal\":345.2425341," +
-                                    "\"varjson\":{\"a\":\"STRING\",\"b\":12,\"c\":12.4,\"d\":true," +
-                                    "\"e\":{\"x\":\"x\",\"y\":null}}," +
-                                    "\"varXml\":`<CATALOG><CD><TITLE>Empire Burlesque</TITLE>" +
-                                    "<ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE>" +
-                                    "<ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
-                                    "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`," +
-                                    "\"varArr\":[\"str\",23,23.4,true]," +
-                                    "\"varErr\":error FirstError (\"Reason1\"," +
-                                    "message=\"Test passing error union to a function\")," +
-                                    "\"varObj\":object Student," +
-                                    "\"varObj2\":Rola from MMV," +
-                                    "\"varObjArr\":[object Student,Rola from MMV]," +
-                                    "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
-                                    "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}}");
+                "{\"varInt\":6,\"varFloat\":6.0," +
+                        "\"varStr\":\"toString\"," +
+                        "\"varNil\":null," +
+                        "\"varBool\":true," +
+                        "\"varDecimal\":345.2425341," +
+                        "\"varjson\":{\"a\":\"STRING\",\"b\":12,\"c\":12.4," +
+                        "\"d\":true,\"e\":{\"x\":\"x\",\"y\":null}}," +
+                        "\"varXml\":`<CATALOG><CD><TITLE>Empire Burlesque</TITLE>" +
+                        "<ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart" +
+                        "</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
+                        "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`," +
+                        "\"varArr\":[\"str\",23,23.4,true],\"varErr\":error FirstError (\"Reason1\"," +
+                        "message=\"Test passing error union to a function\")," +
+                        "\"varObj\":object Student,\"varObj2\":Rola from MMV," +
+                        "\"varObjArr\":[object Student,Rola from MMV]," +
+                        "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
+                        "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}}");
     }
 
     @Test
@@ -237,6 +234,23 @@ public class LangLibValueTest {
     public void xmlSequenceFragmentToString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
         Assert.assertEquals((returns[0]).stringValue(), "<def>DEF</def><ghi>1</ghi>");
+    }
+
+    @Test
+    public void testToBalStringMethod() {
+        testFile = BCompileUtil.compile("test-src/valuelib_toBalString_test.bal");
+        BRunUtil.invokeFunction(testFile, "testIntValueToBalString");
+        BRunUtil.invokeFunction(testFile, "testStringValueToBalString");
+        BRunUtil.invokeFunction(testFile, "testFloatingPointNumbersToBalString");
+        BRunUtil.invokeFunction(testFile, "testAnyAnydataNilToBalString");
+        BRunUtil.invokeFunction(testFile, "testTableToBalString");
+        BRunUtil.invokeFunction(testFile, "testErrorToBalString");
+        BRunUtil.invokeFunction(testFile, "testArrayToBalString");
+        BRunUtil.invokeFunction(testFile, "testTupleToBalString");
+        BRunUtil.invokeFunction(testFile, "testJsonToBalString");
+        BRunUtil.invokeFunction(testFile, "testXmlToBalString");
+        BRunUtil.invokeFunction(testFile, "testObjectToString");
+        BRunUtil.invokeFunction(testFile, "testToBalStringOnCycles");
     }
 
     @DataProvider(name = "mergeJsonFunctions")

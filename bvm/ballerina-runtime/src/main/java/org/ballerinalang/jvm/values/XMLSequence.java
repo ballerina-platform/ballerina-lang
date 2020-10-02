@@ -436,6 +436,11 @@ public final class XMLSequence extends XMLValue {
         return "`" + stringValue(parent) + "`";
     }
 
+    @Override
+    public String expressionStringValue(BLink parent) {
+        return "xml`" + toString() + "`";
+    }
+
     /**
      * {@inheritDoc}
      */

@@ -401,6 +401,15 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Override
+    public String expressionStringValue(BLink parent) {
+        StringJoiner sj = new StringJoiner(" ");
+        for (int i = 0; i < this.size; i++) {
+            sj.add(BStringUtils.getExpressionStringValue(this.refValues[i], new CycleUtils.Node(this, parent)));
+        }
+        return sj.toString();
+    }
+
+    @Override
     public BType getType() {
         return this.tupleType;
     }
