@@ -2,7 +2,6 @@ name: Publish Ballerina Snapshot
 
 on:
     push:
-        paths-ignore:
         branchs:
             - master
     workflow_dispatch:
