@@ -325,14 +325,37 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return stringValue(parent);
     }
 
+    @Override
+    public String expressionStringValue(BLink parent) {
+        Iterator<Map.Entry<Long, V>> itr = values.entrySet().iterator();
+        return createExpressionStringValueDataEntry(itr, parent);
+    }
+
     private String createStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr, BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         while (itr.hasNext()) {
             Map.Entry<Long, V> struct = itr.next();
             sj.add(BStringUtils.getStringValue(struct.getValue(),
-                                               new CycleUtils.Node(this, parent)));
+                    new CycleUtils.Node(this, parent)));
         }
         return "[" + sj.toString() + "]";
+    }
+
+    private String createExpressionStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr, BLink parent) {
+        StringJoiner sj = new StringJoiner(",");
+        StringJoiner keyJoiner = new StringJoiner(",");
+        if (type.getFieldNames() != null) {
+            String[] keysList = type.getFieldNames();
+            for (int i = 0; i < keysList.length; i++) {
+                keyJoiner.add(keysList[i]);
+            }
+        }
+        while (itr.hasNext()) {
+            Map.Entry<Long, V> struct = itr.next();
+            sj.add(BStringUtils.getExpressionStringValue(struct.getValue(),
+                    new CycleUtils.Node(this, parent)));
+        }
+        return "table key(" + keyJoiner.toString() + ") [" + sj.toString() + "]";
     }
 
     private BType getTableConstraintField(BType constraintType, String fieldName) {

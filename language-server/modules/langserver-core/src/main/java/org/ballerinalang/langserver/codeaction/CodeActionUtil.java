@@ -43,6 +43,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -134,6 +135,22 @@ public class CodeActionUtil {
                         && cursorLine == diagnosticPos.sLine) {
                     return CodeActionNodeType.RECORD;
                 }
+
+                if (topLevelNode instanceof BLangClassDefinition) {
+                    if (diagnosticPos.sLine == cursorLine) {
+                        return CodeActionNodeType.CLASS;
+                    }
+                    if (cursorLine > diagnosticPos.sLine && cursorLine < diagnosticPos.eLine) {
+                        // Cursor within the class
+                        for (BLangFunction function : ((BLangClassDefinition) topLevelNode).functions) {
+                            diagnosticPos = CommonUtil.toZeroBasedPosition(function.getName().pos);
+                            if (diagnosticPos.sLine == cursorLine) {
+                                return CodeActionNodeType.CLASS_FUNCTION;
+                            }
+                        }
+                    }
+                }
+
                 if (topLevelNode instanceof BLangTypeDefinition
                         && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangObjectTypeNode) {
                     if (diagnosticPos.sLine == cursorLine) {

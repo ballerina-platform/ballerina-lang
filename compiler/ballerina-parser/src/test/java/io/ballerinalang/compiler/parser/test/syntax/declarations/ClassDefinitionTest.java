@@ -98,6 +98,11 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
         testFile("class-def/class_def_source_41.bal", "class-def/class_def_assert_41.json");
     }
 
+    @Test
+    public void testIsolatedQualifier() {
+        testFile("class-def/class_def_source_12.bal", "class-def/class_def_assert_12.json");
+    }
+
     // Recovery tests
 
     @Test

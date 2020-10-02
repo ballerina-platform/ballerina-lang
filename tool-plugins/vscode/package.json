@@ -92,16 +92,6 @@
                     "default": true,
                     "description": "If set to true ballerina documentation code lens feature will be allowed"
                 },
-                "ballerina.codeLens.services.enabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "If set to true ballerina services code lens feature will be allowed"
-                },
-                "ballerina.codeLens.endpoints.enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "If set to true ballerina endpoints code lens feature will be allowed"
-                },
                 "ballerina.dataMapper.enabled": {
                     "type": "boolean",
                     "default": false,
