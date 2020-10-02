@@ -43,7 +43,7 @@
           "kind": "OPEN_PAREN_TOKEN",
           "hasDiagnostics": true,
           "diagnostics": [
-            "ERROR_INVALID_TOKEN"
+            "ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION"
           ],
           "leadingMinutiae": [
             {

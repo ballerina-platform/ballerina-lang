@@ -482,7 +482,6 @@ public class SyntaxErrors {
             case IMPORT_PREFIX:
             case VARIABLE_REF:
             case BASIC_LITERAL: // return var-ref for any kind of terminal expression
-            case SERVICE_NAME:
             case IDENTIFIER:
             case QUALIFIED_IDENTIFIER:
             case NAMESPACE_PREFIX:
