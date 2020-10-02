@@ -233,6 +233,18 @@ public class DecimalValue implements SimpleValue, BDecimal {
     }
 
     /**
+     * Get the string value in expression style.
+     * @return string value in expression style
+     * @param parent The link to the parent node
+     */
+    public String expressionStringValue(BLink parent) {
+        if (this.valueKind != DecimalValueKind.OTHER) {
+            return this.valueKind.getValue() + "d";
+        }
+        return value.toString() + "d";
+    }
+
+    /**
      * Get the  {@code BigDecimal} value.
      * @return the decimal value
      */

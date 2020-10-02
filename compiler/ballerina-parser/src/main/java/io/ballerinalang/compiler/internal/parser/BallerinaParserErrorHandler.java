@@ -658,6 +658,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] REGULAR_COMPOUND_STMT_RHS =
             { ParserRuleContext.STATEMENT, ParserRuleContext.ON_FAIL_CLAUSE };
 
+    private static final ParserRuleContext[] NAMED_WORKER_DECL_START =
+            { ParserRuleContext.WORKER_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -791,6 +794,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
             case TYPE_DESC_OR_EXPR_RHS:
             case FUNC_TYPE_DESC_START:
+            case NAMED_WORKER_DECL_START:
             case ANON_FUNC_EXPRESSION_START:
                 return true;
             default:
@@ -1428,6 +1432,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_OR_EXPR_RHS:
             case LISTENERS_LIST_END:
             case REGULAR_COMPOUND_STMT_RHS:
+            case NAMED_WORKER_DECL_START:
             case FUNC_TYPE_DESC_START:
             case ANON_FUNC_EXPRESSION_START:
             case MODULE_CLASS_DEFINITION_START:
@@ -1891,6 +1896,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case REGULAR_COMPOUND_STMT_RHS:
                 alternativeRules = REGULAR_COMPOUND_STMT_RHS;
+                break;
+            case NAMED_WORKER_DECL_START:
+                alternativeRules = NAMED_WORKER_DECL_START;
                 break;
             default:
                 return seekMatchInExprRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -2554,7 +2562,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case XML_NAMESPACE_PREFIX_DECL:
                 return ParserRuleContext.SEMICOLON;
             case NAMED_WORKER_DECL:
-                return ParserRuleContext.WORKER_KEYWORD;
+                return ParserRuleContext.NAMED_WORKER_DECL_START;
             case WORKER_NAME:
                 return ParserRuleContext.WORKER_NAME_RHS;
             case FORK_STMT:
@@ -3121,6 +3129,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case SERVICE_CONSTRUCTOR_EXPRESSION:
                     case SERVICE_DECL:
                         return ParserRuleContext.RESOURCE_DEF_START_WITHOUT_TRANSACTIONAL;
+                    case NAMED_WORKER_DECL:
+                        return ParserRuleContext.WORKER_KEYWORD;
                     default:
                         return ParserRuleContext.EXPRESSION_RHS;
                 }

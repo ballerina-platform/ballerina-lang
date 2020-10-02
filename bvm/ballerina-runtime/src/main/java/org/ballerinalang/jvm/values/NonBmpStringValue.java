@@ -93,6 +93,11 @@
          return "\"" + toString() + "\"";
      }
 
+     @Override
+     public String expressionStringValue(BLink parent) {
+         return informalStringValue(parent);
+     }
+
      public int[] getSurrogates() {
          return surrogates.clone();
      }
