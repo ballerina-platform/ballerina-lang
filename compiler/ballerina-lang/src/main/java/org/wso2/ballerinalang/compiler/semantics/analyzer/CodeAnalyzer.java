@@ -685,7 +685,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!this.returnWithinLambdaWrappingCheckStack.peek() && this.innerRetryBlock != null) {
             retryNode.retryBodyReturns = this.innerRetryBlock.retryBodyReturns;
         } else {
-            retryNode.retryBodyReturns = true;
+            retryNode.retryBodyReturns = this.returnWithinLambdaWrappingCheckStack.peek();
         }
         this.returnWithinLambdaWrappingCheckStack.pop();
         this.resetLastStatement();
