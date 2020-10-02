@@ -125,7 +125,7 @@ public class ProjectFiles {
         return ModuleData.from(moduleDirPath, srcDocs, testSrcDocs);
     }
 
-    private static List<DocumentData> loadDocuments(Path dirPath) {
+    public static List<DocumentData> loadDocuments(Path dirPath) {
         try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {
             return pathStream
                     .filter(matcher::matches)

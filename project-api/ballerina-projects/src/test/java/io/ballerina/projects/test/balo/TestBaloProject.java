@@ -48,7 +48,7 @@ public class TestBaloProject {
         try {
             baloProject = BaloProject.loadProject(baloPath);
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            Assert.fail(e.getMessage(), e);
         }
         // 2) Load the package
         Package currentPackage = baloProject.currentPackage();
@@ -76,6 +76,5 @@ public class TestBaloProject {
 
         Assert.assertEquals(noOfSrcDocuments, 4);
         Assert.assertEquals(noOfTestDocuments, 0);
-
     }
 }

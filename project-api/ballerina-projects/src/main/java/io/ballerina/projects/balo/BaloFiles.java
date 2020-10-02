@@ -27,6 +27,7 @@ import io.ballerina.projects.model.Package;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.utils.ProjectUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -41,6 +42,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.ballerina.projects.directory.ProjectFiles.loadDocuments;
+import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static io.ballerina.projects.utils.ProjectConstants.MODULES_ROOT;
 
 /**
@@ -92,7 +95,7 @@ public class BaloFiles {
             throw new RuntimeException("balo does not exists: " + baloPath);
         }
 
-        if (!absBaloPath.toString().endsWith(".balo")) {
+        if (!absBaloPath.toString().endsWith(BLANG_COMPILED_PKG_BINARY_EXT)) {
             throw new RuntimeException("Not a balo: " + baloPath);
         }
         return absBaloPath;
@@ -161,24 +164,6 @@ public class BaloFiles {
 
         // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
         return ModuleData.from(modulePath, srcDocs, testSrcDocs);
-    }
-
-    private static List<DocumentData> loadDocuments(Path dirPath) {
-        try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {
-            return pathStream
-                    .filter(matcher::matches)
-                    .map(BaloFiles::loadDocument)
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static DocumentData loadDocument(Path documentFilePath) {
-        Path fileNamePath = documentFilePath.getFileName();
-        // IMO, fileNamePath cannot be null in this case.
-        String name = fileNamePath != null ? fileNamePath.toString() : "";
-        return DocumentData.from(name, String.valueOf(documentFilePath));
     }
 
     private static List<ModuleData> loadOtherModules(Path modulesDirPath, Path defaultModulePath) {

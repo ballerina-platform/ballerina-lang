@@ -25,6 +25,7 @@ package io.ballerina.projects.utils;
 public class ProjectConstants {
 
     public static final String BLANG_SOURCE_EXT = ".bal";
+    public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".balo";
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
 
