@@ -90,7 +90,7 @@ public class OptionalFieldAccessTest {
         };
     }
 
-    @Test(dataProvider = "laxOptionalFieldAccessFunctions")
+    @Test(dataProvider = "laxOptionalFieldAccessFunctions", enabled = false)
     public void testLaxOptionalFieldAccess(String function) {
         BValue[] returns = BRunUtil.invoke(result, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());

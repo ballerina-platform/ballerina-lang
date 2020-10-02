@@ -98,7 +98,7 @@ public class ListConstructorExprTest {
         BRunUtil.invoke(result, "testTypeWithReadOnlyInUnionCET");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testListConstructorInferType() {
         BRunUtil.invoke(resultInferType, "inferSimpleTuple");
         BRunUtil.invoke(resultInferType, "inferStructuredTuple");

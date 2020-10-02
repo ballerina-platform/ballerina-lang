@@ -42,7 +42,7 @@ public class VariableReturnTypeTest {
         result = BCompileUtil.compile("test-src/javainterop/variable_return_type_test.bal");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testNegatives() {
         CompileResult errors = BCompileUtil.compile("test-src/javainterop/variable_return_type_negative.bal");
         int indx = 0;
@@ -87,21 +87,21 @@ public class VariableReturnTypeTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'map' cannot be cast to " +
-                  "'map<anydata>.*")
+                  "'map<anydata>.*", enabled = false)
     public void testRuntimeCastError() {
         BRunUtil.invoke(result, "testRuntimeCastError");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'Person' cannot be cast " +
-                  "to 'int'.*")
+                  "to 'int'.*", enabled = false)
     public void testCastingForInvalidValues() {
         BRunUtil.invoke(result, "testCastingForInvalidValues");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'string' cannot be cast " +
-                  "to 'int'.*")
+                  "to 'int'.*", enabled = false)
     public void testFunctionAssignment() {
         BRunUtil.invoke(result, "testFunctionAssignment");
     }

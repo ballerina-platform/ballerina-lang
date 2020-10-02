@@ -133,7 +133,7 @@ public class JavaVarargsTest {
         Assert.assertEquals(((BHandleValue) returns[2]).getValue(), "apples");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testRefTypeVarArg() {
         BValue[] returns = BRunUtil.invoke(result, "testRefTypeVarArg");
         Assert.assertEquals(returns.length, 2);
@@ -141,14 +141,14 @@ public class JavaVarargsTest {
         Assert.assertEquals(returns[1].stringValue(), "[error error one, error error two]");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testIntArrayTypeVararg() {
         BValue[] returns = BRunUtil.invoke(result, "testIntArrayTypeVararg");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "[[7 2], [8]]");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testRefArrayTypeVararg() {
         BValue[] returns = BRunUtil.invoke(result, "testRefArrayTypeVararg");
         Assert.assertEquals(returns.length, 1);

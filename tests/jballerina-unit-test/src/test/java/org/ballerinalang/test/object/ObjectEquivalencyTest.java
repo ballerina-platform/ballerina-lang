@@ -145,7 +145,7 @@ public class ObjectEquivalencyTest {
         BRunUtil.invoke(compileResult, "testObjectAssignabilityBetweenNonClientAndClientObject");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testSubtypingBetweenNonClientAndClientObject() {
         BRunUtil.invoke(compileResult, "testSubtypingBetweenNonClientAndClientObject");
     }
