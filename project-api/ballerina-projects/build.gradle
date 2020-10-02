@@ -15,7 +15,7 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 dependencies {
     implementation project(':ballerina-tools-api')
@@ -28,6 +28,26 @@ dependencies {
     testImplementation 'org.testng:testng'
     testImplementation 'org.powermock:powermock-mockito-release-full'
     testImplementation 'org.powermock:powermock-module-testng-common'
+
+    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:floatingpoint', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - Projects'
