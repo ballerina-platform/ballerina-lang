@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.scheduling;
 
+import org.ballerinalang.jvm.api.runtime.BModule;
+
 /**
  * Holds metadata of the @{@link Strand}.
  *
@@ -26,19 +28,9 @@ package org.ballerinalang.jvm.scheduling;
 public class StrandMetadata {
 
     /**
-     * Organization name of module @{@link Strand} was initiated.
+     * Runtime module @{@link Strand} was initiated.
      */
-    private final String moduleOrg;
-
-    /**
-     * Name of module @{@link Strand} was initiated.
-     */
-    private final String moduleName;
-
-    /**
-     * Version of module @{@link Strand} was initiated.
-     */
-    private final String moduleVersion;
+    private final BModule bModule;
 
     /**
      * Type name if @{@link Strand} was initiated inside type.
@@ -52,9 +44,7 @@ public class StrandMetadata {
 
     public StrandMetadata(String moduleOrg, String moduleName, String moduleVersion, String typeName,
                           String parentFunctionName) {
-        this.moduleOrg = moduleOrg;
-        this.moduleName = moduleName;
-        this.moduleVersion = moduleVersion;
+        this.bModule = new BModule(moduleOrg, moduleName, moduleVersion);
         this.typeName = typeName;
         this.parentFunctionName = parentFunctionName;
     }
@@ -63,32 +53,16 @@ public class StrandMetadata {
         this(moduleOrg, moduleName, moduleVersion, null, parentFunctionName);
     }
 
-    /**
-     * Gets the organization name of module @{@link Strand} was initiated.
-     *
-     * @return Strand module org name.
-     */
-    public String getModuleOrg() {
-        return moduleOrg;
-    }
 
     /**
-     * Gets the name of module @{@link Strand} was initiated.
+     * Gets the runtime module @{@link Strand} was initiated.
      *
      * @return Strand module name.
      */
-    public String getModuleName() {
-        return moduleName;
+    public BModule getModule() {
+        return bModule;
     }
 
-    /**
-     * Gets the version of module @{@link Strand} was initiated.
-     *
-     * @return Strand module version.
-     */
-    public String getModuleVersion() {
-        return moduleVersion;
-    }
 
     /**
      * Gets the type name if @{@link Strand} was initiated inside type.
