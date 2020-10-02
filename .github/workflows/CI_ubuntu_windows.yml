@@ -11,6 +11,8 @@ on:
       - stage
       - ballerina-1.2.x
   pull_request:
+    paths-ignore:
+      - 'stdlib/release/**'
     branches-ignore:
       - master
       - next-release
