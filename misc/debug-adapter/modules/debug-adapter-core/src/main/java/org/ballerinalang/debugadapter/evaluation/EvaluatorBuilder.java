@@ -37,6 +37,7 @@ import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.BasicLiteralEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.BinaryExpressionEvaluator;
@@ -48,6 +49,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.IndexedExpressionEvaluat
 import org.ballerinalang.debugadapter.evaluation.engine.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.OptionalFieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.TypeOfExpressionEvaluator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -72,6 +74,10 @@ import java.util.StringJoiner;
  * <li> Braced expression
  * <li> Member access expression
  * <li> Optional field access expression
+ * <li> Binary bitwise expression
+ * <li> Logical expression
+ * <li> Conditional expression
+ * <li> Typeof expression
  * </ul>
  * <br>
  * To be Implemented.
@@ -85,15 +91,11 @@ import java.util.StringJoiner;
  * <li> Anonymous function expression
  * <li> Let expression
  * <li> Type cast expression
- * <li> Typeof expression
  * <li> Unary expression
  * <li> Shift expression
  * <li> Range expression
  * <li> Type test expression
  * <li> Equality expression
- * <li> Binary bitwise expression
- * <li> Logical expression
- * <li> Conditional expression
  * <li> Checking expression
  * <li> Trap expression
  * <li> Query expression
@@ -238,6 +240,14 @@ public class EvaluatorBuilder extends NodeVisitor {
         Evaluator endExprEvaluator = result;
         result = new ConditionalExpressionEvaluator(context, conditionalExpressionNode, lhsExprEvaluator,
                 middleExprEvaluator, endExprEvaluator);
+    }
+
+    @Override
+    public void visit(TypeofExpressionNode typeofExpressionNode) {
+        visitSyntaxNode(typeofExpressionNode);
+        typeofExpressionNode.expression().accept(this);
+        Evaluator exprEvaluator = result;
+        result = new TypeOfExpressionEvaluator(context, typeofExpressionNode, exprEvaluator);
     }
 
     @Override
@@ -441,7 +451,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addTypeOfExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.TYPEOF_EXPRESSION);
     }
 
     private void addUnaryExpressionSyntax() {
