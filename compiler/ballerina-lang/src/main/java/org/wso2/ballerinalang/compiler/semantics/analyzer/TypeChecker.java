@@ -4241,10 +4241,10 @@ public class TypeChecker extends BLangNodeVisitor {
                     break;
             }
             if (selectType != symTable.semanticError) {
-                if(resolvedType.tag == TypeTags.STREAM) {
+                if (resolvedType.tag == TypeTags.STREAM) {
                     queryExpr.isStream = true;
                 }
-                if(resolvedType.tag == TypeTags.TABLE) {
+                if (resolvedType.tag == TypeTags.TABLE) {
                     queryExpr.isTable = true;
                 }
                 selectTypes.add(selectType);
