@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 13,
+    "character": 10
+  },
+  "source": "annotation_ctx/source/moduleEnumAnnotation4.bal",
+  "items": [
+    {
+      "label": "typeAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "typeAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typeAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "typeAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typeAnnotation3",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "typeAnnotation3",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

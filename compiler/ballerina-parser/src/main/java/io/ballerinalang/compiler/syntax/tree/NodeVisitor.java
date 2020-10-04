@@ -763,8 +763,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(fieldMatchPatternNode);
     }
 
-    public void visit(FunctionalMatchPatternNode functionalMatchPatternNode) {
-        visitSyntaxNode(functionalMatchPatternNode);
+    public void visit(ErrorMatchPatternNode errorMatchPatternNode) {
+        visitSyntaxNode(errorMatchPatternNode);
     }
 
     public void visit(NamedArgMatchPatternNode namedArgMatchPatternNode) {

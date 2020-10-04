@@ -2957,18 +2957,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public FunctionalMatchPatternNode transform(
-            FunctionalMatchPatternNode functionalMatchPatternNode) {
-        Node typeRef =
-                modifyNode(functionalMatchPatternNode.typeRef());
+    public ErrorMatchPatternNode transform(
+            ErrorMatchPatternNode errorMatchPatternNode) {
+        Token errorKeyword =
+                modifyToken(errorMatchPatternNode.errorKeyword());
+        NameReferenceNode typeReference =
+                modifyNode(errorMatchPatternNode.typeReference().orElse(null));
         Token openParenthesisToken =
-                modifyToken(functionalMatchPatternNode.openParenthesisToken());
+                modifyToken(errorMatchPatternNode.openParenthesisToken());
         SeparatedNodeList<Node> argListMatchPatternNode =
-                modifySeparatedNodeList(functionalMatchPatternNode.argListMatchPatternNode());
+                modifySeparatedNodeList(errorMatchPatternNode.argListMatchPatternNode());
         Token closeParenthesisToken =
-                modifyToken(functionalMatchPatternNode.closeParenthesisToken());
-        return functionalMatchPatternNode.modify(
-                typeRef,
+                modifyToken(errorMatchPatternNode.closeParenthesisToken());
+        return errorMatchPatternNode.modify(
+                errorKeyword,
+                typeReference,
                 openParenthesisToken,
                 argListMatchPatternNode,
                 closeParenthesisToken);

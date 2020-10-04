@@ -37,7 +37,7 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
     public SimpleNameReferenceEvaluator(SuspendedContext context, SimpleNameReferenceNode node) {
         super(context);
         this.syntaxNode = node;
-        this.nameRef = node.toSourceCode().trim();
+        this.nameRef = node.name().text();
     }
 
     @Override

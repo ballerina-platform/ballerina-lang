@@ -535,8 +535,8 @@ public class SyntaxErrors {
             case OPTIONAL_FIELD_INITIALIZER:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case NIL_LITERAL:
-            case FUNCTIONAL_MATCH_PATTERN:
-                return DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN;
+            case ERROR_MATCH_PATTERN:
+                return DiagnosticErrorCode.ERROR_MISSING_ERROR_KEYWORD;
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_FLOATING_POINT_LITERAL;
             case HEX_FLOATING_POINT_LITERAL_TOKEN:
