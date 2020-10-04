@@ -25,9 +25,9 @@ package org.ballerinalang.jvm.commons;
  * @since 0.995.0
  */
 public enum ArrayState {
-    CLOSED_SEALED((byte) 1),
-    OPEN_SEALED((byte) 2),
-    UNSEALED((byte) 3);
+    CLOSED((byte) 1),
+    INFERRED((byte) 2),
+    OPEN((byte) 3);
 
     byte value;
 

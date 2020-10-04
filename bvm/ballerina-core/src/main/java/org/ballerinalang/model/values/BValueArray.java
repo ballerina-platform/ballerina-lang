@@ -109,7 +109,7 @@ public class BValueArray extends BNewArray {
             if (type.getTag() == TypeTags.ARRAY_TAG) {
                 BArrayType arrayType = (BArrayType) type;
                 this.elementType = arrayType.getElementType();
-                if (arrayType.getState() == BArrayState.CLOSED_SEALED) {
+                if (arrayType.getState() == BArrayState.CLOSED) {
                     this.size = maxArraySize = arrayType.getSize();
                 }
                 refValues = (BRefType[]) newArrayInstance(BRefType.class);

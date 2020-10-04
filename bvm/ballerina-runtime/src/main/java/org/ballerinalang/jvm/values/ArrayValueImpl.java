@@ -134,7 +134,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         BArrayType arrayType = type;
         this.elementType = arrayType.getElementType();
         initArrayValues(elementType);
-        if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
+        if (arrayType.getState() == ArrayState.CLOSED) {
             this.size = maxSize = arrayType.getSize();
         }
     }
@@ -166,7 +166,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             default:
                 this.refValues = new Object[initialArraySize];
-                if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
+                if (arrayType.getState() == ArrayState.CLOSED) {
                     fillerValueCheck(initialArraySize, initialArraySize);
                     fillValues(initialArraySize);
                 }
@@ -953,7 +953,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return;
         }
 
-        if (this.arrayType.getState() != ArrayState.UNSEALED) {
+        if (this.arrayType.getState() != ArrayState.OPEN) {
             return;
         }
 
@@ -970,7 +970,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     protected void checkFixedLength(long length) {
-        if (this.arrayType.getState() == ArrayState.CLOSED_SEALED) {
+        if (this.arrayType.getState() == ArrayState.CLOSED) {
             throw BLangExceptionHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     RuntimeErrors.ILLEGAL_ARRAY_SIZE, size, length);

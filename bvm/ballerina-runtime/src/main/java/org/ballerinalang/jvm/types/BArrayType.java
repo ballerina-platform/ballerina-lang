@@ -38,7 +38,7 @@ public class BArrayType extends BType {
     private int dimensions = 1;
     private int size = -1;
     private boolean hasFillerValue;
-    private ArrayState state = ArrayState.UNSEALED;
+    private ArrayState state = ArrayState.OPEN;
 
     private final boolean readonly;
     private BIntersectionType immutableType;
@@ -64,7 +64,7 @@ public class BArrayType extends BType {
             dimensions = ((BArrayType) elementType).getDimensions() + 1;
         }
         if (size != -1) {
-            state = ArrayState.CLOSED_SEALED;
+            state = ArrayState.CLOSED;
             this.size = size;
         }
         hasFillerValue = TypeChecker.hasFillerValue(this.elementType);
@@ -126,7 +126,7 @@ public class BArrayType extends BType {
     public boolean equals(Object obj) {
         if (obj instanceof BArrayType) {
             BArrayType other = (BArrayType) obj;
-            if (other.state == ArrayState.CLOSED_SEALED && this.size != other.size) {
+            if (other.state == ArrayState.CLOSED && this.size != other.size) {
                 return false;
             }
             return this.elementType.equals(other.elementType) && this.readonly == other.readonly;

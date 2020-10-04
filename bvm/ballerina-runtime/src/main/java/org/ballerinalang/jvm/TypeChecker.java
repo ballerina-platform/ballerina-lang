@@ -1247,10 +1247,10 @@ public class TypeChecker {
                 tupleTypes.add(sourceTupleType.getRestType());
             }
             if (tupleTypes.isEmpty()) {
-                return targetType.getState() == ArrayState.UNSEALED || targetType.getSize() == 0;
+                return targetType.getState() == ArrayState.OPEN || targetType.getSize() == 0;
             }
 
-            if (sourceTupleType.getRestType() != null && targetType.getState() == ArrayState.UNSEALED) {
+            if (sourceTupleType.getRestType() != null && targetType.getState() == ArrayState.OPEN) {
                 boolean memberTypesMatch = true;
                 if (!(tupleTypes.isEmpty())) {
                     for (BType sourceElementType : tupleTypes) {
@@ -1273,13 +1273,13 @@ public class TypeChecker {
         BType sourceElementType = sourceArrayType.getElementType();
 
         switch (sourceArrayType.getState()) {
-            case UNSEALED:
-                if (targetType.getState() != ArrayState.UNSEALED) {
+            case OPEN:
+                if (targetType.getState() != ArrayState.OPEN) {
                     return false;
                 }
                 break;
-            case CLOSED_SEALED:
-                if (targetType.getState() == ArrayState.CLOSED_SEALED &&
+            case CLOSED:
+                if (targetType.getState() == ArrayState.CLOSED &&
                         sourceArrayType.getSize() != targetType.getSize()) {
                     return false;
                 }
@@ -1323,7 +1323,7 @@ public class TypeChecker {
             BType sourceElementType = sourceArrayType.getElementType();
 
             switch (sourceArrayType.getState()) {
-                case UNSEALED:
+                case OPEN:
                     if (targetRestType == null) {
                         return false;
                     }
@@ -1331,7 +1331,7 @@ public class TypeChecker {
                         return checkIsType(sourceElementType, targetRestType, unresolvedTypes);
                     }
                     return false;
-                case CLOSED_SEALED:
+                case CLOSED:
                     if (sourceArrayType.getSize() >= targetTypes.size()) {
                         if (targetTypes.isEmpty()) {
                             if (targetRestType != null) {
@@ -2762,7 +2762,7 @@ public class TypeChecker {
     }
 
     private static boolean checkFillerValue(BArrayType type) {
-        return type.getState() == ArrayState.UNSEALED || hasFillerValue(type.getElementType());
+        return type.getState() == ArrayState.OPEN || hasFillerValue(type.getElementType());
     }
 
     private static boolean checkFillerValue(BObjectType type) {
