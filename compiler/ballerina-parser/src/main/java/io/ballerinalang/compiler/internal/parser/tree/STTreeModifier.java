@@ -1020,12 +1020,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STNamedWorkerDeclarationNode transform(
             STNamedWorkerDeclarationNode namedWorkerDeclarationNode) {
         STNode annotations = modifyNode(namedWorkerDeclarationNode.annotations);
+        STNode transactionalKeyword = modifyNode(namedWorkerDeclarationNode.transactionalKeyword);
         STNode workerKeyword = modifyNode(namedWorkerDeclarationNode.workerKeyword);
         STNode workerName = modifyNode(namedWorkerDeclarationNode.workerName);
         STNode returnTypeDesc = modifyNode(namedWorkerDeclarationNode.returnTypeDesc);
         STNode workerBody = modifyNode(namedWorkerDeclarationNode.workerBody);
         return namedWorkerDeclarationNode.modify(
                 annotations,
+                transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
@@ -2351,14 +2353,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STFunctionalMatchPatternNode transform(
-            STFunctionalMatchPatternNode functionalMatchPatternNode) {
-        STNode typeRef = modifyNode(functionalMatchPatternNode.typeRef);
-        STNode openParenthesisToken = modifyNode(functionalMatchPatternNode.openParenthesisToken);
-        STNode argListMatchPatternNode = modifyNode(functionalMatchPatternNode.argListMatchPatternNode);
-        STNode closeParenthesisToken = modifyNode(functionalMatchPatternNode.closeParenthesisToken);
-        return functionalMatchPatternNode.modify(
-                typeRef,
+    public STErrorMatchPatternNode transform(
+            STErrorMatchPatternNode errorMatchPatternNode) {
+        STNode errorKeyword = modifyNode(errorMatchPatternNode.errorKeyword);
+        STNode typeReference = modifyNode(errorMatchPatternNode.typeReference);
+        STNode openParenthesisToken = modifyNode(errorMatchPatternNode.openParenthesisToken);
+        STNode argListMatchPatternNode = modifyNode(errorMatchPatternNode.argListMatchPatternNode);
+        STNode closeParenthesisToken = modifyNode(errorMatchPatternNode.closeParenthesisToken);
+        return errorMatchPatternNode.modify(
+                errorKeyword,
+                typeReference,
                 openParenthesisToken,
                 argListMatchPatternNode,
                 closeParenthesisToken);

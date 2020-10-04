@@ -37,20 +37,24 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
         return new NodeList<>(childInBucket(0));
     }
 
-    public Token workerKeyword() {
-        return childInBucket(1);
+    public Optional<Token> transactionalKeyword() {
+        return optionalChildInBucket(1);
     }
 
-    public IdentifierToken workerName() {
+    public Token workerKeyword() {
         return childInBucket(2);
     }
 
+    public IdentifierToken workerName() {
+        return childInBucket(3);
+    }
+
     public Optional<Node> returnTypeDesc() {
-        return optionalChildInBucket(3);
+        return optionalChildInBucket(4);
     }
 
     public BlockStatementNode workerBody() {
-        return childInBucket(4);
+        return childInBucket(5);
     }
 
     @Override
@@ -67,6 +71,7 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "annotations",
+                "transactionalKeyword",
                 "workerKeyword",
                 "workerName",
                 "returnTypeDesc",
@@ -75,12 +80,14 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
 
     public NamedWorkerDeclarationNode modify(
             NodeList<AnnotationNode> annotations,
+            Token transactionalKeyword,
             Token workerKeyword,
             IdentifierToken workerName,
             Node returnTypeDesc,
             BlockStatementNode workerBody) {
         if (checkForReferenceEquality(
                 annotations.underlyingListNode(),
+                transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
@@ -90,6 +97,7 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
 
         return NodeFactory.createNamedWorkerDeclarationNode(
                 annotations,
+                transactionalKeyword,
                 workerKeyword,
                 workerName,
                 returnTypeDesc,
@@ -108,6 +116,7 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
     public static class NamedWorkerDeclarationNodeModifier {
         private final NamedWorkerDeclarationNode oldNode;
         private NodeList<AnnotationNode> annotations;
+        private Token transactionalKeyword;
         private Token workerKeyword;
         private IdentifierToken workerName;
         private Node returnTypeDesc;
@@ -116,6 +125,7 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
         public NamedWorkerDeclarationNodeModifier(NamedWorkerDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.annotations = oldNode.annotations();
+            this.transactionalKeyword = oldNode.transactionalKeyword().orElse(null);
             this.workerKeyword = oldNode.workerKeyword();
             this.workerName = oldNode.workerName();
             this.returnTypeDesc = oldNode.returnTypeDesc().orElse(null);
@@ -126,6 +136,13 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
                 NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
+            return this;
+        }
+
+        public NamedWorkerDeclarationNodeModifier withTransactionalKeyword(
+                Token transactionalKeyword) {
+            Objects.requireNonNull(transactionalKeyword, "transactionalKeyword must not be null");
+            this.transactionalKeyword = transactionalKeyword;
             return this;
         }
 
@@ -160,6 +177,7 @@ public class NamedWorkerDeclarationNode extends NonTerminalNode {
         public NamedWorkerDeclarationNode apply() {
             return oldNode.modify(
                     annotations,
+                    transactionalKeyword,
                     workerKeyword,
                     workerName,
                     returnTypeDesc,

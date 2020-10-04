@@ -328,3 +328,48 @@ function testNestedRetryTrxWithinTrx() returns string|error {
     }
     return str;
 }
+
+function testNestedReturns () {
+    string nestedInnerReturnRes = testNestedInnerReturn();
+    assertEquality("start -> within trx 1 -> within trx 2 -> within trx 3", nestedInnerReturnRes);
+    string nestedMiddleReturnRes = testNestedMiddleReturn();
+    assertEquality("start -> within trx 1 -> within trx 2", nestedMiddleReturnRes);
+}
+
+function testNestedInnerReturn() returns string {
+    string str = "start";
+    retry transaction {
+        str += " -> within trx 1";
+        var res1 = commit;
+        retry transaction {
+            var res2 = commit;
+            str += " -> within trx 2";
+            retry transaction {
+                var res3 = commit;
+                str += " -> within trx 3";
+                return str;
+            }
+        }
+    }
+}
+
+function testNestedMiddleReturn() returns string {
+    string str = "start";
+    retry transaction {
+        str += " -> within trx 1";
+        var res1 = commit;
+        retry transaction {
+            int count = 1;
+            var res2 = commit;
+            str += " -> within trx 2";
+            if (count == 1) {
+                return str;
+            }
+            retry transaction {
+                var res3 = commit;
+                str += " -> within trx 3 -> should not reach here";
+                return str;
+            }
+        }
+    }
+}

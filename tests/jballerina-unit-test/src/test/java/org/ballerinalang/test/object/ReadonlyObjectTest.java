@@ -33,7 +33,7 @@ import static org.testng.Assert.assertEquals;
  */
 public class ReadonlyObjectTest {
 
-    @Test
+    @Test (enabled = false)
     public void testReadonlyObjects() {
         CompileResult result = BCompileUtil.compile("test-src/object/readonly_objects.bal");
         BRunUtil.invoke(result, "testReadonlyObjects");

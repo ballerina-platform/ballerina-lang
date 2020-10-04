@@ -45,7 +45,7 @@ public class ReadOnlyObjectBaloTest {
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_readonly_objects.bal");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testReadonlyType() {
         BRunUtil.invoke(result, "testReadonlyObjects");
     }

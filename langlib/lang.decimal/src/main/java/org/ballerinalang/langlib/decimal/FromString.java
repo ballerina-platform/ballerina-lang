@@ -20,32 +20,25 @@ package org.ballerinalang.langlib.decimal;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.math.BigDecimal;
-
-import static org.ballerinalang.util.BLangCompilerConstants.DECIMAL_VERSION;
 
 /**
  * Native implementation of lang.decimal:fromString(string).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", version = DECIMAL_VERSION, functionName = "fromString",
-        args = {@Argument(name = "s", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.decimal", functionName = "fromString",
+//        args = {@Argument(name = "s", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.UNION)},
+//        isPublic = true
+//)
 public class FromString {
 
-    public static Object fromString(Strand strand, BString s) {
+    public static Object fromString(BString s) {
         try {
             return new DecimalValue(new BigDecimal(s.getValue()));
         } catch (NumberFormatException e) {

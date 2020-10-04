@@ -18,33 +18,26 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Slice and return a subsequence of the an XML sequence.
  * 
  * @since 0.88
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "slice",
-        args = { @Argument(name = "startIndex", type = TypeKind.INT),
-                @Argument(name = "endIndex", type = TypeKind.INT) },
-        returnType = { @ReturnType(type = TypeKind.XML) }, isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "slice",
+//        args = { @Argument(name = "startIndex", type = TypeKind.INT),
+//                @Argument(name = "endIndex", type = TypeKind.INT) },
+//        returnType = { @ReturnType(type = TypeKind.XML) }, isPublic = true
+//)
 public class Slice {
 
     private static final String OPERATION = "slice xml";
 
-    public static XMLValue slice(Strand strand, XMLValue xml, long startIndex, long endIndex) {
+    public static XMLValue slice(XMLValue xml, long startIndex, long endIndex) {
         try {
             return (XMLValue) xml.slice(startIndex, endIndex);
         } catch (Throwable e) {

@@ -18,28 +18,17 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.jvm.observability.metrics.Counter;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 /**
  * This is the native initialize function that's getting called when instantiating the Counter object.
  *
  * @since 0.980.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "initialize",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.COUNTER,
-                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH)
-)
 public class CounterInitialize {
 
-    public static void initialize(Strand strand, ObjectValue counterObj) {
+    public static void initialize(ObjectValue counterObj) {
         Counter counter = Counter.builder(counterObj.get(ObserveNativeImplConstants.NAME_FIELD).toString())
                 .description(counterObj.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).toString())
                 .tags(Utils.toStringMap((MapValue) counterObj.get(ObserveNativeImplConstants.TAGS_FIELD)))
