@@ -32,6 +32,8 @@ import java.nio.file.Paths;
 
 /**
  * Contains tests related to the target directory of a project.
+ *
+ * @since 2.0.0
  */
 public class TestTarget {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");

@@ -36,7 +36,6 @@ import java.nio.file.Paths;
  */
 public class TestJarWriter {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
-    private final String dummyContent = "function foo() {\n}";
 
     @Test (enabled = false, description = "tests writing of the executable")
     public void testJarWriter() throws IOException {

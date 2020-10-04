@@ -32,6 +32,8 @@ import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_PKG_BI
 
 /**
  * Represents the target directory model.
+ *
+ * @since 2.0.0
  */
 public class Target {
 
