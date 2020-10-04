@@ -18,11 +18,7 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.jvm.observability.metrics.Counter;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 /**
  * This is the native register function implementation of the Counter object.
@@ -30,17 +26,9 @@ import org.ballerinalang.natives.annotations.Receiver;
  * @since 0.980.0
  */
 
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "unregister",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.COUNTER,
-                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),
-        isPublic = true
-)
 public class CounterUnregister {
 
-    public static void unregister(Strand strand, ObjectValue counterObj) {
+    public static void unregister(ObjectValue counterObj) {
         Counter counter = (Counter) counterObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         counter.unregister();
     }

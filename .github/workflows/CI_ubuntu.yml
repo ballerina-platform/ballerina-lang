@@ -26,10 +26,10 @@ jobs:
       - name: Initialize sub-modules
         run: git submodule update --init
 
-      - name: Set up JDK 1.8
+      - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: 11
 
       - name: Cache Gradle packages
         uses: actions/cache@v2
@@ -62,10 +62,10 @@ jobs:
       - name: Initialize sub-modules
         run: git submodule update --init
 
-      - name: Set up JDK 1.8
+      - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: 11
 
       - name: Cache Gradle packages
         uses: actions/cache@v2
@@ -97,10 +97,10 @@ jobs:
       - name: Initialize sub-modules
         run: git submodule update --init
 
-      - name: Set up JDK 1.8
+      - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: 11
 
       - name: Cache Gradle packages
         uses: actions/cache@v2
@@ -132,10 +132,10 @@ jobs:
       - name: Initialize sub-modules
         run: git submodule update --init
 
-      - name: Set up JDK 1.8
+      - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: 11
 
       - name: Cache Gradle packages
         uses: actions/cache@v2

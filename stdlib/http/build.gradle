@@ -33,7 +33,7 @@ configurations.testRuntimeClasspath {
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-java')
+
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-auth')
     implementation project(':ballerina-file')
@@ -62,7 +62,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
@@ -70,9 +69,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
-
     interopImports project(':ballerina-config-api')
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-log-api')
@@ -89,8 +86,11 @@ dependencies {
     interopImports project(':ballerina-io')
 
     implementation 'io.netty:netty-codec-http'
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
+    implementation ('org.wso2.transport.http:org.wso2.transport.http.netty') {
+        exclude  group: 'org.wso2.eclipse.osgi', module: 'org.eclipse.osgi'
+        exclude  group: 'org.wso2.eclipse.osgi', module: 'org.eclipse.osgi.services'
+    }
+//    implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.jvnet.mimepull:mimepull'
     implementation 'org.bouncycastle:bcprov-jdk15on'
@@ -98,7 +98,7 @@ dependencies {
     testCompile project(path: ':ballerina-mime', configuration: 'tests')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(':ballerina-http')
+//    testCompile project(':ballerina-http')
     testCompile project(':ballerina-core')
     testCompile 'org.apache.ws.commons.axiom:axiom-api'
     testCompile 'org.testng:testng'

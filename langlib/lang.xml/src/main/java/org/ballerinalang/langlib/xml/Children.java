@@ -19,34 +19,27 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Return lift getChildren over sequences.
  *
  * @since 1.2
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "children",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "children",
+//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class Children {
 
-    public static XMLValue children(Strand strand, XMLValue xmlVal) {
+    public static XMLValue children(XMLValue xmlVal) {
         if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
             return ((XMLItem) xmlVal).children();
         } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
