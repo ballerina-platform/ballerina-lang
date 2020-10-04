@@ -13800,7 +13800,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseMatchPattern();
             case VAR_KEYWORD:
                 STNode varKeyword = consume();
-                STNode variableName = parseVariableName();
+                // TODO : check this
+                STNode variableName = parseBindingPattern();
                 return STNodeFactory.createTypedBindingPatternNode(varKeyword, variableName);
             default:
                 recover(nextToken, context);

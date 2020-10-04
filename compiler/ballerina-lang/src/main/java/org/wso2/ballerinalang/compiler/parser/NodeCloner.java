@@ -150,10 +150,16 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMessageMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangNamedArgMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -768,6 +774,62 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.matchExpr = source.matchExpr;
         clone.setIdentifier(source.getIdentifier());
+    }
+
+    @Override
+    public void visit(BLangErrorMatchPattern source) {
+        BLangErrorMatchPattern clone = new BLangErrorMatchPattern();
+        source.cloneRef = clone;
+        clone.errorMessageMatchPattern = source.errorMessageMatchPattern;
+        clone.errorFieldMatchPatterns = source.errorFieldMatchPatterns;
+        clone.errorCauseMatchPattern = source.errorCauseMatchPattern;
+        clone.errorTypeReference = source.errorTypeReference;
+    }
+
+    @Override
+    public void visit(BLangErrorMessageMatchPattern source) {
+        BLangErrorMessageMatchPattern clone = new BLangErrorMessageMatchPattern();
+        source.cloneRef = clone;
+        clone.simpleMatchPattern = source.simpleMatchPattern;
+    }
+
+    @Override
+    public void visit(BLangErrorCauseMatchPattern source) {
+        BLangErrorCauseMatchPattern clone = new BLangErrorCauseMatchPattern();
+        source.cloneRef = clone;
+        clone.errorMatchPattern = source.errorMatchPattern;
+        clone.simpleMatchPattern = source.simpleMatchPattern;
+    }
+
+    @Override
+    public void visit(BLangNamedArgMatchPattern source) {
+        BLangNamedArgMatchPattern clone = new BLangNamedArgMatchPattern();
+        source.cloneRef = clone;
+        clone.argName = source.argName;
+        clone.matchPattern = source.matchPattern;
+    }
+
+    @Override
+    public void visit(BLangRestMatchPattern source) {
+        BLangRestMatchPattern clone = new BLangRestMatchPattern();
+        source.cloneRef = clone;
+        clone.variableName = source.variableName;
+    }
+
+    @Override
+    public void visit(BLangErrorFieldMatchPatterns source) {
+        BLangErrorFieldMatchPatterns clone = new BLangErrorFieldMatchPatterns();
+        source.cloneRef = clone;
+        clone.namedArgMatchPatterns = cloneList(source.namedArgMatchPatterns);
+    }
+
+    @Override
+    public void visit(BLangSimpleMatchPattern source) {
+        BLangSimpleMatchPattern clone = new BLangSimpleMatchPattern();
+        source.cloneRef = clone;
+        clone.wildCardMatchPattern = source.wildCardMatchPattern;
+        clone.constPattern = source.constPattern;
+        clone.varVariableName = source.varVariableName;
     }
 
     @Override

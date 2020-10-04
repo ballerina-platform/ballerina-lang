@@ -361,11 +361,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMessageMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangNamedArgMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -4099,6 +4105,50 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return bLangVarBindingPattern;
         }
 
+        if (kind == SyntaxKind.ERROR_MATCH_PATTERN) {
+            ErrorMatchPatternNode errorMatchPatternNode = (ErrorMatchPatternNode) matchPattern;
+            BLangErrorMatchPattern bLangErrorMatchPattern =
+                    (BLangErrorMatchPattern) TreeBuilder.createErrorMatchPattern();
+
+            bLangErrorMatchPattern.pos = matchPatternPos;
+
+            NameReferenceNode nameReferenceNode;
+            if (errorMatchPatternNode.typeReference().isPresent()) {
+                nameReferenceNode = errorMatchPatternNode.typeReference().get();
+                bLangErrorMatchPattern.errorTypeReference = (BLangUserDefinedType) createTypeNode(nameReferenceNode);
+            }
+
+            Node node = errorMatchPatternNode.argListMatchPatternNode().get(0);
+            if (isErrorFieldMatchPattern(node)) {
+                createErrorFieldMatchPatterns(0, errorMatchPatternNode, bLangErrorMatchPattern);
+                return bLangErrorMatchPattern;
+            }
+
+            bLangErrorMatchPattern.errorMessageMatchPattern = createErrorMessageMatchPattern(node);
+            if (errorMatchPatternNode.argListMatchPatternNode().size() == 1) {
+                return bLangErrorMatchPattern;
+            }
+
+            node = errorMatchPatternNode.argListMatchPatternNode().get(1);
+            if (isErrorFieldMatchPattern(node)) {
+                createErrorFieldMatchPatterns(1, errorMatchPatternNode, bLangErrorMatchPattern);
+                return bLangErrorMatchPattern;
+            }
+            bLangErrorMatchPattern.errorCauseMatchPattern = createErrorCauseMatchPattern(node);
+            createErrorFieldMatchPatterns(2, errorMatchPatternNode, bLangErrorMatchPattern);
+
+            return bLangErrorMatchPattern;
+        } else if (kind == SyntaxKind.NAMED_ARG_MATCH_PATTERN) {
+            NamedArgMatchPatternNode namedArgMatchPatternNode = (NamedArgMatchPatternNode) matchPattern;
+
+            BLangNamedArgMatchPattern bLangNamedArgMatchPattern =
+                    (BLangNamedArgMatchPattern) TreeBuilder.createNamedArgMatchPattern();
+            bLangNamedArgMatchPattern.argName = createIdentifier(namedArgMatchPatternNode.identifier());
+            bLangNamedArgMatchPattern.matchPattern = transformMatchPattern(namedArgMatchPatternNode.matchPattern());
+
+            return bLangNamedArgMatchPattern;
+        }
+
         if (kind == SyntaxKind.LIST_MATCH_PATTERN) {
             ListMatchPatternNode listMatchPatternNode = (ListMatchPatternNode) matchPattern;
             BLangListMatchPattern bLangListMatchPattern =
@@ -4163,6 +4213,85 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         // TODO : Remove this after all binding patterns are implemented
         dlog.error(matchPatternPos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
         return null;
+    }
+
+    private boolean isErrorFieldMatchPattern(Node node) {
+        return node.kind() == SyntaxKind.NAMED_ARG_MATCH_PATTERN || node.kind() == SyntaxKind.REST_MATCH_PATTERN;
+    }
+
+    private BLangErrorMessageMatchPattern createErrorMessageMatchPattern(Node node) {
+
+        BLangMatchPattern matchPattern = transformMatchPattern(node);
+
+        BLangErrorMessageMatchPattern bLangErrorMessageMatchPattern =
+                (BLangErrorMessageMatchPattern) TreeBuilder.createErrorMessageMatchPattern();
+        bLangErrorMessageMatchPattern.pos = getPosition(node);
+        bLangErrorMessageMatchPattern.simpleMatchPattern = createSimpleMatchPattern(matchPattern);
+        return bLangErrorMessageMatchPattern;
+    }
+
+    private BLangErrorCauseMatchPattern createErrorCauseMatchPattern(Node node) {
+
+        BLangMatchPattern matchPattern = transformMatchPattern(node);
+
+        BLangErrorCauseMatchPattern bLangErrorCauseMatchPattern =
+                (BLangErrorCauseMatchPattern) TreeBuilder.createErrorCauseMatchPattern();
+        bLangErrorCauseMatchPattern.pos = getPosition(node);
+
+        if (matchPattern.getKind() == NodeKind.ERROR_MATCH_PATTERN) {
+            bLangErrorCauseMatchPattern.errorMatchPattern = (BLangErrorMatchPattern) matchPattern;
+            return bLangErrorCauseMatchPattern;
+        }
+        bLangErrorCauseMatchPattern.simpleMatchPattern = createSimpleMatchPattern(matchPattern);
+        return bLangErrorCauseMatchPattern;
+    }
+
+    private BLangErrorFieldMatchPatterns createErrorFieldMatchPattern(Node errorFieldMatchPatternNode,
+                                                                      BLangErrorFieldMatchPatterns bLangErrorFieldMatchPatterns) {
+
+        BLangMatchPattern matchPattern = transformMatchPattern(errorFieldMatchPatternNode);
+        bLangErrorFieldMatchPatterns.pos = getPosition(errorFieldMatchPatternNode);
+
+        if (matchPattern.getKind() == NodeKind.NAMED_ARG_MATCH_PATTERN) {
+            bLangErrorFieldMatchPatterns.addNamedArgMatchPattern(
+                    (org.ballerinalang.model.tree.matchpatterns.NamedArgMatchPatternNode) matchPattern);
+        } else if (matchPattern.getKind() == NodeKind.REST_MATCH_PATTERN) {
+            bLangErrorFieldMatchPatterns.restMatchPattern = (BLangRestMatchPattern) matchPattern;
+        }
+
+        return bLangErrorFieldMatchPatterns;
+    }
+
+    private void createErrorFieldMatchPatterns(int index, ErrorMatchPatternNode errorMatchPatternNode,
+                                               BLangErrorMatchPattern bLangErrorMatchPattern) {
+
+        BLangErrorFieldMatchPatterns bLangErrorFieldMatchPatterns =
+                (BLangErrorFieldMatchPatterns) TreeBuilder.createErrorFieldMatchPattern();
+        for (int i = index; i < errorMatchPatternNode.argListMatchPatternNode().size(); i++) {
+            Node errorFieldMatchPatternNode = errorMatchPatternNode.argListMatchPatternNode().get(i);
+            bLangErrorMatchPattern.errorFieldMatchPatterns = createErrorFieldMatchPattern(errorFieldMatchPatternNode,
+                    bLangErrorFieldMatchPatterns);
+        }
+    }
+
+    private BLangSimpleMatchPattern createSimpleMatchPattern(BLangNode bLangNode) {
+
+        BLangSimpleMatchPattern bLangSimpleMatchPattern =
+                (BLangSimpleMatchPattern) TreeBuilder.createSimpleMatchPattern();
+
+        NodeKind kind = bLangNode.getKind();
+        switch (kind) {
+            case WILDCARD_MATCH_PATTERN:
+                bLangSimpleMatchPattern.wildCardMatchPattern = (BLangWildCardMatchPattern) bLangNode;
+                break;
+            case CONST_MATCH_PATTERN:
+                bLangSimpleMatchPattern.constPattern = (BLangConstPattern) bLangNode;
+                break;
+            case VAR_BINDING_PATTERN_MATCH_PATTERN:
+                bLangSimpleMatchPattern.varVariableName = (BLangVarBindingPatternMatchPattern) bLangNode;
+                break;
+        }
+        return bLangSimpleMatchPattern;
     }
 
     private BLangCaptureBindingPattern createCaptureBindingPattern(CaptureBindingPatternNode
