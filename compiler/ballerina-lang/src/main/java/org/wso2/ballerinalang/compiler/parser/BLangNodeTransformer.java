@@ -4247,7 +4247,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangErrorFieldMatchPatterns createErrorFieldMatchPattern(Node errorFieldMatchPatternNode,
-                                                                      BLangErrorFieldMatchPatterns bLangErrorFieldMatchPatterns) {
+                                                         BLangErrorFieldMatchPatterns bLangErrorFieldMatchPatterns) {
 
         BLangMatchPattern matchPattern = transformMatchPattern(errorFieldMatchPatternNode);
         bLangErrorFieldMatchPatterns.pos = getPosition(errorFieldMatchPatternNode);
