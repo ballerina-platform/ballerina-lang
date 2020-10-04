@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
-
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
