@@ -17,25 +17,20 @@
  */
 package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.bindingpattern.BindingPatternNode;
-import org.ballerinalang.model.tree.matchpatterns.VarBindingPatternMatchPatternNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.ballerinalang.model.tree.matchpatterns.MatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.NamedArgMatchPatternNode;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * Represent var-binding-pattern.
- *
- * @since 2.0.0
+ * @since Swan Lake
  */
-public class BLangVarBindingPatternMatchPattern extends BLangMatchPattern implements VarBindingPatternMatchPatternNode {
+public class BLangNamedArgMatchPattern extends BLangMatchPattern implements NamedArgMatchPatternNode {
 
-    BLangBindingPattern bindingPattern;
-    public Map<String, BVarSymbol> declaredVars = new HashMap<>();
+    public BLangIdentifier argName;
+    public BLangMatchPattern matchPattern;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -44,16 +39,26 @@ public class BLangVarBindingPatternMatchPattern extends BLangMatchPattern implem
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.VAR_BINDING_PATTERN_MATCH_PATTERN;
+        return NodeKind.NAMED_ARG_MATCH_PATTERN;
     }
 
     @Override
-    public BLangBindingPattern getBindingPattern() {
-        return bindingPattern;
+    public IdentifierNode getIdentifier() {
+        return argName;
     }
 
     @Override
-    public void setBindingPattern(BindingPatternNode bindingPattern) {
-        this.bindingPattern = (BLangBindingPattern) bindingPattern;
+    public void setIdentifier(IdentifierNode variableName) {
+        this.argName = (BLangIdentifier) variableName;
+    }
+
+    @Override
+    public MatchPatternNode getMatchPattern() {
+        return matchPattern;
+    }
+
+    @Override
+    public void setMatchPattern(MatchPatternNode matchPattern) {
+        this.matchPattern = (BLangMatchPattern) matchPattern;
     }
 }
