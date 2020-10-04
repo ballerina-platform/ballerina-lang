@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -145,7 +145,7 @@ public class ObjectEquivalencyTest {
         BRunUtil.invoke(compileResult, "testObjectAssignabilityBetweenNonClientAndClientObject");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testSubtypingBetweenNonClientAndClientObject() {
         BRunUtil.invoke(compileResult, "testSubtypingBetweenNonClientAndClientObject");
     }

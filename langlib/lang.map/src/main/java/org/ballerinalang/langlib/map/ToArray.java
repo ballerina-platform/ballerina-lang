@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -29,31 +28,26 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Collection;
 
 import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
-import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**
  * Function for returning the values of the map as an array. T[] vals = m.toArray();
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION,
-        functionName = "toArray",
-        args = {@Argument(name = "m", type = TypeKind.MAP)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.map",
+//        functionName = "toArray",
+//        args = {@Argument(name = "m", type = TypeKind.MAP)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANY)},
+//        isPublic = true
+//)
 public class ToArray {
 
-    public static ArrayValue toArray(Strand strand, MapValue<?, ?> m) {
+    public static ArrayValue toArray(MapValue<?, ?> m) {
         BType mapType = m.getType();
         BType arrElemType;
         switch (mapType.getTag()) {
