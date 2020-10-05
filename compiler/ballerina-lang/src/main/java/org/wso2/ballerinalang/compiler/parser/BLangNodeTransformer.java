@@ -1095,7 +1095,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         // 1) Define type nodeDefinition for service type.
         BLangClassDefinition classDef = (BLangClassDefinition) TreeBuilder.createClassDefNode();
         BLangIdentifier serviceTypeID = createIdentifier(identifierPos, serviceTypeName);
-        serviceTypeID.pos = pos;
+        serviceTypeID.pos = symTable.builtinPos;
         classDef.setName(serviceTypeID);
         classDef.flagSet.add(SERVICE);
 
@@ -1109,7 +1109,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLService.annAttachments = applyAll(serviceConstructorNode.annotations());
         }
 
-        classDef.pos = pos;
+        classDef.pos = symTable.builtinPos;
         addToTop(classDef);
         bLService.serviceClass = classDef;
 
@@ -1117,14 +1117,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         final BLangServiceConstructorExpr serviceConstNode = (BLangServiceConstructorExpr) TreeBuilder
                 .createServiceConstructorNode();
         serviceConstNode.serviceNode = bLService;
-        serviceConstNode.pos = pos;
+        serviceConstNode.pos = symTable.builtinPos;
 
         // Crate Global variable for service.
         bLService.pos = pos;
         if (!isAnonServiceValue) {
             BLangSimpleVariable var = (BLangSimpleVariable) createBasicVarNodeWithoutType(identifierPos,
                     Collections.emptySet(),
-                    serviceName, identifierPos,
+                    serviceName, symTable.builtinPos,
                     serviceConstNode);
             var.flagSet.add(Flag.FINAL);
             var.flagSet.add(SERVICE);
@@ -1132,7 +1132,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
             bLUserDefinedType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
             bLUserDefinedType.typeName = classDef.name;
-            bLUserDefinedType.pos = pos;
+            bLUserDefinedType.pos = symTable.builtinPos;
 
             var.typeNode = bLUserDefinedType;
             bLService.variableNode = var;
