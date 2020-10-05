@@ -3092,7 +3092,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private BType getMatchPatternType(BLangMatchPattern matchPattern) {
-
         NodeKind matchPatternKind = matchPattern.getKind();
         switch (matchPatternKind) {
             case WILDCARD_MATCH_PATTERN:
