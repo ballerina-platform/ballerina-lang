@@ -25,7 +25,6 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageName;
-import io.ballerina.projects.balo.BaloFiles;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -40,11 +39,6 @@ public class PackageLoader {
 
     public static PackageConfig loadPackage(String packageDir, boolean isSingleFile) {
         final PackageData packageData = ProjectFiles.loadPackageData(packageDir, isSingleFile);
-        return createPackageConfig(packageData);
-    }
-
-    public static PackageConfig loadPackage(String packageDir) {
-        final PackageData packageData = BaloFiles.loadPackageData(packageDir);
         return createPackageConfig(packageData);
     }
 

@@ -27,14 +27,12 @@ import io.ballerina.projects.model.Package;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.utils.ProjectUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,13 +50,13 @@ import static io.ballerina.projects.utils.ProjectConstants.MODULES_ROOT;
  * @since 2.0.0
  */
 public class BaloFiles {
-    private static final PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**.bal");
     private static Gson gson = new Gson();
 
+    // TODO change class name to utils
     private BaloFiles() {
     }
 
-    public static PackageData loadPackageData(String baloPath) {
+    static PackageData loadPackageData(String baloPath) {
         Path absBaloPath = validateBaloPath(baloPath);
 
         URI zipURI = URI.create("jar:" + absBaloPath.toUri().toString());
@@ -78,6 +76,7 @@ public class BaloFiles {
 
             return PackageData.from(absBaloPath, defaultModule, otherModules);
         } catch (IOException e) {
+            // TODO add 'unable to load balo: balonamme' as root error message, after exception model
             throw new RuntimeException("cannot read balo:" + baloPath);
         }
     }
@@ -174,12 +173,12 @@ public class BaloFiles {
         try (Stream<Path> pathStream = Files.walk(modulesDirPath, 1)) {
             return pathStream
                     .filter(path -> !path.equals(modulesDirPath))
-                    .filter(path -> !String.valueOf(path).equals("/" + defaultModulePath + "/"))
+                    .filter(path -> !String.valueOf(path.getFileName()).equals(defaultModulePath.getFileName() + "/"))
                     .filter(Files::isDirectory)
                     .map(BaloFiles::loadModule)
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("unable to load modules from directory:" + e.getMessage());
         }
     }
 }
