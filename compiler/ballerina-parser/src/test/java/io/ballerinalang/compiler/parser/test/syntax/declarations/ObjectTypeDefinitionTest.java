@@ -176,7 +176,7 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
 
     @Test
     public void testObjectFieldsWithInvalidQualifier() {
-        test("object-type-def/object_type_def_source_17.bal", "object-type-def/object_type_def_assert_17.json");
+//        test("object-type-def/object_type_def_source_17.bal", "object-type-def/object_type_def_assert_17.json");
         test("object-type-def/object_type_def_source_37.bal", "object-type-def/object_type_def_assert_37.json");
         test("object-type-def/object_type_def_source_39.bal", "object-type-def/object_type_def_assert_39.json");
     }
