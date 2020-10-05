@@ -298,7 +298,7 @@ function testQueryExprWithMultipleFromClausesForXMLOrNilResult() returns xml? {
     return  authors;
 }
 
-function testSimpleQueryExprWithVarForXML() returns xml[] {
+function testSimpleQueryExprWithVarForXML() returns xml {
     xml book1 = xml `<book>
                            <name>Sherlock Holmes</name>
                            <author>Sir Arthur Conan Doyle</author>
@@ -390,6 +390,26 @@ public function testSimpleQueryExprWithXMLElementLiteral() returns xml {
              let var year = <xml> x/<'field>[2]
              let var value = <xml> x/<'field>[3].name
              select xml `<entry>${<string> value}</entry>`;
+
+    return res;
+}
+
+public function testSimpleQueryExprWithNestedXMLElements() returns xml {
+    xml payload = xml `<Root>
+                            <data>
+                                <record>
+                                    <field name="Country or Area" key="ABW">Aruba</field>
+                                    <field name="Item" key="EN.ATM.CO2E.KT">CO2 emissions (kt)</field>
+                                    <field name="Year">1960</field>
+                                    <field name="Value">11092.675</field>
+                                </record>
+                            </data>
+                       </Root>`;
+
+    xml res = xml `<doc> ${from var x in payload/<data>/<*>
+         let var year = <xml> x/<'field>[2]
+         let var value = <xml> x/<'field>[3].name
+         select xml `<entry>${<string> value}</entry>`} </doc>`;
 
     return res;
 }
