@@ -41,6 +41,7 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
     private final Set<Qualifier> qualifiers;
     private final BallerinaTypeDescriptor typeDescriptor;
     private final boolean deprecated;
+    private final boolean readonly;
 
     protected BallerinaTypeSymbol(String name,
                                   PackageID moduleID,
@@ -51,6 +52,7 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
         this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
+        this.readonly = Symbols.isFlagOn(bSymbol.flags, Flags.READONLY);
     }
 
     @Override
@@ -71,6 +73,11 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
     @Override
     public boolean deprecated() {
         return this.deprecated;
+    }
+
+    @Override
+    public boolean readonly() {
+        return this.readonly;
     }
 
     /**
