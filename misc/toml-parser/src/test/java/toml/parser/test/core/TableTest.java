@@ -39,12 +39,12 @@ public class TableTest {
                 .getResourceAsStream("core/table.toml");
         Toml read = toml.read(inputStream);
         Long rootKey = read.getLong("rootKey");
-        String dotNotation = read.getString("first.key");
+        String dotNotation = read.getTable("first").getString("key");
         Toml firstTable = read.getTable("first");
         String queryFromSubTable = firstTable.getString("key");
 
-        String subDotNotation = read.getString("first.sub.key");
-        Toml subTable = read.getTable("first.sub");
+        String subDotNotation = read.getTable("first").getTable("sub").getString("key");
+        Toml subTable = read.getTable("first").getTable("sub");
         String queryFromDeepSubTable = subTable.getString("key");
 
         Assert.assertEquals(rootKey, new Long(22L));
@@ -62,10 +62,10 @@ public class TableTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("core/array-of-tables.toml");
         Toml read = toml.read(inputStream);
-        String valueInTable = read.getString("products.hello1");
+        String valueInTable = read.getTable("products").getString("hello1");
         Assert.assertEquals(valueInTable, "hi");
 
-        List<Toml> tables = read.getTables("products.hello");
+        List<Toml> tables = read.getTable("products").getTables("hello");
         String firstElement = tables.get(0).getString("name");
         String nullElement = tables.get(1).getString("name");
         String thridElement = tables.get(2).getString("name");

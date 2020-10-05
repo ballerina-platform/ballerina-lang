@@ -44,7 +44,7 @@ public class KeyValueTest {
         String dashKey = read.getString("dash-key");
         String intKey = read.getString("1234");
 
-        String dottedString = read.getString("127.0.0.1");
+        String dottedString = read.getTable("127").getTable("0").getTable("0").getString("1");
         String spacing = read.getString("character encoding");
         String unicode = read.getString("ʎǝʞ");
         String general = read.getString("key2");
