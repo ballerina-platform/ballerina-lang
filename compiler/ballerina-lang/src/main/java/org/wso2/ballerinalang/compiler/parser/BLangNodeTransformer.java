@@ -4166,7 +4166,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLFunction.returnTypeAnnAttachments = applyAll(returnType.annotations());
         } else {
             BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
-            bLValueType.pos = getPosition(funcSignature);
+            bLValueType.pos = symTable.builtinPos;
             bLValueType.typeKind = TypeKind.NIL;
             bLFunction.setReturnTypeNode(bLValueType);
         }
