@@ -41,4 +41,11 @@ public interface TypeSymbol extends Symbol, Qualifiable, Deprecatable {
      * @return {@link BallerinaTypeDescriptor} attached
      */
     Optional<BallerinaTypeDescriptor> typeDescriptor();
+
+    /**
+     * Checks whether the type is a readonly type.
+     *
+     * @return True if the type is readonly
+     */
+    boolean readonly();
 }
