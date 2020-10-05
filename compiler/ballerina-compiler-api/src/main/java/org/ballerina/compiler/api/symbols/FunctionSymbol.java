@@ -26,7 +26,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface FunctionSymbol extends Symbol, Qualifiable {
+public interface FunctionSymbol extends Symbol, Qualifiable, Deprecatable {
 
     /**
      * Get the Function Type Descriptor.

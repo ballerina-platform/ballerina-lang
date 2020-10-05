@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.AttachPoints;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,6 +46,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
     private final Set<Qualifier> qualifiers;
     private final BallerinaTypeDescriptor typeDescriptor;
     private final List<AnnotationAttachPoint> attachPoints;
+    private final boolean deprecated;
 
     private BallerinaAnnotationSymbol(String name, PackageID moduleID, Set<Qualifier> qualifiers,
                                       BallerinaTypeDescriptor typeDescriptor, List<AnnotationAttachPoint> attachPoints,
@@ -53,6 +55,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
         this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.attachPoints = Collections.unmodifiableList(attachPoints);
+        this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
     }
 
     /**
@@ -83,6 +86,11 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
     @Override
     public List<AnnotationAttachPoint> attachPoints() {
         return attachPoints;
+    }
+
+    @Override
+    public boolean deprecated() {
+        return this.deprecated;
     }
 
     /**

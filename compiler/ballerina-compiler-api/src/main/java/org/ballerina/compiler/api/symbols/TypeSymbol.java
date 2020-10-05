@@ -26,7 +26,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface TypeSymbol extends Symbol, Qualifiable {
+public interface TypeSymbol extends Symbol, Qualifiable, Deprecatable {
 
     /**
      * Get the module qualified name.
