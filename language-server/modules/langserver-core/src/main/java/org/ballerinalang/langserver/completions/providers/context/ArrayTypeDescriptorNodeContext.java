@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.common.CommonKeys;

@@ -15,16 +15,16 @@
  */
 package org.ballerinalang.langserver.codelenses.providers;
 
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.tools.text.LineRange;
-import io.ballerinalang.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
