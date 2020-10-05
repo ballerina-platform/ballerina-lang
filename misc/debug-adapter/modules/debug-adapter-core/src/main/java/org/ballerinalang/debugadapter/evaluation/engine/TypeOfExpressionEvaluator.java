@@ -22,18 +22,14 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_TYPE_CHECKER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.GET_TYPEDESC_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.JAVA_BOOLEAN_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.JAVA_DOUBLE_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.JAVA_LONG_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.JAVA_OBJECT_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.VALUE_OF_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getValueAsObject;
 
 /**
  * `typeof` expression evaluator implementation.
@@ -56,36 +52,13 @@ public class TypeOfExpressionEvaluator extends Evaluator {
     public BExpressionValue evaluate() throws EvaluationException {
         BExpressionValue result = exprEvaluator.evaluate();
         // primitive types need to be handled separately, as the jvm runtime util method accepts only the sub classes of
-        // java.lang.Object class. Therefore java primitive types are converted into their wrapper implementations
+        // java.lang.Object. Therefore java primitive types are converted into their wrapper implementations
         // first.
-        RuntimeStaticMethod method;
-        List<String> methodArgTypeNames = new ArrayList<>();
-        switch (result.getType()) {
-            case BOOLEAN:
-                methodArgTypeNames.add("boolean");
-                method = getRuntimeMethod(context, JAVA_BOOLEAN_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
-                method.setArgValues(Collections.singletonList(result.getJdiValue()));
-                return executeTypeEvaluation(method.invoke());
-            case INT:
-                methodArgTypeNames.add("long");
-                method = getRuntimeMethod(context, JAVA_LONG_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
-                method.setArgValues(Collections.singletonList(result.getJdiValue()));
-                return executeTypeEvaluation(method.invoke());
-            case FLOAT:
-                methodArgTypeNames.add("double");
-                method = getRuntimeMethod(context, JAVA_DOUBLE_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
-                method.setArgValues(Collections.singletonList(result.getJdiValue()));
-                return executeTypeEvaluation(method.invoke());
-            default:
-                return executeTypeEvaluation(result.getJdiValue());
-        }
-    }
-
-    private BExpressionValue executeTypeEvaluation(Value value) throws EvaluationException {
+        Value valueAsObject = getValueAsObject(context, result.getJdiValue());
         List<String> methodArgTypeNames = Collections.singletonList(JAVA_OBJECT_CLASS);
         RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, GET_TYPEDESC_METHOD,
                 methodArgTypeNames);
-        method.setArgValues(Collections.singletonList(value));
+        method.setArgValues(Collections.singletonList(valueAsObject));
         return new BExpressionValue(context, method.invoke());
     }
 }

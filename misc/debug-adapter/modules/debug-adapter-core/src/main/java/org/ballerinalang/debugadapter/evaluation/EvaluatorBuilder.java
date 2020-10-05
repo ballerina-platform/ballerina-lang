@@ -78,6 +78,7 @@ import java.util.StringJoiner;
  * <li> Logical expression
  * <li> Conditional expression
  * <li> Typeof expression
+ * <li> Equality expression
  * </ul>
  * <br>
  * To be Implemented.
@@ -95,7 +96,6 @@ import java.util.StringJoiner;
  * <li> Shift expression
  * <li> Range expression
  * <li> Type test expression
- * <li> Equality expression
  * <li> Checking expression
  * <li> Trap expression
  * <li> Query expression
@@ -492,7 +492,12 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addEqualityExpressionSyntax() {
-        // Todo
+        // value equality
+        supportedSyntax.add(SyntaxKind.DOUBLE_EQUAL_TOKEN);
+        supportedSyntax.add(SyntaxKind.NOT_EQUAL_TOKEN);
+        // reference equality
+        supportedSyntax.add(SyntaxKind.TRIPPLE_EQUAL_TOKEN);
+        supportedSyntax.add(SyntaxKind.NOT_DOUBLE_EQUAL_TOKEN);
     }
 
     private void addBinaryBitwiseExpressionSyntax() {

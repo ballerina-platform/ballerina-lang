@@ -26,6 +26,8 @@ import com.sun.tools.jdi.ConcreteMethodImpl;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.JvmStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.variable.BVariable;
+import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,23 +53,13 @@ public class EvaluationUtils {
     // Helper methods
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String VALUE_OF_METHOD = "valueOf";
+    public static final String REF_EQUAL_METHOD = "isReferenceEqual";
+    public static final String VALUE_EQUAL_METHOD = "isEqual";
     private static final String FROM_STRING_METHOD = "fromString";
     private static final String FOR_NAME_METHOD = "forName";
+
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
-
-    /**
-     * Loads and returns Ballerina JVM runtime method instance for a given qualified class name + method name.
-     *
-     * @param context    suspended context
-     * @param qClassName qualified name of the class to be loaded
-     * @param methodName name of the method to be loaded
-     * @return corresponding Ballerina JVM runtime method instance
-     */
-    public static RuntimeStaticMethod getRuntimeMethod(SuspendedContext context, String qClassName, String methodName)
-            throws EvaluationException {
-        return getRuntimeMethod(context, qClassName, methodName, Collections.emptyList());
-    }
 
     /**
      * Loads and returns Ballerina JVM runtime method instance for a given qualified class name + method name.
@@ -131,6 +123,49 @@ public class EvaluationUtils {
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to load required classes to execute the function: " + methodName));
+        }
+    }
+
+    /**
+     * As some of the the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * java primitive types need to be converted into their wrapper implementations.
+     *
+     * @param value JDI value instance.
+     * @return value as an instance of {@code com.sun.jdi.Value} instance.
+     */
+    public static Value getValueAsObject(SuspendedContext context, Value value) throws EvaluationException {
+        BVariable bVar = VariableFactory.getVariable(context, value);
+        return getValueAsObject(context, bVar);
+    }
+
+    /**
+     * As some of the the JVM runtime util method accepts only the sub classes of @{@link java.lang.Object},
+     * java primitive types need to be converted into their wrapper implementations.
+     *
+     * @param variable ballerina variable instance.
+     * @return value as an instance of {@code com.sun.jdi.Value} instance.
+     */
+    public static Value getValueAsObject(SuspendedContext context, BVariable variable) throws EvaluationException {
+        RuntimeStaticMethod method;
+        List<String> methodArgTypeNames = new ArrayList<>();
+        switch (variable.getBType()) {
+            case BOOLEAN:
+                methodArgTypeNames.add("boolean");
+                method = getRuntimeMethod(context, JAVA_BOOLEAN_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
+                method.setArgValues(Collections.singletonList(variable.getJvmValue()));
+                return method.invoke();
+            case INT:
+                methodArgTypeNames.add("long");
+                method = getRuntimeMethod(context, JAVA_LONG_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
+                method.setArgValues(Collections.singletonList(variable.getJvmValue()));
+                return method.invoke();
+            case FLOAT:
+                methodArgTypeNames.add("double");
+                method = getRuntimeMethod(context, JAVA_DOUBLE_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
+                method.setArgValues(Collections.singletonList(variable.getJvmValue()));
+                return method.invoke();
+            default:
+                return variable.getJvmValue();
         }
     }
 

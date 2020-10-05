@@ -131,7 +131,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private final Map<Long, StackFrameProxyImpl> stackFramesMap = new HashMap<>();
     private final Map<Long, BCompoundVariable> loadedVariables = new HashMap<>();
     private final Map<Long, Long> variableToStackFrameMap = new HashMap<>();
-    private Map<Long, Long> scopeIdToFrameIdMap = new HashMap<>();
+    private final Map<Long, Long> scopeIdToFrameIdMap = new HashMap<>();
     private static int systemExit = 1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
