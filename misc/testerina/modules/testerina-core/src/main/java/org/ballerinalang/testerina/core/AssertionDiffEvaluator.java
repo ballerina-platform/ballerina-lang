@@ -20,12 +20,21 @@ public class AssertionDiffEvaluator {
     private static final int MAX_ARG_LENGTH = 80;
 
     private static List<String> getValueList(String value) {
-        String[] valueArray = value.split("\n");
         List<String> valueList = new ArrayList<>();
-        for (int i = 0; i < valueArray.length; i++) {
-            if (valueArray[i].length() > MAX_ARG_LENGTH) {
-                String[] partitions = valueArray[i].split(PARTITION_REGEX);
+        if (value.contains("\n")) {
+            String[] valueArray = value.split("\n");
+            for (int i = 0; i < valueArray.length; i++) {
+                if (valueArray[i].length() > MAX_ARG_LENGTH) {
+                    String[] partitions = valueArray[i].split(PARTITION_REGEX);
+                    valueList.addAll(Arrays.asList(partitions));
+                }
+            }
+        } else {
+            if (value.length() > MAX_ARG_LENGTH) {
+                String[] partitions = value.split(PARTITION_REGEX);
                 valueList.addAll(Arrays.asList(partitions));
+            } else {
+                valueList.add(value);
             }
         }
         return valueList;

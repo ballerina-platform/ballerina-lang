@@ -19,6 +19,22 @@ import ballerina/test;
 # Execute tests to verify the string diff error messages during assert equality checks
 
 @test:Config {}
+function testAssertStringValues() {
+    error? err = trap test:assertEquals("hello dilhasha","hello dilhashaaa");
+    error result = <error>err;
+    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,1 +1,1 @@\n\n-hello dilhasha\n+hello dilhashaaa\n\n\n"));
+}
+
+@test:Config {}
+function testAssertLongStringValues() {
+        string value1 = "Ballerina is an open source programming language and platform for cloud-era application programmers.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & conccurrent programs work.";
+        string value2 = "Ballerina is an open source programming language and platform for cloud-era application programmersss.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & concurrent programs work.";
+        error? err = trap test:assertEquals(value1, value2);
+        error result = <error>err;
+        test:assertTrue(result.message().toString().endsWith("Sequence diagrams have been everyone’s favorite tool to describe how distributed\n- & conccurrent programs work.\n+ & concurrent programs work.\n\n\n"));
+}
+
+@test:Config {}
 function testAssertIntValues() {
     error? err = trap test:assertEquals(124, 123);
     error result = <error>err;
