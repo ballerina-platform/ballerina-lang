@@ -2,6 +2,6 @@ import ballerina/io;
 
 # Prints `Hello World`.
 
-public function main() {
+public function printHello() {
     io:println("Hello World!");
 }
