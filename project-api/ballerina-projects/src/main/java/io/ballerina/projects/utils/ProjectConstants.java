@@ -27,6 +27,9 @@ public class ProjectConstants {
     public static final String BLANG_SOURCE_EXT = ".bal";
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
+    public static final String GITIGNORE_FILE_NAME = ".gitignore";
+    public static final String MODULE_MD_FILE_NAME = "Module.md";
+    public static final String PACKAGE_MD_FILE_NAME = "Package.md";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
@@ -35,6 +38,7 @@ public class ProjectConstants {
     public static final String CACHES_DIR_NAME = "caches";
 
     public static final String USER_DIR = "user.dir";
+    public static final String USER_NAME = "user.name";
 
     // Balo specific constants
     public static final String MODULES_ROOT = "modules";

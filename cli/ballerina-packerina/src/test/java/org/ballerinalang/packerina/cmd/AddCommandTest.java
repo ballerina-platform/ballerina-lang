@@ -103,7 +103,7 @@ public class AddCommandTest extends CommandTest {
         Assert.assertTrue(readOutput().contains("not a ballerina project"));
     }
 
-    @Test(description = "Test add command without arguments")
+    @Test(description = "Test add command without arguments", enabled = false)
     public void testAddCommandNoArgs() throws IOException {
         // Test if no arguments was passed in
         String[] args = {};
@@ -114,7 +114,7 @@ public class AddCommandTest extends CommandTest {
         Assert.assertTrue(readOutput().contains("The following required arguments were not provided"));
     }
 
-    @Test(description = "Test add command")
+    @Test(description = "Test add command", enabled = false)
     public void testAddCommand() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"mainmodule"};
@@ -149,7 +149,7 @@ public class AddCommandTest extends CommandTest {
 
     }
 
-    @Test(description = "Test add command with service template")
+    @Test(description = "Test add command with service template", enabled = false)
     public void testAddCommandWithService() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"servicemodule", "-t", "service"};
@@ -186,7 +186,7 @@ public class AddCommandTest extends CommandTest {
 
 
     // if an invalid template is passed
-    @Test(description = "Test add command with invalid template")
+    @Test(description = "Test add command with invalid template", enabled = false)
     public void testAddCommandWithInvalidTemplate() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"mymodule2", "-t", "invalid"};
@@ -199,7 +199,7 @@ public class AddCommandTest extends CommandTest {
 
 
     // if invalid module name is passed
-    @Test(description = "Test add command with invalid module name")
+    @Test(description = "Test add command with invalid module name", enabled = false)
     public void testAddCommandWithInvalidName() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"mymo-dule"};
@@ -238,7 +238,7 @@ public class AddCommandTest extends CommandTest {
         Assert.assertTrue(readOutput().contains("ballerina-add - Add a new module to an existing Ballerina project"));
     }
 
-    @Test(description = "Test add command", dependsOnMethods = {"testAddCommand"})
+    @Test(description = "Test add command", dependsOnMethods = {"testAddCommand"}, enabled = false)
     public void testAddCommandWithExistingModuleName() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"mainmodule"};
@@ -249,7 +249,7 @@ public class AddCommandTest extends CommandTest {
         Assert.assertTrue(readOutput().contains("A module already exists with the given name"));
     }
 
-    @Test(description = "Test add command with balo template")
+    @Test(description = "Test add command with balo template", enabled = false)
     public void testAddCommandWithBaloTemplate() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"balomod", "-t testOrg/mytemplate"};

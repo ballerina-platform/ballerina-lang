@@ -80,7 +80,7 @@ public class AddCommand implements BLauncherCmd {
         userDir = Paths.get(System.getProperty("user.dir"));
         errStream = System.err;
         homeCache = RepoUtils.createAndGetHomeReposPath();
-        initJarFs();
+//        initJarFs();
     }
 
     public AddCommand(Path userDir, PrintStream errStream) {
@@ -90,7 +90,7 @@ public class AddCommand implements BLauncherCmd {
     public AddCommand(Path userDir, PrintStream errStream, Path homeCache) {
         this.userDir = userDir;
         this.errStream = errStream;
-        initJarFs();
+//        initJarFs();
         this.homeCache = homeCache;
     }
 
