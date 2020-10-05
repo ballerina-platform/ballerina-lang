@@ -96,42 +96,8 @@ service testServiceOne on new testobserve:Listener(9091) {
         checkpanic caller->respond("Sum of numbers: " + ret.toString());
     }
 
-    # Resource function for testing remote call which calls another remote call
-    resource function resourceEight(testobserve:Caller caller) {
-        testClient->callAnotherRemoteFunction();
-        checkpanic caller->respond("Invocation Successful");
-    }
-
-    # Resource function for testing check on error return
-    resource function resourceNine(testobserve:Caller caller) returns error? {
-        check testClient->callWithErrorReturn();
-        checkpanic caller->respond("Invocation Successful");
-    }
-
-    # Resource function for testing checkpanic on error return
-    resource function resourceTen(testobserve:Caller caller) returns error? {
-        checkpanic testClient->callWithErrorReturn();
-        checkpanic caller->respond("Invocation Successful");
-    }
-
-    # Resource function for testing ignored error return
-    resource function resourceEleven(testobserve:Caller caller) returns error? {
-        var ret = testClient->callWithErrorReturn();
-        checkpanic caller->respond("Invocation Successful");
-    }
-
-    # Resource function for testing whether trapping a panic from a function is handled properly.
-    resource function resourceTwelve(testobserve:Caller caller) returns error? {
-        var sum = trap testClient->callWithPanic();
-        if (sum is error) {
-            checkpanic caller->respond("Successfully trapped panic: " + sum.message());
-        } else {
-            checkpanic caller->respond("Sum of numbers: " + sum.toString());
-        }
-    }
-
     # Resource function for testing early return is handled properly.
-    resource function resourceThirteen(testobserve:Caller caller) returns error? {
+    resource function resourceEight(testobserve:Caller caller) returns error? {
         var sum = trap testClient->callWithReturn(3, 13);
         if (sum is int && sum == 16) {
             checkpanic caller->respond("Successfully executed");
