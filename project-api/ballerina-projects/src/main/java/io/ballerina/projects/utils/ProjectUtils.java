@@ -17,12 +17,11 @@
  */
 package io.ballerina.projects.utils;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.regex.Pattern;
+
+import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 
 /**
  * Project related util methods.
@@ -81,32 +80,13 @@ public class ProjectUtils {
         return null;
     }
 
-    /**
-     * Creates the target directory structure in a given path.
-     *
-     * @param sourceRoot source root of the project
-     * @return target path
-     * @throws IOException if target creation fails
-     */
-    static Path createTargetDirectoryStructure(Path sourceRoot) throws IOException {
-        Path targetDir;
-        targetDir = sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
-        if (targetDir.toFile().exists()) {
-            Files.walk(targetDir)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
+    public static String getBaloName(String org, String pkgName, String version, String platform) {
+        // <orgname>-<packagename>-<platform>-<version>.balo
+        if (platform == null || "".equals(platform)) {
+            platform = "any";
         }
-        Files.createDirectories(targetDir.resolve(ProjectConstants.CACHES_DIR_NAME)
-                .resolve(ProjectConstants.BIR_CACHE_DIR_NAME));
-        Files.createDirectories(targetDir.resolve(ProjectConstants.CACHES_DIR_NAME)
-                .resolve(ProjectConstants.JAR_CACHE_DIR_NAME));
-        Files.createDirectories(targetDir.resolve(ProjectConstants.TARGET_BALO_DIRECTORY));
-        Files.createDirectories(targetDir.resolve(ProjectConstants.BIN_DIR_NAME));
-        Files.createDirectories(targetDir.resolve(ProjectConstants.TEST_DIR_NAME)
-                .resolve(ProjectConstants.JSON_CACHE_DIR_NAME));
-
-        return targetDir;
+        return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
     }
+
 }
 

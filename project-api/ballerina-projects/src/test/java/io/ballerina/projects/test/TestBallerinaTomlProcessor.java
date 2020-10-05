@@ -18,6 +18,7 @@
 
 package io.ballerina.projects.test;
 
+import com.google.gson.internal.LinkedTreeMap;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.model.BallerinaTomlProcessor;
 import io.ballerina.projects.model.Package;
@@ -45,6 +46,13 @@ public class TestBallerinaTomlProcessor {
         Assert.assertEquals(ballerinaToml.getPackage().getOrg(), "foo");
         Assert.assertEquals(ballerinaToml.getPackage().getName(), "winery");
         Assert.assertEquals(ballerinaToml.getPackage().getVersion(), "0.1.0");
+
+        Assert.assertEquals(ballerinaToml.getDependencies().get("wso2/twitter"), "2.3.4");
+        Assert.assertEquals(((LinkedTreeMap) ballerinaToml.getDependencies().get("wso2/github")).get("path"),
+                "path/to/github.balo");
+        Assert.assertEquals(((LinkedTreeMap) ballerinaToml.getDependencies().get("wso2/github")).get("version"),
+                "1.2.3");
+
     }
 
     @Test(description = "Test validate ballerina toml package section which contains build options")

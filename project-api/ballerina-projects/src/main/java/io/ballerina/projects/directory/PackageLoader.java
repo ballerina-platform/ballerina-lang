@@ -25,10 +25,19 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.model.BallerinaToml;
+import io.ballerina.projects.model.BallerinaTomlProcessor;
+import org.ballerinalang.toml.exceptions.TomlException;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static io.ballerina.projects.utils.ProjectConstants.BALLERINA_TOML;
+import static org.wso2.ballerinalang.util.RepoUtils.isBallerinaStandaloneFile;
 
 /**
  * Contains a set of utility methods that creates the config hierarchy from the project directory.
@@ -52,7 +61,30 @@ public class PackageLoader {
             // TODO Proper error handling
             throw new IllegalStateException("This branch cannot be reached");
         }
-        PackageName packageName = PackageName.from(fileName.toString());
+
+        // TODO: Should replace with Ballerina Toml parser generic model.
+        PackageName packageName;
+        PackageOrg packageOrg;
+        PackageVersion packageVersion;
+
+        if (isBallerinaStandaloneFile(packageData.packagePath())) {
+            packageName = PackageName.from(".");
+            packageOrg = PackageOrg.from(System.getProperty("user.name"));
+            packageVersion = PackageVersion.from("0.0.0");
+        } else {
+            // load Ballerina.toml
+            BallerinaToml ballerinaToml;
+            try {
+                ballerinaToml = BallerinaTomlProcessor.parse(packagePath.resolve(BALLERINA_TOML));
+            } catch (IOException | TomlException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+
+            packageName = PackageName.from(ballerinaToml.getPackage().getName());
+            packageOrg = PackageOrg.from(ballerinaToml.getPackage().getOrg());
+            packageVersion = PackageVersion.from(ballerinaToml.getPackage().getVersion());
+        }
+
         PackageId packageId = PackageId.create(packageName.toString());
 
         List<ModuleConfig> moduleConfigs = packageData.otherModules()
@@ -62,7 +94,7 @@ public class PackageLoader {
         ModuleConfig defaultModuleConfig = createDefaultModuleData(packageName,
                 packageData.defaultModule(), packageId);
         moduleConfigs.add(defaultModuleConfig);
-        return PackageConfig.from(packageId, packageName, packagePath, moduleConfigs);
+        return PackageConfig.from(packageId, packageName, packageOrg, packageVersion, packagePath, moduleConfigs);
     }
 
     private static ModuleConfig createDefaultModuleData(PackageName packageName,
