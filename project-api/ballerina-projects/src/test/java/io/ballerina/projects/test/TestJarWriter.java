@@ -17,30 +17,28 @@
  */
 package io.ballerina.projects.test;
 
-import io.ballerina.projects.BirWriter;
+import io.ballerina.projects.JarWriter;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.directory.BuildProject;
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Contains cases to test the BirWriter.
+ * Contains cases to test the JarWriter.
  *
  * @since 2.0.0
  */
-public class TestBirWriter {
+public class TestJarWriter {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
-    @Test (description = "tests writing of the BIR")
-    public void testBirWriter() throws IOException {
+    @Test (enabled = false, description = "tests writing of the executable")
+    public void testJarWriter() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
         // 1) Initialize the project instance
@@ -56,29 +54,10 @@ public class TestBirWriter {
         Module defaultModule = currentPackage.getDefaultModule();
 
         Path tempDirectory = Files.createTempDirectory("ballerina-test-" + System.nanoTime());
-        Path tempFile = tempDirectory.resolve("test.bir");
+        Path tempFile = tempDirectory.resolve("test.jar");
         Assert.assertFalse(tempFile.toFile().exists());
-        BirWriter.write(defaultModule, tempFile);
-        long lastModifiedTime = Files.getLastModifiedTime(tempFile).toMillis();
+        JarWriter.write(defaultModule, tempFile);
         Assert.assertTrue(tempFile.toFile().exists());
         Assert.assertTrue(tempFile.toFile().length() > 0);
-
-        // Test writing to an existing file
-        try {
-            BirWriter.write(defaultModule, tempFile);
-        } catch (BLangCompilerException e) {
-            Assert.assertTrue(e.getCause() instanceof FileAlreadyExistsException);
-        }
-
-        // Test force write to an existing file
-        try {
-            Thread.sleep(1000); // Added to ensure the document is updated
-        } catch (InterruptedException e) {
-            // ignore exception
-        }
-        BirWriter.write(defaultModule, tempFile, true);
-        Assert.assertTrue(tempFile.toFile().length() > 0);
-        long newLastModifiedTime = Files.getLastModifiedTime(tempFile).toMillis();
-        Assert.assertTrue(newLastModifiedTime > lastModifiedTime);
     }
 }
