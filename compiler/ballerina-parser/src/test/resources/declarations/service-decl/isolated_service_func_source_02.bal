@@ -1,9 +1,9 @@
 service on ep {
-    isolated foo(int i) returns boolean {
+    isolated remote foo(int i) returns boolean {
 
     }
 
-    resource isolated transactional bar() {
+    remote isolated transactional bar() {
 
     }
 }

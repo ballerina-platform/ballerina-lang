@@ -60,9 +60,14 @@
           "children": [
             {
               "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
               "children": [
                 {
-                  "kind": "RESOURCE_KEYWORD",
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "Person",
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -73,21 +78,6 @@
                       "value": "    "
                     }
                   ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "SIMPLE_NAME_REFERENCE",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "Person",
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",

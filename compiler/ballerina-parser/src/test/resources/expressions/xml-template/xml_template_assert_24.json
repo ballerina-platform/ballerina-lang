@@ -634,40 +634,11 @@
                                                   "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "BINARY_EXPRESSION",
-                                                      "hasDiagnostics": true,
+                                                      "kind": "SIMPLE_NAME_REFERENCE",
                                                       "children": [
                                                         {
-                                                          "kind": "SIMPLE_NAME_REFERENCE",
-                                                          "children": [
-                                                            {
-                                                              "kind": "IDENTIFIER_TOKEN",
-                                                              "value": "b"
-                                                            }
-                                                          ]
-                                                        },
-                                                        {
-                                                          "kind": "PLUS_TOKEN",
-                                                          "isMissing": true,
-                                                          "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_MISSING_PLUS_TOKEN"
-                                                          ]
-                                                        },
-                                                        {
-                                                          "kind": "STRING_LITERAL",
-                                                          "hasDiagnostics": true,
-                                                          "children": [
-                                                            {
-                                                              "kind": "STRING_LITERAL_TOKEN",
-                                                              "hasDiagnostics": true,
-                                                              "diagnostics": [
-                                                                "ERROR_INVALID_ESCAPE_SEQUENCE",
-                                                                "ERROR_INVALID_ESCAPE_SEQUENCE"
-                                                              ],
-                                                              "value": "b${v2}c\\}cc{d{}e}{f{\u0027 bar2\u003d\u0027aaa{${v1}}b\\${b"
-                                                            }
-                                                          ]
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "b"
                                                         }
                                                       ]
                                                     },
@@ -680,68 +651,63 @@
                                                       ]
                                                     },
                                                     {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                                      "kind": "STRING_LITERAL",
                                                       "hasDiagnostics": true,
                                                       "children": [
                                                         {
-                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "kind": "STRING_LITERAL_TOKEN",
                                                           "hasDiagnostics": true,
                                                           "diagnostics": [
-                                                            "ERROR_INVALID_TOKEN",
-                                                            "ERROR_INVALID_TOKEN"
+                                                            "ERROR_INVALID_ESCAPE_SEQUENCE",
+                                                            "ERROR_INVALID_ESCAPE_SEQUENCE"
                                                           ],
-                                                          "value": "b",
-                                                          "trailingMinutiae": [
-                                                            {
-                                                              "kind": "INVALID_NODE_MINUTIAE",
-                                                              "invalidNode": {
-                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                "children": [
-                                                                  {
-                                                                    "kind": "INVALID_TOKEN",
-                                                                    "value": "$"
-                                                                  }
-                                                                ]
-                                                              }
-                                                            },
-                                                            {
-                                                              "kind": "INVALID_NODE_MINUTIAE",
-                                                              "invalidNode": {
-                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                "hasDiagnostics": true,
-                                                                "children": [
-                                                                  {
-                                                                    "kind": "OPEN_BRACE_TOKEN",
-                                                                    "hasDiagnostics": true,
-                                                                    "diagnostics": [
-                                                                      "ERROR_INVALID_TOKEN"
-                                                                    ]
-                                                                  }
-                                                                ]
-                                                              }
-                                                            },
-                                                            {
-                                                              "kind": "INVALID_NODE_MINUTIAE",
-                                                              "invalidNode": {
-                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                "children": [
-                                                                  {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "v2"
-                                                                  }
-                                                                ]
-                                                              }
-                                                            }
-                                                          ]
+                                                          "value": "b${v2}c\\}cc{d{}e}{f{\u0027 bar2\u003d\u0027aaa{${v1}}b\\${b"
                                                         }
                                                       ]
                                                     }
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "CLOSE_BRACE_TOKEN"
+                                                  "kind": "CLOSE_BRACE_TOKEN",
+                                                  "isMissing": true,
+                                                  "hasDiagnostics": true,
+                                                  "diagnostics": [
+                                                    "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                                                  ]
                                                 }
                                               ]
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "b"
+                                            },
+                                            {
+                                              "kind": "OPEN_BRACE_TOKEN",
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_INVALID_TOKEN"
+                                              ],
+                                              "leadingMinutiae": [
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "children": [
+                                                      {
+                                                        "kind": "INVALID_TOKEN",
+                                                        "value": "$"
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "v2"
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACE_TOKEN"
                                             },
                                             {
                                               "kind": "IDENTIFIER_TOKEN",

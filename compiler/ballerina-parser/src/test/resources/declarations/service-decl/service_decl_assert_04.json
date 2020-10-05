@@ -4,15 +4,6 @@
   "children": [
     {
       "kind": "SERVICE_KEYWORD",
-      "isMissing": true,
-      "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_MISSING_SERVICE_KEYWORD"
-      ]
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "echoService",
       "trailingMinutiae": [
         {
           "kind": "WHITESPACE_MINUTIAE",
@@ -21,58 +12,56 @@
       ]
     },
     {
-      "kind": "ON_KEYWORD",
-      "trailingMinutiae": [
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
         {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "someListner",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
     {
       "kind": "LIST",
-      "children": [
+      "children": []
+    },
+    {
+      "kind": "ON_KEYWORD",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_ON_KEYWORD",
+        "ERROR_MISSING_EXPRESSION"
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "OPEN_BRACE_TOKEN",
+      "trailingMinutiae": [
         {
-          "kind": "SIMPLE_NAME_REFERENCE",
-          "children": [
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "someListner",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            }
-          ]
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
         }
       ]
     },
     {
-      "kind": "SERVICE_BODY",
-      "children": [
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN",
+      "trailingMinutiae": [
         {
-          "kind": "OPEN_BRACE_TOKEN",
-          "trailingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ]
-        },
-        {
-          "kind": "LIST",
-          "children": []
-        },
-        {
-          "kind": "CLOSE_BRACE_TOKEN",
-          "trailingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ]
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
         }
       ]
     }

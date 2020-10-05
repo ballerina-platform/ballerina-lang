@@ -29,3 +29,7 @@ service foo /bar/baz on listner {
       };
   }
 }
+
+service /bar/baz on listner {
+
+}

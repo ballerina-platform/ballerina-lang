@@ -663,16 +663,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.WORKER_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
     private static final ParserRuleContext[] OPTIONAL_SERVICE_DECL_TYPE =
-            { ParserRuleContext.OPTIONAL_ABSOLUTE_PATH, ParserRuleContext.TYPE_DESC_IN_SERVICE };
+            { ParserRuleContext.TYPE_DESC_IN_SERVICE, ParserRuleContext.OPTIONAL_ABSOLUTE_PATH };
 
     private static final ParserRuleContext[] OPTIONAL_ABSOLUTE_PATH =
-            { ParserRuleContext.ON_KEYWORD, ParserRuleContext.ABSOLUTE_RESOURCE_PATH };
+            { ParserRuleContext.ABSOLUTE_RESOURCE_PATH, ParserRuleContext.ON_KEYWORD };
 
     private static final ParserRuleContext[] ABSOLUTE_RESOURCE_PATH_START =
-            { ParserRuleContext.ABSOLUTE_PATH_SINGLE_SLASH, ParserRuleContext.SLASH };
+            { ParserRuleContext.SLASH, ParserRuleContext.ABSOLUTE_PATH_SINGLE_SLASH };
 
     private static final ParserRuleContext[] ABSOLUTE_RESOURCE_PATH_END =
-            { ParserRuleContext.SERVICE_DECL_RHS, ParserRuleContext.SLASH };
+            { ParserRuleContext.SLASH, ParserRuleContext.SERVICE_DECL_RHS };
 
     // When service keyword is followed by an object type descriptor in top level,
     // we use this context go to recovery.
@@ -683,13 +683,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER };
 
     private static final ParserRuleContext[] OPTIONAL_RELATIVE_PATH =
-            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.RELATIVE_RESOURCE_PATH };
+            { ParserRuleContext.RELATIVE_RESOURCE_PATH, ParserRuleContext.OPEN_PARENTHESIS };
 
     private static final ParserRuleContext[] RELATIVE_RESOURCE_PATH_START =
-            { ParserRuleContext.DOT, ParserRuleContext.IDENTIFIER };
+            { ParserRuleContext.IDENTIFIER, ParserRuleContext.DOT };
 
     private static final ParserRuleContext[] RELATIVE_RESOURCE_PATH_END =
-            { ParserRuleContext.RESOURCE_ACCESSOR_DEF_RHS, ParserRuleContext.SLASH };
+            { ParserRuleContext.SLASH, ParserRuleContext.RESOURCE_ACCESSOR_DEF_RHS };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);

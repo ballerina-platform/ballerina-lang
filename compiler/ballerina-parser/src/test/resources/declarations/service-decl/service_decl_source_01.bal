@@ -1,6 +1,6 @@
 service on listner1 {
 
-    resource Person person;
+    Person person;
 
     function foo() {
     }

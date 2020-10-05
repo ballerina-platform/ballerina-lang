@@ -1,2 +1,2 @@
-echoService on someListner {
+service someListner {
 }

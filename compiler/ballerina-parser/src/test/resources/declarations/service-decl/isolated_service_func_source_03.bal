@@ -3,7 +3,7 @@ service on ep {
 
     }
 
-    isolated transactional resource function (int i) returns error? {
+    isolated transactional remote function (int i) returns error? {
 
     }
 }

@@ -956,21 +956,14 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    //    /**
-//     * <p>
-//     * Parse resource accessor definition.
-//     * </p>
-//     * <code>
-//     * resource-accessor-defn := metadata `resource` `function` accessor-name relative-resource-path
-//     *                          function-signature method-defn-body
-//     * <br/>
-//     * accessor-name := identifier
-//     * <br/>
-//     * relative-resource-path := "." | (identifier ("/" identifier)*)
-//     * </code>
-//     *
-//     * @return Parsed node
-//     */
+    /**
+     * <p>
+     * Parse function definition, object method definition, object method declaration or
+     * resource accessor definition end.
+     * </p>
+     *
+     * @return Parsed node
+     */
     private STNode createFuncDefOrMethodDecl(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
                                              STNode name, STNode resourcePath, STNode funcSignature,
                                              List<STNode> qualifierList, boolean isObjectMember,
@@ -1038,7 +1031,7 @@ public class BallerinaParser extends AbstractParser {
             if (((STNodeList) resourcePath).isEmpty()) {
                 qualifierList = new ArrayList<>();
                 qualifierList.add(STNodeFactory.createMissingToken(SyntaxKind.DOT_TOKEN));
-                resourceQual = STNodeFactory.createNodeList(qualifierList);
+                resourcePath = STNodeFactory.createNodeList(qualifierList);
                 functionKeyword = SyntaxErrors.addDiagnostic(functionKeyword,
                                 DiagnosticErrorCode.ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION);
             }
@@ -1062,8 +1055,9 @@ public class BallerinaParser extends AbstractParser {
             return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.OBJECT_METHOD_DEFINITION, metadata,
                     qualifiers, functionKeyword, name, funcSignature, body);
         } else {
+            qualifierList = new ArrayList<>();
             qualifierList.add(resourceQual);
-            resourceQual = STNodeFactory.createNodeList(resourceQual);
+            resourceQual = STNodeFactory.createNodeList(qualifierList);
             return STNodeFactory.createResourceAccessorDefinitionNode(metadata, resourceQual, functionKeyword,
                     name, resourcePath, funcSignature, body);
         }
@@ -5224,45 +5218,61 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseObjectField(STNode metadata, STNode visibilityQualifier, boolean isObjectTypeDesc) {
-
-        STNode qualifiers = parseObjectFieldQualifiers();
-//        if (finalQualifier != null && isObjectTypeDesc) {
-//            addInvalidNodeToNextToken(finalQualifier, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
-//                    ((STToken) finalQualifier).text());
-//            finalQualifier = STNodeFactory.createEmptyNode();
-//        }
-
+        STNode qualifiers = parseObjectFieldQualifiers(isObjectTypeDesc);
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
         STNode fieldName = parseVariableName();
         return parseObjectFieldRhs(metadata, visibilityQualifier, qualifiers, type, fieldName,
                 isObjectTypeDesc);
     }
 
-    private STNode parseObjectFieldQualifiers() {
+    private STNode parseObjectFieldQualifiers(boolean isObjectTypeDesc) {
         List<STNode> qualifiers = new ArrayList<>();
         STNode qualifier;
         for (int i = 0; i < 2; i++) {
             STToken nextToken = peek();
-//            if (isNodeWithSyntaxKindInList(qualifiers, nextToken.kind)) {
-//                qualifier = consume();
-//                updateLastNodeInListWithInvalidNode(qualifiers, nextToken,
-//                        DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
-//                continue;
-//            }
-
-            switch (nextToken.kind) {
-                case FINAL_KEYWORD:
-                case RESOURCE_KEYWORD:
-                    qualifier = consume();
-                    qualifiers.add(qualifier);
-                    break;
-                default:
-                    return STNodeFactory.createNodeList(qualifiers);
+            if (isNodeWithSyntaxKindInList(qualifiers, nextToken.kind)) {
+                qualifier = consume();
+                updateLastNodeInListWithInvalidNode(qualifiers, nextToken,
+                        DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
+                continue;
             }
+
+            qualifier = parseSingleObjectFieldQualifier();
+
+            // Validate parsed qualifier
+            if (qualifier == null) {
+                break;
+            }
+
+            if (qualifier.kind == SyntaxKind.FINAL_KEYWORD && isObjectTypeDesc) {
+                updateLastNodeInListOrAddInvalidNodeToNextToken(qualifiers, qualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
+                continue;
+            }
+
+            qualifiers.add(qualifier);
         }
 
-        // TODO: validate qualifiers
         return STNodeFactory.createNodeList(qualifiers);
+    }
+
+    private STNode parseSingleObjectFieldQualifier() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case FINAL_KEYWORD:
+            case RESOURCE_KEYWORD:
+                return consume();
+            case EOF_TOKEN:
+                // null indicates the end of qualifiers
+                return null;
+            default:
+                if (isTypeStartingToken(nextToken.kind)) {
+                    return null;
+                }
+
+                recover(nextToken, ParserRuleContext.OBJECT_FIELD_QUALIFIER);
+                return parseSingleObjectTypeQualifier();
+        }
     }
 
     /**
@@ -6256,7 +6266,6 @@ public class BallerinaParser extends AbstractParser {
             nextToken = peek();
             if (isInitialSlash && nextToken.kind == SyntaxKind.ON_KEYWORD) {
                 // Initial slash could not be followed by an identifier
-                // TODO: revisit
                 break;
             }
             isInitialSlash = false;
@@ -6434,7 +6443,6 @@ public class BallerinaParser extends AbstractParser {
      * <code>false</code> otherwise
      */
     private boolean isServiceDeclStart(ParserRuleContext currentContext, int lookahead) {
-        // TODO: Revisit
         // Assume we always reach here after a peek()
         switch (peek(lookahead + 1).kind) {
             case IDENTIFIER_TOKEN:
@@ -10504,8 +10512,6 @@ public class BallerinaParser extends AbstractParser {
                         nextNextToken.kind == SyntaxKind.FROM_KEYWORD;
             case ERROR_KEYWORD:
                 return peek(nextTokenIndex).kind == SyntaxKind.OPEN_PAREN_TOKEN;
-            case SERVICE_KEYWORD:
-                return peek(nextTokenIndex).kind == SyntaxKind.OPEN_BRACE_TOKEN; // TODO: Change
             case XML_KEYWORD:
             case STRING_KEYWORD:
                 return peek(nextTokenIndex).kind == SyntaxKind.BACKTICK_TOKEN;
