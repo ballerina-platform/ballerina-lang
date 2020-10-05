@@ -2588,7 +2588,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMappingMatchPattern mappingMatchPattern) {
-
         for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
             fieldMatchPattern.accept(this);
         }
@@ -2788,7 +2787,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private BType getMatchPatternType(BLangMatchPattern matchPattern) {
-
         NodeKind matchPatternKind = matchPattern.getKind();
         switch (matchPatternKind) {
             case WILDCARD_MATCH_PATTERN:

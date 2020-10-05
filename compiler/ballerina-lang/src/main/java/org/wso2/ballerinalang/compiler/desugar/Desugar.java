@@ -3355,7 +3355,6 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression createConditionForMatchPattern(BLangMatchPattern matchPattern,
                                                            BLangSimpleVarRef matchExprVarRef) {
-
         NodeKind patternKind = matchPattern.getKind();
         switch (patternKind) {
             case WILDCARD_MATCH_PATTERN:
@@ -3495,7 +3494,6 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression createConditionForMappingMatchPattern(BLangMappingMatchPattern mappingMatchPattern,
                                                                   BLangSimpleVarRef matchExprVarRef) {
-
         BType matchPatternType = mappingMatchPattern.type;
         DiagnosticPos pos = mappingMatchPattern.pos;
 
@@ -3541,7 +3539,6 @@ public class Desugar extends BLangNodeVisitor {
                                                                  BLangSimpleVariableDef varDef,
                                                                  BLangBlockStmt blockStmt,
                                                                  DiagnosticPos pos) {
-
         LinkedHashMap<String, BField> fieldsInMatchExpr = ((BRecordType) varDef.var.symbol.type).fields;
         BLangExpression condition = null;
         for (int i = 0; i < fieldMatchPatterns.size(); i++) {
@@ -3560,8 +3557,25 @@ public class Desugar extends BLangNodeVisitor {
         return condition;
     }
 
-    private BLangExpression createVarCheckCondition(BLangMatchPattern matchPattern,
-                                                    BLangSimpleVarRef varRef) {
+    private BLangExpression createConditionForFieldMatchPattern(int index, BLangFieldMatchPattern fieldMatchPattern,
+                                                                BLangSimpleVariableDef tempCastVarDef,
+                                                                LinkedHashMap<String, BField> fields,
+                                                                BLangBlockStmt blockStmt) {
+        String fieldName = fieldMatchPattern.fieldName.value;
+        BLangMatchPattern matchPattern = fieldMatchPattern.matchPattern;
+        BField field = fields.get(fieldName);
+        BType fieldType = field.type;
+        BLangFieldBasedAccess fieldBasedAccessExpr = getFieldAccessExpression(fieldMatchPattern.pos, fieldName,
+                fieldType, tempCastVarDef.var.symbol);
+
+        BLangSimpleVariableDef tempVarDef = createVarDef("$memberVarTemp$" + index + "_$", fieldType,
+                fieldBasedAccessExpr, matchPattern.pos);
+        BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(matchPattern.pos, tempVarDef.var.symbol);
+        blockStmt.addStatement(tempVarDef);
+        return createVarCheckCondition(matchPattern, tempVarRef);
+    }
+
+    private BLangExpression createVarCheckCondition(BLangMatchPattern matchPattern, BLangSimpleVarRef varRef) {
 
         NodeKind patternKind = matchPattern.getKind();
         switch (patternKind) {
@@ -3648,9 +3662,7 @@ public class Desugar extends BLangNodeVisitor {
                 BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(blockStmt,
                         resultVarRef);
                 statementExpression.type = symTable.booleanType;
-
                 addAsRecordTypeDefinition(recordType, pos);
-
                 return statementExpression;
             default:
                 // If some patterns are not implemented, those should be detected before this phase
