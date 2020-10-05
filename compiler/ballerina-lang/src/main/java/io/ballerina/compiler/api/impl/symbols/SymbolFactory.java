@@ -156,6 +156,9 @@ public class SymbolFactory {
         if (isFlagOn(symbol.flags, Flags.LISTENER)) {
             symbolBuilder.withQualifier(Qualifier.LISTENER);
         }
+        if (isFlagOn(symbol.flags, Flags.READONLY)) {
+            symbolBuilder.withQualifier(Qualifier.READONLY);
+        }
         return symbolBuilder
                 .withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.type))
                 .build();
