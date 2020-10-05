@@ -3438,6 +3438,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER;
             case MAPPING_MATCH_PATTERN:
                 return ParserRuleContext.FIELD_MATCH_PATTERNS_START;
+            case MATCH_BODY:
+                return ParserRuleContext.MATCH_PATTERN;
             default:
                 return ParserRuleContext.STATEMENT;
         }
