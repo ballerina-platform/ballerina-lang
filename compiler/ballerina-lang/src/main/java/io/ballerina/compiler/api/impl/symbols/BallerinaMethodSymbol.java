@@ -78,6 +78,11 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
+    public boolean deprecated() {
+        return this.functionSymbol.deprecated();
+    }
+
+    @Override
     public Location location() {
         return this.functionSymbol.location();
     }

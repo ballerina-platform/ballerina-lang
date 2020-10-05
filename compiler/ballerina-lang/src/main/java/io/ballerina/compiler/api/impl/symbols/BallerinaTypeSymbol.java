@@ -23,6 +23,8 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,8 +39,8 @@ import java.util.Set;
 public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
 
     private final Set<Qualifier> qualifiers;
-
     private final BallerinaTypeDescriptor typeDescriptor;
+    private final boolean deprecated;
 
     protected BallerinaTypeSymbol(String name,
                                   PackageID moduleID,
@@ -48,6 +50,7 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
         super(name, moduleID, SymbolKind.TYPE, bSymbol);
         this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptor = typeDescriptor;
+        this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
     }
 
     @Override
@@ -63,6 +66,11 @@ public class BallerinaTypeSymbol extends BallerinaSymbol implements TypeSymbol {
     @Override
     public Optional<BallerinaTypeDescriptor> typeDescriptor() {
         return Optional.ofNullable(typeDescriptor);
+    }
+
+    @Override
+    public boolean deprecated() {
+        return this.deprecated;
     }
 
     /**
