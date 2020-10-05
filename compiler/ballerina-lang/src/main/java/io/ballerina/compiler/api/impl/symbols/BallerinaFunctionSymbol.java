@@ -23,7 +23,9 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.util.Flags;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -40,6 +42,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
 
     private final FunctionTypeDescriptor typeDescriptor;
     private final Set<Qualifier> qualifiers;
+    private final boolean isExternal;
 
     protected BallerinaFunctionSymbol(String name,
                                       PackageID moduleID,
@@ -49,6 +52,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
         super(name, moduleID, SymbolKind.FUNCTION, invokableSymbol);
         this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptor = typeDescriptor;
+        this.isExternal = Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE);
     }
 
     /**
@@ -64,6 +68,11 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
     @Override
     public Optional<BallerinaTypeDescriptor> typeDescriptor() {
         return Optional.ofNullable(typeDescriptor);
+    }
+
+    @Override
+    public boolean external() {
+        return this.isExternal;
     }
 
     /**
