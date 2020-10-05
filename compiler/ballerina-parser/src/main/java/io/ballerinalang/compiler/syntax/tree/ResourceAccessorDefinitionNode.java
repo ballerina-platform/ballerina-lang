@@ -37,8 +37,8 @@ public class ResourceAccessorDefinitionNode extends NonTerminalNode {
         return optionalChildInBucket(0);
     }
 
-    public Token resourceKeyword() {
-        return childInBucket(1);
+    public NodeList<Token> qualifierList() {
+        return new NodeList<>(childInBucket(1));
     }
 
     public Token functionKeyword() {
@@ -75,7 +75,7 @@ public class ResourceAccessorDefinitionNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
-                "resourceKeyword",
+                "qualifierList",
                 "functionKeyword",
                 "accessorName",
                 "relativeResourcePath",
@@ -85,7 +85,7 @@ public class ResourceAccessorDefinitionNode extends NonTerminalNode {
 
     public ResourceAccessorDefinitionNode modify(
             MetadataNode metadata,
-            Token resourceKeyword,
+            NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken accessorName,
             NodeList<Token> relativeResourcePath,
@@ -93,7 +93,7 @@ public class ResourceAccessorDefinitionNode extends NonTerminalNode {
             FunctionBodyNode functionBody) {
         if (checkForReferenceEquality(
                 metadata,
-                resourceKeyword,
+                qualifierList.underlyingListNode(),
                 functionKeyword,
                 accessorName,
                 relativeResourcePath.underlyingListNode(),
@@ -104,7 +104,7 @@ public class ResourceAccessorDefinitionNode extends NonTerminalNode {
 
         return NodeFactory.createResourceAccessorDefinitionNode(
                 metadata,
-                resourceKeyword,
+                qualifierList,
                 functionKeyword,
                 accessorName,
                 relativeResourcePath,
@@ -124,7 +124,7 @@ public class ResourceAccessorDefinitionNode extends NonTerminalNode {
     public static class ResourceAccessorDefinitionNodeModifier {
         private final ResourceAccessorDefinitionNode oldNode;
         private MetadataNode metadata;
-        private Token resourceKeyword;
+        private NodeList<Token> qualifierList;
         private Token functionKeyword;
         private IdentifierToken accessorName;
         private NodeList<Token> relativeResourcePath;
@@ -134,7 +134,7 @@ public class ResourceAccessorDefinitionNode extends NonTerminalNode {
         public ResourceAccessorDefinitionNodeModifier(ResourceAccessorDefinitionNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
-            this.resourceKeyword = oldNode.resourceKeyword();
+            this.qualifierList = oldNode.qualifierList();
             this.functionKeyword = oldNode.functionKeyword();
             this.accessorName = oldNode.accessorName();
             this.relativeResourcePath = oldNode.relativeResourcePath();
@@ -149,10 +149,10 @@ public class ResourceAccessorDefinitionNode extends NonTerminalNode {
             return this;
         }
 
-        public ResourceAccessorDefinitionNodeModifier withResourceKeyword(
-                Token resourceKeyword) {
-            Objects.requireNonNull(resourceKeyword, "resourceKeyword must not be null");
-            this.resourceKeyword = resourceKeyword;
+        public ResourceAccessorDefinitionNodeModifier withQualifierList(
+                NodeList<Token> qualifierList) {
+            Objects.requireNonNull(qualifierList, "qualifierList must not be null");
+            this.qualifierList = qualifierList;
             return this;
         }
 
@@ -194,7 +194,7 @@ public class ResourceAccessorDefinitionNode extends NonTerminalNode {
         public ResourceAccessorDefinitionNode apply() {
             return oldNode.modify(
                     metadata,
-                    resourceKeyword,
+                    qualifierList,
                     functionKeyword,
                     accessorName,
                     relativeResourcePath,

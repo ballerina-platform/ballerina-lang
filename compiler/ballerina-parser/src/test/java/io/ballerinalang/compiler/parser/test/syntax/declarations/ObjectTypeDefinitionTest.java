@@ -89,95 +89,95 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
 
     // Recovery tests
 
-//    @Test
-//    public void testMissingCloseBrace() {
-//        test("object-type-def/object_type_def_source_05.bal", "object-type-def/object_type_def_assert_05.json");
-//    }
-//
-//    @Test
-//    public void testMissingOpenBrace() {
-//        test("object-type-def/object_type_def_source_06.bal", "object-type-def/object_type_def_assert_06.json");
-//    }
-//
-//    @Test
-//    public void testMissingObjectKeyword() {
-//        test("object-type-def/object_type_def_source_07.bal", "object-type-def/object_type_def_assert_07.json");
-//    }
-//
-//    @Test
-//    public void testObjectMembersWithExtraTokens() {
-//        test("object-type-def/object_type_def_source_08.bal", "object-type-def/object_type_def_assert_08.json");
-//    }
-//
-//    @Test
-//    public void testObjectFieldWithInitializer() {
-//        test("object-type-def/object_type_def_source_09.bal", "object-type-def/object_type_def_assert_09.json");
-//    }
-//
-//    @Test
-//    public void testNestedObjectRecovery() {
-//        test("object-type-def/object_type_def_source_10.bal", "object-type-def/object_type_def_assert_10.json");
-//    }
-//
-//    @Test
-//    public void testMissingTypeReference() {
-//        test("object-type-def/object_type_def_source_13.bal", "object-type-def/object_type_def_assert_13.json");
-//    }
-//
-//    @Test
-//    public void testDuplicateClientQualifier() {
-//        test("object-type-def/object_type_def_source_18.bal", "object-type-def/object_type_def_assert_18.json");
-//    }
-//
-//    @Test
-//    public void testDuplicateAbstractQualifier() {
-//        test("object-type-def/object_type_def_source_19.bal", "object-type-def/object_type_def_assert_19.json");
-//    }
-//
-//    @Test
-//    public void testAdditionalQualifier() {
-//        test("object-type-def/object_type_def_source_20.bal", "object-type-def/object_type_def_assert_20.json");
-//    }
-//
-//    @Test
-//    public void testAdditionalTokenBetweenQualifiers() {
-//        test("object-type-def/object_type_def_source_21.bal", "object-type-def/object_type_def_assert_21.json");
-//    }
-//
-//    @Test
-//    public void testDuplicateClientQualifiers() {
-//        test("object-type-def/object_type_def_source_35.bal", "object-type-def/object_type_def_assert_35.json");
-//    }
-//
-//    @Test
-//    public void testInvalidTokenInObjectMembers() {
-//        test("object-type-def/object_type_def_source_40.bal", "object-type-def/object_type_def_assert_40.json");
-//    }
-//
-//    @Test
-//    public void testInvalidObjectMethodWithTransactional() {
-//        test("object-type-def/object_type_def_source_42.bal", "object-type-def/object_type_def_assert_42.json");
-//    }
-//
-//    @Test
-//    public void testObjectDescWithObjectMemberDescriptorsNegative() {
-//        testFile("object-type-def/object_type_def_source_43.bal", "object-type-def/object_type_def_assert_43.json");
-//    }
-//
-//    @Test
-//    public void testObjectTypeWithAbstractQualifier() {
-//        test("object-type-def/object_type_def_source_15.bal", "object-type-def/object_type_def_assert_15.json");
-//    }
-//
-//    @Test
-//    public void testObjectTypeWithClientReadonlyAndAbstractQualifiers() {
-//        test("object-type-def/object_type_def_source_33.bal", "object-type-def/object_type_def_assert_33.json");
-//    }
-//
-//    @Test
-//    public void testObjectFieldsWithInvalidQualifier() {
-//        test("object-type-def/object_type_def_source_17.bal", "object-type-def/object_type_def_assert_17.json");
-//        test("object-type-def/object_type_def_source_37.bal", "object-type-def/object_type_def_assert_37.json");
-//        test("object-type-def/object_type_def_source_39.bal", "object-type-def/object_type_def_assert_39.json");
-//    }
+    @Test
+    public void testMissingCloseBrace() {
+        test("object-type-def/object_type_def_source_05.bal", "object-type-def/object_type_def_assert_05.json");
+    }
+
+    @Test
+    public void testMissingOpenBrace() {
+        test("object-type-def/object_type_def_source_06.bal", "object-type-def/object_type_def_assert_06.json");
+    }
+
+    @Test
+    public void testMissingObjectKeyword() {
+        test("object-type-def/object_type_def_source_07.bal", "object-type-def/object_type_def_assert_07.json");
+    }
+
+    @Test
+    public void testObjectMembersWithExtraTokens() {
+        test("object-type-def/object_type_def_source_08.bal", "object-type-def/object_type_def_assert_08.json");
+    }
+
+    @Test
+    public void testObjectFieldWithInitializer() {
+        test("object-type-def/object_type_def_source_09.bal", "object-type-def/object_type_def_assert_09.json");
+    }
+
+    @Test
+    public void testNestedObjectRecovery() {
+        test("object-type-def/object_type_def_source_10.bal", "object-type-def/object_type_def_assert_10.json");
+    }
+
+    @Test
+    public void testMissingTypeReference() {
+        test("object-type-def/object_type_def_source_13.bal", "object-type-def/object_type_def_assert_13.json");
+    }
+
+    @Test
+    public void testDuplicateClientQualifier() {
+        test("object-type-def/object_type_def_source_18.bal", "object-type-def/object_type_def_assert_18.json");
+    }
+
+    @Test
+    public void testDuplicateAbstractQualifier() {
+        test("object-type-def/object_type_def_source_19.bal", "object-type-def/object_type_def_assert_19.json");
+    }
+
+    @Test
+    public void testAdditionalQualifier() {
+        test("object-type-def/object_type_def_source_20.bal", "object-type-def/object_type_def_assert_20.json");
+    }
+
+    @Test
+    public void testAdditionalTokenBetweenQualifiers() {
+        test("object-type-def/object_type_def_source_21.bal", "object-type-def/object_type_def_assert_21.json");
+    }
+
+    @Test
+    public void testDuplicateClientQualifiers() {
+        test("object-type-def/object_type_def_source_35.bal", "object-type-def/object_type_def_assert_35.json");
+    }
+
+    @Test
+    public void testInvalidTokenInObjectMembers() {
+        test("object-type-def/object_type_def_source_40.bal", "object-type-def/object_type_def_assert_40.json");
+    }
+
+    @Test
+    public void testInvalidObjectMethodWithTransactional() {
+        test("object-type-def/object_type_def_source_42.bal", "object-type-def/object_type_def_assert_42.json");
+    }
+
+    @Test
+    public void testObjectDescWithObjectMemberDescriptorsNegative() {
+        testFile("object-type-def/object_type_def_source_43.bal", "object-type-def/object_type_def_assert_43.json");
+    }
+
+    @Test
+    public void testObjectTypeWithAbstractQualifier() {
+        test("object-type-def/object_type_def_source_15.bal", "object-type-def/object_type_def_assert_15.json");
+    }
+
+    @Test
+    public void testObjectTypeWithClientReadonlyAndAbstractQualifiers() {
+        test("object-type-def/object_type_def_source_33.bal", "object-type-def/object_type_def_assert_33.json");
+    }
+
+    @Test
+    public void testObjectFieldsWithInvalidQualifier() {
+        test("object-type-def/object_type_def_source_17.bal", "object-type-def/object_type_def_assert_17.json");
+        test("object-type-def/object_type_def_source_37.bal", "object-type-def/object_type_def_assert_37.json");
+        test("object-type-def/object_type_def_source_39.bal", "object-type-def/object_type_def_assert_39.json");
+    }
 }

@@ -141,7 +141,7 @@
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "children": [
                     {
-                      "kind": "REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER",
+                      "kind": "SERVICE_REMOTE_ATTACH_POINT_IDENTIFIER",
                       "children": [
                         {
                           "kind": "SERVICE_KEYWORD",
@@ -495,7 +495,7 @@
                       ]
                     },
                     {
-                      "kind": "REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER",
+                      "kind": "SERVICE_REMOTE_ATTACH_POINT_IDENTIFIER",
                       "children": [
                         {
                           "kind": "SERVICE_KEYWORD",

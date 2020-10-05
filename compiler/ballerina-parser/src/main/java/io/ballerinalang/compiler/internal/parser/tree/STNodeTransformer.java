@@ -297,8 +297,8 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(annotationAttachPointNode);
     }
 
-    public T transform(STRemoteServiceAttachPointIdentifierNode remoteServiceAttachPointIdentifierNode) {
-        return transformSyntaxNode(remoteServiceAttachPointIdentifierNode);
+    public T transform(STServiceRemoteAttachPointIdentifierNode serviceRemoteAttachPointIdentifierNode) {
+        return transformSyntaxNode(serviceRemoteAttachPointIdentifierNode);
     }
 
     public T transform(STXMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {

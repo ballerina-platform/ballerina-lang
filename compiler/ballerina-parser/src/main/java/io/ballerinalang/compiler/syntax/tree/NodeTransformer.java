@@ -308,8 +308,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(annotationAttachPointNode);
     }
 
-    public T transform(RemoteServiceAttachPointIdentifierNode remoteServiceAttachPointIdentifierNode) {
-        return transformSyntaxNode(remoteServiceAttachPointIdentifierNode);
+    public T transform(ServiceRemoteAttachPointIdentifierNode serviceRemoteAttachPointIdentifierNode) {
+        return transformSyntaxNode(serviceRemoteAttachPointIdentifierNode);
     }
 
     public T transform(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {

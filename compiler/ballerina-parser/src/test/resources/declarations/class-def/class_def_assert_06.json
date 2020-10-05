@@ -152,6 +152,10 @@
                   "kind": "OBJECT_FIELD",
                   "children": [
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "INT_TYPE_DESC",
                       "children": [
                         {
@@ -189,6 +193,10 @@
                 {
                   "kind": "OBJECT_FIELD",
                   "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
                     {
                       "kind": "INT_TYPE_DESC",
                       "children": [

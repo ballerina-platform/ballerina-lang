@@ -1542,7 +1542,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     String value;
                     if (secondIndent == null) {
                        value = AttachPoint.Point.SERVICE.getValue();
-                    } else if (secondIndent.kind() == SyntaxKind.REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER) {
+                    } else if (secondIndent.kind() == SyntaxKind.SERVICE_REMOTE_ATTACH_POINT_IDENTIFIER) {
                         value = AttachPoint.Point.SERVICE_REMOTE.getValue();
                     } else {
                         throw new RuntimeException("Syntax kind is not supported: " + secondIndent.kind());

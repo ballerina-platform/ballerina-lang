@@ -29,19 +29,23 @@ type foo object {
 service foo on bar {
 
     @annot9{}
-    resource function get Name() {
+    remote function getName() {
     }
 
     @annot10{}
     function getName() {
     }
+
+    @annot11{}
+    resource function get Name() {
+    }
 }
 
-@annot11{}
+@annot12{}
 const a = "hello";
 
-@annot12{}
+@annot13{}
 int b = 4;
 
-@annot13{}
+@annot14{}
 listener string c = "http://ballerinalang.io";

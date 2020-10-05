@@ -1198,16 +1198,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stAnnotationAttachPointNode.createUnlinkedFacade();
     }
 
-    public static RemoteServiceAttachPointIdentifierNode createRemoteServiceAttachPointIdentifierNode(
+    public static ServiceRemoteAttachPointIdentifierNode createServiceRemoteAttachPointIdentifierNode(
             Token serviceKeyword,
             Token remoteKeyword) {
         Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
         Objects.requireNonNull(remoteKeyword, "remoteKeyword must not be null");
 
-        STNode stRemoteServiceAttachPointIdentifierNode = STNodeFactory.createRemoteServiceAttachPointIdentifierNode(
+        STNode stServiceRemoteAttachPointIdentifierNode = STNodeFactory.createServiceRemoteAttachPointIdentifierNode(
                 serviceKeyword.internalNode(),
                 remoteKeyword.internalNode());
-        return stRemoteServiceAttachPointIdentifierNode.createUnlinkedFacade();
+        return stServiceRemoteAttachPointIdentifierNode.createUnlinkedFacade();
     }
 
     public static XMLNamespaceDeclarationNode createXMLNamespaceDeclarationNode(
@@ -3076,13 +3076,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ResourceAccessorDefinitionNode createResourceAccessorDefinitionNode(
             MetadataNode metadata,
-            Token resourceKeyword,
+            NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken accessorName,
             NodeList<Token> relativeResourcePath,
             FunctionSignatureNode functionSignature,
             FunctionBodyNode functionBody) {
-        Objects.requireNonNull(resourceKeyword, "resourceKeyword must not be null");
+        Objects.requireNonNull(qualifierList, "qualifierList must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
         Objects.requireNonNull(accessorName, "accessorName must not be null");
         Objects.requireNonNull(relativeResourcePath, "relativeResourcePath must not be null");
@@ -3091,7 +3091,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stResourceAccessorDefinitionNode = STNodeFactory.createResourceAccessorDefinitionNode(
                 getOptionalSTNode(metadata),
-                resourceKeyword.internalNode(),
+                qualifierList.underlyingListNode().internalNode(),
                 functionKeyword.internalNode(),
                 accessorName.internalNode(),
                 relativeResourcePath.underlyingListNode().internalNode(),

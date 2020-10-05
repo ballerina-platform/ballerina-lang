@@ -297,8 +297,8 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(annotationAttachPointNode);
     }
 
-    public void visit(STRemoteServiceAttachPointIdentifierNode remoteServiceAttachPointIdentifierNode) {
-        visitSyntaxNode(remoteServiceAttachPointIdentifierNode);
+    public void visit(STServiceRemoteAttachPointIdentifierNode serviceRemoteAttachPointIdentifierNode) {
+        visitSyntaxNode(serviceRemoteAttachPointIdentifierNode);
     }
 
     public void visit(STXMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {

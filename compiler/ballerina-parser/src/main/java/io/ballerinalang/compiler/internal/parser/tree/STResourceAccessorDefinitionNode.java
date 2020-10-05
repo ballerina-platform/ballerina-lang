@@ -32,7 +32,7 @@ import java.util.Collections;
  */
 public class STResourceAccessorDefinitionNode extends STNode {
     public final STNode metadata;
-    public final STNode resourceKeyword;
+    public final STNode qualifierList;
     public final STNode functionKeyword;
     public final STNode accessorName;
     public final STNode relativeResourcePath;
@@ -41,7 +41,7 @@ public class STResourceAccessorDefinitionNode extends STNode {
 
     STResourceAccessorDefinitionNode(
             STNode metadata,
-            STNode resourceKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode accessorName,
             STNode relativeResourcePath,
@@ -49,7 +49,7 @@ public class STResourceAccessorDefinitionNode extends STNode {
             STNode functionBody) {
         this(
                 metadata,
-                resourceKeyword,
+                qualifierList,
                 functionKeyword,
                 accessorName,
                 relativeResourcePath,
@@ -60,7 +60,7 @@ public class STResourceAccessorDefinitionNode extends STNode {
 
     STResourceAccessorDefinitionNode(
             STNode metadata,
-            STNode resourceKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode accessorName,
             STNode relativeResourcePath,
@@ -69,7 +69,7 @@ public class STResourceAccessorDefinitionNode extends STNode {
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.RESOURCE_ACCESSOR_DEFINITION, diagnostics);
         this.metadata = metadata;
-        this.resourceKeyword = resourceKeyword;
+        this.qualifierList = qualifierList;
         this.functionKeyword = functionKeyword;
         this.accessorName = accessorName;
         this.relativeResourcePath = relativeResourcePath;
@@ -78,7 +78,7 @@ public class STResourceAccessorDefinitionNode extends STNode {
 
         addChildren(
                 metadata,
-                resourceKeyword,
+                qualifierList,
                 functionKeyword,
                 accessorName,
                 relativeResourcePath,
@@ -89,7 +89,7 @@ public class STResourceAccessorDefinitionNode extends STNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STResourceAccessorDefinitionNode(
                 this.metadata,
-                this.resourceKeyword,
+                this.qualifierList,
                 this.functionKeyword,
                 this.accessorName,
                 this.relativeResourcePath,
@@ -100,7 +100,7 @@ public class STResourceAccessorDefinitionNode extends STNode {
 
     public STResourceAccessorDefinitionNode modify(
             STNode metadata,
-            STNode resourceKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode accessorName,
             STNode relativeResourcePath,
@@ -108,7 +108,7 @@ public class STResourceAccessorDefinitionNode extends STNode {
             STNode functionBody) {
         if (checkForReferenceEquality(
                 metadata,
-                resourceKeyword,
+                qualifierList,
                 functionKeyword,
                 accessorName,
                 relativeResourcePath,
@@ -119,7 +119,7 @@ public class STResourceAccessorDefinitionNode extends STNode {
 
         return new STResourceAccessorDefinitionNode(
                 metadata,
-                resourceKeyword,
+                qualifierList,
                 functionKeyword,
                 accessorName,
                 relativeResourcePath,

@@ -56,6 +56,10 @@
               "hasDiagnostics": true,
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "READONLY_TYPE_DESC",
                   "children": [
                     {
@@ -96,6 +100,10 @@
             {
               "kind": "OBJECT_FIELD",
               "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
                 {
                   "kind": "INTERSECTION_TYPE_DESC",
                   "children": [
@@ -169,6 +177,10 @@
               "hasDiagnostics": true,
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "READONLY_TYPE_DESC",
                   "children": [
                     {
@@ -209,6 +221,10 @@
             {
               "kind": "OBJECT_FIELD",
               "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
                 {
                   "kind": "INTERSECTION_TYPE_DESC",
                   "children": [

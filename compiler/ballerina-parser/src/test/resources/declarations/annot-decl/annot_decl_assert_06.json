@@ -143,7 +143,7 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER",
+                      "kind": "SERVICE_REMOTE_ATTACH_POINT_IDENTIFIER",
                       "children": [
                         {
                           "kind": "SERVICE_KEYWORD",
@@ -183,7 +183,7 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER",
+                      "kind": "SERVICE_REMOTE_ATTACH_POINT_IDENTIFIER",
                       "hasDiagnostics": true,
                       "children": [
                         {

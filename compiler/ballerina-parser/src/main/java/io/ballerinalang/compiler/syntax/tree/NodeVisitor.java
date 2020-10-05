@@ -307,8 +307,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(annotationAttachPointNode);
     }
 
-    public void visit(RemoteServiceAttachPointIdentifierNode remoteServiceAttachPointIdentifierNode) {
-        visitSyntaxNode(remoteServiceAttachPointIdentifierNode);
+    public void visit(ServiceRemoteAttachPointIdentifierNode serviceRemoteAttachPointIdentifierNode) {
+        visitSyntaxNode(serviceRemoteAttachPointIdentifierNode);
     }
 
     public void visit(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {

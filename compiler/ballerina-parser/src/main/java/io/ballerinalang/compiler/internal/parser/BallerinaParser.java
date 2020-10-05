@@ -1015,13 +1015,19 @@ public class BallerinaParser extends AbstractParser {
 
         if (isObjectTypeDesc) {
             // method-decl
-            qualifierList.add(0, visibilityQualifier);
+            if (visibilityQualifier != null) {
+                qualifierList.add(0, visibilityQualifier);
+            }
         } else if (!isObjectMember) {
             // func-def
-            qualifierList.add(0, visibilityQualifier);
+            if (visibilityQualifier != null) {
+                qualifierList.add(0, visibilityQualifier);
+            }
         } else if (resourceQual == null && ((STNodeList) resourcePath).isEmpty()) {
             // method-def
-            qualifierList.add(0, visibilityQualifier);
+            if (visibilityQualifier != null) {
+                qualifierList.add(0, visibilityQualifier);
+            }
         } else {
             // resource-accessor-def
             if (resourceQual == null) {
@@ -1056,6 +1062,8 @@ public class BallerinaParser extends AbstractParser {
             return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.OBJECT_METHOD_DEFINITION, metadata,
                     qualifiers, functionKeyword, name, funcSignature, body);
         } else {
+            qualifierList.add(resourceQual);
+            resourceQual = STNodeFactory.createNodeList(resourceQual);
             return STNodeFactory.createResourceAccessorDefinitionNode(metadata, resourceQual, functionKeyword,
                     name, resourcePath, funcSignature, body);
         }
@@ -7731,7 +7739,7 @@ public class BallerinaParser extends AbstractParser {
         switch (token.kind) {
             case REMOTE_KEYWORD:
                 STNode remoteKeyword = parseRemoteIdent();
-                firstIdent = STNodeFactory.createRemoteServiceAttachPointIdentifierNode(serviceKeyword, remoteKeyword);
+                firstIdent = STNodeFactory.createServiceRemoteAttachPointIdentifierNode(serviceKeyword, remoteKeyword);
                 secondIdent = parseFunctionIdent();
                 break;
             case COMMA_TOKEN:

@@ -1,5 +1,5 @@
 client class Foo {
-    isolated foo(int i) returns boolean {
+    transactional isolated foo(int i) returns boolean {
 
     }
 

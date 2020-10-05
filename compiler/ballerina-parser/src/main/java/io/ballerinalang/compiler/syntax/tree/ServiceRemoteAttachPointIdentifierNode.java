@@ -26,9 +26,9 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class RemoteServiceAttachPointIdentifierNode extends NonTerminalNode {
+public class ServiceRemoteAttachPointIdentifierNode extends NonTerminalNode {
 
-    public RemoteServiceAttachPointIdentifierNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ServiceRemoteAttachPointIdentifierNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -57,7 +57,7 @@ public class RemoteServiceAttachPointIdentifierNode extends NonTerminalNode {
                 "remoteKeyword"};
     }
 
-    public RemoteServiceAttachPointIdentifierNode modify(
+    public ServiceRemoteAttachPointIdentifierNode modify(
             Token serviceKeyword,
             Token remoteKeyword) {
         if (checkForReferenceEquality(
@@ -66,13 +66,13 @@ public class RemoteServiceAttachPointIdentifierNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createRemoteServiceAttachPointIdentifierNode(
+        return NodeFactory.createServiceRemoteAttachPointIdentifierNode(
                 serviceKeyword,
                 remoteKeyword);
     }
 
-    public RemoteServiceAttachPointIdentifierNodeModifier modify() {
-        return new RemoteServiceAttachPointIdentifierNodeModifier(this);
+    public ServiceRemoteAttachPointIdentifierNodeModifier modify() {
+        return new ServiceRemoteAttachPointIdentifierNodeModifier(this);
     }
 
     /**
@@ -80,32 +80,32 @@ public class RemoteServiceAttachPointIdentifierNode extends NonTerminalNode {
      *
      * @since 2.0.0
      */
-    public static class RemoteServiceAttachPointIdentifierNodeModifier {
-        private final RemoteServiceAttachPointIdentifierNode oldNode;
+    public static class ServiceRemoteAttachPointIdentifierNodeModifier {
+        private final ServiceRemoteAttachPointIdentifierNode oldNode;
         private Token serviceKeyword;
         private Token remoteKeyword;
 
-        public RemoteServiceAttachPointIdentifierNodeModifier(RemoteServiceAttachPointIdentifierNode oldNode) {
+        public ServiceRemoteAttachPointIdentifierNodeModifier(ServiceRemoteAttachPointIdentifierNode oldNode) {
             this.oldNode = oldNode;
             this.serviceKeyword = oldNode.serviceKeyword();
             this.remoteKeyword = oldNode.remoteKeyword();
         }
 
-        public RemoteServiceAttachPointIdentifierNodeModifier withServiceKeyword(
+        public ServiceRemoteAttachPointIdentifierNodeModifier withServiceKeyword(
                 Token serviceKeyword) {
             Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
             this.serviceKeyword = serviceKeyword;
             return this;
         }
 
-        public RemoteServiceAttachPointIdentifierNodeModifier withRemoteKeyword(
+        public ServiceRemoteAttachPointIdentifierNodeModifier withRemoteKeyword(
                 Token remoteKeyword) {
             Objects.requireNonNull(remoteKeyword, "remoteKeyword must not be null");
             this.remoteKeyword = remoteKeyword;
             return this;
         }
 
-        public RemoteServiceAttachPointIdentifierNode apply() {
+        public ServiceRemoteAttachPointIdentifierNode apply() {
             return oldNode.modify(
                     serviceKeyword,
                     remoteKeyword);

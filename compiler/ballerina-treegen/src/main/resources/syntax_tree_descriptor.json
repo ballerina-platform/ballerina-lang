@@ -1646,9 +1646,9 @@
             ]
         },
         {
-            "name": "RemoteServiceAttachPointIdentifierNode",
+            "name": "ServiceRemoteAttachPointIdentifierNode",
             "base": "Node",
-            "kind": "REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER",
+            "kind": "SERVICE_REMOTE_ATTACH_POINT_IDENTIFIER",
             "attributes": [
                 {
                     "name": "serviceKeyword",
@@ -4234,8 +4234,9 @@
                     "isOptional": true
                 },
                 {
-                    "name": "resourceKeyword",
-                    "type": "Token"
+                    "name": "qualifierList",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "functionKeyword",

@@ -965,11 +965,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STRemoteServiceAttachPointIdentifierNode transform(
-            STRemoteServiceAttachPointIdentifierNode remoteServiceAttachPointIdentifierNode) {
-        STNode serviceKeyword = modifyNode(remoteServiceAttachPointIdentifierNode.serviceKeyword);
-        STNode remoteKeyword = modifyNode(remoteServiceAttachPointIdentifierNode.remoteKeyword);
-        return remoteServiceAttachPointIdentifierNode.modify(
+    public STServiceRemoteAttachPointIdentifierNode transform(
+            STServiceRemoteAttachPointIdentifierNode serviceRemoteAttachPointIdentifierNode) {
+        STNode serviceKeyword = modifyNode(serviceRemoteAttachPointIdentifierNode.serviceKeyword);
+        STNode remoteKeyword = modifyNode(serviceRemoteAttachPointIdentifierNode.remoteKeyword);
+        return serviceRemoteAttachPointIdentifierNode.modify(
                 serviceKeyword,
                 remoteKeyword);
     }
@@ -2496,7 +2496,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STResourceAccessorDefinitionNode transform(
             STResourceAccessorDefinitionNode resourceAccessorDefinitionNode) {
         STNode metadata = modifyNode(resourceAccessorDefinitionNode.metadata);
-        STNode resourceKeyword = modifyNode(resourceAccessorDefinitionNode.resourceKeyword);
+        STNode qualifierList = modifyNode(resourceAccessorDefinitionNode.qualifierList);
         STNode functionKeyword = modifyNode(resourceAccessorDefinitionNode.functionKeyword);
         STNode accessorName = modifyNode(resourceAccessorDefinitionNode.accessorName);
         STNode relativeResourcePath = modifyNode(resourceAccessorDefinitionNode.relativeResourcePath);
@@ -2504,7 +2504,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode functionBody = modifyNode(resourceAccessorDefinitionNode.functionBody);
         return resourceAccessorDefinitionNode.modify(
                 metadata,
-                resourceKeyword,
+                qualifierList,
                 functionKeyword,
                 accessorName,
                 relativeResourcePath,

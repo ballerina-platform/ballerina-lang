@@ -68,6 +68,10 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
                           "kind": "SIMPLE_NAME_REFERENCE",
                           "hasDiagnostics": true,
                           "children": [
@@ -75,7 +79,7 @@
                               "kind": "IDENTIFIER_TOKEN",
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_QUALIFIER_NOT_ALLOWED"
+                                "ERROR_PRIVATE_QUALIFIER_IN_OBJECT_MEMBER_DESCRIPTOR"
                               ],
                               "value": "age",
                               "leadingMinutiae": [
@@ -137,6 +141,10 @@
                       "kind": "OBJECT_FIELD",
                       "hasDiagnostics": true,
                       "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
                         {
                           "kind": "STRING_TYPE_DESC",
                           "children": [
@@ -309,6 +317,10 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
                           "kind": "INT_TYPE_DESC",
                           "hasDiagnostics": true,
                           "children": [
@@ -425,6 +437,10 @@
                       "kind": "OBJECT_FIELD",
                       "hasDiagnostics": true,
                       "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
+                        },
                         {
                           "kind": "INT_TYPE_DESC",
                           "hasDiagnostics": true,

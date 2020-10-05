@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.RemoteServiceAttachPointIdentifierNode;
+import io.ballerinalang.compiler.syntax.tree.ServiceRemoteAttachPointIdentifierNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,11 +30,11 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STRemoteServiceAttachPointIdentifierNode extends STNode {
+public class STServiceRemoteAttachPointIdentifierNode extends STNode {
     public final STNode serviceKeyword;
     public final STNode remoteKeyword;
 
-    STRemoteServiceAttachPointIdentifierNode(
+    STServiceRemoteAttachPointIdentifierNode(
             STNode serviceKeyword,
             STNode remoteKeyword) {
         this(
@@ -43,11 +43,11 @@ public class STRemoteServiceAttachPointIdentifierNode extends STNode {
                 Collections.emptyList());
     }
 
-    STRemoteServiceAttachPointIdentifierNode(
+    STServiceRemoteAttachPointIdentifierNode(
             STNode serviceKeyword,
             STNode remoteKeyword,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.REMOTE_SERVICE_ATTACH_POINT_IDENTIFIER, diagnostics);
+        super(SyntaxKind.SERVICE_REMOTE_ATTACH_POINT_IDENTIFIER, diagnostics);
         this.serviceKeyword = serviceKeyword;
         this.remoteKeyword = remoteKeyword;
 
@@ -57,13 +57,13 @@ public class STRemoteServiceAttachPointIdentifierNode extends STNode {
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STRemoteServiceAttachPointIdentifierNode(
+        return new STServiceRemoteAttachPointIdentifierNode(
                 this.serviceKeyword,
                 this.remoteKeyword,
                 diagnostics);
     }
 
-    public STRemoteServiceAttachPointIdentifierNode modify(
+    public STServiceRemoteAttachPointIdentifierNode modify(
             STNode serviceKeyword,
             STNode remoteKeyword) {
         if (checkForReferenceEquality(
@@ -72,14 +72,14 @@ public class STRemoteServiceAttachPointIdentifierNode extends STNode {
             return this;
         }
 
-        return new STRemoteServiceAttachPointIdentifierNode(
+        return new STServiceRemoteAttachPointIdentifierNode(
                 serviceKeyword,
                 remoteKeyword,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new RemoteServiceAttachPointIdentifierNode(this, position, parent);
+        return new ServiceRemoteAttachPointIdentifierNode(this, position, parent);
     }
 
     @Override

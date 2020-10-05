@@ -911,11 +911,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 secondIdent);
     }
 
-    public static STNode createRemoteServiceAttachPointIdentifierNode(
+    public static STNode createServiceRemoteAttachPointIdentifierNode(
             STNode serviceKeyword,
             STNode remoteKeyword) {
 
-        return new STRemoteServiceAttachPointIdentifierNode(
+        return new STServiceRemoteAttachPointIdentifierNode(
                 serviceKeyword,
                 remoteKeyword);
     }
@@ -2322,7 +2322,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createResourceAccessorDefinitionNode(
             STNode metadata,
-            STNode resourceKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode accessorName,
             STNode relativeResourcePath,
@@ -2331,7 +2331,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STResourceAccessorDefinitionNode(
                 metadata,
-                resourceKeyword,
+                qualifierList,
                 functionKeyword,
                 accessorName,
                 relativeResourcePath,

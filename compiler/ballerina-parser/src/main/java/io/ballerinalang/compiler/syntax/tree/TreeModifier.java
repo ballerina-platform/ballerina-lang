@@ -1234,13 +1234,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public RemoteServiceAttachPointIdentifierNode transform(
-            RemoteServiceAttachPointIdentifierNode remoteServiceAttachPointIdentifierNode) {
+    public ServiceRemoteAttachPointIdentifierNode transform(
+            ServiceRemoteAttachPointIdentifierNode serviceRemoteAttachPointIdentifierNode) {
         Token serviceKeyword =
-                modifyToken(remoteServiceAttachPointIdentifierNode.serviceKeyword());
+                modifyToken(serviceRemoteAttachPointIdentifierNode.serviceKeyword());
         Token remoteKeyword =
-                modifyToken(remoteServiceAttachPointIdentifierNode.remoteKeyword());
-        return remoteServiceAttachPointIdentifierNode.modify(
+                modifyToken(serviceRemoteAttachPointIdentifierNode.remoteKeyword());
+        return serviceRemoteAttachPointIdentifierNode.modify(
                 serviceKeyword,
                 remoteKeyword);
     }
@@ -3152,8 +3152,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ResourceAccessorDefinitionNode resourceAccessorDefinitionNode) {
         MetadataNode metadata =
                 modifyNode(resourceAccessorDefinitionNode.metadata().orElse(null));
-        Token resourceKeyword =
-                modifyToken(resourceAccessorDefinitionNode.resourceKeyword());
+        NodeList<Token> qualifierList =
+                modifyNodeList(resourceAccessorDefinitionNode.qualifierList());
         Token functionKeyword =
                 modifyToken(resourceAccessorDefinitionNode.functionKeyword());
         IdentifierToken accessorName =
@@ -3166,7 +3166,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(resourceAccessorDefinitionNode.functionBody());
         return resourceAccessorDefinitionNode.modify(
                 metadata,
-                resourceKeyword,
+                qualifierList,
                 functionKeyword,
                 accessorName,
                 relativeResourcePath,
