@@ -33,3 +33,15 @@ test {
         suites 'src/test/resources/testng.xml'
     }
 }
+
+ext.moduleName = 'io.ballerina.parser'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

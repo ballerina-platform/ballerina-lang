@@ -15,14 +15,12 @@
  * under the License.
  */
 
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-
 /**
  * This is a dummy class needed for annotation processor plugin.
  */
-@BallerinaFunction(
-    functionName = "ignore"
-)
+//@BallerinaFunction(
+//    functionName = "ignore"
+//)
 public class Builder {
 
 }

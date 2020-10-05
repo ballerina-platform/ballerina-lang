@@ -15,26 +15,26 @@
  */
 package org.ballerinalang.langserver.command.docs;
 
-import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
-import io.ballerinalang.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerinalang.compiler.syntax.tree.MetadataNode;
-import io.ballerinalang.compiler.syntax.tree.MethodDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
-import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
-import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.MetadataNode;
+import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
+import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.RestParameterNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -132,7 +132,7 @@ public class DocumentationGenerator {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         int offset = docStart.getCharacter();
-        io.ballerinalang.compiler.syntax.tree.Node typeDesc = typeDefNode.typeDescriptor();
+        io.ballerina.compiler.syntax.tree.Node typeDesc = typeDefNode.typeDescriptor();
         List<String> attributes = new ArrayList<>();
         switch (typeDesc.kind()) {
             case RECORD_TYPE_DESC:
@@ -199,7 +199,7 @@ public class DocumentationGenerator {
         boolean hasDeprecated = false;
         if (metadata != null && !metadata.annotations().isEmpty()) {
             for (AnnotationNode annotationNode : metadata.annotations()) {
-                io.ballerinalang.compiler.syntax.tree.Node annotReference = annotationNode.annotReference();
+                io.ballerina.compiler.syntax.tree.Node annotReference = annotationNode.annotReference();
                 if (annotReference.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                         "deprecated".equals(((SimpleNameReferenceNode) annotReference).name().text())) {
                     hasDeprecated = true;
