@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.test.statements.transaction;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -118,5 +118,10 @@ public class NestedRetryTransactionStmtsTest {
         Assert.assertEquals(result[0].stringValue(), "start -> inside trx1  -> inside trx2  "
                 + "-> attempt 1:error, -> inside trx2  -> attempt 2:error, -> inside trx2  -> attempt 3 "
                 + "-> result commited -> trx2 end. -> result commited -> trx1 end.");
+    }
+
+    @Test
+    public void testNestedReturns() {
+        BRunUtil.invoke(programFile, "testNestedReturns", new BValue[]{});
     }
 }

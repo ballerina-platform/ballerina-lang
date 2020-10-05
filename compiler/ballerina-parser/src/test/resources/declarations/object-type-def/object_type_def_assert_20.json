@@ -33,8 +33,8 @@
               "kind": "CLIENT_KEYWORD",
               "hasDiagnostics": true,
               "diagnostics": [
-                "ERROR_ABSTRACT_QUALIFIER_NOT_ALLOWED_IN_OBJECT",
-                "ERROR_ABSTRACT_QUALIFIER_NOT_ALLOWED_IN_OBJECT"
+                "ERROR_QUALIFIER_NOT_ALLOWED",
+                "ERROR_QUALIFIER_NOT_ALLOWED"
               ],
               "leadingMinutiae": [
                 {

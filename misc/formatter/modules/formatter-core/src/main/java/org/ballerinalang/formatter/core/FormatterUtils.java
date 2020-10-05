@@ -663,11 +663,11 @@ class FormatterUtils {
             this.addSpaces = addSpaces;
         }
 
-        private Node getParent() {
+        Node getParent() {
             return parent;
         }
 
-        private boolean getAddSpaces() {
+        boolean getAddSpaces() {
             return addSpaces;
         }
     }

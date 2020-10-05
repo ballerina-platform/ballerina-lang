@@ -20,38 +20,24 @@ package org.ballerinalang.langlib.xml;
 import org.ballerinalang.jvm.XMLValueUtil;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Returns the content of a text or processing instruction or comment item.
  *
  * @since 0.90
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "getContent",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class GetContent {
 
-    public static BString getContent(Strand strand, Object xmlVal) {
+    public static BString getContent(Object xmlVal) {
         XMLValue value = (XMLValue) xmlVal;
-        if (IsText.isText(strand, value)) {
+        if (IsText.isText(value)) {
             return BStringUtils.fromString(value.getTextValue());
-        } else if (IsProcessingInstruction.isProcessingInstruction(strand, value)) {
+        } else if (IsProcessingInstruction.isProcessingInstruction(value)) {
             return BStringUtils.fromString(XMLValueUtil.getPIContent(value));
-        } else if (IsComment.isComment(strand, value)) {
+        } else if (IsComment.isComment(value)) {
             return BStringUtils.fromString(XMLValueUtil.getCommentContent(value));
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getContent",

@@ -19,29 +19,16 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**
  * Native implementation of lang.map:get(map&lt;Type&gt;, string).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "get",
-        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
-        isPublic = true
-)
 public class Get {
 
-    public static Object get(Strand strand, MapValue<?, ?> m, BString k) {
+    public static Object get(MapValue<?, ?> m, BString k) {
         return m.getOrThrow(k);
     }
 }

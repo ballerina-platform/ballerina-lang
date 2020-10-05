@@ -20,34 +20,27 @@ package org.ballerinalang.langlib.xml;
 import org.ballerinalang.jvm.XMLValueUtil;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Create XML processing instruction.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "getTarget",
-        args = {
-                @Argument(name = "xmlValue", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "getTarget",
+//        args = {
+//                @Argument(name = "xmlValue", type = TypeKind.XML)},
+//        returnType = {@ReturnType(type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class GetTarget {
 
-    public static BString getTarget(Strand strand, XMLValue xmlValue) {
-        if (!IsProcessingInstruction.isProcessingInstruction(strand, xmlValue)) {
+    public static BString getTarget(XMLValue xmlValue) {
+        if (!IsProcessingInstruction.isProcessingInstruction(xmlValue)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,
                     "getTarget", "processing instruction");
         }
