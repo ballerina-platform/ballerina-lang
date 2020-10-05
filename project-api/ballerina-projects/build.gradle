@@ -23,11 +23,17 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'com.google.code.findbugs:jsr305'
+    implementation 'org.apache.commons:commons-compress:1.18'
 
     testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
     testImplementation 'org.testng:testng'
     testImplementation 'org.powermock:powermock-mockito-release-full'
     testImplementation 'org.powermock:powermock-module-testng-common'
+}
+
+checkstyleMain {
+    exclude 'io/ballerina/projects/model/BaloJson.java'
+    exclude 'io/ballerina/projects/model/PackageJson.java'
 }
 
 description = 'Ballerina - Projects'
