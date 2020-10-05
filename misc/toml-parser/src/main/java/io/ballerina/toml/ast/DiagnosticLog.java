@@ -21,9 +21,6 @@ import io.ballerina.toml.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.toml.internal.diagnostics.DiagnosticMessageHelper;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
-
 /**
  * Diagnostic logger.
  *
@@ -31,15 +28,12 @@ import java.util.ResourceBundle;
  */
 public class DiagnosticLog {
 
-    private static DiagnosticLog instance = null;
-
-    private static ResourceBundle messages =
-            ResourceBundle.getBundle("compiler", Locale.getDefault());
+    private static DiagnosticLog instance;
 
     private DiagnosticLog() {
     }
 
-    public static DiagnosticLog getInstance() {
+    public static synchronized DiagnosticLog getInstance() {
         if (instance == null) {
             instance = new DiagnosticLog();
         }

@@ -46,7 +46,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -203,21 +202,13 @@ public class Toml {
     }
 
     private Object getValueFromAST(String key) {
-        String[] split = key.split("\\.");
-        String[] parentTables = Arrays.copyOf(split, split.length - 1);
-        String lastKey = split[split.length - 1];
-
-        TomlTable parentTable = getParentTable(parentTables);
-        if (parentTable != null) {
-            TomlKeyValue tomlKeyValue = (TomlKeyValue) parentTable.getChildren().get(lastKey);
-            if (tomlKeyValue != null) {
-
-                TomlValue value = tomlKeyValue.value;
-                if (value.getKind() == SyntaxKind.ARRAY) {
-                    return extractValuesFromTomlArray((TomlArray) value);
-                } else {
-                    return ((TomlBasicValue) value).getValue();
-                }
+        TomlKeyValue tomlKeyValue = (TomlKeyValue) rootNode.getChildren().get(key);
+        if (tomlKeyValue != null) {
+            TomlValue value = tomlKeyValue.value;
+            if (value.getKind() == SyntaxKind.ARRAY) {
+                return extractValuesFromTomlArray((TomlArray) value);
+            } else {
+                return ((TomlBasicValue) value).getValue();
             }
         }
         return null;
@@ -243,24 +234,11 @@ public class Toml {
      * @return Child Table
      */
     public Toml getTable(String key) {
-        String[] parentTables = key.split("\\.");
-        return new Toml(getParentTable(parentTables));
-    }
-
-    private TomlTable getParentTable(String[] parentTables) {
-        TomlTable parentTable = rootNode;
-        ArrayList<String> parentKeys = new ArrayList<>();
-        for (String table : parentTables) {
-            parentKeys.add(table);
-            String parentKey = String.join(".", parentKeys);
-            TopLevelNode tableNode = parentTable.getChildren().get(parentKey);
-            if (tableNode instanceof TomlTable) {
-                parentTable = (TomlTable) tableNode;
-            } else {
-                return null;
-            }
+        TopLevelNode topLevelNode = rootNode.getChildren().get(key);
+        if (topLevelNode.getKind() == SyntaxKind.TABLE) {
+            return new Toml((TomlTable) topLevelNode);
         }
-        return parentTable;
+        return null;
     }
 
     /**
@@ -270,26 +248,15 @@ public class Toml {
      * @return List of Tables
      */
     public List<Toml> getTables(String key) {
-        String[] parentTables = key.split("\\.");
-        TomlTable parentTable = rootNode;
-        ArrayList<String> parentKeys = new ArrayList<>();
-        for (String table : parentTables) {
-            parentKeys.add(table);
-            String parentKey = String.join(".", parentKeys);
-            TopLevelNode tableNode = parentTable.getChildren().get(parentKey);
-            if (tableNode instanceof TomlTable) {
-                parentTable = (TomlTable) tableNode;
-            } else if (tableNode instanceof TomlTableArray) {
-                TomlTableArray tomlTableArray = (TomlTableArray) tableNode;
-                List<TomlTable> childs = tomlTableArray.getChilds();
-                List<Toml> tomlList = new ArrayList<>();
-                for (TomlTable child : childs) {
-                    tomlList.add(new Toml(child));
-                }
-                return tomlList;
-            } else {
-                return null;
+        TopLevelNode tableNode = rootNode.getChildren().get(key);
+        if (tableNode.getKind() == SyntaxKind.TABLE_ARRAY) {
+            TomlTableArray tomlTableArray = (TomlTableArray) tableNode;
+            List<TomlTable> childs = tomlTableArray.getChilds();
+            List<Toml> tomlList = new ArrayList<>();
+            for (TomlTable child : childs) {
+                tomlList.add(new Toml(child));
             }
+            return tomlList;
         }
         return null;
     }

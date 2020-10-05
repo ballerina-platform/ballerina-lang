@@ -72,5 +72,4 @@ public class TestToml {
         Boolean key2 = read.getBoolean("key2");
         OUT.println(key2);
     }
-
 }

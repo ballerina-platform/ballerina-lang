@@ -43,6 +43,7 @@ public abstract class TomlNode implements Node {
     }
 
     public abstract void accept(TomlNodeVisitor visitor);
+    public abstract <T> T apply(TomlNodeTransformer<T> transformer);
 
     @Override
     public Set<Whitespace> getWS() {

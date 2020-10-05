@@ -52,4 +52,9 @@ public class TomlTableArray extends TopLevelNode {
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public <T> T apply(TomlNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
 }

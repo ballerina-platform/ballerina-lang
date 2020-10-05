@@ -46,12 +46,9 @@ import java.util.ArrayDeque;
  * </li>
  * </ul>
  *
- * @since 1.2.0
+ * @since 0.1.0
  */
 public class TomlParserErrorHandler extends AbstractParserErrorHandler {
-
-//    private static final ParserRuleContext[] TOP_LEVEL_NODE = { ParserRuleContext.EOF, ParserRuleContext.DOC_STRING,
-//            ParserRuleContext.ANNOTATIONS, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE = {ParserRuleContext.EOF,
             ParserRuleContext.KEY_VALUE_PAIR, ParserRuleContext.TOML_TABLE, ParserRuleContext.TOML_TABLE_ARRAY};
@@ -273,22 +270,6 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             case BOOLEAN:
             case BASIC_LITERAL:
             case ARRAY:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * Check whether the given token refers to a unary operator.
-     *
-     * @param token Token to check
-     * @return <code>true</code> if the given token refers to a unary operator. <code>false</code> otherwise
-     */
-    private boolean isUnaryOperator(STToken token) {
-        switch (token.kind) {
-            case PLUS_TOKEN:
-            case MINUS_TOKEN:
                 return true;
             default:
                 return false;

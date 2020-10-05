@@ -95,6 +95,11 @@ public class TomlTable extends TopLevelNode {
     }
 
     @Override
+    public <T> T apply(TomlNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
+    @Override
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
     }
