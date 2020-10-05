@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;

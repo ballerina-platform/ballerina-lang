@@ -62,10 +62,10 @@ function getWaitTimeForLevel(int level) returns int {
         // Since these modules are leaf modules (Modules which does not have dependents), we can ignore these to
         // calculate the max wait time.
         // The non-leaf module with the maximum build time is Auth module. It takes 2m 40s
-        return MINUTE_IN_MILLIS * 3;
+        return MINUTE_IN_MILLIS * 5;
     } else if (level == 7) {
         // Max time - HTTP - 18m 53s
-        return MINUTE_IN_MILLIS * 5;
+        return MINUTE_IN_MILLIS * 25;
     } else {
         // No Need to wait for level 8 modules
         return MINUTE_IN_MILLIS * 0;
@@ -99,7 +99,11 @@ function getModulesToBeReleased(commons:Module module) returns commons:Module[] 
     commons:Module[] toBeReleased = [];
     populteToBeReleasedModules(module, toBeReleased);
     toBeReleased = commons:sortModules(toBeReleased);
-    return commons:removeDuplicates(toBeReleased);
+    toBeReleased = commons:removeDuplicates(toBeReleased);
+    // Removing the parent module
+    int parentModuleIndex = <int>toBeReleased.indexOf(module);
+    _ = toBeReleased.remove(parentModuleIndex);
+    return toBeReleased;
 }
 
 function populteToBeReleasedModules(commons:Module module, commons:Module[] toBeReleased) {

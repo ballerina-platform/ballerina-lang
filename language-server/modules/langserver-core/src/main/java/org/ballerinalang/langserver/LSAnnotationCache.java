@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver;
 
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;

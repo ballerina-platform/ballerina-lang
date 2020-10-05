@@ -17,21 +17,15 @@
  */
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
-import org.ballerinalang.test.services.testutils.MessageUtils;
-import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * This class contains tests that are related to functions and nil type ().
@@ -96,16 +90,5 @@ public class FunctionsAndNilTest {
     public void testNilReturnAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testNilReturnAssignment");
         Assert.assertNull(returns[0]);
-    }
-
-    @Test(description = "Test count function inside resource.")
-    public void testCountFunctionInsideResource() throws Exception {
-        CompileResult result1 = BCompileUtil.compile("test-src/functions/count-in-resource.bal");
-        HTTPTestRequest request = MessageUtils.generateHTTPMessage("/test/resource", "GET");
-        HttpCarbonMessage response = Services.invoke(9090, request);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.stringValue(), "[\"foo\", \"bar\"]");
     }
 }

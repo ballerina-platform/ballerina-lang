@@ -249,7 +249,7 @@ public class BallerinaTreeModifyUtil {
         String formattedSource = FormattingSourceGen.getSourceOf(model);
         TextDocumentContentChangeEvent changeEvent = new TextDocumentContentChangeEvent(formattedSource);
         documentManager.updateFile(compilationPath, Collections.singletonList(changeEvent));
-        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SOURCE, formattedSource);
+//        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SOURCE, formattedSource);
         return astContext;
     }
 
