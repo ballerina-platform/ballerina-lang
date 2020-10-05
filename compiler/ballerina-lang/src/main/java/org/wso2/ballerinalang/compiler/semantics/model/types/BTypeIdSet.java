@@ -42,13 +42,11 @@ public class BTypeIdSet {
     }
 
     public BTypeIdSet(Set<BTypeId> primary) {
-        this.primary = primary;
-        this.secondary = new HashSet<>();
+        this(primary, new HashSet<>());
     }
 
     public BTypeIdSet() {
-        this.primary = new HashSet<>();
-        this.secondary = new HashSet<>();
+        this(new HashSet<>(), new HashSet<>());
     }
 
     public static BTypeIdSet from(PackageID packageID, String typeId, boolean publicId) {
