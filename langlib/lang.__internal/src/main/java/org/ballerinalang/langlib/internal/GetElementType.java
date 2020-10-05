@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BTableType;
@@ -27,24 +26,15 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native implementation of lang.internal:getElementType(typedesc).
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "getElementType",
-        args = {@Argument(name = "td", type = TypeKind.UNION)},
-        returnType = {@ReturnType(type = TypeKind.TYPEDESC)}
-)
 public class GetElementType {
 
-    public static TypedescValue getElementType(Strand strand, Object td) {
+    public static TypedescValue getElementType(Object td) {
         TypedescValue typedescValue = (TypedescValue) td;
         BType type = typedescValue.getDescribingType();
         if (type.getTag() == TypeTags.ARRAY_TAG) {

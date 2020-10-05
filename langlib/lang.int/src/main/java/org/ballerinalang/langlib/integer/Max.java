@@ -18,33 +18,24 @@
 
 package org.ballerinalang.langlib.integer;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.INT_VERSION;
-
 /**
  * Native implementation of lang.int:max(int, int...).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.int", version = INT_VERSION, functionName = "max",
-        args = {@Argument(name = "n", type = TypeKind.INT), @Argument(name = "ns", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.int", functionName = "max",
+//        args = {@Argument(name = "n", type = TypeKind.INT), @Argument(name = "ns", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.INT)},
+//        isPublic = true
+//)
 public class Max {
 
-    public static long max(Strand strand, long n, ArrayValue ns) {
+    public static long max(long n, long[] ns) {
         long max = n;
-        int size = ns.size();
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            long current = ns.getInt(i);
+            long current = ns[i];
             max = current >= max ? current : max;
         }
         return max;

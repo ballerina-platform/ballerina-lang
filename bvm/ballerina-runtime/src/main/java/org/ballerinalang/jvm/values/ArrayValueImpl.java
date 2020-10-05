@@ -21,7 +21,6 @@ import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.api.values.BValue;
@@ -542,8 +541,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public void unshift(BArray values) {
-        unshift(0, (ArrayValue) values);
+    public void unshift(Object[] values) {
+        unshift(0, values);
     }
 
     @Override
@@ -1029,15 +1028,15 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    protected void unshift(long index, ArrayValue vals) {
+    protected void unshift(long index, Object[] vals) {
         handleImmutableArrayValue();
-        unshiftArray(index, vals.size(), getCurrentArrayLength());
+        unshiftArray(index, vals.length, getCurrentArrayLength());
 
         int startIndex = (int) index;
-        int endIndex = startIndex + vals.size();
+        int endIndex = startIndex + vals.length;
 
         for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
-            add(i, vals.get(j));
+            add(i, vals[j]);
         }
     }
 

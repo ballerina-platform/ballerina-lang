@@ -15,10 +15,10 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
-import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
