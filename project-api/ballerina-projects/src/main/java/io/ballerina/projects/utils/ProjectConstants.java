@@ -57,4 +57,5 @@ public class ProjectConstants {
 
     public static final String BALLERINA_VERSION = "ballerina.version";
     public static final String PROPERTIES_FILE = "/META-INF/tool.properties";
+    public static final String IMPLEMENTATION_VERSION = "2020r2";
 }
