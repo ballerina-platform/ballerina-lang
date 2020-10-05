@@ -220,7 +220,7 @@ public class CodeGenerator {
             }
         }
 
-        return new URLClassLoader(dependentJars.toArray(new URL[]{}), null);
+        return new URLClassLoader(dependentJars.toArray(new URL[]{}), ClassLoader.getPlatformClassLoader());
     }
 
     private void populateExternalMap(JvmPackageGen jvmPackageGen) {

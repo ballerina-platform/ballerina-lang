@@ -31,14 +31,10 @@ import org.ballerinalang.jvm.observability.metrics.MetricId;
 import org.ballerinalang.jvm.observability.metrics.PolledGauge;
 import org.ballerinalang.jvm.observability.metrics.Tag;
 import org.ballerinalang.jvm.observability.metrics.Tags;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -54,16 +50,10 @@ import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.OB
  *
  * @since 0.980.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "lookupMetric",
-        returnType = @ReturnType(type = TypeKind.ARRAY),
-        isPublic = true
-)
+
 public class LookupMetric {
 
-    public static Object lookupMetric(Strand strand, BString metricName, Object tags) {
+    public static Object lookupMetric(BString metricName, Object tags) {
 
         Map<String, String> tagMap = Utils.toStringMap((MapValue<BString, ?>) tags);
         Set<Tag> tagSet = new HashSet<>();
