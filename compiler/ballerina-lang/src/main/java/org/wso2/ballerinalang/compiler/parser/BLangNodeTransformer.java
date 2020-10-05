@@ -5053,11 +5053,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private boolean checkIfAnonymous(Node node) {
-        Node parent = node.parent();
-        if (parent.kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
-            return false;
-        }
-        return parent.kind() != SyntaxKind.TYPE_DEFINITION;
+        SyntaxKind parentKind = node.parent().kind();
+        return parentKind != SyntaxKind.DISTINCT_TYPE_DESC && parentKind != SyntaxKind.TYPE_DEFINITION;
     }
 
     private boolean ifInLocalContext(Node parent) {
