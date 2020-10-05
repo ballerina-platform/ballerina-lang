@@ -21,8 +21,8 @@ import java.util.List;
  * Represents a union type.
  */
 public class UnionType extends Type {
-    public UnionType(String name, String description, List<Type> memberTypes) {
-        super(name, description);
+    public UnionType(String name, String description, boolean isDeprecated, List<Type> memberTypes) {
+        super(name, description, isDeprecated);
         this.memberTypes = memberTypes;
     }
 }

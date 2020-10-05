@@ -20,8 +20,9 @@ package org.ballerinalang.docgen.generator.model;
  */
 public class RecordPageContext extends ModulePageContext {
     public Record record;
-    public RecordPageContext(Record record, Module module, Project project, String rootPath, String title) {
-        super(module, project, rootPath, title);
+    public RecordPageContext(Record record, Module module, Project project, String rootPath, String title,
+                             boolean excludeIndex) {
+        super(module, project, rootPath, title, excludeIndex);
         this.record = record;
     }
 }

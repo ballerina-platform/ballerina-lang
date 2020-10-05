@@ -15,14 +15,17 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * Represent documentation for an Error.
  */
 public class Error extends Construct {
+    @Expose
     public Type detailType;
 
-    public Error(String name, String description, Type detailType) {
-        super(name, description);
+    public Error(String name, String description, boolean isDeprecated, Type detailType) {
+        super(name, description, isDeprecated);
         this.detailType = detailType;
     }
 }

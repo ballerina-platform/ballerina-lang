@@ -22,8 +22,9 @@ import java.util.List;
  */
 public class ErrorsPageContext extends ModulePageContext {
     public List<Error> errors;
-    public ErrorsPageContext(List<Error> errors, Module module, Project project, String rootPath, String title) {
-        super(module, project, rootPath, title);
+    public ErrorsPageContext(List<Error> errors, Module module, Project project, String rootPath, String title,
+                             boolean excludeIndex) {
+        super(module, project, rootPath, title, excludeIndex);
         this.errors = errors;
     }
 }

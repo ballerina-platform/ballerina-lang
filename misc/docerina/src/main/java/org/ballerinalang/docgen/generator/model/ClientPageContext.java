@@ -20,8 +20,9 @@ package org.ballerinalang.docgen.generator.model;
  */
 public class ClientPageContext extends ModulePageContext {
     public Client client;
-    public ClientPageContext(Client client, Module module, Project project, String rootPath, String title) {
-        super(module, project, rootPath, title);
+    public ClientPageContext(Client client, Module module, Project project, String rootPath, String title,
+                             boolean excludeIndex) {
+        super(module, project, rootPath, title, excludeIndex);
         this.client = client;
     }
 }

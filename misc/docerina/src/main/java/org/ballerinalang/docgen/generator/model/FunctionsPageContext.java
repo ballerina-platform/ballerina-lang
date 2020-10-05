@@ -23,8 +23,8 @@ import java.util.List;
 public class FunctionsPageContext extends ModulePageContext {
     public List<Function> functions;
     public FunctionsPageContext(List<Function> functions, Module module, Project project,
-                                String rootPath, String title) {
-        super(module, project, rootPath, title);
+                                String rootPath, String title, boolean excludeIndex) {
+        super(module, project, rootPath, title, excludeIndex);
         this.functions = functions;
     }
 }

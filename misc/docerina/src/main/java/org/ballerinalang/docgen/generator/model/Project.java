@@ -15,17 +15,24 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.List;
 
 /**
  * Represents a Ballerina Project.
  */
 public class Project {
+    @Expose
     public boolean isSingleFile;
+    @Expose
     public String sourceFileName;
+    @Expose
     public String name;
+    @Expose
     public String description;
     public String organization;
     public String version;
+    @Expose
     public List<Module> modules;
 }

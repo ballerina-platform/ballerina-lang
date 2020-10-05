@@ -109,7 +109,7 @@ public class LockFileTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Test building TestProject1 and then pushing it's modules.")
+    @Test(enabled = false, description = "Test building TestProject1 and then pushing it's modules.")
     public void testBuildAndPushTestProject1() throws BallerinaTestException {
         // Build module
         String module1BaloFileName = module1Name + "-"
@@ -152,7 +152,8 @@ public class LockFileTestCase extends BaseTest {
      * @throws IOException            When updating the module names.
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test building and running TestProject2", dependsOnMethods = "testBuildAndPushTestProject1")
+    @Test(enabled = false, description = "Test building and running TestProject2",
+            dependsOnMethods = "testBuildAndPushTestProject1")
     public void testBuildTestProject2() throws IOException, BallerinaTestException {
         // Replace module names in source file
         Path fooSayBal = testProj2Path.resolve("src").resolve("foo").resolve("foo_say.bal");
@@ -200,7 +201,8 @@ public class LockFileTestCase extends BaseTest {
      * @throws IOException            When updating the implementation of the project.
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test updating  TestProject1 and pushing.", dependsOnMethods = "testBuildTestProject2")
+    @Test(enabled = false,
+            description = "Test updating  TestProject1 and pushing.", dependsOnMethods = "testBuildTestProject2")
     public void testModifyProj1AndPush() throws IOException, BallerinaTestException {
         // Update code in module1
         Path module2SourceFile = testProj1Path.resolve("src").resolve(module2Name).resolve("say.bal");
@@ -257,7 +259,8 @@ public class LockFileTestCase extends BaseTest {
      *
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test rebuilding and running TestProject2", dependsOnMethods = "testModifyProj1AndPush")
+    @Test(enabled = false, description = "Test rebuilding and running TestProject2",
+            dependsOnMethods = "testModifyProj1AndPush")
     public void testRebuildTestProj2() throws BallerinaTestException {
         // Build module
         String fooBaloFileName = "foo-"

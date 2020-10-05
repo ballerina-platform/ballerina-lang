@@ -21,9 +21,11 @@ package org.ballerinalang.docgen.generator.model;
 public class PageContext {
     public String rootPath;
     public String title;
+    public boolean excludeIndex;
 
-    public PageContext(String rootPath, String title) {
+    public PageContext(String rootPath, String title, boolean excludeIndex) {
         this.rootPath = rootPath;
         this.title = title;
+        this.excludeIndex = excludeIndex;
     }
 }

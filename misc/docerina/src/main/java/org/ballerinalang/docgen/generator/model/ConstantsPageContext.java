@@ -23,8 +23,8 @@ import java.util.List;
 public class ConstantsPageContext extends ModulePageContext {
     public List<Constant> constants;
     public ConstantsPageContext(List<Constant> constants, Module module, Project project,
-                                String rootPath, String title) {
-        super(module, project, rootPath, title);
+                                String rootPath, String title, boolean excludeIndex) {
+        super(module, project, rootPath, title, excludeIndex);
         this.constants = constants;
     }
 }
