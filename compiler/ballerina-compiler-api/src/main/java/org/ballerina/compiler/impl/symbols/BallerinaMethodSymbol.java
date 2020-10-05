@@ -73,6 +73,11 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
+    public boolean external() {
+        return this.functionSymbol.external();
+    }
+
+    @Override
     public Location location() {
         return this.functionSymbol.location();
     }

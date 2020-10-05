@@ -34,4 +34,11 @@ public interface FunctionSymbol extends Symbol, Qualifiable {
      * @return {@link BallerinaTypeDescriptor}
      */
     Optional<BallerinaTypeDescriptor> typeDescriptor();
+
+    /**
+     * Checks whether the function body is external or not.
+     *
+     * @return True if the function has an external body
+     */
+    boolean external();
 }
