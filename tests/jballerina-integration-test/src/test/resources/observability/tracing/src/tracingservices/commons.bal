@@ -26,7 +26,7 @@ service mockTracer on new http:Listener(9090) {
         methods: ["GET"],
         path: "/spans/{serviceName}"
     }
-    resource function getMockTracers(http:Caller caller, http:Request clientRequest, string serviceName) {
+    resource function getMockTraces(http:Caller caller, http:Request clientRequest, string serviceName) {
         json spans = testobserve:getFinishedSpans(serviceName);
         http:Response res = new;
         res.setJsonPayload(spans);

@@ -198,22 +198,23 @@
         </classes>
     </test>
 
-<!--    <test name="ballerina-observability-tests" parallel="false">-->
-<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
-<!--        <groups>-->
-<!--            <run>-->
-<!--                <exclude name="brokenOnTableRemove"/>-->
-<!--            </run>-->
-<!--        </groups>-->
-<!--        <classes>-->
+    <test name="ballerina-observability-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnTableRemove"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="org.ballerinalang.test.observability.tracing.BaseTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.ResourceFunctionTestCase"/>
 <!--            <class name="org.ballerinalang.test.observability.tracing.TracingBaseTest"/>-->
 <!--            <class name="org.ballerinalang.test.observability.tracing.OOTBTracingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.observability.tracing.ErrorsTracingTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.observability.tracing.CustomTracingTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+        </classes>
+    </test>
 
     <test name="ballerina-packerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
