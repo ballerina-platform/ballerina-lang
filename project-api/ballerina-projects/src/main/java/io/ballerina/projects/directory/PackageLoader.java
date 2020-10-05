@@ -37,6 +37,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.utils.ProjectConstants.BALLERINA_TOML;
+import static io.ballerina.projects.utils.ProjectUtils.getOrgFromBaloName;
+import static io.ballerina.projects.utils.ProjectUtils.getPackageNameFromBaloName;
+import static io.ballerina.projects.utils.ProjectUtils.getVersionFromBaloName;
+import static org.wso2.ballerinalang.util.RepoUtils.isBallerinaProject;
 import static org.wso2.ballerinalang.util.RepoUtils.isBallerinaStandaloneFile;
 
 /**
@@ -71,7 +75,7 @@ public class PackageLoader {
             packageName = PackageName.from(".");
             packageOrg = PackageOrg.from(System.getProperty("user.name"));
             packageVersion = PackageVersion.from("0.0.0");
-        } else {
+        } else if (isBallerinaProject(packageData.packagePath())) {
             // load Ballerina.toml
             BallerinaToml ballerinaToml;
             try {
@@ -83,6 +87,11 @@ public class PackageLoader {
             packageName = PackageName.from(ballerinaToml.getPackage().getName());
             packageOrg = PackageOrg.from(ballerinaToml.getPackage().getOrg());
             packageVersion = PackageVersion.from(ballerinaToml.getPackage().getVersion());
+        } else { // balo project
+            Path baloName = packageData.packagePath().getFileName();
+            packageName = PackageName.from(getPackageNameFromBaloName(String.valueOf(baloName)));
+            packageOrg = PackageOrg.from(getOrgFromBaloName(String.valueOf(baloName)));
+            packageVersion = PackageVersion.from(getVersionFromBaloName(String.valueOf(baloName)));
         }
 
         PackageId packageId = PackageId.create(packageName.toString());
