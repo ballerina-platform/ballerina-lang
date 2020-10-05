@@ -1,18 +1,13 @@
 const CONFIG_FILE_PATH = "./resources/stdlib_modules.json";
-const ACCESS_TOKEN_ENV = "GITHUB_TOKEN";
 
-const API_PATH = "https://api.github.com/repos/ballerina-platform";
-const DISPATCHES = "/dispatches";
 const RELEASES = "/releases";
 const TAGS = "/tags";
 
-const ACCEPT_HEADER_KEY = "Accept";
-const ACCEPT_HEADER_VALUE = "application/vnd.github.v3+json";
-const AUTH_HEADER_KEY = "Authorization";
-
 const FIELD_RELEASE = "release";
 const FIELD_TAG_NAME = "tag_name";
-const EVENT_TYPE = "stdlib-release-pipeline";
+const RELEASE_EVENT = "stdlib-release-pipeline";
+
+const SNAPSHOT = "-SNAPSHOT";
 
 const OPERATION_RELEASE = "releasing";
 const OPERATION_VALIDATE = "validating release of";

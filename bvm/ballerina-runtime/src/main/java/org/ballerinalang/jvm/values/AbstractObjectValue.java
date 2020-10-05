@@ -24,9 +24,11 @@ import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 
 import java.util.HashMap;
@@ -96,6 +98,15 @@ public abstract class AbstractObjectValue implements ObjectValue {
     @Override
     public String informalStringValue(BLink parent) {
         return stringValue(parent);
+    }
+
+    @Override
+    public String expressionStringValue(BLink parent) {
+        BPackage pkg = type.getPackage();
+        String moduleLocalName = pkg.org != null && pkg.org.equals("$anon") ||
+                pkg.name == null ? type.getName() :
+                String.valueOf(BallerinaErrorReasons.getModulePrefixedReason(pkg.name, type.getName()));
+        return "object " + moduleLocalName + " " + this.hashCode();
     }
 
     @Override

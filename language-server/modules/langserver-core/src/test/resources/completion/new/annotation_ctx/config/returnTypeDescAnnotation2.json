@@ -1,0 +1,51 @@
+{
+  "position": {
+    "line": 11,
+    "character": 26
+  },
+  "source": "annotation_ctx/source/returnTypeDescAnnotation2.bal",
+  "items": [
+    {
+      "label": "module1:returnAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:returnAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:returnAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:returnAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "tainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "tainted",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "untainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "untainted",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "returnAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "returnAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "returnAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "returnAnnotation2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

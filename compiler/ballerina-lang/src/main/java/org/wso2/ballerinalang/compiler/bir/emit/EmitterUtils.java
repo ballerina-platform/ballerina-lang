@@ -220,6 +220,7 @@ class EmitterUtils {
         switch (insKind) {
             case TYPEOF:
             case NOT:
+            case NEGATE:
             case SUB:
             case ADD:
                 return true;
