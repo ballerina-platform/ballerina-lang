@@ -67,9 +67,14 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     }
 
     @Test
-    public void testClientQualifier() {
-        test("object-type-def/object_type_def_source_14.bal", "object-type-def/object_type_def_assert_14.json");
-        test("object-type-def/object_type_def_source_16.bal", "object-type-def/object_type_def_assert_16.json");
+    public void testObjectTypeQualifiers() {
+        testFile("object-type-def/object_type_def_source_14.bal", "object-type-def/object_type_def_assert_14.json");
+        testFile("object-type-def/object_type_def_source_16.bal", "object-type-def/object_type_def_assert_16.json");
+    }
+
+    @Test
+    public void testIsolatedObjectTypeDesc() {
+        testFile("object-type-def/object_type_def_source_24.bal", "object-type-def/object_type_def_assert_24.json");
     }
 
     @Test
@@ -140,7 +145,7 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     }
 
     @Test
-    public void testInvalidTokenInObjectmembers() {
+    public void testInvalidTokenInObjectMembers() {
         test("object-type-def/object_type_def_source_40.bal", "object-type-def/object_type_def_assert_40.json");
     }
 

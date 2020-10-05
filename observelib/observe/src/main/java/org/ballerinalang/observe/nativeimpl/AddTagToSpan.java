@@ -22,33 +22,17 @@ package org.ballerinalang.observe.nativeimpl;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 
 /**
  * This function adds tags to a span.
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "addTagToSpan",
-        args = {
-                @Argument(name = "tagKey", type = TypeKind.STRING),
-                @Argument(name = "tagValue", type = TypeKind.STRING),
-                @Argument(name = "spanId", type = TypeKind.INT)
-        },
-        returnType = @ReturnType(type = TypeKind.BOOLEAN),
-        isPublic = true
-)
 public class AddTagToSpan {
     private static final OpenTracerBallerinaWrapper otWrapperInstance = OpenTracerBallerinaWrapper.getInstance();
 
-    public static Object addTagToSpan(Strand strand, BString tagKey, BString tagValue, long spanId) {
+    public static Object addTagToSpan(BString tagKey, BString tagValue, long spanId) {
         boolean tagAdded = otWrapperInstance.addTag(tagKey.getValue(), tagValue.getValue(),
-                spanId, strand);
+                                                    spanId, Scheduler.getStrand());
 
         if (tagAdded) {
             return null;

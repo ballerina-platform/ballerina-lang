@@ -21,26 +21,15 @@ package org.ballerinalang.langlib.test;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
 
 /**
  * Native implementation of assertError(anydata|error value).
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertError",
-        args = {@Argument(name = "value", type = TypeKind.UNION)},
-        isPublic = true
-)
 public class AssertError {
-    public static void assertError(Strand strand, Object value) {
+    public static void assertError(Object value) {
         if (TypeChecker.getType(value).getTag() != TypeTags.ERROR_TAG) {
             throw BErrorCreator.createError(BStringUtils.fromString("{ballerina/lang.test}AssertionError"),
                                             BStringUtils.fromString("expected an error type"));

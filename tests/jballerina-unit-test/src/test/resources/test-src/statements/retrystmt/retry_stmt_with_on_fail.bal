@@ -22,22 +22,27 @@ function testRetryStatement() {
     }
     string|error testNestedRetryWithLessOnFailsRes = testNestedRetryWithLessOnFails();
      if(testNestedRetryWithLessOnFailsRes is string) {
-        assertEquality("start -> within retry block 1 -> within retry block 2 -> error handled -> within retry block 2 "
-        + "-> execution completed", testNestedRetryWithLessOnFailsRes);
+         assertEquality("start -> within retry block 1 -> within retry block 2 -> within retry block 2 " +
+         "-> within retry block 2 " +
+         "-> within retry block 1 -> within retry block 2 -> within retry block 2 -> within retry block 2 " +
+         "-> within retry block 1 -> within retry block 2 -> within retry block 2 -> within retry block 2 " +
+         "-> within retry block 1 -> within retry block 2 -> within retry block 2 -> within retry block 2 " +
+         "-> error handled -> execution completed", testNestedRetryWithLessOnFailsRes);
     } else {
          panic error("Expected a  string");
     }
 
     string|error testRetryReturnValRes = testRetryReturnVal();
     if(testRetryReturnValRes is string) {
-        assertEquality("start -> within retry block 1 -> within retry block 2 -> error handled -> within retry block 2 "
-        + "-> execution completed", testRetryReturnValRes);
+         assertEquality("start -> within retry block 1 -> within retry block 2 -> within retry block 2",
+         testRetryReturnValRes);
     } else {
          panic error("Expected a  string");
     }
 
     string appendOnFailErrorResult = testAppendOnFailError();
-    assertEquality("Before failure throw -> Error caught: custom error -> Execution continues...", appendOnFailErrorResult);
+    assertEquality("-> Before failure throw-> Before failure throw-> Before failure throw-> Before failure throw " +
+    "-> Error caught: custom error -> Execution continues...", appendOnFailErrorResult);
 }
 
 function retryError() returns string|error {
@@ -52,7 +57,7 @@ function retryError() returns string|error {
         str += (" attempt "+ count.toString() + ":result returned end.");
         return str;
     } on fail error e {
-        return error("Custom Error");
+        str += "-> error handled";
     }
 }
 
@@ -67,20 +72,17 @@ function testNestedRetryWithLessOnFails () returns string|error {
         retry<MyRetryManager> (2) {
            count2 += 1;
            str = str + " -> within retry block 2";
-           if(count2 != 2) {
-               fail err;
-           }
+           fail err;
         }
     }
     on fail error e {
         str += " -> error handled";
-        return err;
     }
     str = str + " -> execution completed";
     return str;
 }
 
-function testRetryReturnVal() returns string|error {
+function testRetryReturnVal() returns string {
     string str = "start";
     int count1 = 0;
     error err = error("custom error", message = "error value");
@@ -93,23 +95,20 @@ function testRetryReturnVal() returns string|error {
            str = str + " -> within retry block 2";
            if(count2 == 1) {
                fail err;
-           } else {
-               return str;
            }
         }
+        return str;
     } on fail error e {
         str += " -> error handled";
-        return err;
+        return str;
     }
-    str = str + " -> execution completed";
-    return str;
 }
 
 function testAppendOnFailError () returns string {
    string str = "";
    retry(3) {
      error err = error("custom error", message = "error value");
-     str += "Before failure throw";
+     str += "-> Before failure throw";
      fail err;
    }
    on fail error e {

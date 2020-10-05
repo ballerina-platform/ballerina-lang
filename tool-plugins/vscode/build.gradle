@@ -66,19 +66,19 @@ dependencies {
     ballerinaTools project(path: ':jballerina-tools', configuration: 'unzipped')
 }
 
-task test(type: Exec) {
-    // mustRunAfter ':examples-test:test'
-    dependsOn copyDistribution
-    dependsOn assemble
-    doFirst {
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-            commandLine 'cmd', '/c', 'npm', 'run', 'test'
-        } else {
-            commandLine 'npm', 'run', 'test'
-        }
-    }
-}
+//task test(type: Exec) {
+//    // mustRunAfter ':examples-test:test'
+//    dependsOn copyDistribution
+//    dependsOn assemble
+//    doFirst {
+//        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+//            commandLine 'cmd', '/c', 'npm', 'run', 'test'
+//        } else {
+//            commandLine 'npm', 'run', 'test'
+//        }
+//    }
+//}
 
-check {
-    dependsOn test
-}
+//check {
+//    dependsOn test
+//}

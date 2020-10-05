@@ -17,7 +17,7 @@
 package org.ballerinalang.debugadapter.evaluation.engine;
 
 import com.sun.jdi.Value;
-import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;

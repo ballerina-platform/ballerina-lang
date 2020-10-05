@@ -24,10 +24,6 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -41,25 +37,26 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "reduce",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION),
-                @Argument(name = "initial", type = TypeKind.ANY)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.table", functionName = "reduce",
+//        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION),
+//                @Argument(name = "initial", type = TypeKind.ANY)},
+//        returnType = {@ReturnType(type = TypeKind.ANY)},
+//        isPublic = true
+//)
 public class Reduce {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "reduce");
 
-    public static Object reduce(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func, Object initial) {
+    public static Object reduce(TableValueImpl tbl, FPValue<Object, Object> func, Object initial) {
         int size = tbl.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
+        Strand parentStrand = Scheduler.getStrand();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{strand, accum.get(), true,
+                        () -> new Object[]{parentStrand, accum.get(), true,
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                                                        accum::set, accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
@@ -67,6 +64,6 @@ public class Reduce {
 
     public static Object reduce_bstring(Strand strand, TableValueImpl tbl,
                                         FPValue<Object, Object> func, Object initial) {
-        return reduce(strand, tbl, func, initial);
+        return reduce(tbl, func, initial);
     }
 }

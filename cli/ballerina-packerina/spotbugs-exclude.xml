@@ -39,4 +39,16 @@
         <Class name="org.ballerinalang.packerina.task.CreateExecutableTask$Copy"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.packerina.cmd"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.packerina.task"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.packerina"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.packerina.writer.BaloFileWriter"/>
+    </Match>
 </FindBugsFilter>
