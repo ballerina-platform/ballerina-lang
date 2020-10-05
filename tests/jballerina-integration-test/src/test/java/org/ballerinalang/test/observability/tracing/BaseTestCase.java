@@ -36,6 +36,9 @@ public class BaseTestCase extends BaseTest {
     private static final String TEST_NATIVES_JAR = "observability-test-natives.jar";
     private static final String TEST_OBSERVE_JAR = "ballerina-testobserve-0.0.0.jar";
 
+    protected static final String SERVER_CONNECTOR_NAME = "testobserve_listener";
+    protected static final String MODULE_ID = "ballerina-test/testservices:0.0.1";
+
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     private void setup() throws Exception {
         final String serverHome = balServer.getServerHome();

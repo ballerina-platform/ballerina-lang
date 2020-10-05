@@ -15,13 +15,27 @@
 // under the License.
 
 public function main() {
+    testClient->callAnotherRemoteFunction();
+
     var a = 63;
     var b = 81;
-    var sum = calculateSumWithObservableFunction(a, b);
+    var sum = testClient->calculateSum(a, b);
     var expectedSum = a + b;
     if (sum != expectedSum) {
         error err = error("failed to find the sum of " + a.toString() + " and " + b.toString()
             + ". expected: " + expectedSum.toString() + " received: " + sum.toString());
         panic err;
+    }
+
+    var ret1 = trap testClient->callWithPanic();
+    if (!(ret1 is error)) {
+        error e = error("Expected error not found");
+        panic e;
+    }
+
+    var ret2 = testClient->callWithErrorReturn();
+    if (!(ret2 is error)) {
+        error e = error("Expected error not found");
+        panic e;
     }
 }

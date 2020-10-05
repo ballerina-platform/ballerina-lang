@@ -207,6 +207,7 @@
         </groups>
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.BaseTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.MainFunctionTestCase"/>
             <class name="org.ballerinalang.test.observability.tracing.ResourceFunctionTestCase"/>
 <!--            <class name="org.ballerinalang.test.observability.tracing.TracingBaseTest"/>-->
 <!--            <class name="org.ballerinalang.test.observability.tracing.OOTBTracingTestCase"/>-->

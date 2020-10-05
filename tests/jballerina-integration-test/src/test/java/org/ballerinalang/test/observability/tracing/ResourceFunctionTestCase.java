@@ -21,9 +21,7 @@ import java.util.stream.Collectors;
  */
 @Test(groups = "tracing-test")
 public class ResourceFunctionTestCase extends BaseTestCase {
-    private static final String SERVER_CONNECTOR_NAME = "testobserve_listener";
-    private static final String MODULE_ID = "ballerina-test/testservices:0.0.1";
-    private static final String FILE_NAME = "01_resource_function.bal";
+    private static final String FILE_NAME = "02_resource_function.bal";
 
     @DataProvider(name = "success-response-data-provider")
     public Object[][] getSuccessResponseData(){
