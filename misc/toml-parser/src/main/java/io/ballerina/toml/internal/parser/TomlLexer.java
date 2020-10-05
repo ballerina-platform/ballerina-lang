@@ -543,21 +543,6 @@ public class TomlLexer extends AbstractLexer {
     }
 
     /**
-     * <p>
-     * Check whether current input index points to a start of a hex-numeric literal.
-     * </p>
-     * <code>HexIndicator := 0x | 0X</code>
-     *
-     * @param startChar Starting character of the literal
-     * @param nextChar  Second character of the literal
-     * @return <code>true</code>, if the current input points to a start of a hex-numeric literal.
-     * <code>false</code> otherwise.
-     */
-    private boolean isHexIndicator(int startChar, int nextChar) {
-        return startChar == '0' && (nextChar == 'x' || nextChar == 'X');
-    }
-
-    /**
      * Returns the next character from the reader, without consuming the stream.
      *
      * @return Next character
@@ -596,7 +581,6 @@ public class TomlLexer extends AbstractLexer {
      * @return String literal token
      */
     private STToken processString(char type) {
-
         int nextChar;
         while (!reader.isEOF()) {
             nextChar = peek();
@@ -634,7 +618,6 @@ public class TomlLexer extends AbstractLexer {
     }
 
     private STToken processMultilineString(char type) {
-
         int nextChar;
         while (!reader.isEOF()) {
             nextChar = peek();
@@ -670,40 +653,4 @@ public class TomlLexer extends AbstractLexer {
 
         return getLiteral(SyntaxKind.ML_STRING_LITERAL);
     }
-
-    /**
-     * Process string numeric escape.
-     * <p>
-     * <code>StringNumericEscape := \ u { CodePoint }</code>
-     */
-    private void processStringNumericEscape() {
-        // Process '\ u {'
-        this.reader.advance(3);
-
-        // Process code-point
-        if (!isHexDigit(peek())) {
-            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
-            return;
-        }
-
-        reader.advance();
-        while (isHexDigit(peek())) {
-            reader.advance();
-        }
-
-        // Process close brace
-        if (peek() != LexerTerminals.CLOSE_BRACE) {
-            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
-            return;
-        }
-
-        this.reader.advance();
-    }
-
-    private STToken getSyntaxTokenWithoutTrailingTrivia(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
-        return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
-    }
-
 }

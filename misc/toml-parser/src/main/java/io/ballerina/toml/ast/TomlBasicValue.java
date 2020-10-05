@@ -53,4 +53,9 @@ public class TomlBasicValue extends TomlValue {
     public SyntaxKind getKind() {
         return super.getKind();
     }
+
+    @Override
+    public <T> T apply(TomlNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
 }

@@ -17,14 +17,12 @@
 rootKey = 22
 
 [first.sub]
-hey.soul = "sister"
+hey = "sister"
 key  = "ewww"
 
 [first]
 key  = "sdsad"
 key1 = "eeww"
-
-
 
 [second]
 key = "yay"
