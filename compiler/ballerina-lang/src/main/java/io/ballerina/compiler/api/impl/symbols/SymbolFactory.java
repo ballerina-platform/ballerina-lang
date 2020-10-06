@@ -32,9 +32,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -58,6 +60,9 @@ public class SymbolFactory {
     public static Symbol getBCompiledSymbol(BSymbol symbol, String name) {
         if (symbol instanceof BVarSymbol) {
             if (symbol.kind == SymbolKind.FUNCTION) {
+                if (Symbols.isFlagOn(symbol.flags, Flags.ATTACHED)) {
+                    return createMethodSymbol((BInvokableSymbol) symbol, name);
+                }
                 return createFunctionSymbol((BInvokableSymbol) symbol, name);
             }
             if (symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
@@ -68,6 +73,9 @@ public class SymbolFactory {
             }
             if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
                 return createWorkerSymbol((BVarSymbol) symbol, name);
+            }
+            if (symbol instanceof BServiceSymbol) {
+                return createServiceSymbol((BServiceSymbol) symbol, name);
             }
             // return the variable symbol
             return createVariableSymbol((BVarSymbol) symbol, name);
@@ -168,6 +176,10 @@ public class SymbolFactory {
         return new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol.pkgID, symbol)
                 .withReturnType(TypesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint))
                 .build();
+    }
+
+    public static BallerinaServiceSymbol createServiceSymbol(BServiceSymbol symbol, String name) {
+        return new BallerinaServiceSymbol.ServiceSymbolBuilder(name, symbol.pkgID, symbol).build();
     }
 
     /**
