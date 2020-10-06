@@ -41,8 +41,7 @@ dependencies {
     implementation('com.atomikos:transactions-jta:5.0.8') {
         exclude group: 'org.hibernate', module: 'hibernate'
     }
-    implementation 'org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.1.1'
-
+    implementation "javax.transaction:javax.transaction-api:1.3"
     implementation project(':ballerina-config')
     implementation project(':ballerina-logging')
 
