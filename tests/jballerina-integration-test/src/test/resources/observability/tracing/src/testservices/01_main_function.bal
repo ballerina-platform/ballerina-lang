@@ -21,7 +21,7 @@ public function main() {
     var b = 81;
     var sum = testClient->calculateSum(a, b);
     var expectedSum = a + b;
-    if (sum != expectedSum) {
+    if (sum != expectedSum) {   // Check for validating if normal execution is intact from instrumentation
         error err = error("failed to find the sum of " + a.toString() + " and " + b.toString()
             + ". expected: " + expectedSum.toString() + " received: " + sum.toString());
         panic err;

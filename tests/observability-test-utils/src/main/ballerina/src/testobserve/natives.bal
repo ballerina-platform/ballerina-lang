@@ -33,3 +33,11 @@ isolated function externGetFinishedSpans(handle serviceName) returns json = @jav
     name: "getFinishedSpans",
     'class: "org.ballerina.testobserve.extension.MockTracerUtils"
 } external;
+
+# Sleep the current strand.
+#
+# + millis - The number of milliseconds to sleep for
+public isolated function sleep(int millis) = @java:Method {
+    name: "sleep",
+    'class: "org.ballerina.testobserve.NativeUtils"
+} external;
