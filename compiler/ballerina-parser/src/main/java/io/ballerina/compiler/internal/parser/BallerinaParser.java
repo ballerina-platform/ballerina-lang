@@ -11811,8 +11811,8 @@ public class BallerinaParser extends AbstractParser {
         STNode matchClauses =  STNodeFactory.createNodeList(matchClausesList);
         // At least one match clause required
         if (isNodeListEmpty(matchClauses)) {
-            return SyntaxErrors.addDiagnostic(openBrace,
-                    DiagnosticErrorCode.ERROR_AT_LEAST_ONE_MATCH_CLAUSE_REQUIRED);
+            openBrace = SyntaxErrors.addDiagnostic(openBrace,
+                    DiagnosticErrorCode.ERROR_MATCH_STATEMENT_SHOULD_HAVE_ONE_OR_MORE_MATCH_CLAUSES);
         }
 
         STNode closeBrace = parseCloseBrace();
