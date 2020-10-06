@@ -3779,22 +3779,40 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf ifStmt = ASTBuilderUtil.createIfElseStmt(pos, typeCheckCondition, ifBlock, null);
         mainBlockStmt.addStatement(ifStmt);
 
+        BLangExpression condition = createConditionForErrorArgListMatchPattern(errorMatchPattern, ifBlock,
+                tempCastVarRef, pos);
+
+        BLangBlockStmt tempBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
+        tempBlockStmt.addStatement(successResult);
+        BLangIf ifStmtForMatchPatterns = ASTBuilderUtil.createIfElseStmt(pos, condition, tempBlockStmt, null);
+        ifBlock.addStatement(ifStmtForMatchPatterns);
+
+        BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(mainBlockStmt,
+                resultVarRef);
+        statementExpression.type = symTable.booleanType;
+        return statementExpression;
+    }
+
+    private BLangExpression createConditionForErrorArgListMatchPattern(BLangErrorMatchPattern errorMatchPattern,
+                                                                       BLangBlockStmt ifBlock,
+                                                                       BLangSimpleVarRef varRef,
+                                                                       Location pos) {
         BLangExpression condition = null;
         if (errorMatchPattern.errorMessageMatchPattern != null) {
             Location messagePos = errorMatchPattern.errorMessageMatchPattern.pos;
-            BLangInvocation messageInvocation = createLangLibInvocationNode(ERROR_MESSAGE_FUNCTION_NAME,
-                    tempCastVarRef, new ArrayList<>(), null, messagePos);
+            BLangInvocation messageInvocation = createLangLibInvocationNode(ERROR_MESSAGE_FUNCTION_NAME, varRef,
+                    new ArrayList<>(), null, messagePos);
             BLangSimpleVariableDef messageVarDef = createVarDef("$errorMessage$", messageInvocation.type,
                     messageInvocation, messagePos);
             ifBlock.addStatement(messageVarDef);
             BLangSimpleVarRef messageVarRef = ASTBuilderUtil.createVariableRef(messagePos, messageVarDef.var.symbol);
             condition = createConditionForErrorMessageMatchPattern(errorMatchPattern.errorMessageMatchPattern,
-                            messageVarRef);
+                    messageVarRef);
         }
 
         if (errorMatchPattern.errorCauseMatchPattern != null) {
             Location errorCausePos = errorMatchPattern.errorCauseMatchPattern.pos;
-            BLangInvocation causeInvocation = createLangLibInvocationNode(ERROR_CAUSE_FUNCTION_NAME, tempCastVarRef,
+            BLangInvocation causeInvocation = createLangLibInvocationNode(ERROR_CAUSE_FUNCTION_NAME, varRef,
                     new ArrayList<>(), null, errorCausePos);
             BLangSimpleVariableDef causeVarDef = createVarDef("$errorCause$", causeInvocation.type,
                     causeInvocation, errorCausePos);
@@ -3810,7 +3828,7 @@ public class Desugar extends BLangNodeVisitor {
         if (errorMatchPattern.errorFieldMatchPatterns != null) {
             Location errorFieldPos = errorMatchPattern.errorFieldMatchPatterns.pos;
             BLangInvocation errorDetailInvocation = createLangLibInvocationNode(ERROR_DETAIL_FUNCTION_NAME,
-                    tempCastVarRef, new ArrayList<>(), null, errorFieldPos);
+                    varRef, new ArrayList<>(), null, errorFieldPos);
             BLangSimpleVariableDef errorDetailVarDef = createVarDef("$errorDetail$", errorDetailInvocation.type,
                     errorDetailInvocation, errorFieldPos);
             ifBlock.addStatement(errorDetailVarDef);
@@ -3830,15 +3848,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        BLangBlockStmt tempBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
-        tempBlockStmt.addStatement(successResult);
-        BLangIf ifStmtForMatchPatterns = ASTBuilderUtil.createIfElseStmt(pos, condition, tempBlockStmt, null);
-        ifBlock.addStatement(ifStmtForMatchPatterns);
-
-        BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(mainBlockStmt,
-                resultVarRef);
-        statementExpression.type = symTable.booleanType;
-        return statementExpression;
+        return condition;
     }
 
     private BLangExpression createConditionForErrorFieldMatchPatterns(
