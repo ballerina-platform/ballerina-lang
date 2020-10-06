@@ -145,12 +145,10 @@ public class CodeCoverageUtils {
         version = version.replace(".", "_");
         Path resolvedPath = classPath;
         String pathVersion;
-
         do {
             resolvedPath = resolvedPath.getParent();
             pathVersion = resolvedPath.getFileName().toString();
         } while (!pathVersion.equals(version));
-
         return resolvedPath.getParent().getFileName().toString();
     }
 
