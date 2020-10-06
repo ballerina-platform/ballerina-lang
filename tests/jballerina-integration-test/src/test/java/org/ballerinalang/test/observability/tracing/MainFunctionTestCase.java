@@ -19,7 +19,7 @@ public class MainFunctionTestCase extends BaseTestCase {
     public void testSimpleResourceCall() throws Exception {
         final String span1Position = FILE_NAME + ":17:1";
         final String span2Position = FILE_NAME + ":18:5";
-        final String span3Position = COMMONS_FILE_NAME + ":36:9";
+        final String span3Position = COMMONS_FILE_NAME + ":37:9";
         final String span4Position = FILE_NAME + ":22:15";
         final String span5Position = FILE_NAME + ":30:21";
         final String span6Position = FILE_NAME + ":36:16";

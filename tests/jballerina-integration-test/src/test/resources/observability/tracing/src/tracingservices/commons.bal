@@ -33,28 +33,3 @@ service mockTracer on new http:Listener(9090) {
         checkpanic caller->respond(res);
     }
 }
-
-@observe:Observable
-function calculateSumWithObservableFunction(int a, int b) returns int {
-    var sum = a + b;
-    return a + b;
-}
-
-type AbstractObservableAdder object {
-    @observe:Observable
-    function getSum() returns int;
-};
-
-type ObservableAdder object {
-    private int firstNumber;
-    private int secondNumber;
-
-    function init(int a, int b) {
-        self.firstNumber = a;
-        self.secondNumber = b;
-    }
-
-    function getSum() returns int {
-        return self.firstNumber + self.secondNumber;
-    }
-};

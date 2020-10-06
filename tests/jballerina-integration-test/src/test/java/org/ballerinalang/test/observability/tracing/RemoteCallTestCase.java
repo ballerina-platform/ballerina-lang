@@ -26,7 +26,7 @@ public class RemoteCallTestCase extends BaseTestCase {
         final String resourceName = "resourceOne";
         final String span1Position = FILE_NAME + ":21:5";
         final String span2Position = FILE_NAME + ":22:9";
-        final String span3Position = COMMONS_FILE_NAME + ":36:9";
+        final String span3Position = COMMONS_FILE_NAME + ":37:9";
         final String span4Position = FILE_NAME + ":23:20";
 
         HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName,

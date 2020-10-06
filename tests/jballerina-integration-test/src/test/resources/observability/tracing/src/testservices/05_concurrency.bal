@@ -16,8 +16,8 @@
 
 import ballerina/testobserve;
 
-service testServiceThree on new testobserve:Listener(9093) {
-    # Resource function for testing async call wait
+service testServiceFour on new testobserve:Listener(9093) {
+    # Resource function for testing async remote call wait
     resource function resourceOne(testobserve:Caller caller) {
         future<int> futureSum = start testClient->calculateSum(6, 17);
         var sum = wait futureSum;
@@ -28,26 +28,49 @@ service testServiceThree on new testobserve:Listener(9093) {
         checkpanic caller->respond("Invocation Successful");
     }
 
-    # Resource function for testing worker interactions with no delays in worker completions
+    # Resource function for testing async observable call wait
     resource function resourceTwo(testobserve:Caller caller) {
+        future<int> futureSum = start calculateSumWithObservability(18, 31);
+        var sum = wait futureSum;
+        if (sum != 49) {    // Check for validating if normal execution is intact from instrumentation
+            error err = error("failed to find the sum of 18 and 31. expected: 49 received: " + sum.toString());
+            panic err;
+        }
+        checkpanic caller->respond("Invocation Successful");
+    }
+
+    # Resource function for testing async observable call wait
+    resource function resourceThree(testobserve:Caller caller) {
+        ObservableAdderClass adder = new ObservableAdder(61, 23);
+        future<int> futureSum = start adder.getSum();
+        var sum = wait futureSum;
+        if (sum != 84) {    // Check for validating if normal execution is intact from instrumentation
+            error err = error("failed to find the sum of 61 and 23. expected: 84 received: " + sum.toString());
+            panic err;
+        }
+        checkpanic caller->respond("Invocation Successful");
+    }
+
+    # Resource function for testing worker interactions with no delays in worker completions
+    resource function resourceFour(testobserve:Caller caller) {
         testWorkerInteractions(10);     // "10" adds no delays
         checkpanic caller->respond("Invocation Successful");
     }
 
     # Resource function for testing worker interactions with delayed writing
-    resource function resourceThree(testobserve:Caller caller) {
+    resource function resourceFive(testobserve:Caller caller) {
         testWorkerInteractions(11);     // "11" adds delayed writing
         checkpanic caller->respond("Invocation Successful");
     }
 
     # Resource function for testing worker interactions with delayed reading
-    resource function resourceFour(testobserve:Caller caller) {
+    resource function resourceSix(testobserve:Caller caller) {
         testWorkerInteractions(12);     // "12" adds delayed reading
         checkpanic caller->respond("Invocation Successful");
     }
 
     # Resource function for testing forked workers
-    resource function resourceFive(testobserve:Caller caller) {
+    resource function resourceSeven(testobserve:Caller caller) {
         int n = 100;
         fork {
             worker w3 returns int {

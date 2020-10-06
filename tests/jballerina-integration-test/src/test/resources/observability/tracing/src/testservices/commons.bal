@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/observe;
 import ballerina/testobserve;
 
 MockClient testClient = new();
@@ -83,4 +84,29 @@ function panicAfterCalculatingSum(int a) {
 function calculateSum(int a, int b) returns int {
     var sum = a + b;
     return a + b;
+}
+
+@observe:Observable
+function calculateSumWithObservability(int a, int b) returns int {
+    var sum = a + b;
+    return a + b;
+}
+
+type ObservableAdderClass object {
+    @observe:Observable
+    function getSum() returns int;
+};
+
+class ObservableAdder {
+    private int firstNumber;
+    private int secondNumber;
+
+    function init(int a, int b) {
+        self.firstNumber = a;
+        self.secondNumber = b;
+    }
+
+    function getSum() returns int {
+        return self.firstNumber + self.secondNumber;
+    }
 }

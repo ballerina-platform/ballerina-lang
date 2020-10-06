@@ -106,6 +106,7 @@ public class BaseTestCase extends BaseTest {
     @SafeVarargs
     protected final Map<String, String> toMap(Map.Entry<String, String>... mapEntries) {
         return Stream.of(mapEntries)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
