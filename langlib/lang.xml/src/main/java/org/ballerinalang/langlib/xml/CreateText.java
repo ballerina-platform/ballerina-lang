@@ -42,7 +42,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 //)
 public class CreateText {
 
-    public static XMLValue createText(Strand strand, BString string) {
+    public static XMLValue createText(BString string) {
         return XMLFactory.createXMLText(string);
     }
 }
