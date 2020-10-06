@@ -80,6 +80,8 @@ import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarator;
 import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
@@ -275,6 +277,13 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token openBrace = formatToken(functionBodyBlockNode.openBraceToken(), 0, 1);
         indent(); // increase indentation for the statements to follow.
         NodeList<StatementNode> statements = formatNodeList(functionBodyBlockNode.statements(), 0, 1, 0, 1, true);
+        if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
+            NamedWorkerDeclarator namedWorkerDeclarator = formatNode(functionBodyBlockNode.namedWorkerDeclarator().get(),
+                    0, 0);
+            functionBodyBlockNode = functionBodyBlockNode.modify()
+                    .withNamedWorkerDeclarator(namedWorkerDeclarator)
+                    .apply();
+        }
         unindent(); // reset the indentation
         Token closeBrace = formatToken(functionBodyBlockNode.closeBraceToken(), this.trailingWS, this.trailingNL);
 
@@ -1592,6 +1601,27 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .withStartBacktick(startBacktick)
                 .withBacktickContent(backtickContent)
                 .withEndBacktick(endBacktick)
+                .apply();
+    }
+
+    @Override
+    public NamedWorkerDeclarationNode transform(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(namedWorkerDeclarationNode.annotations(), 0, 0, 0, 0);
+        Token workerKeyword = formatToken(namedWorkerDeclarationNode.workerKeyword(), 1, 0);
+        IdentifierToken workerName = formatToken(namedWorkerDeclarationNode.workerName(), 1, 0);
+        if (namedWorkerDeclarationNode.returnTypeDesc().isPresent()) {
+            Node returnTypeDesc = formatNode(namedWorkerDeclarationNode.returnTypeDesc().get(), 0, 0);
+            namedWorkerDeclarationNode = namedWorkerDeclarationNode.modify()
+                    .withReturnTypeDesc(returnTypeDesc)
+                    .apply();
+        }
+        BlockStatementNode workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), 0, 1);
+
+        return namedWorkerDeclarationNode.modify()
+                .withAnnotations(annotations)
+                .withWorkerKeyword(workerKeyword)
+                .withWorkerName(workerName)
+                .withWorkerBody(workerBody)
                 .apply();
     }
 
