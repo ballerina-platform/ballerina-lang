@@ -191,10 +191,6 @@
             },
             {
               "kind": "FUNCTION_KEYWORD",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION"
-              ],
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -204,6 +200,10 @@
             },
             {
               "kind": "IDENTIFIER_TOKEN",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION"
+              ],
               "value": "bar"
             },
             {

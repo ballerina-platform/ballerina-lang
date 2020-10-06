@@ -321,10 +321,6 @@
             },
             {
               "kind": "FUNCTION_KEYWORD",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION"
-              ],
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -334,6 +330,10 @@
             },
             {
               "kind": "IDENTIFIER_TOKEN",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION"
+              ],
               "value": "get"
             },
             {
@@ -484,19 +484,78 @@
           "children": [
             {
               "kind": "LIST",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "RESOURCE_KEYWORD",
-                  "isMissing": true
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_QUALIFIER_NOT_ALLOWED",
+                    "ERROR_QUALIFIER_NOT_ALLOWED"
+                  ],
+                  "leadingMinutiae": [
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
+                          {
+                            "kind": "ISOLATED_KEYWORD"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    },
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    },
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "// Test with invalid qualifiers"
+                    },
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    },
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
+                          {
+                            "kind": "TRANSACTIONAL_KEYWORD"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
             {
               "kind": "FUNCTION_KEYWORD",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_RESOURCE_KEYWORD"
-              ],
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -631,10 +690,6 @@
             },
             {
               "kind": "FUNCTION_KEYWORD",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION"
-              ],
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -647,7 +702,8 @@
               "isMissing": true,
               "hasDiagnostics": true,
               "diagnostics": [
-                "ERROR_MISSING_FUNCTION_NAME"
+                "ERROR_MISSING_FUNCTION_NAME",
+                "ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION"
               ]
             },
             {

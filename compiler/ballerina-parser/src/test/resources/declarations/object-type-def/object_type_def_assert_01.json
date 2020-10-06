@@ -439,7 +439,7 @@
                   "kind": "LIST",
                   "children": [
                     {
-                      "kind": "PUBLIC_KEYWORD",
+                      "kind": "REMOTE_KEYWORD",
                       "leadingMinutiae": [
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
@@ -450,15 +450,6 @@
                           "value": "    "
                         }
                       ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "REMOTE_KEYWORD",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",

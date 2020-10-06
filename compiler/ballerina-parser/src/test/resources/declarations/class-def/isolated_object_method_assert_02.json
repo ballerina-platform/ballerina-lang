@@ -68,13 +68,22 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "TRANSACTIONAL_KEYWORD",
+                          "kind": "PUBLIC_KEYWORD",
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": "    "
                             }
                           ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "TRANSACTIONAL_KEYWORD",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -233,7 +242,7 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "PUBLIC_KEYWORD",
+                          "kind": "REMOTE_KEYWORD",
                           "leadingMinutiae": [
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
@@ -244,15 +253,6 @@
                               "value": "    "
                             }
                           ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "REMOTE_KEYWORD",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",

@@ -8,6 +8,6 @@ service on listner1 {
     resource function get bar() {
     }
 
-    resource transactional function set baz() {
+    remote function baz() {
     }
 }

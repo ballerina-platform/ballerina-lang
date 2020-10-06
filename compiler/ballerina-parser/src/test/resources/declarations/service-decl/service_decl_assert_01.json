@@ -300,13 +300,13 @@
           ]
         },
         {
-          "kind": "RESOURCE_ACCESSOR_DEFINITION",
+          "kind": "OBJECT_METHOD_DEFINITION",
           "children": [
             {
               "kind": "LIST",
               "children": [
                 {
-                  "kind": "RESOURCE_KEYWORD",
+                  "kind": "REMOTE_KEYWORD",
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -337,22 +337,7 @@
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "set",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "baz"
-                }
-              ]
+              "value": "baz"
             },
             {
               "kind": "FUNCTION_SIGNATURE",

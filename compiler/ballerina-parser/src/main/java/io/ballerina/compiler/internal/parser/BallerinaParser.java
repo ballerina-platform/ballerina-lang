@@ -939,7 +939,7 @@ public class BallerinaParser extends AbstractParser {
                 STNode resourcePath = parseOptionalRelativePath(isObjectMember, isObjectTypeDesc);
                 switchContext(ParserRuleContext.FUNC_DEF);
                 STNode funcSignature = parseFuncSignature(false);
-                STNode funcDef = createFuncDefOrMethodDecl(metadata, visibilityQualifier, functionKeyword, name,
+                STNode funcDef = parseFuncDefOrMethodDeclEnd(metadata, visibilityQualifier, functionKeyword, name,
                         resourcePath, funcSignature, qualifierList, isObjectMember, isObjectTypeDesc);
                 endContext();
                 return funcDef;
@@ -964,18 +964,143 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode createFuncDefOrMethodDecl(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
-                                             STNode name, STNode resourcePath, STNode funcSignature,
-                                             List<STNode> qualifierList, boolean isObjectMember,
-                                             boolean isObjectTypeDesc) {
-
-        // Validate remote, resource qualifiers
-        STNode resourceQual = null;
-        if (isObjectMember && !isObjectTypeDesc && !qualifierList.isEmpty()
-                && qualifierList.get(0).kind == SyntaxKind.RESOURCE_KEYWORD) {
-            resourceQual = qualifierList.remove(0);
+    private STNode parseFuncDefOrMethodDeclEnd(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
+                                               STNode name, STNode resourcePath, STNode funcSignature,
+                                               List<STNode> qualifierList, boolean isObjectMember,
+                                               boolean isObjectTypeDesc) {
+        if (isObjectTypeDesc) {
+            STNode semicolon = parseSemicolon();
+            return createMethodDeclaration(metadata, visibilityQualifier, functionKeyword, name, funcSignature,
+                    semicolon, qualifierList);
         }
 
+        STNode body = parseFunctionBody();
+        if (!isObjectMember) {
+            return createFunctionDefinition(metadata, visibilityQualifier, functionKeyword, name, funcSignature, body,
+                    qualifierList);
+
+        }
+
+        boolean hasResourcePath = !isNodeListEmpty(resourcePath);
+        if (hasResourcePath) {
+            return createResourceAccessorDefinition(metadata, visibilityQualifier, functionKeyword, name, resourcePath,
+                    funcSignature, body, qualifierList);
+        }
+
+        if (isNodeWithSyntaxKindInList(qualifierList, SyntaxKind.RESOURCE_KEYWORD)) {
+            // create missing relative path and direct to resource accessor definition
+            List<STNode> relativePath = new ArrayList<>();
+            relativePath.add(STNodeFactory.createMissingToken(SyntaxKind.DOT_TOKEN));
+            resourcePath = STNodeFactory.createNodeList(relativePath);
+            name = SyntaxErrors.addDiagnostic(name,
+                    DiagnosticErrorCode.ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION);
+
+            return createResourceAccessorDefinition(metadata, visibilityQualifier, functionKeyword, name, resourcePath,
+                    funcSignature, body, qualifierList);
+        }
+
+        return createMethodDefinition(metadata, visibilityQualifier, functionKeyword, name, funcSignature, body,
+                qualifierList);
+    }
+
+    /**
+     * Parse function definition.
+     * <p>
+     * <code>
+     * function-defn :=
+     *    metadata [public] (isolated-qual | transactional-qual)*
+     *    `function` identifier function-signature function-defn-body
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode createFunctionDefinition(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
+                                            STNode name, STNode funcSignature, STNode body,
+                                            List<STNode> qualifierList) {
+        /*
+         * Validate qualifier list.
+         * Rules:
+         * - Isolated and transactional are allowed
+         * - Remote and resource are not allowed (already validated)
+         * - Visibility qualifier is allowed and it is the first qualifier in the list
+         */
+        if (visibilityQualifier != null) {
+            qualifierList.add(0, visibilityQualifier);
+        }
+
+        STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
+        return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.FUNCTION_DEFINITION, metadata, qualifiers,
+                functionKeyword, name, funcSignature, body);
+    }
+
+    /**
+     * Parse method definition.
+     * <p>
+     * <code>
+     * method-defn :=
+     *    metadata method-defn-quals
+     *    function method-name function-signature method-defn-body
+     * <br/>
+     * method-defn-quals := object-visibility-qual function-qual* | (remote-qual | function-qual)*
+     * <br/>
+     * function-qual := isolated-qual | transactional-qual
+     * <br/>
+     * object-visibility-qual := public|private
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode createMethodDefinition(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
+                                          STNode name, STNode funcSignature, STNode body, List<STNode> qualifierList) {
+        /*
+         * Validate qualifier list.
+         * Rules:
+         * - Isolated, transactional and remote are allowed
+         * - Resource is not allowed (already validated)
+         * - Visibility qualifier is not allowed with remote
+         * - If there's a visibility qualifier it is the first qualifier in the list
+         */
+        if (visibilityQualifier != null) {
+            if (isNodeWithSyntaxKindInList(qualifierList, SyntaxKind.REMOTE_KEYWORD)) {
+                updateFirstNodeInListWithInvalidNode(qualifierList, visibilityQualifier,
+                        DiagnosticErrorCode.ERROR_REMOTE_METHOD_HAS_A_VISIBILITY_QUALIFIER);
+            } else {
+                qualifierList.add(0, visibilityQualifier);
+            }
+        }
+
+        STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
+        return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.OBJECT_METHOD_DEFINITION, metadata, qualifiers,
+                functionKeyword, name, funcSignature, body);
+    }
+
+    /**
+     * Parse method declaration.
+     * <p>
+     * <code>
+     * method-decl :=
+     *    metadata method-decl-quals
+     *    function method-name function-signature ;
+     * <br/>
+     * method-decl-quals := public function-qual* | (remote-qual | function-qual)*
+     * <br/>
+     * function-qual := isolated-qual | transactional-qual
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode createMethodDeclaration(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
+                                           STNode name, STNode funcSignature, STNode semicolon,
+                                           List<STNode> qualifierList) {
+        /*
+         * Validate qualifier list.
+         * Rules:
+         * - Isolated, transactional and remote are allowed
+         * - Resource is not allowed
+         * - Visibility qualifier is not allowed with remote
+         * - If there's a visibility qualifier it is the first qualifier in the list
+         */
+        boolean hasRemoteQual = false;
         for (int i = 0; i < qualifierList.size();) {
             STNode qualifier = qualifierList.get(i);
             if (qualifier.kind == SyntaxKind.RESOURCE_KEYWORD) {
@@ -990,7 +1115,56 @@ public class BallerinaParser extends AbstractParser {
                     qualifierList.add(nextQual);
                 }
                 continue;
-            } else if (qualifier.kind == SyntaxKind.REMOTE_KEYWORD && resourceQual != null) {
+            }
+
+            if (qualifier.kind == SyntaxKind.REMOTE_KEYWORD) {
+                hasRemoteQual = true;
+            }
+            i++;
+        }
+
+        if (visibilityQualifier != null) {
+            if (hasRemoteQual) {
+                updateFirstNodeInListWithInvalidNode(qualifierList, visibilityQualifier,
+                        DiagnosticErrorCode.ERROR_REMOTE_METHOD_HAS_A_VISIBILITY_QUALIFIER);
+            } else {
+                qualifierList.add(0, visibilityQualifier);
+            }
+        }
+
+        STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
+        return STNodeFactory.createMethodDeclarationNode(metadata, qualifiers, functionKeyword, name, funcSignature,
+                semicolon);
+    }
+
+    /**
+     * Parse resource accessor definition.
+     * <p>
+     * <code>
+     * resource-accessor-defn :=
+     *    metadata `resource` `function` accessor-name relative-resource-path
+     *    function-signature method-defn-body
+     * <br/>
+     * accessor-name := identifier
+     * <br/>
+     * relative-resource-path := "." | (identifier ("/" identifier)*)
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode createResourceAccessorDefinition(STNode metadata, STNode visibilityQualifier, STNode functionKeyword,
+                                                    STNode name, STNode resourcePath, STNode funcSignature, STNode body,
+                                                    List<STNode> qualifierList) {
+        /*
+         * Validate qualifier list.
+         * Rules:
+         * - Isolated, transactional and remote are not allowed. Only resource is allowed
+         * - Visibility qualifier is not allowed
+         */
+        boolean hasResourceQual = false;
+        for (int i = 0; i < qualifierList.size();) {
+            STNode qualifier = qualifierList.get(i);
+            if (qualifier.kind != SyntaxKind.RESOURCE_KEYWORD) {
                 qualifierList.remove(i);
                 if (qualifierList.size() == i) {
                     functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, qualifier,
@@ -1002,65 +1176,26 @@ public class BallerinaParser extends AbstractParser {
                     qualifierList.add(nextQual);
                 }
                 continue;
+            } else {
+                hasResourceQual = true;
             }
             i++;
         }
 
-        if (isObjectTypeDesc) {
-            // method-decl
-            if (visibilityQualifier != null) {
-                qualifierList.add(0, visibilityQualifier);
-            }
-        } else if (!isObjectMember) {
-            // func-def
-            if (visibilityQualifier != null) {
-                qualifierList.add(0, visibilityQualifier);
-            }
-        } else if (resourceQual == null && ((STNodeList) resourcePath).isEmpty()) {
-            // method-def
-            if (visibilityQualifier != null) {
-                qualifierList.add(0, visibilityQualifier);
-            }
-        } else {
-            // resource-accessor-def
-            if (resourceQual == null) {
-                resourceQual = STNodeFactory.createMissingToken(SyntaxKind.RESOURCE_KEYWORD);
-                functionKeyword =
-                        SyntaxErrors.addDiagnostic(functionKeyword, DiagnosticErrorCode.ERROR_MISSING_RESOURCE_KEYWORD);
-            }
-            if (((STNodeList) resourcePath).isEmpty()) {
-                qualifierList = new ArrayList<>();
-                qualifierList.add(STNodeFactory.createMissingToken(SyntaxKind.DOT_TOKEN));
-                resourcePath = STNodeFactory.createNodeList(qualifierList);
-                functionKeyword = SyntaxErrors.addDiagnostic(functionKeyword,
-                                DiagnosticErrorCode.ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION);
-            }
+        if (!hasResourceQual) {
+            qualifierList.add(STNodeFactory.createMissingToken(SyntaxKind.RESOURCE_KEYWORD));
+            functionKeyword =
+                    SyntaxErrors.addDiagnostic(functionKeyword, DiagnosticErrorCode.ERROR_MISSING_RESOURCE_KEYWORD);
+        }
+
+        if (visibilityQualifier != null) {
+            updateFirstNodeInListWithInvalidNode(qualifierList, visibilityQualifier,
+                    DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) visibilityQualifier).text());
         }
 
         STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
-
-        if (isObjectTypeDesc) {
-            STNode semicolon = parseSemicolon();
-            return STNodeFactory.createMethodDeclarationNode(metadata, qualifiers, functionKeyword, name,
-                    funcSignature, semicolon);
-        }
-
-        STNode body = parseFunctionBody();
-        if (!isObjectMember) {
-            return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.FUNCTION_DEFINITION, metadata, qualifiers,
-                    functionKeyword, name, funcSignature, body);
-        }
-
-        if (resourceQual == null && ((STNodeList) resourcePath).isEmpty()) {
-            return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.OBJECT_METHOD_DEFINITION, metadata,
-                    qualifiers, functionKeyword, name, funcSignature, body);
-        } else {
-            qualifierList = new ArrayList<>();
-            qualifierList.add(resourceQual);
-            resourceQual = STNodeFactory.createNodeList(qualifierList);
-            return STNodeFactory.createResourceAccessorDefinitionNode(metadata, resourceQual, functionKeyword,
-                    name, resourcePath, funcSignature, body);
-        }
+        return STNodeFactory.createResourceAccessorDefinitionNode(metadata, qualifiers, functionKeyword, name,
+                resourcePath, funcSignature, body);
     }
 
     /**
@@ -1114,7 +1249,7 @@ public class BallerinaParser extends AbstractParser {
         funcSignature = validateAndGetFuncParams((STFunctionSignatureNode) funcSignature);
 
         STNode resourcePath = STNodeFactory.createEmptyNodeList();
-        STNode funcDef = createFuncDefOrMethodDecl(metadata, visibilityQualifier, functionKeyword, name, resourcePath,
+        STNode funcDef = parseFuncDefOrMethodDeclEnd(metadata, visibilityQualifier, functionKeyword, name, resourcePath,
                 funcSignature, qualifierList, isObjectMember, isObjectTypeDesc);
         endContext();
         return funcDef;
@@ -1123,8 +1258,13 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseVarDeclWithFunctionType(STNode visibilityQualifier, STNode functionKeyword,
                                                 STNode funcSignature, List<STNode> qualifierList, STNode metadata,
                                                 boolean isObjectMember, boolean isObjectTypeDesc) {
-
-        // Validate remote, resource qualifiers
+        /*
+         * Validate qualifier list.
+         * Rules:
+         * - Isolated and transactional are allowed
+         * - Remote qualifier is not allowed
+         * - Resource qualifier is only allowed if it is the first in the list
+         */
         STNode resourceQual = null;
         if (isObjectMember && !qualifierList.isEmpty() && qualifierList.get(0).kind == SyntaxKind.RESOURCE_KEYWORD) {
             resourceQual = qualifierList.remove(0);
@@ -5144,11 +5284,16 @@ public class BallerinaParser extends AbstractParser {
 
             qualifier = parseSingleFunctionQualifier(context);
 
-            // Validate parsed qualifier
             if (qualifier == null) {
                 break;
             }
 
+            /*
+             * Validate parsed qualifier.
+             * Rules:
+             * - Isolated and transactional are allowed for all cases
+             * - Remote and resource is only allowed within object body
+             */
             if (context != ParserRuleContext.OBJECT_METHOD_START && isServiceMethodQualifier(qualifier.kind)) {
                 updateLastNodeInListOrAddInvalidNodeToNextToken(qualifierList, qualifier,
                         DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());

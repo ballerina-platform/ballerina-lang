@@ -622,21 +622,6 @@
                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                 "children": [
                   {
-                    "kind": "PUBLIC_KEYWORD"
-                  }
-                ]
-              }
-            },
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            },
-            {
-              "kind": "INVALID_NODE_MINUTIAE",
-              "invalidNode": {
-                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                "children": [
-                  {
                     "kind": "REMOTE_KEYWORD"
                   }
                 ]
