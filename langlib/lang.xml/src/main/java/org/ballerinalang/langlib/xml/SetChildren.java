@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
@@ -29,13 +28,8 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.Arrays;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Set the children of an XML if its a singleton. Error otherwise.
@@ -43,18 +37,18 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
  * 
  * @since 0.88
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "setChildren",
-        args = {@Argument(name = "children", type = TypeKind.UNION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "setChildren",
+//        args = {@Argument(name = "children", type = TypeKind.UNION)},
+//        isPublic = true
+//)
 public class SetChildren {
 
     private static final String OPERATION = "set children to xml element";
 
-    public static void setChildren(Strand strand, XMLValue xml, Object children) {
-        if (!IsElement.isElement(strand, xml)) {
+    public static void setChildren(XMLValue xml, Object children) {
+        if (!IsElement.isElement(xml)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "setChildren", "element");
         }
 
