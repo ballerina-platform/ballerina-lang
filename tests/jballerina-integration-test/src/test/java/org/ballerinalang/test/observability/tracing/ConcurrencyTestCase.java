@@ -15,6 +15,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Test cases for concurrency related functionality.
+ */
 @Test(groups = "tracing-test")
 public class ConcurrencyTestCase extends BaseTestCase {
     private static final String FILE_NAME = "05_concurrency.bal";
@@ -22,7 +25,7 @@ public class ConcurrencyTestCase extends BaseTestCase {
     private static final String BASE_URL = "http://localhost:9093";
 
     @DataProvider(name = "async-call-data-provider")
-    public Object[][] getAsyncCallData(){
+    public Object[][] getAsyncCallData() {
         return new Object[][] {
                 {"resourceOne", FILE_NAME + ":21:5", FILE_NAME + ":22:39", FILE_NAME + ":28:20",
                         "ballerina-test/testservices/MockClient", "calculateSum", null, null},
@@ -127,7 +130,7 @@ public class ConcurrencyTestCase extends BaseTestCase {
     }
 
     @DataProvider(name = "workers-data-provider")
-    public Object[][] getWorkersData(){
+    public Object[][] getWorkersData() {
         final String w1Position = FILE_NAME + ":102:15";
         final String w2Position = FILE_NAME + ":109:15";
         return new Object[][] {

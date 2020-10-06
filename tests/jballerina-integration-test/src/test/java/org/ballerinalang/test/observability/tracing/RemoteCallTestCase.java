@@ -15,6 +15,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Test cases for remove function calls.
+ */
 @Test(groups = "tracing-test")
 public class RemoteCallTestCase extends BaseTestCase {
     private static final String FILE_NAME = "03_remote_call.bal";
@@ -128,7 +131,7 @@ public class RemoteCallTestCase extends BaseTestCase {
     }
 
     @DataProvider(name = "remote-error-return-data-provider")
-    public Object[][] getRemoteErrorReturnData(){
+    public Object[][] getRemoteErrorReturnData() {
         return new Object[][] {
                 {"resourceTwo", FILE_NAME + ":27:5", FILE_NAME + ":28:15"},
                 {"resourceThree", FILE_NAME + ":33:5", FILE_NAME + ":34:20"}

@@ -16,8 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Test case for testing the tracing instrumentation.
- * This also tests whether the instrumentation had messed up the normal execution flows.
+ * Test cases for resource functions.
  */
 @Test(groups = "tracing-test")
 public class ResourceFunctionTestCase extends BaseTestCase {
@@ -26,7 +25,7 @@ public class ResourceFunctionTestCase extends BaseTestCase {
     private static final String BASE_URL = "http://localhost:9091";
 
     @DataProvider(name = "success-response-data-provider")
-    public Object[][] getSuccessResponseData(){
+    public Object[][] getSuccessResponseData() {
         return new Object[][] {
                 {"resourceOne", "15", FILE_NAME + ":21:5", FILE_NAME + ":27:20", "Sum of numbers: 120"},
                 {"resourceTwo", "16", FILE_NAME + ":31:5", FILE_NAME + ":37:20", "Sum of numbers: 136"}
@@ -94,7 +93,7 @@ public class ResourceFunctionTestCase extends BaseTestCase {
     }
 
     @DataProvider(name = "error-response-data-provider")
-    public Object[][] getErrorResponseData(){
+    public Object[][] getErrorResponseData() {
         return new Object[][] {
                 {"resourceThree", FILE_NAME + ":41:5", "Test Error 1"},
                 {"resourceFour", FILE_NAME + ":57:5", "Test Error 2"},
@@ -145,7 +144,7 @@ public class ResourceFunctionTestCase extends BaseTestCase {
     }
 
     @DataProvider(name = "simple-remote-call-data-provider")
-    public Object[][] getSimpleRemoteCallData(){
+    public Object[][] getSimpleRemoteCallData() {
         return new Object[][] {
                 {"resourceSeven", FILE_NAME + ":87:5", FILE_NAME + ":89:30", FILE_NAME + ":96:20",
                         "Sum of numbers: 12"},

@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Utilities
+ * Native functions for the utilities in testobserve module.
  */
 public class NativeUtils {
     private static final int CORE_THREAD_POOL_SIZE = 1;

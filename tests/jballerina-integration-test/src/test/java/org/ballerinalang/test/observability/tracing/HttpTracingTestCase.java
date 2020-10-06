@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * Test cases for out of the box tracing.
  */
 @Test(groups = "tracing-test")
-public class OOTBTracingTestCase extends TracingBaseTest {
+public class HttpTracingTestCase extends TracingBaseTest {  // TODO: Move this test case to ballerina/http module
 
     @Test
     public void testChainedResourceFunctions() throws Exception {

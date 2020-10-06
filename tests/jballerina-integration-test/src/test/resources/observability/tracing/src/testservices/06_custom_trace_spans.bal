@@ -14,25 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
+import ballerina/testobserve;
 import ballerina/observe;
 
-@http:ServiceConfig {
-    basePath:"/test-service"
-}
-service testServiceSix on new http:Listener(9096) {
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/resource-1"
-    }
-    resource function resourceOne(http:Caller caller, http:Request clientRequest) {
+service testServiceFive on new testobserve:Listener(9095) {
+    resource function resourceOne(testobserve:Caller caller) {
         var customSpanOneId = checkpanic observe:startSpan("customSpanOne");
         _ = checkpanic observe:addTagToSpan("resource", "resourceOne", customSpanOneId);
         _ = checkpanic observe:addTagToSpan("custom", "true", customSpanOneId);
         _ = checkpanic observe:addTagToSpan("index", "1", customSpanOneId);
         var a = 12;
         var b = 27;
-        var sum = calculateSumWithObservableFunction(a, b);
+        var sum = calculateSumWithObservability(a, b);
         var expectedSum = a + b;
         if (sum != expectedSum) {
             error err = error("failed to find the sum of " + a.toString() + " and " + b.toString()
@@ -45,9 +38,7 @@ service testServiceSix on new http:Listener(9096) {
         _ = checkpanic observe:addTagToSpan("resource", "resourceOne", customSpanTwoId);
         _ = checkpanic observe:addTagToSpan("custom", "true", customSpanTwoId);
         _ = checkpanic observe:addTagToSpan("index", "2", customSpanTwoId);
-        http:Response outResponse = new;
-        outResponse.setTextPayload("Hello, World! from resource one");
-        checkpanic caller->respond(outResponse);
+        checkpanic caller->respond("Hello! from resource one");
         checkpanic observe:finishSpan(customSpanTwoId);
 
         var err = observe:addTagToSpan("disallowed_tag", "true", customSpanTwoId);
@@ -57,11 +48,7 @@ service testServiceSix on new http:Listener(9096) {
         }
     }
 
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/resource-2"
-    }
-    resource function resourceTwo(http:Caller caller, http:Request clientRequest) {
+    resource function resourceTwo(testobserve:Caller caller) {
         int customSpanThreeId = observe:startRootSpan("customSpanThree");
         _ = checkpanic observe:addTagToSpan("resource", "resourceTwo", customSpanThreeId);
         _ = checkpanic observe:addTagToSpan("custom", "true", customSpanThreeId);
@@ -69,9 +56,7 @@ service testServiceSix on new http:Listener(9096) {
         testFunctionForCustomUserTrace(customSpanThreeId);
         checkpanic observe:finishSpan(customSpanThreeId);
 
-        http:Response outResponse = new;
-        outResponse.setTextPayload("Hello, World! from resource two");
-        checkpanic caller->respond(outResponse);
+        checkpanic caller->respond("Hello! from resource two");
     }
 }
 
@@ -82,7 +67,7 @@ function testFunctionForCustomUserTrace(int customSpanThreeId) {
     _ = checkpanic observe:addTagToSpan("index", "4", customSpanFourId);
     var a = 12;
     var b = 27;
-    var sum = calculateSumWithObservableFunction(a, b);
+    var sum = calculateSumWithObservability(a, b);
     var expectedSum = a + b;
     if (sum != expectedSum) {
         error err = error("failed to find the sum of " + a.toString() + " and " + b.toString()

@@ -14,6 +14,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Test cases for observe:Observable annotation.
+ */
 @Test(groups = "tracing-test")
 public class ObservableAnnotationTestCase extends BaseTestCase {
     private static final String FILE_NAME = "04_observability_annotation.bal";

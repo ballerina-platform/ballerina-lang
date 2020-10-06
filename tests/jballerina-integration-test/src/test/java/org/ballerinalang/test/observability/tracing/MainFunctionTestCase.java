@@ -11,6 +11,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Test cases for main function.
+ */
 @Test(groups = "tracing-test")
 public class MainFunctionTestCase extends BaseTestCase {
     private static final String FILE_NAME = "01_main_function.bal";
@@ -57,7 +60,8 @@ public class MainFunctionTestCase extends BaseTestCase {
         span2.ifPresent(span -> {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/MockClient:callAnotherRemoteFunction");
+            Assert.assertEquals(span.getOperationName(),
+                    "ballerina-test/testservices/MockClient:callAnotherRemoteFunction");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),

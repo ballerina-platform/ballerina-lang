@@ -137,7 +137,8 @@ public class WebServer {
                             pipeline.addLast("decoder", new HttpRequestDecoder(4096, 8192, 8192, false));
                             pipeline.addLast("aggregator", new HttpObjectAggregator(100 * 1024 * 1024));
                             pipeline.addLast("encoder", new HttpResponseEncoder());
-                            pipeline.addLast("handler", new WebServerInboundHandler());
+                            pipeline.addLast("handler", new WebServerInboundHandler(scheduler, valueCreator,
+                                    serviceMap));
                         }
                     })
                     .bind(this.port)
@@ -171,7 +172,21 @@ public class WebServer {
         this.isRunning = false;
     }
 
-    public class WebServerInboundHandler extends SimpleChannelInboundHandler<Object> {
+    /**
+     * Inbound message handler of the Web Server.
+     */
+    public static class WebServerInboundHandler extends SimpleChannelInboundHandler<Object> {
+        private Scheduler scheduler;
+        private ValueCreator valueCreator;
+        private Map<String, Service> serviceMap;
+
+        public WebServerInboundHandler(Scheduler scheduler, ValueCreator valueCreator,
+                                       Map<String, Service> serviceMap) {
+            this.scheduler = scheduler;
+            this.valueCreator = valueCreator;
+            this.serviceMap = serviceMap;
+        }
+
         @Override
         public void channelReadComplete(ChannelHandlerContext ctx) {
             ctx.flush();
@@ -187,8 +202,8 @@ public class WebServer {
             String serviceName = requestUriSplit[1];
             String resourceName = requestUriSplit[2];
 
-            ObjectValue callerObject = WebServer.this.valueCreator.createObjectValue(CALLER_TYPE_NAME,
-                    WebServer.this.scheduler, null, null, new Object[0]);
+            ObjectValue callerObject = valueCreator.createObjectValue(CALLER_TYPE_NAME, scheduler, null,
+                    null, new Object[0]);
             callerObject.addNativeData(NETTY_CONTEXT_NATIVE_DATA_KEY, ctx);
 
             // Preparing the arguments for dispatching the resource function
@@ -220,24 +235,27 @@ public class WebServer {
             observerContext.addMainTag(TAG_KEY_PROTOCOL, "http");
             observerContext.addMainTag(TAG_KEY_HTTP_URL, request.uri());
 
-            Map<String, Object> properties = new HashMap<String, Object>() {{
-                put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            }};
+            Map<String, Object> properties = new HashMap<String, Object>();
+            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
+
             StrandMetadata strandMetadata = new StrandMetadata(TEST_OBSERVE_PACKAGE.getOrg(),
                     TEST_OBSERVE_PACKAGE.getName(), TEST_OBSERVE_PACKAGE.getVersion(), resourceName);
             Utils.logInfo("Dispatching resource function " + serviceName + "." + resourceName);
-            BExecutor.submit(WebServer.this.scheduler, serviceObject, resourceName, null, strandMetadata,
+            BExecutor.submit(scheduler, serviceObject, resourceName, null, strandMetadata,
                     new WebServerCallableUnitCallback(ctx, serviceName, resourceName), properties, args);
         }
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             writeResponse(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR, cause.getMessage());
-            cause.printStackTrace();
+            Utils.logError("Exception occurred in web server %s", cause.getMessage());
             ctx.close();
         }
 
-        public class WebServerCallableUnitCallback implements CallableUnitCallback {
+        /**
+         * Callable unit used in executing ballerina resource function.
+         */
+        public static class WebServerCallableUnitCallback implements CallableUnitCallback {
             private final ChannelHandlerContext ctx;
             private final String resourceName;
 

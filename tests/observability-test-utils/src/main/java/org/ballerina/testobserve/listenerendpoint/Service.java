@@ -28,6 +28,9 @@ import static org.ballerina.testobserve.listenerendpoint.Constants.CALLER_TYPE_N
 import static org.ballerina.testobserve.listenerendpoint.Constants.TEST_OBSERVE_PACKAGE;
 import static org.ballerinalang.jvm.types.TypeConstants.STRING_TNAME;
 
+/**
+ * Holds information related to a Ballerina service.
+ */
 public class Service {
     private final BObject serviceObject;
     private final String serviceName;

@@ -18,6 +18,9 @@ import java.util.Collections;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
+/**
+ * Test cases for listener written to be used in unit tests.
+ */
 @Test(groups = "mock-listener-tests")
 public class ListenerEndpointTest {
     private static final String TEST_OBSERVE_JAR = "ballerina-testobserve-0.0.0.jar";
