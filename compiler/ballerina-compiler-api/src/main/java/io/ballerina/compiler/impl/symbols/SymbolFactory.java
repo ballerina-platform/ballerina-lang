@@ -20,7 +20,9 @@ package io.ballerina.compiler.impl.symbols;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
+import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.impl.TypesFactory;
 import io.ballerina.compiler.impl.types.BallerinaParameter;
@@ -103,7 +105,8 @@ public class SymbolFactory {
             builder.withQualifier(Qualifier.PRIVATE);
         }
 
-        return builder.build();
+        return builder.withTypeDescriptor((FunctionTypeDescriptor) TypesFactory.getTypeDescriptor(invokableSymbol.type))
+                .build();
     }
 
     /**
@@ -150,9 +153,10 @@ public class SymbolFactory {
      * Create a ballerina parameter.
      *
      * @param symbol Variable symbol for the parameter
+     * @param kind   The kind of the parameter
      * @return {@link Parameter} generated parameter
      */
-    public static Parameter createBallerinaParameter(BVarSymbol symbol) {
+    public static Parameter createBallerinaParameter(BVarSymbol symbol, ParameterKind kind) {
         if (symbol == null) {
             return null;
         }
@@ -162,7 +166,7 @@ public class SymbolFactory {
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             qualifiers.add(Qualifier.PUBLIC);
         }
-        return new BallerinaParameter(name, typeDescriptor, qualifiers, symbol.defaultableParam);
+        return new BallerinaParameter(name, typeDescriptor, qualifiers, kind);
     }
 
     /**

@@ -58,9 +58,9 @@ public interface Parameter {
     public String signature();
 
     /**
-     * Whether the parameter is defaultable or not.
+     * Get the kind of the parameter.
      *
-     * @return {@link Boolean} defaultable status
+     * @return {@link ParameterKind} of the param
      */
-    public boolean isDefaultable();
+    ParameterKind kind();
 }
