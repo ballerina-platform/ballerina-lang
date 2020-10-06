@@ -210,7 +210,10 @@ public isolated function createComment(string content) returns Comment = @java:M
 # + chars - the characters
 # + return - an xml sequence that is either empty or consists of one text item
 # The constructed sequence will be empty when the length of `chars` is zero.
-public isolated function createText(string chars) returns Text = external;
+public isolated function createText(string chars) returns Text = @java:Method {
+    'class: "org.ballerinalang.langlib.xml.CreateText",
+    name: "createText"
+} external;
 
 # Returns a subsequence of an xml value.
 #
