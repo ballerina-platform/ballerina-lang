@@ -1,0 +1,105 @@
+package org.ballerinalang.test.observability.tracing;
+
+import org.ballerinalang.test.util.HttpClientRequest;
+import org.ballerinalang.test.util.HttpResponse;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import java.util.AbstractMap;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+public class ConcurrencyTestCase extends BaseTestCase {
+    private static final String FILE_NAME = "04_concurrency.bal";
+    private static final String SERVICE_NAME = "testServiceThree";
+    private static final String BASE_URL = "http://localhost:9093";
+
+    @Test
+    public void testAsyncCall() throws Exception {
+        final String resourceName = "resourceOne";
+        final String span1Position = FILE_NAME + ":21:5";
+        final String span2Position = FILE_NAME + ":22:39";
+        final String span3Position = FILE_NAME + ":28:20";
+
+        HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName,
+                "", Collections.emptyMap());
+        Assert.assertEquals(httpResponse.getResponseCode(), 200);
+        Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
+        Thread.sleep(1000);
+
+        List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, resourceName);
+        Assert.assertEquals(spans.stream()
+                        .map(span -> span.getTags().get("src.position"))
+                        .collect(Collectors.toSet()),
+                new HashSet<>(Arrays.asList(span1Position, span2Position, span3Position)));
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+
+        Optional<BMockSpan> span1 = spans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span1Position))
+                .findFirst();
+        Assert.assertTrue(span1.isPresent());
+        long traceId = span1.get().getTraceId();
+        span1.ifPresent(span -> {
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
+                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertEquals(span.getOperationName(), resourceName);
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("http.method", "POST"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("resource", resourceName),
+                    new AbstractMap.SimpleEntry<>("connector_name", SERVER_CONNECTOR_NAME)
+            ));
+        });
+
+        Optional<BMockSpan> span2 = spans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span2Position))
+                .findFirst();
+        Assert.assertTrue(span2.isPresent());
+        span2.ifPresent(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
+            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/MockClient:calculateSum");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("resource", resourceName),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina-test/testservices/MockClient"),
+                    new AbstractMap.SimpleEntry<>("action", "calculateSum")
+            ));
+        });
+
+        Optional<BMockSpan> span3 = spans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span3Position))
+                .findFirst();
+        Assert.assertTrue(span3.isPresent());
+        span3.ifPresent(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
+            Assert.assertEquals(span.getOperationName(), "ballerina/testobserve/Caller:respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.position", span3Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("resource", resourceName),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/testobserve/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
+            ));
+        });
+    }
+}

@@ -210,6 +210,7 @@
             <class name="org.ballerinalang.test.observability.tracing.MainFunctionTestCase"/>
             <class name="org.ballerinalang.test.observability.tracing.ResourceFunctionTestCase"/>
             <class name="org.ballerinalang.test.observability.tracing.RemoteCallTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.ConcurrencyTestCase"/>
 <!--            <class name="org.ballerinalang.test.observability.tracing.TracingBaseTest"/>-->
 <!--            <class name="org.ballerinalang.test.observability.tracing.OOTBTracingTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.observability.tracing.CustomTracingTestCase"/>-->
