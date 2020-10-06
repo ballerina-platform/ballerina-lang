@@ -78,3 +78,5 @@ service echo on listen {
 //
 //    function getName() returns string;
 //};
+
+const PI = 3.14;

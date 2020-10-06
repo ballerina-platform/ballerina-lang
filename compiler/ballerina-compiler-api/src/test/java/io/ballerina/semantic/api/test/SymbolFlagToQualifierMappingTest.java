@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.impl.BallerinaSemanticModel;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.util.CompileResult;
@@ -45,6 +46,7 @@ import static io.ballerina.compiler.api.symbols.Qualifier.READONLY;
 import static io.ballerina.compiler.api.symbols.Qualifier.REMOTE;
 import static io.ballerina.compiler.api.symbols.Qualifier.RESOURCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.compile;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -65,16 +67,16 @@ public class SymbolFlagToQualifierMappingTest {
         model = new BallerinaSemanticModel(pkg, context);
     }
 
-    @Test(dataProvider = "BasicsPosProvider")
-    public void test(int line, int column, Set<Qualifier> expQuals) {
-        Optional<Symbol> symbol = model.symbol("symbol_flag_to_qualifier_mapping_test.bal",
-                                               LinePosition.from(line, column));
-        Qualifiable sym = (Qualifiable) symbol.get();
-        assertTrue(sym.qualifiers().containsAll(expQuals) && sym.qualifiers().size() == expQuals.size());
+    @Test(dataProvider = "QualifierProvider")
+    public void testFlagToQualifierMapping(int line, int column, Set<Qualifier> expQuals) {
+        Optional<Symbol> optionalSymbol = model.symbol("symbol_flag_to_qualifier_mapping_test.bal",
+                                                       LinePosition.from(line, column));
+        Qualifiable symbol = (Qualifiable) optionalSymbol.get();
+        assertTrue(symbol.qualifiers().containsAll(expQuals) && symbol.qualifiers().size() == expQuals.size());
     }
 
-    @DataProvider(name = "BasicsPosProvider")
-    public Object[][] getPositionsForExactLookup() {
+    @DataProvider(name = "QualifierProvider")
+    public Object[][] getPositionsAndQualifiers() {
         return new Object[][]{
                 {19, 28, getQualifiers(LISTENER, FINAL)},
                 {21, 14, Collections.EMPTY_SET},
@@ -86,6 +88,23 @@ public class SymbolFlagToQualifierMappingTest {
                 {62, 23, getQualifiers(REMOTE)},
                 {71, 25, getQualifiers(RESOURCE)},
 //                {76, 14, getQualifiers(DISTINCT)}, // TODO: enable once issue #26212 is fixed
+        };
+    }
+
+    @Test(dataProvider = "SymbolKindProvider")
+    public void testFlagToSymbolKindMapping(int line, int column, SymbolKind kind) {
+        Optional<Symbol> optionalSymbol = model.symbol("symbol_flag_to_qualifier_mapping_test.bal",
+                                                       LinePosition.from(line, column));
+        Symbol symbol = optionalSymbol.get();
+        assertEquals(symbol.kind(), kind);
+    }
+
+    @DataProvider(name = "SymbolKindProvider")
+    public Object[][] getSymbolKinds() {
+        return new Object[][]{
+                {24, 26, SymbolKind.METHOD},
+                {70, 11, SymbolKind.SERVICE},
+                {82, 8, SymbolKind.CONSTANT},
         };
     }
 
