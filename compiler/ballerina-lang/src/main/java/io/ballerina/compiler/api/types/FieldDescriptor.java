@@ -34,40 +34,40 @@ public interface FieldDescriptor {
      *
      * @return {@link String} name of the field
      */
-    public String name();
+    String name();
 
     /**
      * Whether optional field or not.
      *
      * @return {@link Boolean} optional status
      */
-    public boolean isOptional();
+    boolean isOptional();
 
     /**
      * Get the type descriptor of the field.
      *
      * @return {@link BallerinaTypeDescriptor} of the field
      */
-    public BallerinaTypeDescriptor typeDescriptor();
+    BallerinaTypeDescriptor typeDescriptor();
 
     /**
      * Get the documentation attachment.
      *
      * @return {@link Optional} doc attachment of the field
      */
-    public Optional<Documentation> documentation();
+    Optional<Documentation> documentation();
 
     /**
      * Get the accessibility modifier if available.
      *
      * @return {@link Optional} accessibility modifier
      */
-    public Optional<Qualifier> qualifier();
+    Optional<Qualifier> qualifier();
 
     /**
      * Get the signature of the field.
      *
      * @return {@link String} signature
      */
-    public String signature();
+    String signature();
 }

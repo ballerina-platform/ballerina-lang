@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.signature;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -23,11 +24,8 @@ import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.model.elements.MarkdownDocAttachment;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.MarkupContent;
@@ -35,20 +33,9 @@ import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -63,7 +50,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.lang.reflect.Field;
@@ -76,9 +62,6 @@ import java.util.Optional;
 import java.util.Stack;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-
-import static org.ballerinalang.langserver.common.utils.CommonUtil.getLastItem;
-import static org.ballerinalang.langserver.common.utils.FilterUtils.getLangLibScopeEntries;
 
 /**
  * Utility functions for the signature help.
@@ -136,11 +119,11 @@ public class SignatureHelpUtil {
             if (signatureNode.kind() == SyntaxKind.CHECK_EXPRESSION) {
                 // Remove `check` expression in implicit-new expression or functional-contructor expression
                 signatureNode = signatureNode.parent().replace(signatureNode,
-                                                               ((CheckExpressionNode) signatureNode).expression());
+                        ((CheckExpressionNode) signatureNode).expression());
             } else if (signatureNode.kind() == SyntaxKind.TRAP_EXPRESSION) {
                 // Remove `trap` expression in implicit-new expression or functional-contructor expression
                 signatureNode = signatureNode.parent().replace(signatureNode,
-                                                               ((TrapExpressionNode) signatureNode).expression());
+                        ((TrapExpressionNode) signatureNode).expression());
             }
         }
         return signatureNode;
@@ -253,83 +236,96 @@ public class SignatureHelpUtil {
     }
 
     public static Optional<Scope.ScopeEntry> getFuncScopeEntry(LSContext context, String pathStr,
-                                                               List<Scope.ScopeEntry> visibleSymbols) {
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
-        Types types = Types.getInstance(compilerContext);
-        Scope.ScopeEntry searchSymbol = null;
-        // Resolve package prefixes first
-        int pkgPrefix = pathStr.indexOf(":");
-        if (pkgPrefix > -1) {
-            String packagePart = pathStr.substring(0, pkgPrefix);
-            pathStr = pathStr.substring(pkgPrefix + 1);
-            String alias = packagePart.split("\\sversion\\s")[0].split("\\sas\\s")[0].split("/")[1];
-            Optional<Scope.ScopeEntry> moduleSymbol = visibleSymbols.stream()
-                    .filter(entry -> entry.symbol.name.getValue().equals(alias))
-                    .findFirst();
-            visibleSymbols = new ArrayList<>(moduleSymbol.get().symbol.scope.entries.values());
-        }
-        // Resolve rest of the path
-        String[] nameComps = pathStr.split("\\.");
-        int index = 0;
-        while (index < nameComps.length) {
-            String name = nameComps[index];
-            searchSymbol = visibleSymbols.stream()
-                    .filter(symbol -> name.equals(getLastItem(symbol.symbol.name.getValue().split("\\."))))
-                    .findFirst().orElse(null);
-            // If search symbol not found, return
-            if (searchSymbol == null) {
-                break;
-            }
-            // The `searchSymbol` found, resolve further
-            boolean isInvocation = searchSymbol.symbol instanceof BInvokableSymbol;
-            boolean isObject = searchSymbol.symbol instanceof BObjectTypeSymbol;
-            boolean isVariable = searchSymbol.symbol instanceof BVarSymbol;
-            boolean hasNextNameComp = index + 1 < nameComps.length;
-            if (isInvocation && hasNextNameComp) {
-                BInvokableSymbol invokableSymbol = (BInvokableSymbol) searchSymbol.symbol;
-                BTypeSymbol returnTypeSymbol = invokableSymbol.getReturnType().tsymbol;
-                if (returnTypeSymbol instanceof BObjectTypeSymbol) {
-                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) returnTypeSymbol;
-                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
-                }
-            } else if (isObject && hasNextNameComp) {
-                BObjectTypeSymbol bObjectTypeSymbol = (BObjectTypeSymbol) searchSymbol.symbol;
-                BTypeSymbol typeSymbol = bObjectTypeSymbol.type.tsymbol;
-                if (typeSymbol instanceof BObjectTypeSymbol) {
-                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
-                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
-                }
-            } else if (isVariable && hasNextNameComp) {
-                BVarSymbol bVarSymbol = (BVarSymbol) searchSymbol.symbol;
-                BTypeSymbol typeSymbol = bVarSymbol.type.tsymbol;
-                if (typeSymbol.type instanceof BUnionType) {
-                    // Check for optional field accesses.
-                    BUnionType bUnionType = (BUnionType) typeSymbol.type;
-                    List<BType> memberTypes = new ArrayList<>(bUnionType.getMemberTypes());
-                    if (memberTypes.size() == 2) {
-                        boolean isLeftNil = memberTypes.get(0) instanceof BNilType;
-                        boolean isRightNil = memberTypes.get(1) instanceof BNilType;
-                        if (isLeftNil || isRightNil) {
-                            // either left or right should be NIL
-                            typeSymbol = (isLeftNil) ? memberTypes.get(1).tsymbol : memberTypes.get(0).tsymbol;
-                        }
-                    }
-                }
-                if (typeSymbol instanceof BObjectTypeSymbol) {
-                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
-                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
-                    visibleSymbols.addAll(objectTypeSymbol.scope.entries.values());
-                } else if (typeSymbol instanceof BRecordTypeSymbol) {
-                    BRecordTypeSymbol bRecordTypeSymbol = (BRecordTypeSymbol) typeSymbol;
-                    visibleSymbols = new ArrayList<>(bRecordTypeSymbol.scope.entries.values());
-                } else {
-                    visibleSymbols = getLangLibScopeEntries(typeSymbol.type, symbolTable, types);
-                }
-            }
-            index++;
-        }
-        return searchSymbol != null ? Optional.of(searchSymbol) : Optional.empty();
+                                                               List<Symbol> visibleSymbols) {
+//        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+//        SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
+//        Types types = Types.getInstance(compilerContext);
+//        Symbol searchSymbol = null;
+//        // Resolve package prefixes first
+//        int pkgPrefix = pathStr.indexOf(":");
+//        if (pkgPrefix > -1) {
+//            String packagePart = pathStr.substring(0, pkgPrefix);
+//            pathStr = pathStr.substring(pkgPrefix + 1);
+//            String alias = packagePart.split("\\sversion\\s")[0].split("\\sas\\s")[0].split("/")[1];
+//            Optional<ModuleSymbol> moduleSymbol = Optional.empty();
+//            for (Symbol symbol : visibleSymbols) {
+//                if (symbol.kind() == MODULE && symbol.name().equals(alias)) {
+//                    ModuleSymbol symbol1 = (ModuleSymbol) symbol;
+//                    moduleSymbol = Optional.of(symbol1);
+//                    break;
+//                }
+//            }
+//            visibleSymbols = moduleSymbol.map(symbol -> new ArrayList<>(symbol.allSymbols())).orElseGet(ArrayList::new);
+//        }
+//        // Resolve rest of the path
+//        String[] nameComps = pathStr.split("\\.");
+//        int index = 0;
+//        while (index < nameComps.length) {
+//            String name = nameComps[index];
+//            searchSymbol = visibleSymbols.stream()
+//                    .filter(symbol -> name.equals(getLastItem(symbol.name().split("\\."))))
+//                    .findFirst().orElse(null);
+//            // If search symbol not found, return
+//            if (searchSymbol == null) {
+//                break;
+//            }
+//            // The `searchSymbol` found, resolve further
+//            boolean isInvocation = searchSymbol.kind() == FUNCTION || searchSymbol.kind() == METHOD;
+//            // TODO: Add the symbol kind
+//            boolean isObject = /*searchSymbol.symbol instanceof BObjectTypeSymbol*/ false;
+//            boolean isVariable = searchSymbol.kind() == VARIABLE;
+//            boolean hasNextNameComp = index + 1 < nameComps.length;
+//            if (isInvocation && hasNextNameComp) {
+//                // TODO: Check for the object method
+//                FunctionSymbol functionSymbol = (FunctionSymbol) searchSymbol;
+//                if (functionSymbol.typeDescriptor().isPresent()
+//                        && functionSymbol.typeDescriptor().get().kind() == TypeDescKind.FUNCTION) {
+//                    Optional<BallerinaTypeDescriptor> returnType
+//                            = ((FunctionTypeDescriptor) functionSymbol.typeDescriptor().get()).returnType();
+//                    // TODO: Fix the following
+////                    if (returnTypeSymbol instanceof BObjectTypeSymbol) {
+////                        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) returnTypeSymbol;
+////                        visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
+////                    }
+//                }
+//            } else if (isObject && hasNextNameComp) {
+//                BObjectTypeSymbol bObjectTypeSymbol = (BObjectTypeSymbol) searchSymbol.symbol;
+//                BTypeSymbol typeSymbol = bObjectTypeSymbol.type.tsymbol;
+//                if (typeSymbol instanceof BObjectTypeSymbol) {
+//                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
+//                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
+//                }
+//            } else if (isVariable && hasNextNameComp) {
+//                BVarSymbol bVarSymbol = (BVarSymbol) searchSymbol.symbol;
+//                BTypeSymbol typeSymbol = bVarSymbol.type.tsymbol;
+//                if (typeSymbol.type instanceof BUnionType) {
+//                    // Check for optional field accesses.
+//                    BUnionType bUnionType = (BUnionType) typeSymbol.type;
+//                    List<BType> memberTypes = new ArrayList<>(bUnionType.getMemberTypes());
+//                    if (memberTypes.size() == 2) {
+//                        boolean isLeftNil = memberTypes.get(0) instanceof BNilType;
+//                        boolean isRightNil = memberTypes.get(1) instanceof BNilType;
+//                        if (isLeftNil || isRightNil) {
+//                            // either left or right should be NIL
+//                            typeSymbol = (isLeftNil) ? memberTypes.get(1).tsymbol : memberTypes.get(0).tsymbol;
+//                        }
+//                    }
+//                }
+//                if (typeSymbol instanceof BObjectTypeSymbol) {
+//                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
+//                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
+//                    visibleSymbols.addAll(objectTypeSymbol.scope.entries.values());
+//                } else if (typeSymbol instanceof BRecordTypeSymbol) {
+//                    BRecordTypeSymbol bRecordTypeSymbol = (BRecordTypeSymbol) typeSymbol;
+//                    visibleSymbols = new ArrayList<>(bRecordTypeSymbol.scope.entries.values());
+//                } else {
+//                    visibleSymbols = getLangLibScopeEntries(typeSymbol.type, symbolTable, types);
+//                }
+//            }
+//            index++;
+//        }
+//        return searchSymbol != null ? Optional.of(searchSymbol) : Optional.empty();
+        return Optional.empty();
     }
 
     /**
@@ -395,77 +391,78 @@ public class SignatureHelpUtil {
      */
     private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol, boolean isMethodCall,
                                                             LSContext signatureCtx) {
-        Map<String, String> paramToDesc = new HashMap<>();
-        SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
-        List<ParameterInfoModel> paramModels = new ArrayList<>();
-        MarkdownDocAttachment docAttachment = bInvokableSymbol.getMarkdownDocAttachment();
-        List<Parameter> parameters = new ArrayList<>();
-        // Handle error constructors
-        if (bInvokableSymbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
-            docAttachment = bInvokableSymbol.type.tsymbol.markdownDocumentation;
-            if (bInvokableSymbol.type instanceof BErrorType) {
-                BErrorType bErrorType = (BErrorType) bInvokableSymbol.type;
-                boolean isDirectErrorConstructor = bInvokableSymbol.type.tsymbol.kind == null;
-                if (isDirectErrorConstructor) {
-                    // If it is direct error constructor, `reason` is mandatory
-                }
-                // todo: need to support error detail map case
-                if (bErrorType.detailType instanceof BRecordType) {
-                    BRecordType bRecordType = (BRecordType) bErrorType.detailType;
-                    bRecordType.fields.values().forEach(p -> {
-                        BVarSymbol symbol = p.symbol;
-                        parameters.add(
-                                new Parameter(symbol.name.getValue(), symbol.type, Symbols.isOptional(symbol), false));
-                    });
-                    BType restFieldType = bRecordType.restFieldType;
-                    if (restFieldType != null) {
-                        parameters.add(new Parameter(restFieldType.name.getValue(), restFieldType, false, true));
-                    }
-                }
-            }
-        }
-        // Check for documentations of the function and parameters
-        if (docAttachment != null) {
-            if (docAttachment.description != null) {
-                signatureInfoModel.setSignatureDescription(docAttachment.description.trim(), signatureCtx);
-            }
-            docAttachment.parameters.forEach(
-                    attribute -> paramToDesc.put(attribute.getName(), attribute.getDescription())
-            );
-        }
-        // Add parameters and rest params
-        bInvokableSymbol.getParameters().forEach(
-                p -> parameters.add(new Parameter(p.name.value, p.type, Symbols.isOptional(p), false))
-        );
-        BVarSymbol restParam = bInvokableSymbol.restParam;
-        if (restParam != null) {
-            parameters.add(new Parameter(restParam.name.value, restParam.type, false, true));
-        }
-        boolean skipFirstParam = isMethodCall && CommonUtil.isLangLibSymbol(bInvokableSymbol);
-        // Create a list of param info models
-        for (int i = 0; i < parameters.size(); i++) {
-            if (i == 0 && skipFirstParam) {
-                // If langlib, skip first param
-                continue;
-            }
-            Parameter param = parameters.get(i);
-            String name = param.isOptional ? param.name + "?" : param.name;
-            String desc = "";
-            if (paramToDesc.containsKey(param.name)) {
-                desc = paramToDesc.get(param.name);
-            }
-            String type = CommonUtil.getBTypeName(param.type, signatureCtx, true);
-            if (param.isRestArg && !"".equals(type)) {
-                // Rest Arg type sometimes appear as array [], sometimes not eg. 'error()'
-                if (type.contains("[]")) {
-                    type = type.substring(0, type.length() - 2);
-                }
-                type += "...";
-            }
-            paramModels.add(new ParameterInfoModel(name, type, desc));
-        }
-        signatureInfoModel.setParameterInfoModels(paramModels);
-        return signatureInfoModel;
+//        Map<String, String> paramToDesc = new HashMap<>();
+//        SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
+//        List<ParameterInfoModel> paramModels = new ArrayList<>();
+//        MarkdownDocAttachment docAttachment = bInvokableSymbol.getMarkdownDocAttachment();
+//        List<Parameter> parameters = new ArrayList<>();
+//        // Handle error constructors
+//        if (bInvokableSymbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
+//            docAttachment = bInvokableSymbol.type.tsymbol.markdownDocumentation;
+//            if (bInvokableSymbol.type instanceof BErrorType) {
+//                BErrorType bErrorType = (BErrorType) bInvokableSymbol.type;
+//                boolean isDirectErrorConstructor = bInvokableSymbol.type.tsymbol.kind == null;
+//                if (isDirectErrorConstructor) {
+//                    // If it is direct error constructor, `reason` is mandatory
+//                }
+//                // todo: need to support error detail map case
+//                if (bErrorType.detailType instanceof BRecordType) {
+//                    BRecordType bRecordType = (BRecordType) bErrorType.detailType;
+//                    bRecordType.fields.values().forEach(p -> {
+//                        BVarSymbol symbol = p.symbol;
+//                        parameters.add(
+//                                new Parameter(symbol.name.getValue(), symbol.type, Symbols.isOptional(symbol), false));
+//                    });
+//                    BType restFieldType = bRecordType.restFieldType;
+//                    if (restFieldType != null) {
+//                        parameters.add(new Parameter(restFieldType.name.getValue(), restFieldType, false, true));
+//                    }
+//                }
+//            }
+//        }
+//        // Check for documentations of the function and parameters
+//        if (docAttachment != null) {
+//            if (docAttachment.description != null) {
+//                signatureInfoModel.setSignatureDescription(docAttachment.description.trim(), signatureCtx);
+//            }
+//            docAttachment.parameters.forEach(
+//                    attribute -> paramToDesc.put(attribute.getName(), attribute.getDescription())
+//            );
+//        }
+//        // Add parameters and rest params
+//        bInvokableSymbol.getParameters().forEach(
+//                p -> parameters.add(new Parameter(p.name.value, p.type, Symbols.isOptional(p), false))
+//        );
+//        BVarSymbol restParam = bInvokableSymbol.restParam;
+//        if (restParam != null) {
+//            parameters.add(new Parameter(restParam.name.value, restParam.type, false, true));
+//        }
+//        boolean skipFirstParam = isMethodCall && CommonUtil.isLangLibSymbol(bInvokableSymbol);
+//        // Create a list of param info models
+//        for (int i = 0; i < parameters.size(); i++) {
+//            if (i == 0 && skipFirstParam) {
+//                // If langlib, skip first param
+//                continue;
+//            }
+//            Parameter param = parameters.get(i);
+//            String name = param.isOptional ? param.name + "?" : param.name;
+//            String desc = "";
+//            if (paramToDesc.containsKey(param.name)) {
+//                desc = paramToDesc.get(param.name);
+//            }
+//            String type = CommonUtil.getBTypeName(param.type, signatureCtx, true);
+//            if (param.isRestArg && !"".equals(type)) {
+//                // Rest Arg type sometimes appear as array [], sometimes not eg. 'error()'
+//                if (type.contains("[]")) {
+//                    type = type.substring(0, type.length() - 2);
+//                }
+//                type += "...";
+//            }
+//            paramModels.add(new ParameterInfoModel(name, type, desc));
+//        }
+//        signatureInfoModel.setParameterInfoModels(paramModels);
+//        return signatureInfoModel;
+        return null;
     }
 
     private static ParameterInformation getParameterInformation(ParameterInfoModel parameterInfoModel) {

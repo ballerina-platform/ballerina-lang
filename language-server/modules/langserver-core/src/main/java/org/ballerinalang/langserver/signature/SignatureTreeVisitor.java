@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.signature;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -336,13 +337,13 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
      * @param symbolEntries symbol entries
      */
     private void populateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries) {
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>();
+        List<Symbol> visibleSymbols = new ArrayList<>();
 
-        for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : symbolEntries.entrySet()) {
-            List<Scope.ScopeEntry> entryList = entry.getValue();
-            List<Scope.ScopeEntry> symbolCompletionItems = new ArrayList<>(entryList);
-            visibleSymbols.addAll(symbolCompletionItems);
-        }
+//        for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : symbolEntries.entrySet()) {
+//            List<Scope.ScopeEntry> entryList = entry.getValue();
+//            List<Scope.ScopeEntry> symbolCompletionItems = new ArrayList<>(entryList);
+//            visibleSymbols.addAll(symbolCompletionItems);
+//        }
         lsContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
     }
 }

@@ -17,20 +17,18 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.UnionTypeDescriptor;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 /**
  * This class is being used to build BType completion item.
@@ -44,11 +42,11 @@ public class BTypeCompletionItemBuilder {
     /**
      * Creates and returns a completion item.
      *
-     * @param bSymbol BSymbol or null
+     * @param bSymbol Symbol or null
      * @param label   label
      * @return {@link CompletionItem}
      */
-    public static CompletionItem build(BSymbol bSymbol, String label) {
+    public static CompletionItem build(Symbol bSymbol, String label) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         String[] delimiterSeparatedTokens = (label).split("\\.");
@@ -57,57 +55,69 @@ public class BTypeCompletionItemBuilder {
         return item;
     }
 
-    private static void setMeta(CompletionItem item, BSymbol bSymbol) {
-        if (bSymbol == null) {
+    private static void setMeta(CompletionItem item, Symbol bSymbol) {
+        if (bSymbol.kind() == SymbolKind.MODULE) {
+            // package
+            item.setKind(CompletionItemKind.Module);
+            return;
+        }
+        Optional<BallerinaTypeDescriptor> typeDescriptor = SymbolUtil.getTypeDescriptor(bSymbol);
+        if (typeDescriptor.isEmpty()) {
             item.setKind(CompletionItemKind.Class);
             return;
         }
+
         //Or, else
-        if (bSymbol instanceof BPackageSymbol) {
-            // package
-            item.setKind(CompletionItemKind.Module);
-        } else if (bSymbol.type instanceof BFiniteType) {
+         /*else if (typeDescKind.isPresent() && typeDescKind.get() == TypeDescKind.FINITE) {
             // Finite types
             item.setKind(CompletionItemKind.TypeParameter);
-        } else if (bSymbol.type instanceof BUnionType) {
-            // Union types
-            ArrayList<BType> memberTypes = new ArrayList(((BUnionType) bSymbol.type).getMemberTypes());
-            boolean allMatch = memberTypes.stream().allMatch(bType -> bType.tag == memberTypes.get(0).tag);
-            if (allMatch) {
-                switch (memberTypes.get(0).tag) {
-                    case TypeTags.ERROR:
-                        item.setKind(CompletionItemKind.Event);
-                        break;
-                    case TypeTags.RECORD:
-                        item.setKind(CompletionItemKind.Struct);
-                        break;
-                    case TypeTags.OBJECT:
-                        item.setKind(CompletionItemKind.Interface);
-                        break;
-                    default:
-                        break;
+        }*/
+        switch (typeDescriptor.get().kind()) {
+            case UNION:
+                // Union types
+                List<BallerinaTypeDescriptor> memberTypes = new ArrayList<>(((UnionTypeDescriptor) typeDescriptor.get())
+                        .memberTypes());
+                boolean allMatch = memberTypes.stream().allMatch(typeDesc -> typeDesc.kind() == memberTypes.get(0).kind());
+                if (allMatch) {
+                    switch (memberTypes.get(0).kind()) {
+                        case ERROR:
+                            item.setKind(CompletionItemKind.Event);
+                            break;
+                        case RECORD:
+                            item.setKind(CompletionItemKind.Struct);
+                            break;
+                        case OBJECT:
+                            item.setKind(CompletionItemKind.Interface);
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    item.setKind(CompletionItemKind.Enum);
                 }
-            } else {
-                item.setKind(CompletionItemKind.Enum);
-            }
-        } else if (bSymbol instanceof BRecordTypeSymbol) {
-            item.setKind(CompletionItemKind.Struct);
-        } else if (bSymbol instanceof BObjectTypeSymbol) {
-            item.setKind(CompletionItemKind.Interface);
-        }  else if (bSymbol instanceof BErrorTypeSymbol) {
-            item.setKind(CompletionItemKind.Event);
-        } else if (bSymbol.kind != null) {
-            // class / objects
-            item.setKind(CompletionItemKind.Class);
-        } else {
-            // default
-            item.setKind(CompletionItemKind.Unit);
+                break;
+            case RECORD:
+                item.setKind(CompletionItemKind.Struct);
+                break;
+            case OBJECT:
+                item.setKind(CompletionItemKind.Interface);
+                break;
+            case ERROR:
+                item.setKind(CompletionItemKind.Event);
+                break;
+//                else if (bSymbol.kind != null) {
+//            // class / objects
+//            item.setKind(CompletionItemKind.Class);
+//        } 
+            default:
+                // default
+                item.setKind(CompletionItemKind.Unit);
         }
-        if (bSymbol.markdownDocumentation != null) {
-            item.setDocumentation(bSymbol.markdownDocumentation.description);
+        if (bSymbol.docAttachment().isPresent() && bSymbol.docAttachment().get().description().isPresent()) {
+            item.setDocumentation(bSymbol.docAttachment().get().description().get());
         }
         // set sub bType
-        String name = bSymbol.type.getKind().name();
+        String name = typeDescriptor.get().kind().getName();
         String detail = name.substring(0, 1).toUpperCase(Locale.ENGLISH)
                 + name.substring(1).toLowerCase(Locale.ENGLISH);
         item.setDetail(detail);

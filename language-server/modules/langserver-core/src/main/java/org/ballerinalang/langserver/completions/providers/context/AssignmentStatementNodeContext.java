@@ -15,13 +15,19 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -30,11 +36,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,7 @@ import java.util.function.Predicate;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class AssignmentStatementNodeContext extends AbstractCompletionProvider<AssignmentStatementNode> {
-    
+
     public AssignmentStatementNodeContext() {
         super(AssignmentStatementNode.class);
     }
@@ -64,11 +65,9 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
             (2) [module:]TypeName c = module:a<cursor>
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.expression();
-            Predicate<Scope.ScopeEntry> filter = scopeEntry -> {
-                BSymbol symbol = scopeEntry.symbol;
-                return symbol instanceof BVarSymbol && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
-            };
-            List<Scope.ScopeEntry> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
+            Predicate<Symbol> filter = symbol -> symbol.kind() == SymbolKind.VARIABLE
+                    && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC);
+            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
             /*
@@ -91,15 +90,21 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
 
     private List<LSCompletionItem> getNewExprCompletionItems(LSContext context, AssignmentStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        Optional<BObjectTypeSymbol> objectType;
+        ArrayList<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        Optional<ObjectTypeDescriptor> objectType;
         Node varRef = node.varRef();
         if (varRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) varRef).name().text();
             objectType = visibleSymbols.stream()
-                    .filter(scopeEntry -> scopeEntry.symbol.type.getKind() == TypeKind.OBJECT
-                            && scopeEntry.symbol.getName().getValue().equals(identifier))
-                    .map(scopeEntry -> (BObjectTypeSymbol) scopeEntry.symbol.type.tsymbol)
+                    .filter(symbol -> {
+                        if (symbol.kind() != SymbolKind.VARIABLE) {
+                            return false;
+                        }
+                        Optional<BallerinaTypeDescriptor> typeDesc = ((VariableSymbol) symbol).typeDescriptor();
+                        return typeDesc.isPresent() && typeDesc.get().kind() == TypeDescKind.OBJECT
+                                && symbol.name().equals(identifier);
+                    })
+                    .map(symbol -> (ObjectTypeDescriptor) (((VariableSymbol) symbol).typeDescriptor().get()))
                     .findAny();
         } else {
             objectType = Optional.empty();

@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -38,7 +39,7 @@ import java.util.StringJoiner;
  */
 public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implements RecordTypeDescriptor {
 
-    private List<FieldDescriptor> fieldDescriptors;
+    private LinkedHashMap<String, FieldDescriptor> fieldDescriptors;
     private boolean isInclusive;
     // private TypeDescriptor typeReference;
     private BallerinaTypeDescriptor restTypeDesc;
@@ -56,12 +57,11 @@ public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implem
      * @return {@link List} of ballerina field
      */
     @Override
-    public List<FieldDescriptor> fieldDescriptors() {
+    public LinkedHashMap<String, FieldDescriptor> fieldDescriptors() {
         if (this.fieldDescriptors == null) {
-            this.fieldDescriptors = new ArrayList<>();
-            for (BField field : ((BRecordType) this.getBType()).fields.values()) {
-                this.fieldDescriptors.add(new BallerinaFieldDescriptor(field));
-            }
+            this.fieldDescriptors = new LinkedHashMap<>();
+            ((BRecordType) this.getBType()).fields
+                    .forEach((name, bField) -> this.fieldDescriptors.put(name, new BallerinaFieldDescriptor(bField)));
         }
 
         return this.fieldDescriptors;
@@ -93,7 +93,7 @@ public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implem
         } else {
             joiner = new StringJoiner("; ", "{| ", " |}");
         }
-        for (FieldDescriptor fieldDescriptor : this.fieldDescriptors()) {
+        for (FieldDescriptor fieldDescriptor : this.fieldDescriptors().values()) {
             String ballerinaFieldSignature = fieldDescriptor.signature();
             joiner.add(ballerinaFieldSignature);
         }

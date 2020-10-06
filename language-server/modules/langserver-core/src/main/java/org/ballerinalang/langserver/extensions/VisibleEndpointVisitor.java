@@ -186,7 +186,7 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
                                 .collect(Collectors.toList())));
         
         return visibleSymbols.stream()
-                .filter(symbol -> symbol instanceof BVarSymbol && CommonUtil.isClientObject(symbol)
+                .filter(symbol -> symbol instanceof BVarSymbol && CommonUtil.isClientObject(/*symbol*/null)
                     && (parameters.contains(symbol) || symbol.owner instanceof BPackageSymbol))
                 .map(symbol -> {
                     BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
@@ -213,7 +213,7 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
         statements.forEach(stmt -> {
             if (stmt instanceof  BLangSimpleVariableDef) {
                 BVarSymbol symbol = ((BLangSimpleVariableDef) stmt).var.symbol;
-                if (CommonUtil.isClientObject(symbol)) {
+                if (CommonUtil.isClientObject(/*symbol*/null)) {
                     BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
                     String typeName = symbol.type.tsymbol.getName().getValue();
                     String pkgName = symbol.pkgID.getName().getValue();

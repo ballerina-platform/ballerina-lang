@@ -17,13 +17,14 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ServiceSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -53,7 +54,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     private List<TypeSymbol> typeDefs;
     private List<FunctionSymbol> functions;
     private List<ConstantSymbol> constants;
-    private List<VariableSymbol> listeners;
+    private List<TypeSymbol> listeners;
 
     protected BallerinaModule(String name, PackageID moduleID, BPackageSymbol packageSymbol) {
         super(name, moduleID, SymbolKind.MODULE, packageSymbol);
@@ -149,7 +150,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
      * @return {@link List} of listeners
      */
     @Override
-    public List<VariableSymbol> listeners() {
+    public List<TypeSymbol> listeners() {
         if (this.listeners != null) {
             return listeners;
         }
@@ -157,6 +158,16 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
         // TODO:
         this.listeners = new ArrayList<>();
         return this.listeners;
+    }
+
+    @Override
+    public List<ClassSymbol> classes() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<ServiceSymbol> services() {
+        return new ArrayList<>();
     }
 
     /**

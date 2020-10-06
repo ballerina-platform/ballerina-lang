@@ -15,23 +15,25 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.ErrorTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -58,19 +60,22 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
          */
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
 
-        Predicate<Scope.ScopeEntry> predicate = scopeEntry -> {
-            BSymbol symbol = scopeEntry.symbol;
-            return symbol instanceof BTypeSymbol
-                    && (symbol.type.getKind() == TypeKind.MAP || symbol.type.getKind() == TypeKind.RECORD);
+        Predicate<Symbol> predicate = symbol -> {
+            if (symbol.kind() != SymbolKind.TYPE) {
+                return false;
+            }
+            Optional<BallerinaTypeDescriptor> typeDesc = ((TypeSymbol) symbol).typeDescriptor();
+            return typeDesc.isPresent()
+                    && (typeDesc.get().kind() == TypeDescKind.MAP || typeDesc.get().kind() == TypeDescKind.RECORD);
         };
-        List<Scope.ScopeEntry> mappingTypes;
+        List<Symbol> mappingTypes;
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             mappingTypes = QNameReferenceUtil.getModuleContent(context, (QualifiedNameReferenceNode) nodeAtCursor,
-                    predicate.and(scopeEntry -> (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC));
+                    predicate.and(symbol -> ((TypeSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC)));
             return this.getCompletionItemList(mappingTypes, context);
         }
 
-        List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         mappingTypes = visibleSymbols.stream().filter(predicate).collect(Collectors.toList());
         List<LSCompletionItem> completionItems = this.getCompletionItemList(mappingTypes, context);
         completionItems.addAll(this.getModuleCompletionItems(context));

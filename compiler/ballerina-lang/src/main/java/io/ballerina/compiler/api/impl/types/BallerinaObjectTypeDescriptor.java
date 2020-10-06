@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.impl.symbols.SymbolFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -46,7 +47,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     // private TypeDescriptor objectTypeReference;
     private List<FieldDescriptor> objectFields;
     private List<MethodSymbol> methods;
-    private BallerinaMethodSymbol initFunction;
+    private MethodSymbol initFunction;
 
     public BallerinaObjectTypeDescriptor(ModuleID moduleID, BObjectType objectType) {
         super(TypeDescKind.OBJECT, moduleID, objectType);

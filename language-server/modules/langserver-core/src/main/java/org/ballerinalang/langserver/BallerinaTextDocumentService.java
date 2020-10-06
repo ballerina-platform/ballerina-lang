@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -287,14 +288,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 Position pos = new Position(start.line(), start.offset());
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context, pos);
                 bLangPackage.accept(signatureTreeVisitor);
-                List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+                List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
                 if (visibleSymbols == null) {
                     throw new Exception("Couldn't find the symbol, visible symbols are NULL!");
                 }
 
                 // Search function invocation symbol
                 List<SignatureInformation> signatures = new ArrayList<>();
-                List<Scope.ScopeEntry> symbols = new ArrayList<>(visibleSymbols);
+                List<Symbol> symbols = new ArrayList<>(visibleSymbols);
                 Optional<String> symbolPath = getInvocationSymbolPath(sNode, context);
                 boolean isMethodCall = sNode.kind() == SyntaxKind.METHOD_CALL;
                 symbolPath.ifPresent(pathStr -> {

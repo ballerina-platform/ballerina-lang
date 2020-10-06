@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 /**
  * This class is being used to build variable type completion item.
@@ -34,28 +34,28 @@ public final class BVariableCompletionItemBuilder {
     /**
      * Creates and returns a completion item.
      *
-     * @param bSymbol BSymbol
-     * @param label   label
-     * @param type    variable type
+     * @param varSymbol BSymbol
+     * @param label     label
+     * @param type      variable type
      * @return {@link CompletionItem}
      */
-    public static CompletionItem build(BVarSymbol bSymbol, String label, String type) {
+    public static CompletionItem build(VariableSymbol varSymbol, String label, String type) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         String[] delimiterSeparatedTokens = (label).split("\\.");
         item.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
         item.setDetail((type.equals("")) ? ItemResolverConstants.NONE : type);
-        setMeta(item, bSymbol);
+        setMeta(item, varSymbol);
         return item;
     }
 
-    private static void setMeta(CompletionItem item, BVarSymbol bSymbol) {
+    private static void setMeta(CompletionItem item, VariableSymbol varSymbol) {
         item.setKind(CompletionItemKind.Variable);
-        if (bSymbol == null) {
+        if (varSymbol == null) {
             return;
         }
-        if (bSymbol.markdownDocumentation != null) {
-            item.setDocumentation(bSymbol.markdownDocumentation.description);
+        if (varSymbol.docAttachment().isPresent() && varSymbol.docAttachment().get().description().isPresent()) {
+            item.setDocumentation(varSymbol.docAttachment().get().description().get());
         }
     }
 }

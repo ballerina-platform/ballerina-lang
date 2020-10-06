@@ -15,11 +15,19 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.UnionTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -31,19 +39,11 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -72,13 +72,12 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                 }
              */
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            Predicate<Scope.ScopeEntry> filter = scopeEntry -> {
-                BSymbol symbol = scopeEntry.symbol;
-                return !CommonUtil.isInvalidSymbol(symbol)
-                        && (symbol instanceof BTypeSymbol || symbol instanceof BInvokableSymbol)
-                        && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
-            };
-            List<Scope.ScopeEntry> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
+            Predicate<Symbol> filter = symbol -> ((symbol.kind() == SymbolKind.TYPE
+                    && ((TypeSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC))
+                    || (symbol.kind() == SymbolKind.FUNCTION
+                    && ((FunctionSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC)));
+            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
+
             return this.getCompletionItemList(moduleContent, context);
         }
         
@@ -157,12 +156,11 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
     }
 
     protected List<LSCompletionItem> getSymbolCompletions(LSContext context) {
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<LSCompletionItem> completionItems = new ArrayList<>();
         // TODO: Can we get this filter to a common place
-        List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
-                .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
-                        && !(scopeEntry.symbol instanceof BOperatorSymbol))
+        List<Symbol> filteredList = visibleSymbols.stream()
+                .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getTypeguardDestructedItems(visibleSymbols, context));
@@ -182,20 +180,27 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return withinLoops;
     }
 
-    private List<LSCompletionItem> getTypeguardDestructedItems(List<Scope.ScopeEntry> scopeEntries,
-                                                               LSContext ctx) {
+    private List<LSCompletionItem> getTypeguardDestructedItems(List<Symbol> scopeEntries, LSContext ctx) {
         List<String> capturedSymbols = new ArrayList<>();
         // In the case of type guarded variables multiple symbols with the same symbol name and we ignore those
         return scopeEntries.stream()
-                .filter(scopeEntry -> (scopeEntry.symbol.type instanceof BUnionType)
-                        && !capturedSymbols.contains(scopeEntry.symbol.name.value))
-                .map(entry -> {
-                    capturedSymbols.add(entry.symbol.name.getValue());
-                    List<BType> errorTypes = new ArrayList<>();
-                    List<BType> resultTypes = new ArrayList<>();
-                    List<BType> members = new ArrayList<>(((BUnionType) entry.symbol.type).getMemberTypes());
+                .filter(symbol -> {
+                    if (symbol.kind() != SymbolKind.VARIABLE) {
+                        return false;
+                    }
+                    Optional<BallerinaTypeDescriptor> typeDesc = ((VariableSymbol) symbol).typeDescriptor();
+                    return typeDesc.isPresent() && typeDesc.get().kind() == TypeDescKind.UNION
+                            && !capturedSymbols.contains(symbol.name());
+                })
+                .map(symbol -> {
+                    capturedSymbols.add(symbol.name());
+                    List<BallerinaTypeDescriptor> errorTypes = new ArrayList<>();
+                    List<BallerinaTypeDescriptor> resultTypes = new ArrayList<>();
+                    List<BallerinaTypeDescriptor> members
+                            = new ArrayList<>(((UnionTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get())
+                            .memberTypes());
                     members.forEach(bType -> {
-                        if (bType.tag == TypeTags.ERROR) {
+                        if (bType.kind() == TypeDescKind.ERROR) {
                             errorTypes.add(bType);
                         } else {
                             resultTypes.add(bType);
@@ -204,7 +209,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     if (errorTypes.size() == 1) {
                         resultTypes.addAll(errorTypes);
                     }
-                    String symbolName = entry.symbol.name.getValue();
+                    String symbolName = symbol.name();
                     String label = symbolName + " - typeguard " + symbolName;
                     String detail = "Destructure the variable " + symbolName + " with typeguard";
                     StringBuilder snippet = new StringBuilder();
@@ -224,7 +229,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     int finalParamCounter = paramCounter;
                     String restSnippet = (!snippet.toString().isEmpty() && resultTypes.size() > 2) ? " else " : "";
                     restSnippet += IntStream.range(0, resultTypes.size() - paramCounter).mapToObj(value -> {
-                        BType bType = members.get(value);
+                        BallerinaTypeDescriptor bType = members.get(value);
                         String placeHolder = "\t${" + (value + finalParamCounter) + "}";
                         return "if (" + symbolName + " is " + CommonUtil.getBTypeName(bType, ctx, true) + ") {"
                                 + CommonUtil.LINE_SEPARATOR + placeHolder + CommonUtil.LINE_SEPARATOR + "}";

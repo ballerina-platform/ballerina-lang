@@ -144,7 +144,7 @@ class SemanticHighlightingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        if (CommonUtil.isClientObject(varNode.symbol)) {
+        if (CommonUtil.isClientObject(/*varNode.symbol*/null)) {
             SemanticHighlightProvider.HighlightInfo highlightInfo =
                     new SemanticHighlightProvider.HighlightInfo(ScopeEnum.ENDPOINT, varNode.name);
             highlights.add(highlightInfo);
@@ -157,7 +157,7 @@ class SemanticHighlightingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        if (!CommonUtil.isClientObject(varRefExpr.symbol)) {
+        if (!CommonUtil.isClientObject(/*varRefExpr.symbol*/null)) {
             return;
         }
         SemanticHighlightProvider.HighlightInfo highlightInfo =

@@ -67,7 +67,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
     }
 
     @Override
-    public BallerinaTypeDescriptor typeDescriptor() {
+    public FunctionTypeDescriptor typeDescriptor() {
         return this.typeDescriptor;
     }
 

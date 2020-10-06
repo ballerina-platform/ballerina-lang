@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -22,21 +23,15 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.util.AttachPoints;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,12 +75,12 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
             return this.getAnnotationsInModule(context, qNameRef.modulePrefix().text(), attachedNode, pkgAliasMap);
         }
 
-        LSAnnotationCache.getInstance().getAnnotationMapForType(attachedNode, context)
-                .forEach((key, value) -> value.forEach(annotation -> {
-                    boolean withAlias = this.withAlias(context, node, annotation.pkgID);
-                    completionItems.add(CommonUtil.getAnnotationCompletionItem(key, annotation, context, withAlias,
-                            pkgAliasMap));
-                }));
+//        LSAnnotationCache.getInstance().getAnnotationMapForType(attachedNode, context)
+//                .forEach((key, value) -> value.forEach(annotation -> {
+//                    boolean withAlias = this.withAlias(context, node, annotation.pkgID);
+//                    completionItems.add(CommonUtil.getAnnotationCompletionItem(key, annotation, context, withAlias,
+//                            pkgAliasMap));
+//                }));
         completionItems.addAll(this.getCurrentModuleAnnotations(context, attachedNode, pkgAliasMap));
         return completionItems;
     }
@@ -112,28 +107,30 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 
     private List<LSCompletionItem> getAnnotationsInModule(LSContext context, String alias, SyntaxKind kind,
                                                           Map<String, String> pkgAliasMap) {
-        Optional<Scope.ScopeEntry> moduleEntry = CommonUtil.packageSymbolFromAlias(context, alias);
-        if (!moduleEntry.isPresent()) {
+        Optional<ModuleSymbol> moduleEntry = CommonUtil.searchModuleForAlias(context, alias);
+        if (moduleEntry.isEmpty()) {
             List<LSCompletionItem> completionItems = new ArrayList<>();
             // Import statement has not been added. Hence try resolving from the annotation cache
-            LSAnnotationCache.getInstance().getAnnotationsInModule(context, alias, kind)
-                    .forEach((key, value) -> value.forEach(annotation -> {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(key, annotation, context, false,
-                                pkgAliasMap));
-                    }));
+//            LSAnnotationCache.getInstance().getAnnotationsInModule(context, alias, kind)
+//                    .forEach((key, value) -> value.forEach(annotation -> {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(key, annotation, context, false,
+//                                pkgAliasMap));
+//                    }));
 
             return completionItems;
         }
 
-        List<BAnnotationSymbol> collect = moduleEntry.get().symbol.scope.entries.values().stream()
-                .filter(entry -> {
-                    BSymbol symbol = entry.symbol;
-                    return symbol instanceof BAnnotationSymbol && ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
-                })
-                .map(scopeEntry -> (BAnnotationSymbol) scopeEntry.symbol)
-                .collect(Collectors.toList());
+//        List<BAnnotationSymbol> filteredAnnotations = moduleEntry.get().symbol.scope.entries.values().stream()
+//                .filter(entry -> {
+//                    BSymbol symbol = entry.symbol;
+//                    return symbol instanceof BAnnotationSymbol && ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
+//                })
+//                .map(scopeEntry -> (BAnnotationSymbol) scopeEntry.symbol)
+//                .collect(Collectors.toList());
+//
+//        return this.getAnnotationCompletionsForSymbols(context, collect, kind, pkgAliasMap);
 
-        return this.getAnnotationCompletionsForSymbols(context, collect, kind, pkgAliasMap);
+        return new ArrayList<>();
     }
 
     private SyntaxKind getParentSyntaxKind(AnnotationNode node) {
@@ -149,112 +146,112 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
                                                                       SyntaxKind kind,
                                                                       Map<String, String> pkgAliasMap) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        annotations.forEach(symbol -> {
-            PackageID pkgId = symbol.pkgID;
-            int maskedPoints = symbol.maskedPoints;
+//        annotations.forEach(symbol -> {
+//            PackageID pkgId = symbol.pkgID;
+//            int maskedPoints = symbol.maskedPoints;
 
-            switch (kind) {
-                case SERVICE_DECLARATION:
-                case SERVICE_CONSTRUCTOR_EXPRESSION:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.SERVICE)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case RESOURCE_KEYWORD:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.RESOURCE)
-                            || Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FUNCTION)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
-                case IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
-                case FUNCTION_DEFINITION:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FUNCTION)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case METHOD_DECLARATION:
-                case OBJECT_METHOD_DEFINITION:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FUNCTION)
-                            || Symbols.isAttachPointPresent(maskedPoints, AttachPoints.OBJECT_METHOD)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case LISTENER_DECLARATION:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.LISTENER)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case NAMED_WORKER_DECLARATION:
-                case START_ACTION:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.WORKER)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case CONST_DECLARATION:
-                case ENUM_MEMBER:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.CONST)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case ENUM_DECLARATION:
-                case TYPE_CAST_PARAM:
-                case TYPE_DEFINITION:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.TYPE)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case CLASS_DEFINITION:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.CLASS)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case RETURN_TYPE_DESCRIPTOR:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.RETURN)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case OBJECT_FIELD:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FIELD)
-                            || Symbols.isAttachPointPresent(maskedPoints, AttachPoints.OBJECT_FIELD)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case RECORD_FIELD:
-                case RECORD_FIELD_WITH_DEFAULT_VALUE:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FIELD)
-                            || Symbols.isAttachPointPresent(maskedPoints, AttachPoints.RECORD_FIELD)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case MODULE_VAR_DECL:
-                case LOCAL_VAR_DECL:
-                case LET_VAR_DECL:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.VAR)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case EXTERNAL_FUNCTION_BODY:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.EXTERNAL)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case ANNOTATION_DECLARATION:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.ANNOTATION)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                case REQUIRED_PARAM:
-                case DEFAULTABLE_PARAM:
-                case REST_PARAM:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.PARAMETER)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
-                    }
-                    break;
-                default:
-                    break;
-            }
-        });
+//            switch (kind) {
+//                case SERVICE_DECLARATION:
+//                case SERVICE_CONSTRUCTOR_EXPRESSION:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.SERVICE)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case RESOURCE_KEYWORD:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.RESOURCE)
+//                            || Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FUNCTION)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
+//                case IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
+//                case FUNCTION_DEFINITION:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FUNCTION)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case METHOD_DECLARATION:
+//                case OBJECT_METHOD_DEFINITION:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FUNCTION)
+//                            || Symbols.isAttachPointPresent(maskedPoints, AttachPoints.OBJECT_METHOD)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case LISTENER_DECLARATION:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.LISTENER)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case NAMED_WORKER_DECLARATION:
+//                case START_ACTION:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.WORKER)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case CONST_DECLARATION:
+//                case ENUM_MEMBER:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.CONST)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case ENUM_DECLARATION:
+//                case TYPE_CAST_PARAM:
+//                case TYPE_DEFINITION:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.TYPE)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case CLASS_DEFINITION:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.CLASS)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case RETURN_TYPE_DESCRIPTOR:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.RETURN)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case OBJECT_FIELD:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FIELD)
+//                            || Symbols.isAttachPointPresent(maskedPoints, AttachPoints.OBJECT_FIELD)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case RECORD_FIELD:
+//                case RECORD_FIELD_WITH_DEFAULT_VALUE:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FIELD)
+//                            || Symbols.isAttachPointPresent(maskedPoints, AttachPoints.RECORD_FIELD)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case MODULE_VAR_DECL:
+//                case LOCAL_VAR_DECL:
+//                case LET_VAR_DECL:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.VAR)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case EXTERNAL_FUNCTION_BODY:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.EXTERNAL)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case ANNOTATION_DECLARATION:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.ANNOTATION)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                case REQUIRED_PARAM:
+//                case DEFAULTABLE_PARAM:
+//                case REST_PARAM:
+//                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.PARAMETER)) {
+//                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
+//                    }
+//                    break;
+//                default:
+//                    break;
+//            }
+//        });
 
         return completionItems;
     }
