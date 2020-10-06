@@ -144,6 +144,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -799,6 +800,42 @@ public class Desugar extends BLangNodeVisitor {
         // get inherited via the type references.
         objectTypeNode.fields.addAll(objectTypeNode.referencedFields);
         result = objectTypeNode;
+    }
+
+    @Override
+    public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+
+
+        BLangTypeInit typeNewExpr = ASTBuilderUtil.createEmptyTypeInit(objectConstructorExpression.pos,
+                objectConstructorExpression.classNode.type);
+        result = rewriteExpr(typeNewExpr);
+//        BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+//        BLangUserDefinedType userDefinedType = createUserDefinedType(pos, objectConstructorExpression.);
+//        result = createUserDefinedObjectInitFn(objectConstructorExpression.classNode, env);
+
+//        BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
+////        initNode.pos = pos;
+////        initNode.userDefinedType = userDefinedType;
+//
+//        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+////        invocationNode.pos = pos;
+////        BLangIdentifier pkgAlias = createIdentifier(pos, "");
+////        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, annonClassDef.name);
+//
+////        invocationNode.name = (BLangIdentifier) nameReference.name;
+////        invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+//
+//        initNode.argsExpr.addAll(invocationNode.argExprs);
+//        initNode.initInvocation = invocationNode;
+
+//        objectCtorExpression.classNode = annonClassDef;
+//        objectCtorExpression.typeInit = initNode;
+//        result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
+
+//        BLangTypeInit typeInit = ASTBuilderUtil.createEmptyTypeInit(objectConstructorExpression.pos,
+//                objectConstructorExpression.classNode.type);
+//        objectConstructorExpression.classNode.annAttachments.forEach(attachment ->  rewrite(attachment, env));
+//        result = rewriteExpr(typeInit);
     }
 
     @Override

@@ -106,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -1426,6 +1427,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         for (BLangFunction function : classDefinition.functions) {
             analyzeNode(function, classEnv);
         }
+    }
+
+    @Override
+    public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
     }
 
     @Override

@@ -125,6 +125,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
@@ -2871,6 +2872,22 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
         iExpr.functionPointerInvocation = true;
         return true;
+    }
+
+    @Override
+    public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+        BType actualType;
+        if (objectConstructorExpression.referenceType != null) {
+            actualType = symResolver.resolveTypeNode(objectConstructorExpression.referenceType, env);
+        } else {
+            actualType = symTable.semanticError;
+        }
+
+//        if (actualType.tag != TypeTags.OBJECT) {
+//            dlog.error(objectConstructorExpression.pos, DiagnosticCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
+//        }
+
+        resultType = actualType;
     }
 
     public void visit(BLangTypeInit cIExpr) {

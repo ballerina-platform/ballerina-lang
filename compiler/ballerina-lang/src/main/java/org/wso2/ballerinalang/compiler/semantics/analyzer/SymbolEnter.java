@@ -105,6 +105,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -588,6 +589,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         return classDefinitions;
+    }
+
+    @Override
+    public void visit(BLangObjectConstructorExpression bLangObjectConstructorExpression) {
+
+        throw new AssertionError();
     }
 
     @Override
