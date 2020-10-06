@@ -131,7 +131,6 @@ public class ProjectUtils {
         return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
-
     /**
      * Check if a ballerina module exist.
      * @param projectPath project path
@@ -141,5 +140,17 @@ public class ProjectUtils {
     public static boolean isModuleExist(Path projectPath, String moduleName) {
         Path modulePath = projectPath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
         return Files.exists(modulePath);
+    }
+  
+    public static String getOrgFromBaloName(String baloName) {
+        return baloName.split("-")[0];
+    }
+
+    public static String getPackageNameFromBaloName(String baloName) {
+        return baloName.split("-")[1];
+    }
+
+    public static String getVersionFromBaloName(String baloName) {
+        return baloName.split("-")[3];
     }
 }
