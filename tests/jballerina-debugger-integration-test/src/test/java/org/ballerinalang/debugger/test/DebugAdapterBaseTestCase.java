@@ -362,15 +362,12 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
             if (stackFrames.length == 0) {
                 return variables;
             }
-            if (scope == VariableScope.LOCAL) {
-                scopeArgs.setFrameId(stackFrames[0].getId());
-            } else {
-                scopeArgs.setFrameId(-stackFrames[0].getId());
-            }
+            scopeArgs.setFrameId(scope == VariableScope.LOCAL ? stackFrames[0].getId() : -stackFrames[0].getId());
             ScopesResponse scopesResp = DebugHitListener.connector.getRequestManager().scopes(scopeArgs);
             variableArgs.setVariablesReference(scopesResp.getScopes()[0].getVariablesReference());
             VariablesResponse variableResp = DebugHitListener.connector.getRequestManager().variables(variableArgs);
-            Arrays.stream(variableResp.getVariables()).forEach(variable -> variables.put(variable.getName(), variable));
+            Arrays.stream(variableResp.getVariables())
+                    .forEach(variable -> variables.put(variable.getName(), variable));
             return variables;
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching debug hit variables", e);
