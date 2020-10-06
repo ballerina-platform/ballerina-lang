@@ -307,7 +307,7 @@ public class DocCommand implements BLauncherCmd {
         
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CreateTargetDirTask()) // create target directory.
-                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
+                //.addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask()) // compile the modules
                 .addTask(new CreateDocsTask(toJson, jsonPath, excludeIndex, combine)) // creates API documentation
                 .build();
