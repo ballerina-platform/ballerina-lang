@@ -33,13 +33,13 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
  *
  * @since Swan Lake
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "createText",
-        args = {@Argument(name = "string", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
+//        functionName = "createText",
+//        args = {@Argument(name = "string", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class CreateText {
 
     public static XMLValue createText(Strand strand, BString string) {
