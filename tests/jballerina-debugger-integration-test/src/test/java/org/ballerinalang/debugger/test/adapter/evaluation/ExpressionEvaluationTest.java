@@ -244,7 +244,14 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void typeOfExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // primitive types
+        assertExpression(context, String.format("typeof %s", BOOLEAN_VAR), "boolean", "typedesc");
+        assertExpression(context, String.format("typeof %s", INT_VAR), "int", "typedesc");
+        assertExpression(context, String.format("typeof %s", FLOAT_VAR), "float", "typedesc");
+        // reference types
+        assertExpression(context, String.format("typeof %s", JSON_VAR), "map<json>", "typedesc");
+        assertExpression(context, String.format("typeof %s[0]", STRING_VAR), "string", "typedesc");
+        assertExpression(context, String.format("typeof typeof %s", BOOLEAN_VAR), "typedesc", "typedesc");
     }
 
     @Override
@@ -479,7 +486,20 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void equalityEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // value equality
+        assertExpression(context, "2.0==2.00", "true", "boolean");
+        assertExpression(context, String.format("%s==%s", INT_VAR, FLOAT_VAR), "false", "boolean");
+        assertExpression(context, String.format("%s==%s", OBJECT_VAR, ANON_OBJECT_VAR), "false", "boolean");
+        assertExpression(context, "2.0!=2.00", "false", "boolean");
+        assertExpression(context, String.format("%s!=%s", INT_VAR, FLOAT_VAR), "true", "boolean");
+        assertExpression(context, String.format("%s!=%s", OBJECT_VAR, ANON_OBJECT_VAR), "true", "boolean");
+        // reference equality
+        assertExpression(context, "2.0===2.00", "true", "boolean");
+        assertExpression(context, String.format("%s===%s", INT_VAR, FLOAT_VAR), "false", "boolean");
+        assertExpression(context, String.format("%s===%s", OBJECT_VAR, ANON_OBJECT_VAR), "false", "boolean");
+        assertExpression(context, "2.0!==2.00", "false", "boolean");
+        assertExpression(context, String.format("%s!==%s", INT_VAR, FLOAT_VAR), "true", "boolean");
+        assertExpression(context, String.format("%s!==%s", OBJECT_VAR, ANON_OBJECT_VAR), "true", "boolean");
     }
 
     @Override
