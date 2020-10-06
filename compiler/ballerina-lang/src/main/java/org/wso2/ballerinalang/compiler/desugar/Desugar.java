@@ -3136,6 +3136,8 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangOnFailClause onFailClause) {
         this.onFailClause = onFailClause;
+        boolean currentSkipDesugring = this.skipFailDesugaring;
+        this.skipFailDesugaring = true;
         BLangType onFailReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
 
         BLangSimpleVariableDef onFailErrorVariableDef = (BLangSimpleVariableDef) onFailClause.variableDefinitionNode;
@@ -3165,6 +3167,7 @@ public class Desugar extends BLangNodeVisitor {
         onFailCallFuncDef = ASTBuilderUtil.createVariableDef(onFailClause.pos,
                 onFailLambdaVariable);
         result = onFailFunc;
+        this.skipFailDesugaring = currentSkipDesugring;
     }
 
     private BLangStatementExpression createOnFailInvocation(BLangSimpleVariableDef onFailCallFuncDef,
