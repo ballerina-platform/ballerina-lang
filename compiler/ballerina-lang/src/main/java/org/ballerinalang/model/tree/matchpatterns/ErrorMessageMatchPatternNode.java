@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.Node;
  * @since Swan Lake
  */
 public interface ErrorMessageMatchPatternNode extends Node {
+
     SimpleMatchPatternNode getSimpleMatchPattern();
 
     void setSimpleMatchPattern(SimpleMatchPatternNode simpleMatchPattern);

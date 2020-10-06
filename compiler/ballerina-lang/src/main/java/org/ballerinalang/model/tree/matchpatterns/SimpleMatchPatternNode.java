@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.Node;
  * @since Swan Lake
  */
 public interface SimpleMatchPatternNode extends Node {
+
     ConstPatternNode getConstPattern();
 
     void setConstPattern(ConstPatternNode constPattern);

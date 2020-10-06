@@ -30,6 +30,7 @@ import java.util.List;
  * @since Swan Lake
  */
 public class BLangErrorFieldMatchPatterns extends BLangMatchPattern implements ErrorFieldMatchPatternsNode {
+
     public List<BLangNamedArgMatchPattern> namedArgMatchPatterns = new ArrayList<>();
     public BLangRestMatchPattern restMatchPattern;
 

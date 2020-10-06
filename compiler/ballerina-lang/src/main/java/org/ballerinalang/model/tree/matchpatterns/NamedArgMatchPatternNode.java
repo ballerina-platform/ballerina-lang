@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.Node;
  * @since Swan Lake
  */
 public interface NamedArgMatchPatternNode extends Node {
+
     IdentifierNode getIdentifier();
 
     void setIdentifier(IdentifierNode variableName);

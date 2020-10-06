@@ -4068,6 +4068,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return bLangWildCardMatchPattern;
         }
 
+        if (kind == SyntaxKind.IDENTIFIER_TOKEN && ((IdentifierToken) matchPattern).text().equals("_")) {
+            // wildcard match
+            BLangWildCardMatchPattern bLangWildCardMatchPattern =
+                    (BLangWildCardMatchPattern) TreeBuilder.createWildCardMatchPattern();
+            bLangWildCardMatchPattern.pos = matchPatternPos;
+            return bLangWildCardMatchPattern;
+        }
+
+        if (kind == SyntaxKind.NUMERIC_LITERAL ||
+        }
+
         if (kind == SyntaxKind.NUMERIC_LITERAL ||
                 kind == SyntaxKind.STRING_LITERAL ||
                 kind == SyntaxKind.SIMPLE_NAME_REFERENCE ||
@@ -4138,7 +4149,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             createErrorFieldMatchPatterns(2, errorMatchPatternNode, bLangErrorMatchPattern);
 
             return bLangErrorMatchPattern;
-        } else if (kind == SyntaxKind.NAMED_ARG_MATCH_PATTERN) {
+        }
+
+        if (kind == SyntaxKind.NAMED_ARG_MATCH_PATTERN) {
             NamedArgMatchPatternNode namedArgMatchPatternNode = (NamedArgMatchPatternNode) matchPattern;
 
             BLangNamedArgMatchPattern bLangNamedArgMatchPattern =
