@@ -130,4 +130,16 @@ public class ProjectUtils {
         }
         return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
     }
+
+    public static String getOrgFromBaloName(String baloName) {
+        return baloName.split("-")[0];
+    }
+
+    public static String getPackageNameFromBaloName(String baloName) {
+        return baloName.split("-")[1];
+    }
+
+    public static String getVersionFromBaloName(String baloName) {
+        return baloName.split("-")[3];
+    }
 }
