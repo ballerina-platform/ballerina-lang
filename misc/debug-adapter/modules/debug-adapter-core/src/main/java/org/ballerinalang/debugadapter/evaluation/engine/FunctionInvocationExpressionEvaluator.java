@@ -20,7 +20,7 @@ import com.sun.jdi.ClassNotPreparedException;
 import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
-import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;

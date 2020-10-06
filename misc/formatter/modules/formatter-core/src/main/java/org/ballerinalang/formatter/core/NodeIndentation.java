@@ -15,12 +15,12 @@
  */
 package org.ballerinalang.formatter.core;
 
-import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
 import java.util.Arrays;

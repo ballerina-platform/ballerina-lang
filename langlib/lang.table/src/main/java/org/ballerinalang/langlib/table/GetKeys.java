@@ -20,18 +20,11 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
  * Extern function to get key arrays from the table.
@@ -39,16 +32,16 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION,
-        functionName = "keys",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.table",
+//        functionName = "keys",
+//        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},
+//        isPublic = true
+//)
 public class GetKeys {
 
-    public static ArrayValue keys(Strand strand, TableValueImpl tbl) {
+    public static ArrayValue keys(TableValueImpl tbl) {
         BType tableKeyType = tbl.getKeyType();
         Object[] keys = tbl.getKeys();
         switch (tableKeyType.getTag()) {

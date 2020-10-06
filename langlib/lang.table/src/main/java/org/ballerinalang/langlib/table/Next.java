@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -31,36 +30,24 @@ import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.ITERATOR_MUTABILITY_ERROR;
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table.TableIterator:next().
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "next",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "TableIterator",
-                structPackage = "ballerina/lang.table"),
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
 public class Next {
 
     private static final BString MUTATED_TABLE_ERROR_DETAIL =  BStringUtils.fromString("Table was mutated after the " +
                                                                                                "iterator was created");
     //TODO: refactor hard coded values
-    public static Object next(Strand strand, ObjectValue t) {
+    public static Object next(ObjectValue t) {
         IteratorValue tableIterator = (IteratorValue) t.getNativeData("&iterator&");
         TableValueImpl table = (TableValueImpl) t.get(BStringUtils.fromString("t"));
         ArrayValueImpl keys = (ArrayValueImpl) t.get(BStringUtils.fromString("keys"));
