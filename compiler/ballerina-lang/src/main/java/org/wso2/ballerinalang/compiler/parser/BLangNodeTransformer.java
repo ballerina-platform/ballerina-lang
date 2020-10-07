@@ -1561,7 +1561,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     bLAttachPoint = AttachPoint.getAttachmentPoint(AttachPoint.Point.RECORD_FIELD.getValue(), source);
                     break;
                 default:
-                    bLAttachPoint = AttachPoint.getAttachmentPoint(((Token) firstIndent).text(), source);
+                    bLAttachPoint = AttachPoint.getAttachmentPoint(firstIndent.text(), source);
             }
             annotationDecl.addAttachPoint(bLAttachPoint);
         }
