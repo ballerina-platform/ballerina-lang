@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.statements.retrystmt;
 
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -47,13 +47,12 @@ public class RetryStmtWithOnFailTest {
 
     @Test(description = "Check not incompatible types and reachable statements.")
     public void testNegative1() {
-        Assert.assertEquals(negativeFile.getErrorCount(), 5);
+        Assert.assertEquals(negativeFile.getErrorCount(), 4);
         BAssertUtil.validateError(negativeFile, 0, "unreachable code", 20, 12);
         BAssertUtil.validateError(negativeFile, 1, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 32, 6);
         BAssertUtil.validateError(negativeFile, 2, "unreachable code", 62, 7);
-        BAssertUtil.validateError(negativeFile, 3, "unreachable code", 76, 7);
-        BAssertUtil.validateError(negativeFile, 4, "incompatible error definition type: " +
+        BAssertUtil.validateError(negativeFile, 3, "incompatible error definition type: " +
                 "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 100, 4);
     }
 }

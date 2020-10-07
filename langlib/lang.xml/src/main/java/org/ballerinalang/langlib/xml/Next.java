@@ -20,33 +20,27 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Native implementation of lang.xml.XMLIterator:next().
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION, functionName = "next",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "XMLIterator", structPackage = "ballerina/lang.xml"),
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml", functionName = "next",
+//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "XMLIterator", structPackage = "ballerina/lang
+//        .xml"),
+//        returnType = {@ReturnType(type = TypeKind.RECORD)},
+//        isPublic = true
+//)
 public class Next {
     //TODO: refactor hard coded values
-    public static Object next(Strand strand, ObjectValue m) {
+    public static Object next(ObjectValue m) {
         IteratorValue xmlIterator = (IteratorValue) m.getNativeData("&iterator&");
 
         if (xmlIterator == null) {
