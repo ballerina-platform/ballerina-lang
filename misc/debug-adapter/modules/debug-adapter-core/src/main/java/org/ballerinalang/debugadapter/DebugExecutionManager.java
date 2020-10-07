@@ -22,7 +22,6 @@ import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
-import com.sun.tools.jdi.SocketAttachingConnector;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.EvaluatorBuilder;
@@ -63,9 +62,8 @@ public class DebugExecutionManager {
         if (port == null || port.isEmpty()) {
             throw new IllegalConnectorArgumentsException("Port is not defined.", "port");
         }
-        AttachingConnector ac = Bootstrap.virtualMachineManager().attachingConnectors().stream()
-                .filter(c -> c instanceof SocketAttachingConnector).findFirst().orElseThrow(() ->
-                        new RuntimeException("Unable to locate SocketAttachingConnector"));
+        AttachingConnector ac = Bootstrap.virtualMachineManager().attachingConnectors().stream().findFirst()
+                .orElseThrow(() -> new RuntimeException("Unable to locate SocketAttachingConnector"));
         Map<String, Connector.Argument> connectorArgs = ac.defaultArguments();
         if (!hostName.isEmpty()) {
             connectorArgs.get("hostname").setValue(hostName);

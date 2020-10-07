@@ -27,3 +27,16 @@ dependencies {
 }
 
 description = 'Ballerina - Debug Adapter - Debug Adaptor CLI'
+
+ext.moduleName = 'ballerina.debug.adapter.cli'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+                '--add-exports', 'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED'
+        ]
+        classpath = files()
+    }
+}

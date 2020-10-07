@@ -94,7 +94,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
@@ -491,7 +490,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         variableToStackFrameMap.put(child, rootNode);
     }
 
-    @Nullable
     private StackFrame toDapStackFrame(StackFrameProxyImpl stackFrame) {
         try {
             long variableReference = nextVarReference.getAndIncrement();
