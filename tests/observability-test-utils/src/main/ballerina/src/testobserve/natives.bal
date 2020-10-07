@@ -31,7 +31,7 @@ public function getFinishedSpans(string serviceName) returns json {
 # + return - The finished spans as a json
 isolated function externGetFinishedSpans(handle serviceName) returns json = @java:Method {
     name: "getFinishedSpans",
-    'class: "org.ballerina.testobserve.extension.MockTracerUtils"
+    'class: "org.ballerina.testobserve.tracing.extension.MockTracerUtils"
 } external;
 
 # Sleep the current strand.

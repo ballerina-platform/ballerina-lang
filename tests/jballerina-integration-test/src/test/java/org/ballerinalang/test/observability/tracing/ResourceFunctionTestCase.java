@@ -1,5 +1,6 @@
 package org.ballerinalang.test.observability.tracing;
 
+import org.ballerina.testobserve.tracing.extension.BMockSpan;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;

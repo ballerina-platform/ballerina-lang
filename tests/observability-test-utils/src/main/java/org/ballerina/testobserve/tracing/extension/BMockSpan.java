@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerina.testobserve.extension;
+package org.ballerina.testobserve.tracing.extension;
 
 import java.util.Map;
 
