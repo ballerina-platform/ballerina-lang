@@ -16,7 +16,8 @@
  * under the License.
  */
 
-import io.ballerina.toml.Toml;
+import io.ballerina.toml.api.Toml;
+import io.ballerina.toml.ast.TomlBooleanValueNode;
 import io.ballerina.toml.ast.TomlNode;
 import io.ballerina.toml.ast.TomlTransformer;
 import io.ballerina.toml.internal.parser.ParserFactory;
@@ -63,13 +64,9 @@ public class TestToml {
     }
 
     private static void testAPI(String path) throws IOException {
-        Toml toml = new Toml();
         InputStream inputStream = new FileInputStream(path);
-        Toml read = toml.read(inputStream);
-        Boolean key1 = read.getBoolean("key1");
-        OUT.println(key1);
-
-        Boolean key2 = read.getBoolean("key2");
-        OUT.println(key2);
+        Toml read = Toml.read(inputStream);
+        TomlBooleanValueNode key1 = read.get("key");
+        OUT.println(key1.getValue());
     }
 }

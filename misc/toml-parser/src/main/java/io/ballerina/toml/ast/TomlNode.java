@@ -21,58 +21,40 @@ import io.ballerina.toml.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Represents a TOML Node AST.
+ *
+ * @since 0.1.0
  */
 public abstract class TomlNode implements Node {
 
-    SyntaxKind kind;
-    public TomlNodeLocation location; //The position of this node in the source file.
-    private Set<Whitespace> ws;
-    private List<TomlDiagnostic> diagnostics;
+    private final SyntaxKind kind;
+    private final List<TomlDiagnostic> diagnostics;
+    private final TomlNodeLocation location; //The position of this node in the source file.
 
-    public TomlNode(SyntaxKind kind) {
+    public TomlNode(SyntaxKind kind, TomlNodeLocation location) {
         this.diagnostics = new ArrayList<>();
         this.kind = kind;
-    }
-
-    public TomlNodeLocation getPosition() {
-        return location;
+        this.location = location;
     }
 
     public abstract void accept(TomlNodeVisitor visitor);
-    public abstract <T> T apply(TomlNodeTransformer<T> transformer);
 
-    @Override
-    public Set<Whitespace> getWS() {
-        return ws;
-    }
-
-    @Override
-    public void addWS(Set<Whitespace> whitespaces) {
-        if (this.ws == null) {
-            this.ws = whitespaces;
-        } else if (whitespaces != null) {
-            this.ws.addAll(whitespaces);
-        }
-    }
-
-    public List<TomlDiagnostic> getDiagnostics() {
+    public List<TomlDiagnostic> diagnostics() {
         return diagnostics;
-    }
-
-    public void setDiagnostics(List<TomlDiagnostic> diagnostics) {
-        this.diagnostics = diagnostics;
     }
 
     public void addDiagnostic(TomlDiagnostic diagnostic) {
         diagnostics.add(diagnostic);
     }
 
+    public TomlNodeLocation location() {
+        return location;
+    }
+
     @Override
-    public SyntaxKind getKind() {
+    public SyntaxKind kind() {
         return kind;
     }
 }

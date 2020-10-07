@@ -20,20 +20,20 @@ package io.ballerina.toml.ast;
 
 /**
  * Visitor for TOML AST.
+ *
+ * @since 0.1.0
  */
 public abstract class TomlNodeVisitor {
 
-    public abstract void visit(TomlTable tomlTable);
+    public abstract void visit(TomlTableNode tomlTableNode);
 
-    public abstract void visit(TomlTableArray tomlTableArray);
+    public abstract void visit(TomlTableArrayNode tomlTableArrayNode);
 
-    public abstract void visit(TomlKeyValue keyValue);
+    public abstract void visit(TomlKeyValueNode keyValue);
 
-    public abstract void visit(TomlKey tomlKey);
+    public abstract void visit(TomlKeyNode tomlKeyNode);
 
-    public abstract void visit(TomlValue tomlValue);
+    public abstract void visit(TomlValueNode tomlValue);
 
-    public abstract void visit(TomlArray tomlArray);
-
-    public abstract void visit(TomlBasicValue tomlBasicValue);
+    public abstract void visit(TomlArrayValueNode tomlArrayValueNode);
 }

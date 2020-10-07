@@ -25,36 +25,37 @@ import java.util.List;
 
 /**
  * Represents Table Array in TOML AST.
+ *
+ * @since 0.1.0
  */
-public class TomlTableArray extends TopLevelNode {
-    List<TomlTable> childs;
-    public TomlTableArray(TomlKey key) {
-        super(key, SyntaxKind.TABLE_ARRAY);
-        this.childs = new ArrayList<>();
+public class TomlTableArrayNode extends TopLevelNode {
+    private final List<TomlTableNode> children;
+    public TomlTableArrayNode(TomlKeyNode key, TomlNodeLocation location) {
+        super(key, SyntaxKind.TABLE_ARRAY, location);
+        this.children = new ArrayList<>();
+    }
+    public TomlTableArrayNode(TomlKeyNode key, TomlNodeLocation location, List<TomlTableNode> children) {
+        super(key, SyntaxKind.TABLE_ARRAY, location);
+        this.children = children;
     }
 
-    public List<TomlTable> getChilds() {
-        return childs;
+    public List<TomlTableNode> children() {
+        return children;
     }
 
-    public void addChild(TomlTable topLevelNode) {
-        childs.add(topLevelNode);
+    public void addChild(TomlTableNode topLevelNode) {
+        children.add(topLevelNode);
     }
 
     @Override
     public String toString() {
         return "TomlTableArray{" +
-                "identifier=" + key.name +
+                "identifier=" + key().name() +
                 '}';
     }
 
     @Override
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(TomlNodeTransformer<T> transformer) {
-        return transformer.transform(this);
     }
 }

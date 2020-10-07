@@ -18,7 +18,7 @@
 
 package toml.parser.test.errors;
 
-import io.ballerina.toml.Toml;
+import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.ast.TomlDiagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.LineRange;
@@ -35,10 +35,10 @@ public class TableTest {
 
     @Test
     public void testMissingTableKey() throws IOException {
-        Toml toml = new Toml();
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("validations/syntax/empty-table-key.toml");
-        Toml read = toml.read(inputStream);
+        Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 2, 2);
@@ -49,10 +49,10 @@ public class TableTest {
 
     @Test
     public void testMissingTableClose() throws IOException {
-        Toml toml = new Toml();
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("validations/syntax/empty-table-close.toml"); //TODO is table open needed?
-        Toml read = toml.read(inputStream);
+        Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(18, 18, 1, 1);
@@ -64,10 +64,10 @@ public class TableTest {
 
     @Test
     public void testWrongCloseBraceTableArray() throws IOException {
-        Toml toml = new Toml();
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("validations/syntax/wrong-closing-brace.toml");
-        Toml read = toml.read(inputStream);
+        Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(18, 18, 1, 1);

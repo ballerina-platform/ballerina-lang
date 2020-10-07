@@ -20,8 +20,6 @@ package io.ballerina.toml.ast;
 
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 
-import java.util.Set;
-
 /**
  * {@code Node} is the base interface for all tree nodes in Ballerina abstract syntax tree.
  *
@@ -29,21 +27,17 @@ import java.util.Set;
  */
 public interface Node {
 
-    void addWS(Set<Whitespace> whitespaces);
-
-    Set<Whitespace> getWS();
-
     /**
      * Returns the kind of this node.
      *
      * @return the kind of this node.
      */
-    SyntaxKind getKind();
+    SyntaxKind kind();
 
     /**
-     * Returns position of this node in a source file.
+     * Returns the location of this node.
      *
-     * @return the position of this node.
+     * @return the location of this node.
      */
-    TomlNodeLocation getPosition();
+    TomlNodeLocation location();
 }

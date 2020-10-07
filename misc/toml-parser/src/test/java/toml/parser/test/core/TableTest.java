@@ -18,7 +18,10 @@
 
 package toml.parser.test.core;
 
-import io.ballerina.toml.Toml;
+import io.ballerina.toml.api.Toml;
+import io.ballerina.toml.ast.TomlLongValueNode;
+import io.ballerina.toml.ast.TomlStringValueNode;
+import io.ballerina.toml.ast.TomlValueNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -34,20 +37,19 @@ public class TableTest {
     @Test
     public void testTable() throws IOException {
 
-        Toml toml = new Toml();
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("core/table.toml");
-        Toml read = toml.read(inputStream);
-        Long rootKey = read.getLong("rootKey");
-        String dotNotation = read.getTable("first").getString("key");
+        Toml read = Toml.read(inputStream);
+        Long rootKey = ((TomlLongValueNode) read.get("rootKey")).getValue();
+        String dotNotation = ((TomlStringValueNode) read.getTable("first").get("key")).getValue();
         Toml firstTable = read.getTable("first");
-        String queryFromSubTable = firstTable.getString("key");
+        String queryFromSubTable = ((TomlStringValueNode) firstTable.get("key")).getValue();
 
-        String subDotNotation = read.getTable("first").getTable("sub").getString("key");
+        String subDotNotation = ((TomlStringValueNode) read.getTable("first").getTable("sub").get("key")).getValue();
         Toml subTable = read.getTable("first").getTable("sub");
-        String queryFromDeepSubTable = subTable.getString("key");
+        String queryFromDeepSubTable = ((TomlStringValueNode) subTable.get("key")).getValue();
 
-        Assert.assertEquals(rootKey, new Long(22L));
+        Assert.assertEquals(rootKey, Long.valueOf(22L));
         Assert.assertEquals(dotNotation, "sdsad");
         Assert.assertEquals(queryFromSubTable, "sdsad");
 
@@ -58,17 +60,16 @@ public class TableTest {
     @Test
     public void testArrayOfTable() throws IOException {
 
-        Toml toml = new Toml();
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("core/array-of-tables.toml");
-        Toml read = toml.read(inputStream);
-        String valueInTable = read.getTable("products").getString("hello1");
+        Toml read = Toml.read(inputStream);
+        String valueInTable = ((TomlStringValueNode) read.getTable("products").get("hello1")).getValue();
         Assert.assertEquals(valueInTable, "hi");
 
         List<Toml> tables = read.getTable("products").getTables("hello");
-        String firstElement = tables.get(0).getString("name");
-        String nullElement = tables.get(1).getString("name");
-        String thridElement = tables.get(2).getString("name");
+        String firstElement = ((TomlStringValueNode) tables.get(0).get("name")).getValue();
+        TomlValueNode nullElement = tables.get(1).get("name");
+        String thridElement = ((TomlStringValueNode) tables.get(2).get("name")).getValue();
 
         Assert.assertEquals(firstElement, "Hammer");
         Assert.assertNull(nullElement);

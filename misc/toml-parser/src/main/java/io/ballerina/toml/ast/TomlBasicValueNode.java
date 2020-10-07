@@ -20,42 +20,20 @@ package io.ballerina.toml.ast;
 
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Represents TOML Array in AST.
+/***
+ * Represents a Basic Value in Toml AST.
+ * @param <T>Type of the Basic Node
+ * @since 0.1.0
  */
-public class TomlArray extends TomlValue {
+public abstract class TomlBasicValueNode<T> extends TomlValueNode {
+    private final T value;
 
-    public List<TomlValue> elements;
-
-    public TomlArray() {
-        super(SyntaxKind.ARRAY);
-        this.elements = new ArrayList<>();
+    public TomlBasicValueNode(T value, SyntaxKind kind, TomlNodeLocation location) {
+        super(kind, location);
+        this.value = value;
     }
 
-    public TomlArray(List<TomlValue> elements) {
-        super(SyntaxKind.ARRAY);
-        this.elements = elements;
-    }
-
-    public List<TomlValue> getElements() {
-        return elements;
-    }
-
-    @Override
-    public SyntaxKind getKind() {
-        return super.getKind();
-    }
-
-    @Override
-    public void accept(TomlNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(TomlNodeTransformer<T> transformer) {
-        return transformer.transform(this);
+    public T getValue() {
+        return value;
     }
 }

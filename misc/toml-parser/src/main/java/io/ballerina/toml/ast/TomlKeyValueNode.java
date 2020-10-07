@@ -21,21 +21,33 @@ package io.ballerina.toml.ast;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 
 /**
- * Represents TOML Value in AST.
+ * Represents Key Value Pair in TOML AST.
+ *
+ * @since 0.1.0
  */
-public abstract class TomlValue extends TomlNode {
+public class TomlKeyValueNode extends TopLevelNode {
 
-    public TomlValue(SyntaxKind kind) {
-        super(kind);
+    private final TomlValueNode value;
+
+    public TomlKeyValueNode(TomlKeyNode key, TomlValueNode value, TomlNodeLocation location) {
+        super(key, SyntaxKind.KEY_VALUE, location);
+        this.value = value;
+    }
+
+    public TomlValueNode value() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return "TomlKeyValue{" +
+                "key=" + key().name() +
+                ", value=" + value +
+                '}';
     }
 
     @Override
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(TomlNodeTransformer<T> transformer) {
-        return transformer.transform(this);
     }
 }
