@@ -4645,7 +4645,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         Token iToken = (Token) node;
-        BLangIdentifier pkgAlias = this.createIdentifier(getPosition(iToken), "");
+        BLangIdentifier pkgAlias = this.createIdentifier(symTable.builtinPos, "");
         BLangIdentifier name = this.createIdentifier(iToken);
         return new BLangNameReference(getPosition(node), null, pkgAlias, name);
     }

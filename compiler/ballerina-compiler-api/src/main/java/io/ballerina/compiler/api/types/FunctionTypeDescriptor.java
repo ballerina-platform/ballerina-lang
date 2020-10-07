@@ -35,6 +35,13 @@ public interface FunctionTypeDescriptor extends BallerinaTypeDescriptor {
     List<Parameter> requiredParams();
 
     /**
+     * Get the defaultable parameters.
+     *
+     * @return {@link List} of defaultable parameters
+     */
+    List<Parameter> defaultableParams();
+
+    /**
      * Get the rest parameter.
      *
      * @return {@link Optional} rest parameter
