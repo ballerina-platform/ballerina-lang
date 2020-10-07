@@ -65,6 +65,9 @@ public class BExecutor {
      * This method will execute Ballerina resource in non-blocking manner. It will use Ballerina worker-pool for the
      * execution and will return the connector thread immediately.
      *
+     * @deprecated use {@link BRuntime#invokeMethodAsync(BObject, String, String,
+     *                                                   StrandMetadata, CallableUnitCallback, Map, Object...)} instead.
+     *
      * @param scheduler    available scheduler.
      * @param service      to be executed.
      * @param resourceName to be executed.
@@ -74,6 +77,7 @@ public class BExecutor {
      * @param properties   to be passed to context.
      * @param args         required for the resource.
      */
+    @Deprecated
     public static void submit(Scheduler scheduler, BObject service, String resourceName, String strandName,
                               StrandMetadata metaData, CallableUnitCallback callback,
                               Map<String, Object> properties, Object... args) {
