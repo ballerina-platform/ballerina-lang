@@ -17,208 +17,209 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
+import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
+import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.AsyncSendActionNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.BindingPatternNode;
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.BreakStatementNode;
+import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
+import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerina.compiler.syntax.tree.ChildNodeList;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.CommitActionNode;
+import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
+import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ContinueStatementNode;
+import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.DistinctTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.DoStatementNode;
+import io.ballerina.compiler.syntax.tree.DocumentationReferenceNode;
+import io.ballerina.compiler.syntax.tree.ElseBlockNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerina.compiler.syntax.tree.EnumMemberNode;
+import io.ballerina.compiler.syntax.tree.ErrorBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ErrorTypeParamsNode;
+import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionFunctionBodyNode;
+import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
+import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
+import io.ballerina.compiler.syntax.tree.FailStatementNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternFullNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
+import io.ballerina.compiler.syntax.tree.FlushActionNode;
+import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
+import io.ballerina.compiler.syntax.tree.ForkStatementNode;
+import io.ballerina.compiler.syntax.tree.FromClauseNode;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
+import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionParameters;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.ImportVersionNode;
+import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.InterpolationNode;
+import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.JoinClauseNode;
+import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
+import io.ballerina.compiler.syntax.tree.KeyTypeConstraintNode;
+import io.ballerina.compiler.syntax.tree.LetClauseNode;
+import io.ballerina.compiler.syntax.tree.LetExpressionNode;
+import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.LimitClauseNode;
+import io.ballerina.compiler.syntax.tree.ListBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
+import io.ballerina.compiler.syntax.tree.LockStatementNode;
+import io.ballerina.compiler.syntax.tree.MappingBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingFieldNode;
+import io.ballerina.compiler.syntax.tree.MarkdownDocumentationLineNode;
+import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
+import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
+import io.ballerina.compiler.syntax.tree.MatchClauseNode;
+import io.ballerina.compiler.syntax.tree.MatchStatementNode;
+import io.ballerina.compiler.syntax.tree.MetadataNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NamedArgBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarator;
+import io.ballerina.compiler.syntax.tree.NewExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.OnClauseNode;
+import io.ballerina.compiler.syntax.tree.OnConflictClauseNode;
+import io.ballerina.compiler.syntax.tree.OnFailClauseNode;
+import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
+import io.ballerina.compiler.syntax.tree.OrderKeyNode;
+import io.ballerina.compiler.syntax.tree.PanicStatementNode;
+import io.ballerina.compiler.syntax.tree.ParameterNode;
+import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryActionNode;
+import io.ballerina.compiler.syntax.tree.QueryConstructTypeNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
+import io.ballerina.compiler.syntax.tree.ReceiveActionNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
+import io.ballerina.compiler.syntax.tree.RecordRestDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.RestArgumentNode;
+import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.RestDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RestParameterNode;
+import io.ballerina.compiler.syntax.tree.RetryStatementNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
+import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RollbackStatementNode;
+import io.ballerina.compiler.syntax.tree.SelectClauseNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.ServiceBodyNode;
+import io.ballerina.compiler.syntax.tree.ServiceConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
+import io.ballerina.compiler.syntax.tree.StartActionNode;
+import io.ballerina.compiler.syntax.tree.StatementNode;
+import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
+import io.ballerina.compiler.syntax.tree.SyncSendActionNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
+import io.ballerina.compiler.syntax.tree.TemplateMemberNode;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
+import io.ballerina.compiler.syntax.tree.TransactionalExpressionNode;
+import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
+import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeCastParamNode;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypeParameterNode;
+import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
+import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.WaitActionNode;
+import io.ballerina.compiler.syntax.tree.WaitFieldNode;
+import io.ballerina.compiler.syntax.tree.WaitFieldsListNode;
+import io.ballerina.compiler.syntax.tree.WhereClauseNode;
+import io.ballerina.compiler.syntax.tree.WhileStatementNode;
+import io.ballerina.compiler.syntax.tree.WildcardBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.XMLAtomicNamePatternNode;
+import io.ballerina.compiler.syntax.tree.XMLAttributeNode;
+import io.ballerina.compiler.syntax.tree.XMLAttributeValue;
+import io.ballerina.compiler.syntax.tree.XMLComment;
+import io.ballerina.compiler.syntax.tree.XMLElementNode;
+import io.ballerina.compiler.syntax.tree.XMLEmptyElementNode;
+import io.ballerina.compiler.syntax.tree.XMLEndTagNode;
+import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLNameNode;
+import io.ballerina.compiler.syntax.tree.XMLNamePatternChainingNode;
+import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.XMLProcessingInstruction;
+import io.ballerina.compiler.syntax.tree.XMLQualifiedNameNode;
+import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
+import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
+import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLTextNode;
+import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import io.ballerinalang.compiler.syntax.tree.AnnotAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.AnnotationAttachPointNode;
-import io.ballerinalang.compiler.syntax.tree.AnnotationDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
-import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerinalang.compiler.syntax.tree.AsyncSendActionNode;
-import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
-import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.BreakStatementNode;
-import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.ByteArrayLiteralNode;
-import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ChildNodeList;
-import io.ballerinalang.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.CommitActionNode;
-import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
-import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
-import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
-import io.ballerinalang.compiler.syntax.tree.DistinctTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.DoStatementNode;
-import io.ballerinalang.compiler.syntax.tree.DocumentationReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
-import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.EnumMemberNode;
-import io.ballerinalang.compiler.syntax.tree.ErrorBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
-import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.FailStatementNode;
-import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternFullNode;
-import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternVarnameNode;
-import io.ballerinalang.compiler.syntax.tree.FlushActionNode;
-import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ForkStatementNode;
-import io.ballerinalang.compiler.syntax.tree.FromClauseNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
-import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionParameters;
-import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
-import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
-import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
-import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
-import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.JoinClauseNode;
-import io.ballerinalang.compiler.syntax.tree.KeySpecifierNode;
-import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
-import io.ballerinalang.compiler.syntax.tree.LetClauseNode;
-import io.ballerinalang.compiler.syntax.tree.LetExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.LetVariableDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.LimitClauseNode;
-import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.LockStatementNode;
-import io.ballerinalang.compiler.syntax.tree.MappingBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
-import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationLineNode;
-import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationNode;
-import io.ballerinalang.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
-import io.ballerinalang.compiler.syntax.tree.MatchClauseNode;
-import io.ballerinalang.compiler.syntax.tree.MatchStatementNode;
-import io.ballerinalang.compiler.syntax.tree.MetadataNode;
-import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.MethodDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.NamedArgBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarator;
-import io.ballerinalang.compiler.syntax.tree.NewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NodeList;
-import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
-import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
-import io.ballerinalang.compiler.syntax.tree.OnFailClauseNode;
-import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.OrderByClauseNode;
-import io.ballerinalang.compiler.syntax.tree.OrderKeyNode;
-import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ParameterNode;
-import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
-import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.QueryActionNode;
-import io.ballerinalang.compiler.syntax.tree.QueryConstructTypeNode;
-import io.ballerinalang.compiler.syntax.tree.QueryExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ReceiveActionNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
-import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RemoteMethodCallActionNode;
-import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
-import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.RestBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
-import io.ballerinalang.compiler.syntax.tree.RetryStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RollbackStatementNode;
-import io.ballerinalang.compiler.syntax.tree.SelectClauseNode;
-import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
-import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
-import io.ballerinalang.compiler.syntax.tree.StartActionNode;
-import io.ballerinalang.compiler.syntax.tree.StatementNode;
-import io.ballerinalang.compiler.syntax.tree.StreamTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.StreamTypeParamsNode;
-import io.ballerinalang.compiler.syntax.tree.SyncSendActionNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.TableConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TableTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TemplateExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TemplateMemberNode;
-import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.syntax.tree.TransactionStatementNode;
-import io.ballerinalang.compiler.syntax.tree.TransactionalExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TypeCastParamNode;
-import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
-import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.TypedescTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
-import io.ballerinalang.compiler.syntax.tree.WaitFieldNode;
-import io.ballerinalang.compiler.syntax.tree.WaitFieldsListNode;
-import io.ballerinalang.compiler.syntax.tree.WhereClauseNode;
-import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
-import io.ballerinalang.compiler.syntax.tree.WildcardBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.XMLAtomicNamePatternNode;
-import io.ballerinalang.compiler.syntax.tree.XMLAttributeNode;
-import io.ballerinalang.compiler.syntax.tree.XMLAttributeValue;
-import io.ballerinalang.compiler.syntax.tree.XMLComment;
-import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
-import io.ballerinalang.compiler.syntax.tree.XMLEmptyElementNode;
-import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
-import io.ballerinalang.compiler.syntax.tree.XMLFilterExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.XMLNameNode;
-import io.ballerinalang.compiler.syntax.tree.XMLNamePatternChainingNode;
-import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
-import io.ballerinalang.compiler.syntax.tree.XMLQualifiedNameNode;
-import io.ballerinalang.compiler.syntax.tree.XMLSimpleNameNode;
-import io.ballerinalang.compiler.syntax.tree.XMLStartTagNode;
-import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
-import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.jvm.IdentifierUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
@@ -420,7 +421,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.ballerinalang.model.elements.Flag.SERVICE;
 import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDICATOR;
@@ -439,7 +439,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BDiagnosticSource diagnosticSource;
 
     private BLangCompilationUnit currentCompilationUnit;
-    private static final Pattern UNICODE_PATTERN = Pattern.compile(Constants.UNICODE_REGEX);
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
 
@@ -1487,11 +1486,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLFunction.addFlag(Flag.ANONYMOUS);
         bLFunction.addFlag(Flag.WORKER);
 
+        if (namedWorkerDeclNode.transactionalKeyword().isPresent()) {
+            bLFunction.addFlag(Flag.TRANSACTIONAL);
+        }
+
         // change default worker name
         String workerName = namedWorkerDeclNode.workerName().text();
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLFunction.defaultWorkerName.originalValue = workerName;
-            workerName = unescapeUnicodeCodepoints(workerName.substring(1));
+            workerName = IdentifierUtils.unescapeUnicodeCodepoints(workerName.substring(1));
         }
         bLFunction.defaultWorkerName.value = workerName;
         bLFunction.defaultWorkerName.pos = getPosition(namedWorkerDeclNode.workerName());
@@ -1528,6 +1531,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 .isDeclaredWithVar()
                 .isFinal()
                 .build();
+
+        if (namedWorkerDeclNode.transactionalKeyword().isPresent()) {
+            var.addFlag(Flag.TRANSACTIONAL);
+        }
 
         BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         lamdaWrkr.pos = workerBodyPos;
@@ -1581,17 +1588,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         this.additionalStatements.push(workerInvoc);
 
         return lamdaWrkr;
-    }
-
-    private String unescapeUnicodeCodepoints(String identifier) {
-        Matcher matcher = UNICODE_PATTERN.matcher(identifier);
-        StringBuffer buffer = new StringBuffer(identifier.length());
-        while (matcher.find()) {
-            String ch = String.valueOf((char) Integer.parseInt(matcher.group(1), 16));
-            matcher.appendReplacement(buffer, Matcher.quoteReplacement(ch));
-        }
-        matcher.appendTail(buffer);
-        return String.valueOf(buffer);
     }
 
     private <A extends BLangNode, B extends Node> List<A> applyAll(NodeList<B> annotations) {
@@ -1787,7 +1783,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLiteralNode.fields.add(bLRecordKeyValueField);
             } else {
                 SpecificFieldNode specificField = (SpecificFieldNode) field;
-                io.ballerinalang.compiler.syntax.tree.ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
+                io.ballerina.compiler.syntax.tree.ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
                 if (valueExpr == null) {
                     BLangRecordLiteral.BLangRecordVarNameField fieldVar =
                             (BLangRecordLiteral.BLangRecordVarNameField) TreeBuilder.createRecordVarRefNameFieldNode();
@@ -1884,7 +1880,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
         }
 
-        io.ballerinalang.compiler.syntax.tree.ExpressionNode containerExpr = fieldAccessExprNode.expression();
+        io.ballerina.compiler.syntax.tree.ExpressionNode containerExpr = fieldAccessExprNode.expression();
         if (containerExpr.kind() == SyntaxKind.BRACED_EXPRESSION) {
             bLFieldBasedAccess.expr = createExpression(((BracedExpressionNode) containerExpr).expression());
         } else {
@@ -2025,7 +2021,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(IndexedExpressionNode indexedExpressionNode) {
         BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexBasedAccess.pos = getPosition(indexedExpressionNode);
-        SeparatedNodeList<io.ballerinalang.compiler.syntax.tree.ExpressionNode> keys =
+        SeparatedNodeList<io.ballerina.compiler.syntax.tree.ExpressionNode> keys =
                 indexedExpressionNode.keyExpression();
         if (keys.size() == 1) {
             indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
@@ -2034,7 +2030,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     (BLangTableMultiKeyExpr) TreeBuilder.createTableMultiKeyExpressionNode();
             multiKeyExpr.pos = getPosition(indexedExpressionNode);
             List<BLangExpression> multiKeyIndexExprs = new ArrayList<>();
-            for (io.ballerinalang.compiler.syntax.tree.ExpressionNode keyExpr : keys) {
+            for (io.ballerina.compiler.syntax.tree.ExpressionNode keyExpr : keys) {
                 multiKeyIndexExprs.add(createExpression(keyExpr));
             }
             multiKeyExpr.multiKeyIndexExprs = multiKeyIndexExprs;
@@ -2539,7 +2535,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(IfElseStatementNode ifElseStmtNode) {
         BLangIf bLIf = (BLangIf) TreeBuilder.createIfElseStatementNode();
         bLIf.pos = getPosition(ifElseStmtNode);
-        trimRight(bLIf.pos, getPosition(ifElseStmtNode.ifBody()));
         bLIf.setCondition(createExpression(ifElseStmtNode.condition()));
         bLIf.setBody((BLangBlockStmt) ifElseStmtNode.ifBody().apply(this));
 
@@ -2632,7 +2627,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private VariableDefinitionNode createBLangVarDef(DiagnosticPos pos, TypedBindingPatternNode typedBindingPattern,
-            Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer, Optional<Token> finalKeyword) {
+            Optional<io.ballerina.compiler.syntax.tree.ExpressionNode> initializer, Optional<Token> finalKeyword) {
         BindingPatternNode bindingPattern = typedBindingPattern.bindingPattern();
         BLangVariable variable = getBLangVariableNode(bindingPattern);
         switch (bindingPattern.kind()) {
@@ -2671,7 +2666,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private VariableDefinitionNode createRecordVariableDef(BLangVariable var, TypeDescriptorNode type,
-            Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer, boolean isFinal) {
+            Optional<io.ballerina.compiler.syntax.tree.ExpressionNode> initializer, boolean isFinal) {
 
         if (isFinal) {
             markVariableAsFinal(var);
@@ -2693,7 +2688,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangTupleVariableDef createTupleVariableDef(BLangVariable tupleVar, TypeDescriptorNode typeDesc,
-            Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer, boolean isFinal) {
+            Optional<io.ballerina.compiler.syntax.tree.ExpressionNode> initializer, boolean isFinal) {
         if (isFinal) {
             markVariableAsFinal(tupleVar);
         }
@@ -2714,7 +2709,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangErrorVariableDef createErrorVariableDef(BLangVariable tupleVar, TypeDescriptorNode typeDesc,
-              Optional<io.ballerinalang.compiler.syntax.tree.ExpressionNode> initializer, boolean isFinal) {
+              Optional<io.ballerina.compiler.syntax.tree.ExpressionNode> initializer, boolean isFinal) {
         if (isFinal) {
             markVariableAsFinal(tupleVar);
         }
@@ -3807,7 +3802,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     bLangMatchClause.addMatchPattern(bLangMatchPattern);
                 }
             }
-            
+
             bLangMatchClause.setBlockStatement((BLangBlockStmt) transform(matchClauseNode.blockStatement()));
             matchStatement.addMatchClause(bLangMatchClause);
         }
@@ -4037,7 +4032,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                             }
                             // Fall through.
                         case ERROR_BINDING_PATTERN:
-                            bLangErrorVariable.cause = (BLangSimpleVariable) getBLangVariableNode(bindingPatternNode);
+                            bLangErrorVariable.cause = getBLangVariableNode(bindingPatternNode);
                             break;
                         case NAMED_ARG_BINDING_PATTERN:
                             NamedArgBindingPatternNode namedArgBindingPatternNode =
@@ -4359,7 +4354,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            bLIdentifer.setValue(unescapeUnicodeCodepoints(value.substring(1)));
+            bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1)));
             bLIdentifer.originalValue = value;
             bLIdentifer.setLiteral(true);
         } else {
@@ -4450,7 +4445,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 text = text.substring(1, text.length() - 1);
             }
             String originalText = text; // to log the errors
-            Matcher matcher = UNICODE_PATTERN.matcher(text);
+            Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
             int position = 0;
             while (matcher.find(position)) {
                 String hexStringVal = matcher.group(1);
@@ -4466,7 +4461,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 }
                 text = matcher.replaceFirst("\\\\u" + fillWithZeros(hexStringVal));
                 position = matcher.end() - 2;
-                matcher = UNICODE_PATTERN.matcher(text);
+                matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
             }
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
                 text = StringEscapeUtils.unescapeJava(text);
@@ -4650,7 +4645,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         Token iToken = (Token) node;
-        BLangIdentifier pkgAlias = this.createIdentifier(getPosition(iToken), "");
+        BLangIdentifier pkgAlias = this.createIdentifier(symTable.builtinPos, "");
         BLangIdentifier name = this.createIdentifier(iToken);
         return new BLangNameReference(getPosition(node), null, pkgAlias, name);
     }

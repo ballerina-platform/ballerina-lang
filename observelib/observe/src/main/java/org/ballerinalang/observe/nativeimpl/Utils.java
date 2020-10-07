@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.observability.metrics.PercentileValue;
 import org.ballerinalang.jvm.observability.metrics.Snapshot;
 import org.ballerinalang.jvm.observability.metrics.StatisticConfig;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -66,7 +65,7 @@ public class Utils {
         return returnMap;
     }
 
-    public static ArrayValue createBSnapshots(Snapshot[] snapshots, Strand strand) {
+    public static ArrayValue createBSnapshots(Snapshot[] snapshots) {
         if (snapshots != null && snapshots.length > 0) {
 
             ArrayValue bSnapshots = new ArrayValueImpl(new BArrayType(SNAPSHOT_TYPE));

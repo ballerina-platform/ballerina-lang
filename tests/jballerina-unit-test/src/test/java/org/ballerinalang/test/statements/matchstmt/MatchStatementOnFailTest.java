@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -33,16 +34,16 @@ import org.testng.annotations.Test;
  */
 public class MatchStatementOnFailTest {
 
-    private CompileResult result, resultNegative, resultNegative2, resultSemanticsNegative;
+    private CompileResult result, resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/matchstmt_on_fail.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/matchstmt_on_fail_negative.bal");
     }
 
     @Test(description = "Test basics of static pattern match statement with fail statement")
     public void testStaticMatchPatternsWithFailStmt() {
-
         BValue[] returns = BRunUtil.invoke(result, "testStaticMatchPatternsWithFailStmt", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BValueArray.class);
@@ -116,5 +117,19 @@ public class MatchStatementOnFailTest {
         Assert.assertEquals(results.getString(++i), msg + "'Default'");
         Assert.assertEquals(results.getString(++i), msg + "'15 & 34'");
         Assert.assertEquals(results.getString(++i), msg + "'true'");
+    }
+
+    @Test(description = "Check not incompatible types and reachable statements.")
+    public void testNegative1() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 5);
+        int i = -1;
+        BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 29, 14);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 59, 7);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 88, 7);
+        BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 90, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 124, 7);
     }
 }

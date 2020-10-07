@@ -113,10 +113,10 @@ public class DependencyScopeTest extends CommandTest {
         buildCommand.execute();
         Assert.assertTrue(Files.exists(balo), "Check if balo directory exists");
 
-        // Check whether dependency jars getting packed to balo
+    // Check whether dependency jars getting packed to balo
         Assert.assertTrue(renameFile(baloFile, baloZipFile));
         Assert.assertFalse(isJarExists(baloZipFile, storedJarPath));
-    }
+}
 
     private boolean renameFile(File oldName, File newName) {
         return oldName.renameTo(newName);

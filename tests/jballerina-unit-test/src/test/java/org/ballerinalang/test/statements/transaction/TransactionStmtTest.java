@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.statements.transaction;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -221,5 +221,12 @@ public class TransactionStmtTest {
     @Test
     public void testInvokeRemoteTransactionalMethodInTransactionalScope() {
         BRunUtil.invoke(programFile, "testInvokeRemoteTransactionalMethodInTransactionalScope");
+    }
+
+    @Test
+    public void testAsyncReturn() {
+        BValue[] result = BRunUtil.invoke(programFile, "testAsyncReturn");
+        Assert.assertTrue(result[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) result[0]).intValue(), 10);
     }
 }
