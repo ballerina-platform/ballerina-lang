@@ -18,32 +18,18 @@
 package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
  * Extern function lang.values:requireType.
  *
  * @since 2.0.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
-        functionName = "requireType",
-        args = {@Argument(name = "v", type = TypeKind.UNION), @Argument(name = "type", type = TypeKind.TYPEDESC)},
-        returnType = {@ReturnType(type = TypeKind.UNION), @ReturnType(type = TypeKind.ERROR)},
-        isPublic = false
-)
 
 public class RequireType {
-    public static Object requireType(Strand strand, Object value, TypedescValue type) {
+    public static Object requireType(Object value, TypedescValue type) {
         if (value instanceof ErrorValue) {
             return value;
         }

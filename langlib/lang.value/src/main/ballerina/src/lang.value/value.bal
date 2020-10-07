@@ -234,4 +234,7 @@ public isolated function mergeJson(json j1, json j2) returns json|error = @java:
 # + v - field value of map<json> or json value
 # + t - basic simple type to convert to
 # + return - value belonging to `t`, or error if this cannot be done
-public function requireType(any|error v, typedesc<any> t) returns any|error = external;
+public isolated function requireType(any|error v, typedesc<any> t) returns any|error =  @java:Method {
+    'class: "org.ballerinalang.langlib.value.RequireType",
+    name: "requireType"
+} external;
