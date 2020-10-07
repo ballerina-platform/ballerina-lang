@@ -1,0 +1,2 @@
+description: The ballerina/config module in Ballerina provides an API to read configurations from various sources such as files, environment variables and CLI parameters.
+keywords: ballerina, ballerina by example, bbe, config api, config management, configuration
