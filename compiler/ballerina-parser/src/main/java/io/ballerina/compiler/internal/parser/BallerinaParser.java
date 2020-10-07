@@ -2396,11 +2396,11 @@ public class BallerinaParser extends AbstractParser {
     }
     /**
      * <p>
-     * Get the operator kind to insert during recovery, given the precedence level.
+     * Get the operator context to insert during recovery, given the precedence level.
      * </p>
      *
      * @param opPrecedenceLevel Precedence of the given operator
-     * @return Kind of the operator to insert
+     * @return Context of the missing operator
      */
     private ParserRuleContext getMissingBinaryOperatorContext(OperatorPrecedence opPrecedenceLevel) {
         switch (opPrecedenceLevel) {
