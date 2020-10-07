@@ -101,6 +101,7 @@ dependencies {
     dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
     
     dist project(':ballerina-tools-api')
+    dist project(':ballerina-compiler-api')
     dist project(':ballerina-parser')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
