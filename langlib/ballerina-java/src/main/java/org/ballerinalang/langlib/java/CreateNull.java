@@ -15,24 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.nativeimpl.java;
+package org.ballerinalang.langlib.java;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
 
 /**
- * This class contains the implementation of the "setArrayElement" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "createNull" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
-public class SetArrayElement {
+public class CreateNull {
 
-    public static void setArrayElement(Strand strand, HandleValue arrayValue, long index, HandleValue value) {
-        Object[] arr = (Object[]) arrayValue.getValue();
-        if (arr == null) {
-            throw JValues.getJavaNullReferenceError();
-        }
-        JValues.rangeCheck(index, arr);
-        arr[(int) index] = value.getValue();
+    public static HandleValue createNull() {
+        return new HandleValue(null);
     }
 }

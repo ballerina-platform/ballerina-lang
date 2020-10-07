@@ -15,23 +15,24 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.nativeimpl.java;
+package org.ballerinalang.langlib.java;
 
 import org.ballerinalang.jvm.values.HandleValue;
 
 /**
- * This class contains the implementation of the "getArrayLength" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "getArrayElement" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
+public class GetArrayElement {
 
-public class GetArrayLength {
-
-    public static long getArrayLength(HandleValue arrayValue) {
+    public static HandleValue getArrayElement(HandleValue arrayValue, long index) {
         Object[] arr = (Object[]) arrayValue.getValue();
         if (arr == null) {
             throw JValues.getJavaNullReferenceError();
         }
-        return arr.length;
+
+        JValues.rangeCheck(index, arr);
+        return new HandleValue(arr[(int) index]);
     }
 }
