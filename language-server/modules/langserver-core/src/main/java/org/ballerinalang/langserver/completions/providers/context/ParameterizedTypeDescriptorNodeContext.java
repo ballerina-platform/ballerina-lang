@@ -15,10 +15,10 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;

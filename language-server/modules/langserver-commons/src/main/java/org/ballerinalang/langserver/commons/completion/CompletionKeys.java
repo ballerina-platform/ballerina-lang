@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langserver.commons.completion;
 
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.CompletionCapabilities;

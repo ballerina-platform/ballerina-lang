@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;

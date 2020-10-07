@@ -104,6 +104,7 @@ dependencies {
     dist project(':ballerina-parser')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
+    dist project(':ballerina-tools-api')
     dist project(':ballerina-cli-module')
     dist project(':ballerina-rt')
     dist project(':ballerina-choreo-extension-rt')
@@ -116,10 +117,6 @@ dependencies {
     dist project(':language-server:language-server-compiler')
     dist project(':language-server:language-server-commons')
     dist project(':ballerina-packerina')
-    dist project(':openapi-ballerina:ballerina-to-openapi-generator')
-    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
-    dist project(':openapi-ballerina:openapi-validator')
-    dist project(':openapi-ballerina:ballerina-client-generator')
     dist project(':docerina')
     dist project(':observerability-symbol-collector')
     dist project(':testerina:testerina-runtime')
@@ -131,8 +128,8 @@ dependencies {
     langserverLib project(':language-server:language-server-stdio-launcher')
     langserverLib project(':language-server:language-server-cli')
     langserverLib project(':language-server:language-server-core')
-    debugAdapterDistribution project(':debug-adapter:debug-adapter-core')
-    debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
+//    debugAdapterDistribution project(':debug-adapter:debug-adapter-core')
+//    debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
 
     balSource project(path: ':jballerina', configuration: 'source')
 
@@ -154,12 +151,12 @@ dependencies {
     balxBir project(path: ':ballerina-java', configuration: 'bir')
 
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-openapi', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
+//    balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
 
     // Lang Libs
     balDoc project(path: ':ballerina-lang:internal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:annotations', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-java', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:array', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:decimal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:error', configuration: 'balDoc')

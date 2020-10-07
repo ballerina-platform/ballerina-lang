@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;

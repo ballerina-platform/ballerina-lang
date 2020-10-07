@@ -206,4 +206,12 @@
         <Class name="org.wso2.ballerinalang.compiler.diagnostic.DiagnosticComparator"/>
         <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE"/>
     </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer$OptimizerEnv"/>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
 </FindBugsFilter>

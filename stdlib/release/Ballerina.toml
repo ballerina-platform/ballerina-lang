@@ -1,5 +1,5 @@
 [project]
-org-name= "ballerina-stdlib"
+org-name= "ballerina_stdlib"
 version= "0.1.0"
 
 [dependencies]

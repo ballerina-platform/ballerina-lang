@@ -1,0 +1,5 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="org.ballerinalang.observability.anaylze.DefaultObservabilitySymbolCollector" />
+    </Match>
+</FindBugsFilter>

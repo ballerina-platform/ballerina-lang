@@ -44,6 +44,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -257,7 +258,7 @@ class JMethodResolver {
         if (jMethod.getReceiverType() != null) {
             Class<?> jParamType = jParamTypes[0];
             BType bParamType = jMethod.getReceiverType();
-            if (!isValidParamBType(jParamTypes[0], bParamType, jMethodRequest)) {
+            if (!isValidParamBType(jParamTypes[0], bParamType, false, jMethodRequest.restParamExist)) {
                 throw getNoSuchMethodError(jMethodRequest.methodName, jParamType, bParamType,
                                            jMethodRequest.declaringClass);
             }
@@ -271,7 +272,9 @@ class JMethodResolver {
             }
 
             BType receiverType = bParamTypes[0];
-            if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, jMethodRequest)) {
+            boolean isLastParam = bParamTypes.length == 1;
+            if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, isLastParam,
+                    jMethodRequest.restParamExist)) {
                 throw getNoSuchMethodError(jMethodRequest.methodName, jParamTypes[0], receiverType,
                                            jMethodRequest.declaringClass);
             }
@@ -285,7 +288,8 @@ class JMethodResolver {
         for (int k = j; k < jParamTypes.length; i++, k++) {
             BType bParamType = bParamTypes[i];
             Class<?> jParamType = jParamTypes[k];
-            if (!isValidParamBType(jParamType, bParamType, jMethodRequest)) {
+            boolean isLastPram = jParamTypes.length == k + 1;
+            if (!isValidParamBType(jParamType, bParamType, isLastPram, jMethodRequest.restParamExist)) {
                 throw getNoSuchMethodError(jMethodRequest.methodName, jParamType, bParamType,
                         jMethodRequest.declaringClass);
             }
@@ -309,7 +313,7 @@ class JMethodResolver {
         }
     }
 
-    private boolean isValidParamBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest) {
+    private boolean isValidParamBType(Class<?> jType, BType bType, boolean isLastParam, boolean restParamExist) {
 
         try {
             String jTypeName = jType.getTypeName();
@@ -380,7 +384,7 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
-                    return isValidListType(jType, jMethodRequest);
+                    return isValidListType(jType, isLastParam, restParamExist);
                 case TypeTags.UNION:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -389,7 +393,7 @@ class JMethodResolver {
                     Set<BType> members = ((BUnionType) bType).getMemberTypes();
                     // for method arguments, all ballerina member types should be assignable to java-type.
                     for (BType member : members) {
-                        if (!isValidParamBType(jType, member, jMethodRequest)) {
+                        if (!isValidParamBType(jType, member, isLastParam, restParamExist)) {
                             return false;
                         }
                     }
@@ -397,15 +401,17 @@ class JMethodResolver {
                 case TypeTags.READONLY:
                     return jTypeName.equals(J_OBJECT_TNAME);
                 case TypeTags.INTERSECTION:
-                    return isValidParamBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest);
+                    return isValidParamBType(jType, ((BIntersectionType) bType).effectiveType, isLastParam,
+                            restParamExist);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
 
                     Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
-                    for (BLangExpression value : valueSpace) {
-                        if (!isValidParamBType(jType, value.type, jMethodRequest)) {
+                    for (Iterator<BLangExpression> iterator = valueSpace.iterator(); iterator.hasNext(); ) {
+                        BLangExpression value = iterator.next();
+                        if (!isValidParamBType(jType, value.type, isLastParam, restParamExist)) {
                             return false;
                         }
                     }
@@ -523,7 +529,7 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
-                    return isValidListType(jType, jMethodRequest);
+                    return isValidListType(jType, true, jMethodRequest.restParamExist);
                 case TypeTags.UNION:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -573,8 +579,9 @@ class JMethodResolver {
         }
     }
 
-    private boolean isValidListType(Class<?> jType, JMethodRequest jMethodRequest) throws ClassNotFoundException {
-        if (jMethodRequest.restParamExist) {
+    private boolean isValidListType(Class<?> jType, boolean isLastParam, boolean restParamExists)
+            throws ClassNotFoundException {
+        if (isLastParam && restParamExists) {
             return jType.isArray();
         }
         return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
@@ -606,7 +613,7 @@ class JMethodResolver {
                 isAssignableFrom(BTypedesc.class, jType) ||
                 isAssignableFrom(BHandle.class, jType) ||
                 isAssignableFrom(BXML.class, jType) ||
-                this.isValidListType(jType, jMethodRequest) ||
+                this.isValidListType(jType, true, jMethodRequest.restParamExist) ||
                 isAssignableFrom(BMap.class, jType) ||
                 isAssignableFrom(TableValue.class, jType);
     }
