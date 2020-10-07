@@ -92,6 +92,8 @@ public class SymbolAtCursorTest {
                 {60, 12, "self"},
                 {64, 24, "fname"},
                 {64, 42, "lname"},
+                {73, 5, "test"},
+                {73, 8, "test"},
         };
     }
 
