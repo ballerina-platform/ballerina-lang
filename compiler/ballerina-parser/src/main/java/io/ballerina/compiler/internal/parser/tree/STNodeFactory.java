@@ -53,6 +53,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode qualifierList,
             STNode functionKeyword,
             STNode functionName,
+            STNode relativeResourcePath,
             STNode functionSignature,
             STNode functionBody) {
 
@@ -62,6 +63,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 qualifierList,
                 functionKeyword,
                 functionName,
+                relativeResourcePath,
                 functionSignature,
                 functionBody);
     }
@@ -2309,25 +2311,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openBrace,
                 members,
                 closeBrace);
-    }
-
-    public static STNode createResourceAccessorDefinitionNode(
-            STNode metadata,
-            STNode qualifierList,
-            STNode functionKeyword,
-            STNode accessorName,
-            STNode relativeResourcePath,
-            STNode functionSignature,
-            STNode functionBody) {
-
-        return new STResourceAccessorDefinitionNode(
-                metadata,
-                qualifierList,
-                functionKeyword,
-                accessorName,
-                relativeResourcePath,
-                functionSignature,
-                functionBody);
     }
 }
 

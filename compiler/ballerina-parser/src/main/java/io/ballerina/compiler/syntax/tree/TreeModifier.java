@@ -57,6 +57,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(functionDefinitionNode.functionKeyword());
         IdentifierToken functionName =
                 modifyNode(functionDefinitionNode.functionName());
+        NodeList<Token> relativeResourcePath =
+                modifyNodeList(functionDefinitionNode.relativeResourcePath());
         FunctionSignatureNode functionSignature =
                 modifyNode(functionDefinitionNode.functionSignature());
         FunctionBodyNode functionBody =
@@ -67,6 +69,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 qualifierList,
                 functionKeyword,
                 functionName,
+                relativeResourcePath,
                 functionSignature,
                 functionBody);
     }
@@ -3133,33 +3136,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openBrace,
                 members,
                 closeBrace);
-    }
-
-    @Override
-    public ResourceAccessorDefinitionNode transform(
-            ResourceAccessorDefinitionNode resourceAccessorDefinitionNode) {
-        MetadataNode metadata =
-                modifyNode(resourceAccessorDefinitionNode.metadata().orElse(null));
-        NodeList<Token> qualifierList =
-                modifyNodeList(resourceAccessorDefinitionNode.qualifierList());
-        Token functionKeyword =
-                modifyToken(resourceAccessorDefinitionNode.functionKeyword());
-        IdentifierToken accessorName =
-                modifyNode(resourceAccessorDefinitionNode.accessorName());
-        NodeList<Token> relativeResourcePath =
-                modifyNodeList(resourceAccessorDefinitionNode.relativeResourcePath());
-        FunctionSignatureNode functionSignature =
-                modifyNode(resourceAccessorDefinitionNode.functionSignature());
-        FunctionBodyNode functionBody =
-                modifyNode(resourceAccessorDefinitionNode.functionBody());
-        return resourceAccessorDefinitionNode.modify(
-                metadata,
-                qualifierList,
-                functionKeyword,
-                accessorName,
-                relativeResourcePath,
-                functionSignature,
-                functionBody);
     }
 
     // Tokens

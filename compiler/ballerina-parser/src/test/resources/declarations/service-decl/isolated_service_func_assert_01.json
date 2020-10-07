@@ -105,6 +105,10 @@
               "value": "foo1"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "children": [
                 {
@@ -236,6 +240,10 @@
             {
               "kind": "IDENTIFIER_TOKEN",
               "value": "foo2"
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_SIGNATURE",
@@ -402,6 +410,10 @@
               "value": "foo3"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "children": [
                 {
@@ -548,6 +560,10 @@
               "value": "foo4"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "children": [
                 {
@@ -691,6 +707,10 @@
               "value": "foo5"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "children": [
                 {
@@ -805,6 +825,10 @@
               "value": "foo6"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "children": [
                 {
@@ -910,6 +934,10 @@
               "value": "foo7"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "children": [
                 {
@@ -1004,6 +1032,10 @@
             {
               "kind": "IDENTIFIER_TOKEN",
               "value": "foo8"
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_SIGNATURE",

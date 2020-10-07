@@ -803,10 +803,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(classDefinitionNode);
     }
 
-    public void visit(ResourceAccessorDefinitionNode resourceAccessorDefinitionNode) {
-        visitSyntaxNode(resourceAccessorDefinitionNode);
-    }
-
     // Tokens
 
     public void visit(Token token) {

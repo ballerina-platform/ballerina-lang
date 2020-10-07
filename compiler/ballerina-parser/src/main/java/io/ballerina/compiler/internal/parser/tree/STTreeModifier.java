@@ -46,6 +46,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode qualifierList = modifyNode(functionDefinitionNode.qualifierList);
         STNode functionKeyword = modifyNode(functionDefinitionNode.functionKeyword);
         STNode functionName = modifyNode(functionDefinitionNode.functionName);
+        STNode relativeResourcePath = modifyNode(functionDefinitionNode.relativeResourcePath);
         STNode functionSignature = modifyNode(functionDefinitionNode.functionSignature);
         STNode functionBody = modifyNode(functionDefinitionNode.functionBody);
         return functionDefinitionNode.modify(
@@ -54,6 +55,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 qualifierList,
                 functionKeyword,
                 functionName,
+                relativeResourcePath,
                 functionSignature,
                 functionBody);
     }
@@ -2480,26 +2482,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 openBrace,
                 members,
                 closeBrace);
-    }
-
-    @Override
-    public STResourceAccessorDefinitionNode transform(
-            STResourceAccessorDefinitionNode resourceAccessorDefinitionNode) {
-        STNode metadata = modifyNode(resourceAccessorDefinitionNode.metadata);
-        STNode qualifierList = modifyNode(resourceAccessorDefinitionNode.qualifierList);
-        STNode functionKeyword = modifyNode(resourceAccessorDefinitionNode.functionKeyword);
-        STNode accessorName = modifyNode(resourceAccessorDefinitionNode.accessorName);
-        STNode relativeResourcePath = modifyNode(resourceAccessorDefinitionNode.relativeResourcePath);
-        STNode functionSignature = modifyNode(resourceAccessorDefinitionNode.functionSignature);
-        STNode functionBody = modifyNode(resourceAccessorDefinitionNode.functionBody);
-        return resourceAccessorDefinitionNode.modify(
-                metadata,
-                qualifierList,
-                functionKeyword,
-                accessorName,
-                relativeResourcePath,
-                functionSignature,
-                functionBody);
     }
 
     // Tokens

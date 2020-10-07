@@ -497,6 +497,10 @@
               "value": "foo"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "children": [
                 {

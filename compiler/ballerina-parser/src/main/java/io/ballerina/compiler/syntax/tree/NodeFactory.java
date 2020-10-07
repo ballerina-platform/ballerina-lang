@@ -55,11 +55,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken functionName,
+            NodeList<Token> relativeResourcePath,
             FunctionSignatureNode functionSignature,
             FunctionBodyNode functionBody) {
         Objects.requireNonNull(qualifierList, "qualifierList must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
         Objects.requireNonNull(functionName, "functionName must not be null");
+        Objects.requireNonNull(relativeResourcePath, "relativeResourcePath must not be null");
         Objects.requireNonNull(functionSignature, "functionSignature must not be null");
         Objects.requireNonNull(functionBody, "functionBody must not be null");
 
@@ -69,6 +71,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 qualifierList.underlyingListNode().internalNode(),
                 functionKeyword.internalNode(),
                 functionName.internalNode(),
+                relativeResourcePath.underlyingListNode().internalNode(),
                 functionSignature.internalNode(),
                 functionBody.internalNode());
         return stFunctionDefinitionNode.createUnlinkedFacade();
@@ -3059,32 +3062,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 members.underlyingListNode().internalNode(),
                 closeBrace.internalNode());
         return stClassDefinitionNode.createUnlinkedFacade();
-    }
-
-    public static ResourceAccessorDefinitionNode createResourceAccessorDefinitionNode(
-            MetadataNode metadata,
-            NodeList<Token> qualifierList,
-            Token functionKeyword,
-            IdentifierToken accessorName,
-            NodeList<Token> relativeResourcePath,
-            FunctionSignatureNode functionSignature,
-            FunctionBodyNode functionBody) {
-        Objects.requireNonNull(qualifierList, "qualifierList must not be null");
-        Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
-        Objects.requireNonNull(accessorName, "accessorName must not be null");
-        Objects.requireNonNull(relativeResourcePath, "relativeResourcePath must not be null");
-        Objects.requireNonNull(functionSignature, "functionSignature must not be null");
-        Objects.requireNonNull(functionBody, "functionBody must not be null");
-
-        STNode stResourceAccessorDefinitionNode = STNodeFactory.createResourceAccessorDefinitionNode(
-                getOptionalSTNode(metadata),
-                qualifierList.underlyingListNode().internalNode(),
-                functionKeyword.internalNode(),
-                accessorName.internalNode(),
-                relativeResourcePath.underlyingListNode().internalNode(),
-                functionSignature.internalNode(),
-                functionBody.internalNode());
-        return stResourceAccessorDefinitionNode.createUnlinkedFacade();
     }
 }
 

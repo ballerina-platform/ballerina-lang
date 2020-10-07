@@ -107,6 +107,10 @@
               "value": "foo"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "children": [
                 {
@@ -252,6 +256,10 @@
             {
               "kind": "IDENTIFIER_TOKEN",
               "value": "baz"
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_SIGNATURE",

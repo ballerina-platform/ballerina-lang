@@ -1027,8 +1027,9 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
+        STNode resourcePath = STNodeFactory.createEmptyNodeList();
         return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.FUNCTION_DEFINITION, metadata, qualifiers,
-                functionKeyword, name, funcSignature, body);
+                functionKeyword, name, resourcePath, funcSignature, body);
     }
 
     /**
@@ -1068,8 +1069,9 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
+        STNode resourcePath = STNodeFactory.createEmptyNodeList();
         return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.OBJECT_METHOD_DEFINITION, metadata, qualifiers,
-                functionKeyword, name, funcSignature, body);
+                functionKeyword, name, resourcePath, funcSignature, body);
     }
 
     /**
@@ -1192,8 +1194,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
-        return STNodeFactory.createResourceAccessorDefinitionNode(metadata, qualifiers, functionKeyword, name,
-                resourcePath, funcSignature, body);
+        return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.RESOURCE_ACCESSOR_DEFINITION, metadata, qualifiers,
+                functionKeyword, name, resourcePath, funcSignature, body);
     }
 
     /**
