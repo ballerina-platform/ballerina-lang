@@ -6175,7 +6175,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 boolean isConvertible = true;
                 for (BType expectedType : expectedTypes) {
-                    if (!(types.isSimpleBasicType(expectedType.tag) || expectedType.tag == TypeTags.JSON)) {
+                    if (!((expectedType.tag != TypeTags.BOOLEAN && types.isSimpleBasicType(expectedType.tag))
+                            || expectedType.tag == TypeTags.JSON)) {
                         isConvertible = false;
                         break;
                     }
