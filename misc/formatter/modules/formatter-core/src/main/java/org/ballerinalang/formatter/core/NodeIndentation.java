@@ -15,12 +15,12 @@
  */
 package org.ballerinalang.formatter.core;
 
-import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +74,10 @@ class NodeIndentation {
                 (grandParent.kind() != SyntaxKind.TYPE_CAST_PARAM) && parent.children().get(0).equals(node))) {
             addSpaces = true;
         }
+        if (parent != null && grandParent != null && (parent.kind() == (SyntaxKind.UNION_TYPE_DESC) &&
+                (grandParent.kind() == SyntaxKind.PARENTHESISED_TYPE_DESC) && parent.children().get(0).equals(node))) {
+            addSpaces = false;
+        }
         return getStartColumn(node, addSpaces, options);
     }
 
@@ -122,6 +126,10 @@ class NodeIndentation {
                 parent.parent().kind() == SyntaxKind.LET_VAR_DECL) {
             addSpaces = false;
         }
+        if (parent != null && parent.kind() == SyntaxKind.UNION_TYPE_DESC && parent.parent() != null &&
+                parent.parent().kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
+            addSpaces = true;
+        }
         if (parent != null && parent.kind() == SyntaxKind.FIELD_BINDING_PATTERN && parent.parent() != null &&
                 parent.parent().kind() == SyntaxKind.MAPPING_BINDING_PATTERN) {
             addSpaces = true;
@@ -142,6 +150,10 @@ class NodeIndentation {
         NonTerminalNode parent = node.parent();
         boolean addSpaces = false;
         if (parent != null && parent.kind() == (SyntaxKind.TYPED_BINDING_PATTERN)) {
+            addSpaces = true;
+        }
+        if (parent != null && parent.kind() == SyntaxKind.UNION_TYPE_DESC && parent.parent() != null &&
+                parent.parent().kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
             addSpaces = true;
         }
         if (parent != null && parent.kind() == (SyntaxKind.FUNCTION_CALL) && parent.parent() != null &&

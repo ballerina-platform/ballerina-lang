@@ -17,9 +17,9 @@
  */
 package io.ballerina.projects.test;
 
-import io.ballerina.projects.BirWriter;
-import io.ballerina.projects.Module;
-import io.ballerina.projects.Package;
+import io.ballerina.build.BirWriter;
+import io.ballerina.build.Module;
+import io.ballerina.build.Package;
 import io.ballerina.projects.directory.BuildProject;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.testng.Assert;

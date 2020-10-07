@@ -17,6 +17,10 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.build.DocumentId;
+import io.ballerina.build.Module;
+import io.ballerina.build.ModuleId;
+import io.ballerina.build.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.utils.ProjectConstants;

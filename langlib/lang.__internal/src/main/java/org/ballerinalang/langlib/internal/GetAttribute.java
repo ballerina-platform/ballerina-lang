@@ -20,13 +20,8 @@ package org.ballerinalang.langlib.internal;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.api.BErrorCreator.createError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
@@ -36,17 +31,9 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OP
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0",
-        functionName = "getAttribute",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML),
-                @Argument(name = "attrName", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
 public class GetAttribute {
 
-    public static Object getAttribute(Strand strand, XMLValue xmlVal, BString attrName, boolean optionalFiledAccess) {
+    public static Object getAttribute(XMLValue xmlVal, BString attrName, boolean optionalFiledAccess) {
         if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE && xmlVal.size() == 0) {
             return null;
         }

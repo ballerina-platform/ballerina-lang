@@ -17,16 +17,16 @@
  */
 package io.ballerina.projects.directory;
 
-import io.ballerina.projects.DocumentConfig;
-import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.ModuleConfig;
-import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.ModuleName;
-import io.ballerina.projects.PackageConfig;
-import io.ballerina.projects.PackageId;
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
+import io.ballerina.build.DocumentConfig;
+import io.ballerina.build.DocumentId;
+import io.ballerina.build.ModuleConfig;
+import io.ballerina.build.ModuleId;
+import io.ballerina.build.ModuleName;
+import io.ballerina.build.PackageConfig;
+import io.ballerina.build.PackageId;
+import io.ballerina.build.PackageName;
+import io.ballerina.build.PackageOrg;
+import io.ballerina.build.PackageVersion;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.model.BallerinaTomlProcessor;
 import org.ballerinalang.toml.exceptions.TomlException;

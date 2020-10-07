@@ -21,16 +21,10 @@ package org.ballerinalang.langlib.map;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.jvm.MapUtils.validateRequiredFieldForRecord;
-import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**
  * Extern function to remove element from the map if key exists.
@@ -38,15 +32,9 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "removeIfHasKey",
-        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ANY)},
-        isPublic = true
-)
 public class RemoveIfHasKey {
 
-    public static Object removeIfHasKey(Strand strand, MapValue<?, ?> m, BString k) {
+    public static Object removeIfHasKey(MapValue<?, ?> m, BString k) {
         String op = "removeIfHasKey()";
 
         checkIsMapOnlyOperation(m.getType(), op);

@@ -170,15 +170,22 @@ public class BaloFiles {
             throw new RuntimeException("'modules' directory does not exists:" + modulesDirPath);
         }
 
-        try (Stream<Path> pathStream = Files.walk(modulesDirPath, 1)) {
+        Stream<Path> pathStream = null;
+        try {
+            pathStream = Files.walk(modulesDirPath, 1);
             return pathStream
                     .filter(path -> !path.equals(modulesDirPath))
-                    .filter(path -> !String.valueOf(path.getFileName()).equals(defaultModulePath.getFileName() + "/"))
+                    .filter(path -> path.getFileName() != null
+                            && !path.getFileName().equals(defaultModulePath.getFileName()))
                     .filter(Files::isDirectory)
                     .map(BaloFiles::loadModule)
                     .collect(Collectors.toList());
         } catch (IOException e) {
             throw new RuntimeException("unable to load modules from directory:" + e.getMessage());
+        } finally {
+            if (pathStream != null) {
+                pathStream.close();
+            }
         }
     }
 }

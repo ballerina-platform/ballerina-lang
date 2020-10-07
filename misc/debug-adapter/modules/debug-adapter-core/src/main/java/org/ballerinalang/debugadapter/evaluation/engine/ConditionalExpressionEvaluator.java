@@ -16,7 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
-import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
+import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
