@@ -32,12 +32,12 @@ public interface TupleTypeDescriptor extends BallerinaTypeDescriptor {
      *
      * @return {@link List} of member types
      */
-    List<BallerinaTypeDescriptor> memberTypes();
+    List<BallerinaTypeDescriptor> memberTypeDescriptors();
 
     /**
      * Get the rest type descriptor.
      *
      * @return {@link Optional} rest type
      */
-    Optional<BallerinaTypeDescriptor> restType();
+    Optional<BallerinaTypeDescriptor> restTypeDescriptor();
 }

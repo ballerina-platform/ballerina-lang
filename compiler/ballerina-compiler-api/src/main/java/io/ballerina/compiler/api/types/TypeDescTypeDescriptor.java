@@ -31,5 +31,5 @@ public interface TypeDescTypeDescriptor extends BallerinaTypeDescriptor {
      *
      * @return {@link Optional} parameter type
      */
-    Optional<BallerinaTypeDescriptor> getTypeParameter();
+    Optional<BallerinaTypeDescriptor> typeParameter();
 }

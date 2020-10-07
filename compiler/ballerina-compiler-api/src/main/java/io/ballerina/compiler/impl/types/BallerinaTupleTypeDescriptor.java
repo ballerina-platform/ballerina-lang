@@ -45,7 +45,7 @@ public class BallerinaTupleTypeDescriptor extends AbstractTypeDescriptor impleme
     }
 
     @Override
-    public List<BallerinaTypeDescriptor> memberTypes() {
+    public List<BallerinaTypeDescriptor> memberTypeDescriptors() {
         if (this.memberTypes == null) {
             this.memberTypes = new ArrayList<>();
             for (BType type : ((BTupleType) this.getBType()).tupleTypes) {
@@ -57,7 +57,7 @@ public class BallerinaTupleTypeDescriptor extends AbstractTypeDescriptor impleme
     }
 
     @Override
-    public Optional<BallerinaTypeDescriptor> restType() {
+    public Optional<BallerinaTypeDescriptor> restTypeDescriptor() {
         if (this.restTypeDesc == null) {
             this.restTypeDesc = TypesFactory.getTypeDescriptor(((BTupleType) this.getBType()).restType);
         }
@@ -68,12 +68,12 @@ public class BallerinaTupleTypeDescriptor extends AbstractTypeDescriptor impleme
     @Override
     public String signature() {
         StringJoiner joiner = new StringJoiner(",");
-        for (BallerinaTypeDescriptor typeDescriptorImpl : memberTypes()) {
+        for (BallerinaTypeDescriptor typeDescriptorImpl : memberTypeDescriptors()) {
             String typeDescriptorSignature = typeDescriptorImpl.signature();
             joiner.add(typeDescriptorSignature);
         }
-        if (restType().isPresent()) {
-            joiner.add("..." + restType().get().signature());
+        if (restTypeDescriptor().isPresent()) {
+            joiner.add("..." + restTypeDescriptor().get().signature());
         }
 
         return "[" + joiner.toString() + "]";

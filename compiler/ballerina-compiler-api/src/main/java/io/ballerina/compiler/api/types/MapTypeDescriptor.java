@@ -31,5 +31,5 @@ public interface MapTypeDescriptor extends BallerinaTypeDescriptor {
      *
      * @return {@link BallerinaTypeDescriptor} of the members
      */
-    Optional<BallerinaTypeDescriptor> getMemberTypeDescriptor();
+    Optional<BallerinaTypeDescriptor> typeParameter();
 }
