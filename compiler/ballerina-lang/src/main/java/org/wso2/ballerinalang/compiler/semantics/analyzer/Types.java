@@ -3551,7 +3551,7 @@ public class Types {
         }
     }
 
-    private boolean isSimpleBasicType(int tag) {
+    public boolean isSimpleBasicType(int tag) {
         switch (tag) {
             case TypeTags.BYTE:
             case TypeTags.FLOAT:

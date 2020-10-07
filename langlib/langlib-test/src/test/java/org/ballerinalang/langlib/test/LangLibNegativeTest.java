@@ -41,9 +41,7 @@ public class LangLibNegativeTest {
     @Test
     public void testLangLibNegative() {
         int err = 0;
-        //testTypeParamNegative
         BAssertUtil.validateError(negativeResult, err++, "undefined function 'indexOf' in type 'map<string>'", 19, 47);
-        //testRequireTypeNegative
         BAssertUtil.validateError(negativeResult, err++, "invalid operation: type 'float[]' does not support " +
                 "field access for assignment", 25, 25);
         BAssertUtil.validateError(negativeResult, err++, "invalid operation: type 'boolean' does not support " +

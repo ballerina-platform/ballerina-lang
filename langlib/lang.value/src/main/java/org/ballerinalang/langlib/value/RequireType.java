@@ -32,7 +32,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 /**
  * Extern function lang.values:requireType.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
@@ -47,8 +47,7 @@ public class RequireType {
         if (value instanceof ErrorValue) {
             return value;
         }
-        BType describingType = type.getDescribingType();
-        return convert(describingType, value);
+        return convert(type.getDescribingType(), value);
     }
 
     public static Object convert(BType convertType, Object inputValue) {

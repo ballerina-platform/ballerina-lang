@@ -202,7 +202,7 @@ public isolated function fromJsonStringWithType(string str, typedesc<anydata> t)
 public isolated function mergeJson(json j1, json j2) returns json|error = external;
 
 # Converts a field in map<json> to a user-specified basic simple type.
-# basic simple types are ()|int|float|decimal|string.
+# The basic simple types are ()|int|float|decimal|string.
 # + v - field value of map<json> or json value
 # + t - basic simple type to convert to
 # + return - value belonging to `t`, or error if this cannot be done

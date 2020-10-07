@@ -1053,8 +1053,25 @@ function assert(anydata actual, anydata expected) {
 
 ///////////////////////// Tests for `requireType()` ///////////////////////////
 
-json  p = {name: "Chiran", age: 24, email: "chirans", height: 178.5, weight: 72.5, property: (), address: [125.0/3, "xyz street",
-{province: "southern", Country: "Sri Lanka"}, 81000], married: false, bloodType: {group: "O", RHD: "+"}};
+json  p = {
+    name: "Chiran",
+    age: 24,
+    email: "chirans",
+    height: 178.5,
+    weight: 72.5,
+    property: (), 
+    address: [
+        125.0/3,
+        "xyz street",
+        {province: "southern", Country: "Sri Lanka"},
+        81000
+        ],
+    married: false,
+    bloodType: {
+        group: "O",
+        RHD: "+"
+    }
+};
 
 function testRequireTypeWithInt() returns int|error {
     int age = check p.age;
@@ -1159,27 +1176,27 @@ function testRequireType() {
     json w1 = 72.5;
     float|int w2 = 72.5;
     float|string name2 = "Chiran";
-    assert(<int> testRequireTypeWithInt(), 24);
-    assert(<int> testRequireTypeWithInt2(), 178);
-    assert(<int> testRequireTypeWithInt3(), 0);
-    assert(<decimal> testRequireTypeWithDecimal(), h);
-    assert(<decimal> testRequireTypeWithDecimal2(), 24);
-    assert(<()> testRequireTypeWithNil(), ());
-    assert( <string> testRequireTypeWithString(), "Chiran");
-    assert(<float> testRequireTypeWithFloat(), w1);
-    assert(<float|int> testRequireTypeWithUnion1(), w2);
-    assert(<float|string> testRequireTypeWithUnion2(), name2);
-    assert(<json> testRequireTypeWithJson1(), 24);
-    assert(<json> testRequireTypeWithJson2(),h1);
-    assert(<json> testRequireTypeWithJson3(), {group: "O", RHD: "+"});
-    assert(<json> testRequireTypeWithJson4(), [125.0/3, "xyz street",
+    assert(<int>testRequireTypeWithInt(), 24);
+    assert(<int>testRequireTypeWithInt2(), 178);
+    assert(<int>testRequireTypeWithInt3(), 0);
+    assert(<decimal>testRequireTypeWithDecimal(), h);
+    assert(<decimal>testRequireTypeWithDecimal2(), 24);
+    assert(<()>testRequireTypeWithNil(), ());
+    assert( <string>testRequireTypeWithString(), "Chiran");
+    assert(<float>testRequireTypeWithFloat(), w1);
+    assert(<float|int>testRequireTypeWithUnion1(), w2);
+    assert(<float|string>testRequireTypeWithUnion2(), name2);
+    assert(<json>testRequireTypeWithJson1(), 24);
+    assert(<json>testRequireTypeWithJson2(),h1);
+    assert(<json>testRequireTypeWithJson3(), {group: "O", RHD: "+"});
+    assert(<json>testRequireTypeWithJson4(), [125.0/3, "xyz street",
     {province: "southern", Country: "Sri Lanka"}, 81000]);
-    assert(<json> testRequireTypeWithJson5(), 72.5);
-    assert(<json> testRequireTypeWithJson6(), false);
-    assert(<boolean> testRequireTypeWithCast1(), false);
-    assert(<json[]> testRequireTypeWithCast2(), [125.0/3, "xyz street",
+    assert(<json>testRequireTypeWithJson5(), 72.5);
+    assert(<json>testRequireTypeWithJson6(), false);
+    assert(<boolean>testRequireTypeWithCast1(), false);
+    assert(<json[]>testRequireTypeWithCast2(), [125.0/3, "xyz street",
     {province: "southern", Country: "Sri Lanka"}, 81000]);
-    assert(<map<json>> testRequireTypeWithJson3(), {group: "O", RHD: "+"});
+    assert(<map<json>>testRequireTypeWithJson3(), {group: "O", RHD: "+"});
 }
 
 function testRequiredTypeWithInvalidCast1() returns error? {

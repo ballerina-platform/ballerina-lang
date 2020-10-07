@@ -442,11 +442,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean isNonStructureJsonType(BType expType) {
-        return expType.tag == TypeTags.INT || expType.tag == TypeTags.FLOAT || expType.tag == TypeTags.DECIMAL
-                || expType.tag == TypeTags.NIL || expType.tag == TypeTags.STRING || expType.tag == TypeTags.JSON;
-    }
-
     private BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType) {
         // Get the type matching to the tag from the symbol table.
         BType literalType = symTable.getTypeFromTag(literalExpr.type.tag);
@@ -4461,7 +4456,8 @@ public class TypeChecker extends BLangNodeVisitor {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         boolean firstVisit = checkedExpr.expr.type == null;
         BType exprExpType;
-        if (checkedExpr.expr instanceof BLangFieldBasedAccess && checkedExpr.getKind() == NodeKind.CHECK_EXPR) {
+        if (checkedExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                checkedExpr.getKind() == NodeKind.CHECK_EXPR) {
             ((BLangFieldBasedAccess) checkedExpr.expr).isWithCheckExpr = true;
         }
         if (expType == symTable.noType) {
@@ -6125,11 +6121,21 @@ public class TypeChecker extends BLangNodeVisitor {
             if (fieldAccessExpr.isWithCheckExpr && fieldAccessExpr.expectedType.tag != TypeTags.NONE) {
                 BUnionType unionType = (BUnionType) fieldAccessExpr.expectedType;
                 // Filter out the list of types which are not equivalent with the error type.
-                List<BType> expectedTypes = unionType.getMemberTypes().stream()
-                        .filter(type -> !symTable.errorType.equals(type)).collect(Collectors.toList());
-                boolean isCovertible = expectedTypes.stream().allMatch(this::isNonStructureJsonType);
+                List<BType> expectedTypes = new ArrayList<>();
+                for (BType type : unionType.getMemberTypes()) {
+                    if (symTable.errorType != type) {
+                        expectedTypes.add(type);
+                    }
+                }
+                boolean isConvertible = true;
+                for (BType expectedType : expectedTypes) {
+                    if (!(types.isSimpleBasicType(expectedType.tag) || expectedType.tag == TypeTags.JSON)) {
+                        isConvertible = false;
+                        break;
+                    }
+                }
                 BUnionType expectType = BUnionType.create(null, new LinkedHashSet<>(expectedTypes));
-                if (isCovertible) {
+                if (isConvertible) {
                     laxFieldAccessType = expectType;
                 } else {
                     dlog.error(fieldAccessExpr.pos,
