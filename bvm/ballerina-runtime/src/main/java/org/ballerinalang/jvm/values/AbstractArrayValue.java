@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -225,20 +224,19 @@ public abstract class AbstractArrayValue implements ArrayValue {
 
     /**
      * Adds values to the start of an array.
-     * 
+     *
      * @param values values to add to the start of the array
      */
-    public void unshift(ArrayValue values) {
+
+    public void unshift(Object[] values) {
         unshift(0, values);
     }
 
     @Override
-    public void unshift(BArray values) {
-        unshift(0, (ArrayValue) values);
-    }
+    public abstract String stringValue(BLink parent);
 
     @Override
-    public abstract String stringValue(BLink parent);
+    public abstract String expressionStringValue(BLink parent);
 
     @Override
     public abstract BType getType();
@@ -389,7 +387,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         }
     }
 
-    protected abstract void unshift(long index, ArrayValue vals);
+    protected abstract void unshift(long index, Object[] vals);
 
     protected abstract void checkFixedLength(long length);
 

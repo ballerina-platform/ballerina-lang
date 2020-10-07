@@ -68,3 +68,7 @@ class PersonObj {
 enum Colour {
     RED, GREEN, BLUE
 }
+
+function testFunctionCall() {
+    test();
+}

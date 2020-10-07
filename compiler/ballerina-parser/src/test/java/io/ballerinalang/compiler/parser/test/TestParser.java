@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.parser.test;
 
-import io.ballerinalang.compiler.internal.parser.BallerinaParser;
-import io.ballerinalang.compiler.internal.parser.ParserFactory;
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerina.compiler.internal.parser.BallerinaParser;
+import io.ballerina.compiler.internal.parser.ParserFactory;
+import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

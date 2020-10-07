@@ -35,8 +35,9 @@ public class JvmInstanceMethod extends JvmMethod {
 
     private final Value objectValueRef;
 
-    JvmInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef, List<Evaluator> argEvaluators) {
-        super(context, methodRef, argEvaluators);
+    JvmInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef, List<Evaluator> argEvaluators,
+                      List<Value> argsList) {
+        super(context, methodRef, argEvaluators, argsList);
         this.objectValueRef = objectRef;
     }
 

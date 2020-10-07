@@ -203,10 +203,10 @@ public class VariableUtils {
         return Optional.of(methods.get(0));
     }
 
-    private static String removeRedundantQuotes(String str) {
+    public static String removeRedundantQuotes(String str) {
         do {
             str = str.replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
-        } while (str.startsWith("\"\"") || str.endsWith("\"\""));
+        } while (str.startsWith("\"") || str.endsWith("\""));
         return str;
     }
 }

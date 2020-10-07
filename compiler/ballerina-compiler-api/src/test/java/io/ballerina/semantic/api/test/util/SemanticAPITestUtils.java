@@ -17,17 +17,22 @@
 
 package io.ballerina.semantic.api.test.util;
 
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.impl.BallerinaSemanticModel;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerina.compiler.api.ModuleID;
-import org.ballerina.compiler.api.symbols.Symbol;
-import org.ballerina.compiler.impl.BallerinaSemanticModel;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,6 +51,15 @@ import static org.testng.Assert.assertTrue;
  * @since 2.0.0
  */
 public class SemanticAPITestUtils {
+
+    private static final Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
+
+    public static CompileResult compile(String path, CompilerContext context) {
+        Path sourcePath = Paths.get(path);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+        return BCompileUtil.compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true, false);
+    }
 
     public static void assertList(List<? extends Symbol> actualValues, List<String> expectedValues) {
         Map<String, Symbol> symbols = actualValues.stream().collect(Collectors.toMap(Symbol::name, s -> s));

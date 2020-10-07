@@ -66,7 +66,7 @@ public class InvalidDataProviderTestCase extends BaseTestCase {
         clientLeecher2.waitForText(20000);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testInvalidDataProvider2() throws BallerinaTestException {
         String errMsg = "error: Error while invoking function 'testInvalidDataProvider2'";
         String errMsg2 = "If you are using data providers please check if types return from data provider match test " +

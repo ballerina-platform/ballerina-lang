@@ -42,6 +42,9 @@
         <Class name="org.ballerinalang.net.http.BallerinaHttpServerConnector"/>
     </Match>
     <Match>
+        <Class name="org.ballerinalang.net.http.nativeimpl.ExternHttpDataSourceBuilder"/>
+    </Match>
+    <Match>
         <Package name="org.ballerinalang.net.http"/>
     </Match>
     <Match>

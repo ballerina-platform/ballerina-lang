@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BValue;
 
 import java.util.Map;
 
