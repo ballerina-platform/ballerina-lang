@@ -40,7 +40,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+
 
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-system')
@@ -79,3 +79,15 @@ test {
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
+
+//ext.moduleName = 'config-api'
+
+//compileJava {
+////    inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                '--module-path', classpath.asPath,
+//        ]
+//        classpath = files()
+//    }
+//}

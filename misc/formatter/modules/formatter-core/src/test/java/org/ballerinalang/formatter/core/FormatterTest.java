@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

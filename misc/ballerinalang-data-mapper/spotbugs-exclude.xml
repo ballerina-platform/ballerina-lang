@@ -3,4 +3,10 @@
     <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
     <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.datamapper" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.datamapper.utils.HttpClientRequest"/>
+    </Match>
 </FindBugsFilter>

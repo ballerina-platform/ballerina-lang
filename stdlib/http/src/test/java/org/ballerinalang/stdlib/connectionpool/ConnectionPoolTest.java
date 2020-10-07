@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.connectionpool;
 
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;

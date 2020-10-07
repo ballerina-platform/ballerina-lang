@@ -27,10 +27,6 @@ import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,25 +39,26 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "map",
-        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION)},
-        returnType = {@ReturnType(type = TypeKind.MAP)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.map", functionName = "map",
+//        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION)},
+//        returnType = {@ReturnType(type = TypeKind.MAP)},
+//        isPublic = true
+//)
 public class Map {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "map");
 
-    public static MapValue map(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
+    public static MapValue map(MapValue<?, ?> m, FPValue<Object, Object> func) {
         BMapType newMapType = new BMapType(((BFunctionType) func.getType()).retType);
         MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
+        Strand parentStrand = Scheduler.getStrand();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{strand,
+                                                       () -> new Object[]{parentStrand,
                                                                m.get(m.getKeys()[index.incrementAndGet()]), true},
                                                        result -> newMap
                                                                .put(m.getKeys()[index.get()], result),

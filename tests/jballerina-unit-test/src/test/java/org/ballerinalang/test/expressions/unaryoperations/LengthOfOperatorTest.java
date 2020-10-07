@@ -16,8 +16,8 @@
  */
 package org.ballerinalang.test.expressions.unaryoperations;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;

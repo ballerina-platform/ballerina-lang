@@ -36,6 +36,8 @@ dependencies {
 }
 
 compileJava {
+//    sourceCompatibility = '11'
+//    targetCompatibility = '11'
     def generatedSources = "$buildDir/generated-from-annot"
     def generatedOutputDir = file("$generatedSources")
     def pkgName = project.name.replace("ballerina", "").replaceAll("-","")
@@ -43,10 +45,19 @@ compileJava {
                              "-AnativeEntityProviderPackage=org.ballerinalang.${pkgName}.generated.providers",
                              "-s", "$generatedSources"]
 
+    println 'Compiler args: ' + options.compilerArgs
     doFirst {
         generatedOutputDir.exists() || generatedOutputDir.mkdirs()
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
     }
 }
+
+//tasks.withType(JavaCompile) {
+//    println 'Compiler args: ' + options.compilerArgs
+//}
 
 task createBalHome(type: Copy) {
     dependsOn configurations.baloImplementation

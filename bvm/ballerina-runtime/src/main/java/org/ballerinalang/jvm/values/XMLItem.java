@@ -465,6 +465,11 @@ public final class XMLItem extends XMLValue {
         return "`" + toString() + "`";
     }
 
+    @Override
+    public String expressionStringValue(BLink parent) {
+        return "xml`" + toString() + "`";
+    }
+
     /**
      * {@inheritDoc}
      */

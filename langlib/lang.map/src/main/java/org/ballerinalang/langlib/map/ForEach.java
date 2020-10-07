@@ -24,9 +24,6 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,24 +36,19 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "forEach",
-        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION)},
-        isPublic = true
-)
 public class ForEach {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "forEach");
 
-    public static void forEach(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
+    public static void forEach(MapValue<?, ?> m, FPValue<Object, Object> func) {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{strand,
-                                                               m.get(m.getKeys()[index.incrementAndGet()]), true},
-                                                       result -> {
-                                                       }, () -> null, Scheduler.getStrand().scheduler);
+        Strand parentStrand = Scheduler.getStrand();
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                                                         () -> new Object[]{parentStrand,
+                                                                 m.get(m.getKeys()[index.incrementAndGet()]), true},
+                                                         result -> {
+                                                         }, () -> null, Scheduler.getStrand().scheduler);
     }
 }
