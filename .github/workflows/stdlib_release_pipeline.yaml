@@ -1,0 +1,19 @@
+name: Stdlib Release
+
+on: [ workflow_dispatch ]
+jobs:
+    build:
+        name: Release Ballerina Stdlibs
+        runs-on: ubuntu-latest
+        if: github.repository_owner == 'ballerina-platform'
+        steps:
+            -   uses: actions/checkout@v2
+
+            -   name: Release Pipeline
+                uses: ballerina-platform/ballerina-action@master
+                with:
+                    args:
+                        run release
+                env:
+                    WORKING_DIR: ./stdlib/release
+                    GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}

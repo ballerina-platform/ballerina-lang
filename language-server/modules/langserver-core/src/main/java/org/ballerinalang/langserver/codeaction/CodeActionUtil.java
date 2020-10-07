@@ -15,11 +15,10 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
@@ -44,6 +43,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -135,6 +135,22 @@ public class CodeActionUtil {
                         && cursorLine == diagnosticPos.sLine) {
                     return CodeActionNodeType.RECORD;
                 }
+
+                if (topLevelNode instanceof BLangClassDefinition) {
+                    if (diagnosticPos.sLine == cursorLine) {
+                        return CodeActionNodeType.CLASS;
+                    }
+                    if (cursorLine > diagnosticPos.sLine && cursorLine < diagnosticPos.eLine) {
+                        // Cursor within the class
+                        for (BLangFunction function : ((BLangClassDefinition) topLevelNode).functions) {
+                            diagnosticPos = CommonUtil.toZeroBasedPosition(function.getName().pos);
+                            if (diagnosticPos.sLine == cursorLine) {
+                                return CodeActionNodeType.CLASS_FUNCTION;
+                            }
+                        }
+                    }
+                }
+
                 if (topLevelNode instanceof BLangTypeDefinition
                         && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangObjectTypeNode) {
                     if (diagnosticPos.sLine == cursorLine) {
@@ -175,11 +191,10 @@ public class CodeActionUtil {
 
             Location location = diagnostic.location();
             LineRange lineRange = location.lineRange();
-            TextRange textRange = location.textRange();
-            int startLine = lineRange.startLine().line(); // LSP diagnostics range is 0 based
-            int startChar = textRange.startOffset();
-            int endLine = lineRange.endLine().line();
-            int endChar = textRange.endOffset();
+            int startLine = lineRange.startLine().line() - 1; // LSP diagnostics range is 0 based
+            int startChar = lineRange.startLine().offset() - 1;
+            int endLine = lineRange.endLine().line() - 1;
+            int endChar = lineRange.endLine().offset() - 1;
 
             if (endLine <= 0) {
                 endLine = startLine;

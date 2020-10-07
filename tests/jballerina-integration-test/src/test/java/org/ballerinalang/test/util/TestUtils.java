@@ -19,7 +19,7 @@
 package org.ballerinalang.test.util;
 
 import io.netty.handler.codec.http.FullHttpResponse;
-import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.core.util.BLangConstants;
 
 import java.io.File;
 import java.io.FileInputStream;

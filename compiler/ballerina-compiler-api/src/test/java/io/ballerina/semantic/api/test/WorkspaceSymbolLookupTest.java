@@ -17,8 +17,8 @@
 
 package io.ballerina.semantic.api.test;
 
-import org.ballerina.compiler.api.symbols.Symbol;
-import org.ballerina.compiler.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.impl.BallerinaSemanticModel;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.Test;

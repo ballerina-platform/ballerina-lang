@@ -38,7 +38,7 @@ public class RerunFailedTest extends BaseTestCase {
         projectPath = rerunFailedProjectPath.toString();
     }
 
-    @Test
+    @Test (enabled = false)
     public void testFullTest() throws BallerinaTestException {
         String msg1 = "2 passing";
         String msg2 = "2 failing";
@@ -52,7 +52,7 @@ public class RerunFailedTest extends BaseTestCase {
         clientLeecher2.waitForText(20000);
     }
 
-    @Test (dependsOnMethods = "testFullTest")
+    @Test (dependsOnMethods = "testFullTest", enabled = false)
     public void testRerunFailedTest() throws BallerinaTestException {
         String msg1 = "0 passing";
         String msg2 = "2 failing";
@@ -66,7 +66,7 @@ public class RerunFailedTest extends BaseTestCase {
         clientLeecher2.waitForText(20000);
     }
 
-    @Test
+    @Test (enabled = false)
     public void testRerunWithNoFailedTests() throws BallerinaTestException {
         String msg1 = "No failed test/s found in cache";
         LogLeecher clientLeecher = new LogLeecher(msg1);

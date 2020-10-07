@@ -15,231 +15,233 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
+import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.AsyncSendActionNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.BindingPatternNode;
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.BreakStatementNode;
+import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
+import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.CommitActionNode;
+import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
+import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ContinueStatementNode;
+import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.DistinctTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.DoStatementNode;
+import io.ballerina.compiler.syntax.tree.DocumentationReferenceNode;
+import io.ballerina.compiler.syntax.tree.DoubleGTTokenNode;
+import io.ballerina.compiler.syntax.tree.ElseBlockNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerina.compiler.syntax.tree.EnumMemberNode;
+import io.ballerina.compiler.syntax.tree.ErrorBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.ErrorMatchPatternNode;
+import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ErrorTypeParamsNode;
+import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionFunctionBodyNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
+import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
+import io.ballerina.compiler.syntax.tree.FailStatementNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternFullNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
+import io.ballerina.compiler.syntax.tree.FieldMatchPatternNode;
+import io.ballerina.compiler.syntax.tree.FlushActionNode;
+import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
+import io.ballerina.compiler.syntax.tree.ForkStatementNode;
+import io.ballerina.compiler.syntax.tree.FromClauseNode;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
+import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionParameters;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.ImportVersionNode;
+import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
+import io.ballerina.compiler.syntax.tree.InterpolationNode;
+import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.JoinClauseNode;
+import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
+import io.ballerina.compiler.syntax.tree.KeyTypeConstraintNode;
+import io.ballerina.compiler.syntax.tree.LetClauseNode;
+import io.ballerina.compiler.syntax.tree.LetExpressionNode;
+import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.LimitClauseNode;
+import io.ballerina.compiler.syntax.tree.ListBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ListMatchPatternNode;
+import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
+import io.ballerina.compiler.syntax.tree.LocalTypeDefinitionStatementNode;
+import io.ballerina.compiler.syntax.tree.LockStatementNode;
+import io.ballerina.compiler.syntax.tree.MappingBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingFieldNode;
+import io.ballerina.compiler.syntax.tree.MappingMatchPatternNode;
+import io.ballerina.compiler.syntax.tree.MarkdownDocumentationLineNode;
+import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
+import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
+import io.ballerina.compiler.syntax.tree.MatchClauseNode;
+import io.ballerina.compiler.syntax.tree.MatchGuardNode;
+import io.ballerina.compiler.syntax.tree.MatchStatementNode;
+import io.ballerina.compiler.syntax.tree.MetadataNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NameReferenceNode;
+import io.ballerina.compiler.syntax.tree.NamedArgBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.NamedArgMatchPatternNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarator;
+import io.ballerina.compiler.syntax.tree.NilLiteralNode;
+import io.ballerina.compiler.syntax.tree.NilTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.OnClauseNode;
+import io.ballerina.compiler.syntax.tree.OnConflictClauseNode;
+import io.ballerina.compiler.syntax.tree.OnFailClauseNode;
+import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
+import io.ballerina.compiler.syntax.tree.OrderKeyNode;
+import io.ballerina.compiler.syntax.tree.PanicStatementNode;
+import io.ballerina.compiler.syntax.tree.ParameterNode;
+import io.ballerina.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryActionNode;
+import io.ballerina.compiler.syntax.tree.QueryConstructTypeNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
+import io.ballerina.compiler.syntax.tree.QueryPipelineNode;
+import io.ballerina.compiler.syntax.tree.ReceiveActionNode;
+import io.ballerina.compiler.syntax.tree.ReceiveFieldsNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
+import io.ballerina.compiler.syntax.tree.RecordRestDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.RestArgumentNode;
+import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.RestDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RestMatchPatternNode;
+import io.ballerina.compiler.syntax.tree.RestParameterNode;
+import io.ballerina.compiler.syntax.tree.RetryStatementNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
+import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.RollbackStatementNode;
+import io.ballerina.compiler.syntax.tree.SelectClauseNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.ServiceBodyNode;
+import io.ballerina.compiler.syntax.tree.ServiceConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
+import io.ballerina.compiler.syntax.tree.StartActionNode;
+import io.ballerina.compiler.syntax.tree.StatementNode;
+import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
+import io.ballerina.compiler.syntax.tree.SyncSendActionNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
+import io.ballerina.compiler.syntax.tree.TemplateMemberNode;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
+import io.ballerina.compiler.syntax.tree.TransactionalExpressionNode;
+import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
+import io.ballerina.compiler.syntax.tree.TreeModifier;
+import io.ballerina.compiler.syntax.tree.TrippleGTTokenNode;
+import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeCastParamNode;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypeParameterNode;
+import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
+import io.ballerina.compiler.syntax.tree.TypeReferenceTypeDescNode;
+import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.WaitActionNode;
+import io.ballerina.compiler.syntax.tree.WaitFieldNode;
+import io.ballerina.compiler.syntax.tree.WaitFieldsListNode;
+import io.ballerina.compiler.syntax.tree.WhereClauseNode;
+import io.ballerina.compiler.syntax.tree.WhileStatementNode;
+import io.ballerina.compiler.syntax.tree.WildcardBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.XMLAtomicNamePatternNode;
+import io.ballerina.compiler.syntax.tree.XMLAttributeNode;
+import io.ballerina.compiler.syntax.tree.XMLAttributeValue;
+import io.ballerina.compiler.syntax.tree.XMLComment;
+import io.ballerina.compiler.syntax.tree.XMLElementNode;
+import io.ballerina.compiler.syntax.tree.XMLEmptyElementNode;
+import io.ballerina.compiler.syntax.tree.XMLEndTagNode;
+import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLItemNode;
+import io.ballerina.compiler.syntax.tree.XMLNameNode;
+import io.ballerina.compiler.syntax.tree.XMLNamePatternChainingNode;
+import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.XMLProcessingInstruction;
+import io.ballerina.compiler.syntax.tree.XMLQualifiedNameNode;
+import io.ballerina.compiler.syntax.tree.XMLSimpleNameNode;
+import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
+import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLTextNode;
+import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
-import io.ballerinalang.compiler.syntax.tree.AnnotAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.AnnotationAttachPointNode;
-import io.ballerinalang.compiler.syntax.tree.AnnotationDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
-import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerinalang.compiler.syntax.tree.AsyncSendActionNode;
-import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
-import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.BreakStatementNode;
-import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.ByteArrayLiteralNode;
-import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.CommitActionNode;
-import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
-import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
-import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
-import io.ballerinalang.compiler.syntax.tree.DistinctTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.DoStatementNode;
-import io.ballerinalang.compiler.syntax.tree.DocumentationReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.DoubleGTTokenNode;
-import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
-import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.EnumMemberNode;
-import io.ballerinalang.compiler.syntax.tree.ErrorBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
-import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.FailStatementNode;
-import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternFullNode;
-import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternVarnameNode;
-import io.ballerinalang.compiler.syntax.tree.FieldMatchPatternNode;
-import io.ballerinalang.compiler.syntax.tree.FlushActionNode;
-import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ForkStatementNode;
-import io.ballerinalang.compiler.syntax.tree.FromClauseNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionalMatchPatternNode;
-import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
-import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionParameters;
-import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
-import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
-import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
-import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.IntermediateClauseNode;
-import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
-import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.JoinClauseNode;
-import io.ballerinalang.compiler.syntax.tree.KeySpecifierNode;
-import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
-import io.ballerinalang.compiler.syntax.tree.LetClauseNode;
-import io.ballerinalang.compiler.syntax.tree.LetExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.LetVariableDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.LimitClauseNode;
-import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ListMatchPatternNode;
-import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.LocalTypeDefinitionStatementNode;
-import io.ballerinalang.compiler.syntax.tree.LockStatementNode;
-import io.ballerinalang.compiler.syntax.tree.MappingBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
-import io.ballerinalang.compiler.syntax.tree.MappingMatchPatternNode;
-import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationLineNode;
-import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationNode;
-import io.ballerinalang.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
-import io.ballerinalang.compiler.syntax.tree.MatchClauseNode;
-import io.ballerinalang.compiler.syntax.tree.MatchGuardNode;
-import io.ballerinalang.compiler.syntax.tree.MatchStatementNode;
-import io.ballerinalang.compiler.syntax.tree.MetadataNode;
-import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.MethodDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.NamedArgBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.NamedArgMatchPatternNode;
-import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarator;
-import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
-import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NodeList;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
-import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
-import io.ballerinalang.compiler.syntax.tree.OnFailClauseNode;
-import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.OrderByClauseNode;
-import io.ballerinalang.compiler.syntax.tree.OrderKeyNode;
-import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ParameterNode;
-import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
-import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.QueryActionNode;
-import io.ballerinalang.compiler.syntax.tree.QueryConstructTypeNode;
-import io.ballerinalang.compiler.syntax.tree.QueryExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.QueryPipelineNode;
-import io.ballerinalang.compiler.syntax.tree.ReceiveActionNode;
-import io.ballerinalang.compiler.syntax.tree.ReceiveFieldsNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
-import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RemoteMethodCallActionNode;
-import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
-import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.RestBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RestMatchPatternNode;
-import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
-import io.ballerinalang.compiler.syntax.tree.RetryStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RollbackStatementNode;
-import io.ballerinalang.compiler.syntax.tree.SelectClauseNode;
-import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
-import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
-import io.ballerinalang.compiler.syntax.tree.StartActionNode;
-import io.ballerinalang.compiler.syntax.tree.StatementNode;
-import io.ballerinalang.compiler.syntax.tree.StreamTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.StreamTypeParamsNode;
-import io.ballerinalang.compiler.syntax.tree.SyncSendActionNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.TableConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TableTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TemplateExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TemplateMemberNode;
-import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.syntax.tree.TransactionStatementNode;
-import io.ballerinalang.compiler.syntax.tree.TransactionalExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TreeModifier;
-import io.ballerinalang.compiler.syntax.tree.TrippleGTTokenNode;
-import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TypeCastParamNode;
-import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
-import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.TypeReferenceTypeDescNode;
-import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.TypedescTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
-import io.ballerinalang.compiler.syntax.tree.WaitFieldNode;
-import io.ballerinalang.compiler.syntax.tree.WaitFieldsListNode;
-import io.ballerinalang.compiler.syntax.tree.WhereClauseNode;
-import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
-import io.ballerinalang.compiler.syntax.tree.WildcardBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.XMLAtomicNamePatternNode;
-import io.ballerinalang.compiler.syntax.tree.XMLAttributeNode;
-import io.ballerinalang.compiler.syntax.tree.XMLAttributeValue;
-import io.ballerinalang.compiler.syntax.tree.XMLComment;
-import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
-import io.ballerinalang.compiler.syntax.tree.XMLEmptyElementNode;
-import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
-import io.ballerinalang.compiler.syntax.tree.XMLFilterExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.XMLItemNode;
-import io.ballerinalang.compiler.syntax.tree.XMLNameNode;
-import io.ballerinalang.compiler.syntax.tree.XMLNamePatternChainingNode;
-import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
-import io.ballerinalang.compiler.syntax.tree.XMLQualifiedNameNode;
-import io.ballerinalang.compiler.syntax.tree.XMLSimpleNameNode;
-import io.ballerinalang.compiler.syntax.tree.XMLStartTagNode;
-import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
-import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.addNewTrailingLine;
 import static org.ballerinalang.formatter.core.FormatterUtils.formatToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.getChildLocation;
+import static org.ballerinalang.formatter.core.FormatterUtils.getIndentation;
 import static org.ballerinalang.formatter.core.FormatterUtils.getParent;
 import static org.ballerinalang.formatter.core.FormatterUtils.getPosition;
 import static org.ballerinalang.formatter.core.FormatterUtils.getToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.getTrailingNewLines;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
+import static org.ballerinalang.formatter.core.FormatterUtils.nestedIfBlock;
 import static org.ballerinalang.formatter.core.FormatterUtils.preserveNewLine;
 import static org.ballerinalang.formatter.core.NodeIndentation.blockStatementNode;
 
@@ -344,13 +346,22 @@ public class FormattingTreeModifier extends TreeModifier {
         if (identifier.parent() != null && identifier.parent().kind() == SyntaxKind.SPECIFIC_FIELD) {
             addSpaces = true;
         }
+        int leadingNewLines = 0;
+        if (identifier.parent() != null && identifier.parent().kind() == SyntaxKind.ENUM_MEMBER) {
+            EnumDeclarationNode grandparent = (EnumDeclarationNode) identifier.parent().parent();
+            if (!grandparent.enumMemberList().get(0).equals(identifier.parent())) {
+                leadingNewLines = 1;
+            }
+            addSpaces = true;
+        }
         int trailingSpaces = 0;
         if (identifier.parent() != null && identifier.parent().kind() == SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT) {
             trailingSpaces = 1;
         }
         int startColumn = getStartColumn(identifier, addSpaces);
         Token identifierToken = getToken(identifier);
-        return (IdentifierToken) formatToken(identifierToken, addSpaces ? startColumn : 0, trailingSpaces, 0, 0);
+        return (IdentifierToken) formatToken(identifierToken, addSpaces ? startColumn : 0, trailingSpaces,
+                leadingNewLines, 0);
     }
 
     @Override
@@ -409,12 +420,18 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(returnTypeDescriptorNode, lineRange)) {
             return returnTypeDescriptorNode;
         }
+        boolean addSpaces = false;
+        if (returnTypeDescriptorNode.parent() != null &&
+                returnTypeDescriptorNode.parent().kind() == SyntaxKind.BLOCK_STATEMENT) {
+            addSpaces = true;
+        }
+        int startColumn = getStartColumn(returnTypeDescriptorNode, addSpaces);
         Token returnsKeyword = getToken(returnTypeDescriptorNode.returnsKeyword());
         NodeList<AnnotationNode> annotations = this.modifyNodeList(returnTypeDescriptorNode.annotations());
         Node type = this.modifyNode(returnTypeDescriptorNode.type());
         return returnTypeDescriptorNode.modify()
                 .withAnnotations(annotations)
-                .withReturnsKeyword(formatToken(returnsKeyword, 1, 1, 0, 0))
+                .withReturnsKeyword(formatToken(returnsKeyword, addSpaces ? startColumn : 1, 1, 0, 0))
                 .withType(type)
                 .apply();
     }
@@ -460,6 +477,13 @@ public class FormattingTreeModifier extends TreeModifier {
                 builtinSimpleNameReferenceNode.parent().kind() == SyntaxKind.RETURN_TYPE_DESCRIPTOR) {
             startColumn = 0;
         }
+        if (builtinSimpleNameReferenceNode.parent() != null &&
+                builtinSimpleNameReferenceNode.parent().parent() != null &&
+                (builtinSimpleNameReferenceNode.parent().parent().kind() == SyntaxKind.LET_VAR_DECL ||
+                builtinSimpleNameReferenceNode.parent().parent().kind() == SyntaxKind.JOIN_CLAUSE ||
+                builtinSimpleNameReferenceNode.parent().parent().kind() == SyntaxKind.FROM_CLAUSE)) {
+            startColumn = 0;
+        }
         int trailingSpaces = 0;
         NonTerminalNode parent = builtinSimpleNameReferenceNode.parent();
         if (parent != null && (parent.kind() == SyntaxKind.CONST_DECLARATION ||
@@ -471,10 +495,9 @@ public class FormattingTreeModifier extends TreeModifier {
             trailingSpaces = 1;
         }
         Token name = getToken(builtinSimpleNameReferenceNode.name());
-        if (builtinSimpleNameReferenceNode.parent().kind() == SyntaxKind.OBJECT_FIELD) {
-            if (((ObjectFieldNode) parent).visibilityQualifier().isPresent()) {
-                startColumn = 0;
-            }
+        if (parent != null && parent.kind() == SyntaxKind.OBJECT_FIELD &&
+                ((ObjectFieldNode) parent).visibilityQualifier().isPresent()) {
+            startColumn = 0;
         }
         return builtinSimpleNameReferenceNode.modify()
                 .withName(formatToken(name, startColumn, trailingSpaces, 0, 0))
@@ -768,6 +791,10 @@ public class FormattingTreeModifier extends TreeModifier {
             addSpaces = true;
         }
         int startColumn = getStartColumn(listBindingPatternNode, addSpaces);
+        if (listBindingPatternNode.parent() != null && listBindingPatternNode.parent().parent() != null &&
+                listBindingPatternNode.parent().parent().kind() == SyntaxKind.LET_VAR_DECL) {
+            startColumn = 0;
+        }
         SeparatedNodeList<BindingPatternNode> bindingPatternNodes = this.modifySeparatedNodeList(
                 listBindingPatternNode.bindingPatterns());
         Token openBracket = getToken(listBindingPatternNode.openBracket());
@@ -790,6 +817,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(mappingBindingPatternNode, lineRange)) {
             return mappingBindingPatternNode;
         }
+        int startColumn = getStartColumn(mappingBindingPatternNode, false);
         Token openBraceToken = getToken(mappingBindingPatternNode.openBrace());
         Token closeBraceToken = getToken(mappingBindingPatternNode.closeBrace());
         SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatternNodes =
@@ -802,7 +830,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         return mappingBindingPatternNode.modify()
                 .withOpenBrace(formatToken(openBraceToken, 1, 0, 0, 1))
-                .withCloseBrace(formatToken(closeBraceToken, 0, 0, 1, 0))
+                .withCloseBrace(formatToken(closeBraceToken, startColumn, 0, 1, 0))
                 .withFieldBindingPatterns(fieldBindingPatternNodes)
                 .apply();
     }
@@ -817,7 +845,7 @@ public class FormattingTreeModifier extends TreeModifier {
         SimpleNameReferenceNode variableName = this.modifyNode(fieldBindingPatternFullNode.variableName());
         return fieldBindingPatternFullNode.modify()
                 .withBindingPattern(bindingPatternNode)
-                .withColon(formatToken(colon, 0, 0, 0, 0))
+                .withColon(formatToken(colon, 1, 0, 0, 0))
                 .withVariableName(variableName)
                 .apply();
     }
@@ -886,7 +914,8 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public IfElseStatementNode transform(IfElseStatementNode ifElseStatementNode) {
-        if (!isInLineRange(ifElseStatementNode, lineRange)) {
+        // TODO: Enable the nested if else statements
+        if (!isInLineRange(ifElseStatementNode, lineRange) || !nestedIfBlock(ifElseStatementNode).isEmpty()) {
             return ifElseStatementNode;
         }
         Token ifKeyword = getToken(ifElseStatementNode.ifKeyword());
@@ -899,7 +928,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withElseBody(elseBody).apply();
         }
         return ifElseStatementNode.modify()
-                .withIfKeyword(formatToken(ifKeyword, startColumn, 0, 0, 0))
+                .withIfKeyword(formatToken(ifKeyword, startColumn, 1, 0, 0))
                 .withIfBody(ifBody)
                 .withCondition(condition)
                 .apply();
@@ -910,10 +939,14 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(elseBlockNode, lineRange)) {
             return elseBlockNode;
         }
+        int trailingSpaces = 0;
+        if (elseBlockNode.children().get(1).kind() == SyntaxKind.IF_ELSE_STATEMENT) {
+            trailingSpaces = 1;
+        }
         Token elseKeyword = getToken(elseBlockNode.elseKeyword());
         StatementNode elseBody = this.modifyNode(elseBlockNode.elseBody());
         return elseBlockNode.modify()
-                .withElseKeyword(formatToken(elseKeyword, 1, 0, 0, 0))
+                .withElseKeyword(formatToken(elseKeyword, 1, trailingSpaces, 0, 0))
                 .withElseBody(elseBody)
                 .apply();
     }
@@ -927,7 +960,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token closeParen = getToken(bracedExpressionNode.closeParen());
         ExpressionNode expression = this.modifyNode(bracedExpressionNode.expression());
         return bracedExpressionNode.modify()
-                .withOpenParen(formatToken(openParen, 1, 0, 0, 0))
+                .withOpenParen(formatToken(openParen, 0, 0, 0, 0))
                 .withCloseParen(formatToken(closeParen, 0, 0, 0, 0))
                 .withExpression(expression)
                 .apply();
@@ -1082,6 +1115,8 @@ public class FormattingTreeModifier extends TreeModifier {
                 (parentKind == SyntaxKind.FUNCTION_BODY_BLOCK ||
                         parentKind == SyntaxKind.IF_ELSE_STATEMENT ||
                         parentKind == SyntaxKind.MATCH_CLAUSE ||
+                        parentKind == SyntaxKind.WHILE_STATEMENT ||
+                        parentKind == SyntaxKind.DO_STATEMENT ||
                         parentKind == SyntaxKind.FOREACH_STATEMENT ||
                         parentKind == SyntaxKind.ELSE_BLOCK)) {
             if (blockStatementNode.children().size() <= 2) {
@@ -1111,6 +1146,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (parent != null &&
                 (parent.kind() == SyntaxKind.LOCAL_VAR_DECL ||
                     parent.kind() == SyntaxKind.CONST_DECLARATION ||
+                    parent.kind() == SyntaxKind.SELECT_CLAUSE ||
                     parent.kind() == SyntaxKind.SPECIFIC_FIELD ||
                     parent.kind() == SyntaxKind.TABLE_CONSTRUCTOR)) {
             addSpaces = false;
@@ -1129,7 +1165,7 @@ public class FormattingTreeModifier extends TreeModifier {
         SeparatedNodeList<MappingFieldNode> fields = this.modifySeparatedNodeList(
                 mappingConstructorExpressionNode.fields());
         return mappingConstructorExpressionNode.modify()
-                .withOpenBrace(formatToken(openBrace, startOpenBrace, 0, openingLeadingNewLines, 0))
+                .withOpenBrace(formatToken(openBrace, addSpaces ? startOpenBrace : 0, 0, openingLeadingNewLines, 0))
                 .withCloseBrace(formatToken(closeBrace, startCloseBrace, 0, leadingNewLines, 0))
                 .withFields(fields)
                 .apply();
@@ -1298,7 +1334,7 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode condition = this.modifyNode(whileStatementNode.condition());
         OnFailClauseNode onFailClause = this.modifyNode(whileStatementNode.onFailClause().orElse(null));
         whileStatementNode = whileStatementNode.modify()
-                .withWhileKeyword(formatToken(whileKeyword, startColumn, 0, 0, 0)).apply();
+                .withWhileKeyword(formatToken(whileKeyword, startColumn, 1, 0, 0)).apply();
         BlockStatementNode whileBody = this.modifyNode(whileStatementNode.whileBody());
         if (onFailClause != null) {
             whileStatementNode = whileStatementNode.modify()
@@ -1791,7 +1827,16 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(tupleTypeDescriptorNode, lineRange)) {
             return tupleTypeDescriptorNode;
         }
-        int startColumn = getStartColumn(tupleTypeDescriptorNode, true);
+        boolean addSpaces = true;
+        if (tupleTypeDescriptorNode.parent() != null && tupleTypeDescriptorNode.parent().parent() != null &&
+                tupleTypeDescriptorNode.parent().parent().kind() == SyntaxKind.LET_VAR_DECL) {
+            addSpaces = false;
+        }
+        int startColumn = getStartColumn(tupleTypeDescriptorNode, addSpaces);
+        if (tupleTypeDescriptorNode.parent() != null && tupleTypeDescriptorNode.parent().parent() != null &&
+                tupleTypeDescriptorNode.parent().parent().kind() == SyntaxKind.LET_VAR_DECL) {
+            startColumn = 0;
+        }
         Token openBracketToken = getToken(tupleTypeDescriptorNode.openBracketToken());
         SeparatedNodeList<Node> memberTypeDesc = this.modifySeparatedNodeList(tupleTypeDescriptorNode.memberTypeDesc());
         Token closeBracketToken = getToken(tupleTypeDescriptorNode.closeBracketToken());
@@ -1895,6 +1940,8 @@ public class FormattingTreeModifier extends TreeModifier {
         int startColumn = getStartColumn(namedWorkerDeclarationNode, true);
         NodeList<AnnotationNode> annotations = this.modifyNodeList(namedWorkerDeclarationNode.annotations());
         Token workerKeyword = getToken(namedWorkerDeclarationNode.workerKeyword());
+        namedWorkerDeclarationNode = namedWorkerDeclarationNode.modify()
+                .withWorkerKeyword(formatToken(workerKeyword, startColumn, 1, 0, 0)).apply();
         IdentifierToken workerName = this.modifyNode(namedWorkerDeclarationNode.workerName());
         Node returnTypeDesc =
                 this.modifyNode(namedWorkerDeclarationNode.returnTypeDesc().orElse(null));
@@ -1905,7 +1952,6 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         return namedWorkerDeclarationNode.modify()
                 .withAnnotations(annotations)
-                .withWorkerKeyword(formatToken(workerKeyword, startColumn, 1, 0, 0))
                 .withWorkerName(workerName)
                 .withWorkerBody(workerBody)
                 .apply();
@@ -1950,10 +1996,10 @@ public class FormattingTreeModifier extends TreeModifier {
         Token semicolonToken = getToken(compoundAssignmentStatementNode.semicolonToken());
         return compoundAssignmentStatementNode.modify()
                 .withLhsExpression(lhsExpression)
-                .withBinaryOperator(formatToken(binaryOperator, 1, 1, 0, 0))
-                .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0))
+                .withBinaryOperator(formatToken(binaryOperator, 1, 0, 0, 0))
+                .withEqualsToken(formatToken(equalsToken, 0, 1, 0, 0))
                 .withRhsExpression(rhsExpression)
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
@@ -1977,11 +2023,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(breakStatementNode, lineRange)) {
             return breakStatementNode;
         }
+        int startColumn = getStartColumn(breakStatementNode, true);
         Token breakToken = getToken(breakStatementNode.breakToken());
         Token semicolonToken = getToken(breakStatementNode.semicolonToken());
         return breakStatementNode.modify()
-                .withBreakToken(formatToken(breakToken, 0, 0, 0, 0))
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withBreakToken(formatToken(breakToken, startColumn, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
@@ -1990,11 +2037,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(continueStatementNode, lineRange)) {
             return continueStatementNode;
         }
+        int startColumn = getStartColumn(continueStatementNode, true);
         Token continueToken = getToken(continueStatementNode.continueToken());
         Token semicolonToken = getToken(continueStatementNode.semicolonToken());
         return continueStatementNode.modify()
-                .withContinueToken(formatToken(continueToken, 0, 0, 0, 0))
-                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .withContinueToken(formatToken(continueToken, startColumn, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
                 .apply();
     }
 
@@ -2077,16 +2125,17 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(forkStatementNode, lineRange)) {
             return forkStatementNode;
         }
+        int startColumn = getStartColumn(forkStatementNode, true);
         Token forkKeyword = getToken(forkStatementNode.forkKeyword());
         Token openBraceToken = getToken(forkStatementNode.openBraceToken());
         NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations =
                 this.modifyNodeList(forkStatementNode.namedWorkerDeclarations());
         Token closeBraceToken = getToken(forkStatementNode.closeBraceToken());
         return forkStatementNode.modify()
-                .withForkKeyword(formatToken(forkKeyword, 1, 1, 0, 0))
-                .withOpenBraceToken(formatToken(openBraceToken, 0, 0, 0, 0))
+                .withForkKeyword(formatToken(forkKeyword, startColumn, 1, 0, 0))
+                .withOpenBraceToken(formatToken(openBraceToken, 0, 0, 0, 1))
                 .withNamedWorkerDeclarations(namedWorkerDeclarations)
-                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, 0))
+                .withCloseBraceToken(formatToken(closeBraceToken, startColumn, 0, 0, 1))
                 .apply();
     }
 
@@ -2639,6 +2688,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(streamTypeDescriptorNode, lineRange)) {
             return streamTypeDescriptorNode;
         }
+        int startColumn = getStartColumn(streamTypeDescriptorNode, true);
         Token streamKeywordToken = getToken(streamTypeDescriptorNode.streamKeywordToken());
         Node streamTypeParamsNode = this.modifyNode(streamTypeDescriptorNode.streamTypeParamsNode().orElse(null));
         if (streamTypeParamsNode != null) {
@@ -2646,7 +2696,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withStreamTypeParamsNode(streamTypeParamsNode).apply();
         }
         return streamTypeDescriptorNode.modify()
-                .withStreamKeywordToken(formatToken(streamKeywordToken, 0, 1, 0, 0))
+                .withStreamKeywordToken(formatToken(streamKeywordToken, startColumn, 1, 0, 0))
                 .apply();
     }
 
@@ -2705,7 +2755,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return letExpressionNode.modify()
                 .withLetKeyword(formatToken(letKeyword, 0, 1, 0, 0))
                 .withLetVarDeclarations(letVarDeclarations)
-                .withInKeyword(formatToken(inKeyword, 1, 1, 0, 0))
+                .withInKeyword(formatToken(inKeyword, getPosition(letExpressionNode).sCol + 4, 1, 1, 0))
                 .withExpression(expression)
                 .apply();
     }
@@ -2821,7 +2871,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token semicolon = this.modifyToken(expressionFunctionBodyNode.semicolon().orElse(null));
         if (semicolon != null) {
             expressionFunctionBodyNode = expressionFunctionBodyNode.modify()
-                    .withSemicolon(formatToken(semicolon, 0, 0, 0, 1)).apply();
+                    .withSemicolon(formatToken(semicolon, 0, 0, 0, 2)).apply();
         }
         return expressionFunctionBodyNode.modify()
                 .withRightDoubleArrow(formatToken(rightDoubleArrow, 1, 1, 0, 0))
@@ -2837,8 +2887,9 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openParenToken = getToken(parenthesisedTypeDescriptorNode.openParenToken());
         TypeDescriptorNode typedesc = this.modifyNode(parenthesisedTypeDescriptorNode.typedesc());
         Token closeParenToken = getToken(parenthesisedTypeDescriptorNode.closeParenToken());
+        int startColumn = getStartColumn(parenthesisedTypeDescriptorNode, true);
         return parenthesisedTypeDescriptorNode.modify()
-                .withOpenParenToken(formatToken(openParenToken, 0, 0, 0, 0))
+                .withOpenParenToken(formatToken(openParenToken, startColumn, 0, 0, 0))
                 .withTypedesc(typedesc)
                 .withCloseParenToken(formatToken(closeParenToken, 0, 0, 0, 0))
                 .apply();
@@ -2901,10 +2952,11 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(whereClauseNode, lineRange)) {
             return whereClauseNode;
         }
+        int startColumn = getStartColumn(whereClauseNode, true);
         Token whereKeyword = getToken(whereClauseNode.whereKeyword());
         ExpressionNode expression = this.modifyNode(whereClauseNode.expression());
         return whereClauseNode.modify()
-                .withWhereKeyword(formatToken(whereKeyword, 0, 1, 0, 0))
+                .withWhereKeyword(formatToken(whereKeyword, startColumn, 1, 1, 0))
                 .withExpression(expression)
                 .apply();
     }
@@ -2914,11 +2966,12 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(letClauseNode, lineRange)) {
             return letClauseNode;
         }
+        int startColumn = getStartColumn(letClauseNode, true);
         Token letKeyword = getToken(letClauseNode.letKeyword());
         SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
                 this.modifySeparatedNodeList(letClauseNode.letVarDeclarations());
         return letClauseNode.modify()
-                .withLetKeyword(formatToken(letKeyword, 0, 1, 0, 0))
+                .withLetKeyword(formatToken(letKeyword, startColumn, 1, 1, 0))
                 .withLetVarDeclarations(letVarDeclarations)
                 .apply();
     }
@@ -2942,36 +2995,38 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(selectClauseNode, lineRange)) {
             return selectClauseNode;
         }
+        int startColumn = getStartColumn(selectClauseNode, true);
         Token selectKeyword = getToken(selectClauseNode.selectKeyword());
         ExpressionNode expression = this.modifyNode(selectClauseNode.expression());
         return selectClauseNode.modify()
-                .withSelectKeyword(formatToken(selectKeyword, 0, 1, 0, 0))
+                .withSelectKeyword(formatToken(selectKeyword, startColumn, 1, 1, 0))
                 .withExpression(expression)
                 .apply();
     }
 
+    // TODO: Enable the QueryExpressionNode
     @Override
     public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
-        if (!isInLineRange(queryExpressionNode, lineRange)) {
+//        if (!isInLineRange(queryExpressionNode, lineRange)) {
             return queryExpressionNode;
-        }
-        QueryConstructTypeNode queryConstructType =
-                this.modifyNode(queryExpressionNode.queryConstructType().orElse(null));
-        QueryPipelineNode queryPipeline = this.modifyNode(queryExpressionNode.queryPipeline());
-        SelectClauseNode selectClause = this.modifyNode(queryExpressionNode.selectClause());
-        OnConflictClauseNode onConflictClause = this.modifyNode(queryExpressionNode.onConflictClause().orElse(null));
-        if (queryConstructType != null) {
-            queryExpressionNode = queryExpressionNode.modify()
-                    .withQueryConstructType(queryConstructType).apply();
-        }
-        if (onConflictClause != null) {
-            queryExpressionNode = queryExpressionNode.modify()
-                    .withOnConflictClause(onConflictClause).apply();
-        }
-        return queryExpressionNode.modify()
-                .withQueryPipeline(queryPipeline)
-                .withSelectClause(selectClause)
-                .apply();
+//        }
+//        QueryConstructTypeNode queryConstructType =
+//                this.modifyNode(queryExpressionNode.queryConstructType().orElse(null));
+//        QueryPipelineNode queryPipeline = this.modifyNode(queryExpressionNode.queryPipeline());
+//        SelectClauseNode selectClause = this.modifyNode(queryExpressionNode.selectClause());
+//        OnConflictClauseNode onConflictClause = this.modifyNode(queryExpressionNode.onConflictClause().orElse(null));
+//        if (queryConstructType != null) {
+//            queryExpressionNode = queryExpressionNode.modify()
+//                    .withQueryConstructType(queryConstructType).apply();
+//        }
+//        if (onConflictClause != null) {
+//            queryExpressionNode = queryExpressionNode.modify()
+//                    .withOnConflictClause(onConflictClause).apply();
+//        }
+//        return queryExpressionNode.modify()
+//                .withQueryPipeline(queryPipeline)
+//                .withSelectClause(selectClause)
+//                .apply();
     }
 
     @Override
@@ -3333,6 +3388,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(enumDeclarationNode, lineRange)) {
             return enumDeclarationNode;
         }
+        int startColumn = getStartColumn(enumDeclarationNode, false);
         MetadataNode metadata = this.modifyNode(enumDeclarationNode.metadata().orElse(null));
         Token qualifier = getToken(enumDeclarationNode.qualifier());
         Token enumKeywordToken = getToken(enumDeclarationNode.enumKeywordToken());
@@ -3344,13 +3400,17 @@ public class FormattingTreeModifier extends TreeModifier {
             enumDeclarationNode = enumDeclarationNode.modify()
                     .withMetadata(metadata).apply();
         }
+        if (metadata != null) {
+            enumDeclarationNode = enumDeclarationNode.modify()
+                    .withMetadata(metadata).apply();
+        }
         return enumDeclarationNode.modify()
-                .withQualifier(formatToken(qualifier, 1, 1, 0, 0))
+                .withQualifier(formatToken(qualifier, 0, 1, 0, 0))
                 .withEnumKeywordToken(formatToken(enumKeywordToken, 0, 1, 0, 0))
                 .withIdentifier(identifier)
-                .withOpenBraceToken(formatToken(openBraceToken, 0, 0, 0, 0))
+                .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 1))
                 .withEnumMemberList(enumMemberList)
-                .withCloseBraceToken(formatToken(closeBraceToken, 0, 0, 0, 0))
+                .withCloseBraceToken(formatToken(closeBraceToken, startColumn, 0, 1, 2))
                 .apply();
     }
 
@@ -3367,10 +3427,16 @@ public class FormattingTreeModifier extends TreeModifier {
             enumMemberNode = enumMemberNode.modify()
                     .withMetadata(metadata).apply();
         }
+        if (equalToken != null) {
+            enumMemberNode = enumMemberNode.modify()
+                    .withEqualToken(formatToken(equalToken, 1, 1, 0, 0)).apply();
+        }
+        if (constExprNode != null) {
+            enumMemberNode = enumMemberNode.modify()
+                    .withConstExprNode(constExprNode).apply();
+        }
         return enumMemberNode.modify()
-                .withEqualToken(formatToken(equalToken, 1, 1, 0, 0))
                 .withIdentifier(identifier)
-                .withConstExprNode(constExprNode)
                 .apply();
     }
 
@@ -3603,8 +3669,9 @@ public class FormattingTreeModifier extends TreeModifier {
             joinClauseNode = joinClauseNode.modify()
                     .withOuterKeyword(formatToken(outerKeyword, 1, 1, 0, 0)).apply();
         }
+        int startColumn = getStartColumn(joinClauseNode, true);
         return joinClauseNode.modify()
-                .withJoinKeyword(formatToken(joinKeyword, 1, 1, 0, 0))
+                .withJoinKeyword(formatToken(joinKeyword, startColumn, 1, 1, 0))
                 .withTypedBindingPattern(typedBindingPattern)
                 .withInKeyword(formatToken(inKeyword, 1, 1, 0, 0))
                 .withExpression(expression)
@@ -3617,12 +3684,13 @@ public class FormattingTreeModifier extends TreeModifier {
         if (!isInLineRange(onClauseNode, lineRange)) {
             return onClauseNode;
         }
+        int startColumn = getStartColumn(onClauseNode, true);
         Token onKeyword = getToken(onClauseNode.onKeyword());
         Token equalsKeyword = getToken(onClauseNode.equalsKeyword());
         ExpressionNode lhsExpr = this.modifyNode(onClauseNode.lhsExpression());
         ExpressionNode rhsExpr = this.modifyNode(onClauseNode.rhsExpression());
         return onClauseNode.modify()
-                .withOnKeyword(formatToken(onKeyword, 1, 1, 0, 0))
+                .withOnKeyword(formatToken(onKeyword, startColumn, 1, 1, 0))
                 .withLhsExpression(lhsExpr)
                 .withEqualsKeyword(formatToken(equalsKeyword, 1, 1, 0, 0))
                 .withRhsExpression(rhsExpr)
@@ -3677,17 +3745,19 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
-    public FunctionalMatchPatternNode transform(FunctionalMatchPatternNode functionalMatchPatternNode) {
-        if (!isInLineRange(functionalMatchPatternNode, lineRange)) {
-            return functionalMatchPatternNode;
+    public ErrorMatchPatternNode transform(ErrorMatchPatternNode errorMatchPatternNode) {
+        if (!isInLineRange(errorMatchPatternNode, lineRange)) {
+            return errorMatchPatternNode;
         }
-        Node typeRef = this.modifyNode(functionalMatchPatternNode.typeRef());
-        Token openParenthesisToken = getToken(functionalMatchPatternNode.openParenthesisToken());
+        Token errorKeywordToken = getToken(errorMatchPatternNode.errorKeyword());
+        Node typeRef = this.modifyNode(errorMatchPatternNode.typeReference().orElse(null));
+        Token openParenthesisToken = getToken(errorMatchPatternNode.openParenthesisToken());
         SeparatedNodeList<Node> argListMatchPatternNode =
-                this.modifySeparatedNodeList(functionalMatchPatternNode.argListMatchPatternNode());
-        Token closeParenthesisToken = getToken(functionalMatchPatternNode.closeParenthesisToken());
-        return functionalMatchPatternNode.modify()
-                .withTypeRef(typeRef)
+                this.modifySeparatedNodeList(errorMatchPatternNode.argListMatchPatternNode());
+        Token closeParenthesisToken = getToken(errorMatchPatternNode.closeParenthesisToken());
+        return errorMatchPatternNode.modify()
+                .withErrorKeyword(formatToken(errorKeywordToken, 0, 1, 0, 0))
+                .withTypeReference((NameReferenceNode) typeRef)
                 .withOpenParenthesisToken(formatToken(openParenthesisToken, 0, 0, 0, 0))
                 .withArgListMatchPatternNode(argListMatchPatternNode)
                 .withCloseParenthesisToken(formatToken(closeParenthesisToken, 0, 0, 0, 0))
@@ -3830,10 +3900,14 @@ public class FormattingTreeModifier extends TreeModifier {
         BlockStatementNode blockStatement = this.modifyNode(doStatementNode.blockStatement());
         OnFailClauseNode onFailClause = this.modifyNode(doStatementNode.onFailClause().orElse(null));
         int startColumn = getStartColumn(doStatementNode, true);
+        if (onFailClause != null) {
+            doStatementNode = doStatementNode.modify()
+                    .withOnFailClause(onFailClause)
+                    .apply();
+        }
         return doStatementNode.modify()
                 .withDoKeyword(formatToken(doKeyword, startColumn, 0, 0, 0))
                 .withBlockStatement(blockStatement)
-                .withOnFailClause(onFailClause)
                 .apply();
     }
 
@@ -3921,7 +3995,7 @@ public class FormattingTreeModifier extends TreeModifier {
     private int getStartColumn(Node node, boolean addSpaces) {
         Node parent = getParent(node, node.kind());
         if (parent != null) {
-            return getPosition(parent).sCol + (addSpaces ? FormatterUtils.getIndentation(node, 0, options) : 0);
+            return getPosition(parent).sCol + (addSpaces ? getIndentation(node, 0, options) : 0);
         }
         return 0;
     }

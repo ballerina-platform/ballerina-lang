@@ -16,7 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -37,7 +37,7 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
     public SimpleNameReferenceEvaluator(SuspendedContext context, SimpleNameReferenceNode node) {
         super(context);
         this.syntaxNode = node;
-        this.nameRef = node.toSourceCode().trim();
+        this.nameRef = node.name().text();
     }
 
     @Override
