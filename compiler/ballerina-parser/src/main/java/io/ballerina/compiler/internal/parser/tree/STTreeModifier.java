@@ -956,22 +956,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STAnnotationAttachPointNode transform(
             STAnnotationAttachPointNode annotationAttachPointNode) {
         STNode sourceKeyword = modifyNode(annotationAttachPointNode.sourceKeyword);
-        STNode firstIdent = modifyNode(annotationAttachPointNode.firstIdent);
-        STNode secondIdent = modifyNode(annotationAttachPointNode.secondIdent);
+        STNode identifiers = modifyNode(annotationAttachPointNode.identifiers);
         return annotationAttachPointNode.modify(
                 sourceKeyword,
-                firstIdent,
-                secondIdent);
-    }
-
-    @Override
-    public STServiceRemoteAttachPointIdentifierNode transform(
-            STServiceRemoteAttachPointIdentifierNode serviceRemoteAttachPointIdentifierNode) {
-        STNode serviceKeyword = modifyNode(serviceRemoteAttachPointIdentifierNode.serviceKeyword);
-        STNode remoteKeyword = modifyNode(serviceRemoteAttachPointIdentifierNode.remoteKeyword);
-        return serviceRemoteAttachPointIdentifierNode.modify(
-                serviceKeyword,
-                remoteKeyword);
+                identifiers);
     }
 
     @Override

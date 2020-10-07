@@ -902,22 +902,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createAnnotationAttachPointNode(
             STNode sourceKeyword,
-            STNode firstIdent,
-            STNode secondIdent) {
+            STNode identifiers) {
 
         return new STAnnotationAttachPointNode(
                 sourceKeyword,
-                firstIdent,
-                secondIdent);
-    }
-
-    public static STNode createServiceRemoteAttachPointIdentifierNode(
-            STNode serviceKeyword,
-            STNode remoteKeyword) {
-
-        return new STServiceRemoteAttachPointIdentifierNode(
-                serviceKeyword,
-                remoteKeyword);
+                identifiers);
     }
 
     public static STNode createXMLNamespaceDeclarationNode(

@@ -1636,27 +1636,9 @@
                     "type": "Token"
                 },
                 {
-                    "name": "firstIdent",
-                    "type": "Node"
-                },
-                {
-                    "name": "secondIdent",
-                    "type": "Token"
-                }
-            ]
-        },
-        {
-            "name": "ServiceRemoteAttachPointIdentifierNode",
-            "base": "Node",
-            "kind": "SERVICE_REMOTE_ATTACH_POINT_IDENTIFIER",
-            "attributes": [
-                {
-                    "name": "serviceKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "remoteKeyword",
-                    "type": "Token"
+                    "name": "identifiers",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
                 }
             ]
         },

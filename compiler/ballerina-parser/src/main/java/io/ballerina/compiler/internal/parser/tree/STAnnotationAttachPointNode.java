@@ -32,59 +32,49 @@ import java.util.Collections;
  */
 public class STAnnotationAttachPointNode extends STNode {
     public final STNode sourceKeyword;
-    public final STNode firstIdent;
-    public final STNode secondIdent;
+    public final STNode identifiers;
 
     STAnnotationAttachPointNode(
             STNode sourceKeyword,
-            STNode firstIdent,
-            STNode secondIdent) {
+            STNode identifiers) {
         this(
                 sourceKeyword,
-                firstIdent,
-                secondIdent,
+                identifiers,
                 Collections.emptyList());
     }
 
     STAnnotationAttachPointNode(
             STNode sourceKeyword,
-            STNode firstIdent,
-            STNode secondIdent,
+            STNode identifiers,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.ANNOTATION_ATTACH_POINT, diagnostics);
         this.sourceKeyword = sourceKeyword;
-        this.firstIdent = firstIdent;
-        this.secondIdent = secondIdent;
+        this.identifiers = identifiers;
 
         addChildren(
                 sourceKeyword,
-                firstIdent,
-                secondIdent);
+                identifiers);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STAnnotationAttachPointNode(
                 this.sourceKeyword,
-                this.firstIdent,
-                this.secondIdent,
+                this.identifiers,
                 diagnostics);
     }
 
     public STAnnotationAttachPointNode modify(
             STNode sourceKeyword,
-            STNode firstIdent,
-            STNode secondIdent) {
+            STNode identifiers) {
         if (checkForReferenceEquality(
                 sourceKeyword,
-                firstIdent,
-                secondIdent)) {
+                identifiers)) {
             return this;
         }
 
         return new STAnnotationAttachPointNode(
                 sourceKeyword,
-                firstIdent,
-                secondIdent,
+                identifiers,
                 diagnostics);
     }
 

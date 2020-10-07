@@ -1526,12 +1526,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             AnnotationAttachPointNode attachPoint = (AnnotationAttachPointNode) child;
             boolean source = attachPoint.sourceKeyword() != null;
             AttachPoint bLAttachPoint;
-            Node firstIndent =  attachPoint.firstIdent();
+            NodeList<Token> idents = attachPoint.identifiers();
+            Token firstIndent =  idents.get(0);
 
-            Token secondIndent;
             switch (firstIndent.kind()) {
                 case OBJECT_KEYWORD:
-                    secondIndent = attachPoint.secondIdent();
+                    Token secondIndent = idents.get(1);
                     switch (secondIndent.kind()) {
                         case FUNCTION_KEYWORD:
                             bLAttachPoint =
@@ -1546,14 +1546,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     }
                     break;
                 case SERVICE_KEYWORD:
-                    secondIndent = attachPoint.secondIdent();
                     String value;
-                    if (secondIndent == null) {
-                       value = AttachPoint.Point.SERVICE.getValue();
-                    } else if (secondIndent.kind() == SyntaxKind.SERVICE_REMOTE_ATTACH_POINT_IDENTIFIER) {
+                    if (idents.size() == 1) {
+                        value = AttachPoint.Point.SERVICE.getValue();
+                    } else if (idents.size() == 3) {
+                        // the only case we are having 3 idents is service remote function
                         value = AttachPoint.Point.SERVICE_REMOTE.getValue();
                     } else {
-                        throw new RuntimeException("Syntax kind is not supported: " + secondIndent.kind());
+                        throw new RuntimeException("Invalid annotation attach point");
                     }
                     bLAttachPoint = AttachPoint.getAttachmentPoint(value, source);
                     break;

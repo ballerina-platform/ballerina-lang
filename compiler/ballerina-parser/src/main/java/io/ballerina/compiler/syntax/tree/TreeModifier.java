@@ -1223,26 +1223,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             AnnotationAttachPointNode annotationAttachPointNode) {
         Token sourceKeyword =
                 modifyToken(annotationAttachPointNode.sourceKeyword());
-        Node firstIdent =
-                modifyNode(annotationAttachPointNode.firstIdent());
-        Token secondIdent =
-                modifyToken(annotationAttachPointNode.secondIdent());
+        NodeList<Token> identifiers =
+                modifyNodeList(annotationAttachPointNode.identifiers());
         return annotationAttachPointNode.modify(
                 sourceKeyword,
-                firstIdent,
-                secondIdent);
-    }
-
-    @Override
-    public ServiceRemoteAttachPointIdentifierNode transform(
-            ServiceRemoteAttachPointIdentifierNode serviceRemoteAttachPointIdentifierNode) {
-        Token serviceKeyword =
-                modifyToken(serviceRemoteAttachPointIdentifierNode.serviceKeyword());
-        Token remoteKeyword =
-                modifyToken(serviceRemoteAttachPointIdentifierNode.remoteKeyword());
-        return serviceRemoteAttachPointIdentifierNode.modify(
-                serviceKeyword,
-                remoteKeyword);
+                identifiers);
     }
 
     @Override

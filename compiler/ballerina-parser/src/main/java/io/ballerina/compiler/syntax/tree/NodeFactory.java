@@ -1185,29 +1185,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static AnnotationAttachPointNode createAnnotationAttachPointNode(
             Token sourceKeyword,
-            Node firstIdent,
-            Token secondIdent) {
+            NodeList<Token> identifiers) {
         Objects.requireNonNull(sourceKeyword, "sourceKeyword must not be null");
-        Objects.requireNonNull(firstIdent, "firstIdent must not be null");
-        Objects.requireNonNull(secondIdent, "secondIdent must not be null");
+        Objects.requireNonNull(identifiers, "identifiers must not be null");
 
         STNode stAnnotationAttachPointNode = STNodeFactory.createAnnotationAttachPointNode(
                 sourceKeyword.internalNode(),
-                firstIdent.internalNode(),
-                secondIdent.internalNode());
+                identifiers.underlyingListNode().internalNode());
         return stAnnotationAttachPointNode.createUnlinkedFacade();
-    }
-
-    public static ServiceRemoteAttachPointIdentifierNode createServiceRemoteAttachPointIdentifierNode(
-            Token serviceKeyword,
-            Token remoteKeyword) {
-        Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
-        Objects.requireNonNull(remoteKeyword, "remoteKeyword must not be null");
-
-        STNode stServiceRemoteAttachPointIdentifierNode = STNodeFactory.createServiceRemoteAttachPointIdentifierNode(
-                serviceKeyword.internalNode(),
-                remoteKeyword.internalNode());
-        return stServiceRemoteAttachPointIdentifierNode.createUnlinkedFacade();
     }
 
     public static XMLNamespaceDeclarationNode createXMLNamespaceDeclarationNode(
