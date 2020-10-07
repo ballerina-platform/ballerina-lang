@@ -24,6 +24,8 @@ import io.ballerina.tools.text.TextRange;
 
 /**
  * Represents the location of a TOML AST Node.
+ *
+ * @since 0.1.0
  */
 public class TomlNodeLocation implements Location {
     private final LineRange lineRange;

@@ -18,7 +18,7 @@
 
 package toml.parser.test.errors;
 
-import io.ballerina.toml.Toml;
+import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.ast.TomlDiagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.LineRange;
@@ -35,10 +35,9 @@ public class KeyValuePairTest {
 
     @Test
     public void testMissingEquals() throws IOException {
-        Toml toml = new Toml();
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("validations/syntax/missing-equal.toml");
-        Toml read = toml.read(inputStream);
+        Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 4, 4);
         TomlDiagnostic actualDiag = diagnostics.get(0);
@@ -49,10 +48,10 @@ public class KeyValuePairTest {
 
     @Test
     public void testMissingKey() throws IOException {
-        Toml toml = new Toml();
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("validations/syntax/missing-key.toml");
-        Toml read = toml.read(inputStream);
+        Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(1, 1, 1, 1);
@@ -63,10 +62,10 @@ public class KeyValuePairTest {
 
     @Test
     public void testMissingValue() throws IOException {
-        Toml toml = new Toml();
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("validations/syntax/missing-value.toml");
-        Toml read = toml.read(inputStream);
+        Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(18, 18, 1, 1);
@@ -78,10 +77,10 @@ public class KeyValuePairTest {
 
     @Test
     public void testMultipleMissing() throws IOException {
-        Toml toml = new Toml();
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("validations/syntax/key-value-multi.toml");
-        Toml read = toml.read(inputStream);
+        Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 4, 4);
@@ -105,10 +104,10 @@ public class KeyValuePairTest {
 
     @Test
     public void testArrayMissingComma() throws IOException {
-        Toml toml = new Toml();
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("validations/syntax/array-missing-comma.toml");
-        Toml read = toml.read(inputStream);
+        Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 12, 13);
@@ -120,10 +119,10 @@ public class KeyValuePairTest {
 
     @Test
     public void testArrayMissingValue() throws IOException {
-        Toml toml = new Toml();
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("validations/syntax/array-missing-value.toml");
-        Toml read = toml.read(inputStream);
+        Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 8, 9);

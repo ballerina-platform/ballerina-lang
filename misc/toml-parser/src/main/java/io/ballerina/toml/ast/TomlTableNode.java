@@ -27,44 +27,52 @@ import java.util.Map;
 
 /**
  * Represents Table in TOML AST.
+ *
+ * @since 0.1.0
  */
-public class TomlTable extends TopLevelNode {
+public class TomlTableNode extends TopLevelNode {
 
-    Map<String, TopLevelNode> children;
-    public boolean generated;
+    private final Map<String, TopLevelNode> children;
+    private final boolean generated;
 
-    public TomlTable(TomlKey key) {
-        super(key, SyntaxKind.TABLE);
+    public TomlTableNode(TomlKeyNode key, TomlNodeLocation location) {
+        super(key, SyntaxKind.TABLE, location);
         this.children = new LinkedHashMap<>();
+        this.generated = false;
     }
 
-    public Map<String, TopLevelNode> getChildren() {
-        return children;
-    }
-
-    public void setChildren(Map<String, TopLevelNode> children) {
-        this.children = children;
-    }
-
-    public boolean isGenerated() {
-        return generated;
-    }
-
-    public void setGenerated(boolean generated) {
+    public TomlTableNode(TomlKeyNode key, boolean generated, TomlNodeLocation location) {
+        super(key, SyntaxKind.TABLE, location);
+        this.children = new LinkedHashMap<>();
         this.generated = generated;
     }
 
-    public void addChild(TopLevelNode topLevelNode) {
-        children.put(topLevelNode.key.name, topLevelNode);
+    public TomlTableNode(TomlKeyNode key, boolean generated, TomlNodeLocation location,
+                         Map<String, TopLevelNode> children) {
+        super(key, SyntaxKind.TABLE, location);
+        this.children = children;
+        this.generated = generated;
     }
 
-    public void replaceGeneratedTable(TomlTable tomlTable) {
-        TopLevelNode childNode = children.get(tomlTable.key.name);
-        if (childNode instanceof TomlTable) {
-            TomlTable childTable = (TomlTable) childNode;
-            if ((childTable).isGenerated()) {
-                tomlTable.addChildList(childTable.getChildren());
-                children.put(tomlTable.key.name, tomlTable);
+    public Map<String, TopLevelNode> children() {
+        return children;
+    }
+
+    public boolean generated() {
+        return generated;
+    }
+
+    public void addChild(TopLevelNode topLevelNode) {
+        children.put(topLevelNode.key().name(), topLevelNode);
+    }
+
+    public void replaceGeneratedTable(TomlTableNode tomlTableNode) {
+        TopLevelNode childNode = children.get(tomlTableNode.key().name());
+        if (childNode instanceof TomlTableNode) {
+            TomlTableNode childTable = (TomlTableNode) childNode;
+            if ((childTable).generated()) {
+                tomlTableNode.addChildList(childTable.children());
+                children.put(tomlTableNode.key().name(), tomlTableNode);
             }
         }
     }
@@ -76,27 +84,22 @@ public class TomlTable extends TopLevelNode {
     @Override
     public String toString() {
         return "TomlTable{" +
-                "identifier=" + key.name +
+                "identifier=" + key().name() +
                 ", generated=" + generated +
                 '}';
     }
 
     public void setSyntacticalDiagnostics(List<TomlDiagnostic> syntaxDiags) {
-        this.getDiagnostics().addAll(syntaxDiags);
+        this.diagnostics().addAll(syntaxDiags);
     }
 
     public List<TomlDiagnostic> collectSemanticDiagnostics() {
         List<TomlDiagnostic> tomlDiagnostics = new ArrayList<>();
         for (Map.Entry<String, TopLevelNode> child : children.entrySet()) {
-            tomlDiagnostics.addAll(child.getValue().getDiagnostics());
+            tomlDiagnostics.addAll(child.getValue().diagnostics());
         }
-        this.getDiagnostics().addAll(tomlDiagnostics);
+        this.diagnostics().addAll(tomlDiagnostics);
         return tomlDiagnostics;
-    }
-
-    @Override
-    public <T> T apply(TomlNodeTransformer<T> transformer) {
-        return transformer.transform(this);
     }
 
     @Override

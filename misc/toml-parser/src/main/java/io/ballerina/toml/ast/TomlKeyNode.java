@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -21,41 +21,25 @@ package io.ballerina.toml.ast;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 
 /**
- * Represents Basic Value in TOML AST.
+ * Represents Key in TOML AST.
+ *
+ * @since 0.1.0
  */
-public class TomlBasicValue extends TomlValue {
+public class TomlKeyNode extends TomlNode {
 
-    private Object value;
+    private final String name;
 
-    public TomlBasicValue(Object value, SyntaxKind kind) {
-        super (kind);
-        this.value = value;
+    public TomlKeyNode(String name, SyntaxKind type, TomlNodeLocation location) {
+        super(type, location);
+        this.name = name;
     }
 
-    public Object getValue() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return "TomlBasicValue{" +
-                "value=" + value +
-                ", kind=" + super.getKind() +
-                '}';
+    public String name() {
+        return name;
     }
 
     @Override
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public SyntaxKind getKind() {
-        return super.getKind();
-    }
-
-    @Override
-    public <T> T apply(TomlNodeTransformer<T> transformer) {
-        return transformer.transform(this);
     }
 }

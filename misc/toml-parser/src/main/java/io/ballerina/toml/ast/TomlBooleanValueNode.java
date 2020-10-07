@@ -21,20 +21,12 @@ package io.ballerina.toml.ast;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 
 /**
- * Represents a Top Level Node in TOML.
+ * Represents A Boolean Value in Toml AST.
  *
  * @since 0.1.0
  */
-public abstract class TopLevelNode extends TomlNode {
-
-    private final TomlKeyNode key;
-
-    public TopLevelNode(TomlKeyNode key, SyntaxKind type, TomlNodeLocation location) {
-        super(type, location);
-        this.key = key;
-    }
-
-    public TomlKeyNode key() {
-        return key;
+public class TomlBooleanValueNode extends TomlBasicValueNode<Boolean> {
+    public TomlBooleanValueNode(Boolean value, SyntaxKind kind, TomlNodeLocation location) {
+        super(value, kind, location);
     }
 }

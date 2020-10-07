@@ -14,5 +14,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
+# Values
 
-key = false
+same_type = [1,2,3]
+mixed_type = [1,2,"test string",3]
+nested_array = [1,2,[5,6],3]

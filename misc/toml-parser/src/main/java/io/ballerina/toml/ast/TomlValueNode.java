@@ -21,20 +21,18 @@ package io.ballerina.toml.ast;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 
 /**
- * Represents a Top Level Node in TOML.
+ * Represents TOML Value in AST.
  *
  * @since 0.1.0
  */
-public abstract class TopLevelNode extends TomlNode {
+public abstract class TomlValueNode extends TomlNode {
 
-    private final TomlKeyNode key;
-
-    public TopLevelNode(TomlKeyNode key, SyntaxKind type, TomlNodeLocation location) {
-        super(type, location);
-        this.key = key;
+    public TomlValueNode(SyntaxKind kind, TomlNodeLocation location) {
+        super(kind, location);
     }
 
-    public TomlKeyNode key() {
-        return key;
+    @Override
+    public void accept(TomlNodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

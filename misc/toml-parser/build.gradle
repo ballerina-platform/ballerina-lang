@@ -25,8 +25,6 @@ configurations.all {
 
 dependencies {
     implementation project(':ballerina-tools-api')
-    testImplementation 'org.testng:testng'
-    testImplementation 'com.google.code.gson:gson'
     testCompile 'org.testng:testng'
 }
 
@@ -37,3 +35,15 @@ test {
 }
 
 description = 'TOML Parser'
+
+ext.moduleName = 'io.ballerina.toml'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}

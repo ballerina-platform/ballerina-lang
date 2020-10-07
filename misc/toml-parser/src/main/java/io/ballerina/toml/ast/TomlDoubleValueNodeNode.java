@@ -21,32 +21,12 @@ package io.ballerina.toml.ast;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 
 /**
- * Represents Key Value Pair in TOML AST.
+ * Represents A Double Value in Toml AST.
+ *
+ * @since 0.1.0
  */
-public class TomlKeyValue extends TopLevelNode {
-
-    public TomlValue value;
-
-    public TomlKeyValue(TomlKey key, TomlValue value) {
-        super(key, SyntaxKind.KEY_VALUE);
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return "TomlKeyValue{" +
-                "key=" + key.name +
-                ", value=" + value +
-                '}';
-    }
-
-    @Override
-    public void accept(TomlNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(TomlNodeTransformer<T> transformer) {
-        return transformer.transform(this);
+public class TomlDoubleValueNodeNode extends TomlBasicValueNode<Double> {
+    public TomlDoubleValueNodeNode(Double value, SyntaxKind kind, TomlNodeLocation location) {
+        super(value, kind, location);
     }
 }

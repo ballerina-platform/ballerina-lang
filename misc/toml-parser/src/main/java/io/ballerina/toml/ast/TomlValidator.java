@@ -25,6 +25,8 @@ import java.util.Map;
 
 /**
  * A Validator for TOML.
+ *
+ * @since 0.1.0
  */
 public class TomlValidator extends TomlNodeVisitor {
 
@@ -35,18 +37,19 @@ public class TomlValidator extends TomlNodeVisitor {
     }
 
     @Override
-    public void visit(TomlTable tomlTable) {
-        Map<String, TopLevelNode> children = tomlTable.getChildren();
+    public void visit(TomlTableNode tomlTableNode) {
+        Map<String, TopLevelNode> children = tomlTableNode.children();
         for (Map.Entry<String, TopLevelNode> child : children.entrySet()) {
             TopLevelNode value = child.getValue();
-            if (value.getKind() == SyntaxKind.TABLE) {
-                String childTableFullName = value.getKey().name;
+            if (value.kind() == SyntaxKind.TABLE) {
+                String childTableFullName = value.key().name();
                 String[] split = childTableFullName.split("\\.");
                 if (split.length > 1) {
                     String childTableName = split[split.length - 1];
                     if (children.containsKey(childTableName)) {
-                        TomlDiagnostic nodeExists = dlog.error(value.location, DiagnosticErrorCode.ERROR_EXISTING_NODE);
-                        tomlTable.addDiagnostic(nodeExists);
+                        TomlDiagnostic nodeExists = dlog.error(value.location(),
+                                DiagnosticErrorCode.ERROR_EXISTING_NODE);
+                        tomlTableNode.addDiagnostic(nodeExists);
                     }
                 }
                 value.accept(this);
@@ -55,32 +58,27 @@ public class TomlValidator extends TomlNodeVisitor {
     }
 
     @Override
-    public void visit(TomlKeyValue keyValue) {
+    public void visit(TomlKeyValueNode keyValue) {
 
     }
 
     @Override
-    public void visit(TomlKey tomlKey) {
+    public void visit(TomlKeyNode tomlKeyNode) {
 
     }
 
     @Override
-    public void visit(TomlValue tomlValue) {
+    public void visit(TomlValueNode tomlValue) {
 
     }
 
     @Override
-    public void visit(TomlArray tomlArray) {
+    public void visit(TomlArrayValueNode tomlArrayValueNode) {
 
     }
 
     @Override
-    public void visit(TomlBasicValue tomlBasicValue) {
-
-    }
-
-    @Override
-    public void visit(TomlTableArray tomlTableArray) {
+    public void visit(TomlTableArrayNode tomlTableArrayNode) {
 
     }
 }

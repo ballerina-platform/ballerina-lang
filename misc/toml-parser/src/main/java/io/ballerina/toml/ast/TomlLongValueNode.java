@@ -21,24 +21,12 @@ package io.ballerina.toml.ast;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
 
 /**
- * Represents Key in TOML AST.
+ * Represents A Long Value in Toml AST.
+ *
+ * @since 0.1.0
  */
-public class TomlKey extends TomlNode {
-
-    public String name;
-
-    public TomlKey(String name, SyntaxKind type) {
-        super(type);
-        this.name = name;
-    }
-
-    @Override
-    public void accept(TomlNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(TomlNodeTransformer<T> transformer) {
-        return transformer.transform(this);
+public class TomlLongValueNode extends TomlBasicValueNode<Long> {
+    public TomlLongValueNode(Long value, SyntaxKind kind, TomlNodeLocation location) {
+        super(value, kind, location);
     }
 }
