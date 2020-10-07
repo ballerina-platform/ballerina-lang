@@ -171,6 +171,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     private static final String BLOCK_MAP_SYM_NAME = "$map$block$";
     private static final String FUNCTION_MAP_SYM_NAME = "$map$func$";
+    private static final String PARAMETER_MAP_NAME = "$paramMap$";
     private static final BVarSymbol CLOSURE_MAP_NOT_FOUND;
 
     private SymbolTable symTable;
@@ -1055,7 +1056,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             // It is resolved from a parameter map.
             // Add parameter map symbol if one is not added.
             ((BLangFunction) env.enclInvokable).paramClosureMap.putIfAbsent(absoluteLevel, createMapSymbol(
-                    "$paramMap$" + absoluteLevel, env));
+                    PARAMETER_MAP_NAME + UNDERSCORE + absoluteLevel, env));
 
             // Update the closure vars.
             updateClosureVars(localVarRef, ((BLangFunction) env.enclInvokable).paramClosureMap.get(absoluteLevel));
@@ -1118,8 +1119,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
             if (bLangFunction.paramClosureMap.containsKey(resolvedLevel)) {
                 return;
             }
-            bLangFunction.paramClosureMap.put(resolvedLevel, createMapSymbol("$paramMap$" + resolvedLevel,
-                    symbolEnv));
+            bLangFunction.paramClosureMap
+                    .put(resolvedLevel, createMapSymbol(PARAMETER_MAP_NAME + UNDERSCORE + resolvedLevel, symbolEnv));
 
             symbolEnv = symbolEnv.enclEnv;
         }

@@ -1182,8 +1182,8 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangRecordVariable varNode) {
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
         final BLangSimpleVariable mapVariable =
-                ASTBuilderUtil.createVariable(varNode.pos, "$map$0", symTable.mapAllType, null,
-                                              new BVarSymbol(0, names.fromString("$map$0"), this.env.scope.owner.pkgID,
+                ASTBuilderUtil.createVariable(varNode.pos, "$map$_0", symTable.mapAllType, null,
+                                              new BVarSymbol(0, names.fromString("$map$_0"), this.env.scope.owner.pkgID,
                                                              symTable.mapAllType, this.env.scope.owner, varNode.pos,
                                                              VIRTUAL));
         mapVariable.expr = varNode.expr;
@@ -1434,7 +1434,7 @@ public class Desugar extends BLangNodeVisitor {
         if (parentRecordVariable.restParam != null) {
             // The restParam is desugared to a filter iterable operation that filters out the fields provided in the
             // record variable
-            // map<any> restParam = $map$0.filter($lambdaArg$0);
+            // map<any> restParam = $map$_0.filter($lambdaArg$_0);
 
             DiagnosticPos pos = parentBlockStmt.pos;
             BMapType restParamType = (BMapType) ((BLangVariable) parentRecordVariable.restParam).type;
@@ -1442,9 +1442,9 @@ public class Desugar extends BLangNodeVisitor {
 
             if (parentIndexAccessExpr != null) {
                 BLangSimpleVariable mapVariable =
-                        ASTBuilderUtil.createVariable(pos, "$map$1",
+                        ASTBuilderUtil.createVariable(pos, "$map$_1",
                                                       parentIndexAccessExpr.type, null,
-                                                      new BVarSymbol(0, names.fromString("$map$1"),
+                                                      new BVarSymbol(0, names.fromString("$map$_1"),
                                                                      this.env.scope.owner.pkgID,
                                                                      parentIndexAccessExpr.type, this.env.scope.owner,
                                                                      pos, VIRTUAL));
@@ -1671,7 +1671,7 @@ public class Desugar extends BLangNodeVisitor {
         String anonfuncName = "$anonGetValFunc$" + UNDERSCORE + lambdaFunctionCount++;
         BLangFunction function = ASTBuilderUtil.createFunction(pos, anonfuncName);
 
-        BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$0"), this.env.scope.owner.pkgID,
+        BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$_0"), this.env.scope.owner.pkgID,
                                                  getStringAnyTupleType(), this.env.scope.owner, pos, VIRTUAL);
 
         BLangSimpleVariable inputParameter = ASTBuilderUtil.createVariable(pos, null, getStringAnyTupleType(),
@@ -1878,12 +1878,12 @@ public class Desugar extends BLangNodeVisitor {
 
         // Creates following anonymous function
         //
-        // function ((string, any) $lambdaArg$0) returns boolean {
+        // function ((string, any) $lambdaArg$_0) returns boolean {
         //     Following if block is generated for all parameters given in the record variable
-        //     if ($lambdaArg$0[0] == "name") {
+        //     if ($lambdaArg$_0[0] == "name") {
         //         return false;
         //     }
-        //     if ($lambdaArg$0[0] == "age") {
+        //     if ($lambdaArg$_0[0] == "age") {
         //         return false;
         //     }
         //      return true;
@@ -1892,7 +1892,7 @@ public class Desugar extends BLangNodeVisitor {
         String anonfuncName = "$anonRestParamFilterFunc$" + UNDERSCORE + lambdaFunctionCount++;
         BLangFunction function = ASTBuilderUtil.createFunction(pos, anonfuncName);
 
-        BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$0"), this.env.scope.owner.pkgID,
+        BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$_0"), this.env.scope.owner.pkgID,
                                                  getStringAnyTupleType(), this.env.scope.owner, pos, VIRTUAL);
         BLangBlockFunctionBody functionBlock = createAnonymousFunctionBlock(pos, function, keyValSymbol);
 
@@ -2301,7 +2301,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BType runTimeType = new BMapType(TypeTags.MAP, symTable.anyType, null);
 
-        String name = "$map$0";
+        String name = "$map$_0";
         final BLangSimpleVariable mapVariable =
                 ASTBuilderUtil.createVariable(recordDestructure.pos, name, runTimeType, null,
                                               new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
@@ -2388,7 +2388,7 @@ public class Desugar extends BLangNodeVisitor {
         if (parentRecordVarRef.restParam != null) {
             // The restParam is desugared to a filter iterable operation that filters out the fields provided in the
             // record variable
-            // map<any> restParam = $map$0.filter($lambdaArg$0);
+            // map<any> restParam = $map$_0.filter($lambdaArg$_0);
 
             DiagnosticPos pos = parentBlockStmt.pos;
             BMapType restParamType = (BMapType) ((BLangSimpleVarRef) parentRecordVarRef.restParam).type;
@@ -2396,8 +2396,8 @@ public class Desugar extends BLangNodeVisitor {
 
             if (parentIndexAccessExpr != null) {
                 BLangSimpleVariable mapVariable =
-                        ASTBuilderUtil.createVariable(pos, "$map$1", restParamType, null,
-                                                      new BVarSymbol(0, names.fromString("$map$1"),
+                        ASTBuilderUtil.createVariable(pos, "$map$_1", restParamType, null,
+                                                      new BVarSymbol(0, names.fromString("$map$_1"),
                                                                      this.env.scope.owner.pkgID, restParamType,
                                                                      this.env.scope.owner, pos, VIRTUAL));
                 mapVariable.expr = parentIndexAccessExpr;
