@@ -17,8 +17,8 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocument;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 
 /**
  * {@code Document} represents a Ballerina source file(.bal).
