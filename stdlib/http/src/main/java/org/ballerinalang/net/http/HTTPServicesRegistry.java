@@ -20,6 +20,7 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.BRuntime;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
@@ -53,6 +54,7 @@ public class HTTPServicesRegistry {
     protected List<String> sortedServiceURIs;
     private final WebSocketServicesRegistry webSocketServicesRegistry;
     private Scheduler scheduler;
+    private BRuntime runtime;
 
     public HTTPServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
         this.webSocketServicesRegistry = webSocketServicesRegistry;
@@ -102,8 +104,9 @@ public class HTTPServicesRegistry {
      * Register a service into the map.
      *
      * @param service requested serviceInfo to be registered.
+     * @param runtime ballerina runtime instance.
      */
-    public void registerService(BObject service) {
+    public void registerService(BObject service, BRuntime runtime) {
         List<HttpService> httpServices = HttpService.buildHttpService(service);
 
         for (HttpService httpService : httpServices) {
@@ -133,15 +136,15 @@ public class HTTPServicesRegistry {
             sortedServiceURIs.add(basePath);
             sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
             // Register the WebSocket upgrade service in the WebSocket registry
-            registerWebSocketUpgradeService(httpService);
+            registerWebSocketUpgradeService(httpService, runtime);
         }
     }
 
-    private void registerWebSocketUpgradeService(HttpService httpService) {
+    private void registerWebSocketUpgradeService(HttpService httpService, BRuntime runtime) {
         httpService.getUpgradeToWebSocketResources().forEach(upgradeToWebSocketResource -> {
             WebSocketServerService webSocketService = new WebSocketServerService(
                     sanitizeBasePath(httpService.getBasePath()), upgradeToWebSocketResource,
-                    getUpgradeService(upgradeToWebSocketResource), scheduler);
+                    getUpgradeService(upgradeToWebSocketResource), runtime);
             webSocketServicesRegistry.registerService(webSocketService);
         });
     }
@@ -184,12 +187,16 @@ public class HTTPServicesRegistry {
         return null;
     }
 
-    public void setScheduler(Scheduler scheduler) {
-        this.scheduler = scheduler;
-    }
-
     public Scheduler getScheduler() {
         return scheduler;
+    }
+
+    public BRuntime getRuntime() {
+        return runtime;
+    }
+
+    public void setRuntime(BRuntime runtime) {
+        this.runtime = runtime;
     }
 
     /**
