@@ -70,8 +70,8 @@ public class CoverageReport {
         this.executionDataFile = projectDir.resolve(TesterinaConstants.EXEC_FILE_NAME);
         this.execFileLoader = new ExecFileLoader();
 
-        this.jarCache = targetDirPath.resolve("caches/jar_cache/").resolve(orgName);
-        this.jsonCache = targetDirPath.resolve("caches/json_cache/");
+        this.jarCache = targetDirPath.resolve("caches").resolve("jar_cache").resolve(orgName);
+        this.jsonCache = targetDirPath.resolve("caches").resolve("json_cache");
     }
 
     /**
@@ -83,7 +83,7 @@ public class CoverageReport {
 
         // Obtain a path list of all the .jar files generated
         List<Path> pathList;
-        try (Stream<Path> walk = Files.walk(this.jarCache, 5)) {
+        try (Stream<Path> walk = Files.walk(this.jarCache, TesterinaConstants.FILE_DEPTH)) {
             pathList = walk.map(path -> path).filter(f -> f.toString().endsWith(version + ".jar")).collect(
                     Collectors.toList());
         } catch (IOException e) {
@@ -122,7 +122,6 @@ public class CoverageReport {
         boolean containsSourceFiles = true;
 
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
-            // I havent tested the behaviour of single files
             if (TesterinaConstants.DOT.equals(moduleName)) {
                 containsSourceFiles = packageCoverage.getName().isEmpty();
             }
@@ -159,8 +158,9 @@ public class CoverageReport {
                             ModuleCoverage.getInstance().addSourceFileCoverage(sourceFileModule,
                                     sourceFileCoverage.getName(), coveredLines, missedLines);
                         } else {
-                            String jsonCachePath = this.jsonCache.toString() + "/"
-                                    + sourceFileCoverage.getPackageName().replace("_", ".");
+                            // <org>/<modulename>/<version>
+                            String jsonCachePath = this.jsonCache.toString() +
+                                    resolveSourcePackage(sourceFileCoverage.getPackageName());
                             ModuleCoverage.getInstance().updateSourceFileCoverage(jsonCachePath, sourceFileModule,
                                     sourceFileCoverage.getName(), coveredLines, missedLines);
                         }
@@ -170,4 +170,19 @@ public class CoverageReport {
 
         }
     }
+
+    private String resolveSourcePackage(String sourcePackage) {
+        String[] split = sourcePackage.split("/");
+        String resolvedSource = "";
+
+        // Replace version value only
+        split[split.length - 1] = split[split.length - 1].replace("_", ".");
+
+        for (String str : split) {
+            resolvedSource += "/" + str;
+        }
+
+        return resolvedSource;
+    }
+
 }
