@@ -20,6 +20,7 @@ package io.ballerina.compiler.impl.types;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
+import io.ballerina.compiler.api.types.ParameterKind;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,15 +38,15 @@ public class BallerinaParameter implements Parameter {
     private List<Qualifier> qualifiers;
     private String parameterName;
     private BallerinaTypeDescriptor typeDescriptor;
-    private boolean defaultable;
+    private ParameterKind kind;
 
     public BallerinaParameter(String parameterName, BallerinaTypeDescriptor typeDescriptor, List<Qualifier> qualifiers,
-            boolean defaultable) {
+                              ParameterKind kind) {
         // TODO: Add the metadata
         this.parameterName = parameterName;
         this.typeDescriptor = typeDescriptor;
         this.qualifiers = Collections.unmodifiableList(qualifiers);
-        this.defaultable = defaultable;
+        this.kind = kind;
     }
 
     /**
@@ -95,13 +96,8 @@ public class BallerinaParameter implements Parameter {
         return joiner.toString();
     }
 
-    /**
-     * Whether the parameter is defaultable or not.
-     *
-     * @return {@link Boolean} defaultable status
-     */
     @Override
-    public boolean isDefaultable() {
-        return defaultable;
+    public ParameterKind kind() {
+        return this.kind;
     }
 }
