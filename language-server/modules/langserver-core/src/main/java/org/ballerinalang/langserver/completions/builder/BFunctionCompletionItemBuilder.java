@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
+import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -156,7 +157,7 @@ public final class BFunctionCompletionItemBuilder {
         docAttachment.ifPresent(documentation -> documentation.parameterMap().forEach(docParamsMap::put));
 
         List<Parameter> defaultParams = functionTypeDesc.get().requiredParams().stream()
-                .filter(Parameter::isDefaultable)
+                .filter(parameter -> parameter.kind() == ParameterKind.DEFAULTABLE)
                 .collect(Collectors.toList());
 
         MarkupContent docMarkupContent = new MarkupContent();

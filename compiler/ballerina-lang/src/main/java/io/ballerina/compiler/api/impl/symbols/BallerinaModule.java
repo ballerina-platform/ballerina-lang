@@ -178,10 +178,18 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     @Override
     public List<Symbol> allSymbols() {
         List<Symbol> symbols = new ArrayList<>();
-        symbols.addAll(this.typeDefinitions());
-        symbols.addAll(this.functions());
-        symbols.addAll(this.constants());
+//        symbols.addAll(this.typeDefinitions());
+//        symbols.addAll(this.functions());
+//        symbols.addAll(this.constants());
+        for (Map.Entry<Name, ScopeEntry> entry : this.packageSymbol.scope.entries.entrySet()) {
+            ScopeEntry scopeEntry = entry.getValue();
+            if (!isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC) || scopeEntry.symbol.origin != COMPILED_SOURCE) {
+                continue;
+            }
 
+            symbols.add(SymbolFactory.getBCompiledSymbol(scopeEntry.symbol, scopeEntry.symbol.getName().getValue()));
+        }
+        
         return Collections.unmodifiableList(symbols);
     }
 

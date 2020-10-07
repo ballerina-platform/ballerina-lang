@@ -20,6 +20,8 @@ package org.ballerinalang.langserver.completions.builder;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import io.ballerina.compiler.api.types.UnionTypeDescriptor;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -61,9 +63,13 @@ public class BTypeCompletionItemBuilder {
             item.setKind(CompletionItemKind.Module);
             return;
         }
-        Optional<BallerinaTypeDescriptor> typeDescriptor = SymbolUtil.getTypeDescriptor(bSymbol);
+        Optional<? extends BallerinaTypeDescriptor> typeDescriptor = SymbolUtil.getTypeDescriptor(bSymbol);
+        typeDescriptor = (typeDescriptor.isPresent() && typeDescriptor.get().kind() == TypeDescKind.TYPE_REFERENCE)
+                ? Optional.of(((TypeReferenceTypeDescriptor) typeDescriptor.get()).typeDescriptor()) : typeDescriptor;
+
         if (typeDescriptor.isEmpty()) {
-            item.setKind(CompletionItemKind.Class);
+            item.setKind(CompletionItemKind.Unit);
+            item.setDetail("type");
             return;
         }
 
@@ -105,12 +111,7 @@ public class BTypeCompletionItemBuilder {
             case ERROR:
                 item.setKind(CompletionItemKind.Event);
                 break;
-//                else if (bSymbol.kind != null) {
-//            // class / objects
-//            item.setKind(CompletionItemKind.Class);
-//        } 
             default:
-                // default
                 item.setKind(CompletionItemKind.Unit);
         }
         if (bSymbol.docAttachment().isPresent() && bSymbol.docAttachment().get().description().isPresent()) {

@@ -15,8 +15,11 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
@@ -71,9 +74,22 @@ public class SymbolUtil {
      * @param symbol to evaluate
      * @return {@link Optional} type descriptor
      */
-    public static Optional<BallerinaTypeDescriptor> getTypeDescriptor(Symbol symbol) {
-        return (symbol == null || symbol.kind() != SymbolKind.VARIABLE) ? Optional.empty()
-                : ((VariableSymbol) symbol).typeDescriptor();
+    public static Optional<? extends BallerinaTypeDescriptor> getTypeDescriptor(Symbol symbol) {
+        if (symbol == null) {
+            return Optional.empty();
+        }
+        switch (symbol.kind()) {
+            case TYPE:
+                return ((TypeSymbol) symbol).typeDescriptor();
+            case VARIABLE:
+                return ((VariableSymbol) symbol).typeDescriptor();
+            case ANNOTATION:
+                return ((AnnotationSymbol) symbol).typeDescriptor();
+            case FUNCTION:
+                return ((FunctionSymbol) symbol).typeDescriptor();
+            default:
+                return Optional.empty();
+        }
     }
 
     /**
@@ -83,8 +99,8 @@ public class SymbolUtil {
      * @return {@link ObjectTypeDescriptor} for the object symbol
      */
     public static ObjectTypeDescriptor getTypeDescForObjectSymbol(Symbol symbol) {
-        Optional<BallerinaTypeDescriptor> typeDescriptor = getTypeDescriptor(symbol);
-        if (!typeDescriptor.isPresent() || isObject(symbol)) {
+        Optional<? extends BallerinaTypeDescriptor> typeDescriptor = getTypeDescriptor(symbol);
+        if (typeDescriptor.isEmpty() || isObject(symbol)) {
             throw new UnsupportedOperationException("Cannot find a valid type descriptor");
         }
 
@@ -98,8 +114,8 @@ public class SymbolUtil {
      * @return {@link RecordTypeDescriptor} for the record symbol
      */
     public static RecordTypeDescriptor getTypeDescForRecordSymbol(Symbol symbol) {
-        Optional<BallerinaTypeDescriptor> typeDescriptor = getTypeDescriptor(symbol);
-        if (!typeDescriptor.isPresent() || isRecord(symbol)) {
+        Optional<? extends BallerinaTypeDescriptor> typeDescriptor = getTypeDescriptor(symbol);
+        if (typeDescriptor.isEmpty() || isRecord(symbol)) {
             throw new UnsupportedOperationException("Cannot find a valid type descriptor");
         }
 

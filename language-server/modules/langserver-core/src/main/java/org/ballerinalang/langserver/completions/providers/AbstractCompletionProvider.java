@@ -46,6 +46,7 @@ import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.builder.BConstantCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
@@ -150,7 +151,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
             if (processedSymbols.contains(symbol)) {
                 return;
             }
-            Optional<BSymbol> bTypeSymbol;
             if (CommonUtil.isValidFunctionSymbol(symbol)) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbol, context));
             } else if (symbol.kind() == SymbolKind.CONST) {
@@ -165,9 +165,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
             } else if (symbol.kind() == SymbolKind.TYPE) {
                 // Fixme
                 // Here skip all the package symbols since the package is added separately
-//                CompletionItem typeCItem = BTypeCompletionItemBuilder.build(symbol.,
-//                        scopeEntry.symbol.name.value);
-//                completionItems.add(new SymbolCompletionItem(context, bTypeSymbol.get(), typeCItem));
+                CompletionItem typeCItem = BTypeCompletionItemBuilder.build(symbol, symbol.name());
+                completionItems.add(new SymbolCompletionItem(context, symbol, typeCItem));
             }
             processedSymbols.add(symbol);
         });
@@ -201,6 +200,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }
         });
+        
+        completionItems.add(new TypeCompletionItem(context, null, Snippet.TYPE_MAP.get().build(context)));
 
         completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
         completionItems.addAll(Arrays.asList(
