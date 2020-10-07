@@ -33,7 +33,7 @@
           "kind": "OBJECT_KEYWORD",
           "hasDiagnostics": true,
           "diagnostics": [
-            "ERROR_ABSTRACT_QUALIFIER_NOT_ALLOWED_IN_OBJECT"
+            "ERROR_QUALIFIER_NOT_ALLOWED"
           ],
           "leadingMinutiae": [
             {
@@ -61,7 +61,7 @@
                     "kind": "ABSTRACT_KEYWORD",
                     "hasDiagnostics": true,
                     "diagnostics": [
-                      "ERROR_ABSTRACT_QUALIFIER_NOT_ALLOWED_IN_OBJECT"
+                      "ERROR_QUALIFIER_NOT_ALLOWED"
                     ]
                   }
                 ]

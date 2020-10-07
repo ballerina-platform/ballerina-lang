@@ -21,29 +21,21 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.internal.ErrorUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
-
 /**
  * Extern function ballerina.model.strings:trim.
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
-        functionName = "trim",
-        args = {@Argument(name = "s", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.string",
+//        functionName = "trim",
+//        args = {@Argument(name = "s", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class Trim {
 
-    public static BString trim(Strand strand, BString str) {
+    public static BString trim(BString str) {
         if (str == null) {
             throw ErrorUtils.createNullReferenceError();
         }

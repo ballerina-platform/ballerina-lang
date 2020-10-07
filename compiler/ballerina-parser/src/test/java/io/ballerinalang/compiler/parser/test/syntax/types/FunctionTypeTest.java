@@ -73,7 +73,7 @@ public class FunctionTypeTest extends AbstractTypesTest {
         testFile("func-type/func_type_source_07.bal", "func-type/func_type_assert_07.json");
     }
 
-    @Test
+    @Test(enabled = false) // Temporary disabled
     public void testFuncTypeWithIsolatedKeywordRecovery() {
         testFile("func-type/func_type_source_10.bal", "func-type/func_type_assert_10.json");
     }

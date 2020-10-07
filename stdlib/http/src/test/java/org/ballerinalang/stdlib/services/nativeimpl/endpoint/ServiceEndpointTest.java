@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.services.nativeimpl.endpoint;
 
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.util.JsonParser;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;

@@ -222,4 +222,12 @@
         <Class name="io.ballerina.projects.ModuleCompilation"/>
         <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer$OptimizerEnv"/>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
 </FindBugsFilter>

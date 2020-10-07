@@ -47,7 +47,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.jvm.IdentifierEncoder.encodeIdentifier;
+import static org.ballerinalang.jvm.IdentifierUtils.encodeIdentifier;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DESUGARED_BB_ID_NAME;
 
