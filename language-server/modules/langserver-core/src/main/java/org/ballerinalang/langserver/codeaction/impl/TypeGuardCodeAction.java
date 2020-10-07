@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.builder.impl;
+package org.ballerinalang.langserver.codeaction.impl;
 
+import io.ballerina.compiler.api.SemanticModel;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -63,8 +63,8 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
 public class TypeGuardCodeAction implements DiagBasedCodeAction {
     private SymbolReferencesModel.Reference refAtCursor;
 
-    public TypeGuardCodeAction(SymbolReferencesModel.Reference refAtCursor) {
-        this.refAtCursor = refAtCursor;
+    public TypeGuardCodeAction(SemanticModel refAtCursor) {
+        this.refAtCursor = null;
     }
 
     @Override

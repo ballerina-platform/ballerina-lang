@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.builder.impl;
+package org.ballerinalang.langserver.codeaction.impl;
 
-import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
+import io.ballerina.compiler.api.SemanticModel;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -47,8 +47,8 @@ import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActi
 public class IgnoreReturnCodeAction implements DiagBasedCodeAction {
     private SymbolReferencesModel.Reference refAtCursor;
 
-    public IgnoreReturnCodeAction(SymbolReferencesModel.Reference refAtCursor) {
-        this.refAtCursor = refAtCursor;
+    public IgnoreReturnCodeAction(SemanticModel refAtCursor) {
+        this.refAtCursor = null;
     }
 
     @Override

@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.builder;
+package org.ballerinalang.langserver.codeaction.impl;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
@@ -23,22 +24,16 @@ import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.util.references.SymbolReferencesModel.Reference;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -68,60 +63,42 @@ public interface DiagBasedCodeAction {
 
 
     static Pair<List<String>, List<String>> getPossibleTypesAndNames(LSContext context,
-                                                                     Reference referenceAtCursor,
+                                                                     Symbol symbol,
                                                                      boolean hasDefaultInitFunction,
                                                                      boolean hasCustomInitFunction,
-                                                                     boolean isAsync, BLangNode bLangNode,
+                                                                     boolean isAsync,
                                                                      List<TextEdit> edits,
                                                                      CompilerContext compilerContext) {
         Set<String> nameEntries = CommonUtil.getAllNameEntries(compilerContext);
-        PackageID currentPkgId = bLangNode.pos.src.pkgID;
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
 
         List<String> types = new ArrayList<>();
         List<String> names = new ArrayList<>();
         if (isAsync) {
-            BType bType = referenceAtCursor.getSymbol().type;
-            String variableName = CommonUtil.generateVariableName(bType, nameEntries);
+            String variableName = CommonUtil.generateVariableName(symbol, nameEntries);
             types.add("var");
             names.add(variableName);
         } else if (hasDefaultInitFunction) {
-            BType bType = referenceAtCursor.getSymbol().type;
-            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType,
-                                                                           context);
-            String variableName = CommonUtil.generateVariableName(bType, nameEntries);
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, symbol, context);
+            String variableName = CommonUtil.generateVariableName(symbol, nameEntries);
             types.add(variableType);
             names.add(variableName);
         } else if (hasCustomInitFunction) {
-            BType bType = referenceAtCursor.getSymbol().owner.type;
-            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType,
-                                                                           context);
-            String variableName = CommonUtil.generateVariableName(bType, nameEntries);
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, symbol, context);
+            String variableName = CommonUtil.generateVariableName(symbol, nameEntries);
             types.add(variableType);
             names.add(variableName);
         } else {
-            // Recursively find parent, when it is an indexBasedAccessNode
-            while (bLangNode.parent instanceof IndexBasedAccessNode) {
-                bLangNode = bLangNode.parent;
-            }
-            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode,
-                                                                           context);
-            if (bLangNode instanceof BLangInvocation) {
-                BSymbol symbol = ((BLangInvocation) bLangNode).symbol;
-                if (symbol instanceof BInvokableSymbol) {
-                    variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                            ((BLangInvocation) bLangNode).type,
-                                                                            context);
-                }
-                String variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, symbol, context);
+            if (symbol instanceof BLangInvocation) {
+                String variableName = CommonUtil.generateVariableName(symbol, nameEntries);
                 types.add(variableType);
                 names.add(variableName);
-            } else if (bLangNode instanceof BLangFieldBasedAccess) {
-                String variableName = CommonUtil.generateVariableName(((BLangFieldBasedAccess) bLangNode).expr.type,
-                                                                      nameEntries);
+            } else if (symbol instanceof BLangFieldBasedAccess) {
+                String variableName = CommonUtil.generateVariableName(symbol, nameEntries);
                 types.add(variableType);
                 names.add(variableName);
-            } else if (bLangNode instanceof BLangRecordLiteral) {
+            } else if (symbol instanceof BLangRecordLiteral) {
                 String variableName = CommonUtil.generateName(1, nameEntries);
 
                 // Record
@@ -134,7 +111,7 @@ public interface DiagBasedCodeAction {
                                 ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangRecordTypeNode &&
                                 ((BLangTypeDefinition) topLevelNode).typeNode.type instanceof BRecordType) {
                             BRecordType type = (BRecordType) ((BLangTypeDefinition) topLevelNode).typeNode.type;
-                            if (typesChk.checkStructEquivalency(bLangNode.type, type) &&
+                            if (typesChk.checkStructEquivalency(((BLangRecordLiteral) symbol).type, type) &&
                                     !type.tsymbol.name.value.startsWith("$")) {
                                 matchingRecordType = type;
                             }
@@ -144,16 +121,16 @@ public interface DiagBasedCodeAction {
 
                 // Matching Record
                 if (matchingRecordType != null) {
-                    String recType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                              matchingRecordType, context);
+                    String recType = FunctionGenerator.generateTypeDefinition(importsAcceptor,
+                                                                              symbol, context);
                     types.add(recType);
                     names.add(variableName);
                 }
 
                 // Anon Record
-                String rType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type,
+                String rType = FunctionGenerator.generateTypeDefinition(importsAcceptor, symbol,
                                                                         context);
-                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) bLangNode;
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) symbol;
                 types.add((recordLiteral.fields.size() > 0) ? rType : "record {}");
                 names.add(variableName);
 
@@ -177,7 +154,7 @@ public interface DiagBasedCodeAction {
                     }
                 }
                 if (isConstrainedMap && prevType != null) {
-                    String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, prevType,
+                    String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, symbol,
                                                                            context);
                     types.add("map<" + type + ">");
                     names.add(variableName);
@@ -185,9 +162,9 @@ public interface DiagBasedCodeAction {
                     types.add("map<any>");
                     names.add(variableName);
                 }
-            } else if (bLangNode instanceof BLangListConstructorExpr) {
+            } else if (symbol instanceof BLangListConstructorExpr) {
                 String variableName = CommonUtil.generateName(1, nameEntries);
-                BLangListConstructorExpr listExpr = (BLangListConstructorExpr) bLangNode;
+                BLangListConstructorExpr listExpr = (BLangListConstructorExpr) symbol;
                 if (listExpr.expectedType instanceof BTupleType) {
                     BTupleType tupleType = (BTupleType) listExpr.expectedType;
                     String arrayType = null;
@@ -196,7 +173,7 @@ public interface DiagBasedCodeAction {
                     boolean isArrayCandidate = !tupleType.tupleTypes.isEmpty();
                     StringJoiner tupleJoiner = new StringJoiner(", ");
                     for (BType type : tupleType.tupleTypes) {
-                        String newType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, type,
+                        String newType = FunctionGenerator.generateTypeDefinition(importsAcceptor, symbol,
                                                                                   context);
                         if (prevType != null && !prevType.equals(newType)) {
                             isArrayCandidate = false;
@@ -206,8 +183,7 @@ public interface DiagBasedCodeAction {
                             BTupleType nType = (BTupleType) type;
                             boolean isSameInnerType = true;
                             for (BType innerType : nType.tupleTypes) {
-                                String newInnerType = FunctionGenerator.generateTypeDefinition(importsAcceptor,
-                                                                                               currentPkgId, innerType,
+                                String newInnerType = FunctionGenerator.generateTypeDefinition(importsAcceptor, symbol,
                                                                                                context);
                                 if (prevInnerType != null && !prevInnerType.equals(newInnerType)) {
                                     isSameInnerType = false;
@@ -233,28 +209,28 @@ public interface DiagBasedCodeAction {
                     types.add("[" + tupleJoiner.toString() + "]");
                     names.add(variableName);
                 }
-            } else if (bLangNode instanceof BLangQueryExpr) {
-                BLangQueryExpr queryExpr = (BLangQueryExpr) bLangNode;
+            } else if (symbol instanceof BLangQueryExpr) {
+                BLangQueryExpr queryExpr = (BLangQueryExpr) symbol;
                 ExpressionNode expression = queryExpr.getSelectClause().getExpression();
                 if (expression instanceof BLangRecordLiteral) {
                     BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
-                    return getPossibleTypesAndNames(context, referenceAtCursor, hasDefaultInitFunction,
-                                                    hasCustomInitFunction, isAsync, recordLiteral, edits,
+                    return getPossibleTypesAndNames(context, symbol, hasDefaultInitFunction,
+                                                    hasCustomInitFunction, isAsync, edits,
                                                     compilerContext);
                 } else {
                     String variableName = CommonUtil.generateName(1, nameEntries);
                     types.add("var");
                     names.add(variableName);
                 }
-            } else if (bLangNode instanceof BLangBinaryExpr) {
-                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) bLangNode;
-                variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, binaryExpr.type,
+            } else if (symbol instanceof BLangBinaryExpr) {
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) symbol;
+                variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, symbol,
                                                                         context);
                 String variableName = CommonUtil.generateName(1, nameEntries);
                 types.add(variableType);
                 names.add(variableName);
             } else {
-                String variableName = CommonUtil.generateVariableName(bLangNode.type, nameEntries);
+                String variableName = CommonUtil.generateVariableName(symbol, nameEntries);
                 types.add(variableType);
                 names.add(variableName);
             }
