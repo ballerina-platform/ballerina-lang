@@ -56,7 +56,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -1018,11 +1017,12 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
                 env.enclPkg.symbol.pkgID, null, env.scope.owner, objectTypeNode.pos, SOURCE);
-        BObjectType objectType;
+
+        BObjectType objectType =
+                isReadOnly ? new BObjectType(objectSymbol, Flags.READONLY) : new BObjectType(objectSymbol);
+
         if (flags.contains(Flag.SERVICE)) {
-            objectType = new BServiceType(objectSymbol);
-        } else {
-            objectType = isReadOnly ? new BObjectType(objectSymbol, Flags.READONLY) : new BObjectType(objectSymbol);
+            objectType.flags |= Flags.SERVICE;
         }
         objectSymbol.type = objectType;
         objectTypeNode.symbol = objectSymbol;

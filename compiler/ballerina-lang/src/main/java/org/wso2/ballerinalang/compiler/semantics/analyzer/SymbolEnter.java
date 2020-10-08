@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -71,7 +70,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -604,11 +602,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
 
-        BObjectType objectType;
+        BObjectType objectType = isReadOnly ? new BObjectType(tSymbol, Flags.READONLY) : new BObjectType(tSymbol);
         if (flags.contains(Flag.SERVICE)) {
-            objectType = new BServiceType(tSymbol);
-        } else {
-            objectType = isReadOnly ? new BObjectType(tSymbol, Flags.READONLY) : new BObjectType(tSymbol);
+            objectType.flags |= Flags.SERVICE;
         }
 
         if (flags.contains(Flag.DISTINCT)) {
@@ -1318,20 +1314,21 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
-                                                                   names.fromIdNode(serviceNode.name),
-                                                                   env.enclPkg.symbol.pkgID, serviceNode.type,
-                                                                   env.scope.owner, serviceNode.name.pos, SOURCE);
-        serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
-
-        BType serviceObjectType = serviceNode.serviceClass.symbol.type;
-        serviceNode.symbol = serviceSymbol;
-        serviceNode.symbol.type = new BServiceType(serviceObjectType.tsymbol);
-        serviceSymbol.scope = new Scope(serviceSymbol);
-
-        // Caching values future validation.
-        serviceNode.serviceClass.functions.stream().filter(func -> func.flagSet.contains(Flag.RESOURCE))
-                .forEach(func -> serviceNode.resourceFunctions.add(func));
+//        BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
+//                                                                   names.fromIdNode(serviceNode.name),
+//                                                                   env.enclPkg.symbol.pkgID, serviceNode.type,
+//                                                                   env.scope.owner, serviceNode.name.pos, SOURCE);
+//        serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
+//
+//        BType serviceObjectType = serviceNode.serviceClass.symbol.type;
+//        serviceNode.symbol = serviceSymbol;
+//        serviceNode.symbol.type = new BServiceType(serviceObjectType.tsymbol);
+//        serviceSymbol.scope = new Scope(serviceSymbol);
+//
+//        // Caching values future validation.
+//        serviceNode.serviceClass.functions.stream().filter(func -> func.flagSet.contains(Flag.RESOURCE))
+//                .forEach(func -> serviceNode.resourceFunctions.add(func));
+        throw new AssertionError();
     }
 
     @Override
@@ -2181,7 +2178,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BStructureType structureType = (BStructureType) symbol.type;
 
             if (Symbols.isFlagOn(structureType.flags, Flags.READONLY)) {
-                if (structureType.tag != TypeTags.OBJECT || structureType instanceof BServiceType) {
+                if (structureType.tag != TypeTags.OBJECT) {
                     continue;
                 }
 
@@ -2257,10 +2254,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void setReadOnlynessOfClassDef(BLangClassDefinition classDef, SymbolEnv pkgEnv) {
         BObjectType objectType = (BObjectType) classDef.type;
         DiagnosticPos pos = classDef.pos;
-
-        if (objectType instanceof BServiceType) {
-            return;
-        }
 
         if (Symbols.isFlagOn(classDef.type.flags, Flags.READONLY)) {
             if (!types.isSelectivelyImmutableType(objectType, new HashSet<>())) {
@@ -2544,9 +2537,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         funcNode.symbol.flags |= Flags.REMOTE;
 
-        if (!Symbols.isFlagOn(objectSymbol.flags, Flags.CLIENT)) {
-            this.dlog.error(funcNode.pos, DiagnosticCode.REMOTE_FUNCTION_IN_NON_CLIENT_OBJECT);
+        if (!isNetworkQualified(objectSymbol)) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT);
         }
+    }
+
+    private boolean isNetworkQualified(BObjectTypeSymbol objectSymbol) {
+        return Symbols.isFlagOn(objectSymbol.flags, Flags.CLIENT)
+                || Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE);
     }
 
     private void validateResourceFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {

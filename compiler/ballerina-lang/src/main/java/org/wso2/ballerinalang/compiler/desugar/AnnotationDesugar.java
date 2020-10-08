@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -286,7 +285,7 @@ public class AnnotationDesugar {
                 String identifier = function.attachedFunction ? function.symbol.name.value : function.name.value;
 
                 int index;
-                if (function.attachedFunction && function.receiver.type instanceof BServiceType) {
+                if (function.attachedFunction && ((function.receiver.type.flags & Flags.SERVICE) == Flags.SERVICE)) {
                     addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
                     index = calculateIndex(initFnBody.stmts, function.receiver.type.tsymbol);
                 } else {

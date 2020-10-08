@@ -185,7 +185,7 @@ public enum DiagnosticCode {
     ENDPOINT_INVALID_TYPE_NO_FUNCTION("endpoint.invalid.type.no.function"),
     ENDPOINT_SPI_INVALID_FUNCTION("endpoint.spi.invalid.function"),
 
-    REMOTE_FUNCTION_IN_NON_CLIENT_OBJECT("remote.function.in.non.client.object"),
+    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("remote.function.in.non.network.object"),
     RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT("resource.function.in.non.service.object"),
     RESOURCE_FUNCTION_INVALID_RETURN_TYPE("resource.function.invalid.return.type"),
     REMOTE_IN_NON_OBJECT_FUNCTION("remote.in.non.object.function"),

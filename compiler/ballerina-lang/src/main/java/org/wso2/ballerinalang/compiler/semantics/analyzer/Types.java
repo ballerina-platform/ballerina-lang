@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -1040,8 +1039,6 @@ public class Types {
             case TypeTags.TYPEDESC:
             case TypeTags.HANDLE:
                 return true;
-            case TypeTags.SERVICE:
-                return type instanceof BServiceType; // Since the tag for both service and object are the same.
         }
         return false;
     }
@@ -2286,11 +2283,6 @@ public class Types {
             }
 
             return isSameType(source.detailType, t.detailType, this.unresolvedTypes);
-        }
-
-        @Override
-        public Boolean visit(BServiceType t, BType s) {
-            return t == s || t.tag == s.tag;
         }
 
         @Override

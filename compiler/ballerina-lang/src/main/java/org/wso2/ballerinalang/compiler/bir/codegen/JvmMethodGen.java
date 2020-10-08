@@ -69,7 +69,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -1194,8 +1193,7 @@ public class JvmMethodGen {
 
     private String getFrameClassName(String pkgName, String funcName, BType attachedType) {
         String frameClassName = pkgName;
-        if (attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType instanceof BServiceType ||
-                attachedType.tag == TypeTags.RECORD)) {
+        if (attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD)) {
             frameClassName += JvmCodeGenUtil.cleanupReadOnlyTypeName(JvmCodeGenUtil.toNameString(attachedType)) + "_";
         }
 
@@ -2017,7 +2015,7 @@ public class JvmMethodGen {
                 continue;
             }
             BType bType = optionalTypeDef.type;
-            if (bType.tag != TypeTags.FINITE && !(bType instanceof BServiceType)) {
+            if (bType.tag != TypeTags.FINITE) {
                 loadAnnots(mv, typePkgName, optionalTypeDef);
             }
 

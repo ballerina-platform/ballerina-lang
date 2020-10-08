@@ -70,7 +70,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -1282,14 +1281,14 @@ public class BIRPackageSymbolEnter {
                     objectSymbol.methodScope = new Scope(objectSymbol);
                     BObjectType objectType;
                     // Below is a temporary fix, need to fix this properly by using the type tag
-                    if (service) {
-                        objectType = new BServiceType(objectSymbol);
-                    } else {
-                        objectType = new BObjectType(objectSymbol);
+                    objectType = new BObjectType(objectSymbol);
 
-                        if (isImmutable(flags)) {
-                            objectSymbol.flags |= Flags.READONLY;
-                        }
+                    if (service) {
+                        objectType.flags |= Flags.SERVICE;
+                        objectSymbol.flags |= Flags.SERVICE;
+                    }
+                    if (isImmutable(flags)) {
+                        objectSymbol.flags |= Flags.READONLY;
                     }
                     objectType.flags = flags;
                     objectSymbol.type = objectType;
@@ -1346,7 +1345,7 @@ public class BIRPackageSymbolEnter {
                     // TODO fix
                     break;
                 case SERVICE_TYPE_TAG:
-                    return symTable.anyServiceType;
+                    throw new AssertionError();
                 case TypeTags.SIGNED32_INT:
                     return symTable.signed32IntType;
                 case TypeTags.SIGNED16_INT:

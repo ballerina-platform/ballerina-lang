@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -212,10 +211,6 @@ public class TypeParamAnalyzer {
                 }
                 return containsTypeParam(invokableType.retType, resolvedTypes);
             case TypeTags.OBJECT:
-                if (type instanceof BServiceType) {
-                    return false;
-                }
-
                 BObjectType objectType = (BObjectType) type;
                 for (BField field : objectType.fields.values()) {
                     BType bFieldType = field.getType();
@@ -364,7 +359,7 @@ public class TypeParamAnalyzer {
                 }
                 return;
             case TypeTags.OBJECT:
-                if (actualType.tag == TypeTags.OBJECT && !(actualType instanceof BServiceType)) {
+                if (actualType.tag == TypeTags.OBJECT) {
                     findTypeParamInObject(pos, (BObjectType) expType, (BObjectType) actualType, env, resolvedTypes,
                                           result);
                 }
@@ -625,9 +620,6 @@ public class TypeParamAnalyzer {
             case TypeTags.INVOKABLE:
                 return getMatchingFunctionBoundType((BInvokableType) expType, env, resolvedTypes);
             case TypeTags.OBJECT:
-                if (expType instanceof BServiceType) {
-                    return expType;
-                }
                 return getMatchingObjectBoundType((BObjectType) expType, env, resolvedTypes);
             case TypeTags.UNION:
                 return getMatchingOptionalBoundType((BUnionType) expType, env, resolvedTypes);
