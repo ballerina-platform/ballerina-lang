@@ -12860,7 +12860,14 @@ public class BallerinaParser extends AbstractParser {
                     return parseActionOrExpressionInLhs(STNodeFactory.createEmptyNodeList());
                 }
 
-                return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                STNode typedesc =  parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+                // Tuple type desc can contain rest descriptor which is not a regular type desc,
+                // hence handle it separately.
+                if (peek().kind == SyntaxKind.ELLIPSIS_TOKEN) {
+                    STNode ellipsis = parseEllipsis();
+                    typedesc = STNodeFactory.createRestDescriptorNode(typedesc, ellipsis);
+                }
+                return typedesc;
         }
 
         if (isDefiniteTypeDesc(typeOrExpr.kind)) {
