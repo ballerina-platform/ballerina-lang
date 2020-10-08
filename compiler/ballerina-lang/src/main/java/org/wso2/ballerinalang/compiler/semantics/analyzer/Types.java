@@ -2127,7 +2127,7 @@ public class Types {
         switch (detailType.tag) {
             case TypeTags.MAP:
             case TypeTags.RECORD:
-                return isAssignable(detailType, symTable.cloneableType);
+                return isAssignable(detailType, symTable.detailType);
         }
         return false;
     }
