@@ -436,7 +436,7 @@ public class ImmutableTypeCloner {
                                                              BLangAnonymousModelHelper anonymousModelHelper,
                                                              Names names) {
         BRecordType origRecordType = immutableRecordType.mutableType;
-        if (origRecordType.fields.size() != immutableRecordType.fields.size()) {
+        if (origRecordType != null && origRecordType.fields.size() != immutableRecordType.fields.size()) {
 
             populateImmutableStructureFields(types, symTable, anonymousModelHelper, names,
                                              (BLangRecordTypeNode) immutableTypeDefinition.typeNode,

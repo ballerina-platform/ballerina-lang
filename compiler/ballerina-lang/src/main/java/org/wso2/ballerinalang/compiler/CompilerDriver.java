@@ -150,6 +150,7 @@ public class CompilerDriver {
         if (!LOAD_BUILTIN_FROM_SOURCE) {
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
             symResolver.loadCloneableType();
+            symbolTable.langJavaModuleSymbol = pkgLoader.loadPackageSymbol(JAVA, null, null);
             symResolver.loadAnydataAndDependentTypes();
             symResolver.loadJSONAndDependentTypes();
             symResolver.reloadErrorAndDependentTypes();

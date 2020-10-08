@@ -768,7 +768,8 @@ public class BRunUtil {
                 isAnydataUniqueVisitor.reset();
                 isPureTypeUniqueVisitor.reset();
                 return new org.ballerinalang.jvm.types.BFiniteType(null, valueSpace,
-                        getMask(finiteType.isNullable(), isAnydataUniqueVisitor.visit(finiteType), isPureTypeUniqueVisitor.visit(finiteType)));
+                        getMask(finiteType.isNullable(), isAnydataUniqueVisitor.visit(finiteType),
+                                isPureTypeUniqueVisitor.visit(finiteType)));
             default:
                 throw new RuntimeException("Function argument for type '" + type + "' is not supported");
         }
