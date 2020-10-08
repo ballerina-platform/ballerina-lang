@@ -20,6 +20,7 @@ package org.ballerinalang.formatter.core;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
+import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
@@ -1623,6 +1624,26 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .withWorkerName(workerName)
                 .withWorkerBody(workerBody)
                 .apply();
+    }
+
+    @Override
+    public ArrayTypeDescriptorNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        Token openBracket = formatToken(arrayTypeDescriptorNode.openBracket(), 0, 0);
+        Token closeBracket = formatToken(arrayTypeDescriptorNode.closeBracket(), 1, 0);
+        TypeDescriptorNode memberTypeDesc = formatNode(arrayTypeDescriptorNode.memberTypeDesc(), 0, 0);
+        if (arrayTypeDescriptorNode.arrayLength().isPresent()) {
+            Node arrayLength = formatNode(arrayTypeDescriptorNode.arrayLength().orElse(null), 0, 0);
+            arrayTypeDescriptorNode = arrayTypeDescriptorNode.modify()
+                    .withArrayLength(arrayLength)
+                    .apply();
+        }
+
+        return arrayTypeDescriptorNode.modify()
+                .withOpenBracket(openBracket)
+                .withCloseBracket(closeBracket)
+                .withMemberTypeDesc(memberTypeDesc)
+                .apply();
+
     }
 
     @Override
