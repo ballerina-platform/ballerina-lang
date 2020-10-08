@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.commons;
 
-import org.ballerinalang.jvm.api.types.Type;
+import io.ballerina.jvm.api.types.Type;
 
 /**
  * Type vector of size two, to hold the source value and the target type.

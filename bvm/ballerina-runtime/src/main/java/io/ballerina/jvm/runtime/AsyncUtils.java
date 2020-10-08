@@ -18,14 +18,14 @@
 
 package org.ballerinalang.jvm.runtime;
 
-import org.ballerinalang.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BError;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.FutureValue;
+import io.ballerina.jvm.types.BFunctionType;
+import io.ballerina.jvm.values.FPValue;
+import io.ballerina.jvm.values.FutureValue;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;

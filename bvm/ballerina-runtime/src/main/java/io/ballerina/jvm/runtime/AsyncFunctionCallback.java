@@ -18,10 +18,10 @@
 
 package org.ballerinalang.jvm.runtime;
 
-import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.api.values.BError;
+import io.ballerina.jvm.api.connector.CallableUnitCallback;
+import io.ballerina.jvm.api.values.BError;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.FutureValue;
+import io.ballerina.jvm.values.FutureValue;
 
 /**
  * The callback implementation to handle non-blocking native function behaviour.
