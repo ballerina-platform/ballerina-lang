@@ -206,6 +206,9 @@ public class JvmConstants {
     public static final String GET_VALUE_METHOD = "getValue";
     public static final String ANY_TO_BYTE_METHOD = "anyToByte";
     public static final String ANY_TO_INT_METHOD = "anyToInt";
+    public static final String ANY_TO_FLOAT_METHOD = "anyToFloat";
+    public static final String ANY_TO_DECIMAL_METHOD = "anyToDecimal";
+    public static final String ANY_TO_BOOLEAN_METHOD = "anyToBoolean";
     public static final String DECIMAL_VALUE_OF_J_METHOD = "valueOfJ";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String POPULATE_INITIAL_VALUES_METHOD = "populateInitialValues";
