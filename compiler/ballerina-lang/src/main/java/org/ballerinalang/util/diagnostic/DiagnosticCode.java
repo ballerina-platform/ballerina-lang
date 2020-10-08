@@ -605,6 +605,8 @@ public enum DiagnosticCode {
             "invalid.mutable.field.access.in.isolated.object.outside.lock"),
     INVALID_NON_UNIQUE_EXPRESSION_AS_INITIAL_VALUE_IN_ISOLATED_OBJECT(
             "invalid.non.unique.expression.as.initial.value.in.isolated.object"),
+    INVALID_COPY_OUT_OF_MUTABLE_VALUE_FROM_ISOLATED_OBJECT("invalid.copy.out.of.mutable.value.from.isolated.object"),
+    INVALID_COPY_IN_OF_MUTABLE_VALUE_INTO_ISOLATED_OBJECT("invalid.copy.in.of.mutable.value.into.isolated.object"),
 
     COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
     ;
