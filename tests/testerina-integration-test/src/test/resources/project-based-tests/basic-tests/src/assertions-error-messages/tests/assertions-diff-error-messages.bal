@@ -27,11 +27,11 @@ function testAssertStringValues() {
 
 @test:Config {}
 function testAssertLongStringValues() {
-        string value1 = "Ballerina is an open source programming language and platform for cloud-era application programmers.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & conccurrent programs work.";
-        string value2 = "Ballerina is an open source programming language and platform for cloud-era application programmersss.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & concurrent programs work.";
+        string value1 = "Ballerina is an open source programming language and platform for cloud-era application " + "programmers.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & conccurrent " + "programs work.";
+        string value2 = "Ballerina is an open source programming language and platform for cloud-era application " + "programmersss.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & concurrent " + "programs work.";
         error? err = trap test:assertEquals(value1, value2);
         error result = <error>err;
-        test:assertTrue(result.message().toString().endsWith("Sequence diagrams have been everyone’s favorite tool to describe how distributed\n- & conccurrent programs work.\n+ & concurrent programs work.\n\n\n"));
+        test:assertTrue(result.message().toString().endsWith("Sequence diagrams have been everyone’s favorite tool to " + "describe how distributed\n- & conccurrent programs work.\n+ & concurrent programs work.\n\n\n"));
 }
 
 @test:Config {}
@@ -57,7 +57,7 @@ function testAssertJsonValues() {
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
     test:assertEquals(result.message().toString(),
-    "Assertion Failed!\nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"address\":{\"city\":\"Colombo\",\"country\":\"Sri Lanka...'\nactual\t: '{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\",\"country\":\"Sri Lanka\"}}'");
+    "Assertion Failed!\nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka...'\nactual\t: '{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka\"}}'");
 }
 
 @test:Config {}
@@ -66,7 +66,8 @@ function testAssertLongJsonValues() {
     json bioData2 = {name:"John Doe New", age:25, designation: "SSE", address:{city:"Colombo", country:"Sri Lanka"}};
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\nactual\t: '{\"name\":\"John Doe Old\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '{\"name\":\"John Doe New\"," + "\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\nactual\t: '{\"name\":" + 
+    "\"John Doe Old\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'");
 }
 
 @test:Config {}
