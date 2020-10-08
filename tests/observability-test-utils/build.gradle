@@ -34,9 +34,9 @@ dependencies {
 
     implementation 'io.opentracing:opentracing-mock'
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-java')
+    implementation project(':ballerina-lang:java')
 
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - Observability - Tracing Test Utils'

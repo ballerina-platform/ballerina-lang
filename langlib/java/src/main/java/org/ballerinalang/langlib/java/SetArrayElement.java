@@ -15,27 +15,24 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.nativeimpl.java;
+package org.ballerinalang.langlib.java;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
 
 /**
- * This class contains the implementation of the "toString" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "setArrayElement" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
-public class ToString {
+public class SetArrayElement {
 
-    public static Object toString(HandleValue value) {
-        Object referredValue = value.getValue();
-        if (referredValue == null) {
-            return null;
+    public static void setArrayElement(Strand strand, HandleValue arrayValue, long index, HandleValue value) {
+        Object[] arr = (Object[]) arrayValue.getValue();
+        if (arr == null) {
+            throw JValues.getJavaNullReferenceError();
         }
-        if (value instanceof BString) {
-            return value;
-        }
-        return BStringUtils.fromString(referredValue.toString());
+        JValues.rangeCheck(index, arr);
+        arr[(int) index] = value.getValue();
     }
 }

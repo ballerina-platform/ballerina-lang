@@ -15,19 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.nativeimpl.java;
+package org.ballerinalang.langlib.java;
 
-import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.HandleValue;
 
 /**
- * This class contains the implementation of the "fromString" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "isNull" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
-public class FromString {
+public class IsNull {
 
-    public static HandleValue fromString(BString strValue) {
-        return new HandleValue(strValue == null ? null : strValue.getValue());
+    public static boolean isNull(HandleValue value) {
+        return value.getValue() == null;
     }
 }
