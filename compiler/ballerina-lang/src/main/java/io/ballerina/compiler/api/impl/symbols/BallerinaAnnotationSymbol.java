@@ -123,7 +123,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
             this.attachPoints = getAttachPoints(annotationSymbol.maskedPoints);
         }
 
-        public AnnotationSymbolBuilder setQualifier(Qualifier qualifier) {
+        public AnnotationSymbolBuilder withQualifier(Qualifier qualifier) {
             this.qualifiers.add(qualifier);
             return this;
         }

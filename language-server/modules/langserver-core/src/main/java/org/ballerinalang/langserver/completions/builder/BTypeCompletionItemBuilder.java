@@ -67,7 +67,7 @@ public class BTypeCompletionItemBuilder {
         typeDescriptor = (typeDescriptor.isPresent() && typeDescriptor.get().kind() == TypeDescKind.TYPE_REFERENCE)
                 ? Optional.of(((TypeReferenceTypeDescriptor) typeDescriptor.get()).typeDescriptor()) : typeDescriptor;
 
-        if (typeDescriptor.isEmpty()) {
+        if (typeDescriptor.isEmpty() || typeDescriptor.get().kind() == null) {
             item.setKind(CompletionItemKind.Unit);
             item.setDetail("type");
             return;

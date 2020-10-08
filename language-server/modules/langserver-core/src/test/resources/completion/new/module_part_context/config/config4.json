@@ -7,8 +7,8 @@
   "items": [
     {
       "label": "AnnotationType",
-      "kind": "Unit",
-      "detail": "type",
+      "kind": "Struct",
+      "detail": "Record",
       "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
@@ -34,15 +34,15 @@
     },
     {
       "label": "TestRecord1",
-      "kind": "Unit",
-      "detail": "type",
+      "kind": "Struct",
+      "detail": "Record",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestRecord2",
-      "kind": "Unit",
-      "detail": "type",
+      "kind": "Struct",
+      "detail": "Record",
       "insertText": "TestRecord2",
       "insertTextFormat": "Snippet"
     },

@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
+import io.ballerina.compiler.api.types.Parameter;
 import org.ballerinalang.langserver.command.testgen.TestGenerator;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -168,46 +169,22 @@ public class FunctionGenerator {
         List<String> args = new ArrayList<>();
         boolean skipFirstParam = CommonUtil.skipFirstParam(ctx, symbol);
         Optional<FunctionTypeDescriptor> functionTypeDesc = symbol.typeDescriptor();
-//        if (!functionTypeDesc.isPresent()) {
-//            return args;
-//        }
-//        Optional<Parameter> restParam = functionTypeDesc.get().restParam();
-//        if (symbol.kind == null && SymbolKind.RECORD == symbol.owner.kind || SymbolKind.FUNCTION == symbol.owner.kind) {
-//            if (symbol.type instanceof BInvokableType) {
-//                BInvokableType bInvokableType = (BInvokableType) symbol.type;
-//                if (bInvokableType.paramTypes.isEmpty()) {
-//                    return args;
-//                }
-//                int argCounter = 1;
-//                Set<String> argNames = new HashSet<>(); // To avoid name duplications
-//                List<BType> parameterTypes = bInvokableType.getParameterTypes();
-//                for (int i = 0; i < parameterTypes.size(); i++) {
-//                    if (i == 0 && skipFirstParam) {
-//                        continue;
-//                    }
-//                    BType bType = parameterTypes.get(i);
-//                    String argName = CommonUtil.generateName(argCounter++, argNames);
-//                    String argType = generateTypeDefinition(null, symbol.pkgID, bType, ctx);
-//                    args.add(argType + " " + argName);
-//                    argNames.add(argName);
-//                }
-//                if (restParam != null && (restParam.type instanceof BArrayType)) {
-//                    args.add(CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false) + "... "
-//                            + restParam.getName().getValue());
-//                }
-//            }
-//        } else {
-//            List<Parameter> parameterDefs = new ArrayList<>(functionTypeDesc.get().requiredParams());
-//            for (int i = 0; i < parameterDefs.size(); i++) {
-//                if (i == 0 && skipFirstParam) {
-//                    continue;
-//                }
-//                Parameter param = parameterDefs.get(i);
-//                args.add(CommonUtil.getBTypeName(param.typeDescriptor(), ctx, true) + " " + param.name());
-//            }
-//            restParam.ifPresent(param ->
-//                    args.add(CommonUtil.getBTypeName(param.typeDescriptor(), ctx, false) + "... " + param.name()));
-//        }
+        if (functionTypeDesc.isEmpty()) {
+            return args;
+        }
+        Optional<Parameter> restParam = functionTypeDesc.get().restParam();
+        List<Parameter> parameterDefs = new ArrayList<>(functionTypeDesc.get().requiredParams());
+        for (int i = 0; i < parameterDefs.size(); i++) {
+            if (i == 0 && skipFirstParam) {
+                continue;
+            }
+            Parameter param = parameterDefs.get(i);
+            args.add(CommonUtil.getBTypeName(param.typeDescriptor(), ctx, true)
+                    + (param.name().isEmpty() ? "" : " " + param.name().get()));
+        }
+        restParam.ifPresent(param ->
+                args.add(CommonUtil.getBTypeName(param.typeDescriptor(), ctx, false)
+                        + (param.name().isEmpty() ? "" : "... " + param.name().get())));
         return (!args.isEmpty()) ? args : new ArrayList<>();
     }
 

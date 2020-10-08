@@ -434,7 +434,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @return completion item
      */
     private LSCompletionItem populateBallerinaFunctionCompletionItem(Symbol symbol, LSContext context) {
-        if (symbol.kind() != SymbolKind.FUNCTION || symbol.kind() != SymbolKind.METHOD) {
+        if (symbol.kind() != SymbolKind.FUNCTION && symbol.kind() != SymbolKind.METHOD) {
             return null;
         }
         CompletionItem completionItem = BFunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);

@@ -69,12 +69,11 @@ public class TypesFactory {
     /**
      * Get the type descriptor for the given type.
      *
-     * @param bType {@link BType} of the type descriptor
+     * @param bType       {@link BType} of the type descriptor
      * @param rawTypeOnly Whether to convert the type descriptor to type reference or keep the raw type
      * @return {@link BallerinaTypeDescriptor} generated
      */
     public static BallerinaTypeDescriptor getTypeDescriptor(BType bType, boolean rawTypeOnly) {
-        BallerinaTypeDescriptor typeDescriptorImpl;
         if (bType == null || bType.tag == TypeTags.NONE) {
             return null;
         }

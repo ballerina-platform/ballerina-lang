@@ -39,7 +39,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import static org.ballerinalang.model.symbols.SymbolKind.ANNOTATION;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.isFlagOn;
 
@@ -55,6 +57,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     private List<FunctionSymbol> functions;
     private List<ConstantSymbol> constants;
     private List<TypeSymbol> listeners;
+    private List<Symbol> allSymbols;
 
     protected BallerinaModule(String name, PackageID moduleID, BPackageSymbol packageSymbol) {
         super(name, moduleID, SymbolKind.MODULE, packageSymbol);
@@ -95,27 +98,13 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
      */
     @Override
     public List<TypeSymbol> typeDefinitions() {
-        if (this.typeDefs != null) {
-            return this.typeDefs;
+        if (this.typeDefs == null) {
+            this.typeDefs = this.allSymbols().stream()
+                    .filter(symbol -> symbol.kind() == SymbolKind.TYPE)
+                    .map(symbol -> (TypeSymbol) symbol)
+                    .collect(Collectors.toUnmodifiableList());
         }
-
-        List<TypeSymbol> typeDefs = new ArrayList<>();
-        for (Map.Entry<Name, ScopeEntry> entry : this.packageSymbol.scope.entries.entrySet()) {
-            ScopeEntry scopeEntry = entry.getValue();
-            if (!isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC) || scopeEntry.symbol.origin != COMPILED_SOURCE) {
-                continue;
-            }
-
-            if (scopeEntry.symbol instanceof BTypeSymbol) {
-                String typeName = scopeEntry.symbol.getName().getValue();
-                typeDefs.add(SymbolFactory.createTypeDefinition((BTypeSymbol) scopeEntry.symbol, typeName));
-            } else if (scopeEntry.symbol instanceof BConstructorSymbol) {
-                String typeName = scopeEntry.symbol.type.tsymbol.getName().getValue();
-                typeDefs.add(SymbolFactory.createTypeDefinition(scopeEntry.symbol.type.tsymbol, typeName));
-            }
-        }
-
-        this.typeDefs = Collections.unmodifiableList(typeDefs);
+        
         return this.typeDefs;
     }
 
@@ -177,20 +166,20 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
      */
     @Override
     public List<Symbol> allSymbols() {
-        List<Symbol> symbols = new ArrayList<>();
-//        symbols.addAll(this.typeDefinitions());
-//        symbols.addAll(this.functions());
-//        symbols.addAll(this.constants());
-        for (Map.Entry<Name, ScopeEntry> entry : this.packageSymbol.scope.entries.entrySet()) {
-            ScopeEntry scopeEntry = entry.getValue();
-            if (!isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC) || scopeEntry.symbol.origin != COMPILED_SOURCE) {
-                continue;
+        if (this.allSymbols == null) {
+            List<Symbol> symbols = new ArrayList<>();
+            for (Map.Entry<Name, ScopeEntry> entry : this.packageSymbol.scope.entries.entrySet()) {
+                ScopeEntry scopeEntry = entry.getValue();
+                if (!isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC) || scopeEntry.symbol.origin != COMPILED_SOURCE) {
+                    continue;
+                }
+                symbols.add(SymbolFactory.getBCompiledSymbol(scopeEntry.symbol,
+                        scopeEntry.symbol.getName().getValue()));
             }
-
-            symbols.add(SymbolFactory.getBCompiledSymbol(scopeEntry.symbol, scopeEntry.symbol.getName().getValue()));
+            this.allSymbols = Collections.unmodifiableList(symbols);
         }
-        
-        return Collections.unmodifiableList(symbols);
+
+        return this.allSymbols;
     }
 
     /**

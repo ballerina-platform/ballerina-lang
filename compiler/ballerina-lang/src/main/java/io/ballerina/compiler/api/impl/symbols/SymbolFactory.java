@@ -245,9 +245,13 @@ public class SymbolFactory {
     public static BallerinaConstantSymbol createConstantSymbol(BConstantSymbol constantSymbol, String name) {
         BallerinaConstantSymbol.ConstantSymbolBuilder symbolBuilder =
                 new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol.pkgID, constantSymbol);
-        return symbolBuilder.withConstValue(constantSymbol.getConstValue())
-                .withTypeDescriptor(TypesFactory.getTypeDescriptor(constantSymbol.literalType))
-                .build();
+        symbolBuilder.withConstValue(constantSymbol.getConstValue())
+                .withTypeDescriptor(TypesFactory.getTypeDescriptor(constantSymbol.literalType));
+        if ((constantSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+            symbolBuilder.withAccessModifier(Qualifier.PUBLIC);
+        }
+        
+        return symbolBuilder.build();
     }
 
     /**
@@ -257,9 +261,14 @@ public class SymbolFactory {
      * @return {@link BallerinaAnnotationSymbol}
      */
     public static BallerinaAnnotationSymbol createAnnotationSymbol(BAnnotationSymbol symbol) {
-        return new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol)
-                .withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.attachedType.getType()))
-                .build();
+        BallerinaAnnotationSymbol.AnnotationSymbolBuilder symbolBuilder =
+                new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol);
+        if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+            symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+        symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.attachedType.getType()));
+        
+        return symbolBuilder.build();
     }
 
     /**

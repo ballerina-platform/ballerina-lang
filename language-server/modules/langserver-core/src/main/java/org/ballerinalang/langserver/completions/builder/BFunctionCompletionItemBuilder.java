@@ -177,9 +177,9 @@ public final class BFunctionCompletionItemBuilder {
             }
 
             Optional<Parameter> defaultVal = defaultParams.stream()
-                    .filter(parameter -> parameter.name().equals(param.name()))
+                    .filter(parameter -> parameter.name().get().equals(param.name().get()))
                     .findFirst();
-            String paramDescription = "- " + "`" + paramType + "` " + param.name();
+            String paramDescription = "- " + "`" + paramType + "` " + param.name().get();
             if (param.name().isPresent() && docParamsMap.containsKey(param.name().get())) {
                 paramDescription += ": " + docParamsMap.get(param.name().get());
             }

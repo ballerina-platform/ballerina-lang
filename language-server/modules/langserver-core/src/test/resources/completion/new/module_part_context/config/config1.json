@@ -355,8 +355,11 @@
     },
     {
       "label": "StrandData",
-      "kind": "Unit",
-      "detail": "type",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
       "sortText": "B",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"

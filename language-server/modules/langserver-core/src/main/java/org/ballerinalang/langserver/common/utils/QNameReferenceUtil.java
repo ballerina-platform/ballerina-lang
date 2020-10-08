@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -51,10 +52,7 @@ public class QNameReferenceUtil {
         Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(ctx, moduleAlias);
 
         return moduleSymbol.map(value -> value.allSymbols().stream()
-                .filter(symbol -> ((symbol instanceof VariableSymbol
-                        && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC))
-                        || (symbol.kind() == SymbolKind.TYPE
-                        && ((TypeSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC))))
+                .filter(symbol -> isValidFunctionSymbol(symbol) || isValidTypeSymbol(symbol) || isValidVariable(symbol))
                 .collect(Collectors.toList())).orElseGet(ArrayList::new);
     }
 
@@ -100,5 +98,17 @@ public class QNameReferenceUtil {
                 .filter(moduleItem -> moduleItem instanceof TypeSymbol)
                 .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
+    }
+    
+    private static boolean isValidVariable(Symbol symbol) {
+        return symbol instanceof VariableSymbol && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC);
+    }
+    
+    private static boolean isValidFunctionSymbol(Symbol symbol) {
+        return symbol.kind() == SymbolKind.FUNCTION && ((FunctionSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC);
+    }
+    
+    private static boolean isValidTypeSymbol(Symbol symbol) {
+        return symbol.kind() == SymbolKind.TYPE && ((TypeSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC);
     }
 }
