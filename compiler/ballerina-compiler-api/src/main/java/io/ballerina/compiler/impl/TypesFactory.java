@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import static org.ballerinalang.model.types.TypeKind.FINITE;
@@ -76,7 +77,7 @@ public class TypesFactory {
      */
     public static BallerinaTypeDescriptor getTypeDescriptor(BType bType, boolean rawTypeOnly) {
         BallerinaTypeDescriptor typeDescriptorImpl;
-        if (bType == null) {
+        if (bType == null || bType.tag == TypeTags.NONE) {
             return null;
         }
 
@@ -130,7 +131,7 @@ public class TypesFactory {
         }
 
         final TypeKind kind = bType.getKind();
-        return kind == RECORD || kind == OBJECT || kind == UNION || kind == FINITE || bType.tsymbol.isLabel;
+        return kind == RECORD || kind == OBJECT || bType.tsymbol.isLabel;
     }
 
     public static TypeDescKind getTypeDescKind(TypeKind bTypeKind) {
