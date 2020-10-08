@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.BlockNode;
@@ -4955,7 +4956,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransactionalExpr transactionalExpr) {
         BInvokableSymbol isTransactionalSymbol =
-                (BInvokableSymbol) transactionDesugar.getTransactionLibInvokableSymbol(IS_TRANSACTIONAL);
+                (BInvokableSymbol) transactionDesugar.getInternalTransactionModuleInvokableSymbol(IS_TRANSACTIONAL);
         result = ASTBuilderUtil
                 .createInvocationExprMethod(transactionalExpr.pos, isTransactionalSymbol, Collections.emptyList(),
                         Collections.emptyList(), symResolver);
@@ -7504,5 +7505,18 @@ public class Desugar extends BLangNodeVisitor {
         fields.clear();
         return type.tag == TypeTags.RECORD ? new BLangStructLiteral(pos, type, rewrittenFields) :
                 new BLangMapLiteral(pos, type, rewrittenFields);
+    }
+
+    protected void addTransactionInternalModuleImport() {
+        BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
+        List<BLangIdentifier> pkgNameComps = new ArrayList<>();
+        pkgNameComps.add(ASTBuilderUtil.createIdentifier(env.enclPkg.pos, Names.TRANSACTION.value));
+        importDcl.pkgNameComps = pkgNameComps;
+        importDcl.orgName = ASTBuilderUtil.createIdentifier(env.enclPkg.pos, Names.BALLERINA_INTERNAL_ORG.value);
+        importDcl.alias = ASTBuilderUtil.createIdentifier(env.enclPkg.pos, "trx");
+        importDcl.version = ASTBuilderUtil.createIdentifier(env.enclPkg.pos, "");
+        importDcl.symbol = new BPackageSymbol(new PackageID(Names.BALLERINA_INTERNAL_ORG,
+                Lists.of(Names.TRANSACTION), Names.TRANSACTION_INTERNAL_VERSION), env.enclPkg.symbol.owner,
+                env.enclPkg.symbol.pos, env.enclPkg.symbol.origin);
     }
 }

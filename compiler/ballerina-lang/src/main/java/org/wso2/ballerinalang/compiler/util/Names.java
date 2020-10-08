@@ -45,6 +45,7 @@ public class Names {
     public static final Name DOT = new Name(".");
     public static final Name DEFAULT_PACKAGE = DOT;
     public static final Name BALLERINA_ORG = new Name("ballerina");
+    public static final Name BALLERINA_INTERNAL_ORG = new Name("ballerinai");
     public static final Name LANG = new Name("lang");
     public static final Name INTERNAL = new Name("__internal");
     public static final Name ANNOTATIONS = new Name("annotations");
@@ -150,6 +151,8 @@ public class Names {
     public static final Name BOOLEAN_VERSION = new Name(BLangCompilerConstants.BOOLEAN_VERSION);
     public static final Name QUERY_VERSION = new Name(BLangCompilerConstants.QUERY_VERSION);
     public static final Name TRANSACTION_VERSION = new Name(BLangCompilerConstants.TRANSACTION_VERSION);
+    public static final Name TRANSACTION_INTERNAL_VERSION =
+            new Name(BLangCompilerConstants.TRANSACTION_INTERNAL_VERSION);
 
     public CompilerContext context;
 

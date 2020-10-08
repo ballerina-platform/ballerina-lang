@@ -192,6 +192,7 @@ public class SymbolTable {
     public BPackageSymbol langBooleanModuleSymbol;
     public BPackageSymbol langQueryModuleSymbol;
     public BPackageSymbol langTransactionModuleSymbol;
+    public BPackageSymbol internalTransactionModuleSymbol;
 
     private Names names;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
