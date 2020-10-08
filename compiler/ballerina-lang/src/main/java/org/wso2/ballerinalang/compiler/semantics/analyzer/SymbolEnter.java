@@ -332,7 +332,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgEnv.scope.define(unresolvedPkgAlias, symbol);
             }
         }
-        initPredeclaredModules(symTable.predeclaredModules, pkgEnv);
+        initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
         // Define type definitions.
         this.typePrecedence = 0;
 
@@ -807,18 +807,23 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.env.scope.define(pkgAlias, symbol);
     }
 
-    public void initPredeclaredModules(Map<Name, BPackageSymbol> predeclaredModules, SymbolEnv env) {
+    public void initPredeclaredModules(Map<Name, BPackageSymbol> predeclaredModules,
+                                       List<BLangCompilationUnit> compUnits, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
         this.env = env;
-        for (Name alias : predeclaredModules.keySet()) {
-            ScopeEntry entry = this.env.scope.lookup(alias);
-            if (entry == NOT_FOUND_ENTRY) {
-                this.env.scope.define(alias, predeclaredModules.get(alias));
-            } else {
-                while (entry.next != NOT_FOUND_ENTRY) {
-                    entry = entry.next;
+        for (BLangCompilationUnit compUnit : compUnits) {
+            for (Name alias : predeclaredModules.keySet()) {
+                BPackageSymbol symbol = duplicatePackagSymbol(predeclaredModules.get(alias));
+                symbol.compUnit = new Name(compUnit.name);
+                ScopeEntry entry = this.env.scope.lookup(alias);
+                if (entry == NOT_FOUND_ENTRY) {
+                    this.env.scope.define(alias, symbol);
+                } else {
+                    while (entry.next != NOT_FOUND_ENTRY) {
+                        entry = entry.next;
+                    }
+                    entry.next = new ScopeEntry(symbol, NOT_FOUND_ENTRY);
                 }
-                entry.next = new ScopeEntry(predeclaredModules.get(alias), NOT_FOUND_ENTRY);
             }
         }
         this.env = prevEnv;
