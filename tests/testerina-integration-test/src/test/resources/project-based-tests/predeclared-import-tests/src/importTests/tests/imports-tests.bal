@@ -17,6 +17,7 @@
 import ballerina/test;
 import ballerina/lang.'float;
 import ballerina/lang.'int;
+import ballerina/lang.'int as ints;
 
 // This tests the functionality of overridden predeclared imports
 
@@ -37,4 +38,10 @@ function testImportTest3() {
     decimal d = 10.5;
     decimal max = 'decimal:max(10.5, 0.5);
     test:assertEquals(max, d);
+}
+
+@test:Config {}
+function testImportTest4() {
+    int x = <int> 'ints:fromString("100");
+    test:assertEquals(x, 100);
 }

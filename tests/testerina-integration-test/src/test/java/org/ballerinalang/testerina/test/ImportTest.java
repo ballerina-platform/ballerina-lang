@@ -39,7 +39,7 @@ public class ImportTest extends BaseTestCase {
 
     @Test()
     public void testBeforeAfter() throws BallerinaTestException {
-        String msg = "3 passing";
+        String msg = "4 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"importTests"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
