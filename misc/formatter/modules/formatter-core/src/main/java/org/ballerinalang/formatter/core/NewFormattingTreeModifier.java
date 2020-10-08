@@ -1628,9 +1628,9 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public ArrayTypeDescriptorNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
-        Token openBracket = formatToken(arrayTypeDescriptorNode.openBracket(), 0, 0);
-        Token closeBracket = formatToken(arrayTypeDescriptorNode.closeBracket(), 1, 0);
         TypeDescriptorNode memberTypeDesc = formatNode(arrayTypeDescriptorNode.memberTypeDesc(), 0, 0);
+        Token openBracket = formatToken(arrayTypeDescriptorNode.openBracket(), 0, 0);
+        Token closeBracket = formatToken(arrayTypeDescriptorNode.closeBracket(), this.trailingWS, 0);
         if (arrayTypeDescriptorNode.arrayLength().isPresent()) {
             Node arrayLength = formatNode(arrayTypeDescriptorNode.arrayLength().orElse(null), 0, 0);
             arrayTypeDescriptorNode = arrayTypeDescriptorNode.modify()
