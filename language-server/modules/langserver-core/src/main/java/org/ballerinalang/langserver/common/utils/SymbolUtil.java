@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -87,6 +88,8 @@ public class SymbolUtil {
                 return ((AnnotationSymbol) symbol).typeDescriptor();
             case FUNCTION:
                 return ((FunctionSymbol) symbol).typeDescriptor();
+            case CONST:
+                return ((ConstantSymbol) symbol).typeDescriptor();
             default:
                 return Optional.empty();
         }

@@ -15,16 +15,18 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -53,7 +55,7 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
 
         if (arrayLength.isPresent() && this.onQualifiedNameIdentifier(context, arrayLength.get())) {
             QualifiedNameReferenceNode qName = (QualifiedNameReferenceNode) arrayLength.get();
-            List<Symbol> moduleConstants = QNameReferenceUtil.getModuleContent(context, qName, moduleContentFilter());
+            List<Symbol> moduleConstants = QNameReferenceUtil.getModuleContent(context, qName, constantFilter());
 
             return this.getCompletionItemList(moduleConstants, context);
         }
@@ -68,14 +70,14 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
     }
 
     private Predicate<Symbol> constantFilter() {
-        return symbol -> symbol.kind() == SymbolKind.CONST
-                && ((ConstantSymbol) symbol).typeDescriptor().isPresent()
-                && ((ConstantSymbol) symbol).typeDescriptor().get().kind() == TypeDescKind.INT;
-    }
-
-    private Predicate<Symbol> moduleContentFilter() {
-        return symbol -> symbol.kind() == SymbolKind.CONST
-                && ((ConstantSymbol) symbol).typeDescriptor().isPresent()
-                && ((ConstantSymbol) symbol).typeDescriptor().get().kind() == TypeDescKind.INT;
+        return symbol -> {
+            Optional<? extends BallerinaTypeDescriptor> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
+            typeDescriptor = typeDescriptor.isPresent() && typeDescriptor.get().kind() == TypeDescKind.TYPE_REFERENCE ?
+                    Optional.ofNullable(((TypeReferenceTypeDescriptor) typeDescriptor.get()).typeDescriptor())
+                    : typeDescriptor;
+            return symbol.kind() == SymbolKind.CONST
+                    && typeDescriptor.isPresent()
+                    && typeDescriptor.get().kind() == TypeDescKind.INT;
+        };
     }
 }
