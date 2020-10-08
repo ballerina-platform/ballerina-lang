@@ -26,10 +26,6 @@ import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,31 +40,31 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION, functionName = "map",
-        args = {
-                @Argument(name = "x", type = TypeKind.XML),
-                @Argument(name = "func", type = TypeKind.FUNCTION)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml", functionName = "map",
+//        args = {
+//                @Argument(name = "x", type = TypeKind.XML),
+//                @Argument(name = "func", type = TypeKind.FUNCTION)},
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class Map {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                       XML_VERSION, "filter");
 
-    public static XMLValue map(Strand strand, XMLValue x, FPValue<Object, Object> func) {
+    public static XMLValue map(XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
-            func.asyncCall(new Object[]{strand, x, true}, METADATA);
+            func.asyncCall(new Object[]{Scheduler.getStrand(), x, true}, METADATA);
             return null;
         }
         List<BXML> elements = new ArrayList<>();
         AtomicInteger index = new AtomicInteger(-1);
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
-                                                       () -> new Object[]{strand, x.getItem(index.incrementAndGet()),
-                                                               true},
-                                                       result -> elements.add((XMLValue) result),
+        Strand parentStrand = Scheduler.getStrand();
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
+                        () -> new Object[]{parentStrand, x.getItem(index.incrementAndGet()),
+                                true},
+                        result -> elements.add((XMLValue) result),
                                                        () -> new XMLSequence(elements),
                                                        Scheduler.getStrand().scheduler);
         return new XMLSequence(elements);

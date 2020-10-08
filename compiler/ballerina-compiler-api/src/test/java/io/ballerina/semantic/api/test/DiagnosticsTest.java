@@ -17,10 +17,10 @@
 
 package io.ballerina.semantic.api.test;
 
+import io.ballerina.compiler.impl.BallerinaSemanticModel;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import org.ballerina.compiler.impl.BallerinaSemanticModel;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.Test;

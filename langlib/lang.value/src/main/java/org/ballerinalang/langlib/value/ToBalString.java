@@ -20,28 +20,14 @@ package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
  * Returns expression style representation of the given value as a String.
  *
  * @since Swan Lake
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
-        functionName = "toBalString",
-        args = {@Argument(name = "value", type = TypeKind.ANY)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class ToBalString {
-    public static BString toBalString(Strand strand, Object value) {
+    public static BString toBalString(Object value) {
         return BStringUtils.fromString(BStringUtils.getExpressionStringValue(value, null));
     }
 }

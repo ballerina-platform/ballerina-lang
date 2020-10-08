@@ -21,31 +21,27 @@ package org.ballerinalang.langlib.array;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.utils.GetFunction;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunction;
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:lastIndexOf((anydata|error)[], anydata|error, int).
  *
  * @since 1.2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "lastIndexOf",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "val", type = TypeKind.UNION),
-                @Argument(name = "startIndex", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "lastIndexOf",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "val", type = TypeKind.UNION),
+//                @Argument(name = "startIndex", type = TypeKind.INT)},
+//        returnType = {@ReturnType(type = TypeKind.UNION)},
+//        isPublic = true
+//)
 public class LastIndexOf {
 
-    public static Object lastIndexOf(Strand strand, ArrayValue arr, Object val, long startIndex) {
+    public static Object lastIndexOf(ArrayValue arr, Object val, long startIndex) {
         Type arrType = arr.getType();
         int size = arr.size();
         GetFunction getFn = getElementAccessFunction(arrType, "lastIndexOf()");

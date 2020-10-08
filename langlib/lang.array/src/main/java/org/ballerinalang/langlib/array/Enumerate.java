@@ -21,7 +21,6 @@ package org.ballerinalang.langlib.array;
 import org.ballerinalang.jvm.api.TypeTags;
 import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BUnionType;
@@ -29,30 +28,25 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.utils.GetFunction;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Arrays;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:enumerate(Type[]).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "enumerate",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.TUPLE)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "enumerate",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.TUPLE)},
+//        isPublic = true
+//)
 public class Enumerate {
 
-    public static ArrayValue enumerate(Strand strand, ArrayValue arr) {
+    public static ArrayValue enumerate(ArrayValue arr) {
         Type arrType = arr.getType();
         int size = arr.size();
         BTupleType elemType;

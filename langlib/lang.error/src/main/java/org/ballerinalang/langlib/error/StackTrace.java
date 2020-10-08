@@ -36,30 +36,20 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Collections;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG_ID;
 import static org.ballerinalang.jvm.values.ErrorValue.CALL_STACK_ELEMENT;
-import static org.ballerinalang.util.BLangCompilerConstants.ERROR_VERSION;
 
 /**
  * Get the stackTrace of an error value.
  *
  * @since 0.990.4
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.error", version = ERROR_VERSION,
-        functionName = "stackTrace",
-        args = {@Argument(name = "value", type = TypeKind.ERROR)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT)})
 public class StackTrace {
 
-    public static ObjectValue stackTrace(Strand strand, ErrorValue value) {
+    public static ObjectValue stackTrace(ErrorValue value) {
 
         BObjectType callStackObjType = new BObjectType("CallStack", new Module("ballerina", "lang.error", null), 0);
         callStackObjType.setAttachedFunctions(new AttachedFunction[]{});

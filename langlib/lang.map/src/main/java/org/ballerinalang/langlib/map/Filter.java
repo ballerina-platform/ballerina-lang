@@ -30,10 +30,6 @@ import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,18 +43,12 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", version = MAP_VERSION, functionName = "filter",
-        args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION)},
-        returnType = {@ReturnType(type = TypeKind.MAP)},
-        isPublic = true
-)
 public class Filter {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "filter");
 
-    public static MapValue filter(Strand strand, MapValue<?, ?> m, FPValue<Object, Boolean> func) {
+    public static MapValue filter(MapValue<?, ?> m, FPValue<Object, Boolean> func) {
         Type mapType = m.getType();
         Type newMapType;
         switch (mapType.getTag()) {
@@ -75,17 +65,17 @@ public class Filter {
         MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{strand,
-                                                               m.get(m.getKeys()[index.incrementAndGet()]), true},
-                                                       result -> {
-                                                           if ((Boolean) result) {
-                                                               Object key = m.getKeys()[index.get()];
-                                                               Object value = m.get(key);
-                                                               newMap.put(key, value);
-                                                           }
-                                                       }, () -> newMap, Scheduler.getStrand().scheduler);
+        Strand parentStrand = Scheduler.getStrand();
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                                                         () -> new Object[]{parentStrand,
+                                                                 m.get(m.getKeys()[index.incrementAndGet()]), true},
+                                                         result -> {
+                                                             if ((Boolean) result) {
+                                                                 Object key = m.getKeys()[index.get()];
+                                                                 Object value = m.get(key);
+                                                                 newMap.put(key, value);
+                                                             }
+                                                         }, () -> newMap, Scheduler.getStrand().scheduler);
         return newMap;
     }
 }

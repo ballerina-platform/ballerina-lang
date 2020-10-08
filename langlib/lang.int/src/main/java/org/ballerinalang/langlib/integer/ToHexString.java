@@ -20,28 +20,15 @@ package org.ballerinalang.langlib.integer;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.INT_VERSION;
 
 /**
  * Native implementation of lang.int:toHexString(int).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.int", version = INT_VERSION, functionName = "toHexString",
-        args = {@Argument(name = "n", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class ToHexString {
 
-    public static BString toHexString(Strand strand, long n) {
+    public static BString toHexString(long n) {
         return BStringUtils.fromString(Long.toHexString(n));
     }
 }

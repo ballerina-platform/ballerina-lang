@@ -254,6 +254,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private int loopCount;
     private int transactionCount;
+    private int retryCount;
     private boolean statementReturns;
     private boolean failureHandled;
     private boolean matchClauseReturns;
@@ -272,6 +273,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
     private Stack<Boolean> returnWithinLambdaWrappingCheckStack = new Stack<>();
     private BLangTransaction innerTransactionBlock = null;
+    private BLangRetry innerRetryBlock = null;
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
@@ -670,19 +672,31 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.errorTypes.push(new LinkedHashSet<>());
         boolean failureHandled = this.failureHandled;
         this.checkStatementExecutionValidity(retryNode);
+        this.retryCount++;
         if (!this.failureHandled) {
             this.failureHandled = retryNode.onFailClause != null;
+        }
+        if (retryCount > 1) {
+            this.innerRetryBlock = retryNode;
         }
         retryNode.retrySpec.accept(this);
         retryNode.retryBody.accept(this);
         this.failureHandled = failureHandled;
-        retryNode.retryBodyReturns = this.returnWithinLambdaWrappingCheckStack.peek();
+        if (!this.returnWithinLambdaWrappingCheckStack.peek() && this.innerRetryBlock != null) {
+            retryNode.retryBodyReturns = this.innerRetryBlock.retryBodyReturns;
+        } else {
+            retryNode.retryBodyReturns = this.returnWithinLambdaWrappingCheckStack.peek();
+        }
         this.returnWithinLambdaWrappingCheckStack.pop();
         this.resetLastStatement();
         this.resetErrorThrown();
         retryNode.retryBody.isBreakable = retryNode.onFailClause != null;
         analyzeOnFailClause(retryNode.onFailClause);
         this.errorTypes.pop();
+        this.retryCount--;
+        if (this.retryCount == 0) {
+            this.innerRetryBlock = null;
+        }
     }
 
     @Override

@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.internal.ErrorUtils;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
@@ -47,10 +48,6 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,38 +58,24 @@ import static org.ballerinalang.jvm.api.BErrorCreator.createError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
-import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
  * Extern function lang.values:cloneWithType.
  *
  * @since 2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "lang.value", version = VALUE_VERSION,
-        functionName = "cloneWithType",
-        args = {
-                @Argument(name = "t", type = TypeKind.TYPEDESC),
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.ANYDATA),
-                @ReturnType(type = TypeKind.ERROR)
-        },
-        isPublic = true
-)
 public class CloneWithType {
 
     private static final String AMBIGUOUS_TARGET = "ambiguous target type";
 
-    public static Object cloneWithType(Strand strand, Object v, TypedescValue t) {
+    public static Object cloneWithType(Object v, TypedescValue t) {
         Type describingType = t.getDescribingType();
         // typedesc<json>.constructFrom like usage
         if (describingType.getTag() == TypeTags.TYPEDESC_TAG) {
-            return convert(((TypedescType) t.getDescribingType()).getConstraint(), v, t, strand);
+            return convert(((TypedescType) t.getDescribingType()).getConstraint(), v, t, Scheduler.getStrand());
         }
         // json.constructFrom like usage
-        return convert(describingType, v, t, strand);
+        return convert(describingType, v, t, Scheduler.getStrand());
     }
 
     public static Object convert(Type convertType, Object inputValue) {
@@ -142,7 +125,7 @@ public class CloneWithType {
             }
         }
 
-        return convert((RefValue) value, matchingType, unresolvedValues);
+        return convert(value, matchingType, unresolvedValues);
     }
 
     private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues,

@@ -127,8 +127,7 @@ if %JVER% EQU 18 goto jdk8
 goto unknownJdk
 
 :unknownJdk
-echo Ballerina is supported only on JDK 1.8
-goto end
+goto runServer
 
 :jdk8
 goto runServer

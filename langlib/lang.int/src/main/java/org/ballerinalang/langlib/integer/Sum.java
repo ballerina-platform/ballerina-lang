@@ -18,31 +18,22 @@
 
 package org.ballerinalang.langlib.integer;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.INT_VERSION;
-
 /**
  * Native implementation of lang.int:sum(int...).
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.int", version = INT_VERSION, functionName = "sum",
-        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.int", functionName = "sum",
+//        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.INT)},
+//        isPublic = true
+//)
 public class Sum {
 
-    public static long sum(Strand strand, ArrayValue ns) {
+    public static long sum(long[] ns) {
         long sum = 0;
-        int size = ns.size();
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            sum += ns.getInt(i);
+            sum += ns[i];
         }
         return sum;
     }

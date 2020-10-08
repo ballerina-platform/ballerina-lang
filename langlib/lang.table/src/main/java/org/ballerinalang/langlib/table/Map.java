@@ -28,10 +28,6 @@ import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,18 +40,12 @@ import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "map",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
-        returnType = {@ReturnType(type = TypeKind.TABLE)},
-        isPublic = true
-)
 public class Map {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "map");
 
-    public static TableValueImpl map(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
+    public static TableValueImpl map(TableValueImpl tbl, FPValue<Object, Object> func) {
         Type newConstraintType = ((BFunctionType) func.getType()).retType;
         BTableType tblType = (BTableType) tbl.getType();
         BTableType newTableType = new BTableType(newConstraintType, tblType.getFieldNames(), tblType.isReadOnly());
@@ -63,9 +53,10 @@ public class Map {
         TableValueImpl newTable = new TableValueImpl(newTableType);
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
+        Strand parentStrand = Scheduler.getStrand();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{strand,
+                        () -> new Object[]{parentStrand,
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                         result -> newTable
                                 .put(tbl.getKeys()[index.get()], result),
@@ -74,6 +65,6 @@ public class Map {
     }
 
     public static TableValue map_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
-        return map(strand, tbl, func);
+        return map(tbl, func);
     }
 }

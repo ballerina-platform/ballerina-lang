@@ -26,9 +26,6 @@ import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.utils.GetFunction;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,26 +39,26 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "forEach",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "forEach",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
+//        isPublic = true
+//)
 public class ForEach {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
                                                                       ARRAY_VERSION, "forEach");
 
-    public static void forEach(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
+    public static void forEach(ArrayValue arr, FPValue<Object, Object> func) {
         int size = arr.size();
         Type arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
         AtomicInteger index = new AtomicInteger(-1);
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{strand,
-                                                               getFn.get(arr, index.incrementAndGet()), true},
-                                                       result -> {
-                                                       }, () -> null, Scheduler.getStrand().scheduler);
+        Strand parentStrand = Scheduler.getStrand();
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                                                         () -> new Object[]{parentStrand,
+                                                                 getFn.get(arr, index.incrementAndGet()), true},
+                                                         result -> {
+                                                         }, () -> null, Scheduler.getStrand().scheduler);
     }
 }

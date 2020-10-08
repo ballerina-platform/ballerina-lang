@@ -19,34 +19,27 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Create XML element from tag name and children sequence.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "createElement",
-        args = {
-                @Argument(name = "name", type = TypeKind.STRING),
-                @Argument(name = "children", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "createElement",
+//        args = {
+//                @Argument(name = "name", type = TypeKind.STRING),
+//                @Argument(name = "children", type = TypeKind.STRING)},
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class CreateElement {
 
-    public static XMLValue createElement(Strand strand, BString name, XMLValue children) {
+    public static XMLValue createElement(BString name, XMLValue children) {
         XMLQName xmlqName = new XMLQName(name);
         String temp = null;
         XMLValue xmlElement = XMLFactory.createXMLElement(xmlqName, temp);
