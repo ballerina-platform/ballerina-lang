@@ -140,10 +140,10 @@ isolated function getInequalityErrorMsg(any|error actual, any|error expected, st
         string expectedStr = sprintf("%s", expected);
         string actualStr = sprintf("%s", actual);
         if (expectedStr.length() > maxArgLength) {
-            expectedStr = expectedStr.substring(0, maxArgLength);
+            expectedStr = expectedStr.substring(0, maxArgLength) + "...";
         }
         if (actualStr.length() > maxArgLength) {
-            actualStr = actualStr.substring(0, maxArgLength);
+            actualStr = actualStr.substring(0, maxArgLength) + "...";
         }
         if (expectedType != actualType) {
             errorMsg = string `${msg}` + "\nexpected: " + string `<${expectedType}> '${expectedStr}'` + "\nactual\t: "
