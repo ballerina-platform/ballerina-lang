@@ -15,18 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.nativeimpl.java;
+package org.ballerinalang.langlib.java;
 
 import org.ballerinalang.jvm.values.HandleValue;
 
 /**
- * This class contains the implementation of the "createNull" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "getArrayLength" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
-public class CreateNull {
 
-    public static HandleValue createNull() {
-        return new HandleValue(null);
+public class GetArrayLength {
+
+    public static long getArrayLength(HandleValue arrayValue) {
+        Object[] arr = (Object[]) arrayValue.getValue();
+        if (arr == null) {
+            throw JValues.getJavaNullReferenceError();
+        }
+        return arr.length;
     }
 }

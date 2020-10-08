@@ -15,24 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.nativeimpl.java;
+package org.ballerinalang.langlib.java;
 
+import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.HandleValue;
 
 /**
- * This class contains the implementation of the "getArrayElement" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "fromString" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
-public class GetArrayElement {
+public class FromString {
 
-    public static HandleValue getArrayElement(HandleValue arrayValue, long index) {
-        Object[] arr = (Object[]) arrayValue.getValue();
-        if (arr == null) {
-            throw JValues.getJavaNullReferenceError();
-        }
-
-        JValues.rangeCheck(index, arr);
-        return new HandleValue(arr[(int) index]);
+    public static HandleValue fromString(BString strValue) {
+        return new HandleValue(strValue == null ? null : strValue.getValue());
     }
 }

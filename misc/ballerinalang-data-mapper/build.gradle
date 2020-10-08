@@ -33,7 +33,7 @@ dependencies {
     implementation project(':ballerina-cache')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
-    implementation project(':ballerina-java')
+    implementation project(':ballerina-lang:java')
     implementation project(':ballerina-file')
 //    implementation project(':ballerina-http')
     implementation project(':ballerina-io')
@@ -79,7 +79,7 @@ task buildAndCopy(type: Copy) {
     from 'build/libs/ballerinalang-data-mapper-' + project.version + '.jar'
     into  project(':jballerina-tools').projectDir.absolutePath +
             '/build/extracted-distributions/jballerina-tools-' + project.version +
-            '/bre/lib';
+            '/bre/lib'
 }
 
 jacocoTestReport {

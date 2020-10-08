@@ -22,7 +22,7 @@
 # + value - The Ballerina `string` with which the `handle` is created
 # + return - The `handle`, which refers to the Java String representation of the Ballerina `string`
 public isolated function fromString(string value) returns handle = @Method {
-    'class: "org.ballerinalang.nativeimpl.java.FromString",
+    'class: "org.ballerinalang.langlib.java.FromString",
     name: "fromString"
 } external;
 
@@ -36,7 +36,7 @@ public isolated function fromString(string value) returns handle = @Method {
 # + return - The Ballerina `string` representation of the Java object referred by the `handle` or else
 #            returns `()` if the `handle` refers to Java null
 public isolated function toString(handle value) returns string? = @Method {
-    'class: "org.ballerinalang.nativeimpl.java.ToString",
+    'class: "org.ballerinalang.langlib.java.ToString",
     name: "toString",
     paramTypes: ["org.ballerinalang.jvm.values.HandleValue"]
 } external;
@@ -49,7 +49,7 @@ public isolated function toString(handle value) returns string? = @Method {
 # + value - The `handle` of which the referred value is to be tested with Java null
 # + return - `true` if this handle refers to Java null
 public isolated function isNull(handle value) returns boolean = @Method {
-    'class: "org.ballerinalang.nativeimpl.java.IsNull",
+    'class: "org.ballerinalang.langlib.java.IsNull",
     name: "isNull"
 } external;
 
@@ -60,7 +60,7 @@ public isolated function isNull(handle value) returns boolean = @Method {
 #
 # + return - The `handle`, which refers to Java null
 public isolated function createNull() returns handle = @Method {
-    'class: "org.ballerinalang.nativeimpl.java.CreateNull",
+    'class: "org.ballerinalang.langlib.java.CreateNull",
     name: "createNull"
 } external;
 
@@ -86,7 +86,7 @@ public isolated function createNull() returns handle = @Method {
 # + name - The name of the Java class
 # + return - The Java Class object for the class with the given name
 public isolated function getClass(string name) returns handle | error = @Method {
-    'class: "org.ballerinalang.nativeimpl.java.JavaUtils",
+    'class: "org.ballerinalang.langlib.java.JavaUtils",
     name: "getClass",
     paramTypes: ["org.ballerinalang.jvm.api.values.BString"]
 } external;
@@ -104,6 +104,6 @@ public isolated function getClass(string name) returns handle | error = @Method 
 # + castType - The `JObject` implementation type ``typedesc<JObject>`` to which the given object is casted to if assignable
 # + return - The `JObject|error`, which refers to the new `JObject` instance or an `error`
 public isolated function cast(JObject value, typedesc<JObject> castType) returns JObject|error = @Method {
-    'class: "org.ballerinalang.nativeimpl.java.Cast",
+    'class: "org.ballerinalang.langlib.java.Cast",
     name: "cast"
 } external;
