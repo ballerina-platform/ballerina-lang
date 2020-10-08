@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.jvm.types;
+package org.ballerinalang.jvm.api;
 
 /**
  * This class contains tag values of each type in Ballerina.

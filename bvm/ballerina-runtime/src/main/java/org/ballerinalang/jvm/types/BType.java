@@ -19,6 +19,8 @@ package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.IdentifierUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.util.Objects;
@@ -35,11 +37,11 @@ import java.util.Objects;
  */
 public abstract class BType {
     protected String typeName;
-    protected BPackage pkg;
+    protected Module pkg;
     protected Class<? extends Object> valueClass;
     private int hashCode;
 
-    protected BType(String typeName, BPackage pkg, Class<? extends Object> valueClass) {
+    protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
         this.typeName = IdentifierUtils.decodeIdentifier(typeName);
         this.pkg = pkg;
         this.valueClass = valueClass;
@@ -91,8 +93,8 @@ public abstract class BType {
                 return false;
             }
 
-            BPackage thisModule = this.pkg;
-            BPackage otherModule = other.pkg;
+            Module thisModule = this.pkg;
+            Module otherModule = other.pkg;
 
             if (thisModule == null) {
                 return otherModule == null;
@@ -135,7 +137,7 @@ public abstract class BType {
         return pkg == null ? typeName : pkg.toString() + ":" + typeName;
     }
 
-    public BPackage getPackage() {
+    public Module getPackage() {
         return pkg;
     }
 
@@ -173,7 +175,7 @@ public abstract class BType {
         // For types that immutable type may be set later, the relevant type overrides this method.
     }
 
-    private boolean hasAllNullConstituents(BPackage module) {
-        return module.org == null && module.name == null && module.version == null;
+    private boolean hasAllNullConstituents(Module module) {
+        return module.getOrg() == null && module.getName() == null && module.getVersion() == null;
     }
 }

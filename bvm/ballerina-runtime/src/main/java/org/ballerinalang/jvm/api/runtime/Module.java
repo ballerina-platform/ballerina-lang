@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.runtime.Module;
+
 import java.util.Objects;
 
 import static org.ballerinalang.jvm.util.BLangConstants.ANON_ORG;
@@ -30,7 +32,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
  *
  * @since 0.995.0
  */
-public class BPackage {
+public class BPackage implements Module {
 
     public String org;
     public String name;

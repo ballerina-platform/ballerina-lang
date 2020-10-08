@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.types.FunctionType;
+
 import java.util.StringJoiner;
 
 /**
