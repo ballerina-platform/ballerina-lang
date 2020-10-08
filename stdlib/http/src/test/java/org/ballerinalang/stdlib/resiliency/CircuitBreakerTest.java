@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.resiliency;
 
-import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.util.StringUtils;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;

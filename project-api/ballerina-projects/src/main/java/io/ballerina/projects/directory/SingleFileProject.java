@@ -17,8 +17,8 @@
  */
 package io.ballerina.projects.directory;
 
-import io.ballerina.projects.PackageConfig;
-import io.ballerina.projects.Project;
+import io.ballerina.build.PackageConfig;
+import io.ballerina.build.Project;
 import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
@@ -122,7 +122,7 @@ public class SingleFileProject extends Project {
     /**
      * {@code BuildOptions} represents the build options specific to a Ballerina standalone file.
      */
-    public static class BuildOptions extends io.ballerina.projects.BuildOptions {
+    public static class BuildOptions extends io.ballerina.build.BuildOptions {
 
         private BuildOptions() {
             this.skipLock = true;

@@ -17,9 +17,9 @@
  */
 package io.ballerina.projects.env;
 
-import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.build.Project;
+import io.ballerina.build.environment.PackageResolver;
+import io.ballerina.build.environment.ProjectEnvironmentContext;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;

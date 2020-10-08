@@ -1742,6 +1742,11 @@
                     "occurrences": "MULTIPLE"
                 },
                 {
+                    "name": "transactionalKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
                     "name": "workerKeyword",
                     "type": "Token"
                 },
@@ -3977,13 +3982,18 @@
             ]
         },
         {
-            "name": "FunctionalMatchPatternNode",
+            "name": "ErrorMatchPatternNode",
             "base": "Node",
-            "kind": "FUNCTIONAL_MATCH_PATTERN",
+            "kind": "ERROR_MATCH_PATTERN",
             "attributes": [
                 {
-                    "name": "typeRef",
-                    "type": "Node"
+                    "name": "errorKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeReference",
+                    "type": "NameReferenceNode",
+                    "isOptional": true
                 },
                 {
                     "name": "openParenthesisToken",

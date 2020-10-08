@@ -17,9 +17,9 @@
  */
 package io.ballerina.projects.test;
 
-import io.ballerina.projects.JarWriter;
-import io.ballerina.projects.Module;
-import io.ballerina.projects.Package;
+import io.ballerina.build.JarWriter;
+import io.ballerina.build.Module;
+import io.ballerina.build.Package;
 import io.ballerina.projects.directory.BuildProject;
 import org.testng.Assert;
 import org.testng.annotations.Test;

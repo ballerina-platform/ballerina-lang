@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.repository;
 
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 
 /**
  * This represents a Ballerina package source entry.

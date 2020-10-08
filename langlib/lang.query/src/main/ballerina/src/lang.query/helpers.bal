@@ -13,8 +13,10 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/lang.__internal as internal;
 import ballerina/lang.'xml;
+import ballerina/java;
 
 function createPipeline(
         (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection,
@@ -151,4 +153,7 @@ function consumeStream(stream<Type, error?> strm) returns error? {
 }
 
 // TODO: This for debugging purposes, remove once completed.
-function print(any|error? data) = external;
+function print(any|error? data) = @java:Method {
+    'class: "org.ballerinalang.langlib.query.Print",
+    name: "print"
+} external;

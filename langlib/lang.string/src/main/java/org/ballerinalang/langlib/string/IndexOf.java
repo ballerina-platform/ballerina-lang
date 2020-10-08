@@ -20,35 +20,21 @@ package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.internal.ErrorUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 
 /**
  * Extern function ballerina.model.strings:indexOf.
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION,
-        functionName = "indexOf",
-        args = {@Argument(name = "s", type = TypeKind.STRING),
-                @Argument(name = "substring", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
 public class IndexOf {
 
-    public static Object indexOf(Strand strand, BString bStr, BString subString, long startIndx) {
+    public static Object indexOf(BString bStr, BString subString, long startIndx) {
 
         if (bStr == null || subString == null) {
             throw ErrorUtils.createNullReferenceError();

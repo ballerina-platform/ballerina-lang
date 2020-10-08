@@ -17,9 +17,9 @@
 
 package io.ballerina.semantic.api.test;
 
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.impl.BallerinaSemanticModel;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerina.compiler.api.symbols.Symbol;
-import org.ballerina.compiler.impl.BallerinaSemanticModel;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.DataProvider;
@@ -92,6 +92,8 @@ public class SymbolAtCursorTest {
                 {60, 12, "self"},
                 {64, 24, "fname"},
                 {64, 42, "lname"},
+                {73, 5, "test"},
+                {73, 8, "test"},
         };
     }
 

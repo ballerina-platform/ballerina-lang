@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langserver.completions.providers;
 
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -218,6 +218,13 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         });
 
         completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
+        completionItems.addAll(Arrays.asList(
+                new SnippetCompletionItem(context, Snippet.KW_RECORD.get()),
+                new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
+                new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()),
+                new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()),
+                new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get())
+        ));
 
         return completionItems;
     }
