@@ -18,22 +18,22 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeFlags;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BIntersectionType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.BXMLType;
-import org.ballerinalang.jvm.types.TypeConstants;
-import org.ballerinalang.jvm.types.TypeFlags;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.jvm.types.TypeConstants.READONLY_XML_TNAME;
+import static org.ballerinalang.jvm.api.TypeConstants.READONLY_XML_TNAME;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
@@ -69,7 +69,7 @@ public class ReadOnlyUtils {
                                        BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE).getValue());
     }
 
-    public static BType setImmutableTypeAndGetEffectiveType(BType type) {
+    public static Type setImmutableTypeAndGetEffectiveType(Type type) {
         if (TypeChecker.isInherentlyImmutableType(type)) {
             return type;
         }
@@ -78,7 +78,7 @@ public class ReadOnlyUtils {
             return ((BIntersectionType) type).getEffectiveType();
         }
 
-        BType immutableType = type.getImmutableType();
+        Type immutableType = type.getImmutableType();
         if (immutableType != null) {
             return ((BIntersectionType) immutableType).getEffectiveType();
         }
@@ -87,7 +87,7 @@ public class ReadOnlyUtils {
         return setImmutableIntersectionType(type, new HashSet<>()).getEffectiveType();
     }
 
-    private static BType getImmutableType(BType type, Set<BType> unresolvedTypes) {
+    private static Type getImmutableType(Type type, Set<Type> unresolvedTypes) {
         if (TypeChecker.isInherentlyImmutableType(type)) {
             return type;
         }
@@ -95,9 +95,9 @@ public class ReadOnlyUtils {
         return setImmutableIntersectionType(type, unresolvedTypes);
     }
 
-    private static BIntersectionType setImmutableIntersectionType(BType type, Set<BType> unresolvedTypes) {
+    private static BIntersectionType setImmutableIntersectionType(Type type, Set<Type> unresolvedTypes) {
 
-        BType immutableType = type.getImmutableType();
+        Type immutableType = type.getImmutableType();
         if (immutableType != null) {
             return (BIntersectionType) immutableType;
         }
@@ -105,19 +105,19 @@ public class ReadOnlyUtils {
         switch (type.getTag()) {
             case TypeTags.XML_COMMENT_TAG:
                 BXMLType readonlyCommentType = new BXMLType(TypeConstants.READONLY_XML_COMMENT,
-                                                            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
-                                                                         null),
+                                                            new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
+                                                                       null),
                                                             TypeTags.XML_COMMENT_TAG, true);
                 return createAndSetImmutableIntersectionType(type, readonlyCommentType);
             case TypeTags.XML_ELEMENT_TAG:
                 BXMLType readonlyElementType = new BXMLType(TypeConstants.READONLY_XML_ELEMENT,
-                                                            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
-                                                                         null),
+                                                            new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
+                                                                       null),
                                                             TypeTags.XML_ELEMENT_TAG, true);
                 return createAndSetImmutableIntersectionType(type, readonlyElementType);
             case TypeTags.XML_PI_TAG:
                 BXMLType readonlyPI = new BXMLType(TypeConstants.READONLY_XML_PI,
-                                                   new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
+                                                   new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
                                                    TypeTags.XML_PI_TAG, true);
                 return createAndSetImmutableIntersectionType(type, readonlyPI);
             case TypeTags.XML_TAG:
@@ -135,14 +135,14 @@ public class ReadOnlyUtils {
             case TypeTags.TUPLE_TAG:
                 BTupleType origTupleType = (BTupleType) type;
 
-                List<BType> origTupleMemTypes = origTupleType.getTupleTypes();
-                List<BType> immutableMemTypes = new ArrayList<>(origTupleMemTypes.size());
+                List<Type> origTupleMemTypes = origTupleType.getTupleTypes();
+                List<Type> immutableMemTypes = new ArrayList<>(origTupleMemTypes.size());
 
-                for (BType origTupleMemType : origTupleMemTypes) {
+                for (Type origTupleMemType : origTupleMemTypes) {
                     immutableMemTypes.add(getImmutableType(origTupleMemType, unresolvedTypes));
                 }
 
-                BType origTupleRestType = origTupleType.getRestType();
+                Type origTupleRestType = origTupleType.getRestType();
 
                 BTupleType immutableTupleType =
                         new BTupleType(immutableMemTypes, origTupleRestType == null ? null :
@@ -173,7 +173,7 @@ public class ReadOnlyUtils {
                                                           originalField.name, originalField.flags));
                 }
 
-                BType origRecordRestFieldType = origRecordType.restFieldType;
+                Type origRecordRestFieldType = origRecordType.restFieldType;
                 if (origRecordRestFieldType != null) {
                     immutableRecordType.restFieldType = getImmutableType(origRecordRestFieldType, unresolvedTypes);
                 }
@@ -184,7 +184,7 @@ public class ReadOnlyUtils {
 
                 BTableType immutableTableType;
 
-                BType origKeyType = origTableType.getKeyType();
+                Type origKeyType = origTableType.getKeyType();
                 if (origKeyType != null) {
                     immutableTableType = new BTableType(getImmutableType(origTableType.getConstrainedType(),
                                                                                      unresolvedTypes),
@@ -226,11 +226,11 @@ public class ReadOnlyUtils {
                 return (BIntersectionType) type.getImmutableType();
             default:
                 BUnionType origUnionType = (BUnionType) type;
-                BType resultantImmutableType;
+                Type resultantImmutableType;
 
-                List<BType> readOnlyMemTypes = new ArrayList<>();
+                List<Type> readOnlyMemTypes = new ArrayList<>();
 
-                for (BType memberType : origUnionType.getMemberTypes()) {
+                for (Type memberType : origUnionType.getMemberTypes()) {
                     if (TypeChecker.isInherentlyImmutableType(memberType)) {
                         readOnlyMemTypes.add(memberType);
                         continue;
@@ -252,12 +252,12 @@ public class ReadOnlyUtils {
         }
     }
 
-    private static BIntersectionType createAndSetImmutableIntersectionType(BType originalType, BType effectiveType) {
+    private static BIntersectionType createAndSetImmutableIntersectionType(Type originalType, Type effectiveType) {
         return createAndSetImmutableIntersectionType(originalType.getPackage(), originalType, effectiveType);
     }
 
-    private static BIntersectionType createAndSetImmutableIntersectionType(BPackage pkg, BType originalType,
-                                                                           BType effectiveType) {
+    private static BIntersectionType createAndSetImmutableIntersectionType(Module pkg, Type originalType,
+                                                                           Type effectiveType) {
         int typeFlags = 0;
 
         if (effectiveType.isAnydata()) {
@@ -274,7 +274,7 @@ public class ReadOnlyUtils {
 
         BIntersectionType intersectionType = new BIntersectionType(pkg, // TODO: 6/3/20 Fix to use current package
                                                                    // for records and objects
-                                                                   new BType[]{ originalType, BTypes.typeReadonly },
+                                                                   new Type []{ originalType, Types.TYPE_READONLY},
                                                                    effectiveType, typeFlags, true);
         originalType.setImmutableType(intersectionType);
         return intersectionType;

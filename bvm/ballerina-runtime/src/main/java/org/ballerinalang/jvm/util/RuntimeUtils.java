@@ -18,9 +18,9 @@
 package org.ballerinalang.jvm.util;
 
 import org.ballerinalang.jvm.TypeConverter;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -74,7 +74,7 @@ public class RuntimeUtils {
         return array;
     }
 
-    public static void addToArray(BType type, String value, ArrayValue array) {
+    public static void addToArray(Type type, String value, ArrayValue array) {
         // TODO: need to add parsing logic for ref values for both var args and other args as well.
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
@@ -115,10 +115,10 @@ public class RuntimeUtils {
 
         String name;
         boolean hasDefaultable;
-        BType type;
+        Type type;
         int index = -1;
 
-        public ParamInfo(boolean hasDefaultable, String name, BType type) {
+        public ParamInfo(boolean hasDefaultable, String name, Type type) {
 
             this.name = name;
             this.hasDefaultable = hasDefaultable;

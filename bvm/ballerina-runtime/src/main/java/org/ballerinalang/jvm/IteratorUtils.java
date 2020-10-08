@@ -18,11 +18,11 @@
 
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeFlags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeConstants;
-import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.Flags;
 
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class IteratorUtils {
      * @param type The type being checked
      * @return The type flags
      */
-    public static int getTypeFlags(BType type) {
+    public static int getTypeFlags(Type type) {
         if (type.isAnydata()) {
             return TypeFlags.asMask(TypeFlags.PURETYPE, TypeFlags.ANYDATA);
         }
@@ -52,7 +52,7 @@ public class IteratorUtils {
         return 0;
     }
 
-    public static BRecordType createIteratorNextReturnType(BType type) {
+    public static BRecordType createIteratorNextReturnType(Type type) {
         Map<String, BField> fields = new HashMap<>();
         fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
         return new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE, null, 0, fields, null, true,

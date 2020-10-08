@@ -24,6 +24,8 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BIterator;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
@@ -32,8 +34,6 @@ import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 
 import java.util.AbstractMap;
@@ -69,7 +69,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     private BTableType type;
-    private BType iteratorNextReturnType;
+    private Type iteratorNextReturnType;
     private ConcurrentHashMap<Long, Map.Entry<K, V>> entries;
     private LinkedHashMap<Long, V> values;
     private LinkedHashMap<Long, K> keys;
@@ -256,7 +256,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return keys.size() == 0 ? 0 : (this.maxIntKey + 1);
     }
 
-    public BType getKeyType() {
+    public Type getKeyType() {
         return this.valueHolder.getKeyType();
     }
 
@@ -266,7 +266,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return this.get(key);
         }
 
-        BType expectedType = (this.type).getConstrainedType();
+        Type expectedType = (this.type).getConstrainedType();
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
@@ -358,7 +358,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return "table key(" + keyJoiner.toString() + ") [" + sj.toString() + "]";
     }
 
-    private BType getTableConstraintField(BType constraintType, String fieldName) {
+    private Type getTableConstraintField(Type constraintType, String fieldName) {
         if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             Map<String, BField> fieldList = ((BRecordType) constraintType).getFields();
             return fieldList.get(fieldName).getFieldType();
@@ -369,11 +369,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     @Override
-    public BType getType() {
+    public Type getType() {
         return this.type;
     }
 
-    public BType getIteratorNextReturnType() {
+    public Type getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
             iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type.getConstrainedType());
         }
@@ -396,7 +396,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 V value = next.getValue();
                 K key = next.getKey();
 
-                List<BType> types = new ArrayList<>();
+                List<Type> types = new ArrayList<>();
                 types.add(TypeChecker.getType(key));
                 types.add(TypeChecker.getType(value));
                 BTupleType tupleType = new BTupleType(types);
@@ -452,7 +452,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return false;
         }
 
-        public BType getKeyType() {
+        public Type getKeyType() {
             throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
                                             BStringUtils.fromString("keys are not defined"));
         }
@@ -460,7 +460,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     private class KeyHashValueHolder extends ValueHolder {
         private DefaultKeyWrapper keyWrapper;
-        private BType keyType;
+        private Type keyType;
 
         public KeyHashValueHolder() {
             super();
@@ -540,7 +540,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return keys.containsKey(TableUtils.hash(key, null));
         }
 
-        public BType getKeyType() {
+        public Type getKeyType() {
             return keyType;
         }
 
@@ -564,8 +564,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
             public MultiKeyWrapper() {
                 super();
-                List<BType> keyTypes = new ArrayList<>();
-                BType constraintType = type.getConstrainedType();
+                List<Type> keyTypes = new ArrayList<>();
+                Type constraintType = type.getConstrainedType();
                 if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                     BRecordType recordType = (BRecordType) constraintType;
                     Arrays.stream(fieldNames).forEach(field -> keyTypes.add(recordType.getFields().get(field).type));

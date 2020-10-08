@@ -18,6 +18,9 @@
 
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.DecimalType;
 import org.ballerinalang.jvm.values.DecimalValue;
 
 import java.math.BigDecimal;
@@ -28,14 +31,14 @@ import java.math.BigDecimal;
  *
  * @since 0.995.0
  */
-public class BDecimalType extends BType {
+public class BDecimalType extends BType implements DecimalType {
 
     /**
      * Create a {@code BDecimalType} which represents the decimal type.
      *
      * @param typeName string name of the type
      */
-    BDecimalType(String typeName, BPackage pkg) {
+    public BDecimalType(String typeName, Module pkg) {
         super(typeName, pkg, DecimalValue.class);
     }
 

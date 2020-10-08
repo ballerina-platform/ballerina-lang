@@ -21,15 +21,16 @@ import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.commons.ArrayState;
+import org.ballerinalang.jvm.api.types.ArrayType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.api.values.BValue;
-import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
@@ -62,8 +63,8 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  */
 public class ArrayValueImpl extends AbstractArrayValue {
 
-    protected BArrayType arrayType;
-    protected BType elementType;
+    protected ArrayType arrayType;
+    protected Type elementType;
 
     protected Object[] refValues;
     private long[] intValues;
@@ -74,7 +75,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     // ------------------------ Constructors -------------------------------------------------------------------
 
     @Deprecated
-    public ArrayValueImpl(Object[] values, BArrayType type) {
+    public ArrayValueImpl(Object[] values, ArrayType type) {
         this.refValues = values;
         this.arrayType = type;
         this.size = values.length;
@@ -87,28 +88,28 @@ public class ArrayValueImpl extends AbstractArrayValue {
     public ArrayValueImpl(long[] values) {
         this.intValues = values;
         this.size = values.length;
-        setArrayType(BTypes.typeInt);
+        setArrayType(Types.TYPE_INT);
     }
 
     @Deprecated
     public ArrayValueImpl(boolean[] values) {
         this.booleanValues = values;
         this.size = values.length;
-        setArrayType(BTypes.typeBoolean);
+        setArrayType(Types.TYPE_BOOLEAN);
     }
 
     @Deprecated
     public ArrayValueImpl(byte[] values) {
         this.byteValues = values;
         this.size = values.length;
-        setArrayType(BTypes.typeByte);
+        setArrayType(Types.TYPE_BYTE);
     }
 
     @Deprecated
     public ArrayValueImpl(double[] values) {
         this.floatValues = values;
         this.size = values.length;
-        setArrayType(BTypes.typeFloat);
+        setArrayType(Types.TYPE_FLOAT);
     }
 
     @Deprecated
@@ -118,20 +119,20 @@ public class ArrayValueImpl extends AbstractArrayValue {
         for (int i = 0; i < size; i++) {
             bStringValues[i] = BStringUtils.fromString(values[i]);
         }
-        setArrayType(BTypes.typeString);
+        setArrayType(Types.TYPE_STRING);
     }
 
     @Deprecated
     public ArrayValueImpl(BString[] values) {
         this.bStringValues = values;
         this.size = values.length;
-        setArrayType(BTypes.typeString);
+        setArrayType(Types.TYPE_STRING);
     }
 
     @Deprecated
-    public ArrayValueImpl(BArrayType type) {
+    public ArrayValueImpl(ArrayType type) {
         this.arrayType = type;
-        BArrayType arrayType = type;
+        ArrayType arrayType = type;
         this.elementType = arrayType.getElementType();
         initArrayValues(elementType);
         if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
@@ -139,7 +140,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    private void initArrayValues(BType elementType) {
+    private void initArrayValues(Type elementType) {
         int initialArraySize = (arrayType.getSize() != -1) ? arrayType.getSize() : DEFAULT_ARRAY_SIZE;
         switch (elementType.getTag()) {
             case TypeTags.INT_TAG:
@@ -174,7 +175,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Deprecated
-    public ArrayValueImpl(BArrayType type, long size) {
+    public ArrayValueImpl(ArrayType type, long size) {
         this.arrayType = type;
         this.elementType = type.getElementType();
         initArrayValues(this.elementType);
@@ -184,7 +185,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Deprecated
-    public ArrayValueImpl(BArrayType type, long size, ListInitialValueEntry[] initialValues) {
+    public ArrayValueImpl(ArrayType type, long size, ListInitialValueEntry[] initialValues) {
         this.arrayType = type;
         this.elementType = type.getElementType();
         initArrayValues(this.elementType);
@@ -440,7 +441,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public void addRefValue(long index, Object value) {
-        BType type = TypeChecker.getType(value);
+        Type type = TypeChecker.getType(value);
         switch (this.elementType.getTag()) {
             case TypeTags.BOOLEAN_TAG:
                 prepareForAdd(index, value, type, booleanValues.length);
@@ -477,7 +478,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     public void addInt(long index, long value) {
         if (intValues != null) {
-            prepareForAdd(index, value, BTypes.typeInt, intValues.length);
+            prepareForAdd(index, value, Types.TYPE_INT, intValues.length);
             intValues[(int) index] = value;
             return;
         }
@@ -487,17 +488,17 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void addBoolean(long index, boolean value) {
-        prepareForAdd(index, value, BTypes.typeBoolean, booleanValues.length);
+        prepareForAdd(index, value, Types.TYPE_BOOLEAN, booleanValues.length);
         booleanValues[(int) index] = value;
     }
 
     private void addByte(long index, byte value) {
-        prepareForAdd(index, value, BTypes.typeByte, byteValues.length);
+        prepareForAdd(index, value, Types.TYPE_BYTE, byteValues.length);
         byteValues[(int) index] = value;
     }
 
     private void addFloat(long index, double value) {
-        prepareForAdd(index, value, BTypes.typeFloat, floatValues.length);
+        prepareForAdd(index, value, Types.TYPE_FLOAT, floatValues.length);
         floatValues[(int) index] = value;
     }
 
@@ -507,7 +508,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void addBString(long index, BString value) {
-        prepareForAdd(index, value, BTypes.typeString, bStringValues.length);
+        prepareForAdd(index, value, Types.TYPE_STRING, bStringValues.length);
         bStringValues[(int) index] = value;
     }
 
@@ -587,7 +588,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                     if (refValues[i] == null) {
                         sj.add("null");
                     } else {
-                        BType type = TypeChecker.getType(refValues[i]);
+                        Type type = TypeChecker.getType(refValues[i]);
                         switch (type.getTag()) {
                             case TypeTags.STRING_TAG:
                             case TypeTags.XML_TAG:
@@ -663,7 +664,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public BType getType() {
+    public Type getType() {
         return this.arrayType;
     }
 
@@ -868,7 +869,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return;
         }
 
-        this.arrayType = (BArrayType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.arrayType);
+        this.arrayType = (ArrayType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.arrayType);
         if (this.elementType == null || this.elementType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
                 Object value = this.getRefValue(i);
@@ -893,7 +894,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @return element type
      */
     @Override
-    public BType getElementType() {
+    public Type getElementType() {
         return this.elementType;
     }
 
@@ -1043,7 +1044,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     // Private methods
 
-    private void prepareForAdd(long index, Object value, BType sourceType, int currentArraySize) {
+    private void prepareForAdd(long index, Object value, Type sourceType, int currentArraySize) {
         // check types
         if (!TypeChecker.checkIsType(value, sourceType, this.elementType)) {
             BString reason = getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
@@ -1088,7 +1089,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         resetSize(intIndex);
     }
 
-    private void setArrayType(BType elementType) {
+    private void setArrayType(Type elementType) {
         this.arrayType = new BArrayType(elementType);
         this.elementType = elementType;
     }

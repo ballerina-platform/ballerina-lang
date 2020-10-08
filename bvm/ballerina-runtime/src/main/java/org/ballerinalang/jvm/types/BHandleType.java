@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.HandleType;
 import org.ballerinalang.jvm.values.RefValue;
 
 /**
@@ -24,14 +27,14 @@ import org.ballerinalang.jvm.values.RefValue;
  *
  * @since 1.0.0
  */
-public class BHandleType extends BType {
+public class BHandleType extends BType implements HandleType {
 
     /**
      * Create a {@code BAnyType} which represents the any type.
      *
      * @param typeName string name of the type
      */
-    BHandleType(String typeName, BPackage pkg) {
+    public BHandleType(String typeName, Module pkg) {
         super(typeName, pkg, RefValue.class);
     }
 

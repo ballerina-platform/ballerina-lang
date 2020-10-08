@@ -18,6 +18,12 @@
 
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.StreamType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.values.StreamValue;
 
 /**
@@ -25,9 +31,9 @@ import org.ballerinalang.jvm.values.StreamValue;
  *
  * @since 1.2.0
  */
-public class BStreamType extends BType {
+public class BStreamType extends BType implements StreamType {
 
-    private BType constraint;
+    private Type constraint;
 
     /**
      * Creates a {@link BStreamType} which represents the stream type.
@@ -36,17 +42,17 @@ public class BStreamType extends BType {
      * @param constraint the type by which this stream is constrained
      * @param pkgPath    package path
      */
-    BStreamType(String typeName, BType constraint, BPackage pkgPath) {
+    public BStreamType(String typeName, Type constraint, Module pkgPath) {
         super(typeName, pkgPath, StreamValue.class);
         this.constraint = constraint;
     }
 
-    public BStreamType(BType constraint) {
+    public BStreamType(Type constraint) {
         super(TypeConstants.STREAM_TNAME, null, StreamValue.class);
         this.constraint = constraint;
     }
 
-    public BType getConstrainedType() {
+    public Type getConstrainedType() {
         return constraint;
     }
 
@@ -67,7 +73,7 @@ public class BStreamType extends BType {
 
     @Override
     public String toString() {
-        if (constraint == BTypes.typeAny) {
+        if (constraint == Types.TYPE_ANY) {
             return super.toString();
         } else {
             return "stream" + "<" + constraint.getName() + ">";

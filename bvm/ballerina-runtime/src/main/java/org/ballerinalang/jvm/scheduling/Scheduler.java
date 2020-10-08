@@ -17,10 +17,10 @@
 package org.ballerinalang.jvm.scheduling;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
@@ -113,7 +113,7 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return {@link FutureValue} reference to the given function pointer invocation.
      */
-    public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType,
+    public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent, Type returnType,
                                         String strandName, StrandMetadata metadata) {
         return schedule(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
     }
@@ -129,7 +129,7 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return {@link FutureValue} reference to the given function invocation.
      */
-    public FutureValue scheduleLocal(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType,
+    public FutureValue scheduleLocal(Object[] params, FPValue<?, ?> fp, Strand parent, Type returnType,
                                      String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, null, null, returnType, strandName, metadata);
         return scheduleLocal(params, fp, parent, future);
@@ -162,7 +162,7 @@ public class Scheduler {
      * @return Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
-                                Map<String, Object> properties, BType returnType, String strandName,
+                                Map<String, Object> properties, Type returnType, String strandName,
                                 StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
         return schedule(params, function, future);
@@ -181,7 +181,7 @@ public class Scheduler {
      */
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
                                 String strandName, StrandMetadata metadata) {
-        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull, strandName, metadata);
+        FutureValue future = createFuture(parent, callback, null, Types.TYPE_NULL, strandName, metadata);
         return schedule(params, function, future);
     }
 
@@ -211,7 +211,7 @@ public class Scheduler {
     @Deprecated
     public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, CallableUnitCallback callback,
                                 String strandName, StrandMetadata metadata) {
-        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull, strandName, metadata);
+        FutureValue future = createFuture(parent, callback, null, Types.TYPE_NULL, strandName, metadata);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         future.strand.schedulerItem = item;
@@ -448,12 +448,12 @@ public class Scheduler {
     }
 
     public FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties,
-                                    BType constraint, String name, StrandMetadata metadata) {
+                                    Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
-    private FutureValue createFuture(Strand parent, CallableUnitCallback callback, BType constraint, Strand newStrand) {
+    private FutureValue createFuture(Strand parent, CallableUnitCallback callback, Type constraint, Strand newStrand) {
         if (parent != null) {
             newStrand.observerContext = parent.observerContext;
         }

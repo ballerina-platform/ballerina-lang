@@ -17,6 +17,13 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.IntersectionType;
+import org.ballerinalang.jvm.api.types.MapType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
@@ -31,11 +38,11 @@ import org.ballerinalang.jvm.values.MapValueImpl;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BMapType extends BType {
+public class BMapType extends BType implements MapType {
 
-    private BType constraint;
+    private Type constraint;
     private final boolean readonly;
-    private BIntersectionType immutableType;
+    private IntersectionType immutableType;
 
     /**
      * Create a type from the given name.
@@ -44,17 +51,23 @@ public class BMapType extends BType {
      * @param constraint constraint type which particular map is bound to.
      * @param pkg package for the type.
      */
-    public BMapType(String typeName, BType constraint, BPackage pkg) {
+    public BMapType(String typeName, Type constraint, Module pkg) {
         super(typeName, pkg, MapValueImpl.class);
         this.constraint = constraint;
         this.readonly = false;
     }
 
-    public BMapType(BType constraint) {
+    public BMapType(String typeName, Type constraint, Module pkg, boolean readonly) {
+        super(typeName, pkg, MapValueImpl.class);
+        this.constraint = constraint;
+        this.readonly = readonly;
+    }
+
+    public BMapType(Type constraint) {
         this(constraint, false);
     }
 
-    public BMapType(BType constraint, boolean readonly) {
+    public BMapType(Type constraint, boolean readonly) {
         super(TypeConstants.MAP_TNAME, null, MapValueImpl.class);
         this.constraint = constraint;
         this.readonly = readonly;
@@ -65,7 +78,7 @@ public class BMapType extends BType {
      *
      * @return constraint type.
      */
-    public BType getConstrainedType() {
+    public Type getConstrainedType() {
         return constraint;
     }
 
@@ -76,7 +89,7 @@ public class BMapType extends BType {
      * @deprecated use {@link #getConstrainedType()} instead.
      */
     @Deprecated
-    public BType getElementType() {
+    public Type getElementType() {
         return constraint;
     }
 
@@ -99,7 +112,7 @@ public class BMapType extends BType {
     public String toString() {
         String stringRep;
 
-        if (constraint == BTypes.typeAny) {
+        if (constraint == Types.TYPE_ANY) {
             stringRep = super.toString();
         } else {
             stringRep = "map" + "<" + constraint.toString() + ">";
@@ -138,12 +151,12 @@ public class BMapType extends BType {
     }
 
     @Override
-    public BType getImmutableType() {
+    public Type getImmutableType() {
         return this.immutableType;
     }
 
     @Override
-    public void setImmutableType(BIntersectionType immutableType) {
+    public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
 }

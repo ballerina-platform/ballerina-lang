@@ -18,6 +18,12 @@
 
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.Type;
+import org.ballerinalang.jvm.api.types.TypedescType;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.TypedescValueImpl;
 
@@ -26,21 +32,21 @@ import org.ballerinalang.jvm.values.TypedescValueImpl;
  *
  * @since 0.995.0
  */
-public class BTypedescType extends BType {
-    private BType constraint;
+public class BTypedescType extends BType implements TypedescType {
+    private Type constraint;
 
-    public BTypedescType(String typeName, BPackage pkg) {
+    public BTypedescType(String typeName, Module pkg) {
         super(typeName, pkg, Object.class);
     }
 
-    public BTypedescType(BType constraint) {
+    public BTypedescType(Type constraint) {
         super(TypeConstants.TYPEDESC_TNAME, null, TypedescValue.class);
         this.constraint = constraint;
     }
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) new TypedescValueImpl(BTypes.typeNull);
+        return (V) new TypedescValueImpl(Types.TYPE_NULL);
     }
 
     @Override
@@ -64,7 +70,7 @@ public class BTypedescType extends BType {
         return false;
     }
 
-    public BType getConstraint() {
+    public Type getConstraint() {
         return constraint;
     }
 

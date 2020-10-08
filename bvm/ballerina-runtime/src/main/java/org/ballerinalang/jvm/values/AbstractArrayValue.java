@@ -20,13 +20,13 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
@@ -64,7 +64,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
     protected int maxSize = SYSTEM_ARRAY_MAX;
     protected static final int DEFAULT_ARRAY_SIZE = 100;
     protected int size = 0;
-    protected BType iteratorNextReturnType;
+    protected Type iteratorNextReturnType;
 
     // ----------------------- get methods ----------------------------------------------------
 
@@ -244,7 +244,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
     public abstract String expressionStringValue(BLink parent);
 
     @Override
-    public abstract BType getType();
+    public abstract Type getType();
 
     @Override
     public int size() {
@@ -318,12 +318,12 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     protected void initializeIteratorNextReturnType() {
-        BType type;
+        Type type;
         if (getType().getTag() == TypeTags.ARRAY_TAG) {
             type = getElementType();
         } else {
             BTupleType tupleType = (BTupleType) getType();
-            LinkedHashSet<BType> types = new LinkedHashSet<>(tupleType.getTupleTypes());
+            LinkedHashSet<Type> types = new LinkedHashSet<>(tupleType.getTupleTypes());
             if (tupleType.getRestType() != null) {
                 types.add(tupleType.getRestType());
             }
@@ -336,7 +336,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type);
     }
 
-    public BType getIteratorNextReturnType() {
+    public Type getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
             initializeIteratorNextReturnType();
         }

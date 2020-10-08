@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.StringType;
 import org.ballerinalang.jvm.util.BLangConstants;
 
 /**
@@ -25,7 +28,7 @@ import org.ballerinalang.jvm.util.BLangConstants;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BStringType extends BType {
+public class BStringType extends BType implements StringType {
 
     private final int tag;
 
@@ -34,12 +37,12 @@ public class BStringType extends BType {
      *
      * @param typeName string name of the type
      */
-    BStringType(String typeName, BPackage pkg) {
+    public BStringType(String typeName, Module pkg) {
         super(typeName, pkg, String.class);
         tag = TypeTags.STRING_TAG;
     }
 
-    BStringType(String typeName, BPackage pkg, int tag) {
+    public BStringType(String typeName, Module pkg, int tag) {
         super(typeName, pkg, String.class);
         this.tag = tag;
     }

@@ -18,13 +18,13 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.api.values.BXML;
 import org.ballerinalang.jvm.api.values.BXMLQName;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
@@ -50,7 +50,7 @@ import javax.xml.namespace.QName;
  */
 public abstract class XMLValue implements RefValue, BXML, CollectionValue {
 
-    BType type = BTypes.typeXML;
+    Type type = Types.TYPE_XML;
 
     public abstract int size();
 
@@ -125,7 +125,7 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      * {@inheritDoc}
      */
     @Override
-    public BType getType() {
+    public Type getType() {
         return type;
     }
 

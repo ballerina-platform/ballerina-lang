@@ -15,9 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.types;
-
-import org.ballerinalang.jvm.api.runtime.Module;
+package org.ballerinalang.jvm.api.runtime;
 
 import java.util.Objects;
 
@@ -28,25 +26,25 @@ import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
 
 /**
- * {@code BPackage} represents the package of defined type in Ballerina.
+ * {@code Module} represents the module of defined type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BPackage implements Module {
+public class Module {
 
     public String org;
     public String name;
     public String version;
     private int hashCode;
 
-    public BPackage(String org, String name, String version) {
+    public Module(String org, String name, String version) {
         this.org = org;
         this.name = name;
         this.version = version;
         hashCode = Objects.hash(org, name, version);
     }
 
-    public BPackage(String org, String name) {
+    public Module(String org, String name) {
         this.org = org;
         this.name = name;
         this.version = "";
@@ -73,7 +71,7 @@ public class BPackage implements Module {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        BPackage bPackage = (BPackage) o;
+        Module bPackage = (Module) o;
         return Objects.equals(org, bPackage.org) &&
                 Objects.equals(name, bPackage.name) &&
                 Objects.equals(version, bPackage.version);

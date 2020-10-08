@@ -25,11 +25,11 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
@@ -80,7 +80,7 @@ public final class XMLItem extends XMLValue {
         attributes = new AttributeMapValueImpl(false);
         addDefaultNamespaceAttribute(name, attributes);
         probableParents = new ArrayList<>();
-        this.type = BTypes.typeElement;
+        this.type = Types.TYPE_ELEMENT;
     }
 
     /**
@@ -90,7 +90,7 @@ public final class XMLItem extends XMLValue {
      */
     public XMLItem(QName name) {
         this(name, new XMLSequence(new ArrayList<>()));
-        this.type = BTypes.typeElement;
+        this.type = Types.TYPE_ELEMENT;
     }
 
     public XMLItem(QName name, boolean readonly) {
@@ -104,7 +104,7 @@ public final class XMLItem extends XMLValue {
         addDefaultNamespaceAttribute(name, attributes);
         probableParents = new ArrayList<>();
 
-        this.type = readonly ? BTypes.typeReadonlyElement : BTypes.typeElement;
+        this.type = readonly ? Types.TYPE_READONLY_ELEMENT : Types.TYPE_ELEMENT;
     }
 
     private void addDefaultNamespaceAttribute(QName name, AttributeMapValueImpl attributes) {

@@ -17,12 +17,16 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.NullType;
+
 /**
  * {@code BNullType} represents the type of a {@code NullLiteral}.
  *
  * @since 0.995.0
  */
-public class BNullType extends BType {
+public class BNullType extends BType implements NullType {
 
     /**
      * Create a {@code BNullType} represents the type of a {@code NullLiteral}.
@@ -30,7 +34,7 @@ public class BNullType extends BType {
      * @param typeName string name of the type
      * @param pkg package path
      */
-    BNullType(String typeName, BPackage pkg) {
+    public BNullType(String typeName, Module pkg) {
         super(typeName, pkg, null);
     }
 

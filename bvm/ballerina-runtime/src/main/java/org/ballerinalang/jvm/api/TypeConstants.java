@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.jvm.api;
 
-import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
 
 /**

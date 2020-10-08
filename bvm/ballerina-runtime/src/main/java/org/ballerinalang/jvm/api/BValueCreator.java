@@ -20,6 +20,13 @@ package org.ballerinalang.jvm.api;
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.JSONDataSource;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.ArrayType;
+import org.ballerinalang.jvm.api.types.FunctionType;
+import org.ballerinalang.jvm.api.types.MapType;
+import org.ballerinalang.jvm.api.types.StreamType;
+import org.ballerinalang.jvm.api.types.TupleType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.api.values.BDecimal;
 import org.ballerinalang.jvm.api.values.BFunctionPointer;
@@ -34,15 +41,8 @@ import org.ballerinalang.jvm.api.values.BXMLQName;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BStreamType;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -79,20 +79,20 @@ import javax.xml.namespace.QName;
      /**
       * Creates a new array with given array type.
       *
-      * @param type the {@code BArrayType} object representing the type
+      * @param type the {@code ArrayType} object representing the type
       * @return the new array
       */
-     public static BArray createArrayValue(BArrayType type) {
+     public static BArray createArrayValue(ArrayType type) {
          return new ArrayValueImpl(type);
      }
 
      /**
       * Creates a new tuple with given tuple type.
       *
-      * @param type the {@code BTupleType} object representing the type
+      * @param type the {@code TupleType} object representing the type
       * @return the new array
       */
-     public static BArray createTupleValue(BTupleType type) {
+     public static BArray createTupleValue(TupleType type) {
          return new TupleValueImpl(type);
      }
 
@@ -150,21 +150,21 @@ import javax.xml.namespace.QName;
       * Create a new Ref value array.
       *
       * @param values initial array values
-      * @param type {@code BArrayType} of the array.
+      * @param type {@code ArrayType} of the array.
       * @return ref Value array
       */
-     public static BArray createArrayValue(Object[] values, BArrayType type) {
+     public static BArray createArrayValue(Object[] values, ArrayType type) {
          return new ArrayValueImpl(values, type);
      }
 
      /**
       * Create a ref value array with given maximum length.
       *
-      * @param type {@code BArrayType} of the array.
+      * @param type {@code ArrayType} of the array.
       * @param length maximum length
       * @return fixed length ref value array
       */
-     public static BArray createArrayValue(BArrayType type, int length) {
+     public static BArray createArrayValue(ArrayType type, int length) {
          return new ArrayValueImpl(type, length);
      }
 
@@ -206,7 +206,7 @@ import javax.xml.namespace.QName;
       * @param type     {@code BFunctionType} of the function pointer
       * @return function pointer
       */
-     public static BFunctionPointer createFPValue(Function function, BFunctionType type) {
+     public static BFunctionPointer createFPValue(Function function, FunctionType type) {
          return new FPValue(function, type, null, false);
      }
 
@@ -218,7 +218,7 @@ import javax.xml.namespace.QName;
       * @param strandName name for newly creating strand which is used to run the function pointer
       * @return function pointer
       */
-     public static BFunctionPointer createFPValue(Function function, BFunctionType type, String strandName) {
+     public static BFunctionPointer createFPValue(Function function, FunctionType type, String strandName) {
          return new FPValue(function, type, strandName, false);
      }
 
@@ -238,7 +238,7 @@ import javax.xml.namespace.QName;
       * @param type constraint type
       * @return stream value
       */
-     public static BStream createStreamValue(BStreamType type) {
+     public static BStream createStreamValue(StreamType type) {
          return new StreamValue(type);
      }
 
@@ -248,7 +248,7 @@ import javax.xml.namespace.QName;
       * @param describingType {@code BType} of the value describe by this value
       * @return type descriptor
       */
-     public static BTypedesc createTypedescValue(BType describingType) {
+     public static BTypedesc createTypedescValue(Type describingType) {
          return new TypedescValueImpl(describingType);
      }
 
@@ -341,7 +341,7 @@ import javax.xml.namespace.QName;
       * @param mapType map type.
       * @return map value
       */
-     public static BMap<BString, Object> createMapValue(BType mapType) {
+     public static BMap<BString, Object> createMapValue(Type mapType) {
          return new MapValueImpl<>(mapType);
      }
 
@@ -352,7 +352,7 @@ import javax.xml.namespace.QName;
       * @param keyValues initial map values to be populated.
       * @return map value
       */
-     public static BMap<BString, Object> createMapValue(BMapType mapType,
+     public static BMap<BString, Object> createMapValue(MapType mapType,
                                                         MappingInitialValueEntry.KeyValueEntry[] keyValues) {
          return new MapValueImpl<>(mapType, keyValues);
      }
@@ -365,7 +365,7 @@ import javax.xml.namespace.QName;
       * @param recordTypeName name of the record type.
       * @return value of the record.
       */
-     public static BMap<BString, Object> createRecordValue(BPackage packageId, String recordTypeName) {
+     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) {
          ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
          return valueCreator.createRecordValue(recordTypeName);
      }
@@ -379,7 +379,7 @@ import javax.xml.namespace.QName;
       * @param valueMap values to be used for fields when creating the record.
       * @return value of the populated record.
       */
-     public static BMap<BString, Object> createRecordValue(BPackage packageId, String recordTypeName,
+     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                            Map<String, Object> valueMap) {
          BMap<BString, Object> record = createRecordValue(packageId, recordTypeName);
          for (Map.Entry<String, Object> fieldEntry : valueMap.entrySet()) {
@@ -424,7 +424,7 @@ import javax.xml.namespace.QName;
       * @param fieldValues values to be used for fields when creating the object value instance.
       * @return value of the object.
       */
-     public static BObject createObjectValue(BPackage packageId, String objectTypeName, Object... fieldValues) {
+     public static BObject createObjectValue(Module packageId, String objectTypeName, Object... fieldValues) {
          Strand currentStrand = getStrand();
          // This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
          ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());

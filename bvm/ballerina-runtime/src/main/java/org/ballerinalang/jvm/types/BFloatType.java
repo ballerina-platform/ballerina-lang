@@ -17,6 +17,10 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.FloatType;
+
 /**
  * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the
  * standard IEEE 754 specifications.
@@ -24,14 +28,14 @@ package org.ballerinalang.jvm.types;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BFloatType extends BType {
+public class BFloatType extends BType implements FloatType {
 
     /**
      * Create a {@code BFloatType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */
-    BFloatType(String typeName, BPackage pkg) {
+    public BFloatType(String typeName, Module pkg) {
         super(typeName, pkg, Double.class);
     }
 

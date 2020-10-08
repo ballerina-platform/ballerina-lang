@@ -17,12 +17,16 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.XMLAttributesType;
+
 /**
  * {@code BXMLAttributesType} represents the type of an xml-attribute-map in ballerina.
  *
  * @since 0.995.0
  */
-public class BXMLAttributesType extends BType {
+public class BXMLAttributesType extends BType implements XMLAttributesType {
 
     /**
      * Create a {@code BXMLAttributesType} represents the type an xml-attribute-map in ballerina.
@@ -30,7 +34,7 @@ public class BXMLAttributesType extends BType {
      * @param typeName string name of the type
      * @param pkg package path
      */
-    BXMLAttributesType(String typeName, BPackage pkg) {
+    public BXMLAttributesType(String typeName, Module pkg) {
         super(typeName, pkg, null);
     }
 

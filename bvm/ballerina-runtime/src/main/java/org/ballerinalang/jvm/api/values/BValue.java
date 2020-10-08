@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.api.values;
 
-import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.api.types.Type;
 
 /**
  * <p>
@@ -36,5 +36,5 @@ public interface BValue {
 
     String expressionStringValue(BLink parent);
 
-    BType getType();
+    Type getType();
 }

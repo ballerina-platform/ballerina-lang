@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.commons;
 
-import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.api.types.Type;
 
 /**
  * Type vector of size two, to hold the source value and the target type.
@@ -26,9 +26,9 @@ import org.ballerinalang.jvm.types.BType;
  */
 public class TypeValuePair {
     Object sourceValue;
-    BType targetType;
+    Type targetType;
 
-    public TypeValuePair(Object sourceValue, BType targetType) {
+    public TypeValuePair(Object sourceValue, Type targetType) {
         this.sourceValue = sourceValue;
         this.targetType = targetType;
     }

@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.api;
 
 import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
@@ -28,10 +29,7 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -55,7 +53,7 @@ import java.util.function.Function;
 public class BExecutor {
 
     private static final BUnionType OPTIONAL_ERROR_TYPE = new BUnionType(
-            new BType[]{BTypes.typeError, BTypes.typeNull},
+            new Type[]{Types.TYPE_ERROR, Types.TYPE_NULL},
             TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.PURETYPE));
 
     private BExecutor() {
@@ -165,7 +163,7 @@ public class BExecutor {
                 public void notifyFailure(BError error) {
                     completeFunction.countDown();
                 }
-            }, new HashMap<>(), BTypes.typeNull, strandName, metaData);
+            }, new HashMap<>(), Types.TYPE_NULL, strandName, metaData);
             completeFunction.await();
             return futureValue.result;
         } catch (NoSuchMethodException | ClassNotFoundException | InterruptedException e) {

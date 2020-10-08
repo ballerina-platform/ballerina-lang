@@ -19,11 +19,11 @@ package org.ballerinalang.jvm.internal;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -54,7 +54,7 @@ public class ErrorUtils {
      * @return ballerina error
      */
     public static ErrorValue createInteropError(Throwable e) {
-        BMap<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+        BMap<BString, Object> detailMap = new MapValueImpl<>(Types.TYPE_ERROR_DETAIL);
         if (e.getMessage() != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, BStringUtils.fromString(e.getMessage()));
         }
@@ -87,13 +87,13 @@ public class ErrorUtils {
         return (ErrorValue) createError(BallerinaErrorReasons.FUTURE_CANCELLED);
     }
 
-    public static BError createConversionError(Object inputValue, BType targetType) {
+    public static BError createConversionError(Object inputValue, Type targetType) {
         return createError(BALLERINA_PREFIXED_CONVERSION_ERROR,
                            BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
                                                                 TypeChecker.getType(inputValue), targetType));
     }
 
-    public static BError createTypeCastError(Object sourceVal, BType targetType) {
+    public static BError createTypeCastError(Object sourceVal, Type targetType) {
         throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
                           BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,
                                                                TypeChecker.getType(sourceVal), targetType));
@@ -106,14 +106,14 @@ public class ErrorUtils {
                                                                TypeChecker.getType(sourceVal), targetType));
     }
 
-    public static BError createNumericConversionError(Object inputValue, BType targetType) {
+    public static BError createNumericConversionError(Object inputValue, Type targetType) {
         throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                           BLangExceptionHelper.getErrorMessage(
                                   RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                   TypeChecker.getType(inputValue), inputValue, targetType));
     }
 
-    public static BError createNumericConversionError(Object inputValue, BType inputType, BType targetType) {
+    public static BError createNumericConversionError(Object inputValue, Type inputType, Type targetType) {
         throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION, inputType, inputValue, targetType));
     }

@@ -19,13 +19,13 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -47,7 +47,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 public class MapUtils {
 
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
-        BType mapType = mapValue.getType();
+        Type mapType = mapValue.getType();
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType);
@@ -65,8 +65,8 @@ public class MapUtils {
             return;
         }
 
-        BType expType = mapType.getConstrainedType();
-        BType valuesType = TypeChecker.getType(value);
+        Type expType = mapType.getConstrainedType();
+        Type valuesType = TypeChecker.getType(value);
 
         throw BErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                 INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
@@ -77,7 +77,7 @@ public class MapUtils {
     public static void handleInherentTypeViolatingRecordUpdate(MapValue mapValue, BString fieldName, Object value,
                                                                BRecordType recType, boolean initialValue) {
         BField recField = recType.getFields().get(fieldName.getValue());
-        BType recFieldType;
+        Type recFieldType;
 
         if (recField != null) {
             // If there is a corresponding field in the record, check if it can be updated.
@@ -108,7 +108,7 @@ public class MapUtils {
         if (TypeChecker.checkIsType(value, recFieldType)) {
             return;
         }
-        BType valuesType = TypeChecker.getType(value);
+        Type valuesType = TypeChecker.getType(value);
 
         throw BErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                 INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
@@ -117,14 +117,14 @@ public class MapUtils {
                                                   valuesType));
     }
 
-    public static BError createOpNotSupportedError(BType type, String op) {
+    public static BError createOpNotSupportedError(Type type, String op) {
         return BErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                  OPERATION_NOT_SUPPORTED_IDENTIFIER),
                                          BStringUtils.fromString(String.format("%s not supported on type '%s'", op,
                                                                                type.getQualifiedName())));
     }
 
-    public static void checkIsMapOnlyOperation(BType mapType, String op) {
+    public static void checkIsMapOnlyOperation(Type mapType, String op) {
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
@@ -136,14 +136,14 @@ public class MapUtils {
     }
 
     public static void validateRequiredFieldForRecord(MapValue<?, ?> m, String k) {
-        BType type = m.getType();
+        Type type = m.getType();
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((BRecordType) type, k)) {
             throw createOpNotSupportedErrorForRecord(type, k);
         }
     }
 
     public static void validateRecord(MapValue<?, ?> m) {
-        BType type = m.getType();
+        Type type = m.getType();
         if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
             return;
         }
@@ -162,7 +162,7 @@ public class MapUtils {
         return (field != null && Flags.isFlagOn(field.flags, Flags.REQUIRED));
     }
 
-    private static BError createOpNotSupportedErrorForRecord(BType type, String field) {
+    private static BError createOpNotSupportedErrorForRecord(Type type, String field) {
         return BErrorCreator.createError(getModulePrefixedReason(
                 MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), BStringUtils.fromString(
                 String.format("failed to remove field: '%s' is a required field in '%s'", field,

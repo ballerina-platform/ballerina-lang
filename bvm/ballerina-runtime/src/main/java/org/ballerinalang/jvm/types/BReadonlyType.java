@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.ReadonlyType;
 import org.ballerinalang.jvm.values.RefValue;
 
 /**
@@ -24,9 +27,9 @@ import org.ballerinalang.jvm.values.RefValue;
  *
  * @since 1.3.0
  */
-public class BReadonlyType extends BType {
+public class BReadonlyType extends BType implements ReadonlyType {
 
-    BReadonlyType(String typeName, BPackage pkg) {
+    public BReadonlyType(String typeName, Module pkg) {
         super(typeName, pkg, RefValue.class);
     }
 

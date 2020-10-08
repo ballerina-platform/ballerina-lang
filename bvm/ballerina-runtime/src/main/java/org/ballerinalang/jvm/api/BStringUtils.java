@@ -18,13 +18,12 @@ package org.ballerinalang.jvm.api;
 
 import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -194,7 +193,7 @@ public class BStringUtils {
             return "";
         }
 
-        BType type = TypeChecker.getType(value);
+        Type type = TypeChecker.getType(value);
 
         //TODO: bstring - change to type tag check
         if (value instanceof BString) {
@@ -257,7 +256,7 @@ public class BStringUtils {
             return "()";
         }
 
-        BType type = TypeChecker.getType(value);
+        Type type = TypeChecker.getType(value);
 
         //TODO: bstring - change to type tag check
         if (value instanceof BString) {
@@ -333,7 +332,7 @@ public class BStringUtils {
             return "null";
         }
 
-        BType type = TypeChecker.getType(value);
+        Type type = TypeChecker.getType(value);
 
         if (type.getTag() < TypeTags.JSON_TAG) {
             return String.valueOf(value);

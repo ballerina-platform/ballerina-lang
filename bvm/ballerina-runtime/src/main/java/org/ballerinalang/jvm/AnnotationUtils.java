@@ -18,14 +18,14 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.AnnotatableType;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BAnnotatableType;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BServiceType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 
@@ -42,12 +42,12 @@ public class AnnotationUtils {
      * @param globalAnnotMap The global annotation map
      * @param bType          The type for which annotations need to be set
      */
-    public static void processAnnotations(MapValue globalAnnotMap, BType bType) {
-        if (!(bType instanceof AnnotatableType)) {
+    public static void processAnnotations(MapValue globalAnnotMap, Type bType) {
+        if (!(bType instanceof BAnnotatableType)) {
             return;
         }
 
-        AnnotatableType type = (AnnotatableType) bType;
+        BAnnotatableType type = (BAnnotatableType) bType;
         BString annotationKey = BStringUtils.fromString(type.getAnnotationKey());
         if (globalAnnotMap.containsKey(annotationKey)) {
             type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
@@ -91,7 +91,7 @@ public class AnnotationUtils {
      * @param name           The function name that acts as the annotation key
      */
     public static void processFPValueAnnotations(FPValue fpValue, MapValue globalAnnotMap, String name) {
-        AnnotatableType type = (AnnotatableType) fpValue.getType();
+        BAnnotatableType type = (BAnnotatableType) fpValue.getType();
         BString nameKey = BStringUtils.fromString(name);
         if (globalAnnotMap.containsKey(nameKey)) {
             type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(nameKey));

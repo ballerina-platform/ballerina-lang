@@ -18,7 +18,7 @@
 
 package org.ballerinalang.jvm.api.values;
 
-import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.api.types.Type;
 
 /**
  * <p>
@@ -33,5 +33,5 @@ public interface BStream extends BRefValue {
      *
      * @return constrained type
      */
-    BType getConstraintType();
+    Type getConstraintType();
 }

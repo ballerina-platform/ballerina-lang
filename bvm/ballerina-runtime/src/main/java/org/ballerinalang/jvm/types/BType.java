@@ -19,8 +19,10 @@ package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.IdentifierUtils;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.IntersectionType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.util.Objects;
@@ -35,7 +37,7 @@ import java.util.Objects;
  *
  * @since 0.995.0
  */
-public abstract class BType {
+public abstract class BType implements Type {
     protected String typeName;
     protected Module pkg;
     protected Class<? extends Object> valueClass;
@@ -161,7 +163,7 @@ public abstract class BType {
         return false;
     }
 
-    public BType getImmutableType() {
+    public Type getImmutableType() {
         if (TypeChecker.isInherentlyImmutableType(this)) {
             return this;
         }
@@ -170,7 +172,7 @@ public abstract class BType {
         throw new BallerinaException(this.typeName + " cannot be immutable");
     }
 
-    public void setImmutableType(BIntersectionType immutableType) {
+    public void setImmutableType(IntersectionType immutableType) {
         // Do nothing since already set.
         // For types that immutable type may be set later, the relevant type overrides this method.
     }

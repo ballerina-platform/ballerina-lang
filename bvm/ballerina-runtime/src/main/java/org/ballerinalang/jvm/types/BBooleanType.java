@@ -17,19 +17,23 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.BooleanType;
+
 /**
  * {@code BBooleanType} represents boolean type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BBooleanType extends BType {
+public class BBooleanType extends BType implements BooleanType {
 
     /**
      * Create a {@code BBooleanType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */
-    BBooleanType(String typeName, BPackage pkg) {
+    public BBooleanType(String typeName, Module pkg) {
         super(typeName, pkg, Boolean.class);
     }
 

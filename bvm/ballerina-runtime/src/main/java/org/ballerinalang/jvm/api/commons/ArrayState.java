@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.jvm.commons;
+package org.ballerinalang.jvm.api.commons;
 
 /**
  * Enum to hold the state of an array.

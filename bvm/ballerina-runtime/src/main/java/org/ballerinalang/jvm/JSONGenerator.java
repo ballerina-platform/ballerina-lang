@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.TypeTags;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValueImpl;

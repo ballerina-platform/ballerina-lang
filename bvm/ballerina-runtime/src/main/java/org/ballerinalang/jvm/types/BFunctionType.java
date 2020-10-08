@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.FunctionType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.util.Flags;
 
 import java.util.Arrays;
@@ -26,21 +30,21 @@ import java.util.Arrays;
  *
  * @since 0.995.0
  */
-public class BFunctionType extends AnnotatableType {
+public class BFunctionType extends BAnnotatableType implements FunctionType {
 
-    public BType[] paramTypes;
-    public BType restType;
-    public BType retType;
+    public Type[] paramTypes;
+    public Type restType;
+    public Type retType;
     public int flags;
 
     public BFunctionType() {
         super("function ()", null, Object.class);
-        this.paramTypes = new BType[0];
-        this.retType = BTypes.typeNull;
+        this.paramTypes = new Type[0];
+        this.retType = Types.TYPE_NULL;
         this.flags = 0;
     }
 
-    public BFunctionType(BType[] paramTypes, BType restType, BType retType, int flags) {
+    public BFunctionType(Type[] paramTypes, Type restType, Type retType, int flags) {
         super("function ()", null, Object.class);
         this.paramTypes = paramTypes;
         this.restType = restType;
@@ -48,11 +52,11 @@ public class BFunctionType extends AnnotatableType {
         this.flags = flags;
     }
 
-    public BType[] getParameterType() {
+    public Type[] getParameterType() {
         return paramTypes;
     }
 
-    public BType getReturnParameterType() {
+    public Type getReturnParameterType() {
         return retType;
     }
 
@@ -71,10 +75,10 @@ public class BFunctionType extends AnnotatableType {
         return TypeTags.FUNCTION_POINTER_TAG;
     }
 
-    private static String getBTypeListAsString(BType[] typeNames) {
+    private static String getTypeListAsString(Type[] typeNames) {
         StringBuffer br = new StringBuffer();
         int i = 0;
-        for (BType type : typeNames) {
+        for (Type type : typeNames) {
             br.append(type.getName());
             if (++i < typeNames.length) {
                 br.append(",");
@@ -117,7 +121,7 @@ public class BFunctionType extends AnnotatableType {
 
     @Override
     public String toString() {
-        String stringRep = "function (" + (paramTypes != null ? getBTypeListAsString(paramTypes) : "") + ")" +
+        String stringRep = "function (" + (paramTypes != null ? getTypeListAsString(paramTypes) : "") + ")" +
                 (retType != null ? " returns (" + retType + ")" : "");
 
         if (Flags.isFlagOn(flags, Flags.ISOLATED)) {

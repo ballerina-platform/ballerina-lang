@@ -20,8 +20,8 @@ package org.ballerinalang.jvm.values;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMCommentImpl;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.types.BTypes;
 
 import java.util.Map;
 import java.util.Objects;
@@ -37,12 +37,12 @@ public class XMLComment extends XMLNonElementItem {
 
     public XMLComment(String data) {
         this.data = data;
-        this.type = BTypes.typeComment;
+        this.type = Types.TYPE_COMMENT;
     }
 
     public XMLComment(String data, boolean readonly) {
         this.data = data;
-        this.type = readonly ? BTypes.typeReadonlyComment : BTypes.typeComment;
+        this.type = readonly ? Types.TYPE_READONLY_COMMENT : Types.TYPE_COMMENT;
     }
 
     @Override

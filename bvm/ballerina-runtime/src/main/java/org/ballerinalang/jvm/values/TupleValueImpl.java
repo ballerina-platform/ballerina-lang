@@ -21,11 +21,11 @@ import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.types.TupleType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -58,7 +58,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  */
 public class TupleValueImpl extends AbstractArrayValue {
 
-    protected BTupleType tupleType;
+    protected TupleType tupleType;
     Object[] refValues;
     private int minSize = 0;
     private boolean hasRestElement; // cached value for ease of access
@@ -89,12 +89,12 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Deprecated
-    public TupleValueImpl(Object[] values, BTupleType type) {
+    public TupleValueImpl(Object[] values, TupleType type) {
         this.refValues = values;
         this.tupleType = type;
         this.hasRestElement = this.tupleType.getRestType() != null;
 
-        List<BType> memTypes = type.getTupleTypes();
+        List<Type> memTypes = type.getTupleTypes();
         int memCount = memTypes.size();
 
         if (values.length < memCount) {
@@ -108,10 +108,10 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Deprecated
-    public TupleValueImpl(BTupleType type) {
+    public TupleValueImpl(TupleType type) {
         this.tupleType = type;
 
-        List<BType> memTypes = this.tupleType.getTupleTypes();
+        List<Type> memTypes = this.tupleType.getTupleTypes();
         int memTypeCount = memTypes.size();
 
         this.minSize = this.size = memTypeCount;
@@ -125,7 +125,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         for (int i = 0; i < memTypeCount; i++) {
-            BType memType = memTypes.get(i);
+            Type memType = memTypes.get(i);
             if (!TypeChecker.hasFillerValue(memType)) {
                 continue;
             }
@@ -134,10 +134,10 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Deprecated
-    public TupleValueImpl(BTupleType type, long size, ListInitialValueEntry[] initialValues) {
+    public TupleValueImpl(TupleType type, long size, ListInitialValueEntry[] initialValues) {
         this.tupleType = type;
 
-        List<BType> memTypes = this.tupleType.getTupleTypes();
+        List<Type> memTypes = this.tupleType.getTupleTypes();
         int memCount = memTypes.size();
 
         this.size = size < memCount ? memCount : (int) size;
@@ -160,7 +160,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         for (int i = (int) size; i < memCount; i++) {
-            BType memType = memTypes.get(i);
+            Type memType = memTypes.get(i);
             if (!TypeChecker.hasFillerValue(memType)) {
                 continue;
             }
@@ -411,7 +411,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public BType getType() {
+    public Type getType() {
         return this.tupleType;
     }
 
@@ -512,7 +512,7 @@ public class TupleValueImpl extends AbstractArrayValue {
             return;
         }
 
-        this.tupleType = (BTupleType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.tupleType);
+        this.tupleType = (TupleType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.tupleType);
         for (int i = 0; i < this.size; i++) {
             Object value = this.get(i);
             if (value instanceof RefValue) {
@@ -535,7 +535,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      * @return element type
      */
     @Override
-    public BType getElementType() {
+    public Type getElementType() {
         throw new UnsupportedOperationException();
     }
 
@@ -552,7 +552,7 @@ public class TupleValueImpl extends AbstractArrayValue {
             return;
         }
 
-        BType restType = this.tupleType.getRestType();
+        Type restType = this.tupleType.getRestType();
         if (restType != null) {
             for (int i = size; i < index; i++) {
                 this.refValues[i] = restType.getZeroValue();
@@ -660,7 +660,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         rangeCheck(index, size);
 
         // check types
-        BType elemType;
+        Type elemType;
         if (index >= this.minSize) {
             elemType = this.tupleType.getRestType();
         } else {
@@ -681,7 +681,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     private void fillRead(long index, int currentArraySize) {
-        BType restType = this.tupleType.getRestType();
+        Type restType = this.tupleType.getRestType();
         if (!TypeChecker.hasFillerValue(restType)) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
                                                            RuntimeErrors.ILLEGAL_TUPLE_INSERTION, size, index + 1);

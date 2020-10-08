@@ -20,10 +20,10 @@ package org.ballerinalang.jvm.values;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.CharacterDataImpl;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -141,7 +141,7 @@ public class XMLText extends XMLNonElementItem {
     }
 
     @Override
-    public BType getType() {
-        return BTypes.typeText;
+    public Type getType() {
+        return Types.TYPE_TEXT;
     }
 }

@@ -17,18 +17,23 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.NeverType;
+
 /**
  * {@code BNeverType} represents the type of a {@code Never}.
  *
  * @since 2.0.0-preview1
  */
-public class BNeverType extends BNullType {
+public class BNeverType extends BNullType implements NeverType {
     /**
      * Create a {@code BNeverType} represents the type of a {@code Never}.
      *
      * @param pkg package path
      */
-    BNeverType(BPackage pkg) {
+    public BNeverType(Module pkg) {
         super(TypeConstants.NEVER_TNAME, pkg);
     }
 

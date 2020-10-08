@@ -18,6 +18,11 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.IntersectionType;
+import org.ballerinalang.jvm.api.types.ObjectType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.util.Flags;
 
 import java.util.Map.Entry;
@@ -28,14 +33,14 @@ import java.util.StringJoiner;
  *
  * @since 0.995.0
  */
-public class BObjectType extends BStructureType {
+public class BObjectType extends BStructureType implements ObjectType {
 
     private AttachedFunction[] attachedFunctions;
     public AttachedFunction initializer;
     public AttachedFunction generatedInitializer;
 
     private final boolean readonly;
-    private BIntersectionType immutableType;
+    private IntersectionType immutableType;
     public BTypeIdSet typeIdSet;
 
     /**
@@ -45,7 +50,7 @@ public class BObjectType extends BStructureType {
      * @param pkg package of the struct
      * @param flags flags of the object type
      */
-    public BObjectType(String typeName, BPackage pkg, int flags) {
+    public BObjectType(String typeName, Module pkg, int flags) {
         super(typeName, pkg, flags, Object.class);
         this.readonly = Flags.isFlagOn(flags, Flags.READONLY);
     }
@@ -113,12 +118,12 @@ public class BObjectType extends BStructureType {
     }
 
     @Override
-    public BType getImmutableType() {
+    public Type getImmutableType() {
         return this.immutableType;
     }
 
     @Override
-    public void setImmutableType(BIntersectionType immutableType) {
+    public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
 

@@ -18,12 +18,12 @@
 package org.ballerinalang.jvm.services;
 
 import org.ballerinalang.jvm.annotation.JavaSPIService;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.services.spi.EmbeddedExecutor;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.ArgumentParser;
 import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
@@ -112,7 +112,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                    BTypes.typeNull, strandName, metaData);
+                                                       Types.TYPE_NULL, strandName, metaData);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
@@ -156,7 +156,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                     ArgumentParser.extractEntryFuncArgs(new RuntimeUtils.ParamInfo[]{
                             new RuntimeUtils.ParamInfo(false,
                                     "%1",
-                                    new BArrayType(BTypes.typeString, stringArgs.length))
+                                    new BArrayType(Types.TYPE_STRING, stringArgs.length))
                     }, stringArgs, true);
             
             //TODO fix following method invoke to scheduler.schedule()
@@ -171,7 +171,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final FutureValue out = scheduler.schedule(entryFuncArgs, func, null, null, null,
-                    BTypes.typeNull, strandName, metaData);
+                                                       Types.TYPE_NULL, strandName, metaData);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
@@ -221,7 +221,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                    BTypes.typeNull, strandName, metaData);
+                                                       Types.TYPE_NULL, strandName, metaData);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {

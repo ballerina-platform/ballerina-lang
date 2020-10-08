@@ -18,7 +18,7 @@
  package org.ballerinalang.jvm.scheduling;
 
  import org.ballerinalang.jvm.TypeChecker;
- import org.ballerinalang.jvm.types.BTypes;
+ import org.ballerinalang.jvm.api.Types;
 
  /**
   * WaitContext for Wait for any action.
@@ -39,7 +39,7 @@
 
      @Override
      boolean waitCompleted(Object result) {
-         if (TypeChecker.checkIsType(result, BTypes.typeError)) {
+         if (TypeChecker.checkIsType(result, Types.TYPE_ERROR)) {
              return waitCount.decrementAndGet() == 0;
          }
          return true;

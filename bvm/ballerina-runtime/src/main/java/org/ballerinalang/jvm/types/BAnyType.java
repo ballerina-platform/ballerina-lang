@@ -17,6 +17,14 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeFlags;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.AnyType;
+import org.ballerinalang.jvm.api.types.IntersectionType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.values.RefValue;
 
 /**
@@ -24,23 +32,23 @@ import org.ballerinalang.jvm.values.RefValue;
  *
  * @since 0.995.0
  */
-public class BAnyType extends BType {
+public class BAnyType extends BType implements AnyType {
 
     private final boolean readonly;
-    private BIntersectionType immutableType;
+    private IntersectionType immutableType;
 
     /**
      * Create a {@code BAnyType} which represents the any type.
      *
      * @param typeName string name of the type
      */
-    BAnyType(String typeName, BPackage pkg, boolean readonly) {
+    public BAnyType(String typeName, Module pkg, boolean readonly) {
         super(typeName, pkg, RefValue.class);
         this.readonly = readonly;
 
         if (!readonly) {
             BAnyType immutableAnyType = new BAnyType(TypeConstants.READONLY_ANY_TNAME, pkg, true);
-            this.immutableType = new BIntersectionType(pkg, new BType[]{ this, BTypes.typeReadonly }, immutableAnyType,
+            this.immutableType = new BIntersectionType(pkg, new Type[]{ this, Types.TYPE_READONLY}, immutableAnyType,
                                                        TypeFlags.asMask(TypeFlags.NILABLE), true);
         }
     }
@@ -70,12 +78,12 @@ public class BAnyType extends BType {
     }
 
     @Override
-    public BType getImmutableType() {
+    public Type getImmutableType() {
         return this.immutableType;
     }
 
     @Override
-    public void setImmutableType(BIntersectionType immutableType) {
+    public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
 }

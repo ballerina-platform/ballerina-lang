@@ -19,11 +19,11 @@ package org.ballerinalang.jvm;
 
 import org.apache.axiom.om.ds.AbstractPushOMDataSource;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BStructureType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
@@ -155,7 +155,7 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
     private void processStruct(XMLStreamWriter xmlStreamWriter, MapValueImpl structData,
                                BField[] structFields, int index) throws XMLStreamException {
         boolean structError = true;
-        BType internalType = structFields[index].getFieldType();
+        Type internalType = structFields[index].getFieldType();
         if (internalType.getTag() == TypeTags.OBJECT_TYPE_TAG
                 || internalType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BField[] internalStructFields = ((BStructureType) internalType).getFields()

@@ -20,12 +20,12 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
@@ -102,7 +102,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     @Override
     public String expressionStringValue(BLink parent) {
-        BPackage pkg = type.getPackage();
+        Module pkg = type.getPackage();
         String moduleLocalName = pkg.org != null && pkg.org.equals("$anon") ||
                 pkg.name == null ? type.getName() :
                 String.valueOf(BallerinaErrorReasons.getModulePrefixedReason(pkg.name, type.getName()));
@@ -196,7 +196,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     private void checkFieldUpdateType(String fieldName, Object value) {
-        BType fieldType = type.getFields().get(fieldName).type;
+        Type fieldType = type.getFields().get(fieldName).type;
         if (TypeChecker.checkIsType(value, fieldType)) {
             return;
         }

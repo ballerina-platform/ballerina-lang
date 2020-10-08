@@ -22,14 +22,14 @@ import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.RuntimeUtils.ParamInfo;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -183,7 +183,7 @@ public class ArgumentParser {
         return arg.split(NAMED_ARG_DELIMITER, 2)[1];
     }
 
-    private static Object getBValue(BType type, String value) {
+    private static Object getBValue(Type type, String value) {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.ANY_TAG:
@@ -247,7 +247,7 @@ public class ArgumentParser {
         }
     }
 
-    private static Object getDefaultBValue(BType type) {
+    private static Object getDefaultBValue(Type type) {
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
@@ -316,37 +316,37 @@ public class ArgumentParser {
         return byteValue;
     }
 
-    private static ArrayValue getRestArgArray(BType type, List<String> args) {
-        BType elementType = ((BArrayType) type).getElementType();
+    private static ArrayValue getRestArgArray(Type type, List<String> args) {
+        Type elementType = ((BArrayType) type).getElementType();
         try {
             switch (elementType.getTag()) {
                 case TypeTags.ANY_TAG:
                 case TypeTags.STRING_TAG:
-                    ArrayValue stringArrayArgs = new ArrayValueImpl(new BArrayType(BTypes.typeString));
+                    ArrayValue stringArrayArgs = new ArrayValueImpl(new BArrayType(Types.TYPE_STRING));
                     for (int i = 0; i < args.size(); i++) {
                         stringArrayArgs.add(i, args.get(i));
                     }
                     return stringArrayArgs;
                 case TypeTags.INT_TAG:
-                    ArrayValue intArrayArgs = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
+                    ArrayValue intArrayArgs = new ArrayValueImpl(new BArrayType(Types.TYPE_INT));
                     for (int i = 0; i < args.size(); i++) {
                         intArrayArgs.add(i, getIntegerValue(args.get(i)));
                     }
                     return intArrayArgs;
                 case TypeTags.FLOAT_TAG:
-                    ArrayValue floatArrayArgs = new ArrayValueImpl(new BArrayType(BTypes.typeFloat));
+                    ArrayValue floatArrayArgs = new ArrayValueImpl(new BArrayType(Types.TYPE_FLOAT));
                     for (int i = 0; i < args.size(); i++) {
                         floatArrayArgs.add(i, getFloatValue(args.get(i)));
                     }
                     return floatArrayArgs;
                 case TypeTags.BOOLEAN_TAG:
-                    ArrayValue booleanArrayArgs = new ArrayValueImpl(new BArrayType(BTypes.typeBoolean));
+                    ArrayValue booleanArrayArgs = new ArrayValueImpl(new BArrayType(Types.TYPE_BOOLEAN));
                     for (int i = 0; i < args.size(); i++) {
                         booleanArrayArgs.add(i, getBooleanValue(args.get(i)) ? 1 : 0);
                     }
                     return booleanArrayArgs;
                 case TypeTags.BYTE_TAG:
-                    ArrayValue byteArrayArgs = new ArrayValueImpl(new BArrayType(BTypes.typeByte));
+                    ArrayValue byteArrayArgs = new ArrayValueImpl(new BArrayType(Types.TYPE_BYTE));
                     for (int i = 0; i < args.size(); i++) {
                         byteArrayArgs.add(i, (byte) getByteValue(args.get(i)));
                     }
@@ -381,7 +381,7 @@ public class ArgumentParser {
 
         ArrayValue tupleValues = new TupleValueImpl(type);
         int index = 0;
-        for (BType elementType : type.getTupleTypes()) {
+        for (Type elementType : type.getTupleTypes()) {
             String tupleElement = tupleElements[index].trim();
             try {
                 if (elementType.getTag() == TypeTags.STRING_TAG) {
@@ -413,19 +413,19 @@ public class ArgumentParser {
     }
 
     private static Object parseUnionArg(BUnionType type, String unionArg) {
-        List<BType> unionMemberTypes = type.getMemberTypes();
+        List<Type> unionMemberTypes = type.getMemberTypes();
 
-        if (unionMemberTypes.contains(BTypes.typeNull) && NIL.equals(unionArg)) {
+        if (unionMemberTypes.contains(Types.TYPE_NULL) && NIL.equals(unionArg)) {
             return null;
         }
 
-        if (unionMemberTypes.contains(BTypes.typeString)) {
-            return getBValue(BTypes.typeString, unionArg);
+        if (unionMemberTypes.contains(Types.TYPE_STRING)) {
+            return getBValue(Types.TYPE_STRING, unionArg);
         }
 
         for (int memberTypeIndex = 0; memberTypeIndex < unionMemberTypes.size(); ) {
             try {
-                BType memberType = unionMemberTypes.get(memberTypeIndex);
+                Type memberType = unionMemberTypes.get(memberTypeIndex);
                 if (memberType.getTag() == TypeTags.NULL_TAG) {
                     memberTypeIndex++;
                     continue;

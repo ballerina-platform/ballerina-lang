@@ -18,7 +18,7 @@
  package org.ballerinalang.jvm.scheduling;
 
  import org.ballerinalang.jvm.TypeChecker;
- import org.ballerinalang.jvm.types.BTypes;
+ import org.ballerinalang.jvm.api.Types;
  import org.ballerinalang.jvm.values.ChannelDetails;
  import org.ballerinalang.jvm.values.ErrorValue;
  import org.ballerinalang.jvm.values.RefValue;
@@ -37,7 +37,7 @@
       * @param channels worker date channels that current worker interacts
       */
      public static void handleWorkerError(RefValue value, Strand strand, ChannelDetails[] channels) {
-         if (TypeChecker.checkIsType(value, BTypes.typeError)) {
+         if (TypeChecker.checkIsType(value, Types.TYPE_ERROR)) {
              strand.handleChannelError(channels, (ErrorValue) value);
          }
      }

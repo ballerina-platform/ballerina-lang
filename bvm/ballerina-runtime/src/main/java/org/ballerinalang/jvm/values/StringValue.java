@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 
 /**
  * Class representing ballerina strings.
@@ -29,7 +29,7 @@ import org.ballerinalang.jvm.types.BTypes;
 public interface StringValue extends BString, SimpleValue {
 
     @Override
-    default BType getType() {
-        return BTypes.typeString;
+    default Type getType() {
+        return Types.TYPE_STRING;
     }
 }

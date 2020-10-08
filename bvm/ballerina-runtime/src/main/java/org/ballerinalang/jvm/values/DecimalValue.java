@@ -19,11 +19,11 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.DecimalValueKind;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BDecimal;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.internal.ErrorUtils;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 
 import java.math.BigDecimal;
@@ -152,15 +152,15 @@ public class DecimalValue implements SimpleValue, BDecimal {
     public long intValue() {
         switch (valueKind) {
             case NOT_A_NUMBER:
-                throw ErrorUtils.createNumericConversionError(NaN, BTypes.typeInt);
+                throw ErrorUtils.createNumericConversionError(NaN, Types.TYPE_INT);
             case NEGATIVE_INFINITY:
-                throw ErrorUtils.createNumericConversionError(NEGATIVE_INF, BTypes.typeInt);
+                throw ErrorUtils.createNumericConversionError(NEGATIVE_INF, Types.TYPE_INT);
             case POSITIVE_INFINITY:
-                throw ErrorUtils.createNumericConversionError(POSITIVE_INF, BTypes.typeInt);
+                throw ErrorUtils.createNumericConversionError(POSITIVE_INF, Types.TYPE_INT);
         }
 
         if (!isDecimalWithinIntRange(value)) {
-            throw ErrorUtils.createNumericConversionError(this.stringValue(null), BTypes.typeDecimal, BTypes.typeInt);
+            throw ErrorUtils.createNumericConversionError(this.stringValue(null), Types.TYPE_DECIMAL, Types.TYPE_INT);
         }
         return (long) Math.rint(value.doubleValue());
     }
@@ -183,16 +183,16 @@ public class DecimalValue implements SimpleValue, BDecimal {
     public int byteValue() {
         switch (valueKind) {
             case NOT_A_NUMBER:
-                throw ErrorUtils.createNumericConversionError(NaN, BTypes.typeByte);
+                throw ErrorUtils.createNumericConversionError(NaN, Types.TYPE_BYTE);
             case NEGATIVE_INFINITY:
-                throw ErrorUtils.createNumericConversionError(NEGATIVE_INF, BTypes.typeByte);
+                throw ErrorUtils.createNumericConversionError(NEGATIVE_INF, Types.TYPE_BYTE);
             case POSITIVE_INFINITY:
-                throw ErrorUtils.createNumericConversionError(POSITIVE_INF, BTypes.typeByte);
+                throw ErrorUtils.createNumericConversionError(POSITIVE_INF, Types.TYPE_BYTE);
         }
 
         int intVal = (int) Math.rint(this.value.doubleValue());
         if (!isByteLiteral(intVal)) {
-            throw ErrorUtils.createNumericConversionError(value, BTypes.typeDecimal, BTypes.typeByte);
+            throw ErrorUtils.createNumericConversionError(value, Types.TYPE_DECIMAL, Types.TYPE_BYTE);
         }
         return intVal;
     }
@@ -256,8 +256,8 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * Get the {@code BType} of the value.
      * @return the type
      */
-    public BType getType() {
-        return BTypes.typeDecimal;
+    public Type getType() {
+        return Types.TYPE_DECIMAL;
     }
 
     //========================= Mathematical operations supported ===============================

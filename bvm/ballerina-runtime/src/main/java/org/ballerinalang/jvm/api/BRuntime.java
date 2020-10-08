@@ -24,7 +24,6 @@ import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BTypes;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -94,6 +93,6 @@ public class BRuntime {
             }
             return object.call(strand, methodName, args);
         };
-        scheduler.schedule(new Object[1], func, null, callback, properties, BTypes.typeNull, strandName, metadata);
+        scheduler.schedule(new Object[1], func, null, callback, properties, Types.TYPE_NULL, strandName, metadata);
     }
 }

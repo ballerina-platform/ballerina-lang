@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.ErrorType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.values.ErrorValue;
 
 /**
@@ -24,17 +28,17 @@ import org.ballerinalang.jvm.values.ErrorValue;
  *
  * @since 0.995.0
  */
-public class BErrorType extends AnnotatableType {
+public class BErrorType extends BAnnotatableType implements ErrorType {
 
-    public BType detailType;
+    public Type detailType;
     public BTypeIdSet typeIdSet;
 
-    public BErrorType(String typeName, BPackage pkg, BType detailType) {
+    public BErrorType(String typeName, Module pkg, Type detailType) {
         super(typeName, pkg, ErrorValue.class);
         this.detailType = detailType;
     }
 
-    public BErrorType(String typeName, BPackage pkg) {
+    public BErrorType(String typeName, Module pkg) {
         super(typeName, pkg, ErrorValue.class);
     }
 
@@ -57,7 +61,7 @@ public class BErrorType extends AnnotatableType {
         return TypeTags.ERROR_TAG;
     }
 
-    public void setDetailType(BType detailType) {
+    public void setDetailType(Type detailType) {
         this.detailType = detailType;
     }
 
@@ -80,7 +84,7 @@ public class BErrorType extends AnnotatableType {
         return typeName;
     }
 
-    public BType getDetailType() {
+    public Type getDetailType() {
         return detailType;
     }
 

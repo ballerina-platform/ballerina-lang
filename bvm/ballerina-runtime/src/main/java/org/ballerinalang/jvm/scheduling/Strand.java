@@ -19,10 +19,10 @@ package org.ballerinalang.jvm.scheduling;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -248,7 +248,7 @@ public class Strand {
                         throw future.panic;
                     }
 
-                    if (TypeChecker.checkIsType(future.result, BTypes.typeError)) {
+                    if (TypeChecker.checkIsType(future.result, Types.TYPE_ERROR)) {
                         ctx.waitCount.decrementAndGet();
                         // if error, should wait for other futures as well
                         error = future.result;

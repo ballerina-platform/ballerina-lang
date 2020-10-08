@@ -17,6 +17,9 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.AnnotationUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.ServiceType;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 
@@ -25,9 +28,9 @@ import org.ballerinalang.jvm.values.MapValue;
  *
  * @since 0.995.0
  */
-public class BServiceType extends BObjectType {
+public class BServiceType extends BObjectType implements ServiceType {
 
-    public BServiceType(String typeName, BPackage pkg, int flags) {
+    public BServiceType(String typeName, Module pkg, int flags) {
         super(typeName, pkg, flags);
     }
 

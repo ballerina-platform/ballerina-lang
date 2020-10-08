@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.runtime.Module;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class BTypeIdSet {
         this.ids = new ArrayList<>();
     }
 
-    public void add(BPackage pkg, String name, boolean isPrimary) {
+    public void add(Module pkg, String name, boolean isPrimary) {
         ids.add(new TypeId(pkg, name, isPrimary));
     }
 
@@ -62,11 +64,11 @@ public class BTypeIdSet {
      * @since 2.0
      */
     public static class TypeId {
-        final BPackage pkg;
+        final Module pkg;
         final String name;
         final boolean isPrimary;
 
-        public TypeId(BPackage pkg, String name, boolean isPrimary) {
+        public TypeId(Module pkg, String name, boolean isPrimary) {
             this.pkg = pkg;
             this.name = name;
             this.isPrimary = isPrimary;

@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.api.types.FunctionType;
+import org.ballerinalang.jvm.api.types.AttachedFunctionType;
+import org.ballerinalang.jvm.api.types.Type;
 
 import java.util.StringJoiner;
 
@@ -26,30 +27,30 @@ import java.util.StringJoiner;
  *
  * @since 0.995.0
  */
-public class AttachedFunction extends BFunctionType {
+public class AttachedFunction extends BFunctionType implements AttachedFunctionType {
 
     public String funcName;
     public BFunctionType type;
-    public BObjectType parent;
+    public BObjectType parentObjectType;
 
     public AttachedFunction(String funcName, BObjectType parent, BFunctionType type, int flags) {
         this.funcName = funcName;
         this.type = type;
-        this.parent = parent;
+        this.parentObjectType = parent;
         this.flags = flags;
     }
 
     @Override
     public String toString() {
         StringJoiner sj = new StringJoiner(",", "function " + funcName + "(", ") returns (" + type.retType + ")");
-        for (BType type : type.paramTypes) {
+        for (Type type : type.paramTypes) {
             sj.add(type.getName());
         }
         return sj.toString();
     }
 
     @Override
-    public BType[] getParameterType() {
+    public Type[] getParameterType() {
         return type.paramTypes;
     }
 
@@ -60,6 +61,11 @@ public class AttachedFunction extends BFunctionType {
 
     @Override
     public String getAnnotationKey() {
-        return parent.getAnnotationKey() + "." + funcName;
+        return parentObjectType.getAnnotationKey() + "." + funcName;
+    }
+
+    @Override
+    public BObjectType getParentObjectType() {
+        return parentObjectType;
     }
 }

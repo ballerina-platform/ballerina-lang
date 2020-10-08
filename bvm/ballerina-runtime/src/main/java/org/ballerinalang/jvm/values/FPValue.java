@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BFunctionPointer;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.BLangConstants;
 
 import java.util.Map;
@@ -44,13 +44,13 @@ import java.util.function.Function;
  */
 public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
 
-    final BType type;
+    final Type type;
     Function<T, R> function;
     public boolean isConcurrent;
     public String strandName;
 
     @Deprecated
-    public FPValue(Function<T, R> function, BType type, String strandName, boolean isConcurrent) {
+    public FPValue(Function<T, R> function, Type type, String strandName, boolean isConcurrent) {
         this.function = function;
         this.type = type;
         this.strandName = strandName;
@@ -91,7 +91,7 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     }
 
     @Override
-    public BType getType() {
+    public Type getType() {
         return type;
     }
 

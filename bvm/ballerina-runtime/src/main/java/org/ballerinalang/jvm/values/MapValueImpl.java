@@ -25,6 +25,9 @@ import org.ballerinalang.jvm.MapUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BMap;
@@ -34,10 +37,7 @@ import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
@@ -84,21 +84,21 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     private static final long serialVersionUID = 1L;
     private TypedescValue typedesc;
-    private BType type;
+    private Type type;
     private final Map<String, Object> nativeData = new HashMap<>();
-    private BType iteratorNextReturnType;
+    private Type iteratorNextReturnType;
 
     public MapValueImpl(TypedescValue typedesc) {
         this(typedesc.getDescribingType());
         this.typedesc = typedesc;
     }
 
-    public MapValueImpl(BType type) {
+    public MapValueImpl(Type type) {
         super();
         this.type = type;
     }
 
-    public MapValueImpl(BType type, MappingInitialValueEntry[] initialValues) {
+    public MapValueImpl(Type type, MappingInitialValueEntry[] initialValues) {
         super();
         this.type = type;
         populateInitialValues(initialValues);
@@ -106,7 +106,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     public MapValueImpl() {
         super();
-        type = BTypes.typeMap;
+        type = Types.TYPE_MAP;
     }
 
     public Long getIntValue(BString key) {
@@ -172,7 +172,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return this.get(key);
         }
 
-        BType expectedType = null;
+        Type expectedType = null;
 
         // The type should be a record or map for filling read.
         if (this.type.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -424,7 +424,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             if (value == null) {
                 sj.add("\"" + key + "\":null");
             } else {
-                BType type = TypeChecker.getType(value);
+                Type type = TypeChecker.getType(value);
                 CycleUtils.Node mapParent = new CycleUtils.Node(this, parent);
                 switch (type.getTag()) {
                     case TypeTags.STRING_TAG:
@@ -459,7 +459,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public BType getType() {
+    public Type getType() {
         return type;
     }
 
@@ -516,8 +516,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             Map.Entry<?, ?> next = iterator.next();
             Object value = next.getValue();
 
-            List<BType> types = new LinkedList<>();
-            types.add(BTypes.typeString);
+            List<Type> types = new LinkedList<>();
+            types.add(Types.TYPE_STRING);
             types.add(TypeChecker.getType(value));
             BTupleType tupleType = new BTupleType(types);
 
@@ -567,13 +567,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     private void initializeIteratorNextReturnType() {
-        BType type;
-        if (this.type.getTag() == BTypes.typeMap.getTag()) {
+        Type type;
+        if (this.type.getTag() == Types.TYPE_MAP.getTag()) {
             BMapType mapType = (BMapType) this.type;
             type = mapType.getConstrainedType();
         } else {
             BRecordType recordType = (BRecordType) this.type;
-            LinkedHashSet<BType> types = recordType.getFields().values().stream().map(bField -> bField.type)
+            LinkedHashSet<Type> types = recordType.getFields().values().stream().map(bField -> bField.type)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
             if (recordType.restFieldType != null) {
                 types.add(recordType.restFieldType);
@@ -587,7 +587,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type);
     }
 
-    public BType getIteratorNextReturnType() {
+    public Type getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
             initializeIteratorNextReturnType();
         }

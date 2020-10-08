@@ -20,11 +20,11 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.JSONDataSource;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BStreamingJson;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -47,7 +47,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
 
     @Deprecated
     public StreamingJsonValue(JSONDataSource datasource) {
-        super(new BArrayType(new BMapType(BTypes.typeJSON)));
+        super(new BArrayType(new BMapType(Types.TYPE_JSON)));
         this.datasource = datasource;
     }
 

@@ -17,6 +17,11 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.IntersectionType;
+import org.ballerinalang.jvm.api.types.TableType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
 
@@ -25,16 +30,16 @@ import org.ballerinalang.jvm.values.TableValueImpl;
  *
  * @since 1.3.0
  */
-public class BTableType extends BType {
+public class BTableType extends BType implements TableType {
 
-    private BType constraint;
-    private BType keyType;
+    private Type constraint;
+    private Type keyType;
     private String[] fieldNames;
 
     private final boolean readonly;
-    private BIntersectionType immutableType;
+    private IntersectionType immutableType;
 
-    public BTableType(BType constraint, String[] fieldNames, boolean readonly) {
+    public BTableType(Type constraint, String[] fieldNames, boolean readonly) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
         this.fieldNames = fieldNames;
@@ -42,24 +47,24 @@ public class BTableType extends BType {
         this.readonly = readonly;
     }
 
-    public BTableType(BType constraint, BType keyType, boolean readonly) {
+    public BTableType(Type constraint, Type keyType, boolean readonly) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
         this.keyType = keyType;
         this.readonly = readonly;
     }
 
-    public BTableType(BType constraint, boolean readonly) {
+    public BTableType(Type constraint, boolean readonly) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
         this.readonly = readonly;
     }
 
-    public BType getConstrainedType() {
+    public Type getConstrainedType() {
         return constraint;
     }
 
-    public BType getKeyType() {
+    public Type getKeyType() {
         return keyType;
     }
 
@@ -134,12 +139,12 @@ public class BTableType extends BType {
     }
 
     @Override
-    public BType getImmutableType() {
+    public Type getImmutableType() {
         return this.immutableType;
     }
 
     @Override
-    public void setImmutableType(BIntersectionType immutableType) {
+    public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
 }

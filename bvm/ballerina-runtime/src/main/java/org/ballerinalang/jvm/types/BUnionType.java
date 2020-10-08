@@ -17,6 +17,12 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeFlags;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.IntersectionType;
+import org.ballerinalang.jvm.api.types.Type;
+import org.ballerinalang.jvm.api.types.UnionType;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -26,15 +32,15 @@ import java.util.Objects;
  *
  * @since 0.995.0
  */
-public class BUnionType extends BType {
+public class BUnionType extends BType implements UnionType {
 
     public static final char PIPE = '|';
-    private List<BType> memberTypes;
+    private List<Type> memberTypes;
     private Boolean nullable;
     private String cachedToString;
     private int typeFlags;
     private final boolean readonly;
-    private BIntersectionType immutableType;
+    private IntersectionType immutableType;
 
     /**
      * Create a {@code BUnionType} which represents the union type.
@@ -51,25 +57,25 @@ public class BUnionType extends BType {
      * @param memberTypes of the union type
      * @param typeFlags flags associated with the type
      */
-    public BUnionType(List<BType> memberTypes, int typeFlags) {
+    public BUnionType(List<Type> memberTypes, int typeFlags) {
         this(memberTypes, typeFlags, false);
     }
 
-    public BUnionType(List<BType> memberTypes, int typeFlags, boolean readonly) {
+    public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly) {
         super(null, null, Object.class);
         this.memberTypes = memberTypes;
         this.typeFlags = typeFlags;
         this.readonly = readonly;
     }
 
-    public BUnionType(List<BType> memberTypes) {
+    public BUnionType(List<Type> memberTypes) {
         this(memberTypes, false);
     }
 
-    public BUnionType(List<BType> memberTypes, boolean readonly) {
+    public BUnionType(List<Type> memberTypes, boolean readonly) {
         this(memberTypes, 0, readonly);
         boolean nilable = false, isAnydata = true, isPureType = true;
-        for (BType memberType : memberTypes) {
+        for (Type memberType : memberTypes) {
             nilable |= memberType.isNilable();
             isAnydata &= memberType.isAnydata();
             isPureType &= memberType.isPureType();
@@ -86,15 +92,15 @@ public class BUnionType extends BType {
         }
     }
 
-    public BUnionType(BType[] memberTypes, int typeFlags, boolean readonly) {
+    public BUnionType(Type[] memberTypes, int typeFlags, boolean readonly) {
         this(Arrays.asList(memberTypes), typeFlags, readonly);
     }
 
-    public BUnionType(BType[] memberTypes, int typeFlags) {
+    public BUnionType(Type[] memberTypes, int typeFlags) {
         this(memberTypes, typeFlags, false);
     }
 
-    public List<BType> getMemberTypes() {
+    public List<Type> getMemberTypes() {
         return memberTypes;
     }
 
@@ -104,7 +110,7 @@ public class BUnionType extends BType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        if (isNilable() || memberTypes.stream().anyMatch(BType::isNilable)) {
+        if (isNilable() || memberTypes.stream().anyMatch(Type::isNilable)) {
             return null;
         }
 
@@ -113,7 +119,7 @@ public class BUnionType extends BType {
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        if (isNilable() || memberTypes.stream().anyMatch(BType::isNilable)) {
+        if (isNilable() || memberTypes.stream().anyMatch(Type::isNilable)) {
             return null;
         }
 
@@ -188,8 +194,8 @@ public class BUnionType extends BType {
         return nullable;
     }
 
-    private boolean checkNillable(List<BType> memberTypes) {
-        for (BType t : memberTypes) {
+    private boolean checkNillable(List<Type> memberTypes) {
+        for (Type t : memberTypes) {
             if (t.isNilable()) {
                 return true;
             }
@@ -217,12 +223,12 @@ public class BUnionType extends BType {
     }
 
     @Override
-    public BType getImmutableType() {
+    public Type getImmutableType() {
         return this.immutableType;
     }
 
     @Override
-    public void setImmutableType(BIntersectionType immutableType) {
+    public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
 }

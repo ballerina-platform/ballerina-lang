@@ -17,6 +17,12 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.IntersectionType;
+import org.ballerinalang.jvm.api.types.Type;
+import org.ballerinalang.jvm.api.types.XMLType;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 
@@ -26,12 +32,12 @@ import org.ballerinalang.jvm.values.XMLValue;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BXMLType extends BType {
+public class BXMLType extends BType implements XMLType {
 
     private final int tag;
-    public BType constraint;
+    public Type constraint;
     private final boolean readonly;
-    private BIntersectionType immutableType;
+    private IntersectionType immutableType;
 
     /**
      * Create a {@code BXMLType} which represents the boolean type.
@@ -39,20 +45,20 @@ public class BXMLType extends BType {
      * @param typeName string name of the type
      * @param constraint constraint of the xml sequence
      */
-    BXMLType(String typeName, BType constraint, BPackage pkg) {
+    public BXMLType(String typeName, Type constraint, Module pkg) {
         super(typeName, pkg, XMLValue.class);
         this.constraint = constraint;
         this.tag = TypeTags.XML_TAG;
         this.readonly = false;
     }
 
-    public BXMLType(String typeName, BPackage pkg, int tag, boolean readonly) {
+    public BXMLType(String typeName, Module pkg, int tag, boolean readonly) {
         super(typeName, pkg, XMLValue.class);
         this.tag = tag;
         this.readonly = readonly;
     }
 
-    public BXMLType(BType constraint, boolean readonly) {
+    public BXMLType(Type constraint, boolean readonly) {
         super(TypeConstants.XML_TNAME, null, XMLValue.class);
         this.tag = TypeTags.XML_TAG;
         this.constraint = constraint;
@@ -107,12 +113,12 @@ public class BXMLType extends BType {
     }
 
     @Override
-    public BType getImmutableType() {
+    public Type getImmutableType() {
         return this.immutableType;
     }
 
     @Override
-    public void setImmutableType(BIntersectionType immutableType) {
+    public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
 }

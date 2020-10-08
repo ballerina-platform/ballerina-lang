@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BInitialValueEntry;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.util.Map;
@@ -44,18 +44,18 @@ import java.util.Map;
  */
 public class TypedescValueImpl implements  TypedescValue {
 
-    final BType type;
-    final BType describingType; // Type of the value describe by this typedesc.
+    final Type type;
+    final Type describingType; // Type of the value describe by this typedesc.
     public MapValue[] closures;
 
     @Deprecated
-    public TypedescValueImpl(BType describingType) {
+    public TypedescValueImpl(Type describingType) {
         this.type = new BTypedescType(describingType);
         this.describingType = describingType;
     }
 
     @Deprecated
-    public TypedescValueImpl(BType describingType, MapValue[] closures) {
+    public TypedescValueImpl(Type describingType, MapValue[] closures) {
         this.type = new BTypedescType(describingType);
         this.describingType = describingType;
         this.closures = closures;
@@ -66,7 +66,7 @@ public class TypedescValueImpl implements  TypedescValue {
      * Returns the {@code BType} of the value describe by this type descriptor.
      * @return describing type
      */
-    public BType getDescribingType() {
+    public Type getDescribingType() {
         return describingType;
     }
 
@@ -104,7 +104,7 @@ public class TypedescValueImpl implements  TypedescValue {
     }
 
     @Override
-    public BType getType() {
+    public Type getType() {
         return type;
     }
 

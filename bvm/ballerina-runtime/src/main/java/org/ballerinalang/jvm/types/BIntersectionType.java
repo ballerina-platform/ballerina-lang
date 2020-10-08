@@ -17,6 +17,12 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeFlags;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.IntersectionType;
+import org.ballerinalang.jvm.api.types.Type;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -27,20 +33,20 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class BIntersectionType extends BType {
+public class BIntersectionType extends BType implements IntersectionType {
 
     private static final String PADDED_AMPERSAND = " & ";
     private static final String OPENING_PARENTHESIS = "(";
     private static final String CLOSING_PARENTHESIS = ")";
 
-    private List<BType> constituentTypes;
-    private BType effectiveType;
+    private List<Type> constituentTypes;
+    private Type effectiveType;
 
     private int typeFlags;
     private final boolean readonly;
-    private BIntersectionType immutableType;
+    private IntersectionType immutableType;
 
-    public BIntersectionType(BPackage pkg, BType[] constituentTypes, BType effectiveType, int typeFlags,
+    public BIntersectionType(Module pkg, Type[] constituentTypes, Type effectiveType, int typeFlags,
                              boolean readonly) {
         super(null, pkg, Object.class);
         this.constituentTypes = Arrays.asList(constituentTypes);
@@ -53,7 +59,7 @@ public class BIntersectionType extends BType {
         }
     }
 
-    public List<BType> getConstituentTypes() {
+    public List<Type> getConstituentTypes() {
         return constituentTypes;
     }
 
@@ -77,7 +83,7 @@ public class BIntersectionType extends BType {
     public String toString() {
         StringJoiner joiner = new StringJoiner(PADDED_AMPERSAND, OPENING_PARENTHESIS, CLOSING_PARENTHESIS);
 
-        for (BType constituentType : this.constituentTypes) {
+        for (Type constituentType : this.constituentTypes) {
             if (constituentType.getTag() == TypeTags.NULL_TAG) {
                 joiner.add("()");
                 continue;
@@ -147,16 +153,16 @@ public class BIntersectionType extends BType {
     }
 
     @Override
-    public BType getImmutableType() {
+    public Type getImmutableType() {
         return this.immutableType;
     }
 
     @Override
-    public void setImmutableType(BIntersectionType immutableType) {
+    public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
 
-    public BType getEffectiveType() {
+    public Type getEffectiveType() {
         return this.effectiveType;
     }
 }

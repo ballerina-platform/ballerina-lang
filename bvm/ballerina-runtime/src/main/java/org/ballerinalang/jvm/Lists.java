@@ -19,8 +19,8 @@
 
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.api.TypeTags;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 
 /**

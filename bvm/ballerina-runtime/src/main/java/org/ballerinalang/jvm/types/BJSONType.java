@@ -17,6 +17,14 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeFlags;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.IntersectionType;
+import org.ballerinalang.jvm.api.types.JSONType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
 /**
@@ -25,10 +33,10 @@ import org.ballerinalang.jvm.values.MapValueImpl;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BJSONType extends BType {
+public class BJSONType extends BType implements JSONType {
 
     private final boolean readonly;
-    private BIntersectionType immutableType;
+    private IntersectionType immutableType;
 
     /**
      * Create a {@code BJSONType} which represents the JSON type.
@@ -37,13 +45,13 @@ public class BJSONType extends BType {
      * @param pkg of the type
      * @param readonly whether immutable
      */
-    public BJSONType(String typeName, BPackage pkg, boolean readonly) {
+    public BJSONType(String typeName, Module pkg, boolean readonly) {
         super(typeName, pkg, MapValueImpl.class);
         this.readonly = readonly;
 
         if (!readonly) {
             BJSONType immutableJsonType = new BJSONType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
-            this.immutableType = new BIntersectionType(pkg, new BType[]{ this, BTypes.typeReadonly }, immutableJsonType,
+            this.immutableType = new BIntersectionType(pkg, new Type[]{ this, Types.TYPE_READONLY}, immutableJsonType,
                                                        TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                         TypeFlags.PURETYPE), true);
         }
@@ -53,7 +61,7 @@ public class BJSONType extends BType {
         super(TypeConstants.JSON_TNAME, null, MapValueImpl.class);
         this.readonly = false;
         BJSONType immutableJsonType = new BJSONType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
-        this.immutableType = new BIntersectionType(pkg, new BType[]{ this, BTypes.typeReadonly }, immutableJsonType,
+        this.immutableType = new BIntersectionType(pkg, new Type[]{ this, Types.TYPE_READONLY}, immutableJsonType,
                                                    TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                     TypeFlags.PURETYPE), true);
     }
@@ -92,12 +100,12 @@ public class BJSONType extends BType {
     }
 
     @Override
-    public BType getImmutableType() {
+    public Type getImmutableType() {
         return this.immutableType;
     }
 
     @Override
-    public void setImmutableType(BIntersectionType immutableType) {
+    public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
 }

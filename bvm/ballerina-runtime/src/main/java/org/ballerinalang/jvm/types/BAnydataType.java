@@ -17,6 +17,14 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeFlags;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.AnydataType;
+import org.ballerinalang.jvm.api.types.IntersectionType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.values.RefValue;
 
 /**
@@ -24,23 +32,23 @@ import org.ballerinalang.jvm.values.RefValue;
  *
  * @since 0.995.0
  */
-public class BAnydataType extends BType {
+public class BAnydataType extends BType implements AnydataType {
 
     private final boolean readonly;
-    private BIntersectionType immutableType;
+    private IntersectionType immutableType;
 
     /**
      * Create a {@code BAnydataType} which represents the anydata type.
      *
      * @param typeName string name of the type
      */
-    BAnydataType(String typeName, BPackage pkg, boolean readonly) {
+    public BAnydataType(String typeName, Module pkg, boolean readonly) {
         super(typeName, pkg, RefValue.class);
         this.readonly = readonly;
 
         if (!readonly) {
             BAnydataType immutableAnydataType = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME, pkg, true);
-            this.immutableType = new BIntersectionType(pkg, new BType[]{ this, BTypes.typeReadonly },
+            this.immutableType = new BIntersectionType(pkg, new Type[]{ this, Types.TYPE_READONLY},
                                                        immutableAnydataType,
                                                        TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                         TypeFlags.PURETYPE), true);
@@ -72,12 +80,12 @@ public class BAnydataType extends BType {
     }
 
     @Override
-    public BType getImmutableType() {
+    public Type getImmutableType() {
         return this.immutableType;
     }
 
     @Override
-    public void setImmutableType(BIntersectionType immutableType) {
+    public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
 }

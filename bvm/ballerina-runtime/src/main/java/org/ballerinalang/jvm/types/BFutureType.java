@@ -18,15 +18,20 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.FutureType;
+import org.ballerinalang.jvm.api.types.Type;
 
 /**
  * {@code BFutureType} represents a future value in Ballerina.
  *
  * @since 0.995.0
  */
-public class BFutureType extends BType {
+public class BFutureType extends BType implements FutureType {
 
-    private BType constraint;
+    private Type constraint;
 
     /**
      * Create a {@code {@link BFutureType}} which represents the future value.
@@ -34,16 +39,16 @@ public class BFutureType extends BType {
      * @param typeName string name of the type
      * @param pkg of the type
      */
-    public BFutureType(String typeName, BPackage pkg) {
+    public BFutureType(String typeName, Module pkg) {
         super(typeName, pkg, Object.class);
     }
 
-    public BFutureType(BType constraint) {
+    public BFutureType(Type constraint) {
         super(TypeConstants.FUTURE_TNAME, null, Object.class);
         this.constraint = constraint;
     }
 
-    public BType getConstrainedType() {
+    public Type getConstrainedType() {
         return constraint;
     }
 

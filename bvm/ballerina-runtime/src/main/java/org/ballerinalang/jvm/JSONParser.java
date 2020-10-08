@@ -20,11 +20,11 @@ package org.ballerinalang.jvm;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -330,7 +330,7 @@ public class JSONParser {
             if (currentJsonNode != null) {
                 this.nodesStack.push(currentJsonNode);
             }
-            currentJsonNode = new MapValueImpl<>(new BMapType(BTypes.typeJSON));
+            currentJsonNode = new MapValueImpl<>(new BMapType(Types.TYPE_JSON));
             return FIRST_FIELD_READY_STATE;
         }
 
@@ -338,7 +338,7 @@ public class JSONParser {
             if (currentJsonNode != null) {
                 this.nodesStack.push(currentJsonNode);
             }
-            currentJsonNode = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
+            currentJsonNode = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
             return FIRST_ARRAY_ELEMENT_READY_STATE;
         }
 

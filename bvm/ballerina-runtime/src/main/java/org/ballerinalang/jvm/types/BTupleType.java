@@ -16,6 +16,11 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeFlags;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.IntersectionType;
+import org.ballerinalang.jvm.api.types.TupleType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 
 import java.util.List;
@@ -27,26 +32,26 @@ import java.util.stream.Collectors;
  *
  * @since 0.995.0
  */
-public class BTupleType extends BType {
+public class BTupleType extends BType implements TupleType {
 
-    private List<BType> tupleTypes;
-    private BType restType;
+    private List<Type> tupleTypes;
+    private Type restType;
     private int typeFlags;
     private final boolean readonly;
-    private BIntersectionType immutableType;
+    private IntersectionType immutableType;
 
     /**
      * Create a {@code BTupleType} which represents the tuple type.
      *
      * @param typeList of the tuple type
      */
-    public BTupleType(List<BType> typeList) {
+    public BTupleType(List<Type> typeList) {
         super(null, null, Object.class);
         this.tupleTypes = typeList;
         this.restType = null;
 
         boolean isAllMembersPure = true;
-        for (BType memberType : tupleTypes) {
+        for (Type memberType : tupleTypes) {
             isAllMembersPure &= memberType.isPureType();
         }
 
@@ -56,7 +61,7 @@ public class BTupleType extends BType {
         this.readonly = false;
     }
 
-    public BTupleType(List<BType> typeList, int typeFlags) {
+    public BTupleType(List<Type> typeList, int typeFlags) {
         super(null, null, Object.class);
         this.tupleTypes = typeList;
         this.restType = null;
@@ -72,7 +77,7 @@ public class BTupleType extends BType {
      * @param typeFlags flags associated with the type
      * @param readonly whether immutable
      */
-    public BTupleType(List<BType> typeList, BType restType, int typeFlags, boolean readonly) {
+    public BTupleType(List<Type> typeList, Type restType, int typeFlags, boolean readonly) {
         super(null, null, Object.class);
         this.tupleTypes = typeList;
         this.restType = restType;
@@ -80,11 +85,11 @@ public class BTupleType extends BType {
         this.readonly = readonly;
     }
 
-    public List<BType> getTupleTypes() {
+    public List<Type> getTupleTypes() {
         return tupleTypes;
     }
 
-    public BType getRestType() {
+    public Type getRestType() {
         return restType;
     }
 
@@ -105,7 +110,7 @@ public class BTupleType extends BType {
 
     @Override
     public String toString() {
-        List<String> list = tupleTypes.stream().map(BType::toString).collect(Collectors.toList());
+        List<String> list = tupleTypes.stream().map(Type::toString).collect(Collectors.toList());
         if (!readonly) {
             return "[" + String.join(",", list) + "]";
         }
@@ -155,12 +160,12 @@ public class BTupleType extends BType {
     }
 
     @Override
-    public BType getImmutableType() {
+    public Type getImmutableType() {
         return this.immutableType;
     }
 
     @Override
-    public void setImmutableType(BIntersectionType immutableType) {
+    public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
 }

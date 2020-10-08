@@ -17,13 +17,17 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.IntegerType;
+
 /**
  * {@code BIntegerType} represents an integer which is a 32-bit signed number.
  *
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BIntegerType extends BType {
+public class BIntegerType extends BType implements IntegerType {
 
     private final int tag;
 
@@ -32,12 +36,12 @@ public class BIntegerType extends BType {
      *
      * @param typeName string name of the type
      */
-    BIntegerType(String typeName, BPackage pkg) {
+    public BIntegerType(String typeName, Module pkg) {
         super(typeName, pkg, Long.class);
         tag = TypeTags.INT_TAG;
     }
 
-    protected BIntegerType(String typeName, BPackage pkg, int tag) {
+    public BIntegerType(String typeName, Module pkg, int tag) {
         super(typeName, pkg, Long.class);
         this.tag = tag;
     }

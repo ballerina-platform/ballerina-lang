@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.StructureType;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +28,7 @@ import java.util.Map;
  *
  * @since 0.995.0
  */
-public abstract class BStructureType extends AnnotatableType {
+public abstract class BStructureType extends BAnnotatableType implements StructureType {
 
     protected Map<String, BField> fields;
     public int flags;
@@ -38,7 +41,7 @@ public abstract class BStructureType extends AnnotatableType {
      * @param flags of the structure type
      * @param valueClass of the structure type
      */
-    public BStructureType(String typeName, BPackage pkg, int flags, Class<? extends Object> valueClass) {
+    public BStructureType(String typeName, Module pkg, int flags, Class<? extends Object> valueClass) {
         super(typeName, pkg, valueClass);
         this.flags = flags;
         fields = new HashMap<>();
@@ -53,8 +56,8 @@ public abstract class BStructureType extends AnnotatableType {
      * @param valueClass of the structure type
      * @param fields structure fields
      */
-    public BStructureType(String typeName, BPackage pkg, int flags, Class<? extends Object> valueClass,
-            Map<String, BField> fields) {
+    public BStructureType(String typeName, Module pkg, int flags, Class<? extends Object> valueClass,
+                          Map<String, BField> fields) {
         super(typeName, pkg, valueClass);
         this.flags = flags;
         this.fields = fields;

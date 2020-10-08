@@ -18,19 +18,23 @@
 
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.ByteType;
+
 /**
  * {@code BByteType} represents byte type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BByteType extends BType {
+public class BByteType extends BType implements ByteType {
 
     /**
      * Create a {@code BByteType} which represents the byte type.
      *
      * @param typeName string name of the type
      */
-    BByteType(String typeName, BPackage pkg) {
+    public BByteType(String typeName, Module pkg) {
         super(typeName, pkg, Integer.class);
     }
 

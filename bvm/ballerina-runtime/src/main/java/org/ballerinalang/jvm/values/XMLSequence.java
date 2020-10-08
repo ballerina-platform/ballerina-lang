@@ -20,12 +20,12 @@ import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.api.values.BXML;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 
@@ -396,7 +396,7 @@ public final class XMLSequence extends XMLValue {
      */
     @Override
     public Object value() {
-        BArrayType bArrayType = new BArrayType(BTypes.typeXML);
+        BArrayType bArrayType = new BArrayType(Types.TYPE_XML);
         return new ArrayValueImpl(children.toArray(), bArrayType);
     }
 

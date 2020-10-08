@@ -19,7 +19,7 @@
 package org.ballerinalang.jvm.api.values;
 
 import org.ballerinalang.jvm.DecimalValueKind;
-import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.values.DecimalValue;
 
 import java.math.BigDecimal;
@@ -82,7 +82,7 @@ public interface BDecimal {
      *
      * @return the type
      */
-    BType getType();
+    Type getType();
 
 
     /**

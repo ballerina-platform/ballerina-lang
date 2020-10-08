@@ -18,8 +18,8 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -65,7 +65,7 @@ public class TableUtils {
             }
 
             RefValue refValue = (RefValue) obj;
-            BType refType = refValue.getType();
+            Type refType = refValue.getType();
             if (refType.getTag() == TypeTags.MAP_TAG || refType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                 MapValue mapValue = (MapValue) refValue;
                 for (Object entry : mapValue.entrySet()) {

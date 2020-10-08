@@ -19,6 +19,9 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.TypeFlags;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.FiniteType;
 import org.ballerinalang.jvm.values.RefValue;
 
 import java.util.Iterator;
@@ -30,7 +33,7 @@ import java.util.Set;
  * 
  * @since 0.995.0
  */
-public class BFiniteType extends BType {
+public class BFiniteType extends BType implements FiniteType {
 
     public Set<Object> valueSpace;
     private int typeFlags;

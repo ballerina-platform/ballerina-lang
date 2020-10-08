@@ -21,6 +21,11 @@ import org.ballerinalang.jvm.CycleUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BMap;
@@ -29,12 +34,7 @@ import org.ballerinalang.jvm.api.values.BValue;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BErrorType;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypeIdSet;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeConstants;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 
 import java.io.PrintWriter;
@@ -68,7 +68,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.STOP_FUNCTION_SUFFIX;
 public class ErrorValue extends BError implements RefValue {
 
     private static final long serialVersionUID = 1L;
-    private final BType type;
+    private final Type type;
     private final BString message;
     private final BError cause;
     private final Object details;
@@ -77,11 +77,11 @@ public class ErrorValue extends BError implements RefValue {
     public static final String CALL_STACK_ELEMENT = "CallStackElement";
 
     public ErrorValue(BString message, Object details) {
-        this(new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(), TypeChecker.getType(details)),
+        this(new BErrorType(TypeConstants.ERROR, Types.TYPE_ERROR.getPackage(), TypeChecker.getType(details)),
                 message, null, details);
     }
 
-    public ErrorValue(BType type, BString message, BError cause, Object details) {
+    public ErrorValue(Type type, BString message, BError cause, Object details) {
         super(message);
         this.type = type;
         this.message = message;
@@ -89,8 +89,8 @@ public class ErrorValue extends BError implements RefValue {
         this.details = details;
     }
 
-    public ErrorValue(BType type, BString message, BError cause, Object details,
-                      String typeIdName, BPackage typeIdPkg) {
+    public ErrorValue(Type type, BString message, BError cause, Object details,
+                      String typeIdName, Module typeIdPkg) {
         super(message);
         this.type = type;
         this.message = message;
@@ -137,7 +137,7 @@ public class ErrorValue extends BError implements RefValue {
             if (value == null) {
                 sj.add(key + "=null");
             } else {
-                BType type = TypeChecker.getType(value);
+                Type type = TypeChecker.getType(value);
                 switch (type.getTag()) {
                     case TypeTags.STRING_TAG:
                     case TypeTags.XML_TAG:
@@ -185,7 +185,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     @Override
-    public BType getType() {
+    public Type getType() {
         return type;
     }
 
@@ -297,7 +297,7 @@ public class ErrorValue extends BError implements RefValue {
             Optional<StackTraceElement> stackTraceElement = filterStackTraceElement(stackFrame, index++);
             stackTraceElement.ifPresent(filteredStack::add);
         }
-        BType recordType = BValueCreator.createRecordValue(BALLERINA_RUNTIME_PKG_ID, CALL_STACK_ELEMENT).getType();
+        Type recordType = BValueCreator.createRecordValue(BALLERINA_RUNTIME_PKG_ID, CALL_STACK_ELEMENT).getType();
         ArrayValue callStack = new ArrayValueImpl(new BArrayType(recordType));
         for (int i = 0; i < filteredStack.size(); i++) {
             callStack.add(i, getStackFrame(filteredStack.get(i)));

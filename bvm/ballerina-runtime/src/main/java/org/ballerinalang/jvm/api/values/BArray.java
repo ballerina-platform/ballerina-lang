@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.jvm.api.values;
 
-import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.api.types.Type;
 
 /**
  * <p>
@@ -191,6 +191,6 @@ public interface BArray extends BRefValue, BCollection {
      * Get {@code BType} of the array elements.
      * @return element type
      */
-    BType getElementType();
+    Type getElementType();
 
 }

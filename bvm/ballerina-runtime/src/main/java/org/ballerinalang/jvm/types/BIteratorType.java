@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.IteratorType;
 import org.ballerinalang.jvm.values.IteratorValue;
 
 /**
@@ -24,9 +27,9 @@ import org.ballerinalang.jvm.values.IteratorValue;
  *
  * @since 0.995.0
  */
-public class BIteratorType extends BType {
+public class BIteratorType extends BType implements IteratorType {
 
-    BIteratorType(String typeName, BPackage pkg) {
+    public BIteratorType(String typeName, Module pkg) {
         super(typeName, pkg, IteratorValue.class);
     }
 

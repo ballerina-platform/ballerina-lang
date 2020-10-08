@@ -17,11 +17,11 @@
 */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.api.values.BXMLQName;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 
 import java.util.Map;
 import java.util.Objects;
@@ -105,8 +105,8 @@ public final class XMLQName implements RefValue, BXMLQName {
     }
 
     @Override
-    public BType getType() {
-        return BTypes.typeXMLAttributes;
+    public Type getType() {
+        return Types.TYPE_XML_ATTRIBUTES;
     }
 
     @Override

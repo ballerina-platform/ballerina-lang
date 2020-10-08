@@ -19,6 +19,12 @@ package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.TypeFlags;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.IntersectionType;
+import org.ballerinalang.jvm.api.types.RecordType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.MapValue;
@@ -31,13 +37,13 @@ import java.util.Map;
  *
  * @since 0.995.0
  */
-public class BRecordType extends BStructureType {
+public class BRecordType extends BStructureType implements RecordType {
 
     public boolean sealed;
-    public BType restFieldType;
+    public Type restFieldType;
     public int typeFlags;
     private final boolean readonly;
-    private BIntersectionType immutableType;
+    private IntersectionType immutableType;
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -48,7 +54,7 @@ public class BRecordType extends BStructureType {
      * @param sealed flag indicating the sealed status
      * @param typeFlags flags associated with the type
      */
-    public BRecordType(String typeName, BPackage pkg, int flags, boolean sealed, int typeFlags) {
+    public BRecordType(String typeName, Module pkg, int flags, boolean sealed, int typeFlags) {
         super(typeName, pkg, flags, MapValueImpl.class);
         this.sealed = sealed;
         this.typeFlags = typeFlags;
@@ -66,8 +72,8 @@ public class BRecordType extends BStructureType {
      * @param sealed flag to indicate whether the record is sealed
      * @param typeFlags flags associated with the type
      */
-    public BRecordType(String typeName, BPackage pkg, int flags, Map<String, BField> fields, BType restFieldType,
-            boolean sealed, int typeFlags) {
+    public BRecordType(String typeName, Module pkg, int flags, Map<String, BField> fields, Type restFieldType,
+                       boolean sealed, int typeFlags) {
         super(typeName, pkg, flags, MapValueImpl.class, fields);
         this.restFieldType = restFieldType;
         this.sealed = sealed;
@@ -119,12 +125,12 @@ public class BRecordType extends BStructureType {
     }
 
     @Override
-    public BType getImmutableType() {
+    public Type getImmutableType() {
         return this.immutableType;
     }
 
     @Override
-    public void setImmutableType(BIntersectionType immutableType) {
+    public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
 }

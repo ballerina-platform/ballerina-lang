@@ -18,7 +18,11 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.commons.ArrayState;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.commons.ArrayState;
+import org.ballerinalang.jvm.api.types.ArrayType;
+import org.ballerinalang.jvm.api.types.IntersectionType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 
@@ -33,17 +37,17 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-public class BArrayType extends BType {
-    private BType elementType;
+public class BArrayType extends BType implements ArrayType {
+    private Type elementType;
     private int dimensions = 1;
     private int size = -1;
     private boolean hasFillerValue;
     private ArrayState state = ArrayState.UNSEALED;
 
     private final boolean readonly;
-    private BIntersectionType immutableType;
+    private IntersectionType immutableType;
 
-    public BArrayType(BType elementType) {
+    public BArrayType(Type elementType) {
         super(null, null, ArrayValue.class);
         this.elementType = elementType;
         if (elementType instanceof BArrayType) {
@@ -53,11 +57,11 @@ public class BArrayType extends BType {
         this.readonly = false;
     }
 
-    public BArrayType(BType elemType, int size) {
+    public BArrayType(Type elemType, int size) {
         this(elemType, size, false);
     }
 
-    public BArrayType(BType elemType, int size, boolean readonly) {
+    public BArrayType(Type elemType, int size, boolean readonly) {
         super(null, null, ArrayValue.class);
         this.elementType = elemType;
         if (elementType instanceof BArrayType) {
@@ -71,7 +75,7 @@ public class BArrayType extends BType {
         this.readonly = readonly;
     }
 
-    public BType getElementType() {
+    public Type getElementType() {
         return elementType;
     }
 
@@ -138,7 +142,7 @@ public class BArrayType extends BType {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        BType tempElementType = elementType;
+        Type tempElementType = elementType;
         sb.append(getSizeString());
         while (tempElementType.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType arrayElement = (BArrayType) tempElementType;
@@ -184,12 +188,12 @@ public class BArrayType extends BType {
     }
 
     @Override
-    public BType getImmutableType() {
+    public Type getImmutableType() {
         return this.immutableType;
     }
 
     @Override
-    public void setImmutableType(BIntersectionType immutableType) {
+    public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
 }

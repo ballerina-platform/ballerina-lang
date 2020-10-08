@@ -20,6 +20,10 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeConstants;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
@@ -28,11 +32,7 @@ import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BJSONType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BStructureType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeConstants;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -94,14 +94,14 @@ public class JSONUtils {
             return null;
         }
 
-        BType elementType = bArray.getElementType();
-        if (elementType == BTypes.typeInt) {
+        Type elementType = bArray.getElementType();
+        if (elementType == Types.TYPE_INT) {
             return convertIntArrayToJSON(bArray);
-        } else if (elementType == BTypes.typeBoolean) {
+        } else if (elementType == Types.TYPE_BOOLEAN) {
             return convertBooleanArrayToJSON(bArray);
-        } else if (elementType == BTypes.typeFloat) {
+        } else if (elementType == Types.TYPE_FLOAT) {
             return convertFloatArrayToJSON(bArray);
-        } else if (elementType == BTypes.typeString) {
+        } else if (elementType == Types.TYPE_STRING) {
             return convertStringArrayToJSON(bArray);
         } else {
             return convertRefArrayToJSON(bArray);
@@ -124,7 +124,7 @@ public class JSONUtils {
         for (Entry<BString, ?> structField : map.entrySet()) {
             BString key = structField.getKey();
             Object value = structField.getValue();
-            populateJSON(json, key, value, BTypes.typeJSON);
+            populateJSON(json, key, value, Types.TYPE_JSON);
         }
         return json;
     }
@@ -240,7 +240,7 @@ public class JSONUtils {
             return false;
         }
 
-        BType type = ((RefValue) json).getType();
+        Type type = ((RefValue) json).getType();
         int typeTag = type.getTag();
         return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
     }
@@ -260,7 +260,7 @@ public class JSONUtils {
         }
 
         MapValueImpl<BString, Object> map = new MapValueImpl<>(mapType);
-        BType mapConstraint = mapType.getConstrainedType();
+        Type mapConstraint = mapType.getConstrainedType();
         if (mapConstraint == null || mapConstraint.getTag() == TypeTags.ANY_TAG ||
                 mapConstraint.getTag() == TypeTags.JSON_TAG) {
             ((MapValueImpl<BString, Object>) json).entrySet().forEach(entry -> {
@@ -295,7 +295,7 @@ public class JSONUtils {
         MapValueImpl<BString, Object> bStruct = new MapValueImpl<>(structType);
         MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
         for (Map.Entry<String, BField> field : structType.getFields().entrySet()) {
-            BType fieldType = field.getValue().type;
+            Type fieldType = field.getValue().type;
             BString fieldName = BStringUtils.fromString(field.getValue().name);
             try {
                 // If the field does not exists in the JSON, set the default value for that struct field.
@@ -314,7 +314,7 @@ public class JSONUtils {
         return bStruct;
     }
 
-    public static Object convertJSON(Object jsonValue, BType targetType) {
+    public static Object convertJSON(Object jsonValue, Type targetType) {
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
                 return jsonNodeToInt(jsonValue);
@@ -342,8 +342,8 @@ public class JSONUtils {
                 if (jsonValue == null && type.isNullable()) {
                     return null;
                 }
-                List<BType> matchingTypes = type.getMemberTypes().stream()
-                        .filter(memberType -> memberType != BTypes.typeNull).collect(Collectors.toList());
+                List<Type> matchingTypes = type.getMemberTypes().stream()
+                        .filter(memberType -> memberType != Types.TYPE_NULL).collect(Collectors.toList());
                 if (matchingTypes.size() == 1) {
                     return convertJSON(jsonValue, matchingTypes.get(0));
                 }
@@ -376,7 +376,7 @@ public class JSONUtils {
      */
     public static ArrayValue getKeys(Object json) {
         if (json == null || !isJSONObject(json)) {
-            return new ArrayValueImpl(new BArrayType(BTypes.typeString));
+            return new ArrayValueImpl(new BArrayType(Types.TYPE_STRING));
         }
 
         BString[] keys = ((MapValueImpl<BString, ?>) json).getKeys();
@@ -388,7 +388,7 @@ public class JSONUtils {
             return null;
         }
 
-        BType type = TypeChecker.getType(source);
+        Type type = TypeChecker.getType(source);
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
@@ -405,7 +405,7 @@ public class JSONUtils {
             case TypeTags.JSON_TAG:
                 return source;
             default:
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, BTypes.typeJSON, type);
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, Types.TYPE_JSON, type);
         }
     }
 
@@ -428,8 +428,8 @@ public class JSONUtils {
             return null;
         }
 
-        BType j1Type = TypeChecker.getType(j1);
-        BType j2Type = TypeChecker.getType(j2);
+        Type j1Type = TypeChecker.getType(j1);
+        Type j2Type = TypeChecker.getType(j2);
 
         if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
             return BErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
@@ -461,7 +461,7 @@ public class JSONUtils {
                 continue;
             }
 
-            MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+            MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(Types.TYPE_ERROR_DETAIL);
             detailMap.put(TypeConstants.DETAIL_MESSAGE,
                           BStringUtils.fromString("JSON Merge failed for key '" + key + "'"));
             detailMap.put(TypeConstants.DETAIL_CAUSE, elementMergeNullableError);
@@ -480,8 +480,8 @@ public class JSONUtils {
         }
 
         if (checkMergeability) {
-            BType j1Type = TypeChecker.getType(j1);
-            BType j2Type = TypeChecker.getType(j2);
+            Type j1Type = TypeChecker.getType(j1);
+            Type j2Type = TypeChecker.getType(j2);
 
             if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
                 return BErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
@@ -509,7 +509,7 @@ public class JSONUtils {
                     getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 
-        BType targetElementType = targetArrayType.getElementType();
+        Type targetElementType = targetArrayType.getElementType();
         ArrayValue jsonArray = (ArrayValue) json;
         switch (targetElementType.getTag()) {
             case TypeTags.INT_TAG:
@@ -566,7 +566,7 @@ public class JSONUtils {
     private static long jsonNodeToInt(Object json) {
         if (!(json instanceof Long)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                    BTypes.typeInt, getTypeName(json));
+                                                           Types.TYPE_INT, getTypeName(json));
         }
 
         return (Long) json;
@@ -587,7 +587,7 @@ public class JSONUtils {
             return ((DecimalValue) json).floatValue();
         } else {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                    BTypes.typeFloat, getTypeName(json));
+                                                           Types.TYPE_FLOAT, getTypeName(json));
         }
     }
 
@@ -609,7 +609,7 @@ public class JSONUtils {
             return (DecimalValue) json;
         } else {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                    BTypes.typeDecimal, getTypeName(json));
+                                                           Types.TYPE_DECIMAL, getTypeName(json));
         }
 
         return new DecimalValue(decimal);
@@ -624,13 +624,13 @@ public class JSONUtils {
     private static boolean jsonNodeToBoolean(Object json) {
         if (!(json instanceof Boolean)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                    BTypes.typeBoolean, getTypeName(json));
+                                                           Types.TYPE_BOOLEAN, getTypeName(json));
         }
         return (Boolean) json;
     }
 
     private static ArrayValue jsonArrayToBIntArray(ArrayValue arrayNode) {
-        ArrayValue intArray = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
+        ArrayValue intArray = new ArrayValueImpl(new BArrayType(Types.TYPE_INT));
         for (int i = 0; i < arrayNode.size(); i++) {
             Object jsonValue = arrayNode.getRefValue(i);
             intArray.add(i, jsonNodeToInt(jsonValue));
@@ -639,7 +639,7 @@ public class JSONUtils {
     }
 
     private static ArrayValue jsonArrayToBFloatArray(ArrayValue arrayNode) {
-        ArrayValue floatArray = new ArrayValueImpl(new BArrayType(BTypes.typeFloat));
+        ArrayValue floatArray = new ArrayValueImpl(new BArrayType(Types.TYPE_FLOAT));
         for (int i = 0; i < arrayNode.size(); i++) {
             Object jsonValue = arrayNode.getRefValue(i);
             floatArray.add(i, jsonNodeToFloat(jsonValue));
@@ -648,7 +648,7 @@ public class JSONUtils {
     }
 
     private static ArrayValue jsonArrayToBDecimalArray(ArrayValue arrayNode) {
-        ArrayValue decimalArray = new ArrayValueImpl(new BArrayType(BTypes.typeDecimal));
+        ArrayValue decimalArray = new ArrayValueImpl(new BArrayType(Types.TYPE_DECIMAL));
         for (int i = 0; i < arrayNode.size(); i++) {
             Object jsonValue = arrayNode.getRefValue(i);
             decimalArray.add(i, jsonNodeToDecimal(jsonValue));
@@ -657,7 +657,7 @@ public class JSONUtils {
     }
 
     private static ArrayValue jsonArrayToBStringArray(ArrayValue arrayNode) {
-        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeString));
+        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(Types.TYPE_STRING));
         for (int i = 0; i < arrayNode.size(); i++) {
             stringArray.add(i, arrayNode.getRefValue(i).toString());
         }
@@ -665,7 +665,7 @@ public class JSONUtils {
     }
 
     private static ArrayValue jsonArrayToBooleanArray(ArrayValue arrayNode) {
-        ArrayValue booleanArray = new ArrayValueImpl(new BArrayType(BTypes.typeBoolean));
+        ArrayValue booleanArray = new ArrayValueImpl(new BArrayType(Types.TYPE_BOOLEAN));
         for (int i = 0; i < arrayNode.size(); i++) {
             Object jsonValue = arrayNode.getRefValue(i);
             booleanArray.add(i, jsonNodeToBoolean(jsonValue));
@@ -680,14 +680,14 @@ public class JSONUtils {
      * @return JSON representation of the provided refValueArray
      */
     private static ArrayValue convertRefArrayToJSON(ArrayValue refValueArray) {
-        ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
+        ArrayValue json = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
         for (int i = 0; i < refValueArray.size(); i++) {
             Object value = refValueArray.getRefValue(i);
             if (value == null) {
                 json.append(null);
             }
 
-            BType type = TypeChecker.getType(value);
+            Type type = TypeChecker.getType(value);
             switch (type.getTag()) {
                 case TypeTags.JSON_TAG:
                     json.append(value);
@@ -695,14 +695,14 @@ public class JSONUtils {
                 case TypeTags.MAP_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
                 case TypeTags.OBJECT_TYPE_TAG:
-                    json.append(convertMapToJSON((MapValueImpl<BString, ?>) value, (BJSONType) BTypes.typeJSON));
+                    json.append(convertMapToJSON((MapValueImpl<BString, ?>) value, (BJSONType) Types.TYPE_JSON));
                     break;
                 case TypeTags.ARRAY_TAG:
                     json.append(convertArrayToJSON((ArrayValue) value));
                     break;
                 default:
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, BTypes.typeJSON,
-                            type);
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, Types.TYPE_JSON,
+                                                                   type);
             }
         }
         return json;
@@ -715,7 +715,7 @@ public class JSONUtils {
      * @return JSON representation of the provided intArray
      */
     private static ArrayValue convertIntArrayToJSON(ArrayValue intArray) {
-        ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
+        ArrayValue json = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
         for (int i = 0; i < intArray.size(); i++) {
             long value = intArray.getInt(i);
             json.append(value);
@@ -730,7 +730,7 @@ public class JSONUtils {
      * @return JSON representation of the provided floatArray
      */
     private static ArrayValue convertFloatArrayToJSON(ArrayValue floatArray) {
-        ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
+        ArrayValue json = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
         for (int i = 0; i < floatArray.size(); i++) {
             double value = floatArray.getFloat(i);
             json.append(value);
@@ -745,7 +745,7 @@ public class JSONUtils {
      * @return JSON representation of the provided stringArray
      */
     private static ArrayValue convertStringArrayToJSON(ArrayValue stringArray) {
-        ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
+        ArrayValue json = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
         for (int i = 0; i < stringArray.size(); i++) {
             json.append(stringArray.getString(i));
         }
@@ -759,7 +759,7 @@ public class JSONUtils {
      * @return JSON representation of the provided booleanArray
      */
     private static ArrayValue convertBooleanArrayToJSON(ArrayValue booleanArray) {
-        ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
+        ArrayValue json = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
         for (int i = 0; i < booleanArray.size(); i++) {
             boolean value = booleanArray.getBoolean(i);
             json.append(value);
@@ -767,14 +767,14 @@ public class JSONUtils {
         return json;
     }
 
-    private static void populateJSON(BMap<BString, Object> json, BString key, Object value, BType exptType) {
+    private static void populateJSON(BMap<BString, Object> json, BString key, Object value, Type exptType) {
         try {
             if (value == null) {
                 json.put(key, null);
                 return;
             }
 
-            BType type = TypeChecker.getType(value);
+            Type type = TypeChecker.getType(value);
             switch (type.getTag()) {
                 case TypeTags.INT_TAG:
                 case TypeTags.FLOAT_TAG:
@@ -793,8 +793,8 @@ public class JSONUtils {
                     json.put(key, convertMapToJSON((MapValueImpl<BString, ?>) value, (BJSONType) exptType));
                     break;
                 default:
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, BTypes.typeJSON,
-                            type);
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, Types.TYPE_JSON,
+                                                                   type);
             }
         } catch (Exception e) {
             handleError(e, key.getValue());
@@ -803,7 +803,7 @@ public class JSONUtils {
 
     private static String getTypeName(Object jsonValue) {
         if (jsonValue == null) {
-            return BTypes.typeNull.toString();
+            return Types.TYPE_NULL.toString();
         }
 
         return TypeChecker.getType(jsonValue).toString();

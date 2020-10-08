@@ -19,11 +19,11 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.IteratorUtils;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BStream;
 import org.ballerinalang.jvm.types.BStreamType;
-import org.ballerinalang.jvm.types.BType;
 
 import java.util.Map;
 import java.util.UUID;
@@ -40,9 +40,9 @@ import java.util.UUID;
  */
 public class StreamValue implements RefValue, BStream {
 
-    private BType type;
-    private BType constraintType;
-    private BType iteratorNextReturnType;
+    private Type  type;
+    private Type  constraintType;
+    private Type  iteratorNextReturnType;
     private BObject iteratorObj;
 
 
@@ -52,14 +52,14 @@ public class StreamValue implements RefValue, BStream {
     public String streamId;
 
     @Deprecated
-    public StreamValue(BType type) {
+    public StreamValue(Type  type) {
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
         this.streamId = UUID.randomUUID().toString();
         this.iteratorObj = null;
     }
 
-    public StreamValue(BType type, BObject iteratorObj) {
+    public StreamValue(Type  type, BObject iteratorObj) {
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
         this.streamId = UUID.randomUUID().toString();
@@ -74,7 +74,7 @@ public class StreamValue implements RefValue, BStream {
         return iteratorObj;
     }
 
-    public BType getIteratorNextReturnType() {
+    public Type  getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
             iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(constraintType);
         }
@@ -99,7 +99,7 @@ public class StreamValue implements RefValue, BStream {
     }
 
     @Override
-    public BType getType() {
+    public Type getType() {
         return this.type;
     }
 
@@ -115,7 +115,7 @@ public class StreamValue implements RefValue, BStream {
         throw new UnsupportedOperationException();
     }
 
-    public BType getConstraintType() {
+    public Type getConstraintType() {
         return constraintType;
     }
 

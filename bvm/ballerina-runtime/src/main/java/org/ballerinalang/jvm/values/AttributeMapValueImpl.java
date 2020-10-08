@@ -20,9 +20,9 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 
 import javax.xml.XMLConstants;
@@ -41,11 +41,11 @@ import static org.ballerinalang.jvm.values.XMLItem.XMLNS_URL_PREFIX;
 class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
 
     public AttributeMapValueImpl() {
-        super(new BMapType(BTypes.typeString));
+        super(new BMapType(Types.TYPE_STRING));
     }
 
     public AttributeMapValueImpl(boolean readonly) {
-        super(new BMapType(BTypes.typeString));
+        super(new BMapType(Types.TYPE_STRING));
 
         if (readonly) {
             this.freezeDirect();

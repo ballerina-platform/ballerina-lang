@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BHandle;
 import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 
 import java.util.Map;
 
@@ -67,8 +67,8 @@ public class HandleValue implements BHandle, RefValue {
     }
 
     @Override
-    public BType getType() {
-        return BTypes.typeHandle;
+    public Type getType() {
+        return Types.TYPE_HANDLE;
     }
 
     @Override

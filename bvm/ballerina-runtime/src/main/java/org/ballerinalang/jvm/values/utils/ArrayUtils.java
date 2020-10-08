@@ -20,9 +20,9 @@ package org.ballerinalang.jvm.values.utils;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 
 import static java.lang.String.format;
@@ -60,7 +60,7 @@ public class ArrayUtils {
         }
     }
 
-    public static GetFunction getElementAccessFunction(BType arrType, String funcName) {
+    public static GetFunction getElementAccessFunction(Type arrType, String funcName) {
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 return ArrayValue::get;
@@ -71,13 +71,13 @@ public class ArrayUtils {
         }
     }
 
-    public static void checkIsArrayOnlyOperation(BType arrType, String op) {
+    public static void checkIsArrayOnlyOperation(Type arrType, String op) {
         if (arrType.getTag() != TypeTags.ARRAY_TAG) {
             throw createOpNotSupportedError(arrType, op);
         }
     }
 
-    public static BError createOpNotSupportedError(BType type, String op) {
+    public static BError createOpNotSupportedError(Type type, String op) {
         return BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
                                                                  OPERATION_NOT_SUPPORTED_IDENTIFIER),
                                          BStringUtils.fromString(format("%s not supported on type '%s'", op,

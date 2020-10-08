@@ -17,24 +17,27 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.api.types.Field;
+import org.ballerinalang.jvm.api.types.Type;
+
 /**
  * {@code BField} represents a field in user defined type in Ballerina.
  *
  * @since 0.995.0
  */
-public class BField {
+public class BField implements Field {
 
-    public BType type;
+    public Type type;
     public String name;
     public int flags;
 
-    public BField(BType fieldType, String fieldName, int flags) {
+    public BField(Type fieldType, String fieldName, int flags) {
         this.type = fieldType;
         this.name = fieldName;
         this.flags = flags;
     }
 
-    public BType getFieldType() {
+    public Type getFieldType() {
         return type;
     }
 
