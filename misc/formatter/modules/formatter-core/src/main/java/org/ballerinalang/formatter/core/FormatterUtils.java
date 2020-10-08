@@ -70,7 +70,7 @@ class FormatterUtils {
                 node.kind() == SyntaxKind.IF_ELSE_STATEMENT || node.kind() == SyntaxKind.ELSE_BLOCK) {
             startOffset = (startOffset / 4) * 4;
         }
-        return new DiagnosticPos(null, startPos.line() + 1, endPos.line() + 1,
+        return new DiagnosticPos(null, null, startPos.line() + 1, endPos.line() + 1,
                 startOffset, endPos.offset());
     }
 
@@ -565,7 +565,7 @@ class FormatterUtils {
             if (addSpaces) {
                 indentation = (FormatterUtils.getIndentation(node, 0, formattingOptions));
             }
-            return getPosition(parent).sCol + indentation;
+            return getPosition(parent).getsCol() + indentation;
         }
         return 0;
     }

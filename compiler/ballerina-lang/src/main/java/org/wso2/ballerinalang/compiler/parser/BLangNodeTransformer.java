@@ -225,6 +225,7 @@ import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -238,6 +239,7 @@ import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -438,6 +440,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private SymbolTable symTable;
     private BDiagnosticSource diagnosticSource;
 
+    private PackageCache packageCache;
+    private PackageID packageID;
+    private String currentCompUnitName;
+
     private BLangCompilationUnit currentCompilationUnit;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
@@ -447,9 +453,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     /* To keep track if we are inside a block statment for the use of type definition creation */
     private boolean isInLocalContext = false;
 
-    public BLangNodeTransformer(CompilerContext context, BDiagnosticSource diagnosticSource) {
+    public BLangNodeTransformer(CompilerContext context, BDiagnosticSource diagnosticSource,
+                                PackageID packageID, String entryName) {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
+        this.packageID = packageID;
+        this.currentCompUnitName = entryName;
         this.diagnosticSource = diagnosticSource;
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
@@ -514,7 +523,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ModulePartNode modulePart) {
         BLangCompilationUnit compilationUnit = (BLangCompilationUnit) TreeBuilder.createCompilationUnit();
         this.currentCompilationUnit = compilationUnit;
-        compilationUnit.name = diagnosticSource.cUnitName;
+        compilationUnit.name = currentCompUnitName;
+        compilationUnit.setPackageID(packageID);
         DiagnosticPos pos = getPosition(modulePart);
 
         // Generate import declarations
@@ -566,7 +576,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         String version = null;
         if (versionNode != null) {
             if (versionNode.isMissing()) {
-                version = missingNodesHelper.getNextMissingNodeName(diagnosticSource.pkgID);
+                version = missingNodesHelper.getNextMissingNodeName(packageID);
             } else {
                 version = extractVersion(versionNode.versionNumber());
             }
@@ -758,7 +768,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangTypeDefinition bLTypeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
 
         // Generate a name for the anonymous object
-        String genName = anonymousModelHelper.getNextAnonymousTypeKey(diagnosticSource.pkgID);
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         bLTypeDef.setName(anonTypeGenName);
         bLTypeDef.flagSet.add(Flag.PUBLIC);
@@ -974,7 +984,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         objectCtorExpression.classNode = annonClassDef;
 
         // Generate a name for the anonymous object
-        String genName = anonymousModelHelper.getNextAnonymousTypeKey(diagnosticSource.pkgID);
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         annonClassDef.setName(anonTypeGenName);
         annonClassDef.flagSet.add(Flag.PUBLIC);
@@ -1060,11 +1070,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         String serviceName;
         DiagnosticPos identifierPos;
         if (isAnonServiceValue || serviceNameNode == null) {
-            serviceName = this.anonymousModelHelper.getNextAnonymousServiceVarKey(diagnosticSource.pkgID);
+            serviceName = this.anonymousModelHelper.getNextAnonymousServiceVarKey(packageID);
             identifierPos = pos;
         } else {
             if (serviceNameNode == null || serviceNameNode.isMissing()) {
-                serviceName = missingNodesHelper.getNextMissingNodeName(diagnosticSource.pkgID);
+                serviceName = missingNodesHelper.getNextMissingNodeName(packageID);
             } else {
                 serviceName = serviceNameNode.text();
             }
@@ -1072,7 +1082,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         String serviceTypeName =
-                this.anonymousModelHelper.getNextAnonymousServiceTypeKey(diagnosticSource.pkgID, serviceName);
+                this.anonymousModelHelper.getNextAnonymousServiceTypeKey(packageID, serviceName);
         BLangIdentifier serviceVar = createIdentifier(identifierPos, serviceName);
         serviceVar.pos = identifierPos;
         bLService.setName(serviceVar);
@@ -1382,7 +1392,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         // Set function name
         bLFunction.name = createIdentifier(pos,
-                                           anonymousModelHelper.getNextAnonymousFunctionKey(diagnosticSource.pkgID));
+                                           anonymousModelHelper.getNextAnonymousFunctionKey(packageID));
 
         // Set function signature
         populateFuncSignature(bLFunction, anonFuncExprNode.functionSignature());
@@ -1470,7 +1480,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         // Set function name
         bLFunction.name = createIdentifier(symTable.builtinPos,
-                                           anonymousModelHelper.getNextAnonymousFunctionKey(diagnosticSource.pkgID));
+                                           anonymousModelHelper.getNextAnonymousFunctionKey(packageID));
 
         // Set the function body
         BLangBlockStmt blockStmt = (BLangBlockStmt) namedWorkerDeclNode.workerBody().apply(this);
@@ -2158,7 +2168,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangArrowFunction arrowFunction = (BLangArrowFunction) TreeBuilder.createArrowFunctionNode();
         arrowFunction.pos = getPosition(implicitAnonymousFunctionExpressionNode);
         arrowFunction.functionName = createIdentifier(arrowFunction.pos,
-                anonymousModelHelper.getNextAnonymousFunctionKey(diagnosticSource.pkgID));
+                anonymousModelHelper.getNextAnonymousFunctionKey(packageID));
         // TODO initialize other attributes
         // arrowFunction.funcType;
         // arrowFunction.function;
@@ -4335,7 +4345,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         String identifierName;
         if (token.isMissing()) {
-            identifierName = missingNodesHelper.getNextMissingNodeName(diagnosticSource.pkgID);
+            identifierName = missingNodesHelper.getNextMissingNodeName(packageID);
         } else {
             identifierName = token.text();
         }
@@ -4551,7 +4561,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             if (simpleNameRef.kind() == SyntaxKind.VAR_TYPE_DESC) {
                 return null;
             } else if (simpleNameRef.name().isMissing()) {
-                String name = missingNodesHelper.getNextMissingNodeName(diagnosticSource.pkgID);
+                String name = missingNodesHelper.getNextMissingNodeName(packageID);
                 BLangIdentifier identifier = createIdentifier(getPosition(simpleNameRef.name()), name);
                 BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
                 return createUserDefinedType(getPosition(type), pkgAlias, identifier);
@@ -5055,7 +5065,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         DiagnosticPos pos = getPosition(recordTypeDescriptorNode);
         // Generate a name for the anonymous object
-        String genName = anonymousModelHelper.getNextAnonymousTypeKey(this.diagnosticSource.pkgID);
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(this.packageID);
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName, null);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);

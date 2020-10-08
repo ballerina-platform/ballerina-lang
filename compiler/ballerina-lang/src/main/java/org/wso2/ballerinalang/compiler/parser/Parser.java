@@ -105,7 +105,7 @@ public class Parser {
         String entryName = sourceEntry.getEntryName();
         BLangCompilationUnit compilationUnit;
         SyntaxTree tree = sourceEntry.getTree();
-        reportSyntaxDiagnostics(diagnosticSource, tree);
+        reportSyntaxDiagnostics(entryName, packageID, tree);
 
         //TODO: Get hash and length from tree
         byte[] code = sourceEntry.getCode();
@@ -117,8 +117,10 @@ public class Parser {
             return compilationUnit;
         }
 
-        BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(this.context, diagnosticSource);
+        BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(this.context, diagnosticSource, packageID,
+                entryName);
         compilationUnit = (BLangCompilationUnit) bLangNodeTransformer.accept(tree.rootNode()).get(0);
+        compilationUnit.setPackageID(packageID);
         parserCache.put(packageID, entryName, hash, length, compilationUnit);
         // Node cloner will run for valid ASTs.
         // This will verify, any modification done to the AST will get handled properly.
@@ -141,6 +143,22 @@ public class Parser {
     private void reportSyntaxDiagnostics(BDiagnosticSource diagnosticSource, SyntaxTree tree) {
         for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
             dlog.logDiagnostic(diagnosticSource.pkgID, syntaxDiagnostic);
+        }
+    }
+
+    private void reportSyntaxDiagnostics(String cUnitName, PackageID pkgID, SyntaxTree tree) {
+        for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
+            // This conversion is needed because the compiler diagnostic locations starting index
+            // is 1, where as syntax diagnostics locations starting index is 0.
+            Location syntaxLocation = syntaxDiagnostic.location();
+            LineRange lineRange = syntaxLocation.lineRange();
+            LinePosition startLine = lineRange.startLine();
+            LinePosition endLine = lineRange.startLine();
+            Location location = new BLangDiagnosticLocation(cUnitName, startLine.line() + 1,
+                    endLine.line() + 1, startLine.offset() + 1, endLine.offset() + 1);
+            BLangDiagnostic diag =
+                    new BLangDiagnostic(location, syntaxDiagnostic.message(), syntaxDiagnostic.diagnosticInfo());
+            dlog.logDiagnostic(pkgID, diag);
         }
     }
 }

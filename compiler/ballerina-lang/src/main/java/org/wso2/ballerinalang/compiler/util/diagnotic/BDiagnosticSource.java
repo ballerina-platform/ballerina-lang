@@ -36,11 +36,13 @@ public class BDiagnosticSource implements Diagnostic.DiagnosticSource {
     }
 
     @Override
+    @Deprecated
     public String getPackageName() {
         return pkgID.name.value;
     }
 
     @Override
+    @Deprecated
     public String getPackageVersion() {
         return pkgID.version.value;
     }
@@ -69,8 +71,9 @@ public class BDiagnosticSource implements Diagnostic.DiagnosticSource {
 
     @Override
     public int compareTo(Diagnostic.DiagnosticSource diagnosticSource) {
-        String thisDiagnosticSourceString = getPackageName() + getPackageVersion() + getCompilationUnitName();
-        String otherDiagnosticSourceString = diagnosticSource.getPackageName() + diagnosticSource.getPackageVersion() +
+        String thisDiagnosticSourceString = pkgID.name.value + pkgID.version.value + getCompilationUnitName();
+        String otherDiagnosticSourceString = ((BDiagnosticSource) diagnosticSource).pkgID.name.value +
+                ((BDiagnosticSource) diagnosticSource).pkgID.getPackageVersion().value +
                 diagnosticSource.getCompilationUnitName();
         return thisDiagnosticSourceString.compareTo(otherDiagnosticSourceString);
     }

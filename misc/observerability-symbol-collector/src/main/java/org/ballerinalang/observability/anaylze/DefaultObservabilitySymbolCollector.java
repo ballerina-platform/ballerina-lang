@@ -171,8 +171,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
         SourceDirectory sourceDirectory = compilerContext.get(SourceDirectory.class);
         Path sourceRoot = sourceDirectory.getPath();
         String uri = sourceRoot.resolve(
-                Paths.get(SRC, cUnit.getPosition().getSource().cUnitName,
-                        cUnit.getPosition().getSource().cUnitName)).toUri().toString();
+                Paths.get(SRC, cUnit.getName(), cUnit.getName())).toUri().toString();
         cUnitASTHolder.setUri(uri);
         try {
             JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(cUnit, new HashMap<>(), visibleEPsByNode);
