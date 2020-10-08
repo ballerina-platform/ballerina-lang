@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.util;
+package io.ballerina.jvm.util;
 
 import java.io.PrintStream;
 

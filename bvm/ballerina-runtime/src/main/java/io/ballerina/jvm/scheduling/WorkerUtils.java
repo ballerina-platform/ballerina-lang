@@ -15,13 +15,13 @@
   *  specific language governing permissions and limitations
   *  under the License.
   */
- package org.ballerinalang.jvm.scheduling;
+ package io.ballerina.jvm.scheduling;
 
  import org.ballerinalang.jvm.TypeChecker;
- import org.ballerinalang.jvm.api.Types;
- import org.ballerinalang.jvm.values.ChannelDetails;
- import org.ballerinalang.jvm.values.ErrorValue;
- import org.ballerinalang.jvm.values.RefValue;
+ import io.ballerina.jvm.api.Types;
+ import io.ballerina.jvm.values.ChannelDetails;
+ import io.ballerina.jvm.values.ErrorValue;
+ import io.ballerina.jvm.values.RefValue;
 
  /**
   * Worker related utility methods for jBallerina runtime.

@@ -15,19 +15,16 @@
   *  specific language governing permissions and limitations
   *  under the License.
   */
- package org.ballerinalang.jvm.scheduling;
-
- import org.ballerinalang.jvm.TypeChecker;
- import org.ballerinalang.jvm.api.Types;
+ package io.ballerina.jvm.scheduling;
 
  /**
-  * WaitContext for Wait for any action.
+  * WaitContext for Wait for all action.
   *
   * @since 1.0.0
   */
- public class WaitAnyContext extends WaitContext {
+ public class WaitMultipleContext extends WaitContext {
 
-     WaitAnyContext(SchedulerItem schedulerItem) {
+     WaitMultipleContext(SchedulerItem schedulerItem) {
          super(schedulerItem);
      }
 
@@ -39,9 +36,6 @@
 
      @Override
      boolean waitCompleted(Object result) {
-         if (TypeChecker.checkIsType(result, Types.TYPE_ERROR)) {
-             return waitCount.decrementAndGet() == 0;
-         }
-         return true;
+         return waitCount.decrementAndGet() == 0;
      }
  }

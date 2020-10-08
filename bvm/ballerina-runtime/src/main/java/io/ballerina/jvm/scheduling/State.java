@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.scheduling;
+package io.ballerina.jvm.scheduling;
 
  /**
   * Maintains the Strand state.

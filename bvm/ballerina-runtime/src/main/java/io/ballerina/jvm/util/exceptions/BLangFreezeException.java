@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.jvm.util.exceptions;
+package io.ballerina.jvm.util.exceptions;
 // TODO: 4/28/20 rename
 /**
  * Represents an error that occurs in the Ballerina runtime, while attempting freezing a value.

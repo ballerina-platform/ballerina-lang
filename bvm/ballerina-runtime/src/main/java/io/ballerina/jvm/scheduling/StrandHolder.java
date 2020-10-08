@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.scheduling;
+package io.ballerina.jvm.scheduling;
 
 /**
  * Keeps a volatile reference to strand. only to be used from the Scheduler.

@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.jvm.util.exceptions;
+package io.ballerina.jvm.util.exceptions;
 
 /**
  * {@code BallerinaConnectorException} This current annotation value types.

@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.ballerinalang.jvm.util.exceptions;
+package io.ballerina.jvm.util.exceptions;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BString;
 
 import java.text.MessageFormat;
 import java.util.Locale;

@@ -15,18 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.scheduling;
+package io.ballerina.jvm.scheduling;
 
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.values.BError;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BError;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.values.ChannelDetails;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.values.ChannelDetails;
+import io.ballerina.jvm.values.ErrorValue;
+import io.ballerina.jvm.values.FutureValue;
+import io.ballerina.jvm.values.MapValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,10 +40,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.ballerinalang.jvm.scheduling.State.BLOCK_AND_YIELD;
-import static org.ballerinalang.jvm.scheduling.State.BLOCK_ON_AND_YIELD;
-import static org.ballerinalang.jvm.scheduling.State.RUNNABLE;
-import static org.ballerinalang.jvm.scheduling.State.YIELD;
+import static io.ballerina.jvm.scheduling.State.BLOCK_AND_YIELD;
+import static io.ballerina.jvm.scheduling.State.BLOCK_ON_AND_YIELD;
+import static io.ballerina.jvm.scheduling.State.RUNNABLE;
+import static io.ballerina.jvm.scheduling.State.YIELD;
 
 /**
  * Strand base class used with jvm code generation for functions.

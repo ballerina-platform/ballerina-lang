@@ -14,19 +14,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.scheduling;
+package io.ballerina.jvm.scheduling;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BError;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.connector.CallableUnitCallback;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BError;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.values.ChannelDetails;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.FutureValue;
+import io.ballerina.jvm.values.ChannelDetails;
+import io.ballerina.jvm.values.FPValue;
+import io.ballerina.jvm.values.FutureValue;
 
 import java.io.PrintStream;
 import java.util.Map;
@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static org.ballerinalang.jvm.scheduling.ItemGroup.POISON_PILL;
+import static io.ballerina.jvm.scheduling.ItemGroup.POISON_PILL;
 
 /**
  * Strand scheduler for JBallerina.

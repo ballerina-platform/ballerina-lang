@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.jvm.util.exceptions;
+package io.ballerina.jvm.util.exceptions;
 
 /**
  * Error codes and Error keys to represent the runtime errors.

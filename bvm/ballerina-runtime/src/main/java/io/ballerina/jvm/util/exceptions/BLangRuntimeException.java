@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.jvm.util.exceptions;
+package io.ballerina.jvm.util.exceptions;
 
 /**
  * {@code BallerinaRuntimeException} represents an error happened in the Ballerina runtime.

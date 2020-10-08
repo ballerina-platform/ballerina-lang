@@ -15,15 +15,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.util;
+package io.ballerina.jvm.util;
 
 import org.ballerinalang.jvm.TypeConverter;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.ErrorValue;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -35,8 +35,8 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
-import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
+import static io.ballerina.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
+import static io.ballerina.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
 
 /**
  * Util methods required for jBallerina runtime.

@@ -15,19 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.util.exceptions;
+package io.ballerina.jvm.util.exceptions;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BString;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static org.ballerinalang.jvm.util.BLangConstants.FUTURE_LANG_LIB;
-import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
-import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
-import static org.ballerinalang.jvm.util.BLangConstants.TYPEDESC_LANG_LIB;
-import static org.ballerinalang.jvm.util.BLangConstants.VALUE_LANG_LIB;
-import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.ARRAY_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.FUTURE_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.MAP_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.STRING_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.TABLE_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.TYPEDESC_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.VALUE_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.XML_LANG_LIB;
 
 /**
  * This is a temporary class for reasons for Ballerina errors from the VM either returned or causing panic.
