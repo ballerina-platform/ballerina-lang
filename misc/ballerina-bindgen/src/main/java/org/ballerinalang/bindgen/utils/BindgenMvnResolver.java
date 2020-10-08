@@ -122,7 +122,7 @@ public class BindgenMvnResolver {
             Platform platform = manifest.getPlatform();
             if (platform == null || (platform.target == null && platform.libraries == null)) {
                 fileWriter.write("\n\n[platform]\n");
-                fileWriter.write("target = \"java8\"\n");
+                fileWriter.write("target = \"java11\"\n");
             } else if (platform.getLibraries() != null) {
                 for (Library library : platform.getLibraries()) {
                     if (library.path == null && library.groupId != null && library.artifactId != null &&
