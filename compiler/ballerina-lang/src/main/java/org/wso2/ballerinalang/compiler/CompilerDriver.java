@@ -222,6 +222,7 @@ public class CompilerDriver {
             symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
+            symResolver.loadCloneableType();
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
@@ -233,6 +234,7 @@ public class CompilerDriver {
             symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
+            symResolver.loadCloneableType();
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
         }
 
@@ -245,7 +247,6 @@ public class CompilerDriver {
         // Now load each module.
         getLangModuleFromSource(langLib);
     }
-
     // Private methods
 
     private void compilePackageSymbol(BPackageSymbol packageSymbol) {

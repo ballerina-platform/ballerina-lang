@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.emit;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -31,13 +32,16 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.StringJoiner;
 
@@ -56,6 +60,7 @@ import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.getTypeName;
 class TypeEmitter {
 
     static final Map<String, BType> B_TYPES = new HashMap<>();
+    static LinkedHashSet<BType> visited = new LinkedHashSet<>();
 
     static String emitType(BType bType, int tabs) {
 
@@ -107,6 +112,8 @@ class TypeEmitter {
                 return emitBObjectType((BObjectType) bType, tabs);
             case TypeTags.MAP:
                 return emitBMapType((BMapType) bType, tabs);
+            case TypeTags.TABLE:
+                return emitTableType((BTableType) bType, tabs);
             case TypeTags.ERROR:
                 return emitBErrorType((BErrorType) bType, tabs);
             case TypeTags.FUTURE:
@@ -122,8 +129,44 @@ class TypeEmitter {
         }
     }
 
+    private static String emitTableType(BTableType bType, int tabs) {
+        boolean readonly = Symbols.isFlagOn(bType.flags, Flags.READONLY);
+        if (bType.constraint == null) {
+            return readonly ? bType.toString().concat(" & readonly") : bType.toString();
+        }
+        
+        if (!visited.add(bType.constraint)) {
+            return "...";
+        }
+
+        StringBuilder keyStringBuilder = new StringBuilder();
+        String stringRep;
+        if (bType.fieldNameList != null) {
+            for (String fieldName : bType.fieldNameList) {
+                if (!keyStringBuilder.toString().equals("")) {
+                    keyStringBuilder.append(", ");
+                }
+                keyStringBuilder.append(fieldName);
+            }
+            stringRep =
+                    bType.toString() + "<" + emitType(bType.constraint, tabs) + "> key(" + keyStringBuilder.toString() + ")";
+        } else {
+            stringRep = (bType.toString() + "<" + emitType(bType.constraint, tabs) + "> " +
+                    ((bType.keyTypeConstraint != null) ? ("key<" + emitType(bType.keyTypeConstraint, tabs) + ">") :
+                            "")).trim();
+        }
+
+        return readonly ? stringRep.concat(" & readonly") : stringRep;
+    }
+
     private static String emitBUnionType(BUnionType bType, int tabs) {
 
+        if (!visited.add(bType)) {
+            if ((bType.tsymbol != null) && !bType.tsymbol.getName().getValue().isEmpty()) {
+                return bType.tsymbol.getName().getValue();
+            }
+            return "...";
+        }
         StringBuilder unionStr = new StringBuilder();
         int length = bType.getMemberTypes().size();
         int i = 0;
@@ -132,12 +175,11 @@ class TypeEmitter {
                 unionStr.append(emitTypeRef(mType, tabs));
                 i += 1;
                 if (i < length) {
-                    unionStr.append(emitSpaces(1));
                     unionStr.append("|");
-                    unionStr.append(emitSpaces(1));
                 }
             }
         }
+        visited.clear();
         return unionStr.toString();
     }
 
@@ -196,7 +238,9 @@ class TypeEmitter {
     }
 
     private static String emitBArrayType(BArrayType bType, int tabs) {
-
+        if (!visited.add(bType.eType)) {
+            return "...";
+        }
         String arrStr = emitTypeRef(bType.eType, 0);
         arrStr += "[";
         if (bType.size > 0) {
@@ -289,6 +333,9 @@ class TypeEmitter {
     }
 
     private static String emitBMapType(BMapType bType, int tabs) {
+        if (!visited.add(bType.constraint)) {
+            return "...";
+        }
 
         String str = "map";
         str += "<";

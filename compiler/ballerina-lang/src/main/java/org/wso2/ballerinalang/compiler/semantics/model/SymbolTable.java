@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -737,7 +738,7 @@ public class SymbolTable {
         cloneableType.add(mapCloneableType);
         cloneableType.add(tableMapCloneableType);
         cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
-                cloneableType, rootPkgSymbol, builtinPos, BUILTIN);
+                cloneableType, langValueModuleSymbol, builtinPos, BUILTIN);
         cloneableReadonlyType = BUnionType.create(null, readonlyType, cloneableType);
 
         detailType = new BMapType(TypeTags.MAP, cloneableType, null);
@@ -784,11 +785,11 @@ public class SymbolTable {
         anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
 
         pureType = BUnionType.create(null, anydataType, errorType);
-//        streamType = new BStreamType(TypeTags.STREAM, pureType, null, null);
+        streamType = new BStreamType(TypeTags.STREAM, pureType, null, null);
         tableType = new BTableType(TypeTags.TABLE, pureType, null);
 
         initializeType(mapAnydataType, TypeKind.MAP.typeName(), BUILTIN);
-//        initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
+        initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
         initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
     }
 }

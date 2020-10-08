@@ -123,6 +123,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
+import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
@@ -923,27 +924,29 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
             symTable.cloneableType.tsymbol =
                     new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
-                            symTable.cloneableType, symTable.langAnnotationModuleSymbol, symTable.builtinPos, BUILTIN);
-            symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
+                            symTable.cloneableType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
+            entry.symbol.type = symTable.cloneableType;
             entry.symbol.origin = BUILTIN;
-//            symTable.errorType = new BErrorType(null, symTable.detailType);
-//            symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
-//                    symTable.rootPkgSymbol.pkgID, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos,
-//                    BUILTIN);
-//            symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
-//            symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
-//            symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
-//            symTable.arrayAllType = new BArrayType(symTable.anyOrErrorType);
-//            symTable.typeDesc.constraint = symTable.anyOrErrorType;
-//            symTable.futureType.constraint = symTable.anyOrErrorType;
-//
-//            symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
-//            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
-//            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
-//
-//            symTable.initializeType(symTable.mapAnydataType, TypeKind.MAP.typeName(), BUILTIN);
-//            symTable.initializeType(symTable.streamType, TypeKind.STREAM.typeName(), BUILTIN);
-//            symTable.initializeType(symTable.tableType, TypeKind.TABLE.typeName(), BUILTIN);
+            symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
+            symTable.errorType = new BErrorType(null, symTable.detailType);
+            symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
+                    PackageID.ERROR, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos,
+                    BUILTIN);
+
+            symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+            symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
+            symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
+            symTable.arrayAllType = new BArrayType(symTable.anyOrErrorType);
+            symTable.typeDesc.constraint = symTable.anyOrErrorType;
+            symTable.futureType.constraint = symTable.anyOrErrorType;
+
+            symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
+            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
+            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
+
+            symTable.initializeType(symTable.mapAnydataType, TypeKind.MAP.typeName(), BUILTIN);
+            symTable.initializeType(symTable.streamType, TypeKind.STREAM.typeName(), BUILTIN);
+            symTable.initializeType(symTable.tableType, TypeKind.TABLE.typeName(), BUILTIN);
 
             return;
         }

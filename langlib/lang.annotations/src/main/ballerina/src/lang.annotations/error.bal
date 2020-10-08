@@ -18,5 +18,5 @@
 type CloneableErrorDetail readonly|xml|CloneableErrorDetail[]|map<CloneableErrorDetail>|table<map<CloneableErrorDetail>>;
 
 # Default error type.
-# The type parameter is for the error detail type. It's constrained to anydata or readonly type.
+# The type parameter is for the error detail type. It's constrained to Cloneable type.
 public type 'error error<map<CloneableErrorDetail>>;
