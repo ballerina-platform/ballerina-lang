@@ -15,26 +15,26 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BStructureType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.jvm.values.TupleValueImpl;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.types.BField;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.types.BStructureType;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.DecimalValue;
+import io.ballerina.jvm.values.IteratorValue;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.jvm.values.TableValueImpl;
+import io.ballerina.jvm.values.TupleValueImpl;
 
 import java.io.IOException;
 import java.math.BigDecimal;

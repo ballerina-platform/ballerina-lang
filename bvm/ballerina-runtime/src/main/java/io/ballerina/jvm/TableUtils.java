@@ -15,23 +15,23 @@
  * under the License.
  */
 
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.TableValue;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.IteratorValue;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.RefValue;
+import io.ballerina.jvm.values.TableValue;
 
 import java.util.Map;
 
-import static org.ballerinalang.jvm.CycleUtils.Node;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR;
+import static io.ballerina.jvm.CycleUtils.Node;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR;
 
 /**
  * This class contains the utility methods required by the table implementation.

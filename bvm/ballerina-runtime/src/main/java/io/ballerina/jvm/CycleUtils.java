@@ -17,7 +17,7 @@
 
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.api.values.BLink;
+import io.ballerina.jvm.api.values.BLink;
 
 /**
  * This class contains the utility methods required for identifying cycles.

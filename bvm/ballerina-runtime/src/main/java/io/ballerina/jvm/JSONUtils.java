@@ -18,33 +18,33 @@
 
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.TypeConstants;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BJSONType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BStructureType;
-import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.TypeConstants;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.types.BField;
+import io.ballerina.jvm.types.BJSONType;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.types.BStructureType;
+import io.ballerina.jvm.types.BUnionType;
+import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.DecimalValue;
+import io.ballerina.jvm.values.ErrorValue;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.jvm.values.RefValue;
+import io.ballerina.jvm.values.TableValueImpl;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -52,11 +52,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JSON_OPERATION_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.jvm.util.BLangConstants.MAP_LANG_LIB;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.JSON_OPERATION_ERROR;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for JSON manipulation.

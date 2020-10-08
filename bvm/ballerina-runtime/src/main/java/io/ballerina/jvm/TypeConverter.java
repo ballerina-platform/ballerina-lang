@@ -15,31 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.commons.TypeValuePair;
-import org.ballerinalang.jvm.internal.ErrorUtils;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BTableType;
-import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.commons.TypeValuePair;
+import io.ballerina.jvm.internal.ErrorUtils;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.types.BField;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.types.BRecordType;
+import io.ballerina.jvm.types.BTableType;
+import io.ballerina.jvm.types.BUnionType;
+import io.ballerina.jvm.util.Flags;
+import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.DecimalValue;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.MapValueImpl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -49,17 +49,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import static org.ballerinalang.jvm.TypeChecker.checkIsLikeType;
-import static org.ballerinalang.jvm.TypeChecker.isCharLiteralValue;
-import static org.ballerinalang.jvm.TypeChecker.isSigned16LiteralValue;
-import static org.ballerinalang.jvm.TypeChecker.isSigned32LiteralValue;
-import static org.ballerinalang.jvm.TypeChecker.isSigned8LiteralValue;
-import static org.ballerinalang.jvm.TypeChecker.isUnsigned16LiteralValue;
-import static org.ballerinalang.jvm.TypeChecker.isUnsigned32LiteralValue;
-import static org.ballerinalang.jvm.TypeChecker.isUnsigned8LiteralValue;
-import static org.ballerinalang.jvm.util.BLangConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
-import static org.ballerinalang.jvm.util.BLangConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
-import static org.ballerinalang.jvm.values.DecimalValue.isDecimalWithinIntRange;
+import static io.ballerina.jvm.TypeChecker.checkIsLikeType;
+import static io.ballerina.jvm.TypeChecker.isCharLiteralValue;
+import static io.ballerina.jvm.TypeChecker.isSigned16LiteralValue;
+import static io.ballerina.jvm.TypeChecker.isSigned32LiteralValue;
+import static io.ballerina.jvm.TypeChecker.isSigned8LiteralValue;
+import static io.ballerina.jvm.TypeChecker.isUnsigned16LiteralValue;
+import static io.ballerina.jvm.TypeChecker.isUnsigned32LiteralValue;
+import static io.ballerina.jvm.TypeChecker.isUnsigned8LiteralValue;
+import static io.ballerina.jvm.util.BLangConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
+import static io.ballerina.jvm.util.BLangConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
+import static io.ballerina.jvm.values.DecimalValue.isDecimalWithinIntRange;
 
 /**
  * Provides utils methods for casting, stamping and conversion of values.

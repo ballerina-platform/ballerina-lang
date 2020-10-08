@@ -17,20 +17,20 @@
  */
 package org.ballerinalang.jvm.services;
 
-import org.ballerinalang.jvm.annotation.JavaSPIService;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
+import io.ballerina.jvm.annotation.JavaSPIService;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.services.spi.EmbeddedExecutor;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.util.ArgumentParser;
-import org.ballerinalang.jvm.util.RuntimeUtils;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FutureValue;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.util.ArgumentParser;
+import io.ballerina.jvm.util.RuntimeUtils;
+import io.ballerina.jvm.util.exceptions.BLangRuntimeException;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ErrorValue;
+import io.ballerina.jvm.values.FutureValue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -116,10 +116,10 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
+                if (t instanceof io.ballerina.jvm.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
+                if (t instanceof io.ballerina.jvm.util.exceptions.BallerinaConnectorException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {
@@ -175,10 +175,10 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
+                if (t instanceof io.ballerina.jvm.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
+                if (t instanceof io.ballerina.jvm.util.exceptions.BallerinaConnectorException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {
@@ -225,10 +225,10 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
+                if (t instanceof io.ballerina.jvm.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
+                if (t instanceof io.ballerina.jvm.util.exceptions.BallerinaConnectorException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {

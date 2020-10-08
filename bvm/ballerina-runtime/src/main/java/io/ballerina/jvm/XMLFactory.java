@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
 import org.apache.axiom.om.DeferredParsingException;
 import org.apache.axiom.om.OMAbstractFactory;
@@ -23,20 +23,20 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.util.StAXParserConfiguration;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.jvm.values.XMLComment;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLPi;
-import org.ballerinalang.jvm.values.XMLQName;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLText;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.values.TableValueImpl;
+import io.ballerina.jvm.values.XMLComment;
+import io.ballerina.jvm.values.XMLItem;
+import io.ballerina.jvm.values.XMLPi;
+import io.ballerina.jvm.values.XMLQName;
+import io.ballerina.jvm.values.XMLSequence;
+import io.ballerina.jvm.values.XMLText;
+import io.ballerina.jvm.values.XMLValue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -55,7 +55,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import static org.ballerinalang.jvm.values.XMLItem.createXMLItemWithDefaultNSAttribute;
+import static io.ballerina.jvm.values.XMLItem.createXMLItemWithDefaultNSAttribute;
 
 /**
  * Common utility methods used for XML manipulation.
@@ -193,9 +193,9 @@ public class XMLFactory {
     }
 
     /**
-     * Converts a {@link org.ballerinalang.jvm.values.TableValue} to {@link XMLValue}.
+     * Converts a {@link io.ballerina.jvm.values.TableValue} to {@link XMLValue}.
      *
-     * @param table {@link org.ballerinalang.jvm.values.TableValue} to convert
+     * @param table {@link io.ballerina.jvm.values.TableValue} to convert
      * @return converted {@link XMLValue}
      */
     public static XMLValue tableToXML(TableValueImpl table) {

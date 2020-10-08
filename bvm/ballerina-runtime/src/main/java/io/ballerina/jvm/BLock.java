@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.scheduling.State;
-import org.ballerinalang.jvm.scheduling.Strand;
+import io.ballerina.jvm.scheduling.State;
+import io.ballerina.jvm.scheduling.Strand;
 
 import java.util.ArrayDeque;
 

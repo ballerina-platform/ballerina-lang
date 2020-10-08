@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
 
 /**
  * Common utility methods used for arithmatic operations.

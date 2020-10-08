@@ -14,11 +14,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.XMLQName;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.values.XMLQName;
 
 /**
  * This class defines the basic set of utility methods to validate XML.

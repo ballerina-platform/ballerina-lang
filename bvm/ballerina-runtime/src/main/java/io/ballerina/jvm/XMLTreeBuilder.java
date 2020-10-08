@@ -15,19 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.XMLComment;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLPi;
-import org.ballerinalang.jvm.values.XMLQName;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.XMLComment;
+import io.ballerina.jvm.values.XMLItem;
+import io.ballerina.jvm.values.XMLPi;
+import io.ballerina.jvm.values.XMLQName;
+import io.ballerina.jvm.values.XMLSequence;
+import io.ballerina.jvm.values.XMLValue;
 
 import java.io.Reader;
 import java.io.StringReader;

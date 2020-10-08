@@ -15,29 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.BField;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.types.BRecordType;
+import io.ballerina.jvm.util.Flags;
+import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.jvm.values.MapValue;
 
 import java.util.Map;
 
-import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.jvm.util.BLangConstants.MAP_LANG_LIB;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for MapValue insertion/manipulation.

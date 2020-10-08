@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
 /**
  * Type of nodes a BXML represents.

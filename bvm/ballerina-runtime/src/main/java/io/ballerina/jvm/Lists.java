@@ -17,11 +17,11 @@
  *
  */
 
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.values.ArrayValue;
 
 /**
  * Common utility methods used for List manipulation.
