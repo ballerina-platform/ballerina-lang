@@ -19,10 +19,10 @@
 package org.ballerinalang.stdlib.file.nativeimpl;
 
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -56,7 +56,7 @@ public class Utils {
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
     private static final String CURRENT_DIR_PROPERTY_KEY = "user.dir";
     private static final String TEMP_DIR_PROPERTY_KEY = "java.io.tmpdir";
-    private static BType fileInfoType;
+    private static Type fileInfoType;
 
     public static BString getCurrentDirectory() {
         return BStringUtils.fromString(FileUtils.getSystemProperty(CURRENT_DIR_PROPERTY_KEY));

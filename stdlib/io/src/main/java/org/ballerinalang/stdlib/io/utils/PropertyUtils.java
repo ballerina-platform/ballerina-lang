@@ -20,10 +20,10 @@ package org.ballerinalang.stdlib.io.utils;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MappingInitialValueEntry;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ import java.util.Set;
  */
 public class PropertyUtils {
     private static final Logger log = LoggerFactory.getLogger(PropertyUtils.class);
-    private static final BMapType mapType = new BMapType(BTypes.typeString);
+    private static final BMapType mapType = new BMapType(Types.TYPE_STRING);
     private static Map<String, Properties> propertiesMap = new HashMap<>();
 
     // Read a property related to a given key and return the BString value.

@@ -21,12 +21,12 @@ package org.ballerinalang.langlib.array;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -61,7 +61,7 @@ public class Sort {
     public static ArrayValue sort(Strand strand, ArrayValue arr, Object direction, Object func) {
         checkIsArrayOnlyOperation(arr.getType(), "sort()");
         FPValue<Object, Object> function = (FPValue<Object, Object>) func;
-        BType elemType = ((BArrayType) arr.getType()).getElementType();
+        Type elemType = ((BArrayType) arr.getType()).getElementType();
         boolean isAscending = true;
         if (direction.toString().equals("descending")) {
             isAscending = false;
@@ -77,7 +77,7 @@ public class Sort {
                 // Get the type of the sortArr elements when there is an arrow expression as the key function
                 if (!elementTypeIdentified && elemType.getTag() == TypeTags.UNION_TAG &&
                         ((BUnionType) elemType).getMemberTypes().size() > 2) {
-                    BType sortArrElemType = TypeChecker.getType(sortArr[i][0]);
+                    Type sortArrElemType = TypeChecker.getType(sortArr[i][0]);
                     if (sortArrElemType.getTag() != TypeTags.NULL_TAG) {
                         elemType = sortArrElemType;
                         elementTypeIdentified = true;
@@ -95,9 +95,9 @@ public class Sort {
             elemType = getMemberType((BUnionType) elemType);
         }
         if (elemType.getTag() == TypeTags.ARRAY_TAG) {
-            BType type = ((BArrayType) elemType).getElementType();
+            Type type = ((BArrayType) elemType).getElementType();
             if (type.getTag() == TypeTags.UNION_TAG) {
-                BType memberType = getMemberType((BUnionType) type);
+                Type memberType = getMemberType((BUnionType) type);
                 elemType = new BArrayType(memberType);
             }
         }
@@ -111,9 +111,9 @@ public class Sort {
         return arr;
     }
 
-    private static BType getMemberType(BUnionType unionType) {
-        List<BType> memberTypes = unionType.getMemberTypes();
-        for (BType type : memberTypes) {
+    private static Type getMemberType(BUnionType unionType) {
+        List<Type> memberTypes = unionType.getMemberTypes();
+        for (Type type : memberTypes) {
             if (type.getTag() != TypeTags.NULL_TAG) {
                 return type;
             }
@@ -122,7 +122,7 @@ public class Sort {
     }
 
     // Adapted from https://algs4.cs.princeton.edu/22mergesort/Merge.java.html
-    private static void mergesort(Object[][] input, Object[][] aux, int lo, int hi, boolean isAscending, BType type) {
+    private static void mergesort(Object[][] input, Object[][] aux, int lo, int hi, boolean isAscending, Type type) {
         if (hi <= lo) {
             return;
         }
@@ -136,7 +136,7 @@ public class Sort {
     }
 
     private static void merge(Object[][] input, Object[][] aux, int lo, int mid, int hi, boolean isAscending,
-                              BType type) {
+                              Type type) {
         if (hi + 1 - lo >= 0) {
             System.arraycopy(input, lo, aux, lo, hi + 1 - lo);
         }
@@ -158,7 +158,7 @@ public class Sort {
         }
     }
 
-    private static int sortFunc(Object value1, Object value2, BType type, boolean isAscending) {
+    private static int sortFunc(Object value1, Object value2, Type type, boolean isAscending) {
         // () should come last irrespective of the sort direction.
         if (value1 == null) {
             if (value2 == null) {

@@ -19,10 +19,10 @@
 package org.ballerinalang.net.http.nativeimpl;
 
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.net.http.HttpUtil;
@@ -38,7 +38,7 @@ import java.util.TreeSet;
  */
 public class ExternPushPromise {
 
-    private static final BArrayType bArrayType = new BArrayType(BTypes.typeHandle);
+    private static final BArrayType bArrayType = new BArrayType(Types.TYPE_HANDLE);
 
     public static void addHeader(BObject pushPromiseObj, BString headerName, BString headerValue) {
         Http2PushPromise http2PushPromise =

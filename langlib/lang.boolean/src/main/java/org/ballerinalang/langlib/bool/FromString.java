@@ -19,9 +19,9 @@
 package org.ballerinalang.langlib.bool;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.model.types.TypeKind;
@@ -56,7 +56,7 @@ public class FromString {
         } else {
             BString reason = getModulePrefixedReason(BOOLEAN_LANG_LIB, BOOLEAN_PARSING_ERROR_IDENTIFIER);
             BString msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                                              BTypes.typeString, s, BTypes.typeBoolean);
+                                                               Types.TYPE_STRING, s, Types.TYPE_BOOLEAN);
             return BErrorCreator.createError(reason, msg);
         }
     }

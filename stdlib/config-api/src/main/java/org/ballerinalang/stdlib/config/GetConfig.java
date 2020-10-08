@@ -22,12 +22,12 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MappingInitialValueEntry;
 
 import java.util.List;
@@ -40,8 +40,8 @@ import java.util.Map;
  */
 public class GetConfig {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    private static final BMapType mapType = new BMapType(BTypes.typeAnydata, true);
-    private static final BArrayType arrayType = new BArrayType(BTypes.typeAnydata, -1, true);
+    private static final BMapType mapType = new BMapType(Types.TYPE_ANYDATA, true);
+    private static final BArrayType arrayType = new BArrayType(Types.TYPE_ANYDATA, -1, true);
 
     public static Object get(BString configKey, BString type) {
         try {

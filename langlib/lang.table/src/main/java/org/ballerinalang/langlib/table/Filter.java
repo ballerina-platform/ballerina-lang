@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.table;
 
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BTableType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
@@ -54,7 +54,7 @@ public class Filter {
                                                                       TABLE_VERSION, "filter");
 
     public static TableValueImpl filter(Strand strand, TableValueImpl tbl, FPValue<Object, Boolean> func) {
-        BType newTableType = tbl.getType();
+        Type newTableType = tbl.getType();
         TableValueImpl newTable = new TableValueImpl((BTableType) newTableType);
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);

@@ -28,14 +28,14 @@ import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.BalFuture;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -260,7 +260,7 @@ public class WebSocketUtil {
         return getWebSocketException(message, null, errorCode, cause);
     }
 
-    private static BError createErrorCause(String message, String errorIdName, BPackage packageName) {
+    private static BError createErrorCause(String message, String errorIdName, Module packageName) {
         return BErrorCreator.createDistinctError(errorIdName, packageName, BStringUtils.fromString(message));
     }
 
@@ -551,7 +551,7 @@ public class WebSocketUtil {
                                                                      BMap<BString, Object> clientEndpointConfig) {
         Object clientService = clientEndpointConfig.get(WebSocketConstants.CLIENT_SERVICE_CONFIG);
         if (clientService != null) {
-            BType param = ((BObject) clientService).getType().getAttachedFunctions()[0].getParameterType()[0];
+            Type param = ((BObject) clientService).getType().getAttachedFunctions()[0].getParameterType()[0];
             if (param == null || !(WebSocketConstants.WEBSOCKET_CLIENT_NAME.equals(param.toString()) ||
                     WEBSOCKET_FAILOVER_CLIENT_NAME.equals(param.toString()))) {
                 throw WebSocketUtil.getWebSocketException("The callback service should be a WebSocket Client Service",

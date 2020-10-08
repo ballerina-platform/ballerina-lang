@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.TupleValueImpl;
@@ -53,20 +53,20 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 public class Enumerate {
 
     public static ArrayValue enumerate(Strand strand, ArrayValue arr) {
-        BType arrType = arr.getType();
+        Type arrType = arr.getType();
         int size = arr.size();
         BTupleType elemType;
         GetFunction getFn;
 
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                elemType = new BTupleType(Arrays.asList(BTypes.typeInt, arr.getElementType()));
+                elemType = new BTupleType(Arrays.asList(Types.TYPE_INT, arr.getElementType()));
                 getFn = ArrayValue::get;
                 break;
             case TypeTags.TUPLE_TAG:
                 BTupleType tupleType = (BTupleType) arrType;
                 BUnionType tupElemType = new BUnionType(tupleType.getTupleTypes(), tupleType.getTypeFlags());
-                elemType = new BTupleType(Arrays.asList(BTypes.typeInt, tupElemType));
+                elemType = new BTupleType(Arrays.asList(Types.TYPE_INT, tupElemType));
                 getFn = ArrayValue::getRefValue;
                 break;
             default:

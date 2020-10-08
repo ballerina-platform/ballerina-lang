@@ -20,6 +20,8 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.observability.metrics.Counter;
@@ -33,8 +35,6 @@ import org.ballerinalang.jvm.observability.metrics.Tag;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
@@ -60,7 +60,7 @@ import java.util.Set;
 )
 public class GetAllMetrics {
 
-    private static final BType METRIC_TYPE = BValueCreator
+    private static final Type METRIC_TYPE = BValueCreator
             .createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.METRIC)
             .getType();
 
@@ -105,7 +105,7 @@ public class GetAllMetrics {
     }
 
     private static MapValue<BString, Object> getTags(MetricId metricId) {
-        MapValue<BString, Object> bTags = new MapValueImpl<>(new BMapType(BTypes.typeString));
+        MapValue<BString, Object> bTags = new MapValueImpl<>(new BMapType(Types.TYPE_STRING));
         Set<Tag> tags = metricId.getTags();
         for (Tag tag : tags) {
             bTags.put(BStringUtils.fromString(tag.getKey()), BStringUtils.fromString(tag.getValue()));

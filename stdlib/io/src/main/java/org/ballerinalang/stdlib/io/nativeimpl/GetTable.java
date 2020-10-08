@@ -20,13 +20,13 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -80,7 +80,7 @@ public class GetTable {
     }
 
     private static TableValue getTable(TypedescValue typedescValue, ArrayValue key, List<String[]> records) {
-        BType describingType = typedescValue.getDescribingType();
+        Type describingType = typedescValue.getDescribingType();
         BTableType newTableType;
         if (key.size() == 0) {
             newTableType = new BTableType(describingType, false);
@@ -120,7 +120,7 @@ public class GetTable {
                             populateRecord(type, struct, fieldName, value);
                             break;
                         case TypeTags.UNION_TAG:
-                            List<BType> members = ((BUnionType) internalStructField.getFieldType()).getMemberTypes();
+                            List<Type> members = ((BUnionType) internalStructField.getFieldType()).getMemberTypes();
                             if (members.get(0).getTag() == TypeTags.NULL_TAG) {
                                 populateRecord(members.get(1).getTag(), struct, fieldName, value);
                             } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {

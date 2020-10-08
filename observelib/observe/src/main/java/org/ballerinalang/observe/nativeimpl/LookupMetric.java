@@ -20,6 +20,7 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
@@ -33,7 +34,6 @@ import org.ballerinalang.jvm.observability.metrics.Tag;
 import org.ballerinalang.jvm.observability.metrics.Tags;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -100,7 +100,7 @@ public class LookupMetric {
     }
 
     private static BMap<BString, Object> getTags(MetricId metricId) {
-        BMap<BString, Object> bTags = BValueCreator.createMapValue(new BMapType(BTypes.typeString));
+        BMap<BString, Object> bTags = BValueCreator.createMapValue(new BMapType(Types.TYPE_STRING));
         Set<Tag> tags = metricId.getTags();
         for (Tag tag : tags) {
             bTags.put(BStringUtils.fromString(tag.getKey()), BStringUtils.fromString(tag.getValue()));

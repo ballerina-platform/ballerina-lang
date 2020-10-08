@@ -20,11 +20,12 @@ package org.ballerinalang.stdlib.task.utils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Appointment;
@@ -130,8 +131,8 @@ public class Utils {
         }
     }
 
-    private static void validateOnTriggerResource(BType returnParameterType) throws SchedulingException {
-        if (returnParameterType != org.ballerinalang.jvm.types.BTypes.typeNull) {
+    private static void validateOnTriggerResource(Type returnParameterType) throws SchedulingException {
+        if (returnParameterType != Types.TYPE_NULL) {
             throw new SchedulingException(
                     "Invalid resource function signature: \'" + RESOURCE_ON_TRIGGER + "\' should not return a value.");
         }

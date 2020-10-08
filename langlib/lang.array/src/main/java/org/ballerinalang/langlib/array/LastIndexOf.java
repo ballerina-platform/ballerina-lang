@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.utils.GetFunction;
 import org.ballerinalang.model.types.TypeKind;
@@ -46,7 +46,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 public class LastIndexOf {
 
     public static Object lastIndexOf(Strand strand, ArrayValue arr, Object val, long startIndex) {
-        BType arrType = arr.getType();
+        Type arrType = arr.getType();
         int size = arr.size();
         GetFunction getFn = getElementAccessFunction(arrType, "lastIndexOf()");
 

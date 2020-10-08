@@ -19,9 +19,9 @@
 package org.ballerinalang.net.http.caching;
 
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 
@@ -51,7 +51,7 @@ public class ResponseCacheControlObj {
 
     private BObject responseCacheControl;
 
-    public ResponseCacheControlObj(BPackage bPackage, String objectTypeName) {
+    public ResponseCacheControlObj(Module bPackage, String objectTypeName) {
         responseCacheControl = BValueCreator.createObjectValue(bPackage, objectTypeName);
         init();
     }

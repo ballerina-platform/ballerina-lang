@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.file.utils;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
@@ -92,13 +93,13 @@ public class FileUtils {
      * Returns the system property which corresponds to the given key.
      *
      * @param key system property key
-     * @return system property as a {@link String} or {@code BTypes.typeString.getZeroValue()} if the property does not
+     * @return system property as a {@link String} or {@code Types.typeString.getZeroValue()} if the property does not
      * exist.
      */
     public static String getSystemProperty(String key) {
         String value = System.getProperty(key);
         if (value == null) {
-            return org.ballerinalang.jvm.types.BTypes.typeString.getZeroValue();
+            return Types.TYPE_STRING.getZeroValue();
         }
         return value;
     }

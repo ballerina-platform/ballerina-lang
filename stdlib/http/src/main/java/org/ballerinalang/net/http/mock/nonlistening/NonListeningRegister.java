@@ -18,10 +18,10 @@
 
 package org.ballerinalang.net.http.mock.nonlistening;
 
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
@@ -38,7 +38,7 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
-        BType param;
+        Type param;
         AttachedFunction[] resourceList = service.getType().getAttachedFunctions();
         if (resourceList.length > 0 && (param = resourceList[0].getParameterType()[0]) != null) {
             String callerType = param.getName();

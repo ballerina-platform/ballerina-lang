@@ -21,9 +21,9 @@ package org.ballerinalang.langlib.map;
 import org.ballerinalang.jvm.MapUtils;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -48,7 +48,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 public class Remove {
 
     public static Object remove(Strand strand, MapValue<?, ?> m, BString k) {
-        BType type = m.getType();
+        Type type = m.getType();
 
         checkIsMapOnlyOperation(type, REMOVE);
         MapUtils.validateRequiredFieldForRecord(m, k.getValue());

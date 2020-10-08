@@ -16,8 +16,8 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
+import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
@@ -50,7 +50,7 @@ public class LLVMStructCreateNamed {
             String name) {
         LLVMContextRef cRef = (LLVMContextRef) FFIUtil.getRecodeArgumentNative(c);
         LLVMTypeRef returnValue = LLVMStructCreateNamed(cRef, name);
-        MapValue<String, Object> returnWrappedValue = FFIUtil.newRecord(new BPackage("ballerina",
+        MapValue<String, Object> returnWrappedValue = FFIUtil.newRecord(new Module("ballerina",
                 "llvm"), "LLVMTypeRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedValue);
         return returnWrappedValue;

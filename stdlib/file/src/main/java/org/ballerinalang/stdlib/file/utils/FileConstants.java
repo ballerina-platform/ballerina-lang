@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.file.utils;
 
-import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.api.runtime.Module;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
@@ -46,8 +46,8 @@ public class FileConstants {
     /**
      * Package path.
      */
-    public static final BPackage FILE_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME,
-                                                                PACKAGE_VERSION);
+    public static final Module FILE_PACKAGE_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME,
+                                                            PACKAGE_VERSION);
     static final String FILE_INFO_TYPE = "FileInfo";
 
     // File error type IDs

@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.map.util;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeTags;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,7 +38,7 @@ import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
  */
 public class MapLibUtils {
 
-    public static BType getFieldType(BType mapType, String funcName) {
+    public static Type getFieldType(Type mapType, String funcName) {
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 return ((BMapType) mapType).getConstrainedType();
@@ -49,8 +49,8 @@ public class MapLibUtils {
         }
     }
 
-    public static BType getCommonTypeForRecordField(BRecordType recordType) {
-        LinkedHashSet<BType> typeSet = new LinkedHashSet<>();
+    public static Type getCommonTypeForRecordField(BRecordType recordType) {
+        LinkedHashSet<Type> typeSet = new LinkedHashSet<>();
         Collection<BField> fields = (recordType.getFields().values());
 
         for (BField f : fields) {

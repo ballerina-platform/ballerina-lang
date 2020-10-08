@@ -19,9 +19,9 @@ package org.ballerinalang.test.annotations;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.AnnotatableType;
-import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.types.BAnnotatableType;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -144,7 +144,7 @@ public class AnnotationRuntimeTest {
 
         TupleValueImpl tupleValue = (TupleValueImpl) obj;
 
-        AnnotatableType annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(0)).getDescribingType();
+        BAnnotatableType annotatableType = (BAnnotatableType) ((TypedescValue) tupleValue.get(0)).getDescribingType();
         Assert.assertEquals(annotatableType.getAnnotation(BStringUtils.fromString("W")), true);
 
         Object fieldAnnots = annotatableType.getAnnotation(BStringUtils.fromString("$field$.i"));
@@ -162,7 +162,7 @@ public class AnnotationRuntimeTest {
         Assert.assertEquals(mapValue.size(), 1);
         Assert.assertEquals(mapValue.get(BStringUtils.fromString("p")), 2L);
 
-        annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(1)).getDescribingType();
+        annotatableType = (BAnnotatableType) ((TypedescValue) tupleValue.get(1)).getDescribingType();
         Assert.assertEquals(annotatableType.getAnnotation(BStringUtils.fromString("W")), true);
         fieldAnnots = annotatableType.getAnnotation(BStringUtils.fromString("$field$.j"));
         Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), TypeTags.MAP_TAG);

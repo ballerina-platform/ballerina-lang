@@ -18,11 +18,11 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.utils.GetFunction;
@@ -57,7 +57,7 @@ public class Reduce {
                                                                       ARRAY_VERSION, "reduce");
 
     public static Object reduce(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func, Object initial) {
-        BType arrType = arr.getType();
+        Type arrType = arr.getType();
         int size = arr.size();
         GetFunction getFn = getElementAccessFunction(arrType, "reduce()");
         AtomicReference<Object> accum = new AtomicReference<>(initial);

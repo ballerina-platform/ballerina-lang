@@ -23,6 +23,10 @@ import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.BalEnv;
 import org.ballerinalang.jvm.api.BalFuture;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BDecimal;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BFuture;
@@ -31,12 +35,8 @@ import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.api.values.BTypedesc;
 import org.ballerinalang.jvm.api.values.BXML;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -70,10 +70,10 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class StaticMethods {
 
-    private static final BArrayType intArrayType = new BArrayType(BTypes.typeInt);
-    private static final BArrayType jsonArrayType = new BArrayType(BTypes.typeJSON);
+    private static final BArrayType intArrayType = new BArrayType(Types.TYPE_INT);
+    private static final BArrayType jsonArrayType = new BArrayType(Types.TYPE_JSON);
     private static final BTupleType tupleType = new BTupleType(
-            Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
+            Arrays.asList(Types.TYPE_INT, Types.TYPE_FLOAT, Types.TYPE_STRING, Types.TYPE_INT, Types.TYPE_STRING));
 
     private StaticMethods() {
     }
@@ -132,7 +132,7 @@ public class StaticMethods {
     }
 
     public static BError acceptStringErrorReturn(BString msg) {
-        return BErrorCreator.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
+        return BErrorCreator.createError(msg, new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
     }
 
     public static Object acceptIntUnionReturn(int flag) {
@@ -254,7 +254,7 @@ public class StaticMethods {
 
     public static BError acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
             throws JavaInteropTestCheckedException {
-        return BErrorCreator.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
+        return BErrorCreator.createError(msg, new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
     }
 
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
@@ -287,12 +287,12 @@ public class StaticMethods {
             throws JavaInteropTestCheckedException {
         BString finalBasePath = BStringUtils.fromString("basePath");
         AtomicLong runCount = new AtomicLong(0L);
-        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BValueCreator.createRecordValue(new BPackage(
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BValueCreator.createRecordValue(new Module(
                 "", "."), "ResourceDefinition").getType()));
-        BMap apiDefinitions = BValueCreator.createRecordValue(new BPackage("",
-                                                                           "."), "ApiDefinition");
-        BMap resource = BValueCreator.createRecordValue(new BPackage("",
-                                                                             "."), "ResourceDefinition");
+        BMap apiDefinitions = BValueCreator.createRecordValue(new Module("",
+                                                                         "."), "ApiDefinition");
+        BMap resource = BValueCreator.createRecordValue(new Module("",
+                                                                   "."), "ResourceDefinition");
         resource.put(BStringUtils.fromString("path"), finalBasePath);
         resource.put(BStringUtils.fromString("method"), BStringUtils.fromString("Method string"));
         arrayValue.add(runCount.getAndIncrement(), resource);
@@ -304,10 +304,10 @@ public class StaticMethods {
         String name = null;
         String type = null;
         try {
-            return new TupleValueImpl(new String[]{name, type}, new BTupleType(new ArrayList<BType>() {
+            return new TupleValueImpl(new String[]{name, type}, new BTupleType(new ArrayList<Type>() {
                 {
-                    add(BTypes.typeString);
-                    add(BTypes.typeString);
+                    add(Types.TYPE_STRING);
+                    add(Types.TYPE_STRING);
                 }
             }));
         } catch (BallerinaException e) {
@@ -362,13 +362,13 @@ public class StaticMethods {
     }
 
     public static Object getJson() {
-        MapValueImpl<BString, Object> map = new MapValueImpl<>(BTypes.typeJSON);
+        MapValueImpl<BString, Object> map = new MapValueImpl<>(Types.TYPE_JSON);
         map.put(BStringUtils.fromString("name"), BStringUtils.fromString("John"));
         return map;
     }
 
     public static MapValueImpl<BString, Object> getJsonObject() {
-        MapValueImpl<BString, Object> map = new MapValueImpl<>(BTypes.typeJSON);
+        MapValueImpl<BString, Object> map = new MapValueImpl<>(Types.TYPE_JSON);
         map.put(BStringUtils.fromString("name"), BStringUtils.fromString("Doe"));
         return map;
     }
@@ -426,8 +426,8 @@ public class StaticMethods {
         }
 
         return new ArrayValueImpl(new BArrayType(new BUnionType(new ArrayList(2) {{
-            add(BTypes.typeInt);
-            add(BTypes.typeString);
+            add(Types.TYPE_INT);
+            add(Types.TYPE_STRING);
         }}), length, true), length, entries);
     }
 
@@ -488,7 +488,7 @@ public class StaticMethods {
     }
 
     public static Object acceptAndReturnReadOnly(Object value) {
-        BType type = TypeChecker.getType(value);
+        Type type = TypeChecker.getType(value);
 
         switch (type.getTag()) {
             case TypeTags.INT_TAG:

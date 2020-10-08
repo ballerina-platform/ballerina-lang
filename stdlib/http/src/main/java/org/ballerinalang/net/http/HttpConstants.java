@@ -19,9 +19,9 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BPackage;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
@@ -462,8 +462,8 @@ public class HttpConstants {
 
     public static final String PROTOCOL_PACKAGE_HTTP =
             PACKAGE + ORG_NAME_SEPARATOR + PROTOCOL_HTTP + COLON + HTTP_MODULE_VERSION;
-    public static final BPackage PROTOCOL_HTTP_PKG_ID =
-            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_HTTP, HTTP_MODULE_VERSION);
+    public static final Module PROTOCOL_HTTP_PKG_ID =
+            new Module(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_HTTP, HTTP_MODULE_VERSION);
     public static final String HTTP_CALLER_NAME = PROTOCOL_PACKAGE_HTTP + COLON + CALLER;
 
     public static final String ON_MESSAGE_RESOURCE = "onMessage";

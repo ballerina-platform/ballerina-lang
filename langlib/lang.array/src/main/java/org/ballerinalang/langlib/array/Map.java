@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FPValue;
@@ -59,13 +59,13 @@ public class Map {
                                                                       ARRAY_VERSION, "map");
 
     public static ArrayValue map(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
-        BType elemType = ((BFunctionType) func.getType()).retType;
-        BType retArrType = new BArrayType(elemType);
+        Type elemType = ((BFunctionType) func.getType()).retType;
+        Type retArrType = new BArrayType(elemType);
         ArrayValue retArr = new ArrayValueImpl((BArrayType) retArrType);
         int size = arr.size();
         GetFunction getFn;
 
-        BType arrType = arr.getType();
+        Type arrType = arr.getType();
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 getFn = ArrayValue::get;

@@ -19,11 +19,11 @@ package org.ballerinalang.test.javainterop;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -290,7 +290,7 @@ public class RefTypeWithBValueAPITests {
     // This scenario is for map value to be passed to interop and return array value.
     public static org.ballerinalang.jvm.api.values.BArray
     getArrayValueFromMap(org.ballerinalang.jvm.api.values.BString key, org.ballerinalang.jvm.api.values.BMap mapValue) {
-        org.ballerinalang.jvm.api.values.BArray arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
+        org.ballerinalang.jvm.api.values.BArray arrayValue = new ArrayValueImpl(new BArrayType(Types.TYPE_INT));
         arrayValue.add(0, 1);
         long fromMap = (long) mapValue.get(key);
         arrayValue.add(1, fromMap);
@@ -383,14 +383,14 @@ public class RefTypeWithBValueAPITests {
     public static BError acceptStringErrorReturnWhichThrowsCheckedException(
             org.ballerinalang.jvm.api.values.BString msg)
             throws JavaInteropTestCheckedException {
-        return BErrorCreator.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
+        return BErrorCreator.createError(msg, new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
     }
 
     public static org.ballerinalang.jvm.api.values.BArray
     getArrayValueFromMapWhichThrowsCheckedException(
             org.ballerinalang.jvm.api.values.BString key, org.ballerinalang.jvm.api.values.BMap mapValue)
             throws JavaInteropTestCheckedException {
-        org.ballerinalang.jvm.api.values.BArray arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
+        org.ballerinalang.jvm.api.values.BArray arrayValue = new ArrayValueImpl(new BArrayType(Types.TYPE_INT));
         arrayValue.add(0, 1);
         long fromMap = (long) mapValue.get(key);
         arrayValue.add(1, fromMap);
@@ -407,7 +407,7 @@ public class RefTypeWithBValueAPITests {
 
     public static Object getJson() {
         MapValueImpl<org.ballerinalang.jvm.api.values.BString, org.ballerinalang.jvm.api.values.BString> map =
-                new MapValueImpl<>(BTypes.typeJSON);
+                new MapValueImpl<>(Types.TYPE_JSON);
         map.put(BStringUtils.fromString("name"), BStringUtils.fromString("John"));
         return map;
     }
@@ -416,13 +416,13 @@ public class RefTypeWithBValueAPITests {
             org.ballerinalang.jvm.api.values.BString> getJsonObject() {
         org.ballerinalang.jvm.api.values.BMap<org.ballerinalang.jvm.api.values.BString,
                 org.ballerinalang.jvm.api.values.BString>
-                map = new MapValueImpl<>(BTypes.typeJSON);
+                map = new MapValueImpl<>(Types.TYPE_JSON);
         map.put(BStringUtils.fromString("name"), BStringUtils.fromString("Doe"));
         return map;
     }
 
     public static org.ballerinalang.jvm.api.values.BArray getJsonArray() {
-        org.ballerinalang.jvm.api.values.BArray array = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
+        org.ballerinalang.jvm.api.values.BArray array = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
         array.add(0, (Object) "John");
         return array;
     }
@@ -493,7 +493,7 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static org.ballerinalang.jvm.api.values.BTypedesc getTypeDesc() {
-        return new TypedescValueImpl(BTypes.typeXML);
+        return new TypedescValueImpl(Types.TYPE_XML);
     }
 
     public static Object useFuture(org.ballerinalang.jvm.api.values.BFuture future) {

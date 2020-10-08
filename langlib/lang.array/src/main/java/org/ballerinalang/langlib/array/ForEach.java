@@ -18,11 +18,11 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.utils.GetFunction;
@@ -54,7 +54,7 @@ public class ForEach {
 
     public static void forEach(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
         int size = arr.size();
-        BType arrType = arr.getType();
+        Type arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
         AtomicInteger index = new AtomicInteger(-1);
         AsyncUtils

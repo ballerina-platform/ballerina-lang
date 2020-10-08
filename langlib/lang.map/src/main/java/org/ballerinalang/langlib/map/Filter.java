@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.map;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -59,14 +59,14 @@ public class Filter {
                                                                       MAP_VERSION, "filter");
 
     public static MapValue filter(Strand strand, MapValue<?, ?> m, FPValue<Object, Boolean> func) {
-        BType mapType = m.getType();
-        BType newMapType;
+        Type mapType = m.getType();
+        Type newMapType;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 newMapType = mapType;
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                BType newConstraint = MapLibUtils.getCommonTypeForRecordField((BRecordType) mapType);
+                Type newConstraint = MapLibUtils.getCommonTypeForRecordField((BRecordType) mapType);
                 newMapType = new BMapType(newConstraint);
                 break;
             default:

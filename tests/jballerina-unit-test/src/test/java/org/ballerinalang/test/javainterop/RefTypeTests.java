@@ -18,8 +18,8 @@
 package org.ballerinalang.test.javainterop;
 
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -394,7 +394,7 @@ public class RefTypeTests {
     }
 
     public static TypedescValue getTypeDesc() {
-        return new TypedescValueImpl(BTypes.typeXML);
+        return new TypedescValueImpl(Types.TYPE_XML);
     }
 
     public static Object useFuture(FutureValue future) {

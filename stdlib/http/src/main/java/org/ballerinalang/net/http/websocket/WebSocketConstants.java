@@ -19,9 +19,9 @@
 package org.ballerinalang.net.http.websocket;
 
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.util.BLangConstants;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MODULE_VERSION;
@@ -118,8 +118,8 @@ public class WebSocketConstants {
     public static final int STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT = 1005;
 
     public static final int DEFAULT_MAX_FRAME_SIZE = 65536;
-    public static final BPackage PROTOCOL_HTTP_PKG_ID = new BPackage(BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX,
-            "http", HTTP_MODULE_VERSION);
+    public static final Module PROTOCOL_HTTP_PKG_ID = new Module(BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX,
+                                                                 "http", HTTP_MODULE_VERSION);
 
     // Warning suppression
     public static final String UNCHECKED = "unchecked";

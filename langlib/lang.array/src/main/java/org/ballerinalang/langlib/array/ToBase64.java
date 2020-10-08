@@ -20,11 +20,11 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -55,7 +55,7 @@ public class ToBase64 {
             .fromString("toBase64() is only supported on 'byte[]'");
 
     public static BString toBase64(Strand strand, ArrayValue arr) {
-        BType arrType = arr.getType();
+        Type arrType = arr.getType();
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
             throw BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,

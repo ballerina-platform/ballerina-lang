@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -72,7 +72,7 @@ public class Slice {
                     .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, sliceSize, size);
         }
 
-        BType arrType = arr.getType();
+        Type arrType = arr.getType();
         ArrayValue slicedArr;
 
         switch (arrType.getTag()) {
@@ -82,9 +82,9 @@ public class Slice {
             case TypeTags.TUPLE_TAG:
                 BTupleType tupleType = (BTupleType) arrType;
 
-                List<BType> memTypes = new ArrayList<>(tupleType.getTupleTypes());
+                List<Type> memTypes = new ArrayList<>(tupleType.getTupleTypes());
 
-                BType restType = tupleType.getRestType();
+                Type restType = tupleType.getRestType();
                 if (restType != null) {
                     memTypes.add(restType);
                 }

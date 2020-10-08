@@ -20,9 +20,9 @@ package org.ballerinalang.stdlib.mime;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -126,7 +126,7 @@ public class MimeUtilityFunctionTest {
         mediaType.set(PRIMARY_TYPE_FIELD, BStringUtils.fromString("application"));
         mediaType.set(SUBTYPE_FIELD, BStringUtils.fromString("test+xml"));
         org.ballerinalang.jvm.api.values.BMap<org.ballerinalang.jvm.api.values.BString, Object> mapValue =
-                BValueCreator.createMapValue(new BMapType(BTypes.typeString));;
+                BValueCreator.createMapValue(new BMapType(Types.TYPE_STRING));;
         mapValue.put(BStringUtils.fromString("charset"), BStringUtils.fromString("utf-8"));
         mediaType.set(PARAMETER_MAP_FIELD, mapValue);
         Object[] args = {mediaType};

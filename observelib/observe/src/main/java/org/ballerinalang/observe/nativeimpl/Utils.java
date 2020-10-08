@@ -20,6 +20,8 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.observability.metrics.PercentileValue;
@@ -27,8 +29,6 @@ import org.ballerinalang.jvm.observability.metrics.Snapshot;
 import org.ballerinalang.jvm.observability.metrics.StatisticConfig;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.BmpStringValue;
@@ -43,15 +43,15 @@ import java.util.Map.Entry;
  */
 public class Utils {
 
-    private static final BType STATISTIC_CONFIG_TYPE =
+    private static final Type STATISTIC_CONFIG_TYPE =
             BValueCreator.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
                                                 ObserveNativeImplConstants.STATISTIC_CONFIG).getType();
 
-    private static final BType PERCENTILE_VALUE_TYPE =
+    private static final Type PERCENTILE_VALUE_TYPE =
             BValueCreator.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
                                                 ObserveNativeImplConstants.PERCENTILE_VALUE).getType();
 
-    private static final BType SNAPSHOT_TYPE =
+    private static final Type SNAPSHOT_TYPE =
             BValueCreator.createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID,
                                                 ObserveNativeImplConstants.SNAPSHOT).getType();
 
@@ -106,7 +106,7 @@ public class Utils {
             ArrayValue bStatsConfig = new ArrayValueImpl(new BArrayType(STATISTIC_CONFIG_TYPE));
             int index = 0;
             for (StatisticConfig config : configs) {
-                ArrayValue bPercentiles = new ArrayValueImpl(new BArrayType(BTypes.typeFloat));
+                ArrayValue bPercentiles = new ArrayValueImpl(new BArrayType(Types.TYPE_FLOAT));
                 int percentileIndex = 0;
                 for (Double percentile : config.getPercentiles()) {
                     bPercentiles.add(percentileIndex, percentile);

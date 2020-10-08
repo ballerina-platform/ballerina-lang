@@ -19,7 +19,7 @@ package org.ballerinalang.test.javainterop.basic;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
@@ -142,7 +142,7 @@ public class StaticMethodTest {
 
     public static Object returnObjectOrError() {
         return BErrorCreator.createError(BStringUtils.fromString("some reason"),
-                                         new MapValueImpl<>(BTypes.typeErrorDetail));
+                                         new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
     }
 
     @Test(description = "Test tuple return with null values")

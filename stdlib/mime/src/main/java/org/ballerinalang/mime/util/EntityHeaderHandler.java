@@ -20,12 +20,12 @@ package org.ballerinalang.mime.util;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.jvnet.mimepull.Header;
@@ -43,7 +43,7 @@ import static org.ballerinalang.mime.util.MimeConstants.HEADER_NAMES_ARRAY_FIELD
  */
 public class EntityHeaderHandler {
 
-    private static BMapType mapType = new BMapType(new BArrayType(BTypes.typeString));
+    private static BMapType mapType = new BMapType(new BArrayType(Types.TYPE_STRING));
 
     /**
      * Get the entity header map. If not exist, creates new one.

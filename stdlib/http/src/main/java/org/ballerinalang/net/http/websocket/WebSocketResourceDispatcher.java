@@ -26,7 +26,9 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.api.BExecutor;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
 import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
@@ -38,8 +40,6 @@ import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStructureType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.net.http.HttpConstants;
@@ -124,7 +124,7 @@ public class WebSocketResourceDispatcher {
 
     private static void executeOnOpenResource(WebSocketService wsService, AttachedFunction onOpenResource,
                                               BObject webSocketEndpoint, WebSocketConnection webSocketConnection) {
-        BType[] parameterTypes = onOpenResource.getParameterType();
+        Type[] parameterTypes = onOpenResource.getParameterType();
         Object[] bValues = new Object[parameterTypes.length * 2];
         bValues[0] = webSocketEndpoint;
         bValues[1] = true;
@@ -158,14 +158,14 @@ public class WebSocketResourceDispatcher {
                 webSocketConnection.readNextFrame();
                 return;
             }
-            BType[] parameterTypes = onTextMessageResource.getParameterType();
+            Type[] parameterTypes = onTextMessageResource.getParameterType();
             Object[] bValues = new Object[parameterTypes.length * 2];
 
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
 
             boolean finalFragment = textMessage.isFinalFragment();
-            BType dataType = parameterTypes[1];
+            Type dataType = parameterTypes[1];
             int dataTypeTag = dataType.getTag();
             if (dataTypeTag == TypeTags.STRING_TAG) {
                 bValues[2] = BStringUtils.fromString(textMessage.getText());
@@ -211,7 +211,7 @@ public class WebSocketResourceDispatcher {
                 dataTypeTag == TypeTags.XML_TAG || dataTypeTag == TypeTags.ARRAY_TAG;
     }
 
-    private static Object getAggregatedObject(WebSocketConnection webSocketConnection, BType dataType,
+    private static Object getAggregatedObject(WebSocketConnection webSocketConnection, Type dataType,
                                               String aggregateString, WebSocketConnectionInfo connectionInfo) {
         try {
             switch (dataType.getTag()) {
@@ -273,7 +273,7 @@ public class WebSocketResourceDispatcher {
                 webSocketConnection.readNextFrame();
                 return;
             }
-            BType[] paramDetails = onBinaryMessageResource.getParameterType();
+            Type[] paramDetails = onBinaryMessageResource.getParameterType();
             Object[] bValues = new Object[paramDetails.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
@@ -314,7 +314,7 @@ public class WebSocketResourceDispatcher {
                 pongAutomatically(controlMessage);
                 return;
             }
-            BType[] paramTypes = onPingMessageResource.getParameterType();
+            Type[] paramTypes = onPingMessageResource.getParameterType();
             Object[] bValues = new Object[paramTypes.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
@@ -344,7 +344,7 @@ public class WebSocketResourceDispatcher {
                 webSocketConnection.readNextFrame();
                 return;
             }
-            BType[] paramDetails = onPongMessageResource.getParameterType();
+            Type[] paramDetails = onPongMessageResource.getParameterType();
             Object[] bValues = new Object[paramDetails.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
@@ -377,7 +377,7 @@ public class WebSocketResourceDispatcher {
                 return;
             }
 
-            BType[] paramDetails = onCloseResource.getParameterType();
+            Type[] paramDetails = onCloseResource.getParameterType();
             Object[] bValues = new Object[paramDetails.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
@@ -482,7 +482,7 @@ public class WebSocketResourceDispatcher {
             if (onIdleTimeoutResource == null) {
                 return;
             }
-            BType[] paramDetails = onIdleTimeoutResource.getParameterType();
+            Type[] paramDetails = onIdleTimeoutResource.getParameterType();
             Object[] bValues = new Object[paramDetails.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;

@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.test.functions;
 
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.model.values.BFloat;
@@ -436,7 +436,7 @@ public class FunctionSignatureTest {
                                                                 org.ballerinalang.jvm.api.values.BString c, long d,
                                                                 org.ballerinalang.jvm.api.values.BString e) {
         BTupleType tupleType = new BTupleType(
-                Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
+                Arrays.asList(Types.TYPE_INT, Types.TYPE_FLOAT, Types.TYPE_STRING, Types.TYPE_INT, Types.TYPE_STRING));
         ArrayValue tuple = new TupleValueImpl(tupleType);
         tuple.add(0, Long.valueOf(a));
         tuple.add(1, Double.valueOf(b));

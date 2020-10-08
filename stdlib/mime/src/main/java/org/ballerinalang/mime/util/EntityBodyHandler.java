@@ -23,11 +23,11 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -73,7 +73,7 @@ import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 public class EntityBodyHandler {
 
     private static final Logger log = LoggerFactory.getLogger(EntityBodyHandler.class);
-    private static final BType MIME_ENTITY_TYPE =
+    private static final Type MIME_ENTITY_TYPE =
             BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY).getType();
     private static final BArrayType mimeEntityArrayType = new BArrayType(MIME_ENTITY_TYPE);
 

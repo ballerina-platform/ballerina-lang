@@ -19,9 +19,9 @@ package org.ballerinalang.nativeimpl.java;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.HandleValue;
@@ -45,8 +45,8 @@ public class JavaUtils {
     private static final String longTypeName = "long";
     private static final String floatTypeName = "float";
     private static final String doubleTypeName = "double";
-    private static final BPackage JAVA_PACKAGE_ID = new BPackage(BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX, "java",
-                                                                 "0.9.0");
+    private static final Module JAVA_PACKAGE_ID = new Module(BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX, "java",
+                                                             "0.9.0");
 
     /**
      * Returns the Java Class object associated with the class or interface with the given string name.

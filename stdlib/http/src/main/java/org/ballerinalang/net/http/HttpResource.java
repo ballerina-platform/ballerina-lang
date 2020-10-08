@@ -18,10 +18,10 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.net.uri.DispatcherUtil;
@@ -89,7 +89,7 @@ public class HttpResource {
     }
 
     public String getServiceName() {
-        return balResource.parent.getName();
+        return balResource.parentObjectType.getName();
     }
 
     public SignatureParams getSignatureParams() {
@@ -289,8 +289,8 @@ public class HttpResource {
         signatureParams.validate();
     }
 
-    public List<BType> getParamTypes() {
-        List<BType> paramTypes = new ArrayList<>();
+    public List<Type> getParamTypes() {
+        List<Type> paramTypes = new ArrayList<>();
         paramTypes.addAll(Arrays.asList(this.balResource.getParameterType()));
         return paramTypes;
     }

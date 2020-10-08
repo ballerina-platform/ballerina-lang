@@ -32,6 +32,7 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
@@ -42,7 +43,6 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -609,7 +609,7 @@ public class HttpUtil {
         }
     }
 
-    private static BError createErrorCause(String message, String errorTypeId, BPackage packageName) {
+    private static BError createErrorCause(String message, String errorTypeId, Module packageName) {
         return BErrorCreator.createDistinctError(errorTypeId, packageName, BStringUtils.fromString(message));
     }
 

@@ -17,8 +17,8 @@
 package org.ballerinalang.nativeimpl.llvm.gen;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -44,7 +44,7 @@ public class LLVMVoidType {
 
     public static MapValue<String, Object> llvmVoidType(Strand strand) {
         LLVMTypeRef returnValue = LLVMVoidType();
-        MapValue<String, Object> returnWrapperRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
+        MapValue<String, Object> returnWrapperRecord = BallerinaValues.createRecordValue(new Module("ballerina",
                 "llvm"), "LLVMTypeRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrapperRecord);
         return returnWrapperRecord;

@@ -20,6 +20,9 @@ package org.ballerinalang.langlib.error;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -27,9 +30,6 @@ import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -61,10 +61,10 @@ public class StackTrace {
 
     public static ObjectValue stackTrace(Strand strand, ErrorValue value) {
 
-        BObjectType callStackObjType = new BObjectType("CallStack", new BPackage("ballerina", "lang.error", null), 0);
+        BObjectType callStackObjType = new BObjectType("CallStack", new Module("ballerina", "lang.error", null), 0);
         callStackObjType.setAttachedFunctions(new AttachedFunction[]{});
         callStackObjType.setFields(
-                Collections.singletonMap("callStack", new BField(new BArrayType(BTypes.typeAny), null, 0)));
+                Collections.singletonMap("callStack", new BField(new BArrayType(Types.TYPE_ANY), null, 0)));
 
         CallStack callStack = new CallStack(callStackObjType);
         callStack.callStack = getCallStackArray(value.getStackTrace());
@@ -73,7 +73,7 @@ public class StackTrace {
     }
 
     private static ArrayValue getCallStackArray(StackTraceElement[] stackTrace) {
-        BType recordType = BValueCreator
+        Type recordType = BValueCreator
                 .createRecordValue(BALLERINA_LANG_ERROR_PKG_ID, CALL_STACK_ELEMENT).getType();
         Object[] array = new Object[stackTrace.length];
         for (int i = 0; i < stackTrace.length; i++) {

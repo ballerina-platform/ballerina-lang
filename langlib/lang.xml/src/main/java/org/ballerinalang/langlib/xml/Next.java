@@ -20,8 +20,8 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -56,7 +56,7 @@ public class Next {
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            return BValueCreator.createRecordValue(new MapValueImpl<>(BTypes.xmlItrNextReturnType), xmlValue);
+            return BValueCreator.createRecordValue(new MapValueImpl<>(Types.XML_ITR_NEXT_RETURN_TYPE), xmlValue);
         }
 
         return null;

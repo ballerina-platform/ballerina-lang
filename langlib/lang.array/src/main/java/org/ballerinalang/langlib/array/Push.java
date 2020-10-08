@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -46,7 +46,7 @@ public class Push {
     private static final String FUNCTION_SIGNATURE = "push()";
 
     public static void push(Strand strand, ArrayValue arr, ArrayValue vals) {
-        BType arrType = arr.getType();
+        Type arrType = arr.getType();
         int nVals = vals.size();
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:

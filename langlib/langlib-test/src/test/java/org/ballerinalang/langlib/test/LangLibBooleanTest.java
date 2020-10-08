@@ -20,9 +20,9 @@ package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -76,7 +76,7 @@ public class LangLibBooleanTest {
     private BError getError(String value) {
         BString reason = getModulePrefixedReason(BOOLEAN_LANG_LIB, BOOLEAN_PARSING_ERROR_IDENTIFIER);
         BString msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                BTypes.typeString, value, BTypes.typeBoolean);
+                                                           Types.TYPE_STRING, value, Types.TYPE_BOOLEAN);
         return BErrorCreator.createError(reason, msg);
     }
 }

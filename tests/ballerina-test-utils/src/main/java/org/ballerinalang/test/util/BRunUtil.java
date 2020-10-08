@@ -24,16 +24,18 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.TypeFlags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.commons.ArrayState;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.Type;
+import org.ballerinalang.jvm.api.types.TypedescType;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BIntersectionType;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.types.BTypedescType;
-import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -280,7 +282,7 @@ public class BRunUtil {
 
             Scheduler scheduler = new Scheduler(false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
-                                                         org.ballerinalang.jvm.types.BTypes.typeAny, "test",
+                                                         Types.TYPE_ANY, "test",
                                                          new StrandMetadata(ANON_ORG, DOT, DEFAULT_VERSION.value,
                                                                             functionName));
             scheduler.start();
@@ -414,7 +416,7 @@ public class BRunUtil {
 
             Scheduler scheduler = new Scheduler(false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
-                                                         org.ballerinalang.jvm.types.BTypes.typeAny, "test",
+                                                         Types.TYPE_ANY, "test",
                                                          new StrandMetadata(ANON_ORG, DOT, DEFAULT_VERSION.value,
                                                                             functionName));
             scheduler.start();
@@ -473,9 +475,9 @@ public class BRunUtil {
                 org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 BValueArray array = (BValueArray) value;
-                org.ballerinalang.jvm.types.BType jvmType = getJVMType(array.getType());
+                Type jvmType = getJVMType(array.getType());
                 org.ballerinalang.jvm.types.BArrayType jvmArrayType;
-                if (jvmType.getTag() == org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG) {
+                if (jvmType.getTag() == org.ballerinalang.jvm.api.TypeTags.ARRAY_TAG) {
                     jvmArrayType = (org.ballerinalang.jvm.types.BArrayType) jvmType;
                 } else {
                     jvmArrayType = new org.ballerinalang.jvm.types.BArrayType(jvmType);
@@ -525,8 +527,8 @@ public class BRunUtil {
                 return jvmRecord;
             case TypeTags.OBJECT_TYPE_TAG:
                 PackageID packageID = type.tsymbol.pkgID;
-                BPackage objPackage = new BPackage(packageID.orgName.getValue(), packageID.name.getValue(),
-                        packageID.version.getValue());
+                Module objPackage = new Module(packageID.orgName.getValue(), packageID.name.getValue(),
+                                               packageID.version.getValue());
                 String objName = type.tsymbol.getName().getValue();
 
                 BObject jvmObject = BValueCreator.createObjectValue(objPackage, objName);
@@ -653,7 +655,7 @@ public class BRunUtil {
                 return jvmMap;
             case TypeTags.OBJECT_TYPE_TAG:
                 String objPackagePath = type.getPackagePath();
-                BPackage objPkgPath = new BPackage(objPackagePath, "");
+                Module objPkgPath = new Module(objPackagePath, "");
                 String objName = type.getName();
 
                 BObject jvmObject = BValueCreator.createObjectValue(objPkgPath, objName);
@@ -692,31 +694,30 @@ public class BRunUtil {
      * @param type compile time BType
      * @return JVM type
      */
-    private static org.ballerinalang.jvm.types.BType
-            getJVMType(org.wso2.ballerinalang.compiler.semantics.model.types.BType type) {
+    private static Type getJVMType(org.wso2.ballerinalang.compiler.semantics.model.types.BType type) {
         switch (type.tag) {
             case TypeTags.INT_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeInt;
+                return Types.TYPE_INT;
             case TypeTags.BYTE_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeByte;
+                return Types.TYPE_BYTE;
             case TypeTags.BOOLEAN_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeBoolean;
+                return Types.TYPE_BOOLEAN;
             case TypeTags.STRING_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeString;
+                return Types.TYPE_STRING;
             case TypeTags.FLOAT_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeFloat;
+                return Types.TYPE_FLOAT;
             case TypeTags.ARRAY_TAG:
                 org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
-                org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());
+                Type elementType = getJVMType(arrayType.getElementType());
                 return new org.ballerinalang.jvm.types.BArrayType(elementType, arrayType.size);
             case TypeTags.MAP_TAG:
                 org.wso2.ballerinalang.compiler.semantics.model.types.BMapType mapType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BMapType) type;
-                org.ballerinalang.jvm.types.BType constrainType = getJVMType(mapType.getConstraint());
+                Type constrainType = getJVMType(mapType.getConstraint());
                 return new org.ballerinalang.jvm.types.BMapType(constrainType);
             case TypeTags.UNION_TAG:
-                ArrayList<org.ballerinalang.jvm.types.BType> members = new ArrayList<>();
+                ArrayList<Type> members = new ArrayList<>();
                 org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType unionType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType) type;
                 for (org.wso2.ballerinalang.compiler.semantics.model.types.BType memberType :
@@ -725,11 +726,11 @@ public class BRunUtil {
                 }
                 return new org.ballerinalang.jvm.types.BUnionType(members);
             case TypeTags.ANY_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeAny;
+                return Types.TYPE_ANY;
             case TypeTags.ANYDATA_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeAnydata;
+                return Types.TYPE_ANYDATA;
             case TypeTags.JSON_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeJSON;
+                return Types.TYPE_JSON;
             case TypeTags.RECORD_TYPE_TAG:
                 org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType recordType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType) type;
@@ -741,8 +742,8 @@ public class BRunUtil {
                     fields.put(bvmField.name.value, jvmField);
                 }
                 PackageID pkgID = recordType.tsymbol.pkgID;
-                BPackage pkg = new BPackage(pkgID.orgName.value, pkgID.name.value, pkgID.version.value);
-                org.ballerinalang.jvm.types.BType restFieldType =
+                Module pkg = new Module(pkgID.orgName.value, pkgID.name.value, pkgID.version.value);
+                Type restFieldType =
                         recordType.sealed ? null : getJVMType(recordType.restFieldType);
                 int typeFlags = getMask(recordType.isNullable(), recordType.isAnydata(), recordType.isPureType());
                 org.ballerinalang.jvm.types.BRecordType jvmRecordType = new org.ballerinalang.jvm.types.BRecordType(
@@ -783,48 +784,48 @@ public class BRunUtil {
      * @param type run time BType
      * @return JVM type
      */
-    private static org.ballerinalang.jvm.types.BType getJVMType(BType type) {
+    private static Type getJVMType(BType type) {
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeInt;
+                return Types.TYPE_INT;
             case TypeTags.BYTE_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeByte;
+                return Types.TYPE_BYTE;
             case TypeTags.BOOLEAN_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeBoolean;
+                return Types.TYPE_BOOLEAN;
             case TypeTags.STRING_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeString;
+                return Types.TYPE_STRING;
             case TypeTags.FLOAT_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeFloat;
+                return Types.TYPE_FLOAT;
             case TypeTags.DECIMAL_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeDecimal;
+                return Types.TYPE_DECIMAL;
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
-                org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());
+                Type elementType = getJVMType(arrayType.getElementType());
                 if (arrayType.getState() == BArrayState.UNSEALED) {
                     return new org.ballerinalang.jvm.types.BArrayType(elementType);
                 }
                 return new org.ballerinalang.jvm.types.BArrayType(elementType, arrayType.getSize());
             case TypeTags.MAP_TAG:
                 BMapType mapType = (BMapType) type;
-                org.ballerinalang.jvm.types.BType constrainType = getJVMType(mapType.getConstrainedType());
+                Type constrainType = getJVMType(mapType.getConstrainedType());
                 return new org.ballerinalang.jvm.types.BMapType(constrainType);
             case TypeTags.UNION_TAG:
-                ArrayList<org.ballerinalang.jvm.types.BType> members = new ArrayList<>();
+                ArrayList<Type> members = new ArrayList<>();
                 BUnionType unionType = (BUnionType) type;
                 for (BType memberType : unionType.getMemberTypes()) {
                     members.add(getJVMType(memberType));
                 }
                 return new org.ballerinalang.jvm.types.BUnionType(members);
             case TypeTags.ANY_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeAny;
+                return Types.TYPE_ANY;
             case TypeTags.ANYDATA_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeAnydata;
+                return Types.TYPE_ANYDATA;
             case TypeTags.JSON_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeJSON;
+                return Types.TYPE_JSON;
             case TypeTags.HANDLE_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeHandle;
+                return Types.TYPE_HANDLE;
             case TypeTags.XML_TAG:
-                return org.ballerinalang.jvm.types.BTypes.typeXML;
+                return Types.TYPE_XML;
             default:
                 throw new RuntimeException("Function argument for type '" + type + "' is not supported");
         }
@@ -844,34 +845,34 @@ public class BRunUtil {
         if (bvmValue != null) {
             return bvmValue;
         }
-        org.ballerinalang.jvm.types.BType type = TypeChecker.getType(value);
+        Type type = TypeChecker.getType(value);
         switch (type.getTag()) {
-            case org.ballerinalang.jvm.types.TypeTags.INT_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.INT_TAG:
                 bvmValue = new BInteger((long) value);
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.BYTE_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.BYTE_TAG:
                 bvmValue = new BByte(((Number) value).longValue());
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.FLOAT_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.FLOAT_TAG:
                 bvmValue = new BFloat((double) value);
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.BOOLEAN_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.BOOLEAN_TAG:
                 bvmValue = new BBoolean((boolean) value);
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.STRING_TAG:
                 if (value instanceof org.ballerinalang.jvm.api.values.BString) {
                     bvmValue = new BString(((org.ballerinalang.jvm.api.values.BString) value).getValue());
                 } else {
                     bvmValue = new BString((String) value);
                 }
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.DECIMAL_TAG:
                 DecimalValue decimalValue = (DecimalValue) value;
                 bvmValue = new BDecimal(decimalValue.value().toString(),
                                         org.ballerinalang.model.util.DecimalValueKind
                                                 .valueOf(decimalValue.valueKind.name()));
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.TUPLE_TAG:
                 ArrayValue jvmTuple = ((ArrayValue) value);
                 BRefType<?>[] tupleValues = new BRefType<?>[jvmTuple.size()];
                 for (int i = 0; i < jvmTuple.size(); i++) {
@@ -879,11 +880,11 @@ public class BRunUtil {
                 }
                 bvmValue = new BValueArray(tupleValues, getBVMType(jvmTuple.getType(), new Stack<>()));
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.ARRAY_TAG:
                 org.ballerinalang.jvm.types.BArrayType arrayType = (org.ballerinalang.jvm.types.BArrayType) type;
                 ArrayValue array = (ArrayValue) value;
                 BValueArray bvmArray;
-                if (arrayType.getElementType().getTag() == org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG) {
+                if (arrayType.getElementType().getTag() == org.ballerinalang.jvm.api.TypeTags.ARRAY_TAG) {
                     bvmArray = new BValueArray(getBVMType(arrayType, new Stack<>()));
                 } else if (arrayType.getState() == ArrayState.UNSEALED) {
                     bvmArray = new BValueArray(getBVMType(arrayType.getElementType(), new Stack<>()), -1);
@@ -915,9 +916,9 @@ public class BRunUtil {
                 }
                 bvmValue = bvmArray;
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
-            case org.ballerinalang.jvm.types.TypeTags.JSON_TAG:
-            case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.RECORD_TYPE_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.JSON_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.MAP_TAG:
                 MapValueImpl<?, ?> jvmMap = (MapValueImpl) value;
                 BMap<Object, BRefType> bmap = new BMap<>(getBVMType(jvmMap.getType(), new Stack<>()));
                 bvmValueMap.put(String.valueOf(value.hashCode()), bmap);
@@ -927,17 +928,17 @@ public class BRunUtil {
                 }
                 bmap.getNativeData().putAll(jvmMap.getNativeDataMap());
                 return bmap;
-            case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.ERROR_TAG:
                 ErrorValue errorValue = (ErrorValue) value;
                 BError cause = (BError) getBVMValue(errorValue.getCause(), bvmValueMap);
                 BRefType<?> details = getBVMValue(errorValue.getDetails(), bvmValueMap);
                 bvmValue = new BError(getBVMType(errorValue.getType(), new Stack<>()),
                                       errorValue.getErrorMessage().getValue(), cause, details);
                 return bvmValue;
-            case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.NULL_TAG:
                 bvmValue = null;
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.OBJECT_TYPE_TAG:
                 ObjectValue jvmObject = (ObjectValue) value;
                 org.ballerinalang.jvm.types.BObjectType jvmObjectType = jvmObject.getType();
                 BMap<String, BRefType<?>> bvmObject = new BMap<>(getBVMType(jvmObjectType, new Stack<>()));
@@ -960,11 +961,11 @@ public class BRunUtil {
                     bvmObject.addNativeData(key, nativeData.get(key));
                 }
                 return bvmObject;
-            case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
-            case org.ballerinalang.jvm.types.TypeTags.XML_ELEMENT_TAG:
-            case org.ballerinalang.jvm.types.TypeTags.XML_COMMENT_TAG:
-            case org.ballerinalang.jvm.types.TypeTags.XML_PI_TAG:
-            case org.ballerinalang.jvm.types.TypeTags.XML_TEXT_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.XML_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.XML_ELEMENT_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.XML_COMMENT_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.XML_PI_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.XML_TEXT_TAG:
                 if (value instanceof XMLValue) {
                     if (((XMLValue) value).getNodeType() != XMLNodeType.SEQUENCE) {
                         BXMLItem bxmlItem = new BXMLItem((OMNode) ((XMLValue) value).value());
@@ -972,7 +973,7 @@ public class BRunUtil {
                         break;
                     } else {
                         org.ballerinalang.jvm.types.BArrayType bArrayType =
-                                new org.ballerinalang.jvm.types.BArrayType(org.ballerinalang.jvm.types.BTypes.typeXML);
+                                new org.ballerinalang.jvm.types.BArrayType(Types.TYPE_XML);
                         ArrayValue arrayValue = new ArrayValueImpl(((XMLSequence) value).getChildrenList().toArray(),
                                 bArrayType);
 
@@ -988,22 +989,22 @@ public class BRunUtil {
                 }
                 bvmValue = new BXMLSequence(ar);
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.TYPEDESC_TAG:
                 TypedescValue typedescValue = (TypedescValue) value;
                 bvmValue = new BTypeDescValue(getBVMType(typedescValue.getDescribingType(), new Stack<>()));
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.STREAM_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.STREAM_TAG:
                 StreamValue streamValue = (StreamValue) value;
                 bvmValue = new BStream(getBVMType(streamValue.getType(), new Stack<>()), streamValue.getStreamId());
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.FUNCTION_POINTER_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.FUNCTION_POINTER_TAG:
                 FPValue functionValue = (FPValue) value;
                 bvmValue = new BFunctionPointer(getBVMType(functionValue.getType(), new Stack<>()));
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.HANDLE_TAG:
                 bvmValue = new BHandleValue(((HandleValue) value).getValue());
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.SERVICE_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.SERVICE_TAG:
                 org.ballerinalang.jvm.types.BObjectType bObjectType = ((AbstractObjectValue) value).getType();
                 bvmValue = new BMap(getBVMType(bObjectType, new Stack<>()));
                 break;
@@ -1015,38 +1016,38 @@ public class BRunUtil {
         return bvmValue;
     }
 
-    private static BType getBVMType(org.ballerinalang.jvm.types.BType jvmType,
+    private static BType getBVMType(Type jvmType,
                                     Stack<org.ballerinalang.jvm.types.BField> selfTypeStack) {
         switch (jvmType.getTag()) {
-            case org.ballerinalang.jvm.types.TypeTags.INT_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.INT_TAG:
                 return BTypes.typeInt;
-            case org.ballerinalang.jvm.types.TypeTags.FLOAT_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.FLOAT_TAG:
                 return BTypes.typeFloat;
-            case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.STRING_TAG:
                 return BTypes.typeString;
-            case org.ballerinalang.jvm.types.TypeTags.BOOLEAN_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.BOOLEAN_TAG:
                 return BTypes.typeBoolean;
-            case org.ballerinalang.jvm.types.TypeTags.BYTE_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.BYTE_TAG:
                 return BTypes.typeByte;
-            case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.DECIMAL_TAG:
                 return BTypes.typeDecimal;
-            case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.TUPLE_TAG:
                 org.ballerinalang.jvm.types.BTupleType tupleType = (org.ballerinalang.jvm.types.BTupleType) jvmType;
                 List<BType> memberTypes = new ArrayList<>();
-                for (org.ballerinalang.jvm.types.BType type : tupleType.getTupleTypes()) {
+                for (Type type : tupleType.getTupleTypes()) {
                     memberTypes.add(getBVMType(type, selfTypeStack));
                 }
                 return new BTupleType(memberTypes);
-            case org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.ARRAY_TAG:
                 org.ballerinalang.jvm.types.BArrayType arrayType = (org.ballerinalang.jvm.types.BArrayType) jvmType;
                 return new BArrayType(getBVMType(arrayType.getElementType(), selfTypeStack));
-            case org.ballerinalang.jvm.types.TypeTags.ANY_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.ANY_TAG:
                 return BTypes.typeAny;
-            case org.ballerinalang.jvm.types.TypeTags.ANYDATA_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.ANYDATA_TAG:
                 return BTypes.typeAnydata;
-            case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.ERROR_TAG:
                 org.ballerinalang.jvm.types.BErrorType errorType = (org.ballerinalang.jvm.types.BErrorType) jvmType;
-                if (errorType == org.ballerinalang.jvm.types.BTypes.typeError) {
+                if (errorType == Types.TYPE_ERROR) {
                     return BTypes.typeError;
                 }
 
@@ -1056,7 +1057,7 @@ public class BRunUtil {
                         //  after removing error reason type.
                         new BErrorType(errorType.getName(), BTypes.typeString, detailType, errorType.getPackage().name);
                 return bvmErrorType;
-            case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.RECORD_TYPE_TAG:
                 org.ballerinalang.jvm.types.BRecordType recordType = (org.ballerinalang.jvm.types.BRecordType) jvmType;
                 BRecordType bvmRecordType = new BRecordType(recordType.getName(),
                         recordType.getPackage().getName(), recordType.flags);
@@ -1071,24 +1072,24 @@ public class BRunUtil {
                                         (a, b) -> b, LinkedHashMap::new));
                 bvmRecordType.setFields(recordFields);
                 return bvmRecordType;
-            case org.ballerinalang.jvm.types.TypeTags.JSON_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.JSON_TAG:
                 return BTypes.typeJSON;
-            case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.MAP_TAG:
                 org.ballerinalang.jvm.types.BMapType mapType = (org.ballerinalang.jvm.types.BMapType) jvmType;
                 return new BMapType(getBVMType(mapType.getConstrainedType(), selfTypeStack));
-            case org.ballerinalang.jvm.types.TypeTags.STREAM_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.STREAM_TAG:
                 org.ballerinalang.jvm.types.BStreamType streamType = (org.ballerinalang.jvm.types.BStreamType) jvmType;
                 return new BStreamType(getBVMType(streamType.getConstrainedType(), selfTypeStack));
-            case org.ballerinalang.jvm.types.TypeTags.UNION_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.UNION_TAG:
                 org.ballerinalang.jvm.types.BUnionType unionType = (org.ballerinalang.jvm.types.BUnionType) jvmType;
                 memberTypes = new ArrayList<>();
-                for (org.ballerinalang.jvm.types.BType type : unionType.getMemberTypes()) {
+                for (Type type : unionType.getMemberTypes()) {
                     memberTypes.add(getBVMType(type, selfTypeStack));
                 }
                 return new BUnionType(memberTypes);
-            case org.ballerinalang.jvm.types.TypeTags.INTERSECTION_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.INTERSECTION_TAG:
                 return getBVMType(((BIntersectionType) jvmType).getEffectiveType(), selfTypeStack);
-            case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.OBJECT_TYPE_TAG:
                 org.ballerinalang.jvm.types.BObjectType objectType = (org.ballerinalang.jvm.types.BObjectType) jvmType;
                 BObjectType bvmObjectType =
                         new BObjectType(objectType.getName(), objectType.getPackage().getName(),
@@ -1104,15 +1105,15 @@ public class BRunUtil {
                 }
                 bvmObjectType.setFields(objectFields);
                 return bvmObjectType;
-            case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.XML_TAG:
                 return BTypes.typeXML;
-            case org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG:
-                BTypedescType typedescType = (BTypedescType) jvmType;
+            case org.ballerinalang.jvm.api.TypeTags.TYPEDESC_TAG:
+                TypedescType typedescType = (TypedescType) jvmType;
                 return new BTypeDesc(typedescType.getName(),
                         typedescType.getPackage() == null ? null : typedescType.getPackage().getName());
-            case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.NULL_TAG:
                 return BTypes.typeNull;
-            case org.ballerinalang.jvm.types.TypeTags.FINITE_TYPE_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.FINITE_TYPE_TAG:
                 org.ballerinalang.jvm.types.BFiniteType jvmBFiniteType =
                         (org.ballerinalang.jvm.types.BFiniteType) jvmType;
                 BFiniteType bFiniteType = new BFiniteType(jvmBFiniteType.getName(),
@@ -1120,7 +1121,7 @@ public class BRunUtil {
                 jvmBFiniteType.valueSpace.forEach(jvmVal -> bFiniteType.valueSpace.add(getBVMValue(jvmVal)));
                 return bFiniteType;
 
-            case org.ballerinalang.jvm.types.TypeTags.FUNCTION_POINTER_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.FUNCTION_POINTER_TAG:
                 org.ballerinalang.jvm.types.BFunctionType jvmBFunctionType =
                         (org.ballerinalang.jvm.types.BFunctionType) jvmType;
                 BType[] bParamTypes = new BType[jvmBFunctionType.paramTypes.length];
@@ -1133,11 +1134,11 @@ public class BRunUtil {
                     bRestType = getBVMType(jvmBFunctionType.restType, selfTypeStack);
                 }
                 return new BFunctionType(bParamTypes, bRestType, new BType[]{bRetType});
-            case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.HANDLE_TAG:
                 return BTypes.typeHandle;
-            case org.ballerinalang.jvm.types.TypeTags.SERVICE_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.SERVICE_TAG:
                 return new BServiceType(jvmType.getName(), null, 0);
-            case org.ballerinalang.jvm.types.TypeTags.READONLY_TAG:
+            case org.ballerinalang.jvm.api.TypeTags.READONLY_TAG:
                 return BTypes.typeReadonly;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");

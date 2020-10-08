@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.table;
 
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.runtime.AsyncUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BTableType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
@@ -56,7 +56,7 @@ public class Map {
                                                                       TABLE_VERSION, "map");
 
     public static TableValueImpl map(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
-        BType newConstraintType = ((BFunctionType) func.getType()).retType;
+        Type newConstraintType = ((BFunctionType) func.getType()).retType;
         BTableType tblType = (BTableType) tbl.getType();
         BTableType newTableType = new BTableType(newConstraintType, tblType.getFieldNames(), tblType.isReadOnly());
 

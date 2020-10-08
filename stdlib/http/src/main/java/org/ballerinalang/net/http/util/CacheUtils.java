@@ -19,8 +19,8 @@
 package org.ballerinalang.net.http.util;
 
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BTypes;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.time.ZonedDateTime;
@@ -119,7 +119,7 @@ public class CacheUtils {
     public static BString getProperty(BString name) {
         String value = System.getProperty(name.getValue());
         if (value == null) {
-            return BTypes.typeString.getZeroValue();
+            return Types.TYPE_STRING.getZeroValue();
         }
         return BStringUtils.fromString(value);
     }

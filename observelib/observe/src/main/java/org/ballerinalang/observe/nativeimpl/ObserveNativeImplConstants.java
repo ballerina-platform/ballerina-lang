@@ -18,8 +18,8 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BPackage;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
@@ -34,7 +34,7 @@ public final class ObserveNativeImplConstants {
     }
 
     public static final String OBSERVE_PACKAGE_PATH = "ballerina/observe";
-    public static final BPackage OBSERVE_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "0.8.0");
+    public static final Module OBSERVE_PACKAGE_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "0.8.0");
     public static final String GAUGE = "Gauge";
     public static final String COUNTER = "Counter";
     public static final String SNAPSHOT = "Snapshot";

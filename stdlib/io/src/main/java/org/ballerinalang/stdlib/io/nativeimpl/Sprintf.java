@@ -19,10 +19,10 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -143,7 +143,7 @@ public class Sprintf {
 
     private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {
         final Object argsValues = args[k];
-        final BType type = TypeChecker.getType(argsValues);
+        final Type type = TypeChecker.getType(argsValues);
         if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((BArrayType) type).getElementType().getTag()) {
             ArrayValue byteArray = ((ArrayValue) argsValues);
             for (int i = 0; i < byteArray.size(); i++) {

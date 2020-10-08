@@ -20,13 +20,13 @@ package org.ballerinalang.testerina.natives.mock;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -167,9 +167,9 @@ public class ObjectMock {
                     if (attachedFunction.type.getParameterType()[i] instanceof BUnionType) {
                         Object arg = it.next();
                         boolean isTypeAvailable = false;
-                        List<BType> memberTypes =
+                        List<Type> memberTypes =
                                 ((BUnionType) attachedFunction.type.getParameterType()[i]).getMemberTypes();
-                        for (BType memberType : memberTypes) {
+                        for (Type memberType : memberTypes) {
                             if (TypeChecker.checkIsType(arg, memberType)) {
                                 isTypeAvailable = true;
                                 break;
@@ -322,9 +322,9 @@ public class ObjectMock {
         for (AttachedFunction attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
                 if (attachedFunction.type.getReturnParameterType() instanceof BUnionType) {
-                    List<BType> memberTypes =
+                    List<Type> memberTypes =
                             ((BUnionType) attachedFunction.type.getReturnParameterType()).getMemberTypes();
-                    for (BType memberType : memberTypes) {
+                    for (Type memberType : memberTypes) {
                         if (TypeChecker.checkIsType(returnVal, memberType)) {
                             return true;
                         }
@@ -344,7 +344,7 @@ public class ObjectMock {
      * @param fieldType type of the field
      * @return whether the return value is valid
      */
-    private static boolean validateFieldValue(Object returnVal, BType fieldType) {
+    private static boolean validateFieldValue(Object returnVal, Type fieldType) {
         return TypeChecker.checkIsType(returnVal, fieldType);
     }
 
@@ -357,8 +357,8 @@ public class ObjectMock {
      */
     private static BError validateFunctionSignatures(AttachedFunction func, AttachedFunction[] attachedFunctions) {
         String functionName = func.getName();
-        BType[] paramTypes = func.getParameterType();
-        BType returnType = func.type.getReturnParameterType();
+        Type[] paramTypes = func.getParameterType();
+        Type returnType = func.type.getReturnParameterType();
 
         for (AttachedFunction attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
@@ -380,10 +380,10 @@ public class ObjectMock {
                                         MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                                         MockConstants.TEST_PACKAGE_ID, BStringUtils.fromString(detail));
                             } else {
-                                BType[] memberTypes = ((BUnionType) attachedFunction.getParameterType()[i])
-                                        .getMemberTypes().toArray(new BType[0]);
-                                BType[] providedTypes = ((BUnionType) paramTypes[i])
-                                        .getMemberTypes().toArray(new BType[0]);
+                                Type[] memberTypes = ((BUnionType) attachedFunction.getParameterType()[i])
+                                        .getMemberTypes().toArray(new Type[0]);
+                                Type[] providedTypes = ((BUnionType) paramTypes[i])
+                                        .getMemberTypes().toArray(new Type[0]);
                                 for (int j = 0; j < memberTypes.length; j++) {
                                     if (!TypeChecker.checkIsType(providedTypes[j], memberTypes[j])) {
                                         BString detail = BStringUtils

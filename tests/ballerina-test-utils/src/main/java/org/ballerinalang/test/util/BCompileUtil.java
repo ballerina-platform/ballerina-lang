@@ -17,9 +17,9 @@
 package org.ballerinalang.test.util;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.elements.PackageID;
@@ -201,7 +201,7 @@ public class BCompileUtil {
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                    BTypes.typeAny, null, null);
+                                                       Types.TYPE_ANY, null, null);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {

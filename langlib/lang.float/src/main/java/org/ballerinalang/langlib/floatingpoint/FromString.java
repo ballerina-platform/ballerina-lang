@@ -19,9 +19,9 @@
 package org.ballerinalang.langlib.floatingpoint;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.model.types.TypeKind;
@@ -54,7 +54,7 @@ public class FromString {
             return BErrorCreator.createError(getModulePrefixedReason(FLOAT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
                                              BLangExceptionHelper.getErrorMessage(
                                                      RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                                     BTypes.typeString, s, BTypes.typeFloat));
+                                                     Types.TYPE_STRING, s, Types.TYPE_FLOAT));
         }
     }
 }

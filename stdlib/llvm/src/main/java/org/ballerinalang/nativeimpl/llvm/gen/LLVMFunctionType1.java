@@ -17,8 +17,8 @@
 package org.ballerinalang.nativeimpl.llvm.gen;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
@@ -64,7 +64,7 @@ public class LLVMFunctionType1 {
         int paramCountRef = (int) paramCount;
         int isVarArgRef = (int) isVarArg;
         LLVMTypeRef returnValue = LLVMFunctionType(returnTypeRef, paramTypesWrapped, paramCountRef, isVarArgRef);
-        MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
+        MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new Module("ballerina",
                 "llvm"), "LLVMTypeRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
         return returnWrappedRecord;

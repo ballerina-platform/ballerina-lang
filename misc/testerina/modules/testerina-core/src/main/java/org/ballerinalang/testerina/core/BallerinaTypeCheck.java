@@ -20,8 +20,8 @@ package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BType;
 
 /**
  * Type check function ballerina/test#getBallerinaType.
@@ -31,7 +31,7 @@ public class BallerinaTypeCheck {
     }
 
     public static BString getBallerinaType(Object value) {
-        BType bType = TypeChecker.getType(value);
+        Type bType = TypeChecker.getType(value);
         return BStringUtils.fromString(bType.getName());
     }
 }

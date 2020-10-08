@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.internal;
 
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -44,7 +44,7 @@ public class GetMapFunc {
     public static FPValue getMapFunc(Strand strand, Object obj) {
         FPValue fpValue = (FPValue) obj;
         BFunctionType functionType = (BFunctionType) fpValue.getType();
-        functionType.paramTypes[0] = new BUnionType(new BType[]{BTypes.typeAny, BTypes.typeError}, 0);
+        functionType.paramTypes[0] = new BUnionType(new Type[]{Types.TYPE_ANY, Types.TYPE_ERROR}, 0);
         return fpValue;
     }
 }

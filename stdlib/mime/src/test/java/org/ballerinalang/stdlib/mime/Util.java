@@ -21,9 +21,9 @@ package org.ballerinalang.stdlib.mime;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -78,7 +78,7 @@ public class Util {
      * @return BValueArray representing an array of entities
      */
     public static ArrayValue getArrayOfBodyParts(ArrayList<BObject> bodyParts) {
-        BType typeOfBodyPart = bodyParts.get(0).getType();
+        Type typeOfBodyPart = bodyParts.get(0).getType();
         ObjectValue[] result = bodyParts.toArray(new ObjectValue[bodyParts.size()]);
         return new ArrayValueImpl(result, new org.ballerinalang.jvm.types.BArrayType(typeOfBodyPart));
     }

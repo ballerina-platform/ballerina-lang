@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.map;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
@@ -54,8 +54,8 @@ import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 public class ToArray {
 
     public static ArrayValue toArray(Strand strand, MapValue<?, ?> m) {
-        BType mapType = m.getType();
-        BType arrElemType;
+        Type mapType = m.getType();
+        Type arrElemType;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 arrElemType = ((BMapType) mapType).getConstrainedType();

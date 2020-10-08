@@ -19,22 +19,23 @@
 package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
+import org.ballerinalang.jvm.api.types.ArrayType;
+import org.ballerinalang.jvm.api.types.BooleanType;
+import org.ballerinalang.jvm.api.types.ByteType;
+import org.ballerinalang.jvm.api.types.DecimalType;
+import org.ballerinalang.jvm.api.types.FloatType;
+import org.ballerinalang.jvm.api.types.IntegerType;
+import org.ballerinalang.jvm.api.types.MapType;
+import org.ballerinalang.jvm.api.types.ObjectType;
+import org.ballerinalang.jvm.api.types.RecordType;
+import org.ballerinalang.jvm.api.types.StringType;
+import org.ballerinalang.jvm.api.types.TupleType;
+import org.ballerinalang.jvm.api.types.Type;
+import org.ballerinalang.jvm.api.types.XMLType;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BBooleanType;
-import org.ballerinalang.jvm.types.BByteType;
-import org.ballerinalang.jvm.types.BDecimalType;
-import org.ballerinalang.jvm.types.BFloatType;
-import org.ballerinalang.jvm.types.BIntegerType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BStringType;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BXMLType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
@@ -704,28 +705,28 @@ public class BTestRunner {
         valueList.add(params.toArray());
     }
 
-    private static Class<?> getArgTypeToClassMapping(BType elementType) {
+    private static Class<?> getArgTypeToClassMapping(Type elementType) {
         Class<?> type;
         // Refer jvm_method_gen.bal getArgTypeSignature for proper type matching
-        if (elementType instanceof BStringType) {
+        if (elementType instanceof StringType) {
             type = BString.class;
-        } else if (elementType instanceof BIntegerType) {
+        } else if (elementType instanceof IntegerType) {
             type = Long.TYPE;
-        } else if (elementType instanceof BBooleanType) {
+        } else if (elementType instanceof BooleanType) {
             type = Boolean.TYPE;
-        } else if (elementType instanceof BDecimalType) {
+        } else if (elementType instanceof DecimalType) {
             type = DecimalValue.class;
-        } else if (elementType instanceof BByteType) {
+        } else if (elementType instanceof ByteType) {
             type = Integer.TYPE;
-        } else if (elementType instanceof BArrayType || elementType instanceof BTupleType) {
+        } else if (elementType instanceof ArrayType || elementType instanceof TupleType) {
             type = ArrayValue.class;
-        } else if (elementType instanceof BFloatType) {
+        } else if (elementType instanceof FloatType) {
             type = Double.TYPE;
-        } else if (elementType instanceof BMapType || elementType instanceof BRecordType) {
+        } else if (elementType instanceof MapType || elementType instanceof RecordType) {
             type = MapValue.class;
-        } else if (elementType instanceof BXMLType) {
+        } else if (elementType instanceof XMLType) {
             type = XMLValue.class;
-        } else if (elementType instanceof BObjectType) {
+        } else if (elementType instanceof ObjectType) {
             type = ObjectValue.class;
         } else {
             // default case

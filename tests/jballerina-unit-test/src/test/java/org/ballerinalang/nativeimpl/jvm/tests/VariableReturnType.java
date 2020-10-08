@@ -17,6 +17,8 @@
 
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BFunctionPointer;
 import org.ballerinalang.jvm.api.values.BFuture;
@@ -28,8 +30,6 @@ import org.ballerinalang.jvm.api.values.BXML;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.BmpStringValue;
@@ -43,13 +43,13 @@ import org.ballerinalang.jvm.values.TupleValueImpl;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.jvm.types.TypeTags.BOOLEAN_TAG;
-import static org.ballerinalang.jvm.types.TypeTags.BYTE_TAG;
-import static org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG;
-import static org.ballerinalang.jvm.types.TypeTags.FLOAT_TAG;
-import static org.ballerinalang.jvm.types.TypeTags.INT_TAG;
-import static org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG;
-import static org.ballerinalang.jvm.types.TypeTags.STRING_TAG;
+import static org.ballerinalang.jvm.api.TypeTags.BOOLEAN_TAG;
+import static org.ballerinalang.jvm.api.TypeTags.BYTE_TAG;
+import static org.ballerinalang.jvm.api.TypeTags.DECIMAL_TAG;
+import static org.ballerinalang.jvm.api.TypeTags.FLOAT_TAG;
+import static org.ballerinalang.jvm.api.TypeTags.INT_TAG;
+import static org.ballerinalang.jvm.api.TypeTags.RECORD_TYPE_TAG;
+import static org.ballerinalang.jvm.api.TypeTags.STRING_TAG;
 
 /**
  * Native methods for testing functions with variable return types.
@@ -103,7 +103,7 @@ public class VariableReturnType {
     }
 
     public static Object getObjectValue(ObjectValue objectValue, BTypedesc td) {
-        BType describingType = td.getDescribingType();
+        Type describingType = td.getDescribingType();
         if (describingType.getTag() == STRING_TAG) {
             BString newFname = objectValue.getStringValue(new BmpStringValue("fname"))
                     .concat(new BmpStringValue(" ")).concat(objectValue.getStringValue(new BmpStringValue("lname")));
@@ -114,7 +114,7 @@ public class VariableReturnType {
     }
 
     public static MapValue query(BString query, BTypedesc typedesc) {
-        BType type = typedesc.getDescribingType();
+        Type type = typedesc.getDescribingType();
         MapValue map;
 
         if (type.getTag() == INT_TAG) {
@@ -126,14 +126,14 @@ public class VariableReturnType {
             map.put(NAME, new BmpStringValue("Pubudu"));
             map.put(CITY, new BmpStringValue("Panadura"));
         } else {
-            map = new MapValueImpl(new BMapType(BTypes.typeAny));
+            map = new MapValueImpl(new BMapType(Types.TYPE_ANY));
         }
 
         return map;
     }
 
     public static ArrayValue getTuple(BTypedesc td1, BTypedesc td2, BTypedesc td3) {
-        List<BType> memTypes = new ArrayList<>();
+        List<Type> memTypes = new ArrayList<>();
         memTypes.add(td1.getDescribingType());
         memTypes.add(td2.getDescribingType());
         memTypes.add(td3.getDescribingType());
@@ -166,8 +166,8 @@ public class VariableReturnType {
     }
 
     public static Object getVariedUnion(long x, BTypedesc td1, BTypedesc td2) {
-        BType type1 = td1.getDescribingType();
-        BType type2 = td2.getDescribingType();
+        Type type1 = td1.getDescribingType();
+        Type type2 = td2.getDescribingType();
 
         if (x == 0) {
             switch (type1.getTag()) {
@@ -203,7 +203,7 @@ public class VariableReturnType {
         return null;
     }
 
-    private static Object getValue(BType type) {
+    private static Object getValue(Type type) {
         switch (type.getTag()) {
             case INT_TAG:
                 return 150L;

@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
 
 import java.util.List;
 
@@ -34,9 +34,9 @@ import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COM
 public class SignatureParams {
 
     private HttpResource resource;
-    private final List<BType> paramTypes;
-    private BType entityBody;
-    private List<BType> pathParamTypes;
+    private final List<Type> paramTypes;
+    private Type entityBody;
+    private List<Type> pathParamTypes;
     private int paramCount = COMPULSORY_PARAM_COUNT;
 
     SignatureParams(HttpResource resource) {
@@ -55,8 +55,8 @@ public class SignatureParams {
         }
     }
 
-    private void validatePathParam(List<BType> paramDetails) {
-        for (BType paramType : paramDetails) {
+    private void validatePathParam(List<Type> paramDetails) {
+        for (Type paramType : paramDetails) {
             int varTag = paramType.getTag();
             if (varTag != TypeTags.STRING_TAG && varTag != TypeTags.INT_TAG && varTag != TypeTags.BOOLEAN_TAG &&
                     varTag != TypeTags.FLOAT_TAG) {
@@ -68,7 +68,7 @@ public class SignatureParams {
         this.pathParamTypes = paramDetails;
     }
 
-    private void validateEntityBodyParam(BType entityBodyParamType) {
+    private void validateEntityBodyParam(Type entityBodyParamType) {
         int type = entityBodyParamType.getTag();
         if (type == TypeTags.RECORD_TYPE_TAG || type == TypeTags.JSON_TAG || type == TypeTags.XML_TAG ||
                 type == TypeTags.STRING_TAG || (type == TypeTags.ARRAY_TAG && validArrayType(entityBodyParamType))) {
@@ -86,16 +86,16 @@ public class SignatureParams {
      * @param entityBodyParamType Represents resource parameter details
      * @return a boolean indicating the validity of the array type
      */
-    private boolean validArrayType(BType entityBodyParamType) {
+    private boolean validArrayType(Type entityBodyParamType) {
         return ((BArrayType) entityBodyParamType).getElementType().getTag() == TypeTags.BYTE_TAG ||
                 ((BArrayType) entityBodyParamType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG;
     }
 
-    BType getEntityBody() {
+    Type getEntityBody() {
         return entityBody;
     }
 
-    List<BType> getPathParamTypes() {
+    List<Type> getPathParamTypes() {
         return pathParamTypes;
     }
 

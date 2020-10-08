@@ -19,12 +19,12 @@
 package org.ballerinalang.net.http.nativeimpl;
 
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.net.http.HttpConstants;
@@ -45,7 +45,7 @@ import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAva
  */
 public class ExternRequest {
 
-    private static final BMapType mapType = new BMapType(new BArrayType(BTypes.typeString));
+    private static final BMapType mapType = new BMapType(new BArrayType(Types.TYPE_STRING));
 
     public static BObject createNewEntity(BObject requestObj) {
         return HttpUtil.createNewEntity(requestObj);

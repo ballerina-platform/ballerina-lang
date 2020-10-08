@@ -19,13 +19,13 @@
 package org.ballerinalang.nativeimpl.java;
 
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.types.Type;
+import org.ballerinalang.jvm.api.types.TypedescType;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -83,12 +83,12 @@ public class Cast {
                 return createError(BStringUtils.fromString(moduleName + " Error while retrieving details of the `" +
                         annotationName + "` annotation from `" + valueObjName + "` object: " + e));
             }
-            BType describingBType = castType.getDescribingType();
+            Type describingBType = castType.getDescribingType();
             BString castObjClass;
             BObjectType castObjType;
             String castObjTypeName;
             try {
-                BTypedescType describingType = (BTypedescType) describingBType;
+                TypedescType describingType = (TypedescType) describingBType;
                 castObjType = (BObjectType) describingType.getConstraint();
                 castObjTypeName = castObjType.getName();
                 BField objField = castObjType.getFields().get(jObjField);

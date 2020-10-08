@@ -19,10 +19,10 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.Types;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -56,9 +56,9 @@ public class ExternMethods {
     private ExternMethods() {}
 
     private static final BTupleType getDateTupleType = new BTupleType(
-            Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt));
+            Arrays.asList(Types.TYPE_INT, Types.TYPE_INT, Types.TYPE_INT));
     private static final BTupleType getTimeTupleType = new BTupleType(
-            Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt, BTypes.typeInt));
+            Arrays.asList(Types.TYPE_INT, Types.TYPE_INT, Types.TYPE_INT, Types.TYPE_INT));
 
     public static BString toString(MapValue<BString, Object> timeRecord) {
         return getDefaultString(timeRecord);

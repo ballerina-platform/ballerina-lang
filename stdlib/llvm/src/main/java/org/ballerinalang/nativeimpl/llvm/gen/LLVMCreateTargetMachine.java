@@ -16,8 +16,8 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
+import org.ballerinalang.jvm.api.runtime.Module;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
@@ -66,7 +66,7 @@ public class LLVMCreateTargetMachine {
         BytePointer features = (BytePointer) FFIUtil.getRecodeArgumentNative(arg3);
         LLVMTargetMachineRef returnValue = LLVMCreateTargetMachine(t, triple, cpu, features, (int) arg4,
                 (int) arg5, (int) arg6);
-        MapValue<String, Object> rerunWrapperRecode = FFIUtil.newRecord(new BPackage("ballerina",
+        MapValue<String, Object> rerunWrapperRecode = FFIUtil.newRecord(new Module("ballerina",
                 "llvm"), "LLVMTargetMachineRef");
         FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
         return rerunWrapperRecode;

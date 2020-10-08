@@ -23,9 +23,9 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.RefValue;
@@ -114,7 +114,7 @@ public abstract class MimeDataSourceBuilder {
     private static boolean isJSON(Object value) {
         // If the value is string, it could represent any type of payload.
         // Therefore it needs to be parsed as JSON.
-        BType objectType = TypeChecker.getType(value);
+        Type objectType = TypeChecker.getType(value);
         return objectType.getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(objectType);
     }
 

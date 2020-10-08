@@ -22,12 +22,15 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.ArrayType;
+import org.ballerinalang.jvm.api.types.MapType;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -191,7 +194,7 @@ public class MimeUtil {
     public static BObject parseMediaType(BObject mediaType, String contentType) {
         try {
             BMap<BString, Object> parameterMap =
-                   BValueCreator.createMapValue(new org.ballerinalang.jvm.types.BMapType(BTypes.typeString));
+                   BValueCreator.createMapValue(new org.ballerinalang.jvm.types.BMapType(Types.TYPE_STRING));
             BString suffix, primaryType, subType;
 
             if (contentType != null) {
@@ -204,7 +207,7 @@ public class MimeUtil {
                     suffix = BStringUtils.fromString(
                             subTypeStr.substring(subTypeStr.lastIndexOf(SUFFIX_ATTACHMENT) + 1));
                 } else {
-                    suffix = BTypes.typeString.getZeroValue();
+                    suffix = Types.TYPE_STRING.getZeroValue();
                 }
 
                 MimeTypeParameterList parameterList = mimeType.getParameters();
@@ -216,7 +219,7 @@ public class MimeUtil {
                     parameterMap.put(BStringUtils.fromString(key), value);
                 }
             } else {
-                primaryType = suffix = subType = BTypes.typeString.getZeroValue();
+                primaryType = suffix = subType = Types.TYPE_STRING.getZeroValue();
             }
 
             mediaType.set(PRIMARY_TYPE_FIELD, primaryType);
@@ -474,7 +477,7 @@ public class MimeUtil {
                 .fromString(errMsg), errorValue);
     }
 
-    public static boolean isJSONCompatible(org.ballerinalang.jvm.types.BType type) {
+    public static boolean isJSONCompatible(Type type) {
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
@@ -483,17 +486,17 @@ public class MimeUtil {
             case TypeTags.JSON_TAG:
                 return true;
             case TypeTags.ARRAY_TAG:
-                return isJSONCompatible(((org.ballerinalang.jvm.types.BArrayType) type).getElementType());
+                return isJSONCompatible(((ArrayType) type).getElementType());
             case TypeTags.MAP_TAG:
-                return isJSONCompatible(((org.ballerinalang.jvm.types.BMapType) type).getConstrainedType());
+                return isJSONCompatible(((MapType) type).getConstrainedType());
             default:
                 return false;
         }
     }
 
     public static String getMessageAsString(Object dataSource) {
-        org.ballerinalang.jvm.types.BType type = TypeChecker.getType(dataSource);
-//        if (TypeChecker.checkIsType(dataSource, BTypes.typeString)) {
+        Type type = TypeChecker.getType(dataSource);
+//        if (TypeChecker.checkIsType(dataSource, Types.typeString)) {
         if (type.getTag() == TypeTags.STRING_TAG) {
             if (dataSource instanceof BString) {
                 return ((BString) dataSource).getValue();

@@ -20,15 +20,15 @@ package org.ballerinalang.langlib.value;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -73,13 +73,13 @@ public class ToJson {
     }
 
     private static Object convert(Object value, List<TypeValuePair> unresolvedValues, Strand strand) {
-        BType jsonType = BTypes.typeJSON;
+        Type jsonType = Types.TYPE_JSON;
 
         if (value == null) {
             return null;
         }
 
-        BType sourceType = TypeChecker.getType(value);
+        Type sourceType = TypeChecker.getType(value);
 
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value, jsonType)) {
             return value;
@@ -130,7 +130,7 @@ public class ToJson {
 
     private static Object convertMapToJson(MapValue<?, ?> map, List<TypeValuePair> unresolvedValues,
                                            Strand strand) {
-        MapValueImpl<BString, Object> newMap = new MapValueImpl<>(new BMapType(BTypes.typeJSON));
+        MapValueImpl<BString, Object> newMap = new MapValueImpl<>(new BMapType(Types.TYPE_JSON));
         for (Map.Entry entry : map.entrySet()) {
             Object newValue = convert(entry.getValue(), unresolvedValues, strand);
             newMap.put(BStringUtils.fromString(entry.getKey().toString()), newValue);
@@ -140,7 +140,7 @@ public class ToJson {
 
     private static Object convertArrayToJson(ArrayValue array, List<TypeValuePair> unresolvedValues,
                                              Strand strand) {
-        ArrayValueImpl newArray = new ArrayValueImpl((BArrayType) BTypes.typeJsonArray);
+        ArrayValueImpl newArray = new ArrayValueImpl((BArrayType) Types.TYPE_JSON_ARRAY);
         for (int i = 0; i < array.size(); i++) {
             Object newValue = convert(array.get(i), unresolvedValues, strand);
             newArray.add(i, newValue);
@@ -148,13 +148,13 @@ public class ToJson {
         return newArray;
     }
 
-    private static BError createConversionError(Object inputValue, BType targetType) {
+    private static BError createConversionError(Object inputValue, Type targetType) {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
                            BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
                                                                 TypeChecker.getType(inputValue), targetType));
     }
 
-    private static BError createConversionError(Object inputValue, BType targetType, String detailMessage) {
+    private static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
                 .concat(BStringUtils.fromString(": ".concat(detailMessage))));

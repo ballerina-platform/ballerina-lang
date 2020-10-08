@@ -1,8 +1,8 @@
 package org.ballerinalang.nativeimpl.llvm;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.api.runtime.Module;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -18,11 +18,11 @@ public class FFIUtil {
         return new MapValueImpl<String, Object>();
     }
 
-    public static MapValue<String, Object> newRecord(BType type) {
+    public static MapValue<String, Object> newRecord(Type type) {
         return new MapValueImpl<String, Object>(type);
     }
 
-    public static MapValue<String, Object> newRecord(BPackage packageObj, String structName) {
+    public static MapValue<String, Object> newRecord(Module packageObj, String structName) {
         return BallerinaValues.createRecordValue(packageObj, structName);
     }
 

@@ -19,13 +19,13 @@
 package org.ballerinalang.langlib.internal;
 
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.TypeTags;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BTableType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -46,7 +46,7 @@ public class GetElementType {
 
     public static TypedescValue getElementType(Strand strand, Object td) {
         TypedescValue typedescValue = (TypedescValue) td;
-        BType type = typedescValue.getDescribingType();
+        Type type = typedescValue.getDescribingType();
         if (type.getTag() == TypeTags.ARRAY_TAG) {
             return (TypedescValue) BValueCreator.createTypedescValue(((BArrayType) type).getElementType());
         } else if (type.getTag() == TypeTags.STREAM_TAG) {
@@ -55,6 +55,6 @@ public class GetElementType {
             return (TypedescValue) BValueCreator.createTypedescValue(((BTableType) type).getConstrainedType());
         }
 
-        return (TypedescValue) BValueCreator.createTypedescValue(BTypes.typeNull);
+        return (TypedescValue) BValueCreator.createTypedescValue(Types.TYPE_NULL);
     }
 }

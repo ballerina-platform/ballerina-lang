@@ -20,11 +20,12 @@ package org.ballerinalang.mime.util;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
+import org.ballerinalang.jvm.api.Types;
+import org.ballerinalang.jvm.api.types.Type;
 import org.ballerinalang.jvm.api.values.BLink;
 import org.ballerinalang.jvm.api.values.BMap;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
@@ -132,7 +133,7 @@ public class MultipartDataSource implements RefValue {
             if (mediaType.get(PARAMETER_MAP_FIELD) != null) {
                 paramMap = (MapValue<BString, Object>) mediaType.get(PARAMETER_MAP_FIELD);
             } else {
-                paramMap = BValueCreator.createMapValue(new org.ballerinalang.jvm.types.BMapType(BTypes.typeString));
+                paramMap = BValueCreator.createMapValue(new org.ballerinalang.jvm.types.BMapType(Types.TYPE_STRING));
             }
 
             paramMap.put(BStringUtils.fromString(BOUNDARY), BStringUtils.fromString(childBoundaryString));
@@ -231,7 +232,7 @@ public class MultipartDataSource implements RefValue {
     }
 
     @Override
-    public org.ballerinalang.jvm.types.BType getType() {
+    public Type getType() {
         return null;
     }
 
