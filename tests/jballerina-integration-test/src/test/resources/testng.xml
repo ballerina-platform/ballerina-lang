@@ -198,22 +198,27 @@
         </classes>
     </test>
 
-<!--    <test name="ballerina-observability-tests" parallel="false">-->
-<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
-<!--        <groups>-->
-<!--            <run>-->
-<!--                <exclude name="brokenOnTableRemove"/>-->
-<!--            </run>-->
-<!--        </groups>-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.observability.tracing.TracingBaseTest"/>-->
-<!--            <class name="org.ballerinalang.test.observability.tracing.OOTBTracingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.observability.tracing.ErrorsTracingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.observability.tracing.CustomTracingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>-->
+    <test name="ballerina-observability-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnTableRemove"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="org.ballerinalang.test.observability.tracing.BaseTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.MainFunctionTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.ResourceFunctionTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.RemoteCallTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.ObservableAnnotationTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.ConcurrencyTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.CustomTracingTestCase"/>
+<!--            <class name="org.ballerinalang.test.observability.tracing.HttpTracingBaseTest"/>-->
+<!--            <class name="org.ballerinalang.test.observability.tracing.HttpTracingTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.observability.metrics.PrometheusMetricsTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+        </classes>
+    </test>
 
     <test name="ballerina-packerina-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>

@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -33,33 +34,32 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Test cases for custom trace spans.
+ * Test cases for observe:Observable annotation.
  */
 @Test(groups = "tracing-test")
-public class CustomTracingTestCase extends BaseTestCase {
-    private static final String FILE_NAME = "06_custom_trace_spans.bal";
-    private static final String SERVICE_NAME = "testServiceFive";
-    private static final String BASE_URL = "http://localhost:9095";
+public class ObservableAnnotationTestCase extends BaseTestCase {
+    private static final String FILE_NAME = "04_observability_annotation.bal";
+    private static final String SERVICE_NAME = "testServiceThree";
+    private static final String BASE_URL = "http://localhost:9094";
 
     @Test
-    public void testAddCustomSpanToSystemTrace() throws Exception {
+    public void testObservableFunction() throws Exception {
         final String resourceName = "resourceOne";
         final String span1Position = FILE_NAME + ":21:5";
-        final String span3Position = FILE_NAME + ":28:19";
-        final String span5Position = FILE_NAME + ":41:20";
+        final String span2Position = FILE_NAME + ":22:19";
+        final String span3Position = FILE_NAME + ":27:20";
 
-        HttpResponse httpResponse = HttpClientRequest.doGet(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName);
+        HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName,
+                "", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
-        Assert.assertEquals(httpResponse.getData(), "Hello! from resource one");
+        Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
         Thread.sleep(1000);
 
         List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, resourceName);
-        Assert.assertEquals(spans.size(), 5);
         Assert.assertEquals(spans.stream()
-                        .filter(span -> !Objects.equals(span.getTags().get("custom"), "true"))
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
-                new HashSet<>(Arrays.asList(span1Position, span3Position, span5Position)));
+                new HashSet<>(Arrays.asList(span1Position, span2Position, span3Position)));
         Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
@@ -77,120 +77,7 @@ public class CustomTracingTestCase extends BaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", span1Position),
                     new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
                     new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
-                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
-                    new AbstractMap.SimpleEntry<>("protocol", "http"),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", SERVER_CONNECTOR_NAME)
-            ));
-        });
-
-        Optional<BMockSpan> span2 = spans.stream()
-                .filter(bMockSpan -> Objects.equals(bMockSpan.getOperationName(), "customSpanOne"))
-                .findFirst();
-        Assert.assertTrue(span2.isPresent());
-        span2.ifPresent(span -> {
-            Assert.assertEquals(span.getTraceId(), traceId);
-            Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
-            Assert.assertEquals(span.getTags(), toMap(
-                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("custom", "true"),
-                    new AbstractMap.SimpleEntry<>("index", "1")
-            ));
-        });
-
-        Optional<BMockSpan> span3 = spans.stream()
-                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span3Position))
-                .findFirst();
-        Assert.assertTrue(span3.isPresent());
-        span3.ifPresent(span -> {
-            Assert.assertEquals(span.getTraceId(), traceId);
-            Assert.assertEquals(span.getParentId(), span2.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "calculateSumWithObservability");
-            Assert.assertEquals(span.getTags(), toMap(
-                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("src.position", span3Position),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("function", "calculateSumWithObservability")
-            ));
-        });
-
-        Optional<BMockSpan> span4 = spans.stream()
-                .filter(bMockSpan -> Objects.equals(bMockSpan.getOperationName(), "customSpanTwo"))
-                .findFirst();
-        Assert.assertTrue(span4.isPresent());
-        span4.ifPresent(span -> {
-            Assert.assertEquals(span.getTraceId(), traceId);
-            Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
-            Assert.assertEquals(span.getTags(), toMap(
-                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("custom", "true"),
-                    new AbstractMap.SimpleEntry<>("index", "2")
-            ));
-        });
-
-        Optional<BMockSpan> span5 = spans.stream()
-                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span5Position))
-                .findFirst();
-        Assert.assertTrue(span5.isPresent());
-        span5.ifPresent(span -> {
-            Assert.assertEquals(span.getTraceId(), traceId);
-            Assert.assertEquals(span.getParentId(), span4.get().getSpanId());
-            Assert.assertEquals(span.getOperationName(), "ballerina/testobserve/Caller:respond");
-            Assert.assertEquals(span.getTags(), toMap(
-                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("src.position", span5Position),
-                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/testobserve/Caller"),
-                    new AbstractMap.SimpleEntry<>("action", "respond")
-            ));
-        });
-    }
-
-    @Test
-    public void testCustomTrace() throws Exception {
-        final String resourceName = "resourceTwo";
-        final String span1Position = FILE_NAME + ":51:5";
-        final String span2Position = FILE_NAME + ":70:15";
-        final String span3Position = FILE_NAME + ":59:20";
-
-        HttpResponse httpResponse = HttpClientRequest.doGet(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName);
-        Assert.assertEquals(httpResponse.getResponseCode(), 200);
-        Assert.assertEquals(httpResponse.getData(), "Hello! from resource two");
-        Thread.sleep(1000);
-
-        List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, resourceName);
-        Assert.assertEquals(spans.size(), 5);
-        Assert.assertEquals(spans.stream()
-                        .filter(span -> !Objects.equals(span.getTags().get("custom"), "true"))
-                        .map(span -> span.getTags().get("src.position"))
-                        .collect(Collectors.toSet()),
-                new HashSet<>(Arrays.asList(span1Position, span2Position, span3Position)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 2);
-
-        Optional<BMockSpan> span1 = spans.stream()
-                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span1Position))
-                .findFirst();
-        Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
-        span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
-            Assert.assertEquals(span.getOperationName(), resourceName);
-            Assert.assertEquals(span.getTags(), toMap(
-                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
-                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
-                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
-                    new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
-                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
@@ -235,35 +122,87 @@ public class CustomTracingTestCase extends BaseTestCase {
                     new AbstractMap.SimpleEntry<>("action", "respond")
             ));
         });
+    }
 
-        Optional<BMockSpan> customSpan1 = spans.stream()
-                .filter(bMockSpan -> Objects.equals(bMockSpan.getOperationName(), "customSpanThree"))
+    @Test
+    public void testObservableAttachedFunction() throws Exception {
+        final String resourceName = "resourceTwo";
+        final String span1Position = FILE_NAME + ":31:5";
+        final String span2Position = FILE_NAME + ":33:19";
+        final String span3Position = FILE_NAME + ":38:20";
+
+        HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName,
+                "", Collections.emptyMap());
+        Assert.assertEquals(httpResponse.getResponseCode(), 200);
+        Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
+        Thread.sleep(1000);
+
+        List<BMockSpan> spans = this.getFinishedSpans(SERVICE_NAME, resourceName);
+        Assert.assertEquals(spans.stream()
+                        .map(span -> span.getTags().get("src.position"))
+                        .collect(Collectors.toSet()),
+                new HashSet<>(Arrays.asList(span1Position, span2Position, span3Position)));
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+
+        Optional<BMockSpan> span1 = spans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span1Position))
                 .findFirst();
-        Assert.assertTrue(customSpan1.isPresent());
-        long customTraceId = customSpan1.get().getTraceId();
-        customSpan1.ifPresent(span -> {
+        Assert.assertTrue(span1.isPresent());
+        long traceId = span1.get().getTraceId();
+        span1.ifPresent(span -> {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertEquals(span.getOperationName(), resourceName);
             Assert.assertEquals(span.getTags(), toMap(
-                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("http.method", "POST"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("custom", "true"),
-                    new AbstractMap.SimpleEntry<>("index", "3")
+                    new AbstractMap.SimpleEntry<>("connector_name", SERVER_CONNECTOR_NAME)
             ));
         });
 
-        Optional<BMockSpan> customSpan2 = spans.stream()
-                .filter(bMockSpan -> Objects.equals(bMockSpan.getOperationName(), "customSpanFour"))
+        Optional<BMockSpan> span2 = spans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span2Position))
                 .findFirst();
-        Assert.assertTrue(customSpan2.isPresent());
-        customSpan2.ifPresent(span -> {
-            Assert.assertEquals(span.getTraceId(), customTraceId);
-            Assert.assertEquals(span.getParentId(), customSpan1.get().getSpanId());
+        Assert.assertTrue(span2.isPresent());
+        span2.ifPresent(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
+            Assert.assertEquals(span.getOperationName(), "ballerina-test/testservices/ObservableAdder:getSum");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("custom", "true"),
-                    new AbstractMap.SimpleEntry<>("index", "4")
+                    new AbstractMap.SimpleEntry<>("object_name", "ballerina-test/testservices/ObservableAdder"),
+                    new AbstractMap.SimpleEntry<>("function", "getSum")
+            ));
+        });
+
+        Optional<BMockSpan> span3 = spans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span3Position))
+                .findFirst();
+        Assert.assertTrue(span3.isPresent());
+        span3.ifPresent(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
+            Assert.assertEquals(span.getOperationName(), "ballerina/testobserve/Caller:respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("src.position", span3Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("service", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("resource", resourceName),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/testobserve/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
             ));
         });
     }
