@@ -49,7 +49,7 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_
  * Integration test for observability of metrics.
  */
 @Test(groups = {"metrics-test", "brokenOnTableRemove"}, enabled = false)
-public class MetricsTestCase extends BaseTest {
+public class PrometheusMetricsTestCase extends BaseTest {
     private static BServerInstance serverInstance;
 
     private TestDatabase sqlServer;
@@ -61,8 +61,8 @@ public class MetricsTestCase extends BaseTest {
     @BeforeGroups(value = "metrics-test", alwaysRun = true)
     private void setup() throws Exception {
         serverInstance = new BServerInstance(balServer);
-        String dbScriptPath = Paths
-                .get("observability", "metrics", "data.sql").toString();
+        String dbScriptPath = Paths.get("observability", "metrics", "src", "prometheus", "resources",
+                "data.sql").toString();
         sqlServer = new FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScriptPath, SQLDBUtils.DB_DIRECTORY, DB_NAME);
         String balFile = new File(RESOURCE_LOCATION + "metrics-test.bal").getAbsolutePath();
         List<String> args = new ArrayList<>();

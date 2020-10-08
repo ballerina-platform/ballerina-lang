@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This function returns the span context of a given span.
+ * Java functions called from Ballerina related to the mock tracer.
  */
 public class MockTracerUtils {
     public static Object getFinishedSpans(String serviceName) {

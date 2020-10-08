@@ -49,7 +49,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  * Base Test Case which is inherited by all the Tracing Test Cases.
  */
 @Test(groups = "tracing-test")
-public class TracingBaseTest extends BaseTest {
+public class HttpTracingBaseTest extends BaseTest {     // TODO: Move this test case to ballerina/http module
     private static BServerInstance servicesServerInstance;
     private static BServerInstance backendServerInstance;
 
@@ -103,7 +103,7 @@ public class TracingBaseTest extends BaseTest {
         {
             int[] requiredPorts = new int[]{9090, 9091};
             backendServerInstance = new BServerInstance(balServer);
-            backendServerInstance.startServer(basePath, "tracingservices", null, args, requiredPorts);
+            backendServerInstance.startServer(basePath, "httptracing", null, args, requiredPorts);
         }
     }
 

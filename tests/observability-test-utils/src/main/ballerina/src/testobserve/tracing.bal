@@ -20,7 +20,7 @@ import ballerina/java;
 #
 # + serviceName - The name of the service of which the finished spans should be fetched
 # + return - The finished spans as a json
-public function getFinishedSpans(string serviceName) returns json {
+public isolated function getFinishedSpans(string serviceName) returns json {
     handle serviceNameHandle = java:fromString(serviceName);
     return externGetFinishedSpans(serviceNameHandle);
 }
@@ -32,12 +32,4 @@ public function getFinishedSpans(string serviceName) returns json {
 isolated function externGetFinishedSpans(handle serviceName) returns json = @java:Method {
     name: "getFinishedSpans",
     'class: "org.ballerina.testobserve.tracing.extension.MockTracerUtils"
-} external;
-
-# Sleep the current strand.
-#
-# + millis - The number of milliseconds to sleep for
-public isolated function sleep(int millis) = @java:Method {
-    name: "sleep",
-    'class: "org.ballerina.testobserve.NativeUtils"
 } external;
