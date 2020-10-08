@@ -130,7 +130,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINITIAL_VALUE_ENTRY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BXML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
@@ -154,17 +153,18 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
@@ -1517,7 +1517,7 @@ public class JvmInstructionGen {
         this.loadVar(inst.dataOp.variableDcl);
         this.loadVar(inst.keyColOp.variableDcl);
         this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;)V", TABLE_TYPE, ARRAY_VALUE, ARRAY_VALUE), false);
+                                String.format("(L%s;L%s;L%s;)V", TABLE_TYPE_IMPL, ARRAY_VALUE, ARRAY_VALUE), false);
 
         this.storeToVar(inst.lhsOp.variableDcl);
     }
@@ -1566,9 +1566,9 @@ public class JvmInstructionGen {
         this.loadVar(newErrorIns.causeOp.variableDcl);
         this.loadVar(newErrorIns.detailOp.variableDcl);
         this.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, String.format(
-                "(L%s;L%s;L%s;L%s;)V", BTYPE, JvmConstants.B_STRING_VALUE,
-                        B_ERROR,
-                        OBJECT),
+                "(L%s;L%s;L%s;L%s;)V", TYPE, JvmConstants.B_STRING_VALUE,
+                B_ERROR,
+                OBJECT),
                 false);
         this.storeToVar(newErrorIns.lhsOp.variableDcl);
     }
@@ -1592,7 +1592,7 @@ public class JvmInstructionGen {
         loadType(this.mv, typeTestIns.type);
 
         this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
-                String.format("(L%s;L%s;)Z", OBJECT, BTYPE), false);
+                                String.format("(L%s;L%s;)Z", OBJECT, TYPE), false);
         this.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
@@ -1604,7 +1604,7 @@ public class JvmInstructionGen {
         loadType(this.mv, isLike.type);
 
         this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsLikeType",
-                String.format("(L%s;L%s;)Z", OBJECT, BTYPE), false);
+                                String.format("(L%s;L%s;)Z", OBJECT, TYPE), false);
         this.storeToVar(isLike.lhsOp.variableDcl);
     }
 
@@ -1630,8 +1630,8 @@ public class JvmInstructionGen {
         } else {
             loadType(mv, type);
         }
-        this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
-        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE),
+        this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
+        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE_IMPL),
                 false);
         this.storeToVar(objectNewIns.lhsOp.variableDcl);
     }
@@ -1672,7 +1672,7 @@ public class JvmInstructionGen {
             mv.visitInsn(ICONST_0);
         }
         this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD,
-                                String.format("(L%s;L%s;L%s;Z)V", FUNCTION, BTYPE, STRING_VALUE), false);
+                                String.format("(L%s;L%s;L%s;Z)V", FUNCTION, TYPE, STRING_VALUE), false);
 
         // Set annotations if available.
         this.mv.visitInsn(DUP);
@@ -1911,7 +1911,7 @@ public class JvmInstructionGen {
             mv.visitInsn(AASTORE);
         }
 
-        String descriptor = String.format("(L%s;[L%s;)V", BTYPE, MAP_VALUE);
+        String descriptor = String.format("(L%s;[L%s;)V", TYPE, MAP_VALUE);
         this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, descriptor, false);
         this.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }

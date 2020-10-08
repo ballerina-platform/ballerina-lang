@@ -139,7 +139,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
@@ -183,6 +182,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
@@ -942,7 +942,7 @@ public class JvmMethodGen {
                 JvmTypeGen.loadType(mv, param.type);
             }
             mv.visitMethodInsn(INVOKESPECIAL, String.format("%s$ParamInfo", RUNTIME_UTILS), JVM_INIT_METHOD,
-                    String.format("(ZL%s;L%s;)V", STRING_VALUE, BTYPE), false);
+                               String.format("(ZL%s;L%s;)V", STRING_VALUE, TYPE), false);
             mv.visitInsn(AASTORE);
         }
 
@@ -2031,7 +2031,7 @@ public class JvmMethodGen {
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
         loadLocalType(mv, typeDef);
         mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), "processAnnotations",
-                String.format("(L%s;L%s;)V", MAP_VALUE, BTYPE), false);
+                           String.format("(L%s;L%s;)V", MAP_VALUE, TYPE), false);
     }
 
     void generateFrameClasses(BIRPackage pkg, Map<String, byte[]> pkgEntries) {
@@ -2177,7 +2177,7 @@ public class JvmMethodGen {
         mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, String.format("L%s;", STRAND_METADATA));
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
                            String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND_CLASS,
-                                         BTYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
+                                         TYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
     }
 
     public void resetIds() {

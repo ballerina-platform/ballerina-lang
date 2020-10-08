@@ -98,7 +98,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
@@ -138,6 +137,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_PO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_VALUE_ANY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WD_CHANNELS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DATA_CHANNEL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_UTILS;
@@ -1222,11 +1222,11 @@ public class JvmTerminatorGen {
         if (concurrent) {
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
                                String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND_CLASS,
-                                             BTYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
+                                             TYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
         } else {
             mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_LOCAL_METHOD,
                                String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND_CLASS,
-                                             BTYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
+                                             TYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
         }
         // store return
         if (lhsOp.variableDcl != null) {

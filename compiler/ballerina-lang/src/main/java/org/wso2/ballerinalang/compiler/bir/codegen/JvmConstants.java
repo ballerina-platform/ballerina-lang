@@ -77,27 +77,49 @@ public class JvmConstants {
             "org/ballerinalang/jvm/values/ListInitialValueEntry$ExpressionEntry";
 
     // types related classes
-    public static final String BTYPE = "org/ballerinalang/jvm/types/BType";
-    public static final String BTYPES = "org/ballerinalang/jvm/types/BTypes";
-    public static final String ARRAY_TYPE = "org/ballerinalang/jvm/types/BArrayType";
-    public static final String MAP_TYPE = "org/ballerinalang/jvm/types/BMapType";
-    public static final String XML_TYPE = "org/ballerinalang/jvm/types/BXMLType";
-    public static final String STREAM_TYPE = "org/ballerinalang/jvm/types/BStreamType";
-    public static final String TABLE_TYPE = "org/ballerinalang/jvm/types/BTableType";
-    public static final String UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
-    public static final String INTERSECTION_TYPE = "org/ballerinalang/jvm/types/BIntersectionType";
-    public static final String RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
-    public static final String OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";
-    public static final String SERVICE_TYPE = "org/ballerinalang/jvm/types/BServiceType";
-    public static final String ERROR_TYPE = "org/ballerinalang/jvm/types/BErrorType";
-    public static final String TUPLE_TYPE = "org/ballerinalang/jvm/types/BTupleType";
-    public static final String FUNCTION_TYPE = "org/ballerinalang/jvm/types/BFunctionType";
-    public static final String TYPEDESC_TYPE = "org/ballerinalang/jvm/types/BTypedescType";
-    public static final String BFIELD = "org/ballerinalang/jvm/types/BField";
+    public static final String TYPE = "org/ballerinalang/jvm/api/types/Type";
+    public static final String TYPES = "org/ballerinalang/jvm/api/Types";
+
+    public static final String ARRAY_TYPE = "org/ballerinalang/jvm/api/types/ArrayType";
+    public static final String MAP_TYPE = "org/ballerinalang/jvm/api/types/MapType";
+    public static final String BXML_TYPE = "org/ballerinalang/jvm/api/types/XMLType";
+    public static final String STREAM_TYPE = "org/ballerinalang/jvm/api/types/StreamType";
+    public static final String TABLE_TYPE = "org/ballerinalang/jvm/api/types/TableType";
+    public static final String UNION_TYPE = "org/ballerinalang/jvm/api/types/UnionType";
+    public static final String INTERSECTION_TYPE = "org/ballerinalang/jvm/api/types/IntersectionType";
+    public static final String RECORD_TYPE = "org/ballerinalang/jvm/api/types/RecordType";
+    public static final String OBJECT_TYPE = "org/ballerinalang/jvm/api/types/ObjectType";
+    public static final String SERVICE_TYPE = "org/ballerinalang/jvm/api/types/ServiceType";
+    public static final String ERROR_TYPE = "org/ballerinalang/jvm/api/types/ErrorType";
+    public static final String TUPLE_TYPE = "org/ballerinalang/jvm/api/types/TupleType";
+    public static final String FUNCTION_TYPE = "org/ballerinalang/jvm/api/types/FunctionType";
+    public static final String TYPEDESC_TYPE = "org/ballerinalang/jvm/api/types/TypedescType";
+    public static final String BFIELD = "org/ballerinalang/jvm/api/types/Field";
     public static final String ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
-    public static final String FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
-    public static final String FUTURE_TYPE = "org/ballerinalang/jvm/types/BFutureType";
-    public static final String PACKAGE_TYPE = "org/ballerinalang/jvm/types/BPackage";
+    public static final String FINITE_TYPE = "org/ballerinalang/jvm/api/types/FiniteType";
+    public static final String FUTURE_TYPE = "org/ballerinalang/jvm/api/types/FutureType";
+
+
+    public static final String TYPE_IMPL = "org/ballerinalang/jvm/types/BType";
+    public static final String ARRAY_TYPE_IMPL = "org/ballerinalang/jvm/types/BArrayType";
+    public static final String MAP_TYPE_IMPL = "org/ballerinalang/jvm/types/BMapType";
+    public static final String BXML_TYPE_IMPL = "org/ballerinalang/jvm/types/BXMLType";
+    public static final String STREAM_TYPE_IMPL = "org/ballerinalang/jvm/types/BStreamType";
+    public static final String TABLE_TYPE_IMPL = "org/ballerinalang/jvm/types/BTableType";
+    public static final String UNION_TYPE_IMPL = "org/ballerinalang/jvm/types/BUnionType";
+    public static final String INTERSECTION_TYPE_IMPL = "org/ballerinalang/jvm/types/BIntersectionType";
+    public static final String RECORD_TYPE_IMPL = "org/ballerinalang/jvm/types/BRecordType";
+    public static final String OBJECT_TYPE_IMPL = "org/ballerinalang/jvm/types/BObjectType";
+    public static final String SERVICE_TYPE_IMPL = "org/ballerinalang/jvm/types/BServiceType";
+    public static final String ERROR_TYPE_IMPL = "org/ballerinalang/jvm/types/BErrorType";
+    public static final String TUPLE_TYPE_IMPL = "org/ballerinalang/jvm/types/BTupleType";
+    public static final String FUNCTION_TYPE_IMPL = "org/ballerinalang/jvm/types/BFunctionType";
+    public static final String TYPEDESC_TYPE_IMPL = "org/ballerinalang/jvm/types/BTypedescType";
+    public static final String BFIELD_IMPL = "org/ballerinalang/jvm/types/BField";
+    public static final String ATTACHED_FUNCTION_IMPL = "org/ballerinalang/jvm/types/AttachedFunction";
+    public static final String FINITE_TYPE_IMPL = "org/ballerinalang/jvm/types/BFiniteType";
+    public static final String FUTURE_TYPE_IMPL = "org/ballerinalang/jvm/types/BFutureType";
+    public static final String MODULE = "org/ballerinalang/jvm/api/runtime/Module";
     public static final String TYPE_ID_SET = "org/ballerinalang/jvm/types/BTypeIdSet";
     public static final String TYPE_ID = "org/ballerinalang/jvm/types/BTypeIdSet$TypeId";
 
@@ -158,7 +180,7 @@ public class JvmConstants {
     public static final String DEFAULTABLE_ARGS_ANOT_FIELD = "args";
 
     // types related constants
-    public static final String TYPES_ERROR = "typeError";
+    public static final String TYPES_ERROR = "TYPE_ERROR";
 
     // error related constants
     public static final String PANIC_FIELD = "panic";

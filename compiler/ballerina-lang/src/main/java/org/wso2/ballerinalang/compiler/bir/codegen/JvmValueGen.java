@@ -93,7 +93,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIS
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_OPTIONAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_RUNTIME_EXCEPTION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
@@ -110,13 +109,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_SIMPL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_INITIAL_VALUES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_CLASS_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
@@ -344,8 +344,8 @@ class JvmValueGen {
 
     private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String className) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE), null,
-                null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE_IMPL), null,
+                                          null);
         mv.visitCode();
 
         // load super
@@ -353,7 +353,8 @@ class JvmValueGen {
         // load type
         mv.visitVarInsn(ALOAD, 1);
         // invoke super(type);
-        mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE),
+        mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, JVM_INIT_METHOD, String.format("(L%s;)V",
+                                                                                                OBJECT_TYPE_IMPL),
                 false);
 
         String lockClass = "L" + LOCK_VALUE + ";";
@@ -690,7 +691,7 @@ class JvmValueGen {
         this.createRecordPopulateInitialValuesMethod(cw);
 
         this.createRecordConstructor(cw, TYPEDESC_VALUE);
-        this.createRecordConstructor(cw, BTYPE);
+        this.createRecordConstructor(cw, TYPE);
         this.createRecordInitWrapper(cw, className, typeDef);
         this.createLambdas(cw, asyncDataCollector);
         JvmCodeGenUtil.visitStrandMetadataField(cw, asyncDataCollector);
@@ -713,7 +714,7 @@ class JvmValueGen {
 
     private void createTypeDescConstructor(ClassWriter cw) {
 
-        String descriptor = String.format("(L%s;[L%s;)V", BTYPE, MAP_VALUE);
+        String descriptor = String.format("(L%s;[L%s;)V", TYPE, MAP_VALUE);
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, descriptor, null, null);
         mv.visitCode();
 

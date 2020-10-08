@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.api.TypeTags;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JARRAY;
