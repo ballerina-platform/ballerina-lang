@@ -49,7 +49,6 @@ public class Launcher {
             server = new ServerSocket(port);
             PrintStream out = System.out;
             out.println("Debug server started on " + port);
-
             clientSocket = server.accept();
             is = new DataInputStream(clientSocket.getInputStream());
             os = new DataOutputStream(clientSocket.getOutputStream());
@@ -65,5 +64,4 @@ public class Launcher {
             LOGGER.error(e.getMessage(), e);
         }
     }
-
 }
