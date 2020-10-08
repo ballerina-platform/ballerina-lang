@@ -134,6 +134,10 @@
               "value": "foo"
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_SIGNATURE",
               "hasDiagnostics": true,
               "children": [
@@ -344,6 +348,10 @@
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                },
+                                                {
                                                   "kind": "FUNCTION_TYPE_DESC",
                                                   "hasDiagnostics": true,
                                                   "children": [
@@ -500,6 +508,10 @@
                                               "kind": "OBJECT_FIELD",
                                               "children": [
                                                 {
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                },
+                                                {
                                                   "kind": "FUNCTION_TYPE_DESC",
                                                   "children": [
                                                     {
@@ -596,6 +608,10 @@
                                               "kind": "OBJECT_FIELD",
                                               "hasDiagnostics": true,
                                               "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                },
                                                 {
                                                   "kind": "FUNCTION_TYPE_DESC",
                                                   "hasDiagnostics": true,
@@ -711,6 +727,10 @@
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                },
+                                                {
                                                   "kind": "SIMPLE_NAME_REFERENCE",
                                                   "children": [
                                                     {
@@ -752,6 +772,10 @@
                                             {
                                               "kind": "OBJECT_FIELD",
                                               "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                },
                                                 {
                                                   "kind": "UNION_TYPE_DESC",
                                                   "children": [
@@ -851,6 +875,10 @@
                                               "kind": "OBJECT_FIELD",
                                               "hasDiagnostics": true,
                                               "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                },
                                                 {
                                                   "kind": "TUPLE_TYPE_DESC",
                                                   "hasDiagnostics": true,
@@ -1054,6 +1082,10 @@
                                               "kind": "OBJECT_FIELD",
                                               "hasDiagnostics": true,
                                               "children": [
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                },
                                                 {
                                                   "kind": "BOOLEAN_TYPE_DESC",
                                                   "children": [

@@ -80,17 +80,22 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "FINAL_KEYWORD",
-                  "leadingMinutiae": [
+                  "kind": "LIST",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "FINAL_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -128,17 +133,22 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "FINAL_KEYWORD",
-                  "leadingMinutiae": [
+                  "kind": "LIST",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "FINAL_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -175,17 +185,22 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
-                  "kind": "FINAL_KEYWORD",
-                  "leadingMinutiae": [
+                  "kind": "LIST",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "FINAL_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -261,11 +276,16 @@
                   ]
                 },
                 {
-                  "kind": "FINAL_KEYWORD",
-                  "trailingMinutiae": [
+                  "kind": "LIST",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "FINAL_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },

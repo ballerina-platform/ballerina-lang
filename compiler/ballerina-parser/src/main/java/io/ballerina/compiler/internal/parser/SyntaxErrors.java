@@ -482,7 +482,6 @@ public class SyntaxErrors {
             case IMPORT_PREFIX:
             case VARIABLE_REF:
             case BASIC_LITERAL: // return var-ref for any kind of terminal expression
-            case SERVICE_NAME:
             case IDENTIFIER:
             case QUALIFIED_IDENTIFIER:
             case NAMESPACE_PREFIX:
@@ -730,7 +729,6 @@ public class SyntaxErrors {
             case ANNOT_DECL_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_ON_KEYWORD;
             case RESOURCE_KEYWORD:
-            case RESOURCE_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_RESOURCE_KEYWORD;
             case FINAL_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_FINAL_KEYWORD;

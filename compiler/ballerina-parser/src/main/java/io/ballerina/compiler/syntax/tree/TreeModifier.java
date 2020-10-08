@@ -57,6 +57,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(functionDefinitionNode.functionKeyword());
         IdentifierToken functionName =
                 modifyNode(functionDefinitionNode.functionName());
+        NodeList<Token> relativeResourcePath =
+                modifyNodeList(functionDefinitionNode.relativeResourcePath());
         FunctionSignatureNode functionSignature =
                 modifyNode(functionDefinitionNode.functionSignature());
         FunctionBodyNode functionBody =
@@ -67,6 +69,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 qualifierList,
                 functionKeyword,
                 functionName,
+                relativeResourcePath,
                 functionSignature,
                 functionBody);
     }
@@ -156,21 +159,30 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(serviceDeclarationNode.metadata().orElse(null));
         Token serviceKeyword =
                 modifyToken(serviceDeclarationNode.serviceKeyword());
-        IdentifierToken serviceName =
-                modifyNode(serviceDeclarationNode.serviceName());
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(serviceDeclarationNode.typeDescriptor().orElse(null));
+        NodeList<Token> absoluteResourcePath =
+                modifyNodeList(serviceDeclarationNode.absoluteResourcePath());
         Token onKeyword =
                 modifyToken(serviceDeclarationNode.onKeyword());
         SeparatedNodeList<ExpressionNode> expressions =
                 modifySeparatedNodeList(serviceDeclarationNode.expressions());
-        Node serviceBody =
-                modifyNode(serviceDeclarationNode.serviceBody());
+        Token openBraceToken =
+                modifyToken(serviceDeclarationNode.openBraceToken());
+        NodeList<Node> members =
+                modifyNodeList(serviceDeclarationNode.members());
+        Token closeBraceToken =
+                modifyToken(serviceDeclarationNode.closeBraceToken());
         return serviceDeclarationNode.modify(
                 metadata,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody);
+                openBraceToken,
+                members,
+                closeBraceToken);
     }
 
     @Override
@@ -958,8 +970,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(objectFieldNode.metadata().orElse(null));
         Token visibilityQualifier =
                 modifyToken(objectFieldNode.visibilityQualifier().orElse(null));
-        Token finalKeyword =
-                modifyToken(objectFieldNode.finalKeyword().orElse(null));
+        NodeList<Token> qualifierList =
+                modifyNodeList(objectFieldNode.qualifierList());
         Node typeName =
                 modifyNode(objectFieldNode.typeName());
         Token fieldName =
@@ -973,7 +985,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return objectFieldNode.modify(
                 metadata,
                 visibilityQualifier,
-                finalKeyword,
+                qualifierList,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -1060,21 +1072,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 asteriskToken,
                 typeName,
                 semicolonToken);
-    }
-
-    @Override
-    public ServiceBodyNode transform(
-            ServiceBodyNode serviceBodyNode) {
-        Token openBraceToken =
-                modifyToken(serviceBodyNode.openBraceToken());
-        NodeList<Node> resources =
-                modifyNodeList(serviceBodyNode.resources());
-        Token closeBraceToken =
-                modifyToken(serviceBodyNode.closeBraceToken());
-        return serviceBodyNode.modify(
-                openBraceToken,
-                resources,
-                closeBraceToken);
     }
 
     @Override
@@ -1229,14 +1226,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             AnnotationAttachPointNode annotationAttachPointNode) {
         Token sourceKeyword =
                 modifyToken(annotationAttachPointNode.sourceKeyword());
-        Token firstIdent =
-                modifyToken(annotationAttachPointNode.firstIdent());
-        Token secondIdent =
-                modifyToken(annotationAttachPointNode.secondIdent());
+        NodeList<Token> identifiers =
+                modifyNodeList(annotationAttachPointNode.identifiers());
         return annotationAttachPointNode.modify(
                 sourceKeyword,
-                firstIdent,
-                secondIdent);
+                identifiers);
     }
 
     @Override
@@ -2738,21 +2732,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(transactionalExpressionNode.transactionalKeyword());
         return transactionalExpressionNode.modify(
                 transactionalKeyword);
-    }
-
-    @Override
-    public ServiceConstructorExpressionNode transform(
-            ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        NodeList<AnnotationNode> annotations =
-                modifyNodeList(serviceConstructorExpressionNode.annotations());
-        Token serviceKeyword =
-                modifyToken(serviceConstructorExpressionNode.serviceKeyword());
-        Node serviceBody =
-                modifyNode(serviceConstructorExpressionNode.serviceBody());
-        return serviceConstructorExpressionNode.modify(
-                annotations,
-                serviceKeyword,
-                serviceBody);
     }
 
     @Override

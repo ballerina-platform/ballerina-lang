@@ -46,6 +46,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode qualifierList = modifyNode(functionDefinitionNode.qualifierList);
         STNode functionKeyword = modifyNode(functionDefinitionNode.functionKeyword);
         STNode functionName = modifyNode(functionDefinitionNode.functionName);
+        STNode relativeResourcePath = modifyNode(functionDefinitionNode.relativeResourcePath);
         STNode functionSignature = modifyNode(functionDefinitionNode.functionSignature);
         STNode functionBody = modifyNode(functionDefinitionNode.functionBody);
         return functionDefinitionNode.modify(
@@ -54,6 +55,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 qualifierList,
                 functionKeyword,
                 functionName,
+                relativeResourcePath,
                 functionSignature,
                 functionBody);
     }
@@ -121,17 +123,23 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STServiceDeclarationNode serviceDeclarationNode) {
         STNode metadata = modifyNode(serviceDeclarationNode.metadata);
         STNode serviceKeyword = modifyNode(serviceDeclarationNode.serviceKeyword);
-        STNode serviceName = modifyNode(serviceDeclarationNode.serviceName);
+        STNode typeDescriptor = modifyNode(serviceDeclarationNode.typeDescriptor);
+        STNode absoluteResourcePath = modifyNode(serviceDeclarationNode.absoluteResourcePath);
         STNode onKeyword = modifyNode(serviceDeclarationNode.onKeyword);
         STNode expressions = modifyNode(serviceDeclarationNode.expressions);
-        STNode serviceBody = modifyNode(serviceDeclarationNode.serviceBody);
+        STNode openBraceToken = modifyNode(serviceDeclarationNode.openBraceToken);
+        STNode members = modifyNode(serviceDeclarationNode.members);
+        STNode closeBraceToken = modifyNode(serviceDeclarationNode.closeBraceToken);
         return serviceDeclarationNode.modify(
                 metadata,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody);
+                openBraceToken,
+                members,
+                closeBraceToken);
     }
 
     @Override
@@ -753,7 +761,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STObjectFieldNode objectFieldNode) {
         STNode metadata = modifyNode(objectFieldNode.metadata);
         STNode visibilityQualifier = modifyNode(objectFieldNode.visibilityQualifier);
-        STNode finalKeyword = modifyNode(objectFieldNode.finalKeyword);
+        STNode qualifierList = modifyNode(objectFieldNode.qualifierList);
         STNode typeName = modifyNode(objectFieldNode.typeName);
         STNode fieldName = modifyNode(objectFieldNode.fieldName);
         STNode equalsToken = modifyNode(objectFieldNode.equalsToken);
@@ -762,7 +770,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return objectFieldNode.modify(
                 metadata,
                 visibilityQualifier,
-                finalKeyword,
+                qualifierList,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -830,18 +838,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 asteriskToken,
                 typeName,
                 semicolonToken);
-    }
-
-    @Override
-    public STServiceBodyNode transform(
-            STServiceBodyNode serviceBodyNode) {
-        STNode openBraceToken = modifyNode(serviceBodyNode.openBraceToken);
-        STNode resources = modifyNode(serviceBodyNode.resources);
-        STNode closeBraceToken = modifyNode(serviceBodyNode.closeBraceToken);
-        return serviceBodyNode.modify(
-                openBraceToken,
-                resources,
-                closeBraceToken);
     }
 
     @Override
@@ -962,12 +958,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STAnnotationAttachPointNode transform(
             STAnnotationAttachPointNode annotationAttachPointNode) {
         STNode sourceKeyword = modifyNode(annotationAttachPointNode.sourceKeyword);
-        STNode firstIdent = modifyNode(annotationAttachPointNode.firstIdent);
-        STNode secondIdent = modifyNode(annotationAttachPointNode.secondIdent);
+        STNode identifiers = modifyNode(annotationAttachPointNode.identifiers);
         return annotationAttachPointNode.modify(
                 sourceKeyword,
-                firstIdent,
-                secondIdent);
+                identifiers);
     }
 
     @Override
@@ -2168,18 +2162,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode transactionalKeyword = modifyNode(transactionalExpressionNode.transactionalKeyword);
         return transactionalExpressionNode.modify(
                 transactionalKeyword);
-    }
-
-    @Override
-    public STServiceConstructorExpressionNode transform(
-            STServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        STNode annotations = modifyNode(serviceConstructorExpressionNode.annotations);
-        STNode serviceKeyword = modifyNode(serviceConstructorExpressionNode.serviceKeyword);
-        STNode serviceBody = modifyNode(serviceConstructorExpressionNode.serviceBody);
-        return serviceConstructorExpressionNode.modify(
-                annotations,
-                serviceKeyword,
-                serviceBody);
     }
 
     @Override

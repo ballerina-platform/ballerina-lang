@@ -72,11 +72,16 @@
                       ]
                     },
                     {
-                      "kind": "ANNOTATION_KEYWORD",
-                      "trailingMinutiae": [
+                      "kind": "LIST",
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
+                          "kind": "ANNOTATION_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -186,7 +191,12 @@
                       ]
                     },
                     {
-                      "kind": "ANNOTATION_KEYWORD"
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "ANNOTATION_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -203,11 +213,16 @@
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "children": [
                     {
-                      "kind": "FUNCTION_KEYWORD",
-                      "trailingMinutiae": [
+                      "kind": "LIST",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "FUNCTION_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -234,20 +249,25 @@
                       ]
                     },
                     {
-                      "kind": "RECORD_KEYWORD",
-                      "trailingMinutiae": [
+                      "kind": "LIST",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "FIELD_KEYWORD",
-                      "trailingMinutiae": [
+                          "kind": "RECORD_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
+                          "kind": "FIELD_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -325,11 +345,16 @@
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "children": [
                     {
-                      "kind": "FUNCTION_KEYWORD",
-                      "trailingMinutiae": [
+                      "kind": "LIST",
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
+                          "kind": "FUNCTION_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -372,6 +397,10 @@
             {
               "kind": "IDENTIFIER_TOKEN",
               "value": "foo"
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "FUNCTION_SIGNATURE",

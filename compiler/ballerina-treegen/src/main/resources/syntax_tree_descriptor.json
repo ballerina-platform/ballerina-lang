@@ -61,6 +61,11 @@
                     "type": "IdentifierToken"
                 },
                 {
+                    "name": "relativeResourcePath",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
+                },
+                {
                     "name": "functionSignature",
                     "type": "FunctionSignatureNode"
                 },
@@ -194,8 +199,14 @@
                     "type": "Token"
                 },
                 {
-                    "name": "serviceName",
-                    "type": "IdentifierToken"
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "absoluteResourcePath",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "onKeyword",
@@ -207,8 +218,17 @@
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
-                    "name": "serviceBody",
-                    "type": "Node"
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "members",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
                 }
             ]
         },
@@ -1273,9 +1293,9 @@
                     "isOptional": true
                 },
                 {
-                    "name": "finalKeyword",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "typeName",
@@ -1406,26 +1426,6 @@
                 },
                 {
                     "name": "semicolonToken",
-                    "type": "Token"
-                }
-            ]
-        },
-        {
-            "name": "ServiceBodyNode",
-            "base": "Node",
-            "kind": "SERVICE_BODY",
-            "attributes": [
-                {
-                    "name": "openBraceToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "resources",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "closeBraceToken",
                     "type": "Token"
                 }
             ]
@@ -1641,12 +1641,9 @@
                     "type": "Token"
                 },
                 {
-                    "name": "firstIdent",
-                    "type": "Token"
-                },
-                {
-                    "name": "secondIdent",
-                    "type": "Token"
+                    "name": "identifiers",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
                 }
             ]
         },
@@ -3673,26 +3670,6 @@
                 {
                     "name": "transactionalKeyword",
                     "type": "Token"
-                }
-            ]
-        },
-        {
-            "name": "ServiceConstructorExpressionNode",
-            "base": "ExpressionNode",
-            "kind": "SERVICE_CONSTRUCTOR_EXPRESSION",
-            "attributes": [
-                {
-                    "name": "annotations",
-                    "type": "AnnotationNode",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "serviceKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "serviceBody",
-                    "type": "Node"
                 }
             ]
         },

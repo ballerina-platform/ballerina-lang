@@ -33,88 +33,118 @@ import java.util.Collections;
 public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
     public final STNode serviceKeyword;
-    public final STNode serviceName;
+    public final STNode typeDescriptor;
+    public final STNode absoluteResourcePath;
     public final STNode onKeyword;
     public final STNode expressions;
-    public final STNode serviceBody;
+    public final STNode openBraceToken;
+    public final STNode members;
+    public final STNode closeBraceToken;
 
     STServiceDeclarationNode(
             STNode metadata,
             STNode serviceKeyword,
-            STNode serviceName,
+            STNode typeDescriptor,
+            STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
-            STNode serviceBody) {
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken) {
         this(
                 metadata,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody,
+                openBraceToken,
+                members,
+                closeBraceToken,
                 Collections.emptyList());
     }
 
     STServiceDeclarationNode(
             STNode metadata,
             STNode serviceKeyword,
-            STNode serviceName,
+            STNode typeDescriptor,
+            STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
-            STNode serviceBody,
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.SERVICE_DECLARATION, diagnostics);
         this.metadata = metadata;
         this.serviceKeyword = serviceKeyword;
-        this.serviceName = serviceName;
+        this.typeDescriptor = typeDescriptor;
+        this.absoluteResourcePath = absoluteResourcePath;
         this.onKeyword = onKeyword;
         this.expressions = expressions;
-        this.serviceBody = serviceBody;
+        this.openBraceToken = openBraceToken;
+        this.members = members;
+        this.closeBraceToken = closeBraceToken;
 
         addChildren(
                 metadata,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody);
+                openBraceToken,
+                members,
+                closeBraceToken);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STServiceDeclarationNode(
                 this.metadata,
                 this.serviceKeyword,
-                this.serviceName,
+                this.typeDescriptor,
+                this.absoluteResourcePath,
                 this.onKeyword,
                 this.expressions,
-                this.serviceBody,
+                this.openBraceToken,
+                this.members,
+                this.closeBraceToken,
                 diagnostics);
     }
 
     public STServiceDeclarationNode modify(
             STNode metadata,
             STNode serviceKeyword,
-            STNode serviceName,
+            STNode typeDescriptor,
+            STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
-            STNode serviceBody) {
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken) {
         if (checkForReferenceEquality(
                 metadata,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody)) {
+                openBraceToken,
+                members,
+                closeBraceToken)) {
             return this;
         }
 
         return new STServiceDeclarationNode(
                 metadata,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody,
+                openBraceToken,
+                members,
+                closeBraceToken,
                 diagnostics);
     }
 

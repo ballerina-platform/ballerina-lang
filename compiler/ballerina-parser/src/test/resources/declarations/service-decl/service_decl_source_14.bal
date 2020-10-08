@@ -1,7 +1,11 @@
 service Foo on bar {
-    resource function () {
-    }
 
-    resource function start() {
-    }
+    // resource qual should come first
+    transactional resource function () a = b;
+
+    // duplicate resource qual
+    resource resource function () a = b;
+
+    // Test incomplete resource field
+    resource function
 }

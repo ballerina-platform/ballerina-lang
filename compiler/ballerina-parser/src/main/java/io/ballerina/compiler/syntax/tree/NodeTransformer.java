@@ -272,10 +272,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(typeReferenceNode);
     }
 
-    public T transform(ServiceBodyNode serviceBodyNode) {
-        return transformSyntaxNode(serviceBodyNode);
-    }
-
     public T transform(AnnotationNode annotationNode) {
         return transformSyntaxNode(annotationNode);
     }
@@ -706,10 +702,6 @@ public abstract class NodeTransformer<T> {
 
     public T transform(TransactionalExpressionNode transactionalExpressionNode) {
         return transformSyntaxNode(transactionalExpressionNode);
-    }
-
-    public T transform(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        return transformSyntaxNode(serviceConstructorExpressionNode);
     }
 
     public T transform(ByteArrayLiteralNode byteArrayLiteralNode) {

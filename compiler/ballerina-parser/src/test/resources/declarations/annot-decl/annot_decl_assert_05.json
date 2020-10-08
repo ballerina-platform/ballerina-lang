@@ -59,7 +59,12 @@
                       ]
                     },
                     {
-                      "kind": "WORKER_KEYWORD"
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "WORKER_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -85,7 +90,12 @@
                       ]
                     },
                     {
-                      "kind": "ANNOTATION_KEYWORD"
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "ANNOTATION_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 }

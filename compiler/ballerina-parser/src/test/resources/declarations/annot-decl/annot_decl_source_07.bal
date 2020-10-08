@@ -3,7 +3,7 @@ annotation Foo on source parameter,
                   type,
                   source type,
                   object function
-                  resource function,
+                  service remote function,
                   function,
                   object field
                   source record field,

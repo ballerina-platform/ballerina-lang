@@ -24,14 +24,23 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "Foo",
-              "trailingMinutiae": [
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "Foo",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
+            },
+            {
+              "kind": "LIST",
+              "children": []
             },
             {
               "kind": "ON_KEYWORD",
@@ -63,32 +72,52 @@
               ]
             },
             {
-              "kind": "SERVICE_BODY",
+              "kind": "OPEN_BRACE_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "OPEN_BRACE_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                },
-                {
-                  "kind": "LIST",
+                  "kind": "OBJECT_FIELD",
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "FUNCTION_DEFINITION",
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "FUNCTION_TYPE_DESC",
                       "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "RESOURCE_KEYWORD",
+                              "kind": "TRANSACTIONAL_KEYWORD",
                               "leadingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                },
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                },
+                                {
+                                  "kind": "COMMENT_MINUTIAE",
+                                  "value": "// resource qual should come first"
+                                },
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                },
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
                                   "value": "    "
@@ -105,19 +134,32 @@
                         },
                         {
                           "kind": "FUNCTION_KEYWORD",
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_QUALIFIER_NOT_ALLOWED"
+                          ],
+                          "leadingMinutiae": [
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "RESOURCE_KEYWORD"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": " "
                             }
-                          ]
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_IDENTIFIER"
                           ]
                         },
                         {
@@ -140,69 +182,114 @@
                               ]
                             }
                           ]
-                        },
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a",
+                      "trailingMinutiae": [
                         {
-                          "kind": "FUNCTION_BODY_BLOCK",
-                          "children": [
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "SEMICOLON_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "OBJECT_FIELD",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "RESOURCE_KEYWORD",
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_DUPLICATE_QUALIFIER"
+                          ],
+                          "leadingMinutiae": [
                             {
-                              "kind": "OPEN_BRACE_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
-                              ]
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
                             },
                             {
-                              "kind": "LIST",
-                              "children": []
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
                             },
                             {
-                              "kind": "CLOSE_BRACE_TOKEN",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
-                              ]
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "// duplicate resource qual"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            },
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "RESOURCE_KEYWORD"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ]
                         }
                       ]
                     },
                     {
-                      "kind": "FUNCTION_DEFINITION",
-                      "hasDiagnostics": true,
+                      "kind": "FUNCTION_TYPE_DESC",
                       "children": [
                         {
                           "kind": "LIST",
-                          "children": [
-                            {
-                              "kind": "RESOURCE_KEYWORD",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                },
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            }
-                          ]
+                          "children": []
                         },
                         {
                           "kind": "FUNCTION_KEYWORD",
@@ -214,36 +301,10 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_IDENTIFIER"
-                          ]
-                        },
-                        {
                           "kind": "FUNCTION_SIGNATURE",
-                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "OPEN_PAREN_TOKEN",
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_INVALID_TOKEN"
-                              ],
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "INVALID_NODE_MINUTIAE",
-                                  "invalidNode": {
-                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                    "children": [
-                                      {
-                                        "kind": "START_KEYWORD"
-                                      }
-                                    ]
-                                  }
-                                }
-                              ]
+                              "kind": "OPEN_PAREN_TOKEN"
                             },
                             {
                               "kind": "LIST",
@@ -259,17 +320,115 @@
                               ]
                             }
                           ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "SEMICOLON_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "OBJECT_FIELD",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "RESOURCE_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            },
+                            {
+                              "kind": "COMMENT_MINUTIAE",
+                              "value": "// Test incomplete resource field"
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "FUNCTION_TYPE_DESC",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": []
                         },
                         {
-                          "kind": "FUNCTION_BODY_BLOCK",
+                          "kind": "FUNCTION_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "FUNCTION_SIGNATURE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "OPEN_BRACE_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
+                              "kind": "OPEN_PAREN_TOKEN",
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_OPEN_PAREN_TOKEN"
                               ]
                             },
                             {
@@ -277,34 +436,43 @@
                               "children": []
                             },
                             {
-                              "kind": "CLOSE_BRACE_TOKEN",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
+                              "kind": "CLOSE_PAREN_TOKEN",
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_CLOSE_PAREN_TOKEN"
                               ]
                             }
                           ]
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "CLOSE_BRACE_TOKEN",
-                  "trailingMinutiae": [
+                    },
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
+                    },
+                    {
+                      "kind": "SEMICOLON_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_SEMICOLON_TOKEN"
+                      ]
                     }
                   ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
                 }
               ]
             }

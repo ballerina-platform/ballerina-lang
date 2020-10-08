@@ -1,1 +1,2 @@
-annotation Foo on object, resource, record;
+annotation Foo on object, record;
+annotation Bar on service remote, service function, remote function;

@@ -1,11 +1,13 @@
 service on listner1 {
 
+    Person person;
+
     function foo() {
     }
 
-    resource function bar() {
+    resource function get bar() {
     }
 
-    transactional resource function bar() {
+    remote function baz() {
     }
 }

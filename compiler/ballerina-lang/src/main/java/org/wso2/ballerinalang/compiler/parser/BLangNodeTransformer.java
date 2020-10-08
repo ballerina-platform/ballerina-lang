@@ -157,9 +157,6 @@ import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RollbackStatementNode;
 import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerina.compiler.syntax.tree.ServiceBodyNode;
-import io.ballerina.compiler.syntax.tree.ServiceConstructorExpressionNode;
-import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
@@ -259,7 +256,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
@@ -319,7 +315,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
@@ -1030,151 +1025,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Optional<Node> doc = getDocumentationString(objFieldNode.metadata());
         simpleVar.markdownDocumentationAttachment = createMarkdownDocumentationAttachment(doc);
 
-        addFinalQualifier(objFieldNode.finalKeyword(), simpleVar);
+        NodeList<Token> qualifierList = objFieldNode.qualifierList();
+        for (Token token : qualifierList) {
+            if (token.kind() == SyntaxKind.FINAL_KEYWORD) {
+                addFinalQualifier(token, simpleVar);
+            }
+        }
+
         simpleVar.pos = getPositionWithoutMetadata(objFieldNode);
         return simpleVar;
-    }
-
-    @Override
-    public BLangNode transform(ServiceDeclarationNode serviceDeclrNode) {
-        return createService(serviceDeclrNode, serviceDeclrNode.serviceName(), false);
-    }
-
-    private BLangNode createService(Node serviceNode, IdentifierToken serviceNameNode, boolean isAnonServiceValue) {
-        // Any Service can be represented in two major components.
-        //  1) A anonymous type node (Object)
-        //  2) Variable assignment with "serviceName".
-        //      This is a global variable if the service is defined in module level.
-        //      Otherwise (isAnonServiceValue = true) it is a local variable definition, which is written by user.
-        ServiceDeclarationNode serviceDeclrNode = null;
-        ServiceConstructorExpressionNode serviceConstructorNode;
-        BLangService bLService = (BLangService) TreeBuilder.createServiceNode();
-        //TODO handle service.expression
-        // TODO: Look for generify this into sepearte method for type as well
-        bLService.isAnonymousServiceValue = isAnonServiceValue;
-
-        DiagnosticPos pos = getPositionWithoutMetadata(serviceNode);
-        if (serviceNode instanceof ServiceDeclarationNode) {
-            trimLeft(pos, getPosition(((ServiceDeclarationNode) serviceNode).serviceKeyword()));
-        }
-        String serviceName;
-        DiagnosticPos identifierPos;
-        if (isAnonServiceValue || serviceNameNode == null) {
-            serviceName = this.anonymousModelHelper.getNextAnonymousServiceVarKey(diagnosticSource.pkgID);
-            identifierPos = pos;
-        } else {
-            if (serviceNameNode == null || serviceNameNode.isMissing()) {
-                serviceName = missingNodesHelper.getNextMissingNodeName(diagnosticSource.pkgID);
-            } else {
-                serviceName = serviceNameNode.text();
-            }
-            identifierPos = getPosition(serviceNameNode);
-        }
-
-        String serviceTypeName =
-                this.anonymousModelHelper.getNextAnonymousServiceTypeKey(diagnosticSource.pkgID, serviceName);
-        BLangIdentifier serviceVar = createIdentifier(identifierPos, serviceName);
-        serviceVar.pos = identifierPos;
-        bLService.setName(serviceVar);
-        if (!isAnonServiceValue) {
-            serviceDeclrNode = (ServiceDeclarationNode) serviceNode;
-            for (Node expr : serviceDeclrNode.expressions()) {
-                bLService.attachedExprs.add(createExpression(expr));
-            }
-        }
-
-        if (isAnonServiceValue) {
-            bLService.annAttachments = applyAll(((ServiceConstructorExpressionNode) serviceNode).annotations());
-        } else {
-            bLService.annAttachments = applyAll(getAnnotations(serviceDeclrNode.metadata()));
-        }
-
-        // We add all service nodes to top level, only for future reference.
-        addToTop(bLService);
-
-        // 1) Define type nodeDefinition for service type.
-        BLangClassDefinition classDef = (BLangClassDefinition) TreeBuilder.createClassDefNode();
-        BLangIdentifier serviceTypeID = createIdentifier(identifierPos, serviceTypeName);
-        serviceTypeID.pos = pos;
-        classDef.setName(serviceTypeID);
-        classDef.flagSet.add(SERVICE);
-
-        if (!isAnonServiceValue) {
-            addServiceConstructsToClassDefinition((ServiceBodyNode) serviceDeclrNode.serviceBody(), classDef);
-            bLService.markdownDocumentationAttachment =
-                    createMarkdownDocumentationAttachment(getDocumentationString(serviceDeclrNode.metadata()));
-        } else {
-            serviceConstructorNode = (ServiceConstructorExpressionNode) serviceNode;
-            addServiceConstructsToClassDefinition((ServiceBodyNode) serviceConstructorNode.serviceBody(), classDef);
-            bLService.annAttachments = applyAll(serviceConstructorNode.annotations());
-        }
-
-        classDef.pos = pos;
-        addToTop(classDef);
-        bLService.serviceClass = classDef;
-
-        // 2) Create service constructor.
-        final BLangServiceConstructorExpr serviceConstNode = (BLangServiceConstructorExpr) TreeBuilder
-                .createServiceConstructorNode();
-        serviceConstNode.serviceNode = bLService;
-        serviceConstNode.pos = pos;
-
-        // Crate Global variable for service.
-        bLService.pos = pos;
-        if (!isAnonServiceValue) {
-            BLangSimpleVariable var = (BLangSimpleVariable) createBasicVarNodeWithoutType(identifierPos,
-                    Collections.emptySet(),
-                    serviceName, identifierPos,
-                    serviceConstNode);
-            var.flagSet.add(Flag.FINAL);
-            var.flagSet.add(SERVICE);
-
-            BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-            bLUserDefinedType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-            bLUserDefinedType.typeName = classDef.name;
-            bLUserDefinedType.pos = pos;
-
-            var.typeNode = bLUserDefinedType;
-            bLService.variableNode = var;
-            return var;
-        } else {
-            BLangServiceConstructorExpr serviceConstructorExpr =
-                    (BLangServiceConstructorExpr) TreeBuilder.createServiceConstructorNode();
-            serviceConstructorExpr.serviceNode = bLService;
-            return serviceConstructorExpr;
-        }
-    }
-
-    public void addServiceConstructsToClassDefinition(ServiceBodyNode serviceBodyNode,
-                                                      BLangClassDefinition classDefinition) {
-        classDefinition.flagSet.add(SERVICE);
-        for (Node resourceNode : serviceBodyNode.resources()) {
-            BLangNode bLangNode = resourceNode.apply(this);
-            if (bLangNode.getKind() == NodeKind.FUNCTION) {
-                BLangFunction bLangFunction = (BLangFunction) bLangNode;
-                bLangFunction.attachedFunction = true;
-                bLangFunction.flagSet.add(Flag.ATTACHED);
-                classDefinition.addFunction(bLangFunction);
-            }
-        }
-    }
-
-    @Override
-    public BLangNode transform(ServiceBodyNode serviceBodyNode) {
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
-        objectTypeNode.flagSet.add(SERVICE);
-        for (Node resourceNode : serviceBodyNode.resources()) {
-            BLangNode bLangNode = resourceNode.apply(this);
-            if (bLangNode.getKind() == NodeKind.FUNCTION) {
-                BLangFunction bLangFunction = (BLangFunction) bLangNode;
-                bLangFunction.attachedFunction = true;
-                bLangFunction.flagSet.add(Flag.ATTACHED);
-                objectTypeNode.addFunction(bLangFunction);
-            }
-        }
-        objectTypeNode.isAnonymous = false;
-        objectTypeNode.pos = getPosition(serviceBodyNode);
-        return objectTypeNode;
     }
 
     @Override
@@ -1667,11 +1526,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             AnnotationAttachPointNode attachPoint = (AnnotationAttachPointNode) child;
             boolean source = attachPoint.sourceKeyword() != null;
             AttachPoint bLAttachPoint;
-            Token firstIndent =  attachPoint.firstIdent();
+            NodeList<Token> idents = attachPoint.identifiers();
+            Token firstIndent =  idents.get(0);
 
             switch (firstIndent.kind()) {
                 case OBJECT_KEYWORD:
-                    Token secondIndent = attachPoint.secondIdent();
+                    Token secondIndent = idents.get(1);
                     switch (secondIndent.kind()) {
                         case FUNCTION_KEYWORD:
                             bLAttachPoint =
@@ -1685,8 +1545,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                             throw new RuntimeException("Syntax kind is not supported: " + secondIndent.kind());
                     }
                     break;
-                case RESOURCE_KEYWORD:
-                    bLAttachPoint = AttachPoint.getAttachmentPoint(AttachPoint.Point.RESOURCE.getValue(), source);
+                case SERVICE_KEYWORD:
+                    String value;
+                    if (idents.size() == 1) {
+                        value = AttachPoint.Point.SERVICE.getValue();
+                    } else if (idents.size() == 3) {
+                        // the only case we are having 3 idents is service remote function
+                        value = AttachPoint.Point.SERVICE_REMOTE.getValue();
+                    } else {
+                        throw new RuntimeException("Invalid annotation attach point");
+                    }
+                    bLAttachPoint = AttachPoint.getAttachmentPoint(value, source);
                     break;
                 case RECORD_KEYWORD:
                     bLAttachPoint = AttachPoint.getAttachmentPoint(AttachPoint.Point.RECORD_FIELD.getValue(), source);
@@ -2233,11 +2102,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         letVar.definitionNode = varDefNode;
         return letVar;
-    }
-
-    @Override
-    public BLangNode transform(ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-        return createService(serviceConstructorExpressionNode, null, true);
     }
 
     @Override
@@ -5201,11 +5065,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private void addFinalQualifier(Optional<Token> finalKeyword, BLangSimpleVariable simpleVar) {
-        if (!finalKeyword.isPresent()) {
-            return;
-        }
-
+    private void addFinalQualifier(Token finalKeyword, BLangSimpleVariable simpleVar) {
         simpleVar.flagSet.add(Flag.FINAL);
     }
 

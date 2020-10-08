@@ -36,12 +36,8 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Token firstIdent() {
-        return childInBucket(1);
-    }
-
-    public Token secondIdent() {
-        return childInBucket(2);
+    public NodeList<Token> identifiers() {
+        return new NodeList<>(childInBucket(1));
     }
 
     @Override
@@ -58,25 +54,21 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "sourceKeyword",
-                "firstIdent",
-                "secondIdent"};
+                "identifiers"};
     }
 
     public AnnotationAttachPointNode modify(
             Token sourceKeyword,
-            Token firstIdent,
-            Token secondIdent) {
+            NodeList<Token> identifiers) {
         if (checkForReferenceEquality(
                 sourceKeyword,
-                firstIdent,
-                secondIdent)) {
+                identifiers.underlyingListNode())) {
             return this;
         }
 
         return NodeFactory.createAnnotationAttachPointNode(
                 sourceKeyword,
-                firstIdent,
-                secondIdent);
+                identifiers);
     }
 
     public AnnotationAttachPointNodeModifier modify() {
@@ -91,14 +83,12 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
     public static class AnnotationAttachPointNodeModifier {
         private final AnnotationAttachPointNode oldNode;
         private Token sourceKeyword;
-        private Token firstIdent;
-        private Token secondIdent;
+        private NodeList<Token> identifiers;
 
         public AnnotationAttachPointNodeModifier(AnnotationAttachPointNode oldNode) {
             this.oldNode = oldNode;
             this.sourceKeyword = oldNode.sourceKeyword();
-            this.firstIdent = oldNode.firstIdent();
-            this.secondIdent = oldNode.secondIdent();
+            this.identifiers = oldNode.identifiers();
         }
 
         public AnnotationAttachPointNodeModifier withSourceKeyword(
@@ -108,25 +98,17 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
             return this;
         }
 
-        public AnnotationAttachPointNodeModifier withFirstIdent(
-                Token firstIdent) {
-            Objects.requireNonNull(firstIdent, "firstIdent must not be null");
-            this.firstIdent = firstIdent;
-            return this;
-        }
-
-        public AnnotationAttachPointNodeModifier withSecondIdent(
-                Token secondIdent) {
-            Objects.requireNonNull(secondIdent, "secondIdent must not be null");
-            this.secondIdent = secondIdent;
+        public AnnotationAttachPointNodeModifier withIdentifiers(
+                NodeList<Token> identifiers) {
+            Objects.requireNonNull(identifiers, "identifiers must not be null");
+            this.identifiers = identifiers;
             return this;
         }
 
         public AnnotationAttachPointNode apply() {
             return oldNode.modify(
                     sourceKeyword,
-                    firstIdent,
-                    secondIdent);
+                    identifiers);
         }
     }
 }

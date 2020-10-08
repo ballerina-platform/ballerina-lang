@@ -172,7 +172,12 @@
                       ]
                     },
                     {
-                      "kind": "ANNOTATION_KEYWORD"
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "ANNOTATION_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 }

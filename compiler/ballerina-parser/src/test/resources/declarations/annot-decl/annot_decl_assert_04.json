@@ -48,7 +48,12 @@
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "children": [
                     {
-                      "kind": "TYPE_KEYWORD"
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "TYPE_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -118,7 +123,12 @@
                       ]
                     },
                     {
-                      "kind": "TYPE_KEYWORD"
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "TYPE_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 }

@@ -29,6 +29,10 @@
       "value": "main"
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_SIGNATURE",
       "children": [
         {

@@ -53,6 +53,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode qualifierList,
             STNode functionKeyword,
             STNode functionName,
+            STNode relativeResourcePath,
             STNode functionSignature,
             STNode functionBody) {
 
@@ -62,6 +63,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 qualifierList,
                 functionKeyword,
                 functionName,
+                relativeResourcePath,
                 functionSignature,
                 functionBody);
     }
@@ -124,18 +126,24 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createServiceDeclarationNode(
             STNode metadata,
             STNode serviceKeyword,
-            STNode serviceName,
+            STNode typeDescriptor,
+            STNode absoluteResourcePath,
             STNode onKeyword,
             STNode expressions,
-            STNode serviceBody) {
+            STNode openBraceToken,
+            STNode members,
+            STNode closeBraceToken) {
 
         return new STServiceDeclarationNode(
                 metadata,
                 serviceKeyword,
-                serviceName,
+                typeDescriptor,
+                absoluteResourcePath,
                 onKeyword,
                 expressions,
-                serviceBody);
+                openBraceToken,
+                members,
+                closeBraceToken);
     }
 
     public static STNode createAssignmentStatementNode(
@@ -712,7 +720,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createObjectFieldNode(
             STNode metadata,
             STNode visibilityQualifier,
-            STNode finalKeyword,
+            STNode qualifierList,
             STNode typeName,
             STNode fieldName,
             STNode equalsToken,
@@ -722,7 +730,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STObjectFieldNode(
                 metadata,
                 visibilityQualifier,
-                finalKeyword,
+                qualifierList,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -786,17 +794,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 asteriskToken,
                 typeName,
                 semicolonToken);
-    }
-
-    public static STNode createServiceBodyNode(
-            STNode openBraceToken,
-            STNode resources,
-            STNode closeBraceToken) {
-
-        return new STServiceBodyNode(
-                openBraceToken,
-                resources,
-                closeBraceToken);
     }
 
     public static STNode createAnnotationNode(
@@ -907,13 +904,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createAnnotationAttachPointNode(
             STNode sourceKeyword,
-            STNode firstIdent,
-            STNode secondIdent) {
+            STNode identifiers) {
 
         return new STAnnotationAttachPointNode(
                 sourceKeyword,
-                firstIdent,
-                secondIdent);
+                identifiers);
     }
 
     public static STNode createXMLNamespaceDeclarationNode(
@@ -2019,17 +2014,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STTransactionalExpressionNode(
                 transactionalKeyword);
-    }
-
-    public static STNode createServiceConstructorExpressionNode(
-            STNode annotations,
-            STNode serviceKeyword,
-            STNode serviceBody) {
-
-        return new STServiceConstructorExpressionNode(
-                annotations,
-                serviceKeyword,
-                serviceBody);
     }
 
     public static STNode createByteArrayLiteralNode(

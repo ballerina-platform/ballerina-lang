@@ -82,6 +82,11 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
         test("object-type-def/object_type_def_source_41.bal", "object-type-def/object_type_def_assert_41.json");
     }
 
+    @Test
+    public void testServiceObjectType() {
+        test("object-type-def/object_type_def_source_25.bal", "object-type-def/object_type_def_assert_25.json");
+    }
+
     // Recovery tests
 
     @Test

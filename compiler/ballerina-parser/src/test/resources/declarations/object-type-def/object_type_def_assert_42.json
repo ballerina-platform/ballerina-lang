@@ -351,7 +351,68 @@
               ]
             },
             {
-              "kind": "METHOD_DECLARATION",
+              "kind": "OBJECT_FIELD",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "RESOURCE_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "     "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "invalidtok",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_IDENTIFIER"
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "OBJECT_FIELD",
               "hasDiagnostics": true,
               "children": [
                 {
@@ -359,70 +420,52 @@
                   "children": []
                 },
                 {
-                  "kind": "FUNCTION_KEYWORD",
+                  "kind": "SINGLETON_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "NUMERIC_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                          "value": "6",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true,
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_INVALID_TOKEN",
-                    "ERROR_INVALID_TOKEN",
-                    "ERROR_QUALIFIER_NOT_ALLOWED"
-                  ],
-                  "leadingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    },
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "     "
-                    },
-                    {
-                      "kind": "INVALID_NODE_MINUTIAE",
-                      "invalidNode": {
-                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                        "children": [
-                          {
-                            "kind": "RESOURCE_KEYWORD"
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    },
-                    {
-                      "kind": "INVALID_NODE_MINUTIAE",
-                      "invalidNode": {
-                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                        "children": [
-                          {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "invalidtok"
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    },
-                    {
-                      "kind": "INVALID_NODE_MINUTIAE",
-                      "invalidNode": {
-                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                        "children": [
-                          {
-                            "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                            "value": "6"
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ],
+                    "ERROR_MISSING_IDENTIFIER"
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "METHOD_DECLARATION",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "FUNCTION_KEYWORD",
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",

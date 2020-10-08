@@ -52,6 +52,10 @@
               "kind": "OBJECT_FIELD",
               "children": [
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "READONLY_TYPE_DESC",
                   "children": [
                     {
