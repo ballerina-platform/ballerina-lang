@@ -15,12 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.transactions;
+package io.ballerina.jvm.transactions;
 
-import org.ballerinalang.jvm.api.values.BArray;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.FPValue;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.values.FPValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

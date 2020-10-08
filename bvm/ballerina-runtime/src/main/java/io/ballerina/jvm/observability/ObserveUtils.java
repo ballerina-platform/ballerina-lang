@@ -20,12 +20,12 @@ package org.ballerinalang.jvm.observability;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BString;
 import org.ballerinalang.jvm.observability.tracer.BSpan;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.values.ErrorValue;
+import io.ballerina.jvm.values.ObjectValue;
 
 import java.util.Collections;
 import java.util.HashMap;

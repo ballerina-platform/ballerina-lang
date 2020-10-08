@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.jvm.transactions;
+package io.ballerina.jvm.transactions;
 
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;

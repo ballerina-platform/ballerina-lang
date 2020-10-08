@@ -18,7 +18,7 @@
 package org.ballerinalang.jvm.observability.metrics;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.launch.LaunchListener;
+import io.ballerina.jvm.launch.LaunchListener;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.metrics.noop.NoOpMetricProvider;
 import org.ballerinalang.jvm.observability.metrics.noop.NoOpMetricReporter;

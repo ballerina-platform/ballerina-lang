@@ -20,7 +20,7 @@ package org.ballerinalang.jvm.observability;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.jvm.observability.metrics.Tag;
 import org.ballerinalang.jvm.observability.tracer.BSpan;
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.jvm.values.ErrorValue;
 
 import java.util.Collections;
 import java.util.HashMap;

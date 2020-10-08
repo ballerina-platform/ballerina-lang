@@ -18,7 +18,7 @@
 package org.ballerinalang.jvm.observability.tracer;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.launch.LaunchListener;
+import io.ballerina.jvm.launch.LaunchListener;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;

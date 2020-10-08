@@ -15,16 +15,16 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.jvm.transactions;
+package io.ballerina.jvm.transactions;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.util.BLangConstants;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.util.BLangConstants;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
-import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
+import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.jvm.util.BLangConstants.VERSION_SEPARATOR;
 
 /**
  * {@code TransactionConstants} Define transaction related constants.

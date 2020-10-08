@@ -15,11 +15,11 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.jvm.transactions;
+package io.ballerina.jvm.transactions;
 
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BArray;
-import org.ballerinalang.jvm.scheduling.Strand;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.scheduling.Strand;
 
 import java.util.HashMap;
 import java.util.Map;
