@@ -4,7 +4,7 @@ version = "0.0.1"
 
 
 [platform]
-target = "java8"
+target = "java11"
 
   [[platform.libraries]]
   path = "../../../../../../observability-test-utils/build/generated-bir-jar/ballerina-testobserve-0.0.0.jar"
