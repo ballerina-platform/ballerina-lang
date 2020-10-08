@@ -37,7 +37,7 @@ public class DisableTestsTestCase extends BaseTestCase {
         projectPath = singleFilesProjectPath.resolve("disabled-tests").toString();
     }
 
-    @Test (enabled = false)
+    @Test
     public void testDisablingTests() throws BallerinaTestException {
         String msg = "2 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
