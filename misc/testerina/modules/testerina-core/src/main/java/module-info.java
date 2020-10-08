@@ -4,4 +4,5 @@ module io.ballerina.testerina.core {
     requires io.ballerina.core;
     requires io.ballerina.testerina.runtime;
     requires io.ballerina.jvm;
+    requires io.github.javadiffutils;
 }
