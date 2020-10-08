@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.nativeimpl.java;
+package org.ballerinalang.langlib.java;
 
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;

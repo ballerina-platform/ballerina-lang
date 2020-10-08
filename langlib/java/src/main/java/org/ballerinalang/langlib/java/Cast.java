@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.java;
+package org.ballerinalang.langlib.java;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BObject;
