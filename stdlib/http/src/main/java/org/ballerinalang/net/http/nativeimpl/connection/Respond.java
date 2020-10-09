@@ -18,16 +18,16 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
+import io.ballerina.jvm.api.BalEnv;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.observability.ObserveUtils;
+import io.ballerina.jvm.observability.ObserverContext;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.scheduling.State;
+import io.ballerina.jvm.scheduling.Strand;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.State;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -41,7 +41,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Optional;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
+import static io.ballerina.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executePipeliningLogic;

@@ -17,39 +17,39 @@
 
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BFunctionPointer;
-import org.ballerinalang.jvm.api.values.BFuture;
-import org.ballerinalang.jvm.api.values.BStream;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BTypedesc;
-import org.ballerinalang.jvm.api.values.BValue;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.BmpStringValue;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.jvm.values.TupleValueImpl;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BFunctionPointer;
+import io.ballerina.jvm.api.values.BFuture;
+import io.ballerina.jvm.api.values.BStream;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTypedesc;
+import io.ballerina.jvm.api.values.BValue;
+import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.types.BRecordType;
+import io.ballerina.jvm.types.BTupleType;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.BmpStringValue;
+import io.ballerina.jvm.values.DecimalValue;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.jvm.values.ObjectValue;
+import io.ballerina.jvm.values.TableValue;
+import io.ballerina.jvm.values.TupleValueImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.jvm.api.TypeTags.BOOLEAN_TAG;
-import static org.ballerinalang.jvm.api.TypeTags.BYTE_TAG;
-import static org.ballerinalang.jvm.api.TypeTags.DECIMAL_TAG;
-import static org.ballerinalang.jvm.api.TypeTags.FLOAT_TAG;
-import static org.ballerinalang.jvm.api.TypeTags.INT_TAG;
-import static org.ballerinalang.jvm.api.TypeTags.RECORD_TYPE_TAG;
-import static org.ballerinalang.jvm.api.TypeTags.STRING_TAG;
+import static io.ballerina.jvm.api.TypeTags.BOOLEAN_TAG;
+import static io.ballerina.jvm.api.TypeTags.BYTE_TAG;
+import static io.ballerina.jvm.api.TypeTags.DECIMAL_TAG;
+import static io.ballerina.jvm.api.TypeTags.FLOAT_TAG;
+import static io.ballerina.jvm.api.TypeTags.INT_TAG;
+import static io.ballerina.jvm.api.TypeTags.RECORD_TYPE_TAG;
+import static io.ballerina.jvm.api.TypeTags.STRING_TAG;
 
 /**
  * Native methods for testing functions with variable return types.

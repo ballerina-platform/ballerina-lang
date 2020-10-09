@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.AttachedFunction;
+import io.ballerina.jvm.util.Flags;
+import io.ballerina.jvm.util.exceptions.BallerinaConnectorException;
+import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;

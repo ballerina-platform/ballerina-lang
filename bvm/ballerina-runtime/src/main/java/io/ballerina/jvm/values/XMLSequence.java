@@ -16,18 +16,18 @@
 
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.CycleUtils;
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.jvm.CycleUtils;
+import io.ballerina.jvm.XMLNodeType;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BLink;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.util.BLangConstants;
+import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,8 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_EMPTY_VALUE;
-import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.STRING_EMPTY_VALUE;
+import static io.ballerina.jvm.util.BLangConstants.XML_LANG_LIB;
 
 /**
  * <p>

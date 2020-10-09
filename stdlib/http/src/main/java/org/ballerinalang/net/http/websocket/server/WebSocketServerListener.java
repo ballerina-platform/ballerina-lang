@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.websocket.server;
 
-import org.ballerinalang.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BMap;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpResourceArguments;

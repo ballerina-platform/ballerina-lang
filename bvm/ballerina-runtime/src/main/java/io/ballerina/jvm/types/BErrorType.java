@@ -17,10 +17,10 @@
  */
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.ErrorType;
-import org.ballerinalang.jvm.api.types.Type;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.ErrorType;
+import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.values.ErrorValue;
 
 /**

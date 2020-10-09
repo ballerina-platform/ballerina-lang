@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http.websocket.observability;
 
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
-import org.ballerinalang.jvm.observability.ObserverContext;
+import io.ballerina.jvm.observability.ObservabilityConstants;
+import io.ballerina.jvm.observability.ObserverContext;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 
 /**

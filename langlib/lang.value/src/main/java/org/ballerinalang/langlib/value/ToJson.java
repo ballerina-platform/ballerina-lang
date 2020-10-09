@@ -17,35 +17,35 @@
  */
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.commons.TypeValuePair;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.jvm.JSONUtils;
+import io.ballerina.jvm.TypeChecker;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.commons.TypeValuePair;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.jvm.values.RefValue;
+import io.ballerina.jvm.values.TableValueImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.jvm.api.BErrorCreator.createError;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
+import static io.ballerina.jvm.api.BErrorCreator.createError;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
+import static io.ballerina.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * Extern function lang.values:toJson.

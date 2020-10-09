@@ -17,9 +17,9 @@
  */
 package io.ballerina.jvm.api;
 
-import org.ballerinalang.jvm.DecimalValueKind;
-import org.ballerinalang.jvm.JSONDataSource;
-import org.ballerinalang.jvm.XMLFactory;
+import io.ballerina.jvm.DecimalValueKind;
+import io.ballerina.jvm.JSONDataSource;
+import io.ballerina.jvm.XMLFactory;
 import io.ballerina.jvm.api.runtime.Module;
 import io.ballerina.jvm.api.types.ArrayType;
 import io.ballerina.jvm.api.types.FunctionType;
@@ -38,12 +38,12 @@ import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.api.values.BTypedesc;
 import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.api.values.BXMLQName;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.State;
-import org.ballerinalang.jvm.scheduling.Strand;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.scheduling.State;
+import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.types.BField;
 import io.ballerina.jvm.types.BRecordType;
-import org.ballerinalang.jvm.util.Flags;
+import io.ballerina.jvm.util.Flags;
 import io.ballerina.jvm.values.ArrayValue;
 import io.ballerina.jvm.values.ArrayValueImpl;
 import io.ballerina.jvm.values.DecimalValue;

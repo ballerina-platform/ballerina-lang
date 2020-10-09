@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.observability.tracer;
+package io.ballerina.jvm.observability.tracer;
 
-import org.ballerinalang.jvm.observability.BallerinaObserver;
-import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.observability.TracingUtils;
+import io.ballerina.jvm.observability.BallerinaObserver;
+import io.ballerina.jvm.observability.ObserverContext;
+import io.ballerina.jvm.observability.TracingUtils;
 
 /**
  * Observe the runtime and start/stop tracing.

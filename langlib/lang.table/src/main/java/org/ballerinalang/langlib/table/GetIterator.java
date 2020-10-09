@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.jvm.values.IteratorValue;
+import io.ballerina.jvm.values.TableValueImpl;
 
 /**
  * Native implementation of lang.table:iterator(table&lt;Type&gt;).

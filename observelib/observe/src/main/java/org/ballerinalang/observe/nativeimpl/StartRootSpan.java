@@ -19,10 +19,10 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.observability.ObservabilityConstants;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.values.MapValue;
 
 import static org.ballerinalang.observe.nativeimpl.OpenTracerBallerinaWrapper.ROOT_SPAN_INDICATOR;
 

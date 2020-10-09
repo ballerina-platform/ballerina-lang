@@ -17,24 +17,17 @@
  */
 package org.ballerinalang.stdlib.services.nativeimpl.request;
 
+import io.ballerina.jvm.XMLFactory;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.jvm.values.XMLValue;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.core.model.util.JsonParser;
 import org.ballerinalang.core.model.util.StringUtils;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BRefType;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.model.values.BXML;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.JsonParser;

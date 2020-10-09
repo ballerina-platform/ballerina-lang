@@ -18,7 +18,7 @@
 
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.api.values.BInitialValueEntry;
+import io.ballerina.jvm.api.values.BInitialValueEntry;
 
 /**
  * Represents an initial value entry in a mapping constructor expression.

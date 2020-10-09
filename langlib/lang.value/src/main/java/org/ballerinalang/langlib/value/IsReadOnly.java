@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.values.RefValue;
+import io.ballerina.jvm.values.RefValue;
 
 /**
  * Check the read only status of a given value.

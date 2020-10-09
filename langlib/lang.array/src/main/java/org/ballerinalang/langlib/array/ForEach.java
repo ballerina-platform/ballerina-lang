@@ -18,20 +18,20 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.runtime.AsyncUtils;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.utils.GetFunction;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.runtime.AsyncUtils;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.scheduling.StrandMetadata;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.FPValue;
+import io.ballerina.jvm.values.utils.GetFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunction;
+import static io.ballerina.jvm.util.BLangConstants.ARRAY_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.jvm.values.utils.ArrayUtils.getElementAccessFunction;
 import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**

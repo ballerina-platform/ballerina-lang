@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.XMLQName;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.jvm.XMLFactory;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.XMLQName;
+import io.ballerina.jvm.values.XMLSequence;
+import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Create XML element from tag name and children sequence.

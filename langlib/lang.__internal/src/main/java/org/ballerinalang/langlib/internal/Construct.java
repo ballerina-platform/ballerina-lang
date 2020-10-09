@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.types.BStreamType;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.jvm.values.TypedescValue;
+import io.ballerina.jvm.types.BStreamType;
+import io.ballerina.jvm.values.ObjectValue;
+import io.ballerina.jvm.values.StreamValue;
+import io.ballerina.jvm.values.TypedescValue;
 
 /**
  * Native implementation of lang.internal:construct(typeDesc, iterator).

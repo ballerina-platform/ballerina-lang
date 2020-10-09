@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.JSONUtils;
+import io.ballerina.jvm.JSONUtils;
 
 
 /**

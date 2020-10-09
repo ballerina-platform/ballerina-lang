@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.commons;
+package io.ballerina.jvm.commons;
 
 import io.ballerina.jvm.api.types.Type;
 

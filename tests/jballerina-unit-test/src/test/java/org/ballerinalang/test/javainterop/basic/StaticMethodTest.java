@@ -17,16 +17,16 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.values.MapValueImpl;
 import org.ballerinalang.core.model.values.BDecimal;
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BHandleValue;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;

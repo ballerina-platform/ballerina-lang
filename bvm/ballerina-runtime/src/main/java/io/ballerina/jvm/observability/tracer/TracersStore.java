@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.jvm.observability.tracer;
+package io.ballerina.jvm.observability.tracer;
 
 import io.opentracing.Tracer;
 import org.ballerinalang.config.ConfigRegistry;
@@ -26,10 +26,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_PROVIDER;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.JAEGER;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TRACER_NAME_CONFIG;
+import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_PROVIDER;
+import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.JAEGER;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.TRACER_NAME_CONFIG;
 
 /**
  * Class that creates the tracer for a given service.

@@ -17,11 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.api.BalEnv;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.lang.reflect.Constructor;

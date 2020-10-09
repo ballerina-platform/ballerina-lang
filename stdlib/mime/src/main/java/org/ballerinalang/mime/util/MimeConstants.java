@@ -18,12 +18,12 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.values.BString;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
+import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
  * Constants related to MIME.

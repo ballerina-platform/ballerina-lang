@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.jvm.XMLNodeType;
+import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Test xml to be single xml text element.

@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.values.MapValue;
 
-import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
-import static org.ballerinalang.jvm.MapUtils.validateRecord;
+import static io.ballerina.jvm.MapUtils.checkIsMapOnlyOperation;
+import static io.ballerina.jvm.MapUtils.validateRecord;
 
 /**
  * ENative implementation of lang.map:removeAll(map&lt;Type&gt;).
@@ -37,7 +37,7 @@ public class RemoveAll {
         validateRecord(m);
         try {
             m.clear();
-        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
+        } catch (io.ballerina.jvm.util.exceptions.BLangFreezeException e) {
             throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
                                             BStringUtils.fromString("Failed to clear map: " + e.getDetail()));
         }

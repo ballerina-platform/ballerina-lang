@@ -18,24 +18,24 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.jvm.TypeChecker;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.IteratorValue;
+import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.jvm.values.ObjectValue;
+import io.ballerina.jvm.values.TableValueImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.ITERATOR_MUTABILITY_ERROR;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.ITERATOR_MUTABILITY_ERROR;
 
 /**
  * Native implementation of lang.table.TableIterator:next().

@@ -17,8 +17,8 @@
 
 package org.ballerinalang.stdlib.io.channels;
 
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BObject;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BObject;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 

@@ -17,9 +17,9 @@
 */
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.FloatType;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.FloatType;
 
 /**
  * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the

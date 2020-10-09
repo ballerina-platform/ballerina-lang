@@ -15,31 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.observability;
+package io.ballerina.jvm.observability;
 
-import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.jvm.observability.metrics.Tag;
-import org.ballerinalang.jvm.observability.tracer.BSpan;
+import io.ballerina.jvm.observability.metrics.Tag;
+import io.ballerina.jvm.observability.tracer.BSpan;
 import io.ballerina.jvm.values.ErrorValue;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_BSTRUCT_ERROR;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_ERROR_MESSAGE;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_ERROR;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_TRUE_VALUE;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.LOG_KEY_EVENT_TYPE;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.LOG_KEY_MESSAGE;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static io.ballerina.jvm.observability.ObservabilityConstants.PROPERTY_BSTRUCT_ERROR;
+import static io.ballerina.jvm.observability.ObservabilityConstants.PROPERTY_ERROR_MESSAGE;
+import static io.ballerina.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
+import static io.ballerina.jvm.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_ERROR;
+import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_TRUE_VALUE;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.KEY_SPAN;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.LOG_KEY_EVENT_TYPE;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.LOG_KEY_MESSAGE;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.TAG_KEY_HTTP_STATUS_CODE;
 
 /**
  * Util class to hold tracing specific util methods.

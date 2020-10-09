@@ -18,14 +18,14 @@
 
 package org.ballerinalang.stdlib.file.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.ObjectValue;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
 import org.ballerinalang.stdlib.file.utils.FileUtils;
 import org.slf4j.Logger;

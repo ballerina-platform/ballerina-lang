@@ -71,7 +71,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static org.ballerinalang.jvm.IdentifierUtils.decodeIdentifier;
+import static io.ballerina.jvm.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;

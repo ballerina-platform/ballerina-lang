@@ -18,14 +18,14 @@
 
 package org.ballerinalang.stdlib.file.service;
 
-import org.ballerinalang.jvm.api.BRuntime;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.AttachedFunction;
+import io.ballerina.jvm.api.BRuntime;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.scheduling.StrandMetadata;
+import io.ballerina.jvm.types.AttachedFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemEvent;
@@ -33,7 +33,7 @@ import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSys
 
 import java.util.Map;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.FILE_SYSTEM_EVENT;
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.MODULE_NAME;
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.MODULE_VERSION;

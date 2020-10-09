@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.packerina.cmd;
 
+import io.ballerina.jvm.util.BLangConstants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.JarResolver;
-import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.packerina.JarResolverImpl;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;

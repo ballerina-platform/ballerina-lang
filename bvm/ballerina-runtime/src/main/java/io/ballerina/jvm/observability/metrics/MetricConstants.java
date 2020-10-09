@@ -15,7 +15,7 @@
  * under the License.
  *
  */
-package org.ballerinalang.jvm.observability.metrics;
+package io.ballerina.jvm.observability.metrics;
 
 /**
  * Defines the types of the metrics supported.

@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.ArrayValueImpl;
 
 import java.util.Base64;
 

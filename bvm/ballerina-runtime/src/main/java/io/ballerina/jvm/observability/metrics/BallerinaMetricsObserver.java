@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.observability.metrics;
+package io.ballerina.jvm.observability.metrics;
 
-import org.ballerinalang.jvm.observability.BallerinaObserver;
-import org.ballerinalang.jvm.observability.ObserverContext;
+import io.ballerina.jvm.observability.BallerinaObserver;
+import io.ballerina.jvm.observability.ObserverContext;
 
 import java.io.PrintStream;
 import java.time.Duration;

@@ -18,10 +18,10 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 import java.util.zip.CRC32;

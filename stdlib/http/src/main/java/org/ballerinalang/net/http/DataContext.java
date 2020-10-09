@@ -18,17 +18,17 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.BalFuture;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.BalFuture;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.scheduling.Strand;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_ID;
+import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_ID;
 import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 
 /**

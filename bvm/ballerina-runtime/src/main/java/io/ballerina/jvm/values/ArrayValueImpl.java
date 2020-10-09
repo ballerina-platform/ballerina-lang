@@ -17,24 +17,24 @@
 */
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.CycleUtils;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.commons.ArrayState;
-import org.ballerinalang.jvm.api.types.ArrayType;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BValue;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.jvm.CycleUtils;
+import io.ballerina.jvm.TypeChecker;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.commons.ArrayState;
+import io.ballerina.jvm.api.types.ArrayType;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BLink;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BValue;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.util.BLangConstants;
+import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.util.exceptions.RuntimeErrors;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -45,10 +45,10 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.jvm.util.BLangConstants.ARRAY_LANG_LIB;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * <p>

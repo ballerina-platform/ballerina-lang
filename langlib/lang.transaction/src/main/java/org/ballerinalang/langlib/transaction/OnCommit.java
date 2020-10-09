@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.transactions.TransactionResourceManager;
-import org.ballerinalang.jvm.values.FPValue;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.transactions.TransactionLocalContext;
+import io.ballerina.jvm.transactions.TransactionResourceManager;
+import io.ballerina.jvm.values.FPValue;
 
 /**
  * Extern function transaction:onCommit.

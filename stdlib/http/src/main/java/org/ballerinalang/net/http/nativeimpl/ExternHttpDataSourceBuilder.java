@@ -18,12 +18,12 @@
 
 package org.ballerinalang.net.http.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.BalFuture;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BalEnv;
+import io.ballerina.jvm.api.BalFuture;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.values.ErrorValue;
 import org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder;
 import org.ballerinalang.mime.nativeimpl.MimeEntityBody;
 import org.ballerinalang.mime.util.EntityBodyChannel;

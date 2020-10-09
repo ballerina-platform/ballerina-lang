@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.crypto;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.values.BString;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * Constants related to Ballerina crypto stdlib.

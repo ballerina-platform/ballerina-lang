@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
 
 /**
  * Native implementation of assertTrue(boolean value).

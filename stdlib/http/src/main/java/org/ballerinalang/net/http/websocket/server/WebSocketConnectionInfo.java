@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.websocket.server;
 
-import org.ballerinalang.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BObject;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;

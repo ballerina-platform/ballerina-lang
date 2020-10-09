@@ -32,8 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.jvm.XMLFactory.isEqual;
-import static org.ballerinalang.jvm.XMLFactory.parse;
+import static io.ballerina.jvm.XMLFactory.isEqual;
+import static io.ballerina.jvm.XMLFactory.parse;
 
 /**
  * Test case for XML Serialization.

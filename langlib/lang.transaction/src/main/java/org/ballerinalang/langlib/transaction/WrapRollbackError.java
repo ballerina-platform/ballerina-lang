@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.transactions.TransactionLocalContext;
 
 /**
  * Extern function transaction:wrapRollbackError.

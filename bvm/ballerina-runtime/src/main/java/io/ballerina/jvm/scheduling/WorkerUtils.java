@@ -17,7 +17,7 @@
   */
  package io.ballerina.jvm.scheduling;
 
- import org.ballerinalang.jvm.TypeChecker;
+ import io.ballerina.jvm.TypeChecker;
  import io.ballerina.jvm.api.Types;
  import io.ballerina.jvm.values.ChannelDetails;
  import io.ballerina.jvm.values.ErrorValue;

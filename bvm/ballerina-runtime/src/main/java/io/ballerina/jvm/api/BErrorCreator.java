@@ -17,7 +17,7 @@
 */
 package io.ballerina.jvm.api;
 
-import org.ballerinalang.jvm.TypeChecker;
+import io.ballerina.jvm.TypeChecker;
 import io.ballerina.jvm.api.runtime.Module;
 import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.api.values.BError;

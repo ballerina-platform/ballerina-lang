@@ -18,20 +18,20 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.types.BRecordType;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.Collection;
 
-import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
+import static io.ballerina.jvm.MapUtils.createOpNotSupportedError;
 
 /**
  * Function for returning the values of the map as an array. T[] vals = m.toArray();

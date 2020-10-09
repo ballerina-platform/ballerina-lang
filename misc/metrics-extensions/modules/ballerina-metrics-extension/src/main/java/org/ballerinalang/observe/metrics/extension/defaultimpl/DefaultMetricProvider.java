@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.observe.metrics.extension.defaultimpl;
 
-import org.ballerinalang.jvm.observability.metrics.Counter;
-import org.ballerinalang.jvm.observability.metrics.Gauge;
-import org.ballerinalang.jvm.observability.metrics.MetricId;
-import org.ballerinalang.jvm.observability.metrics.PolledGauge;
-import org.ballerinalang.jvm.observability.metrics.StatisticConfig;
-import org.ballerinalang.jvm.observability.metrics.spi.MetricProvider;
+import io.ballerina.jvm.observability.metrics.Counter;
+import io.ballerina.jvm.observability.metrics.Gauge;
+import io.ballerina.jvm.observability.metrics.MetricId;
+import io.ballerina.jvm.observability.metrics.PolledGauge;
+import io.ballerina.jvm.observability.metrics.StatisticConfig;
+import io.ballerina.jvm.observability.metrics.spi.MetricProvider;
 
 import java.util.function.ToDoubleFunction;
 

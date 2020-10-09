@@ -17,25 +17,25 @@
  */
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.CycleUtils;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.TypeConstants;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BValue;
-import org.ballerinalang.jvm.services.ErrorHandlerUtils;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BErrorType;
-import org.ballerinalang.jvm.types.BTypeIdSet;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.jvm.CycleUtils;
+import io.ballerina.jvm.TypeChecker;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.TypeConstants;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BLink;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BValue;
+import io.ballerina.jvm.services.ErrorHandlerUtils;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.types.BErrorType;
+import io.ballerina.jvm.types.BTypeIdSet;
+import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -45,15 +45,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG_ID;
-import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.GENERATE_PKG_INIT;
-import static org.ballerinalang.jvm.util.BLangConstants.GENERATE_PKG_START;
-import static org.ballerinalang.jvm.util.BLangConstants.GENERATE_PKG_STOP;
-import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
-import static org.ballerinalang.jvm.util.BLangConstants.START_FUNCTION_SUFFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.STOP_FUNCTION_SUFFIX;
+import static io.ballerina.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG_ID;
+import static io.ballerina.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
+import static io.ballerina.jvm.util.BLangConstants.GENERATE_PKG_INIT;
+import static io.ballerina.jvm.util.BLangConstants.GENERATE_PKG_START;
+import static io.ballerina.jvm.util.BLangConstants.GENERATE_PKG_STOP;
+import static io.ballerina.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
+import static io.ballerina.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.jvm.util.BLangConstants.START_FUNCTION_SUFFIX;
+import static io.ballerina.jvm.util.BLangConstants.STOP_FUNCTION_SUFFIX;
 
 /**
  * <p>

@@ -17,16 +17,16 @@
  */
 package org.ballerinalang.stdlib.services.nativeimpl.response;
 
+import io.ballerina.jvm.XMLFactory;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.jvm.values.XMLSequence;
+import io.ballerina.jvm.values.XMLValue;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;

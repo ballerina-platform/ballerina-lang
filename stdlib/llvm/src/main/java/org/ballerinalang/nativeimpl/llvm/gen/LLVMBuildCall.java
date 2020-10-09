@@ -16,10 +16,10 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;

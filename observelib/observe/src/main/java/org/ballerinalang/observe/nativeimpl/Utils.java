@@ -19,19 +19,19 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.observability.metrics.PercentileValue;
-import org.ballerinalang.jvm.observability.metrics.Snapshot;
-import org.ballerinalang.jvm.observability.metrics.StatisticConfig;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.BmpStringValue;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.observability.metrics.PercentileValue;
+import io.ballerina.jvm.observability.metrics.Snapshot;
+import io.ballerina.jvm.observability.metrics.StatisticConfig;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.BmpStringValue;
+import io.ballerina.jvm.values.MapValue;
 
 import java.util.HashMap;
 import java.util.Map;

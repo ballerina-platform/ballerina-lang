@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.launch;
+package io.ballerina.jvm.launch;
 
 /**
  * This represents the Java SPI interface for listening Launcher events.

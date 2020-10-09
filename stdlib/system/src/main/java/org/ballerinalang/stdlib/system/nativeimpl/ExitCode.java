@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BObject;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 import org.slf4j.Logger;

@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.observability.metrics;
+package io.ballerina.jvm.observability.metrics;
 
-import org.ballerinalang.jvm.observability.metrics.spi.MetricProvider;
+import io.ballerina.jvm.observability.metrics.spi.MetricProvider;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;

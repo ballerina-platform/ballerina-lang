@@ -17,9 +17,9 @@
  */
 package io.ballerina.jvm.util;
 
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.XMLFactory;
+import io.ballerina.jvm.JSONParser;
+import io.ballerina.jvm.JSONUtils;
+import io.ballerina.jvm.XMLFactory;
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.TypeTags;

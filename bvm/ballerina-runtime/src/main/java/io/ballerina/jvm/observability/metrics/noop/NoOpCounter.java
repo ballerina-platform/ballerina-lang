@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.observability.metrics.noop;
+package io.ballerina.jvm.observability.metrics.noop;
 
-import org.ballerinalang.jvm.observability.metrics.AbstractMetric;
-import org.ballerinalang.jvm.observability.metrics.Counter;
-import org.ballerinalang.jvm.observability.metrics.MetricId;
+import io.ballerina.jvm.observability.metrics.AbstractMetric;
+import io.ballerina.jvm.observability.metrics.Counter;
+import io.ballerina.jvm.observability.metrics.MetricId;
 
 /**
  * Implementation of No-Op {@link Counter}.

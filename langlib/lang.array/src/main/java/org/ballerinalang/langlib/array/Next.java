@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.values.AbstractArrayValue;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.values.AbstractArrayValue;
+import io.ballerina.jvm.values.IteratorValue;
+import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.jvm.values.ObjectValue;
 
 /**
  * Native implementation of lang.array.ArrayIterator:next().

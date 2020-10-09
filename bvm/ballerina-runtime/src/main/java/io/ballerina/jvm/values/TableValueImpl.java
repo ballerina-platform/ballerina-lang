@@ -17,24 +17,24 @@
 
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.CycleUtils;
-import org.ballerinalang.jvm.IteratorUtils;
-import org.ballerinalang.jvm.TableUtils;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BIterator;
-import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BTableType;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
+import io.ballerina.jvm.CycleUtils;
+import io.ballerina.jvm.IteratorUtils;
+import io.ballerina.jvm.TableUtils;
+import io.ballerina.jvm.TypeChecker;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BIterator;
+import io.ballerina.jvm.api.values.BLink;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.BField;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.types.BRecordType;
+import io.ballerina.jvm.types.BTableType;
+import io.ballerina.jvm.types.BTupleType;
+import io.ballerina.jvm.util.exceptions.BLangFreezeException;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -51,12 +51,12 @@ import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.jvm.util.BLangConstants.TABLE_LANG_LIB;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * The runtime representation of table.

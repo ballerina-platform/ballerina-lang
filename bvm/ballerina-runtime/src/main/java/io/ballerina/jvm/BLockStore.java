@@ -16,7 +16,7 @@
  *   under the License.
  */
 
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.scheduling.Strand;

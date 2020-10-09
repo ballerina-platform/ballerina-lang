@@ -16,14 +16,14 @@
  */
 package org.ballerinalang.test.util;
 
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.values.ErrorValue;
+import io.ballerina.jvm.values.FutureValue;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -205,10 +205,10 @@ public class BCompileUtil {
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
+                if (t instanceof io.ballerina.jvm.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
+                if (t instanceof io.ballerina.jvm.util.exceptions.BallerinaConnectorException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {

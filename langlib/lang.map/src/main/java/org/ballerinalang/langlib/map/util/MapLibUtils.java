@@ -18,18 +18,18 @@
 
 package org.ballerinalang.langlib.map.util;
 
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BUnionType;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.types.BField;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.types.BRecordType;
+import io.ballerina.jvm.types.BUnionType;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
+import static io.ballerina.jvm.MapUtils.createOpNotSupportedError;
 
 /**
  * Utility methods for map lib functions.

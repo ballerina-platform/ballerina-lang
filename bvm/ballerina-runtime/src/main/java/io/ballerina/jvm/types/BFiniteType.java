@@ -18,10 +18,10 @@
 
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.TypeFlags;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.types.FiniteType;
+import io.ballerina.jvm.TypeChecker;
+import io.ballerina.jvm.api.TypeFlags;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.types.FiniteType;
 import io.ballerina.jvm.values.RefValue;
 
 import java.util.Iterator;

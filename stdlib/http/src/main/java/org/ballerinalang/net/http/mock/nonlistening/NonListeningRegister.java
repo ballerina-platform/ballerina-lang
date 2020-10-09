@@ -18,10 +18,10 @@
 
 package org.ballerinalang.net.http.mock.nonlistening;
 
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.types.AttachedFunction;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.types.AttachedFunction;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;

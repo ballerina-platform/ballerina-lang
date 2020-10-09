@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Slice and return a subsequence of the an XML sequence.

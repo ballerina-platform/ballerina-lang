@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.observability.metrics.Gauge;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.jvm.observability.metrics.Gauge;
+import io.ballerina.jvm.values.ObjectValue;
 
 /**
  * This is the native decrement function implementation of the Gauge object.

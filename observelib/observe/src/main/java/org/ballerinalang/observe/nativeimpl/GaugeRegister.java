@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.observability.metrics.Gauge;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.observability.metrics.Gauge;
+import io.ballerina.jvm.values.ObjectValue;
 
 /**
  * This is the register function native implementation of the Gauge object.

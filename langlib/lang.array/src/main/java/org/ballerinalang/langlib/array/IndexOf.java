@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.utils.GetFunction;
+import io.ballerina.jvm.TypeChecker;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.utils.GetFunction;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunction;
+import static io.ballerina.jvm.values.utils.ArrayUtils.getElementAccessFunction;
 
 /**
  * Native implementation of lang.array:indexOf((anydata|error)[], anydata|error, int).

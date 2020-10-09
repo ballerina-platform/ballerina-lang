@@ -17,13 +17,13 @@
  */
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.IntersectionType;
-import org.ballerinalang.jvm.api.types.ObjectType;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.util.Flags;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.IntersectionType;
+import io.ballerina.jvm.api.types.ObjectType;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.util.Flags;
 
 import java.util.Map.Entry;
 import java.util.StringJoiner;

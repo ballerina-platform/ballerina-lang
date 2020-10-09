@@ -17,9 +17,9 @@
 */
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.BooleanType;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.BooleanType;
 
 /**
  * {@code BBooleanType} represents boolean type in Ballerina.

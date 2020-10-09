@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.jvm.XMLNodeType;
+import io.ballerina.jvm.values.XMLSequence;
+import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Helper function to check xml.isElement().

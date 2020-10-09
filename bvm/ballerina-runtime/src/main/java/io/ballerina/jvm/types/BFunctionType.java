@@ -17,11 +17,11 @@
  */
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.FunctionType;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.util.Flags;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.FunctionType;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.util.Flags;
 
 import java.util.Arrays;
 

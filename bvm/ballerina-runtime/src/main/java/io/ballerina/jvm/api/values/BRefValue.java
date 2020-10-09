@@ -18,8 +18,8 @@
 package io.ballerina.jvm.api.values;
 
 import io.ballerina.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.util.exceptions.BLangFreezeException;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.io.OutputStream;

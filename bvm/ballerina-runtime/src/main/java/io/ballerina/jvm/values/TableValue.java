@@ -17,8 +17,8 @@
 
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BMap;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BMap;
 
 /**
  * <p>

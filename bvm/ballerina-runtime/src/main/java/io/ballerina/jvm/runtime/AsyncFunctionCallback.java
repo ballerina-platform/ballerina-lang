@@ -16,11 +16,11 @@
  *  under the License.
  */
 
-package org.ballerinalang.jvm.runtime;
+package io.ballerina.jvm.runtime;
 
 import io.ballerina.jvm.api.connector.CallableUnitCallback;
 import io.ballerina.jvm.api.values.BError;
-import org.ballerinalang.jvm.scheduling.Strand;
+import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.values.FutureValue;
 
 /**

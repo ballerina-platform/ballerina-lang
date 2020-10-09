@@ -17,15 +17,15 @@
  */
 package org.ballerinalang.test.types.map;
 
+import io.ballerina.jvm.XMLFactory;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.MapValueImpl;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BRefType;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -204,7 +204,7 @@ public class BMapValueTest {
 
     @Test(description = "Testing convert map values to string")
     public void testBMapToString() {
-        MapValue<org.ballerinalang.jvm.api.values.BString, Object> map = new MapValueImpl<>();
+        MapValue<io.ballerina.jvm.api.values.BString, Object> map = new MapValueImpl<>();
         map.put(BStringUtils.fromString("key1"), 1);
         map.put(BStringUtils.fromString("key2"), BStringUtils.fromString("foo"));
         map.put(BStringUtils.fromString("key3"), XMLFactory.parse("<bar>hello</bar>"));

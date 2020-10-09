@@ -17,17 +17,17 @@
 */
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.IteratorUtils;
-import org.ballerinalang.jvm.JSONGenerator;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.IteratorUtils;
+import io.ballerina.jvm.JSONGenerator;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BLink;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.BTupleType;
+import io.ballerina.jvm.types.BUnionType;
+import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,10 +36,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.jvm.util.BLangConstants.ARRAY_LANG_LIB;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 
 /**
  * <p>

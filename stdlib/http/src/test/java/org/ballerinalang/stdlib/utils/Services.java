@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.utils;
 
+import io.ballerina.jvm.api.BExecutor;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.util.exceptions.BallerinaConnectorException;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
 import io.netty.handler.codec.http.HttpContent;
-import org.ballerinalang.jvm.api.BExecutor;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;

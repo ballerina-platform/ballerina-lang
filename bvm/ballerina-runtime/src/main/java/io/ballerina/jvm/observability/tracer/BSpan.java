@@ -16,20 +16,20 @@
  * under the License.
  */
 
-package org.ballerinalang.jvm.observability.tracer;
+package io.ballerina.jvm.observability.tracer;
 
+import io.ballerina.jvm.observability.ObserverContext;
 import io.opentracing.Span;
-import org.ballerinalang.jvm.observability.ObserverContext;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.DEFAULT_OPERATION_NAME;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.DEFAULT_SERVICE_NAME;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_KEY_STR_ERROR;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_STR_TRUE;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.DEFAULT_OPERATION_NAME;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.DEFAULT_SERVICE_NAME;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.KEY_SPAN;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.TAG_KEY_STR_ERROR;
+import static io.ballerina.jvm.observability.tracer.TraceConstants.TAG_STR_TRUE;
 
 /**
  * {@code BSpan} holds the trace of the current context.

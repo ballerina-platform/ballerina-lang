@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.AbstractObjectValue;
-import org.ballerinalang.jvm.values.FutureValue;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.types.BObjectType;
+import io.ballerina.jvm.types.BRecordType;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.values.AbstractObjectValue;
+import io.ballerina.jvm.values.FutureValue;
 
 import java.util.ArrayList;
 import java.util.Collections;

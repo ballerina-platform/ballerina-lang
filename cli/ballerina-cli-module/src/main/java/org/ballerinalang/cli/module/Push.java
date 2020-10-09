@@ -16,13 +16,13 @@
 
 package org.ballerinalang.cli.module;
 
+import io.ballerina.jvm.JSONParser;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.values.MapValue;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.ballerinalang.cli.module.util.ErrorUtil;
 import org.ballerinalang.cli.module.util.Utils;
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.MapValue;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

@@ -17,9 +17,9 @@
  */
 package io.ballerina.jvm.api;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.State;
-import org.ballerinalang.jvm.scheduling.Strand;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.scheduling.State;
+import io.ballerina.jvm.scheduling.Strand;
 
 /**
  * When this class is used as the first argument of an interop method, Ballerina

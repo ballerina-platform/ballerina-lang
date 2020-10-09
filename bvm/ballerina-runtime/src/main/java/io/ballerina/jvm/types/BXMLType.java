@@ -17,12 +17,12 @@
 */
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.api.TypeConstants;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.IntersectionType;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.types.XMLType;
+import io.ballerina.jvm.api.TypeConstants;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.IntersectionType;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.types.XMLType;
 import io.ballerina.jvm.values.XMLSequence;
 import io.ballerina.jvm.values.XMLValue;
 

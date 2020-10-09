@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.runtime;
+package io.ballerina.jvm.runtime;
 
 /**
  * Constants related to Ballerina runtime.

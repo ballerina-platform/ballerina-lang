@@ -18,18 +18,18 @@
 
 package org.ballerinalang.stdlib.mime;
 
+import io.ballerina.jvm.XMLFactory;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.ObjectValue;
+import io.ballerina.jvm.values.XMLValue;
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -80,7 +80,7 @@ public class Util {
     public static ArrayValue getArrayOfBodyParts(ArrayList<BObject> bodyParts) {
         Type typeOfBodyPart = bodyParts.get(0).getType();
         ObjectValue[] result = bodyParts.toArray(new ObjectValue[bodyParts.size()]);
-        return new ArrayValueImpl(result, new org.ballerinalang.jvm.types.BArrayType(typeOfBodyPart));
+        return new ArrayValueImpl(result, new io.ballerina.jvm.types.BArrayType(typeOfBodyPart));
     }
 
     /**

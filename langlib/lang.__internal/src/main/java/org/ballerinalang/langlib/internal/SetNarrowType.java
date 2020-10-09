@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.TypedescValue;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.BField;
+import io.ballerina.jvm.types.BRecordType;
+import io.ballerina.jvm.util.Flags;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.jvm.values.TypedescValue;
 
 import java.util.HashMap;
 

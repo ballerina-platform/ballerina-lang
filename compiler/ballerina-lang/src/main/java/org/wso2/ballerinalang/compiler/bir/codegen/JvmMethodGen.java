@@ -18,8 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.jvm.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.jvm.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -1173,7 +1173,7 @@ public class JvmMethodGen {
 
     private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount) {
 
-        StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
+        StringBuilder desc = new StringBuilder("(Lio/ballerina/jvm/scheduling/Strand;");
         int j = 0;
         while (j < closureMapsCount) {
             j += 1;

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl;
 
-import org.ballerinalang.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BObject;
 import org.ballerinalang.net.http.HttpUtil;
 
 /**

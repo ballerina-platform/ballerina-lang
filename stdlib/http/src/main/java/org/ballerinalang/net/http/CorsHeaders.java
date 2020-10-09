@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.MapValue;
 
 import java.util.ArrayList;
 import java.util.List;

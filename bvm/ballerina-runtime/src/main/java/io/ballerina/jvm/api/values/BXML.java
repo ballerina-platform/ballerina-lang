@@ -16,7 +16,7 @@
 
 package io.ballerina.jvm.api.values;
 
-import org.ballerinalang.jvm.XMLNodeType;
+import io.ballerina.jvm.XMLNodeType;
 
 import java.util.List;
 

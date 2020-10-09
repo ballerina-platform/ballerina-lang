@@ -17,11 +17,11 @@
  */
 package io.ballerina.jvm.values;
 
+import io.ballerina.jvm.XMLNodeType;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BLink;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.values.BLink;
 
 import java.util.Map;
 import java.util.Objects;

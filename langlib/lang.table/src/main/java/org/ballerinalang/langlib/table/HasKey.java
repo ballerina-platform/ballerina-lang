@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.jvm.values.TableValueImpl;
 
 /**
  * Extern function to check existence of key.

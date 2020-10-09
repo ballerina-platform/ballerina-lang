@@ -16,16 +16,16 @@
 
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.BallerinaXMLSerializer;
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.api.values.BXMLQName;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.BallerinaXMLSerializer;
+import io.ballerina.jvm.XMLNodeType;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BLink;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.api.values.BXMLQName;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
 import java.util.List;

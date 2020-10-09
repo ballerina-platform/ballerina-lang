@@ -17,7 +17,6 @@
  */
 package io.ballerina.jvm;
 
-import org.apache.axiom.om.ds.AbstractPushOMDataSource;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.types.Type;
@@ -31,6 +30,7 @@ import io.ballerina.jvm.values.IteratorValue;
 import io.ballerina.jvm.values.MapValueImpl;
 import io.ballerina.jvm.values.TableValueImpl;
 import io.ballerina.jvm.values.TupleValueImpl;
+import org.apache.axiom.om.ds.AbstractPushOMDataSource;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;

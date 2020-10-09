@@ -18,16 +18,16 @@
 
 package org.ballerinalang.net.http.websocket;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.TypeConstants;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BErrorType;
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.jvm.TypeChecker;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.TypeConstants;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.BErrorType;
+import io.ballerina.jvm.values.ErrorValue;
 
 /**
  * Exceptions that could occur in WebSocket.

@@ -18,19 +18,19 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.RefValue;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BLink;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.ObjectValue;
+import io.ballerina.jvm.values.RefValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,7 +133,7 @@ public class MultipartDataSource implements RefValue {
             if (mediaType.get(PARAMETER_MAP_FIELD) != null) {
                 paramMap = (MapValue<BString, Object>) mediaType.get(PARAMETER_MAP_FIELD);
             } else {
-                paramMap = BValueCreator.createMapValue(new org.ballerinalang.jvm.types.BMapType(Types.TYPE_STRING));
+                paramMap = BValueCreator.createMapValue(new io.ballerina.jvm.types.BMapType(Types.TYPE_STRING));
             }
 
             paramMap.put(BStringUtils.fromString(BOUNDARY), BStringUtils.fromString(childBoundaryString));

@@ -18,10 +18,10 @@
 
 package org.ballerinalang.stdlib.reflect;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.AttachedFunction;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.AttachedFunction;
 
 /**
  * Utility class represents annotation related functionality.

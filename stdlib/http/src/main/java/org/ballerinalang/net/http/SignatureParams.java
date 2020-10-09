@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.types.BArrayType;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.types.BArrayType;
 
 import java.util.List;
 

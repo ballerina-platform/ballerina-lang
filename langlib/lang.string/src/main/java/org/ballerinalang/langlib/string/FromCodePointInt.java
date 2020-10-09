@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
 
 /**
  * Extern function lang.string:startsWith(string, string).

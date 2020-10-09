@@ -18,20 +18,20 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.types.BTupleType;
+import io.ballerina.jvm.types.BUnionType;
+import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
+import static io.ballerina.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.array:slice((any|error)[]).

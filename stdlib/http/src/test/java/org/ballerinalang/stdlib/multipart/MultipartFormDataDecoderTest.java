@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.multipart;
 
+import io.ballerina.jvm.XMLFactory;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.values.XMLValue;
 import org.ballerinalang.core.model.util.JsonParser;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.ResponseReader;
 import org.ballerinalang.stdlib.utils.Services;

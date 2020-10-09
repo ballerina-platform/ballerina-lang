@@ -68,7 +68,7 @@ function newString(handle bytes) returns handle = @java:Constructor {
 function getString(string str) returns handle = @java:Method {
     name: "moveTo",
     'class: "org.ballerinalang.test.javainterop.overloading.pkg.Vehicle",
-    paramTypes: ["org.ballerinalang.jvm.api.values.BString"]
+    paramTypes: ["io.ballerina.jvm.api.values.BString"]
 } external;
 
 function getIntString(int val) returns handle = @java:Method {

@@ -17,19 +17,19 @@
  */
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ANON_ORG;
-import static org.ballerinalang.jvm.util.BLangConstants.DOT;
-import static org.ballerinalang.jvm.util.BLangConstants.EMPTY;
-import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
-import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
+import static io.ballerina.jvm.util.BLangConstants.ANON_ORG;
+import static io.ballerina.jvm.util.BLangConstants.DOT;
+import static io.ballerina.jvm.util.BLangConstants.EMPTY;
+import static io.ballerina.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.jvm.util.BLangConstants.VERSION_SEPARATOR;
 
 /**
  * A {@code ValueCreator} is an API that will be implemented by all the module init classed from jvm codegen.

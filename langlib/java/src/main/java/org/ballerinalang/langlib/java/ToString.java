@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.langlib.java;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.HandleValue;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.HandleValue;
 
 /**
  * This class contains the implementation of the "toString" ballerina function in ballerina/java module.

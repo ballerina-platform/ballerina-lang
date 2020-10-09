@@ -18,7 +18,7 @@
 package io.ballerina.jvm.api.values;
 
 import io.ballerina.jvm.api.types.Type;
-import org.ballerinalang.jvm.scheduling.Strand;
+import io.ballerina.jvm.scheduling.Strand;
 
 /**
  * <p>

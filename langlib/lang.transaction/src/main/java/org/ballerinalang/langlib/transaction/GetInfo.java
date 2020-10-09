@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.transactions.TransactionResourceManager;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.jvm.transactions.TransactionResourceManager;
+import io.ballerina.jvm.values.ArrayValue;
 
 /**
  * Extern function transaction:getInfo.

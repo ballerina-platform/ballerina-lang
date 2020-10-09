@@ -18,12 +18,12 @@
 
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.IteratorUtils;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BStream;
-import org.ballerinalang.jvm.types.BStreamType;
+import io.ballerina.jvm.IteratorUtils;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BLink;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BStream;
+import io.ballerina.jvm.types.BStreamType;
 
 import java.util.Map;
 import java.util.UUID;

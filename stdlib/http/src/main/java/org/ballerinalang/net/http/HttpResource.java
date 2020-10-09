@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.transactions.TransactionConstants;
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.transactions.TransactionConstants;
+import io.ballerina.jvm.types.AttachedFunction;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.MapValueImpl;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

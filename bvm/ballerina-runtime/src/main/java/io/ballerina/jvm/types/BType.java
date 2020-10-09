@@ -17,13 +17,13 @@
 */
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.IdentifierUtils;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.IntersectionType;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.IdentifierUtils;
+import io.ballerina.jvm.TypeChecker;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.IntersectionType;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
 
 import java.util.Objects;
 

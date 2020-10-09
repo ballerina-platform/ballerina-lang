@@ -18,20 +18,20 @@
 
 package io.ballerina.jvm.values;
 
+import io.ballerina.jvm.BallerinaXMLSerializer;
+import io.ballerina.jvm.XMLNodeType;
+import io.ballerina.jvm.api.values.BLink;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.BallerinaXMLSerializer;
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BXML;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
+import static io.ballerina.jvm.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
  * Functionality common to PI, COMMENT and TEXT nodes.

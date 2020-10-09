@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http.websocket;
 
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.types.AttachedFunction;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.types.AttachedFunction;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

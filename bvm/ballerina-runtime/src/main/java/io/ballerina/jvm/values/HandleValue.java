@@ -17,10 +17,10 @@
  */
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BHandle;
-import org.ballerinalang.jvm.api.values.BLink;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BHandle;
+import io.ballerina.jvm.api.values.BLink;
 
 import java.util.Map;
 

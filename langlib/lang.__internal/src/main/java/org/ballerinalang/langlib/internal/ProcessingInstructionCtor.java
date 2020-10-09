@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.jvm.XMLFactory;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.XMLValue;
 
 /**
  * XML Processing Instruction constructor function.

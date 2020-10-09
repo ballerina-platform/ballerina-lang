@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.packaging;
 
+import io.ballerina.jvm.JSONParser;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.values.MapValue;
 import org.awaitility.Duration;
 import org.ballerinalang.cli.module.util.Utils;
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;

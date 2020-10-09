@@ -18,17 +18,15 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.MapUtils;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.MapUtils;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.MapValue;
 
-import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.jvm.MapUtils.checkIsMapOnlyOperation;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 
 /**
@@ -45,7 +43,7 @@ public class Remove {
         if (m.containsKey(k)) {
             try {
                 return m.remove(k);
-            } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
+            } catch (io.ballerina.jvm.util.exceptions.BLangFreezeException e) {
                 throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
                                                 BStringUtils.fromString(
                                                         "Failed to remove element from map: " + e.getDetail()));

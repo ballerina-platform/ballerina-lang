@@ -86,7 +86,7 @@ public function lookupMetric(string name, map<string>? tags = ()) returns Counte
 # + return - True if observability had been enabled.
 public isolated function isObservabilityEnabled() returns boolean = @java:Method {
     name: "isObservabilityEnabled",
-    'class: "org.ballerinalang.jvm.observability.ObserveUtils"
+    'class: "io.ballerina.jvm.observability.ObserveUtils"
 } external;
 
 # This represents the metric type - counter, that can be only increased by an integer number.

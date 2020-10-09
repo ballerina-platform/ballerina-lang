@@ -15,9 +15,8 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.TypeTags;
@@ -30,6 +29,7 @@ import io.ballerina.jvm.values.ArrayValue;
 import io.ballerina.jvm.values.ArrayValueImpl;
 import io.ballerina.jvm.values.DecimalValue;
 import io.ballerina.jvm.values.MapValueImpl;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

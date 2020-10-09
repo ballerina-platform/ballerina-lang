@@ -17,19 +17,19 @@
  */
 package org.ballerinalang.observe.metrics.prometheus;
 
+import io.ballerina.jvm.annotation.JavaSPIService;
+import io.ballerina.jvm.observability.ObservabilityConstants;
+import io.ballerina.jvm.observability.metrics.spi.MetricReporter;
+import io.ballerina.jvm.observability.tracer.InvalidConfigurationException;
+import io.ballerina.jvm.scheduling.StrandMetadata;
+import io.ballerina.jvm.services.EmbeddedExecutorProvider;
+import io.ballerina.jvm.services.spi.EmbeddedExecutor;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.annotation.JavaSPIService;
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
-import org.ballerinalang.jvm.observability.metrics.spi.MetricReporter;
-import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.services.EmbeddedExecutorProvider;
-import org.ballerinalang.jvm.services.spi.EmbeddedExecutor;
 
 import java.io.PrintStream;
 import java.util.Optional;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * This is the reporter extension for the Prometheus.

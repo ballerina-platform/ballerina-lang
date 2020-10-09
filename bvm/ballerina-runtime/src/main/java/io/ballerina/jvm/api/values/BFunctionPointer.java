@@ -17,7 +17,7 @@
  */
 package io.ballerina.jvm.api.values;
 
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
+import io.ballerina.jvm.scheduling.StrandMetadata;
 import io.ballerina.jvm.values.FutureValue;
 
 import java.util.function.Function;

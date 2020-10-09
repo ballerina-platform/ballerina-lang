@@ -17,7 +17,7 @@
  */
 package io.ballerina.jvm.api.values;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
 import io.ballerina.jvm.values.ArrayValue;
 import io.ballerina.jvm.values.MapValue;
 import io.ballerina.jvm.values.ObjectValue;

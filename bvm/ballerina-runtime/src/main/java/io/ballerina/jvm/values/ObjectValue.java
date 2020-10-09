@@ -17,9 +17,9 @@
  */
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.scheduling.Strand;
 
 /**
  * <p>

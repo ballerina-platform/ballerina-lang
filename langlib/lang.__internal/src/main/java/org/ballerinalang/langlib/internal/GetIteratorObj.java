@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.values.StreamValue;
+import io.ballerina.jvm.values.StreamValue;
 
 /**
  * Native implementation of lang.stream:getIteratorObj(stream&lt;Type&gt;).

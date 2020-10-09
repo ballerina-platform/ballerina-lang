@@ -17,20 +17,20 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.values.BArray;
-import org.ballerinalang.jvm.api.values.BDecimal;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BFunctionPointer;
-import org.ballerinalang.jvm.api.values.BFuture;
-import org.ballerinalang.jvm.api.values.BHandle;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BStream;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BTypedesc;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.values.TableValue;
+import io.ballerina.jvm.api.BalEnv;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BDecimal;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BFunctionPointer;
+import io.ballerina.jvm.api.values.BFuture;
+import io.ballerina.jvm.api.values.BHandle;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BStream;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTypedesc;
+import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.values.TableValue;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;

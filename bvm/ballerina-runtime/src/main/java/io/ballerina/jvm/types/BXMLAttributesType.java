@@ -17,9 +17,9 @@
 */
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.XMLAttributesType;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.XMLAttributesType;
 
 /**
  * {@code BXMLAttributesType} represents the type of an xml-attribute-map in ballerina.

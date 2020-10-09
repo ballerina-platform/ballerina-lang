@@ -17,8 +17,8 @@
 */
 package io.ballerina.jvm.api.values;
 
-import org.ballerinalang.jvm.JSONDataSource;
-import org.ballerinalang.jvm.JSONGenerator;
+import io.ballerina.jvm.JSONDataSource;
+import io.ballerina.jvm.JSONGenerator;
 
 import java.io.Writer;
 

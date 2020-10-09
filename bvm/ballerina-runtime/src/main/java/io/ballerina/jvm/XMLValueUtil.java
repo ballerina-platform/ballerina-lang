@@ -1,8 +1,8 @@
 package io.ballerina.jvm;
 
+import io.ballerina.jvm.values.XMLValue;
 import org.apache.axiom.om.OMComment;
 import org.apache.axiom.om.OMProcessingInstruction;
-import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Helper functions to manipulate OM elements.

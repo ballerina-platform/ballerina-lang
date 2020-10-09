@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.jvm.util.BLangConstants;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;

@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.ballerinalang.jvm.runtime;
+package io.ballerina.jvm.runtime;
 
 import io.ballerina.jvm.api.values.BError;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.State;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.scheduling.State;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.scheduling.StrandMetadata;
 import io.ballerina.jvm.types.BFunctionType;
 import io.ballerina.jvm.values.FPValue;
 import io.ballerina.jvm.values.FutureValue;

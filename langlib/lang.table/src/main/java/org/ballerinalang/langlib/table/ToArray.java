@@ -18,13 +18,12 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTableType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.types.BTableType;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.TableValueImpl;
 
 import java.util.Collection;
 

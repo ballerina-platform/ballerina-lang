@@ -16,22 +16,22 @@
 
 package io.ballerina.jvm.values;
 
+import io.ballerina.jvm.BallerinaXMLSerializer;
+import io.ballerina.jvm.XMLFactory;
+import io.ballerina.jvm.XMLNodeType;
+import io.ballerina.jvm.XMLValidator;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BLink;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.BallerinaXMLSerializer;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.XMLValidator;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
@@ -49,10 +49,10 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
-import static org.ballerinalang.jvm.XMLNodeType.ELEMENT;
-import static org.ballerinalang.jvm.XMLNodeType.TEXT;
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
-import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.jvm.XMLNodeType.ELEMENT;
+import static io.ballerina.jvm.XMLNodeType.TEXT;
+import static io.ballerina.jvm.util.BLangConstants.STRING_NULL_VALUE;
+import static io.ballerina.jvm.util.BLangConstants.XML_LANG_LIB;
 
 /**
  * {@code XMLItem} represents a single XML element in Ballerina.

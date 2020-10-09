@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.IteratorValue;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.IteratorValue;
 
 /**
  * Native implementation of lang.array:iterator(Type[]).

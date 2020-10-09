@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValue;
 
 /**
  * Native implementation of lang.array:removeAll((any|error)[]).

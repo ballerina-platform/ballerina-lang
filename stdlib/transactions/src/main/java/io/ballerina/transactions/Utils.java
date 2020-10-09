@@ -19,18 +19,18 @@
 
 package io.ballerina.transactions;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.transactions.TransactionConstants;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.transactions.TransactionResourceManager;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.transactions.TransactionConstants;
+import io.ballerina.jvm.transactions.TransactionLocalContext;
+import io.ballerina.jvm.transactions.TransactionResourceManager;
+import io.ballerina.jvm.values.FPValue;
+import io.ballerina.jvm.values.MapValue;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -41,9 +41,9 @@ import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.Map;
 
-import static org.ballerinalang.jvm.runtime.RuntimeConstants.GLOBAL_TRANSACTION_ID;
-import static org.ballerinalang.jvm.runtime.RuntimeConstants.TRANSACTION_URL;
-import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
+import static io.ballerina.jvm.runtime.RuntimeConstants.GLOBAL_TRANSACTION_ID;
+import static io.ballerina.jvm.runtime.RuntimeConstants.TRANSACTION_URL;
+import static io.ballerina.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 
 /**
  * Native function implementations of the transactions module.
@@ -58,9 +58,9 @@ public class Utils {
 
     public static void notifyResourceManagerOnAbort(BString transactionBlockId) {
         Strand strand = Scheduler.getStrand();
-        org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
+        io.ballerina.jvm.transactions.TransactionLocalContext transactionLocalContext =
                 strand.currentTrxContext;
-        org.ballerinalang.jvm.transactions.TransactionResourceManager.getInstance()
+        io.ballerina.jvm.transactions.TransactionResourceManager.getInstance()
                 .notifyAbort(strand, transactionLocalContext.getGlobalTransactionId(), transactionBlockId.getValue(),
                 null);
     }
@@ -83,7 +83,7 @@ public class Utils {
 
     public static void notifyRemoteParticipantOnFailure() {
         Strand strand = Scheduler.getStrand();
-        org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
+        io.ballerina.jvm.transactions.TransactionLocalContext transactionLocalContext =
                 strand.currentTrxContext;
         if (transactionLocalContext == null) {
             return;
@@ -93,7 +93,7 @@ public class Utils {
 
     public static void notifyLocalParticipantOnFailure() {
         Strand strand = Scheduler.getStrand();
-        org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
+        io.ballerina.jvm.transactions.TransactionLocalContext transactionLocalContext =
                 strand.currentTrxContext;
         if (transactionLocalContext == null) {
             return;
@@ -204,7 +204,7 @@ public class Utils {
 
     public static boolean commitResourceManagers(BString transactionId, BString transactionBlockId) {
         Strand strand = Scheduler.getStrand();
-        return org.ballerinalang.jvm.transactions.TransactionResourceManager
+        return io.ballerina.jvm.transactions.TransactionResourceManager
                 .getInstance().notifyCommit(strand, transactionId.getValue(), transactionBlockId.getValue());
     }
 

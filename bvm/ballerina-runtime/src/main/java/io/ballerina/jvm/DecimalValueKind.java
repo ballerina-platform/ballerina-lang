@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
 /**
  * Possible kinds of a decimal value.

@@ -17,14 +17,14 @@
 */
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.api.TypeConstants;
-import org.ballerinalang.jvm.api.TypeFlags;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.IntersectionType;
-import org.ballerinalang.jvm.api.types.JSONType;
-import org.ballerinalang.jvm.api.types.Type;
+import io.ballerina.jvm.api.TypeConstants;
+import io.ballerina.jvm.api.TypeFlags;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.IntersectionType;
+import io.ballerina.jvm.api.types.JSONType;
+import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.values.MapValueImpl;
 
 /**

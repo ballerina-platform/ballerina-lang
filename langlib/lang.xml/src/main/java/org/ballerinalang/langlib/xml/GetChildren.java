@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Return children of provided xml element value, panic if provided is not a element.

@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langlib.string.utils;
 
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.internal.ErrorUtils;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.internal.ErrorUtils;
 
 import java.util.Arrays;
 

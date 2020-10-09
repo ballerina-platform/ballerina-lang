@@ -17,30 +17,30 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.values.AbstractObjectValue;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.types.AttachedFunction;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.types.BField;
+import io.ballerina.jvm.types.BObjectType;
+import io.ballerina.jvm.values.AbstractObjectValue;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.ErrorValue;
+import io.ballerina.jvm.values.FutureValue;
+import io.ballerina.jvm.values.ObjectValue;
 
 import java.util.Collections;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG_ID;
-import static org.ballerinalang.jvm.values.ErrorValue.CALL_STACK_ELEMENT;
+import static io.ballerina.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG_ID;
+import static io.ballerina.jvm.values.ErrorValue.CALL_STACK_ELEMENT;
 
 /**
  * Get the stackTrace of an error value.

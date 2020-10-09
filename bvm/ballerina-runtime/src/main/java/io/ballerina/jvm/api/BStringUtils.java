@@ -16,15 +16,15 @@
  */
 package io.ballerina.jvm.api;
 
-import org.ballerinalang.jvm.CycleUtils;
-import org.ballerinalang.jvm.TypeChecker;
+import io.ballerina.jvm.CycleUtils;
+import io.ballerina.jvm.TypeChecker;
 import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.api.values.BLink;
 import io.ballerina.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.types.AttachedFunction;
 import io.ballerina.jvm.types.BObjectType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
 import io.ballerina.jvm.values.AbstractObjectValue;
 import io.ballerina.jvm.values.ArrayValue;
 import io.ballerina.jvm.values.BmpStringValue;
@@ -44,9 +44,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.jvm.util.BLangConstants.STRING_LANG_LIB;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for String manipulation.

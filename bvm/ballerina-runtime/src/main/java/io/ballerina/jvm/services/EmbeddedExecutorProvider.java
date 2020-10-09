@@ -17,9 +17,9 @@
  *
  */
 
-package org.ballerinalang.jvm.services;
+package io.ballerina.jvm.services;
 
-import org.ballerinalang.jvm.services.spi.EmbeddedExecutor;
+import io.ballerina.jvm.services.spi.EmbeddedExecutor;
 
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;

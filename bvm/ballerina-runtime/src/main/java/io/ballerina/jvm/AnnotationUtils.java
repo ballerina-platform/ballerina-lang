@@ -15,19 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BAnnotatableType;
-import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BServiceType;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.types.AttachedFunction;
+import io.ballerina.jvm.types.BAnnotatableType;
+import io.ballerina.jvm.types.BObjectType;
+import io.ballerina.jvm.types.BServiceType;
+import io.ballerina.jvm.values.FPValue;
+import io.ballerina.jvm.values.MapValue;
 
 /**
  * Utility methods related to annotation loading.

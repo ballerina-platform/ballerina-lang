@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.values.TableValueImpl;
 
 /**
  * Native implementation of lang.table:add(table&lt;Type&gt;, (any|error)...).

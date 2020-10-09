@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.DecimalValue;
+import io.ballerina.jvm.values.ErrorValue;
 
 import java.math.BigDecimal;
 

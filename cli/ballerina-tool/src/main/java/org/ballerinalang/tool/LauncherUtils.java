@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.tool;
 
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.jvm.values.ErrorValue;
 
 import java.io.IOException;
 import java.io.PrintStream;

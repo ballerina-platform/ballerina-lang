@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-package org.ballerinalang.jvm.services.spi;
+package io.ballerina.jvm.services.spi;
 
 import io.ballerina.jvm.scheduling.StrandMetadata;
 

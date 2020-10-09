@@ -18,7 +18,7 @@
 
 package io.ballerina.jvm.api.values;
 
-import org.ballerinalang.jvm.DecimalValueKind;
+import io.ballerina.jvm.DecimalValueKind;
 import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.values.DecimalValue;
 

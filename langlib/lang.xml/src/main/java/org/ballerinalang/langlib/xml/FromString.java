@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.jvm.XMLFactory;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.ErrorValue;
 
 /**
  * Converts a XML to the corresponding JSON representation.

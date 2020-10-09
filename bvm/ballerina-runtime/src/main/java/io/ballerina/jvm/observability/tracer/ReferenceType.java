@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.jvm.observability.tracer;
+package io.ballerina.jvm.observability.tracer;
 
 /**
  * Enum for reference types between spans.

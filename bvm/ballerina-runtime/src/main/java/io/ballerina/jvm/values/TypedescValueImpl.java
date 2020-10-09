@@ -17,13 +17,13 @@
  */
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BInitialValueEntry;
-import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypedescType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BInitialValueEntry;
+import io.ballerina.jvm.api.values.BLink;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.types.BTypedescType;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
 
 import java.util.Map;
 

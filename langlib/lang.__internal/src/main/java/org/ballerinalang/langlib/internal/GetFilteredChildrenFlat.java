@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.jvm.XMLNodeType;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.values.XMLItem;
+import io.ballerina.jvm.values.XMLSequence;
+import io.ballerina.jvm.values.XMLValue;
 
 import java.util.ArrayList;
 import java.util.Collections;

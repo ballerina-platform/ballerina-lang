@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.jvm.observability.tracer;
+package io.ballerina.jvm.observability.tracer;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;

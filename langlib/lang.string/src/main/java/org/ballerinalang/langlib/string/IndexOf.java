@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.internal.ErrorUtils;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.internal.ErrorUtils;
+import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.jvm.util.exceptions.RuntimeErrors;
 
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.jvm.util.BLangConstants.STRING_LANG_LIB;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Extern function ballerina.model.strings:indexOf.

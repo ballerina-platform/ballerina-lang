@@ -17,8 +17,8 @@
  */
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.StructureType;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.StructureType;
 
 import java.util.HashMap;
 import java.util.Map;

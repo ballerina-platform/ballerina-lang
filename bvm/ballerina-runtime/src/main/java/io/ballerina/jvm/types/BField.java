@@ -17,8 +17,8 @@
  */
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.api.types.Field;
-import org.ballerinalang.jvm.api.types.Type;
+import io.ballerina.jvm.api.types.Field;
+import io.ballerina.jvm.api.types.Type;
 
 /**
  * {@code BField} represents a field in user defined type in Ballerina.

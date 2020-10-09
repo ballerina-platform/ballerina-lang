@@ -18,11 +18,11 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.values.FPValue;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.types.BFunctionType;
+import io.ballerina.jvm.types.BUnionType;
+import io.ballerina.jvm.values.FPValue;
 
 /**
  * Native implementation of lang.internal:getMapFunc(func).

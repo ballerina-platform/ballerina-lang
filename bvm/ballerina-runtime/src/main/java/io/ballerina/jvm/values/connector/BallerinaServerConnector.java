@@ -17,7 +17,7 @@
 */
 package io.ballerina.jvm.values.connector;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import io.ballerina.jvm.util.exceptions.BallerinaConnectorException;
 import io.ballerina.jvm.values.ObjectValue;
 
 import java.util.List;

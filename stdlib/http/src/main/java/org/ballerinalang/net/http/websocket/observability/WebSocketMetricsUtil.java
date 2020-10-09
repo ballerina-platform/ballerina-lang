@@ -18,12 +18,12 @@
 
 package org.ballerinalang.net.http.websocket.observability;
 
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
-import org.ballerinalang.jvm.observability.metrics.MetricId;
-import org.ballerinalang.jvm.observability.metrics.MetricRegistry;
-import org.ballerinalang.jvm.observability.metrics.Tag;
+import io.ballerina.jvm.observability.ObservabilityConstants;
+import io.ballerina.jvm.observability.ObserveUtils;
+import io.ballerina.jvm.observability.metrics.DefaultMetricRegistry;
+import io.ballerina.jvm.observability.metrics.MetricId;
+import io.ballerina.jvm.observability.metrics.MetricRegistry;
+import io.ballerina.jvm.observability.metrics.Tag;
 
 import java.util.Set;
 

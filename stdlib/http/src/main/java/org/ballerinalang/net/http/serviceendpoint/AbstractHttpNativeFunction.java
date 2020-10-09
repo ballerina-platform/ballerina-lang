@@ -1,6 +1,6 @@
 package org.ballerinalang.net.http.serviceendpoint;
 
-import org.ballerinalang.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BObject;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.websocket.server.WebSocketServicesRegistry;

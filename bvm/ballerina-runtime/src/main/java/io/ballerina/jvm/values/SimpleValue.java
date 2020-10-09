@@ -17,7 +17,7 @@
  */
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.api.values.BValue;
+import io.ballerina.jvm.api.values.BValue;
 
 /**
  * <p>

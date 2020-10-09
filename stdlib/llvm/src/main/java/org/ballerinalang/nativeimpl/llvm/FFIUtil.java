@@ -1,11 +1,11 @@
 package org.ballerinalang.nativeimpl.llvm;
 
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import io.ballerina.jvm.BallerinaValues;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.MapValueImpl;
 import org.bytedeco.javacpp.Pointer;
 
 /**

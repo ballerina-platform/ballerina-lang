@@ -18,13 +18,13 @@
 
 package org.ballerinalang.stdlib.io.utils;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.values.MappingInitialValueEntry;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.values.MappingInitialValueEntry;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

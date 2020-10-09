@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.values.ArrayValue;
 
 /**
  * Native implementation for get error's call stack.

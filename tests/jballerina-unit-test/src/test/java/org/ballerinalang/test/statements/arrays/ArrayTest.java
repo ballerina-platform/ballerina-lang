@@ -17,6 +17,11 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
+import io.ballerina.jvm.XMLFactory;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.XMLValue;
 import org.ballerinalang.core.model.types.BArrayType;
 import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.values.BInteger;
@@ -24,11 +29,6 @@ import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -136,7 +136,7 @@ public class ArrayTest {
 
         XMLValue[] xmlArray = { XMLFactory.parse("<foo> </foo>"), XMLFactory.parse("<bar>hello</bar>") };
         ArrayValue bXmlArray = new ArrayValueImpl(xmlArray,
-                new org.ballerinalang.jvm.types.BArrayType(Types.TYPE_XML));
+                new io.ballerina.jvm.types.BArrayType(Types.TYPE_XML));
         Assert.assertEquals(bXmlArray.stringValue(null), "[`<foo> </foo>`,`<bar>hello</bar>`]");
     }
 

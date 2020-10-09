@@ -16,10 +16,10 @@
  *
  */
 
-package org.ballerinalang.jvm.observability.metrics.noop;
+package io.ballerina.jvm.observability.metrics.noop;
 
-import org.ballerinalang.jvm.observability.metrics.spi.MetricReporter;
-import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
+import io.ballerina.jvm.observability.metrics.spi.MetricReporter;
+import io.ballerina.jvm.observability.tracer.InvalidConfigurationException;
 
 /**
  * No operation metrics reporter extension implementation.

@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.observability.metrics.noop;
+package io.ballerina.jvm.observability.metrics.noop;
 
-import org.ballerinalang.jvm.observability.metrics.AbstractMetric;
-import org.ballerinalang.jvm.observability.metrics.Gauge;
-import org.ballerinalang.jvm.observability.metrics.MetricId;
-import org.ballerinalang.jvm.observability.metrics.Snapshot;
-import org.ballerinalang.jvm.observability.metrics.StatisticConfig;
+import io.ballerina.jvm.observability.metrics.AbstractMetric;
+import io.ballerina.jvm.observability.metrics.Gauge;
+import io.ballerina.jvm.observability.metrics.MetricId;
+import io.ballerina.jvm.observability.metrics.Snapshot;
+import io.ballerina.jvm.observability.metrics.StatisticConfig;
 
 /**
  * Implementation of No-Op {@link Gauge}.

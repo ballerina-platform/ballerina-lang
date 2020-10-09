@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
 
 /**
  * Native implementation of lang.array:reverse((any|error)[]).

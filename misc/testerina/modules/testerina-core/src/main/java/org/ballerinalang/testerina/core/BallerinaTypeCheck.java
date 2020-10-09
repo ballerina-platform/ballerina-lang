@@ -18,10 +18,10 @@
 
 package org.ballerinalang.testerina.core;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.jvm.TypeChecker;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BString;
 
 /**
  * Type check function ballerina/test#getBallerinaType.

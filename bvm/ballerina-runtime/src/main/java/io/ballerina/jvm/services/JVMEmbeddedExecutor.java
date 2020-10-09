@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.services;
+package io.ballerina.jvm.services;
 
 import io.ballerina.jvm.annotation.JavaSPIService;
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.services.spi.EmbeddedExecutor;
+import io.ballerina.jvm.services.spi.EmbeddedExecutor;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.util.ArgumentParser;
 import io.ballerina.jvm.util.RuntimeUtils;
@@ -42,7 +42,7 @@ import java.util.function.Function;
  *
  * @since 0.964
  */
-@JavaSPIService("org.ballerinalang.jvm.services.spi.EmbeddedExecutor")
+@JavaSPIService("io.ballerina.jvm.services.spi.EmbeddedExecutor")
 public class JVMEmbeddedExecutor implements EmbeddedExecutor {
 
     private static final String MODULE_INIT_CLASS = ".$_init";

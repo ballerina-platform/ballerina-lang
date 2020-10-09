@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.observability.metrics;
+package io.ballerina.jvm.observability.metrics;
 
 import java.util.Collections;
 import java.util.HashSet;

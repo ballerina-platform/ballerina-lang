@@ -18,11 +18,11 @@
 
 package org.ballerinalang.tool;
 
+import io.ballerina.jvm.util.RuntimeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.tool.util.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

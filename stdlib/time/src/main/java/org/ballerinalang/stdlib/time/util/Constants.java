@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.time.util;
 
-import org.ballerinalang.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.runtime.Module;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 /**
  * Constants used in Ballerina Time library.
  *

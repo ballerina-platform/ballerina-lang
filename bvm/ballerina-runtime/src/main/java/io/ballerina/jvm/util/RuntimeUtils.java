@@ -17,7 +17,7 @@
  */
 package io.ballerina.jvm.util;
 
-import org.ballerinalang.jvm.TypeConverter;
+import io.ballerina.jvm.TypeConverter;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.types.BArrayType;

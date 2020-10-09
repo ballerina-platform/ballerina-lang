@@ -18,9 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.JSONParser;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.toml.model.Manifest;

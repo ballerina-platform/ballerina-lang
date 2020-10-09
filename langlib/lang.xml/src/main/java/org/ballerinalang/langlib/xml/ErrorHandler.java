@@ -16,9 +16,9 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.util.exceptions.BLangFreezeException;
+import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

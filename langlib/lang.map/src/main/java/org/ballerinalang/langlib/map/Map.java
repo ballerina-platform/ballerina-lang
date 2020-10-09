@@ -18,20 +18,20 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.runtime.AsyncUtils;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import io.ballerina.jvm.runtime.AsyncUtils;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.scheduling.StrandMetadata;
+import io.ballerina.jvm.types.BFunctionType;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.values.FPValue;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.MapValueImpl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.jvm.util.BLangConstants.MAP_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**

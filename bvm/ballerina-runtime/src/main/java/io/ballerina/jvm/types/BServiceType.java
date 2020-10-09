@@ -17,10 +17,10 @@
 package io.ballerina.jvm.types;
 
 import io.ballerina.jvm.AnnotationUtils;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.ServiceType;
-import org.ballerinalang.jvm.scheduling.Strand;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.ServiceType;
+import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.values.MapValue;
 
 /**

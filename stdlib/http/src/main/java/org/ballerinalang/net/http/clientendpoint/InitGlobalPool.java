@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http.clientendpoint;
 
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.MapValue;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 

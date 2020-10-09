@@ -17,12 +17,6 @@
  */
 package io.ballerina.jvm;
 
-import org.apache.axiom.om.DeferredParsingException;
-import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMFactory;
-import org.apache.axiom.om.OMXMLBuilderFactory;
-import org.apache.axiom.om.util.StAXParserConfiguration;
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.values.BError;
@@ -37,6 +31,12 @@ import io.ballerina.jvm.values.XMLQName;
 import io.ballerina.jvm.values.XMLSequence;
 import io.ballerina.jvm.values.XMLText;
 import io.ballerina.jvm.values.XMLValue;
+import org.apache.axiom.om.DeferredParsingException;
+import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMFactory;
+import org.apache.axiom.om.OMXMLBuilderFactory;
+import org.apache.axiom.om.util.StAXParserConfiguration;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

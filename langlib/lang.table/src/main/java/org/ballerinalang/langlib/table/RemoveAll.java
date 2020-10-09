@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.values.TableValueImpl;
 
 /**
  * Native implementation of lang.table:removeAll(table&lt;Type&gt;).
@@ -32,7 +32,7 @@ public class RemoveAll {
     public static void removeAll(TableValueImpl tbl) {
         try {
             tbl.clear();
-        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
+        } catch (io.ballerina.jvm.util.exceptions.BLangFreezeException e) {
             throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
                                             BStringUtils
                                                     .fromString("Failed to remove all from table: " + e.getDetail()));

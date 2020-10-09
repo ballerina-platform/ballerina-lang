@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.file.service.endpoint;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BObject;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BObject;
 import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
 import org.ballerinalang.stdlib.file.utils.FileUtils;

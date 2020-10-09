@@ -17,10 +17,10 @@
 */
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.runtime.Module;
-import org.ballerinalang.jvm.api.types.StringType;
-import org.ballerinalang.jvm.util.BLangConstants;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.types.StringType;
+import io.ballerina.jvm.util.BLangConstants;
 
 /**
  * {@code BStringType} represents a String type in ballerina.

@@ -18,26 +18,26 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.observability.metrics.Counter;
-import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
-import org.ballerinalang.jvm.observability.metrics.Gauge;
-import org.ballerinalang.jvm.observability.metrics.Metric;
-import org.ballerinalang.jvm.observability.metrics.MetricConstants;
-import org.ballerinalang.jvm.observability.metrics.MetricId;
-import org.ballerinalang.jvm.observability.metrics.PolledGauge;
-import org.ballerinalang.jvm.observability.metrics.Tag;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.observability.metrics.Counter;
+import io.ballerina.jvm.observability.metrics.DefaultMetricRegistry;
+import io.ballerina.jvm.observability.metrics.Gauge;
+import io.ballerina.jvm.observability.metrics.Metric;
+import io.ballerina.jvm.observability.metrics.MetricConstants;
+import io.ballerina.jvm.observability.metrics.MetricId;
+import io.ballerina.jvm.observability.metrics.PolledGauge;
+import io.ballerina.jvm.observability.metrics.Tag;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ArrayValueImpl;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.MapValueImpl;
 
 import java.util.Set;
 

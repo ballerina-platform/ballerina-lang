@@ -1,17 +1,17 @@
 package org.ballerinalang.testerina.natives.mock;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BExecutor;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BArray;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.values.AbstractObjectValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.StringValue;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BExecutor;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.scheduling.StrandMetadata;
+import io.ballerina.jvm.types.BRecordType;
+import io.ballerina.jvm.values.AbstractObjectValue;
+import io.ballerina.jvm.values.ErrorValue;
+import io.ballerina.jvm.values.StringValue;
 
 import java.io.IOException;
 import java.lang.reflect.Method;

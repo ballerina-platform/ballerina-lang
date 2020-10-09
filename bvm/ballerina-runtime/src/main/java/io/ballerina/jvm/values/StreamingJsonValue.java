@@ -17,14 +17,14 @@
 */
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.JSONDataSource;
-import org.ballerinalang.jvm.JSONGenerator;
-import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.values.BLink;
-import org.ballerinalang.jvm.api.values.BStreamingJson;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BMapType;
+import io.ballerina.jvm.JSONDataSource;
+import io.ballerina.jvm.JSONGenerator;
+import io.ballerina.jvm.JSONUtils;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BLink;
+import io.ballerina.jvm.api.values.BStreamingJson;
+import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.jvm.types.BMapType;
 
 import java.io.IOException;
 import java.io.OutputStream;

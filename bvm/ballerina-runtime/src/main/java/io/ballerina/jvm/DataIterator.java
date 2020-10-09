@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
 import io.ballerina.jvm.types.BStructureType;
 import io.ballerina.jvm.values.DecimalValue;

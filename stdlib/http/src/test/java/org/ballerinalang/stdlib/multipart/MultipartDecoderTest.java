@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.multipart;
 
+import io.ballerina.jvm.api.values.BObject;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.util.internal.StringUtil;
-import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.net.http.HttpConstants;

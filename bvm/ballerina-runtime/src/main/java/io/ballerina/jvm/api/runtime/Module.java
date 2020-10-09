@@ -19,11 +19,11 @@ package io.ballerina.jvm.api.runtime;
 
 import java.util.Objects;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ANON_ORG;
-import static org.ballerinalang.jvm.util.BLangConstants.DOT;
-import static org.ballerinalang.jvm.util.BLangConstants.EMPTY;
-import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
-import static org.ballerinalang.jvm.util.BLangConstants.VERSION_SEPARATOR;
+import static io.ballerina.jvm.util.BLangConstants.ANON_ORG;
+import static io.ballerina.jvm.util.BLangConstants.DOT;
+import static io.ballerina.jvm.util.BLangConstants.EMPTY;
+import static io.ballerina.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.jvm.util.BLangConstants.VERSION_SEPARATOR;
 
 /**
  * {@code Module} represents the module of defined type in Ballerina.

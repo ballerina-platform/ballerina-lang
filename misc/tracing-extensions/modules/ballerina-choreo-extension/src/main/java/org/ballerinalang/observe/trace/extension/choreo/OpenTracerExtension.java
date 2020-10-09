@@ -15,13 +15,13 @@
  */
 package org.ballerinalang.observe.trace.extension.choreo;
 
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.observability.tracer.OpenTracer;
 import io.jaegertracing.internal.JaegerTracer;
 import io.jaegertracing.internal.samplers.RateLimitingSampler;
 import io.jaegertracing.spi.Reporter;
 import io.opentracing.Tracer;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.observability.tracer.OpenTracer;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClient;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClientHolder;
 import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;

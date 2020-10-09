@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLQName;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.jvm.XMLFactory;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.XMLItem;
+import io.ballerina.jvm.values.XMLQName;
+import io.ballerina.jvm.values.XMLValue;
 
 /**
  * XML Element constructor function.

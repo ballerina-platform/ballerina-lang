@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
 /**
  * This  wraps the column name and type of a selected result set from a data source.

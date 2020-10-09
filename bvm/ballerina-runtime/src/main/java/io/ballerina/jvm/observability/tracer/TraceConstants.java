@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.jvm.observability.tracer;
+package io.ballerina.jvm.observability.tracer;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
+import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
 
 /**
  * {@code TraceConstants} define tracer constants.

@@ -17,7 +17,7 @@
  */
 package org.ballerina.test.listener;
 
-import org.ballerinalang.jvm.launch.LaunchListener;
+import io.ballerina.jvm.launch.LaunchListener;
 /**
  * Test Launcher Listener used for testing purpose.
  *

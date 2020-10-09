@@ -18,14 +18,13 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.TupleValueImpl;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.types.BTupleType;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.jvm.values.TupleValueImpl;
 
 import java.util.Arrays;
 

@@ -18,24 +18,24 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.types.ArrayType;
-import org.ballerinalang.jvm.api.types.MapType;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.StreamingJsonValue;
+import io.ballerina.jvm.TypeChecker;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.types.ArrayType;
+import io.ballerina.jvm.api.types.MapType;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.ErrorValue;
+import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.values.ObjectValue;
+import io.ballerina.jvm.values.StreamingJsonValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -194,7 +194,7 @@ public class MimeUtil {
     public static BObject parseMediaType(BObject mediaType, String contentType) {
         try {
             BMap<BString, Object> parameterMap =
-                   BValueCreator.createMapValue(new org.ballerinalang.jvm.types.BMapType(Types.TYPE_STRING));
+                   BValueCreator.createMapValue(new io.ballerina.jvm.types.BMapType(Types.TYPE_STRING));
             BString suffix, primaryType, subType;
 
             if (contentType != null) {
@@ -503,7 +503,7 @@ public class MimeUtil {
             }
             return (String) dataSource;
         } else if (type.getTag() == TypeTags.ARRAY_TAG &&
-                ((org.ballerinalang.jvm.types.BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                ((io.ballerina.jvm.types.BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
             return new String(((ArrayValue) dataSource).getBytes(), StandardCharsets.UTF_8);
         }
 

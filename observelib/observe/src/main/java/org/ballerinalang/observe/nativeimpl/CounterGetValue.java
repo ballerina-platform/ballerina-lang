@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.observability.metrics.Counter;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.jvm.observability.metrics.Counter;
+import io.ballerina.jvm.values.ObjectValue;
 
 /**
  * This is the getValue function native implementation of the Counter object.

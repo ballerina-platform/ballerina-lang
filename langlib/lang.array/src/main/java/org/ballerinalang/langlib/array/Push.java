@@ -18,13 +18,11 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.api.TypeTags;
-import org.ballerinalang.jvm.api.types.Type;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.jvm.api.TypeTags;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.values.ArrayValue;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
+import static io.ballerina.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.array:push((any|error)[], (any|error)...).

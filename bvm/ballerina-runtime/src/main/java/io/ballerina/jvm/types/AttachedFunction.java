@@ -17,8 +17,8 @@
  */
 package io.ballerina.jvm.types;
 
-import org.ballerinalang.jvm.api.types.AttachedFunctionType;
-import org.ballerinalang.jvm.api.types.Type;
+import io.ballerina.jvm.api.types.AttachedFunctionType;
+import io.ballerina.jvm.api.types.Type;
 
 import java.util.StringJoiner;
 

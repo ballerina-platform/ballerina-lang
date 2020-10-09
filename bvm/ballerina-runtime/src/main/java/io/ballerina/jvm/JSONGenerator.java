@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm;
+package io.ballerina.jvm;
 
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.values.BString;

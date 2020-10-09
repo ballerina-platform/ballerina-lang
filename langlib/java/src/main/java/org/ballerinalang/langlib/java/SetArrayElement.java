@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langlib.java;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.HandleValue;
+import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.jvm.values.HandleValue;
 
 /**
  * This class contains the implementation of the "setArrayElement" ballerina function in ballerina/java module.

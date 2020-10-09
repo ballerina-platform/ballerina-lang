@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.values.IteratorValue;
+import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.jvm.values.ObjectValue;
+import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Native implementation of lang.xml.XMLIterator:next().

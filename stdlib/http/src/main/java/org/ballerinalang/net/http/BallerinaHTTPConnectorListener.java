@@ -17,16 +17,16 @@
  */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.api.BExecutor;
-import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.runtime.RuntimeConstants;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.api.BExecutor;
+import io.ballerina.jvm.api.connector.CallableUnitCallback;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.observability.ObservabilityConstants;
+import io.ballerina.jvm.observability.ObserveUtils;
+import io.ballerina.jvm.observability.ObserverContext;
+import io.ballerina.jvm.runtime.RuntimeConstants;
+import io.ballerina.jvm.util.exceptions.BallerinaConnectorException;
+import io.ballerina.jvm.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -35,11 +35,11 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
+import static io.ballerina.jvm.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static io.ballerina.jvm.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
+import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
+import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
 import static org.ballerinalang.net.http.HttpConstants.ON_MESSAGE_METADATA;
 
 /**

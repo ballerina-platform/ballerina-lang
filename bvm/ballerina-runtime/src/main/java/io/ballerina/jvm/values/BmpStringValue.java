@@ -18,8 +18,8 @@
 
 package io.ballerina.jvm.values;
 
- import org.ballerinalang.jvm.api.values.BLink;
- import org.ballerinalang.jvm.api.values.BString;
+ import io.ballerina.jvm.api.values.BLink;
+ import io.ballerina.jvm.api.values.BString;
 
  /**
   * Represent ballerina strings containing only unicode basic multilingual plane characters.

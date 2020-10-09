@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.taintchecking;
 
-import org.ballerinalang.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BStringUtils;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;

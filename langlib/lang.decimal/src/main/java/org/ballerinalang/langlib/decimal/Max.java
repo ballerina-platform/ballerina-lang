@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import org.ballerinalang.jvm.values.DecimalValue;
+import io.ballerina.jvm.values.DecimalValue;
 
 /**
  * Native implementation of lang.decimal:max(decimal, decimal...).

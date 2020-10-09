@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.TypedescValue;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.types.BFunctionType;
+import io.ballerina.jvm.values.FPValue;
+import io.ballerina.jvm.values.TypedescValue;
 
 /**
  * Native implementation of lang.internal:getReturnType(func).

@@ -17,8 +17,8 @@
  */
 package io.ballerina.jvm.api;
 
-import org.ballerinalang.jvm.IteratorUtils;
-import org.ballerinalang.jvm.TypeChecker;
+import io.ballerina.jvm.IteratorUtils;
+import io.ballerina.jvm.TypeChecker;
 import io.ballerina.jvm.api.runtime.Module;
 import io.ballerina.jvm.api.types.ErrorType;
 import io.ballerina.jvm.api.types.MapType;
@@ -54,10 +54,10 @@ import io.ballerina.jvm.values.ReadOnlyUtils;
 
 import java.util.Arrays;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.INT_LANG_LIB;
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
-import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.jvm.util.BLangConstants.INT_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.STRING_LANG_LIB;
+import static io.ballerina.jvm.util.BLangConstants.XML_LANG_LIB;
 
 /**
  * This class contains various methods manipulate {@link BType}s in Ballerina.

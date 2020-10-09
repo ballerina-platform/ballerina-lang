@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.cachingclient;
 
+import io.ballerina.jvm.api.values.BObject;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;

@@ -17,12 +17,12 @@
  */
 package io.ballerina.jvm.scheduling;
 
-import org.ballerinalang.jvm.TypeChecker;
+import io.ballerina.jvm.TypeChecker;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.values.BError;
-import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
+import io.ballerina.jvm.observability.ObserverContext;
+import io.ballerina.jvm.transactions.TransactionLocalContext;
 import io.ballerina.jvm.values.ChannelDetails;
 import io.ballerina.jvm.values.ErrorValue;
 import io.ballerina.jvm.values.FutureValue;

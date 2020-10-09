@@ -17,20 +17,20 @@
  */
 package io.ballerina.jvm.values;
 
-import org.ballerinalang.jvm.XMLValidator;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.Types;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.jvm.XMLValidator;
+import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.types.BMapType;
+import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
 
 import javax.xml.XMLConstants;
 
-import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.jvm.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 import static io.ballerina.jvm.values.XMLItem.XMLNS_URL_PREFIX;
 
 /**

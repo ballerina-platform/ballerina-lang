@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
-import org.ballerinalang.jvm.util.BLangConstants;
+import io.ballerina.jvm.util.BLangConstants;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.jacoco.core.analysis.Analyzer;

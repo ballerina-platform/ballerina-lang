@@ -16,12 +16,12 @@
 
 package org.ballerinalang.cli.module;
 
+import io.ballerina.jvm.JSONParser;
+import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.cli.module.util.ErrorUtil;
 import org.ballerinalang.cli.module.util.Utils;
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
 
 import java.io.BufferedReader;
 import java.io.IOException;

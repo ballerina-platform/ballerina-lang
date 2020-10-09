@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.javainterop.overloading.pkg;
 
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BString;
 
 /**
  * A test class.

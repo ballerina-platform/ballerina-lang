@@ -17,7 +17,7 @@
  */
 package io.ballerina.jvm.api;
 
-import org.ballerinalang.jvm.scheduling.Strand;
+import io.ballerina.jvm.scheduling.Strand;
 
 /**
  * A future that will resume the underling strand when completed.
