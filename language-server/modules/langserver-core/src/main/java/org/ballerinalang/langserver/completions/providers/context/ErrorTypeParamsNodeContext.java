@@ -30,7 +30,9 @@ import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.List;
 import java.util.Optional;
@@ -79,6 +81,7 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
         mappingTypes = visibleSymbols.stream().filter(predicate).collect(Collectors.toList());
         List<LSCompletionItem> completionItems = this.getCompletionItemList(mappingTypes, context);
         completionItems.addAll(this.getModuleCompletionItems(context));
+        completionItems.add(new TypeCompletionItem(context, null, Snippet.TYPE_MAP.get().build(context)));
 
         return completionItems;
     }
