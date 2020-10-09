@@ -18,8 +18,8 @@
 
 package org.ballerina.testobserve;
 
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.BalFuture;
+import io.ballerina.jvm.api.BalEnv;
+import io.ballerina.jvm.api.BalFuture;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

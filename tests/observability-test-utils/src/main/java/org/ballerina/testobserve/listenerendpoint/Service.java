@@ -18,15 +18,15 @@
 
 package org.ballerina.testobserve.listenerendpoint;
 
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BType;
+import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.types.AttachedFunction;
 
 import java.util.Objects;
 
+import static io.ballerina.jvm.api.TypeConstants.STRING_TNAME;
 import static org.ballerina.testobserve.listenerendpoint.Constants.CALLER_TYPE_NAME;
 import static org.ballerina.testobserve.listenerendpoint.Constants.TEST_OBSERVE_PACKAGE;
-import static org.ballerinalang.jvm.types.TypeConstants.STRING_TNAME;
 
 /**
  * Holds information related to a Ballerina service.
@@ -46,7 +46,7 @@ public class Service {
                         + ". Expected a maximum of 2 arguments, but found " + paramCount);
             }
             if (paramCount >= 1) {
-                BType paramOneType = attachedFunction.getParameterType()[0];
+                Type paramOneType = attachedFunction.getParameterType()[0];
                 if (!Objects.equals(paramOneType.getPackage(), TEST_OBSERVE_PACKAGE)
                         || !Objects.equals(paramOneType.getName(), CALLER_TYPE_NAME)) {
                     throw new IllegalArgumentException("Invalid first parameter in the resource function "
@@ -56,7 +56,7 @@ public class Service {
                 }
             }
             if (paramCount >= 2) {
-                BType paramTwoType = attachedFunction.getParameterType()[1];
+                Type paramTwoType = attachedFunction.getParameterType()[1];
                 if (!Objects.equals(paramTwoType.getPackage().toString(), "null")
                         || !Objects.equals(paramTwoType.getName(), STRING_TNAME)) {
                     throw new IllegalArgumentException("Invalid second parameter in the resource function "
