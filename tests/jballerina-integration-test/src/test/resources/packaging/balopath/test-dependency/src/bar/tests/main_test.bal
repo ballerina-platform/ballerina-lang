@@ -1,13 +1,10 @@
 import ballerina/test;
 import wso2test/foo;
 
-# Before Suite Function
-
 string testStr1 = foo:fooStr1;
 string testStr2 = foo:fooFn();
 
 # Test function
-
 @test:Config {
 }
 function testFunction() {

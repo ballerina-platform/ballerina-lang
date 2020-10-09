@@ -7,7 +7,6 @@ function testAcceptNothingButReturnStringTest() returns handle {
 }
 
 # Test function
-
 @test:Config {
 }
 function testFunction() {

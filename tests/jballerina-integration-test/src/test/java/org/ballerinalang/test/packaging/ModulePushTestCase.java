@@ -67,8 +67,7 @@ public class ModulePushTestCase extends BaseTest {
     
         // Update org name
         PackerinaTestUtils.updateManifestOrgName(projectPath, orgName);
-    
-        Assert.assertTrue(Files.exists(projectPath));
+
         Assert.assertTrue(Files.isDirectory(projectPath));
 
         Path modulePath = projectPath.resolve("src").resolve(moduleName);
@@ -76,8 +75,7 @@ public class ModulePushTestCase extends BaseTest {
         // Create module
         balClient.runMain("add", new String[]{moduleName}, envVariables, new String[]{}, new LogLeecher[]{},
                 projectPath.toString());
-    
-        Assert.assertTrue(Files.exists(modulePath));
+
         Assert.assertTrue(Files.isDirectory(modulePath));
 
         PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main.bal"),
