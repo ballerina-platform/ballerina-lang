@@ -38,7 +38,8 @@ public class MatchStmtConstPatternTest {
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/const-pattern.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/const-pattern-negative.bal");
-        resultNegativeSemantics = BCompileUtil.compile("test-src/statements/matchstmt/const-pattern-negative-semantics.bal");
+        resultNegativeSemantics = BCompileUtil.compile("test-src/statements/matchstmt/const-pattern-negative" +
+                "-semantics.bal");
     }
 
     @Test
