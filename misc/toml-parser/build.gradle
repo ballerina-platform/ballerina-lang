@@ -37,3 +37,15 @@ test {
 }
 
 description = 'TOML Parser'
+
+ext.moduleName = 'io.ballerina.toml.parser'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}
