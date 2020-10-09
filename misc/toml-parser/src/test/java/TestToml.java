@@ -17,13 +17,13 @@
  */
 
 import io.ballerina.toml.api.Toml;
-import io.ballerina.toml.ast.TomlBooleanValueNode;
-import io.ballerina.toml.ast.TomlNode;
-import io.ballerina.toml.ast.TomlTransformer;
 import io.ballerina.toml.internal.parser.ParserFactory;
 import io.ballerina.toml.internal.parser.TomlParser;
 import io.ballerina.toml.internal.parser.tree.STNode;
-import io.ballerina.toml.syntax.tree.ModulePartNode;
+import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
+import io.ballerina.toml.semantic.ast.TomlNode;
+import io.ballerina.toml.semantic.ast.TomlTransformer;
+import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.Node;
 
 import java.io.FileInputStream;
@@ -59,7 +59,7 @@ public class TestToml {
         OUT.println("Time: " + (System.currentTimeMillis() - sTime) / 1000.0);
         Node externalNode = node.createUnlinkedFacade();
         TomlTransformer nodeTransformer = new TomlTransformer();
-        TomlNode transform = nodeTransformer.transform((ModulePartNode) externalNode);
+        TomlNode transform = nodeTransformer.transform((DocumentNode) externalNode);
         OUT.println(transform);
     }
 
@@ -68,5 +68,6 @@ public class TestToml {
         Toml read = Toml.read(inputStream);
         TomlBooleanValueNode key1 = read.get("key");
         OUT.println(key1.getValue());
+
     }
 }

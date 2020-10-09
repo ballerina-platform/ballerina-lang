@@ -29,12 +29,8 @@ package io.ballerina.toml.internal.parser.tree;
  */
 public abstract class STNodeTransformer<T> {
 
-    public T transform(STModulePartNode modulePartNode) {
-        return transformSyntaxNode(modulePartNode);
-    }
-
-    public T transform(STBasicValueNode basicValueNode) {
-        return transformSyntaxNode(basicValueNode);
+    public T transform(STDocumentNode documentNode) {
+        return transformSyntaxNode(documentNode);
     }
 
     public T transform(STTableNode tableNode) {
@@ -45,12 +41,28 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(tableArrayNode);
     }
 
-    public T transform(STKeyValue keyValue) {
-        return transformSyntaxNode(keyValue);
+    public T transform(STKeyValueNode keyValueNode) {
+        return transformSyntaxNode(keyValueNode);
     }
 
-    public T transform(STArray array) {
-        return transformSyntaxNode(array);
+    public T transform(STArrayNode arrayNode) {
+        return transformSyntaxNode(arrayNode);
+    }
+
+    public T transform(STStringLiteralNode stringLiteralNode) {
+        return transformSyntaxNode(stringLiteralNode);
+    }
+
+    public T transform(STNumericLiteralNode numericLiteralNode) {
+        return transformSyntaxNode(numericLiteralNode);
+    }
+
+    public T transform(STBoolLiteralNode boolLiteralNode) {
+        return transformSyntaxNode(boolLiteralNode);
+    }
+
+    public T transform(STIdentifierLiteralNode identifierLiteralNode) {
+        return transformSyntaxNode(identifierLiteralNode);
     }
 
     // Tokens

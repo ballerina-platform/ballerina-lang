@@ -44,7 +44,7 @@ public class STIdentifierToken extends STToken {
                       STNode leadingTrivia,
                       STNode trailingTrivia,
                       Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.UNQUOTED_KEY_TOKEN, text.length(), leadingTrivia, trailingTrivia, diagnostics);
+        super(SyntaxKind.IDENTIFIER_LITERAL, text.length(), leadingTrivia, trailingTrivia, diagnostics);
         this.text = text;
     }
 

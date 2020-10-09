@@ -39,12 +39,8 @@ package io.ballerina.toml.syntax.tree;
  */
 public abstract class NodeVisitor {
 
-    public void visit(ModulePartNode modulePartNode) {
-        visitSyntaxNode(modulePartNode);
-    }
-
-    public void visit(BasicValueNode basicValueNode) {
-        visitSyntaxNode(basicValueNode);
+    public void visit(DocumentNode documentNode) {
+        visitSyntaxNode(documentNode);
     }
 
     public void visit(TableNode tableNode) {
@@ -55,12 +51,28 @@ public abstract class NodeVisitor {
         visitSyntaxNode(tableArrayNode);
     }
 
-    public void visit(KeyValue keyValue) {
-        visitSyntaxNode(keyValue);
+    public void visit(KeyValueNode keyValueNode) {
+        visitSyntaxNode(keyValueNode);
     }
 
-    public void visit(Array array) {
-        visitSyntaxNode(array);
+    public void visit(ArrayNode arrayNode) {
+        visitSyntaxNode(arrayNode);
+    }
+
+    public void visit(StringLiteralNode stringLiteralNode) {
+        visitSyntaxNode(stringLiteralNode);
+    }
+
+    public void visit(NumericLiteralNode numericLiteralNode) {
+        visitSyntaxNode(numericLiteralNode);
+    }
+
+    public void visit(BoolLiteralNode boolLiteralNode) {
+        visitSyntaxNode(boolLiteralNode);
+    }
+
+    public void visit(IdentifierLiteralNode identifierLiteralNode) {
+        visitSyntaxNode(identifierLiteralNode);
     }
 
     // Tokens

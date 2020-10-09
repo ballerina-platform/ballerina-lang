@@ -31,12 +31,12 @@ import java.util.List;
 /**
  * A LL(k) lexer for TOML.
  *
- * @since 0.1.0
+ * @since 2.0.0
  */
 public class TomlLexer extends AbstractLexer {
 
     public TomlLexer(CharReader charReader) {
-        super(charReader);
+        super(charReader, ParserMode.DEFAULT);
     }
 
     /**
@@ -46,8 +46,20 @@ public class TomlLexer extends AbstractLexer {
      */
     public STToken nextToken() {
         STToken token;
-        processLeadingTrivia();
-        token = readToken();
+        switch (this.mode) {
+            case STRING:
+                this.leadingTriviaList = new ArrayList<>(0);
+                token = readStringToken();
+                break;
+            case LITERAL_STRING:
+                this.leadingTriviaList = new ArrayList<>(0);
+                token = readLiteralStringToken();
+                break;
+            case DEFAULT:
+            default:
+                processLeadingTrivia();
+                token = readToken();
+        }
 
         // Can we improve this logic by creating the token with diagnostics then and there?
         return cloneWithDiagnostics(token);
@@ -73,21 +85,14 @@ public class TomlLexer extends AbstractLexer {
             case LexerTerminals.CLOSE_BRACKET:
                 token = getSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
                 break;
-            case LexerTerminals.DOUBLE_QUOTE:
-                if (this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE) {
-                    this.reader.advance(2);
-                    token = processMultilineString(LexerTerminals.DOUBLE_QUOTE);
-                } else {
-                    token = processString(LexerTerminals.DOUBLE_QUOTE);
-                }
-                break;
             case LexerTerminals.SINGLE_QUOTE:
                 if (this.reader.peek(1) == LexerTerminals.SINGLE_QUOTE) {
                     this.reader.advance(2);
-                    token = processMultilineString(LexerTerminals.SINGLE_QUOTE);
+                    token = getDoubleQuoteToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
                 } else {
-                    token = processString(LexerTerminals.SINGLE_QUOTE);
+                    token = getDoubleQuoteToken(SyntaxKind.SINGLE_QUOTE_TOKEN);
                 }
+                startMode(ParserMode.LITERAL_STRING);
                 break;
             // Arithmetic operators
             case LexerTerminals.EQUAL:
@@ -95,6 +100,18 @@ public class TomlLexer extends AbstractLexer {
                 break;
             case LexerTerminals.COMMA:
                 token = getSyntaxToken(SyntaxKind.COMMA_TOKEN);
+                break;
+            case LexerTerminals.DOT:
+                token = getSyntaxToken(SyntaxKind.DOT_TOKEN);
+                break;
+            case LexerTerminals.DOUBLE_QUOTE:
+                if (this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE) {
+                    this.reader.advance(2);
+                    token = getDoubleQuoteToken(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
+                } else {
+                    token = getDoubleQuoteToken(SyntaxKind.DOUBLE_QUOTE_TOKEN);
+                }
+                startMode(ParserMode.STRING);
                 break;
 
             // Numbers
@@ -176,11 +193,73 @@ public class TomlLexer extends AbstractLexer {
                 processInvalidToken();
 
                 // Use the internal method to use the already captured trivia.
-                token = readToken();
+                token = nextToken();
                 break;
         }
 
         return token;
+    }
+
+    private STToken readStringToken() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        char nextChar = this.reader.peek();
+        char secondNextChar = this.reader.peek(1);
+        char thirdNextChar = this.reader.peek(2);
+        if (nextChar == LexerTerminals.DOUBLE_QUOTE) {
+            endMode();
+            if (secondNextChar == LexerTerminals.DOUBLE_QUOTE && thirdNextChar == LexerTerminals.DOUBLE_QUOTE) {
+                reader.advance(3);
+                return getSyntaxToken(SyntaxKind.TRIPLE_DOUBLE_QUOTE_TOKEN);
+            }
+            reader.advance();
+            return getSyntaxToken(SyntaxKind.DOUBLE_QUOTE_TOKEN);
+        } else {
+            while (!reader.isEOF()) {
+                nextChar = this.reader.peek();
+                if (nextChar != LexerTerminals.DOUBLE_QUOTE) {
+                    reader.advance();
+                    continue;
+                }
+                break;
+            }
+        }
+
+        return getLiteral(SyntaxKind.STRING_LITERAL);
+    }
+
+    private STToken readLiteralStringToken() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        char nextChar = this.reader.peek();
+        char secondNextChar = this.reader.peek(1);
+        char thirdNextChar = this.reader.peek(2);
+        if (nextChar == LexerTerminals.SINGLE_QUOTE) {
+            endMode();
+            if (secondNextChar == LexerTerminals.SINGLE_QUOTE && thirdNextChar == LexerTerminals.SINGLE_QUOTE) {
+                reader.advance(3);
+                return getSyntaxToken(SyntaxKind.TRIPLE_SINGLE_QUOTE_TOKEN);
+            }
+            reader.advance();
+            return getSyntaxToken(SyntaxKind.SINGLE_QUOTE_TOKEN);
+        } else {
+            while (!reader.isEOF()) {
+                nextChar = this.reader.peek();
+                if (nextChar != LexerTerminals.SINGLE_QUOTE) {
+                    reader.advance();
+                    continue;
+                }
+                break;
+            }
+        }
+
+        return getLiteral(SyntaxKind.STRING_LITERAL);
     }
 
     private STToken getSyntaxToken(SyntaxKind kind) {
@@ -201,6 +280,15 @@ public class TomlLexer extends AbstractLexer {
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    private STToken getDoubleQuoteToken(SyntaxKind kind) {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        // Trivia after the back-tick including whitespace belongs to the content of the back-tick.
+        // Therefore do not process trailing trivia for starting back-tick. We reach here only for
+        // starting back-tick. Ending back-tick is processed by the template mode.
+        STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
+        return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
     /**
@@ -368,12 +456,12 @@ public class TomlLexer extends AbstractLexer {
         }
 
         int len = 1;
-        SyntaxKind type = SyntaxKind.DEC_INT;
+        SyntaxKind type = SyntaxKind.DECIMAL_INT_TOKEN;
         boolean isString = false;
         while (!reader.isEOF()) {
             if (isDigit(nextChar) || nextChar == '.' || nextChar == '_') {
                 if (nextChar == '.') {
-                    type = SyntaxKind.FLOAT;
+                    type = SyntaxKind.DECIMAL_FLOAT_TOKEN;
                 }
                 reader.advance();
                 len++;
@@ -385,7 +473,7 @@ public class TomlLexer extends AbstractLexer {
             break;
         }
         if (isString) {
-            type = SyntaxKind.UNQUOTED_KEY_TOKEN; //TODO change to identiifer
+            type = SyntaxKind.IDENTIFIER_LITERAL; //TODO change to identiifer
         }
         // Integer cannot have a leading zero
         if (startChar == '0' && len > 1) {
@@ -408,11 +496,13 @@ public class TomlLexer extends AbstractLexer {
         String tokenText = getLexeme();
         switch (tokenText) {
             case LexerTerminals.TRUE:
+                return getSyntaxToken(SyntaxKind.TRUE_KEYWORD);
             case LexerTerminals.FALSE:
-                return getLiteral(SyntaxKind.BOOLEAN);
+                return getSyntaxToken(SyntaxKind.FALSE_KEYWORD);
             case LexerTerminals.INF:
+                return getSyntaxToken(SyntaxKind.INF_TOKEN);
             case LexerTerminals.NAN:
-                return getLiteral(SyntaxKind.FLOAT);
+                return getSyntaxToken(SyntaxKind.NAN_TOKEN);
             default:
                 return getUnquotedKey();
         }
@@ -489,7 +579,7 @@ public class TomlLexer extends AbstractLexer {
             return true;
         }
 
-        if (c == '_' || c == '.' || c == '-') {
+        if (c == '_' ||  c == '-') {
             return true;
         }
 
@@ -558,99 +648,5 @@ public class TomlLexer extends AbstractLexer {
      */
     private String getLexeme() {
         return reader.getMarkedChars();
-    }
-
-    /**
-     * Process and return double-quoted string literal.
-     * <p>
-     * <code>string-literal := DoubleQuotedStringLiteral
-     * <br/>
-     * DoubleQuotedStringLiteral := " (StringChar | StringEscape)* "
-     * <br/>
-     * StringChar := ^ ( 0xA | 0xD | \ | " )
-     * <br/>
-     * StringEscape := StringSingleEscape | StringNumericEscape
-     * <br/>
-     * StringSingleEscape := \t | \n | \r | \\ | \"
-     * <br/>
-     * StringNumericEscape := \ u{ CodePoint }
-     * <br/>
-     * CodePoint := HexDigit+
-     * </code>
-     *
-     * @return String literal token
-     */
-    private STToken processString(char type) {
-        int nextChar;
-        while (!reader.isEOF()) {
-            nextChar = peek();
-            switch (nextChar) {
-                case LexerTerminals.NEWLINE:
-                case LexerTerminals.CARRIAGE_RETURN:
-                    reportLexerError(DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE);
-                    break;
-                case LexerTerminals.BACKSLASH:
-                    switch (this.reader.peek(1)) {
-                        case 'n':
-                        case 't':
-                        case 'r':
-                        case LexerTerminals.BACKSLASH:
-                        case LexerTerminals.DOUBLE_QUOTE:
-                            this.reader.advance(2);
-                            continue;
-                        default:
-                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE);
-                            this.reader.advance();
-                            continue;
-                    }
-                default:
-                    if (nextChar == type) {
-                        this.reader.advance();
-                        break;
-                    }
-                    this.reader.advance();
-                    continue;
-            }
-            break;
-        }
-
-        return getLiteral(SyntaxKind.STRING_LITERAL);
-    }
-
-    private STToken processMultilineString(char type) {
-        int nextChar;
-        while (!reader.isEOF()) {
-            nextChar = peek();
-            switch (nextChar) {
-                case LexerTerminals.BACKSLASH:
-                    switch (this.reader.peek(1)) {
-                        case 'n':
-                        case 't':
-                        case 'r':
-                        case LexerTerminals.BACKSLASH:
-                        case LexerTerminals.DOUBLE_QUOTE:
-                            this.reader.advance(2);
-                            continue;
-                        default:
-                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE);
-                            this.reader.advance();
-                            continue;
-                    }
-                default:
-                    if (nextChar == type) {
-                        if (this.reader.peek(1) == type && this.reader.peek(2) == type) {
-                            this.reader.advance(3);
-                            break;
-                        }
-                        this.reader.advance();
-                        continue;
-                    }
-                    this.reader.advance();
-                    continue;
-            }
-            break;
-        }
-
-        return getLiteral(SyntaxKind.ML_STRING_LITERAL);
     }
 }

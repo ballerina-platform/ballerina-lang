@@ -1,151 +1,191 @@
 {
-    "root": "Node",
-    "type": "abstract",
-    "attributes": [
+  "root": "Node",
+  "type": "abstract",
+  "attributes": [
+    {
+      "name": "kind",
+      "type": "SyntaxKind"
+    },
+    {
+      "name": "width",
+      "type": "int"
+    }
+  ],
+  "nodes": [
+    {
+      "name": "DocumentNode",
+      "base": "Node",
+      "kind": "MODULE_PART",
+      "attributes": [
         {
-            "name": "kind",
-            "type": "SyntaxKind"
+          "name": "members",
+          "type": "DocumentMemberDeclarationNode",
+          "occurrences": "MULTIPLE"
         },
         {
-            "name": "width",
-            "type": "int"
+          "name": "eofToken",
+          "type": "Token"
         }
-    ],
-    "nodes": [
+      ]
+    },
+    {
+      "name": "DocumentMemberDeclarationNode",
+      "base": "Node",
+      "isAbstract": true
+    },
+    {
+      "name": "ValueNode",
+      "base": "Node",
+      "isAbstract": true
+    },
+    {
+      "name": "TableNode",
+      "base": "DocumentMemberDeclarationNode",
+      "kind": "TABLE",
+      "attributes": [
         {
-            "name": "ModulePartNode",
-            "base": "Node",
-            "kind": "MODULE_PART",
-            "attributes": [
-                {
-                    "name": "members",
-                    "type": "ModuleMemberDeclarationNode",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "eofToken",
-                    "type": "Token"
-                }
-            ]
+          "name": "openBracket",
+          "type": "Token"
         },
         {
-            "name": "ModuleMemberDeclarationNode",
-            "base": "Node",
-            "isAbstract": true
+          "name": "identifier",
+          "type": "ValueNode",
+          "occurrences": "MULTIPLE_SEPARATED"
         },
         {
-            "name": "ValueNode",
-            "base": "Node",
-            "isAbstract": true
+          "name": "closeBracket",
+          "type": "Token"
         },
         {
-            "name": "BasicValueNode",
-            "base": "ValueNode",
-            "attributes": [
-                {
-                    "name": "value",
-                    "type": "Token",
-                    "isOptional": false
-                }
-            ]
-        },
-        {
-            "name": "TableNode",
-            "base": "ModuleMemberDeclarationNode",
-            "kind": "TABLE",
-            "attributes": [
-                {
-                    "name": "openBracket",
-                    "type": "Token",
-                    "isOptional": false
-                },
-                {
-                    "name": "identifier",
-                    "type": "IdentifierToken",
-                    "isOptional": false
-                },
-                {
-                    "name": "closeBracket",
-                    "type": "Token",
-                    "isOptional": false
-                },
-                {
-                    "name": "fields",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE"
-                }
-            ]
-        },
-        {
-            "name": "TableArrayNode",
-            "base": "ModuleMemberDeclarationNode",
-            "kind": "TABLE_ARRAY",
-            "attributes": [
-                {
-                    "name": "openBracket",
-                    "type": "Token",
-                    "isOptional": false
-                },
-                {
-                    "name": "identifier",
-                    "type": "IdentifierToken",
-                    "isOptional": false
-                },
-                {
-                    "name": "closeBracket",
-                    "type": "Token",
-                    "isOptional": false
-                },
-                {
-                    "name": "fields",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE"
-                }
-            ]
-        },
-        {
-            "name": "KeyValue",
-            "base": "ModuleMemberDeclarationNode",
-            "kind": "KEY_VALUE",
-            "attributes": [
-                {
-                    "name": "identifier",
-                    "type": "Token",
-                    "isOptional": false
-                },
-                {
-                    "name": "assign",
-                    "type": "Token",
-                    "isOptional": false
-                },
-                {
-                    "name": "value",
-                    "type": "ValueNode",
-                    "isOptional": false
-                }
-            ]
-        },
-        {
-            "name": "Array",
-            "base": "ValueNode",
-            "kind": "ARRAY",
-            "attributes": [
-                {
-                    "name": "doubleOpenBracket",
-                    "type": "Token",
-                    "isOptional": false
-                },
-                {
-                    "name": "values",
-                    "type": "ValueNode",
-                    "occurrences": "MULTIPLE_SEPARATED"
-                },
-                {
-                    "name": "doubleCloseBracket",
-                    "type": "Token",
-                    "isOptional": false
-                }
-            ]
+          "name": "fields",
+          "type": "KeyValueNode",
+          "occurrences": "MULTIPLE"
         }
-    ]
+      ]
+    },
+    {
+      "name": "TableArrayNode",
+      "base": "DocumentMemberDeclarationNode",
+      "kind": "TABLE_ARRAY",
+      "attributes": [
+        {
+          "name": "firstOpenBracket",
+          "type": "Token"
+        },
+        {
+          "name": "secondOpenBracket",
+          "type": "Token"
+        },
+        {
+          "name": "identifier",
+          "type": "ValueNode",
+          "occurrences": "MULTIPLE_SEPARATED"
+        },
+        {
+          "name": "firstCloseBracket",
+          "type": "Token"
+        },
+        {
+          "name": "secondCloseBracket",
+          "type": "Token"
+        },
+        {
+          "name": "fields",
+          "type": "KeyValueNode",
+          "occurrences": "MULTIPLE"
+        }
+      ]
+    },
+    {
+      "name": "KeyValueNode",
+      "base": "DocumentMemberDeclarationNode",
+      "kind": "KEY_VALUE",
+      "attributes": [
+        {
+          "name": "identifier",
+          "type": "ValueNode",
+          "occurrences": "MULTIPLE_SEPARATED"
+        },
+        {
+          "name": "assign",
+          "type": "Token"
+        },
+        {
+          "name": "value",
+          "type": "ValueNode"
+        }
+      ]
+    },
+    {
+      "name": "ArrayNode",
+      "base": "ValueNode",
+      "kind": "ARRAY",
+      "attributes": [
+        {
+          "name": "openBracket",
+          "type": "Token"
+        },
+        {
+          "name": "values",
+          "type": "ValueNode",
+          "occurrences": "MULTIPLE_SEPARATED"
+        },
+        {
+          "name": "closeBracket",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "StringLiteralNode",
+      "base": "ValueNode",
+      "kind": "STRING_LITERAL",
+      "attributes": [
+        {
+          "name": "startDoubleQuote",
+          "type": "Token"
+        },
+        {
+          "name": "content",
+          "type": "Token"
+        },
+        {
+          "name": "endDoubleQuote",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "NumericLiteralNode",
+      "base": "ValueNode",
+      "attributes": [
+        {
+          "name": "value",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "BoolLiteralNode",
+      "base": "ValueNode",
+      "kind": "BOOLEAN",
+      "attributes": [
+        {
+          "name": "value",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "IdentifierLiteralNode",
+      "base": "ValueNode",
+      "kind": "IDENTIFIER_LITERAL",
+      "attributes": [
+        {
+          "name": "value",
+          "type": "IdentifierToken"
+        }
+      ]
+    }
+  ]
 }

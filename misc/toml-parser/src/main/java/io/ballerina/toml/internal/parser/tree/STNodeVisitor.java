@@ -29,12 +29,8 @@ import io.ballerina.toml.internal.syntax.SyntaxUtils;
  */
 public abstract class STNodeVisitor {
 
-    public void visit(STModulePartNode modulePartNode) {
-        visitSyntaxNode(modulePartNode);
-    }
-
-    public void visit(STBasicValueNode basicValueNode) {
-        visitSyntaxNode(basicValueNode);
+    public void visit(STDocumentNode documentNode) {
+        visitSyntaxNode(documentNode);
     }
 
     public void visit(STTableNode tableNode) {
@@ -45,12 +41,28 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(tableArrayNode);
     }
 
-    public void visit(STKeyValue keyValue) {
-        visitSyntaxNode(keyValue);
+    public void visit(STKeyValueNode keyValueNode) {
+        visitSyntaxNode(keyValueNode);
     }
 
-    public void visit(STArray array) {
-        visitSyntaxNode(array);
+    public void visit(STArrayNode arrayNode) {
+        visitSyntaxNode(arrayNode);
+    }
+
+    public void visit(STStringLiteralNode stringLiteralNode) {
+        visitSyntaxNode(stringLiteralNode);
+    }
+
+    public void visit(STNumericLiteralNode numericLiteralNode) {
+        visitSyntaxNode(numericLiteralNode);
+    }
+
+    public void visit(STBoolLiteralNode boolLiteralNode) {
+        visitSyntaxNode(boolLiteralNode);
+    }
+
+    public void visit(STIdentifierLiteralNode identifierLiteralNode) {
+        visitSyntaxNode(identifierLiteralNode);
     }
 
     // STNodeList

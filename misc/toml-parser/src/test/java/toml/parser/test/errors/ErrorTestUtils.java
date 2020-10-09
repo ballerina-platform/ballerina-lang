@@ -18,7 +18,7 @@
 
 package toml.parser.test.errors;
 
-import io.ballerina.toml.ast.TomlDiagnostic;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;

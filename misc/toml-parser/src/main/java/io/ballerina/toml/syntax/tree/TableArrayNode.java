@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class TableArrayNode extends ModuleMemberDeclarationNode {
+public class TableArrayNode extends DocumentMemberDeclarationNode {
 
     public TableArrayNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
@@ -40,8 +40,8 @@ public class TableArrayNode extends ModuleMemberDeclarationNode {
         return childInBucket(1);
     }
 
-    public IdentifierToken identifier() {
-        return childInBucket(2);
+    public SeparatedNodeList<ValueNode> identifier() {
+        return new SeparatedNodeList<>(childInBucket(2));
     }
 
     public Token firstCloseBracket() {
@@ -52,7 +52,7 @@ public class TableArrayNode extends ModuleMemberDeclarationNode {
         return childInBucket(4);
     }
 
-    public NodeList<Node> fields() {
+    public NodeList<KeyValueNode> fields() {
         return new NodeList<>(childInBucket(5));
     }
 
@@ -80,14 +80,14 @@ public class TableArrayNode extends ModuleMemberDeclarationNode {
     public TableArrayNode modify(
             Token firstOpenBracket,
             Token secondOpenBracket,
-            IdentifierToken identifier,
+            SeparatedNodeList<ValueNode> identifier,
             Token firstCloseBracket,
             Token secondCloseBracket,
-            NodeList<Node> fields) {
+            NodeList<KeyValueNode> fields) {
         if (checkForReferenceEquality(
                 firstOpenBracket,
                 secondOpenBracket,
-                identifier,
+                identifier.underlyingListNode(),
                 firstCloseBracket,
                 secondCloseBracket,
                 fields.underlyingListNode())) {
@@ -116,10 +116,10 @@ public class TableArrayNode extends ModuleMemberDeclarationNode {
         private final TableArrayNode oldNode;
         private Token firstOpenBracket;
         private Token secondOpenBracket;
-        private IdentifierToken identifier;
+        private SeparatedNodeList<ValueNode> identifier;
         private Token firstCloseBracket;
         private Token secondCloseBracket;
-        private NodeList<Node> fields;
+        private NodeList<KeyValueNode> fields;
 
         public TableArrayNodeModifier(TableArrayNode oldNode) {
             this.oldNode = oldNode;
@@ -146,7 +146,7 @@ public class TableArrayNode extends ModuleMemberDeclarationNode {
         }
 
         public TableArrayNodeModifier withIdentifier(
-                IdentifierToken identifier) {
+                SeparatedNodeList<ValueNode> identifier) {
             Objects.requireNonNull(identifier, "identifier must not be null");
             this.identifier = identifier;
             return this;
@@ -167,7 +167,7 @@ public class TableArrayNode extends ModuleMemberDeclarationNode {
         }
 
         public TableArrayNodeModifier withFields(
-                NodeList<Node> fields) {
+                NodeList<KeyValueNode> fields) {
             Objects.requireNonNull(fields, "fields must not be null");
             this.fields = fields;
             return this;

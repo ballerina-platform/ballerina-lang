@@ -40,12 +40,8 @@ package io.ballerina.toml.syntax.tree;
  */
 public abstract class NodeTransformer<T> {
 
-    public T transform(ModulePartNode modulePartNode) {
-        return transformSyntaxNode(modulePartNode);
-    }
-
-    public T transform(BasicValueNode basicValueNode) {
-        return transformSyntaxNode(basicValueNode);
+    public T transform(DocumentNode documentNode) {
+        return transformSyntaxNode(documentNode);
     }
 
     public T transform(TableNode tableNode) {
@@ -56,12 +52,28 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(tableArrayNode);
     }
 
-    public T transform(KeyValue keyValue) {
-        return transformSyntaxNode(keyValue);
+    public T transform(KeyValueNode keyValueNode) {
+        return transformSyntaxNode(keyValueNode);
     }
 
-    public T transform(Array array) {
-        return transformSyntaxNode(array);
+    public T transform(ArrayNode arrayNode) {
+        return transformSyntaxNode(arrayNode);
+    }
+
+    public T transform(StringLiteralNode stringLiteralNode) {
+        return transformSyntaxNode(stringLiteralNode);
+    }
+
+    public T transform(NumericLiteralNode numericLiteralNode) {
+        return transformSyntaxNode(numericLiteralNode);
+    }
+
+    public T transform(BoolLiteralNode boolLiteralNode) {
+        return transformSyntaxNode(boolLiteralNode);
+    }
+
+    public T transform(IdentifierLiteralNode identifierLiteralNode) {
+        return transformSyntaxNode(identifierLiteralNode);
     }
 
     // Tokens

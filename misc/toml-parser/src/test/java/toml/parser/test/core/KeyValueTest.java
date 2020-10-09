@@ -19,18 +19,16 @@
 package toml.parser.test.core;
 
 import io.ballerina.toml.api.Toml;
-import io.ballerina.toml.ast.TomlArrayValueNode;
-import io.ballerina.toml.ast.TomlBooleanValueNode;
-import io.ballerina.toml.ast.TomlDoubleValueNodeNode;
-import io.ballerina.toml.ast.TomlLongValueNode;
-import io.ballerina.toml.ast.TomlStringValueNode;
+import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
+import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
+import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
+import io.ballerina.toml.semantic.ast.TomlLongValueNode;
+import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Basic Test for TOML Key Value Pairs.
@@ -40,7 +38,7 @@ public class KeyValueTest {
     @Test
     public void testKeys() throws IOException {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("core/keys.toml");
+                .getResourceAsStream("syntax/core/keys.toml");
         Toml read = Toml.read(inputStream);
         String basicKey = ((TomlStringValueNode) read.get("key")).getValue();
         String underscoreKey = ((TomlStringValueNode) read.get("underscore_key")).getValue();
@@ -48,7 +46,7 @@ public class KeyValueTest {
         String intKey = ((TomlStringValueNode) read.get("1234")).getValue();
 
         String dottedString =
-                ((TomlStringValueNode) read.getTable("127").getTable("0").getTable("0").get("1")).getValue();
+                ((TomlStringValueNode) read.get("127.0.0.1")).getValue();
         String spacing = ((TomlStringValueNode) read.get("character encoding")).getValue();
         String unicode = ((TomlStringValueNode) read.get("ʎǝʞ")).getValue();
         String general = ((TomlStringValueNode) read.get("key2")).getValue();
@@ -69,7 +67,7 @@ public class KeyValueTest {
     @Test
     public void testBasicValues() throws IOException {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("core/values.toml");
+                .getResourceAsStream("syntax/core/values.toml");
         Toml read = Toml.read(inputStream);
         String stringValue = ((TomlStringValueNode) read.get("key1")).getValue();
         Long longValue = ((TomlLongValueNode) read.get("key2")).getValue();
@@ -91,15 +89,8 @@ public class KeyValueTest {
     @Test
     public void testArrayValues() throws IOException {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("core/array.toml");
+                .getResourceAsStream("syntax/core/array.toml");
         Toml read = Toml.read(inputStream);
-        TomlArrayValueNode sameType = read.get("same_type");
-        List<Long> longArr = sameType.toList();
-        List<Long> expectedLongList = new ArrayList<>();
-        expectedLongList.add(1L);
-        expectedLongList.add(2L);
-        expectedLongList.add(3L);
-        Assert.assertEquals(longArr, expectedLongList);
 
         TomlArrayValueNode mixedType = read.get("mixed_type");
         Long first = ((TomlLongValueNode) mixedType.get(0)).getValue();

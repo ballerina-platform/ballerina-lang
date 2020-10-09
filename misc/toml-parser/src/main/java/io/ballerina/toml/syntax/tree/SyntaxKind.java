@@ -48,13 +48,15 @@ public enum SyntaxKind {
     BACKTICK_TOKEN(515, "`"),
     DOUBLE_QUOTE_TOKEN(516, "\""),
     SINGLE_QUOTE_TOKEN(517, "'"),
+    TRIPLE_DOUBLE_QUOTE_TOKEN(518, "\"\"\""),
+    TRIPLE_SINGLE_QUOTE_TOKEN(519, "'''"),
 
     // Operators
     EQUAL_TOKEN(550, "="),
     PLUS_TOKEN(553, "+"),
     MINUS_TOKEN(554, "-"),
 
-    UNQUOTED_KEY_TOKEN(1000),
+    IDENTIFIER_LITERAL(1000),
     STRING_LITERAL(1001),
     DECIMAL_INTEGER_LITERAL(1002),
     HEX_INTEGER_LITERAL(1003),
@@ -86,10 +88,9 @@ public enum SyntaxKind {
     //TOML
     TABLE(4800),
     KEY_VALUE(4801),
-//    DOUBLE_OPEN_BRACKET_TOKEN(4802, "[["),
-//    DOUBLE_CLOSE_BRACKET_TOKEN(4803, "]]"),
     TABLE_ARRAY(4804),
     DATATYPE(4805),
+
 
     //NEW
 
@@ -97,6 +98,7 @@ public enum SyntaxKind {
     UNSIGNED_NUMERICAL(4807),
 
     BASIC_LITERAL(4808),
+    KEY(4809),
 
     //Int
     DEC_INT(4810),
@@ -106,20 +108,23 @@ public enum SyntaxKind {
 
     //Float
     FLOAT(4814),
-    INF(4815, "inf"),
-    NAN(4816, "nan"),
+    INF_TOKEN(4815, "inf"),
+    NAN_TOKEN(4816, "nan"),
 
     //String
     ML_STRING_LITERAL(4818),
+
+    DECIMAL_INT_TOKEN(4819),
+    DECIMAL_FLOAT_TOKEN(4819),
 
     //Bool
     BOOLEAN (4821),
 
     //Date and Time
-    OFFSET_DATE_TIME (4821),
-    LOCAL_DATE_TIME (4822),
-    LOCAL_DATE (4823),
-    LOCAL_TIME (4824),
+    OFFSET_DATE_TIME (4822),
+    LOCAL_DATE_TIME (4823),
+    LOCAL_DATE (4824),
+    LOCAL_TIME (4825),
 
     ARRAY(4830),
 
