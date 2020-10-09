@@ -28,12 +28,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Represent var-binding-pattern.
+ *
  * @since Swan Lake
  */
 public class BLangVarBindingPatternMatchPattern extends BLangMatchPattern implements VarBindingPatternMatchPatternNode {
 
     BLangBindingPattern bindingPattern;
-    public Map<String, BVarSymbol> declaredVars = new HashMap<>();
+//    public Map<String, BVarSymbol> declaredVars = new HashMap<>();
 
     @Override
     public void accept(BLangNodeVisitor visitor) {

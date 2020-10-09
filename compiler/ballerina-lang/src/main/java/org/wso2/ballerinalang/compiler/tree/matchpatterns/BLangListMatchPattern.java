@@ -30,12 +30,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Represent list-match-pattern.
+ *
  * @since Swan Lake
  */
 public class BLangListMatchPattern extends BLangMatchPattern implements ListMatchPatternNode {
     public List<BLangMatchPattern> matchPatterns = new ArrayList<>();
     public BLangRestMatchPattern restMatchPattern;
-    public Map<String, BVarSymbol> declaredVars = new HashMap<>();
+//    public Map<String, BVarSymbol> declaredVars = new HashMap<>();
 
     @Override
     public List<? extends MatchPatternNode> getMatchPatterns() {

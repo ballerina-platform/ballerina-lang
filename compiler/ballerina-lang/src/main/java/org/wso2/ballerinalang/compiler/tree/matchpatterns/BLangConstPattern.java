@@ -24,6 +24,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
+ * Represent const-pattern.
+ *
  * @since Swan Lake
  */
 public class BLangConstPattern extends BLangMatchPattern implements ConstPatternNode {
