@@ -199,7 +199,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     List<BallerinaTypeDescriptor> resultTypes = new ArrayList<>();
                     List<BallerinaTypeDescriptor> members
                             = new ArrayList<>(((UnionTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get())
-                            .memberTypes());
+                            .memberTypeDescriptors());
                     members.forEach(bType -> {
                         if (bType.kind() == TypeDescKind.ERROR) {
                             errorTypes.add(bType);

@@ -213,7 +213,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         boolean symbolInCurrentModule = currentModule.equals(objectOwnerModule);
 
         // Extract Field Entries
-        List<FieldDescriptor> fields = objectTypeDesc.objectFields().stream()
+        List<FieldDescriptor> fields = objectTypeDesc.fieldDescriptors().stream()
                 .filter(fieldDescriptor -> {
                     boolean isPrivate = fieldDescriptor.qualifier().isPresent()
                             && fieldDescriptor.qualifier().get() == Qualifier.PRIVATE;
@@ -258,7 +258,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      */
     public List<LSCompletionItem> getInvocationsAndFieldsForUnionType(UnionTypeDescriptor unionType,
                                                                       LSContext context) {
-        ArrayList<BallerinaTypeDescriptor> memberTypes = new ArrayList<>(unionType.memberTypes());
+        ArrayList<BallerinaTypeDescriptor> memberTypes = new ArrayList<>(unionType.memberTypeDescriptors());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);

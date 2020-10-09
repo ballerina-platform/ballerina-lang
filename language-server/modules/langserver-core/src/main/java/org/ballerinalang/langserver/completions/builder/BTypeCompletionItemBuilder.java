@@ -82,7 +82,7 @@ public class BTypeCompletionItemBuilder {
             case UNION:
                 // Union types
                 List<BallerinaTypeDescriptor> memberTypes = new ArrayList<>(((UnionTypeDescriptor) typeDescriptor.get())
-                        .memberTypes());
+                        .memberTypeDescriptors());
                 boolean allMatch = memberTypes.stream().allMatch(typeDesc -> typeDesc.kind() == memberTypes.get(0).kind());
                 if (allMatch) {
                     switch (memberTypes.get(0).kind()) {

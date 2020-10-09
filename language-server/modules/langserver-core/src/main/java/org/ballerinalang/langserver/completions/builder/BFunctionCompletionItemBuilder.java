@@ -201,7 +201,7 @@ public final class BFunctionCompletionItemBuilder {
                         .replaceAll(CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
             }
             documentation += CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "**Returns**"
-                    + " `" + CommonUtil.getBTypeName(functionTypeDesc.get().returnType().get(), ctx, false) + "` " +
+                    + " `" + CommonUtil.getBTypeName(functionTypeDesc.get().returnTypeDescriptor().get(), ctx, false) + "` " +
                     CommonUtil.MD_LINE_SEPARATOR + desc + CommonUtil.MD_LINE_SEPARATOR;
         }
         docMarkupContent.setValue(documentation);

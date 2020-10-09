@@ -70,7 +70,7 @@ public class BLangRecordLiteralUtil {
         Optional<BallerinaTypeDescriptor> typeDescriptor = Optional.empty();
         if (symbol.kind() == SymbolKind.FUNCTION) {
             Optional<FunctionTypeDescriptor> fTypeDesc = ((FunctionSymbol) symbol).typeDescriptor();
-            typeDescriptor = fTypeDesc.isPresent() ? fTypeDesc.get().returnType() : Optional.empty();
+            typeDescriptor = fTypeDesc.isPresent() ? fTypeDesc.get().returnTypeDescriptor() : Optional.empty();
         } else if (symbol.kind() == SymbolKind.VARIABLE) {
             typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
         }
@@ -101,12 +101,12 @@ public class BLangRecordLiteralUtil {
 
     private static List<BallerinaTypeDescriptor> getTypeListForMapAndRecords(BallerinaTypeDescriptor typeDesc) {
         if (typeDesc.kind() == TypeDescKind.MAP) {
-            Optional<BallerinaTypeDescriptor> memberType = ((MapTypeDescriptor) typeDesc).memberTypeDescriptor();
+            Optional<BallerinaTypeDescriptor> memberType = ((MapTypeDescriptor) typeDesc).typeParameter();
             if (memberType.isEmpty()) {
                 return new ArrayList<>();
             }
             if (memberType.get().kind() == TypeDescKind.UNION) {
-                return new ArrayList<>(((UnionTypeDescriptor) memberType.get()).memberTypes());
+                return new ArrayList<>(((UnionTypeDescriptor) memberType.get()).memberTypeDescriptors());
             }
             return Collections.singletonList(memberType.get());
         } else if (typeDesc.kind() == TypeDescKind.RECORD) {

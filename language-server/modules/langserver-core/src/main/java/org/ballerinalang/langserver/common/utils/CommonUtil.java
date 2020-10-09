@@ -429,7 +429,7 @@ public class CommonUtil {
 //                }
 //                break;
             case UNION:
-                List<BallerinaTypeDescriptor> members = new ArrayList<>(((UnionTypeDescriptor) bType).memberTypes());
+                List<BallerinaTypeDescriptor> members = new ArrayList<>(((UnionTypeDescriptor) bType).memberTypeDescriptors());
                 typeString = getDefaultValueForType(members.get(0));
                 break;
             case STREAM:
@@ -675,7 +675,7 @@ public class CommonUtil {
         List<BallerinaTypeDescriptor> nonErrorTypes = new ArrayList<>();
         List<BallerinaTypeDescriptor> errorTypes = new ArrayList<>();
         StringBuilder unionName = new StringBuilder("(");
-        unionType.memberTypes().forEach(bType -> {
+        unionType.memberTypeDescriptors().forEach(bType -> {
             if (bType.kind() == TypeDescKind.ERROR) {
                 errorTypes.add(bType);
             } else {
@@ -770,9 +770,9 @@ public class CommonUtil {
     private static Optional<BallerinaTypeDescriptor> getConstraintType(BallerinaTypeDescriptor bType) {
         switch (bType.kind()) {
             case FUTURE:
-                return ((FutureTypeDescriptor) bType).memberTypeDescriptor();
+                return ((FutureTypeDescriptor) bType).typeParameter();
             case MAP:
-                return ((MapTypeDescriptor) bType).memberTypeDescriptor();
+                return ((MapTypeDescriptor) bType).typeParameter();
 //            case STREAM:
 //                return ((BallerinaStreamTypeDescriptor) bType).getTypeParameters();
             case TABLE:
@@ -976,7 +976,7 @@ public class CommonUtil {
         }
         signature.append(")");
         insertText.append(")");
-        Optional<BallerinaTypeDescriptor> returnType = functionTypeDesc.get().returnType();
+        Optional<BallerinaTypeDescriptor> returnType = functionTypeDesc.get().returnTypeDescriptor();
         if (!returnType.isPresent() || returnType.get().kind() == TypeDescKind.NIL) {
             insertText.append(";");
         }
