@@ -3,7 +3,7 @@ org-name = "ballerina"
 version = "0.8.0"
 
 [platform]
-target = "java8"
+target = "java11"
 
     [[platform.libraries]]
     artifactId = "observability"
