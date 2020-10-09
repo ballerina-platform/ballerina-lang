@@ -17,7 +17,7 @@
  */
 package io.ballerina.compiler.api.types;
 
-import io.ballerina.compiler.impl.symbols.BallerinaMethodSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,21 +41,21 @@ public interface ObjectTypeDescriptor extends BallerinaTypeDescriptor {
      *
      * @return {@link List} of object fields
      */
-    List<FieldDescriptor> objectFields();
+    List<FieldDescriptor> fieldDescriptors();
 
     /**
      * Get the list of methods.
      *
      * @return {@link List} of object methods
      */
-    List<BallerinaMethodSymbol> methods();
+    List<MethodSymbol> methods();
 
     /**
      * Get the init method.
      *
      * @return {@link Optional} init method
      */
-    Optional<BallerinaMethodSymbol> initMethod();
+    Optional<MethodSymbol> initMethod();
 
     /**
      * Represents the object type qualifier.

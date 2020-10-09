@@ -49,7 +49,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
+
+import static org.ballerinalang.model.types.TypeKind.FINITE;
+import static org.ballerinalang.model.types.TypeKind.OBJECT;
+import static org.ballerinalang.model.types.TypeKind.RECORD;
+import static org.ballerinalang.model.types.TypeKind.UNION;
 
 /**
  * Represents a set of factory methods to generate the {@link BallerinaTypeDescriptor}s.
@@ -71,7 +77,7 @@ public class TypesFactory {
      */
     public static BallerinaTypeDescriptor getTypeDescriptor(BType bType, boolean rawTypeOnly) {
         BallerinaTypeDescriptor typeDescriptorImpl;
-        if (bType == null) {
+        if (bType == null || bType.tag == TypeTags.NONE) {
             return null;
         }
 
@@ -124,7 +130,8 @@ public class TypesFactory {
             return false;
         }
 
-        return !bType.tsymbol.getName().getValue().isEmpty();
+        final TypeKind kind = bType.getKind();
+        return kind == RECORD || kind == OBJECT || bType.tsymbol.isLabel;
     }
 
     public static TypeDescKind getTypeDescKind(TypeKind bTypeKind) {
