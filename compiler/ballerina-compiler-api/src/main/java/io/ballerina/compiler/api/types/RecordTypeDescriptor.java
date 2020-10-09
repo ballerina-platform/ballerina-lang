@@ -46,5 +46,5 @@ public interface RecordTypeDescriptor extends BallerinaTypeDescriptor {
      *
      * @return {@link Optional} rest type descriptor
      */
-    Optional<BallerinaTypeDescriptor> getRestTypeDesc();
+    Optional<BallerinaTypeDescriptor> restTypeDescriptor();
 }

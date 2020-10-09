@@ -87,7 +87,7 @@ public class BallerinaFunctionTypeDescriptor extends AbstractTypeDescriptor impl
     }
 
     @Override
-    public Optional<BallerinaTypeDescriptor> getReturnType() {
+    public Optional<BallerinaTypeDescriptor> returnTypeDescriptor() {
         if (returnType == null) {
             this.returnType = TypesFactory.getTypeDescriptor(this.typeSymbol.returnType);
         }
@@ -104,7 +104,7 @@ public class BallerinaFunctionTypeDescriptor extends AbstractTypeDescriptor impl
         }
         this.restParam().ifPresent(ballerinaParameter -> joiner.add(ballerinaParameter.signature()));
         signature.append(joiner.toString()).append(")");
-        this.getReturnType().ifPresent(typeDescriptor -> signature.append(" returns ")
+        this.returnTypeDescriptor().ifPresent(typeDescriptor -> signature.append(" returns ")
                 .append(typeDescriptor.signature()));
         return signature.toString();
     }

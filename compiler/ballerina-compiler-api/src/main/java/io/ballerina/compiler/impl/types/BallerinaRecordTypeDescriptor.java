@@ -78,7 +78,7 @@ public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implem
     }
 
     @Override
-    public Optional<BallerinaTypeDescriptor> getRestTypeDesc() {
+    public Optional<BallerinaTypeDescriptor> restTypeDescriptor() {
         if (this.restTypeDesc == null) {
             this.restTypeDesc = TypesFactory.getTypeDescriptor(((BRecordType) this.getBType()).restFieldType);
         }
@@ -98,7 +98,7 @@ public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implem
             joiner.add(ballerinaFieldSignature);
         }
 
-        getRestTypeDesc().ifPresent(typeDescriptor -> joiner.add(typeDescriptor.signature() + "..."));
+        restTypeDescriptor().ifPresent(typeDescriptor -> joiner.add(typeDescriptor.signature() + "..."));
         // this.getTypeReference().ifPresent(typeDescriptor -> joiner.add("*" + typeDescriptor.getSignature()));
 
         return joiner.toString();

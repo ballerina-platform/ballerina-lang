@@ -43,7 +43,7 @@ public class BallerinaErrorTypeDescriptor extends AbstractTypeDescriptor impleme
      * @return {@link BallerinaTypeDescriptor} detail
      */
     @Override
-    public BallerinaTypeDescriptor getDetail() {
+    public BallerinaTypeDescriptor detailTypeDescriptor() {
         if (this.detail == null) {
             this.detail = TypesFactory.getTypeDescriptor(((BErrorType) this.getBType()).getDetailType());
         }
