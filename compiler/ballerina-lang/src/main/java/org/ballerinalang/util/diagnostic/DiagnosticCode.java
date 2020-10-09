@@ -411,6 +411,7 @@ public enum DiagnosticCode {
     MATCH_PATTERN_NOT_SUPPORTED("match.pattern.not.supported"),
     MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES("match.patterns.should.contain.same.set.of.variables"),
     REST_MATCH_PATTERN_NOT_SUPPORTED("rest.match.pattern.not.supported"),
+    VARIABLE_SHOULD_BE_DECLARED_AS_CONSTANT("match.pattern.variable.should.declared.as.constant"),
     MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS("match.stmt.contains.two.default.patterns"),
 
     THROW_STMT_NOT_SUPPORTED("throw.stmt.not.supported"),

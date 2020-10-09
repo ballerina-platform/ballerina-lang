@@ -33,6 +33,9 @@ import org.testng.annotations.Test;
 public class MatchStmtListMatchPatternTest {
 
     private CompileResult result, resultNegative, restMatchPatternResult;
+    private String patternNotMatched = "pattern will not be matched";
+    private String unreachablePattern = "unreachable pattern";
+    private String unreachableCode = "unreachable code";
 
     @BeforeClass
     public void setup() {
@@ -98,11 +101,19 @@ public class MatchStmtListMatchPatternTest {
     }
 
     @Test
+    public void testListMatchPatter12() {
+        BRunUtil.invoke(result, "testListMatchPattern12");
+    }
+
+    @Test
+    public void testListMatchPatter13() {
+        BRunUtil.invoke(result, "testListMatchPattern13");
+    }
+
+    @Test
     public void testRestMatchPattern() {
         Assert.assertEquals(restMatchPatternResult.getErrorCount(), 1);
-
-        int i = -1;
-        BAssertUtil.validateError(restMatchPatternResult, ++i, "rest match pattern is not supported", 19, 13);
+        BAssertUtil.validateError(restMatchPatternResult, 0, "rest match pattern is not yet supported", 19, 13);
     }
 
     @Test(description = "invalid match patterns")
@@ -110,21 +121,20 @@ public class MatchStmtListMatchPatternTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 12);
 
         int i = -1;
-        String patternNotMatched = "pattern will not be matched";
-        String unreachablePattern = "unreachable pattern";
-        String unreachableCode = "unreachable code";
-
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 7, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 12, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "match patterns should contain same set of variables", 14, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 14, 17);
-        BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 19, 5);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 21, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 24, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 31, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 36, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "match patterns should contain same set of variables", 42, 9);
-        BAssertUtil.validateError(resultNegative, ++i, "match patterns should contain same set of variables", 49, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 49, 9);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 23, 9);
+        BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 28, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
+                30, 9);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 30, 17);
+        BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 35, 5);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 37, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 40, 9);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 47, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 52, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
+                58, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
+                65, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 65, 9);
     }
 }

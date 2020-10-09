@@ -237,15 +237,15 @@ function listMatchPattern8(any v) returns string {
 }
 
 function testListMatchPattern8() {
-        assertEquals("match1", listMatchPattern8([1]));
-        assertEquals("match1", listMatchPattern8([1, 2]));
-        assertEquals("match1", listMatchPattern8([1, 2, 3]));
-        assertEquals("match2", listMatchPattern8([1, "s"]));
-        assertEquals("match2", listMatchPattern8([1, "s", 2]));
-        assertEquals("match3", listMatchPattern8([true, "s"]));
-        assertEquals("match3", listMatchPattern8([true, false]));
-        assertEquals("match3", listMatchPattern8([true, 1, false]));
-        assertEquals("No match", "No match");
+    assertEquals("match1", listMatchPattern8([1]));
+    assertEquals("match1", listMatchPattern8([1, 2]));
+    assertEquals("match1", listMatchPattern8([1, 2, 3]));
+    assertEquals("match2", listMatchPattern8([1, "s"]));
+    assertEquals("match2", listMatchPattern8([1, "s", 2]));
+    assertEquals("match3", listMatchPattern8([true, "s"]));
+    assertEquals("match3", listMatchPattern8([true, false]));
+    assertEquals("match3", listMatchPattern8([true, 1, false]));
+    assertEquals("No match", "No match");
 }
 
 function listMatchPattern9(any v) returns string {
@@ -314,6 +314,43 @@ function testListMatchPattern11() {
     assertEquals("match2", listMatchPattern11([2, 2]));
     assertEquals("match2", listMatchPattern11([3, 8]));
     assertEquals("No match", listMatchPattern11([1, 1]));
+}
+
+function listMatchPattern12([int, int] v) returns int|string {
+    match v {
+        [var a, 5] | [var a, 7] => {
+            return a;
+        }
+        [var a, 2] | [3, var a] => {
+            return a + 20;
+        }
+    }
+
+    return "No match";
+}
+
+function testListMatchPattern12() {
+    assertEquals(2, listMatchPattern12([2, 5]));
+    assertEquals(2, listMatchPattern12([2, 7]));
+    assertEquals(22, listMatchPattern12([2, 2]));
+    assertEquals(28, listMatchPattern12([3, 8]));
+    assertEquals("No match", listMatchPattern12([1, 1]));
+}
+
+function listMatchPattern13([int, int, int]|[boolean, boolean, boolean] v) returns int|boolean {
+    match v {
+        [var a, var b, 5] | [var a, var b, false] => {
+            return a;
+        }
+    }
+
+    return false;
+}
+
+function testListMatchPattern13() {
+    assertEquals(2, listMatchPattern13([2, 2, 5]));
+    assertEquals(true, listMatchPattern13([true, true, false]));
+    assertEquals(false, listMatchPattern13([1, 1, 1]));
 }
 
 function assertEquals(anydata expected, anydata actual) {
