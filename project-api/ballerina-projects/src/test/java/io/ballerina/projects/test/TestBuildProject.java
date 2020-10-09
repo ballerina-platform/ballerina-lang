@@ -27,6 +27,8 @@ import io.ballerina.projects.ModuleConfig;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageId;
 import io.ballerina.projects.ProjectLoader;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.utils.ProjectConstants;
@@ -71,7 +73,7 @@ public class TestBuildProject {
         // 4) Resolve the dependencies of the current package and its modules
         currentPackage.resolveDependencies();
         DependencyGraph<ModuleId> moduleDependencyGraph = currentPackage.moduleDependencyGraph();
-        Assert.assertEquals(moduleDependencyGraph.getDirectDependencies(defaultModule.moduleId()).size(), 3);
+        Assert.assertEquals(moduleDependencyGraph.getDirectDependencies(defaultModule.moduleId()).size(), 2);
 
         // 5) Compile the module
         ModuleCompilation compilation = defaultModule.getCompilation();
@@ -97,6 +99,28 @@ public class TestBuildProject {
         Assert.assertEquals(noOfSrcDocuments, 4);
         Assert.assertEquals(noOfTestDocuments, 3);
 
+    }
+
+    @Test (description = "tests loading a valid build project using project compilation")
+    public void testBuildProjectAPIWithPackageCompilation() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the package
+        PackageCompilation compilation = currentPackage.getCompilation();
+
+        DependencyGraph<PackageId> dependencyGraph = compilation.packageDependencyGraph();
+
+        Assert.assertEquals(dependencyGraph.getDirectDependencies(currentPackage.packageId()).size(), 1);
     }
 
     @Test (description = "tests loading an invalid Ballerina project")
