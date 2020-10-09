@@ -40,7 +40,7 @@ public class BallerinaFutureTypeDescriptor extends AbstractTypeDescriptor implem
     }
 
     @Override
-    public Optional<BallerinaTypeDescriptor> memberTypeDescriptor() {
+    public Optional<BallerinaTypeDescriptor> typeParameter() {
         if (this.memberTypeDesc == null) {
             this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BFutureType) this.getBType()).constraint);
         }
@@ -50,8 +50,8 @@ public class BallerinaFutureTypeDescriptor extends AbstractTypeDescriptor implem
     @Override
     public String signature() {
         String memberSignature;
-        if (memberTypeDescriptor().isPresent()) {
-            memberSignature = memberTypeDescriptor().get().signature();
+        if (typeParameter().isPresent()) {
+            memberSignature = typeParameter().get().signature();
         } else {
             memberSignature = "()";
         }

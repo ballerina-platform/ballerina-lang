@@ -18,6 +18,7 @@
 package io.ballerina.compiler.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
@@ -44,7 +45,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     private List<TypeQualifier> typeQualifiers;
     // private TypeDescriptor objectTypeReference;
     private List<FieldDescriptor> objectFields;
-    private List<BallerinaMethodSymbol> methods;
+    private List<MethodSymbol> methods;
     private BallerinaMethodSymbol initFunction;
 
     public BallerinaObjectTypeDescriptor(ModuleID moduleID, BObjectType objectType) {
@@ -74,7 +75,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     }
 
     @Override
-    public List<FieldDescriptor> objectFields() {
+    public List<FieldDescriptor> fieldDescriptors() {
         if (this.objectFields == null) {
             this.objectFields = new ArrayList<>();
             for (BField field : ((BObjectType) this.getBType()).fields.values()) {
@@ -90,7 +91,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
      * @return {@link List} of object methods
      */
     // TODO: Rename to method declarations
-    public List<BallerinaMethodSymbol> methods() {
+    public List<MethodSymbol> methods() {
         if (this.methods == null) {
             this.methods = new ArrayList<>();
             for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) ((BObjectType) this
@@ -104,7 +105,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     }
 
     @Override
-    public Optional<BallerinaMethodSymbol> initMethod() {
+    public Optional<MethodSymbol> initMethod() {
         if (this.initFunction == null) {
             BAttachedFunction initFunction =
                     ((BObjectTypeSymbol) ((BObjectType) this.getBType()).tsymbol).initializerFunc;
@@ -130,7 +131,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
 
         // this.getObjectTypeReference()
         //         .ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
-        this.objectFields().forEach(objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()));
+        this.fieldDescriptors().forEach(objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()));
         this.methods().forEach(method -> {
             if (method.typeDescriptor().isPresent()) {
                 methodJoiner.add(method.typeDescriptor().get().signature());

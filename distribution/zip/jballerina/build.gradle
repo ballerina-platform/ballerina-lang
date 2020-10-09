@@ -56,7 +56,7 @@ dependencies {
     // Lang libs
     distBal project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-java', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
@@ -80,7 +80,7 @@ dependencies {
 
     // Lang Libs
     balSource project(path: ':ballerina-lang:internal', configuration: 'balSource')
-    balSource project(path: ':ballerina-java', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:java', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:annotations', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:array', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:decimal', configuration: 'balSource')

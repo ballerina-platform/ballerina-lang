@@ -31,5 +31,5 @@ public interface StreamTypeDescriptor extends BallerinaTypeDescriptor {
      *
      * @return {@link List} of types
      */
-    List<BallerinaTypeDescriptor> getTypeParameters();
+    List<BallerinaTypeDescriptor> typeParameters();
 }

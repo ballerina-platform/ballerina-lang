@@ -2394,6 +2394,52 @@ public class BallerinaParser extends AbstractParser {
                         "Unsupported operator precedence level'" + opPrecedenceLevel + "'");
         }
     }
+    /**
+     * <p>
+     * Get the operator context to insert during recovery, given the precedence level.
+     * </p>
+     *
+     * @param opPrecedenceLevel Precedence of the given operator
+     * @return Context of the missing operator
+     */
+    private ParserRuleContext getMissingBinaryOperatorContext(OperatorPrecedence opPrecedenceLevel) {
+        switch (opPrecedenceLevel) {
+            case MULTIPLICATIVE:
+                return ParserRuleContext.ASTERISK;
+            case DEFAULT:
+            case UNARY:
+            case ACTION:
+            case EXPRESSION_ACTION:
+            case REMOTE_CALL_ACTION:
+            case ANON_FUNC_OR_LET:
+            case QUERY:
+            case ADDITIVE:
+                return ParserRuleContext.PLUS_TOKEN;
+            case SHIFT:
+                return ParserRuleContext.DOUBLE_LT;
+            case RANGE:
+                return ParserRuleContext.ELLIPSIS;
+            case BINARY_COMPARE:
+                return ParserRuleContext.LT_TOKEN;
+            case EQUALITY:
+                return ParserRuleContext.DOUBLE_EQUAL;
+            case BITWISE_AND:
+                return ParserRuleContext.BITWISE_AND_OPERATOR;
+            case BITWISE_XOR:
+                return ParserRuleContext.BITWISE_XOR;
+            case BITWISE_OR:
+                return ParserRuleContext.PIPE;
+            case LOGICAL_AND:
+                return ParserRuleContext.LOGICAL_AND;
+            case LOGICAL_OR:
+                return ParserRuleContext.LOGICAL_OR;
+            case ELVIS_CONDITIONAL:
+                return ParserRuleContext.ELVIS;
+            default:
+                throw new UnsupportedOperationException(
+                        "Unsupported operator precedence level'" + opPrecedenceLevel + "'");
+        }
+    }
 
     /**
      * <p>
@@ -3950,7 +3996,8 @@ public class BallerinaParser extends AbstractParser {
             // We come here if the operator is missing. Treat this as injecting an operator
             // that matches to the current operator precedence level, and continue.
             SyntaxKind binaryOpKind = getBinaryOperatorKindToInsert(currentPrecedenceLevel);
-            insertToken(binaryOpKind);
+            ParserRuleContext binaryOpContext = getMissingBinaryOperatorContext(currentPrecedenceLevel);
+            insertToken(binaryOpKind, binaryOpContext);
             return parseExpressionRhsInternal(currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
                     isInConditionalExpr);
         } else {
@@ -12253,7 +12300,8 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case OPEN_PAREN_TOKEN:
-                STNode errorKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.ERROR_KEYWORD);
+                STNode errorKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.ERROR_KEYWORD,
+                        ParserRuleContext.ERROR_KEYWORD);
                 startContext(ParserRuleContext.ERROR_MATCH_PATTERN); // Context ended inside the method
                 return parseErrorMatchPattern(errorKeyword, typeRefOrConstExpr);
             default:
@@ -12626,7 +12674,7 @@ public class BallerinaParser extends AbstractParser {
                 typeOrExpr = parseQualifiedIdentifier(ParserRuleContext.TYPE_NAME_OR_VAR_NAME);
                 return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
             case OPEN_BRACKET_TOKEN:
-                typeOrExpr = parseTypedDescOrExprStartsWithOpenBracket();
+                typeOrExpr = parseTupleTypeDescOrExprStartsWithOpenBracket();
                 return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
             case ISOLATED_KEYWORD:
                 if (isFuncDefOrFuncTypeStart()) {
@@ -12835,7 +12883,7 @@ public class BallerinaParser extends AbstractParser {
                 typeOrExpr = parseQualifiedIdentifier(ParserRuleContext.TYPE_NAME_OR_VAR_NAME);
                 return parseTypeDescOrExprRhs(typeOrExpr);
             case OPEN_BRACKET_TOKEN:
-                typeOrExpr = parseTypedDescOrExprStartsWithOpenBracket();
+                typeOrExpr = parseTupleTypeDescOrExprStartsWithOpenBracket();
                 break;
             case ISOLATED_KEYWORD:
                 if (isFuncDefOrFuncTypeStart()) {
@@ -12859,7 +12907,6 @@ public class BallerinaParser extends AbstractParser {
                 if (isValidExpressionStart(nextToken.kind, 1)) {
                     return parseActionOrExpressionInLhs(STNodeFactory.createEmptyNodeList());
                 }
-
                 return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
         }
 
@@ -13127,13 +13174,19 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseTypedDescOrExprStartsWithOpenBracket() {
+    private STNode parseTupleTypeDescOrExprStartsWithOpenBracket() {
         startContext(ParserRuleContext.BRACKETED_LIST);
         STNode openBracket = parseOpenBracket();
         List<STNode> members = new ArrayList<>();
         STNode memberEnd;
         while (!isEndOfListConstructor(peek().kind)) {
             STNode expr = parseTypeDescOrExpr();
+            // Tuple type desc can contain rest descriptor which is not a regular type desc,
+            // hence handle it here.
+            if (peek().kind == SyntaxKind.ELLIPSIS_TOKEN && isDefiniteTypeDesc(expr.kind)) {
+                STNode ellipsis = consume();
+                expr = STNodeFactory.createRestDescriptorNode(expr, ellipsis);
+            }
             members.add(expr);
 
             memberEnd = parseBracketedListMemberEnd();
@@ -13223,12 +13276,14 @@ public class BallerinaParser extends AbstractParser {
         STToken secondToken = peek();
         if (secondToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
             startContext(ParserRuleContext.ERROR_BINDING_PATTERN);
-            STNode errorKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.ERROR_KEYWORD);
+            STNode errorKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.ERROR_KEYWORD,
+                    ParserRuleContext.ERROR_KEYWORD);
             return parseErrorBindingPattern(errorKeyword, argNameOrBindingPattern);
         }
 
         if (argNameOrBindingPattern.kind != SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN);
+            STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                    ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER);
             identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, argNameOrBindingPattern);
             return createCaptureOrWildcardBP(identifier);
         }
@@ -15921,7 +15976,8 @@ public class BallerinaParser extends AbstractParser {
                     typeRef = STNodeFactory.createEmptyNode();
                 } else {
                     // Create missing error keyword
-                    errorKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.ERROR_KEYWORD);
+                    errorKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.ERROR_KEYWORD,
+                            ParserRuleContext.ERROR_KEYWORD);
                     typeRef = funcCall.functionName;
                 }
                 return STNodeFactory.createErrorBindingPatternNode(errorKeyword, typeRef, funcCall.openParenToken,

@@ -165,7 +165,7 @@ public class PathDependencyTestCase extends BaseTest {
     public void testBaloPathCase3() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case3");
         // Build bee module of TestProject1
-        String toml4jModuleBaloFileName = "toml4j-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.7.2"
+        String toml4jModuleBaloFileName = "toml4j-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.7.2"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
 
         String toml4jBuildMsg = "target" + File.separator + "balo" + File.separator + toml4jModuleBaloFileName;
@@ -212,7 +212,7 @@ public class PathDependencyTestCase extends BaseTest {
                                       testProjBeeModulePath);
         deleteFiles(caseResources.resolve("TestProject1").resolve("src").resolve("bee"));
         
-        String beeModuleBaloFileName = beeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-1" +
+        String beeModuleBaloFileName = beeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-1" +
                 ".2.0" + BLANG_COMPILED_PKG_BINARY_EXT;
         
         String module1BuildMsg = "target" + File.separator + "balo" + File.separator + beeModuleBaloFileName;
@@ -428,7 +428,7 @@ public class PathDependencyTestCase extends BaseTest {
     public void testBaloPathCase7() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case7");
         // Build all modules of TestProject3
-        String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
+        String moduleUtilsBaloFileName = "utils-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
         String moduleFooBaloFileName = "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0"
@@ -508,7 +508,7 @@ public class PathDependencyTestCase extends BaseTest {
     public void testBaloPathCase9() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case9");
         // Build bee module of TestProject1
-        String toml4jModuleBaloFileName = "toml4j-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.7.2"
+        String toml4jModuleBaloFileName = "toml4j-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.7.2"
                 + BLANG_COMPILED_PKG_BINARY_EXT;
 
         String toml4jBuildMsg = "target" + File.separator + "balo" + File.separator + toml4jModuleBaloFileName;

@@ -66,7 +66,7 @@ public class DependencyScopeTest extends CommandTest {
             Files.walkFileTree(storedJarDependencyProject, new BuildCommandTest.Copy(storedJarDependencyProject,
                     this.testResources));
 
-            String baloFileName = "mymodule-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
+            String baloFileName = "mymodule-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0"
                     + BLANG_COMPILED_PKG_BINARY_EXT;
             String[] compileArgs = {"--all", "--skip-tests"};
 
