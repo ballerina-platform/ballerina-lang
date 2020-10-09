@@ -91,7 +91,7 @@ public class BallerinaTriggerModifyUtil {
 
         //remove unused imports
         LSModuleCompiler.getBLangPackage(astContext, documentManager, LSCustomErrorStrategy.class,
-                                         false, false, false);
+                false, false, false);
         BLangPackage updatedTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
 
         UnusedNodeVisitor unusedNodeVisitor = new UnusedNodeVisitor(fileName, new HashMap<>());
@@ -183,12 +183,22 @@ public class BallerinaTriggerModifyUtil {
                 if (service.isPresent()) {
                     //replace service
                     if (MAIN.equalsIgnoreCase(type)) {
-                        edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START",
-                                service.get().getPosition().getStartLine(),
-                                service.get().getPosition().getStartColumn(),
-                                service.get().getResources().get(0).getBody().getPosition().getStartLine(),
-                                service.get().getResources().get(0).getBody().getPosition().
-                                        getStartColumn() + 1));
+                        if (service.get().getAnnotationAttachments() != null &&
+                                service.get().getAnnotationAttachments().size() > 0) {
+                            edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START",
+                                    service.get().getAnnotationAttachments().get(0).getPosition().getStartLine(),
+                                    service.get().getAnnotationAttachments().get(0).getPosition().getStartColumn(),
+                                    service.get().getResources().get(0).getBody().getPosition().getStartLine(),
+                                    service.get().getResources().get(0).getBody().getPosition().
+                                            getStartColumn() + 1));
+                        } else {
+                            edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START",
+                                    service.get().getPosition().getStartLine(),
+                                    service.get().getPosition().getStartColumn(),
+                                    service.get().getResources().get(0).getBody().getPosition().getStartLine(),
+                                    service.get().getResources().get(0).getBody().getPosition().
+                                            getStartColumn() + 1));
+                        }
                         edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_END",
                                 service.get().getResources().get(0).getBody().getPosition().getEndLine(),
                                 service.get().getResources().get(0).getBody().getPosition().
