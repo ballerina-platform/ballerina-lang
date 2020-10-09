@@ -23,25 +23,13 @@ import io.ballerina.projects.ModuleConfig;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageConfig;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.model.BallerinaToml;
-import io.ballerina.projects.model.BallerinaTomlProcessor;
-import org.ballerinalang.toml.exceptions.TomlException;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static io.ballerina.projects.utils.ProjectConstants.BALLERINA_TOML;
-import static io.ballerina.projects.utils.ProjectUtils.getOrgFromBaloName;
-import static io.ballerina.projects.utils.ProjectUtils.getPackageNameFromBaloName;
-import static io.ballerina.projects.utils.ProjectUtils.getVersionFromBaloName;
-import static org.wso2.ballerinalang.util.RepoUtils.isBallerinaProject;
-import static org.wso2.ballerinalang.util.RepoUtils.isBallerinaStandaloneFile;
 
 /**
  * Contains a set of utility methods that creates the config hierarchy from the project directory.
@@ -50,51 +38,24 @@ import static org.wso2.ballerinalang.util.RepoUtils.isBallerinaStandaloneFile;
  */
 public class PackageLoader {
 
-    public static PackageConfig loadPackage(String packageDir, boolean isSingleFile) {
+    // TODO This method is called by both BuildProject and SingleFileProject. Can we refactor this?
+    public static PackageConfig loadPackage(Path packageDir,
+                                            boolean isSingleFile,
+                                            PackageDescriptor packageDescriptor) {
         final PackageData packageData = ProjectFiles.loadPackageData(packageDir, isSingleFile);
-        return createPackageConfig(packageData);
+        return createPackageConfig(packageData, packageDescriptor);
     }
 
-    protected static PackageConfig createPackageConfig(PackageData packageData) {
+    protected static PackageConfig createPackageConfig(PackageData packageData,
+                                                       PackageDescriptor packageDescriptor) {
         // TODO PackageData should contain the packageName. This should come from the Ballerina.toml file.
         // TODO For now, I take the directory name as the project name. I am not handling the case where the
         //  directory name is not a valid Ballerina identifier.
-        Path packagePath = packageData.packagePath();
-        Path fileName = packagePath.getFileName();
-        if (fileName == null) {
-            // TODO Proper error handling
-            throw new IllegalStateException("This branch cannot be reached");
-        }
 
         // TODO: Should replace with Ballerina Toml parser generic model.
-        PackageName packageName;
-        PackageOrg packageOrg;
-        PackageVersion packageVersion;
 
-        if (isBallerinaStandaloneFile(packageData.packagePath())) {
-            packageName = PackageName.from(".");
-            packageOrg = PackageOrg.from(System.getProperty("user.name"));
-            packageVersion = PackageVersion.from("0.0.0");
-        } else if (isBallerinaProject(packageData.packagePath())) {
-            // load Ballerina.toml
-            BallerinaToml ballerinaToml;
-            try {
-                ballerinaToml = BallerinaTomlProcessor.parse(packagePath.resolve(BALLERINA_TOML));
-            } catch (IOException | TomlException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
-
-            packageName = PackageName.from(ballerinaToml.getPackage().getName());
-            packageOrg = PackageOrg.from(ballerinaToml.getPackage().getOrg());
-            packageVersion = PackageVersion.from(ballerinaToml.getPackage().getVersion());
-        } else { // balo project
-            Path baloName = packageData.packagePath().getFileName();
-            packageName = PackageName.from(getPackageNameFromBaloName(String.valueOf(baloName)));
-            packageOrg = PackageOrg.from(getOrgFromBaloName(String.valueOf(baloName)));
-            packageVersion = PackageVersion.from(getVersionFromBaloName(String.valueOf(baloName)));
-        }
-
-        PackageId packageId = PackageId.create(packageName.toString());
+        PackageName packageName = packageDescriptor.name();
+        PackageId packageId = PackageId.create(packageDescriptor.name().value());
 
         List<ModuleConfig> moduleConfigs = packageData.otherModules()
                 .stream()
@@ -103,7 +64,7 @@ public class PackageLoader {
         ModuleConfig defaultModuleConfig = createDefaultModuleData(packageName,
                 packageData.defaultModule(), packageId);
         moduleConfigs.add(defaultModuleConfig);
-        return PackageConfig.from(packageId, packageName, packageOrg, packageVersion, packagePath, moduleConfigs);
+        return PackageConfig.from(packageId, packageData.packagePath(), packageDescriptor, moduleConfigs);
     }
 
     private static ModuleConfig createDefaultModuleData(PackageName packageName,

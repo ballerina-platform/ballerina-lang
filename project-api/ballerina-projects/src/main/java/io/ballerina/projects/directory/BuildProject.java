@@ -21,6 +21,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.environment.EnvironmentContext;
@@ -28,6 +29,7 @@ import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.model.BallerinaTomlProcessor;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
+import io.ballerina.toml.syntax.tree.SyntaxTree;
 import org.ballerinalang.toml.exceptions.TomlException;
 
 import java.io.IOException;
@@ -40,6 +42,8 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class BuildProject extends Project {
+
+    private SyntaxTree tomlSyntaxTree;
 
     /**
      * Loads a BuildProject from the provided path.
@@ -69,6 +73,7 @@ public class BuildProject extends Project {
         super(environmentContext);
         this.sourceRoot = projectPath;
 
+        // TODO Refactor the following toml loading code with the new toml parser
         // load Ballerina.toml
         Path ballerinaTomlPath = this.sourceRoot.resolve(ProjectConstants.BALLERINA_TOML);
         BallerinaToml ballerinaToml;
@@ -85,7 +90,7 @@ public class BuildProject extends Project {
             this.setBuildOptions(new BuildOptions());
         }
 
-        addPackage(projectPath.toString());
+        addPackage(projectPath);
     }
 
     public BuildOptions getBuildOptions() {
@@ -127,9 +132,16 @@ public class BuildProject extends Project {
      *
      * @param projectPath project path
      */
-    private void addPackage(String projectPath) {
-        final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, false);
+    private void addPackage(Path projectPath) {
+        PackageDescriptor packageDescriptor = createPackageDescriptor(
+                projectPath.resolve(ProjectConstants.BALLERINA_TOML));
+        PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, false, packageDescriptor);
         this.addPackage(packageConfig);
+    }
+
+    private PackageDescriptor createPackageDescriptor(Path tomlFilePath) {
+        tomlSyntaxTree = ProjectFiles.parseToml(tomlFilePath);
+        return ProjectFiles.createPackageDescriptor(tomlSyntaxTree);
     }
 
     /**
@@ -137,7 +149,8 @@ public class BuildProject extends Project {
      */
     public static class BuildOptions extends io.ballerina.projects.BuildOptions {
 
-        private BuildOptions() {}
+        private BuildOptions() {
+        }
 
         public void setObservabilityEnabled(boolean observabilityEnabled) {
             this.observabilityIncluded = observabilityEnabled;

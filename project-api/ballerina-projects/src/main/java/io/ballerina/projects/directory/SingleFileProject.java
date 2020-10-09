@@ -18,6 +18,10 @@
 package io.ballerina.projects.directory;
 
 import io.ballerina.projects.PackageConfig;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.utils.ProjectConstants;
@@ -26,6 +30,7 @@ import io.ballerina.projects.utils.ProjectUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -54,7 +59,7 @@ public class SingleFileProject extends Project {
         super(BuildEnvContext.getInstance());
 
         this.sourceRoot = createTempProjectRoot(); // create a temp directory and assign to source root
-        addPackage(projectPath.toString());
+        addPackage(projectPath);
         this.setBuildOptions(new BuildOptions()); // Set default build options
     }
 
@@ -71,8 +76,13 @@ public class SingleFileProject extends Project {
      *
      * @param projectPath project path
      */
-    private void addPackage(String projectPath) {
-        final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, true);
+    private void addPackage(Path projectPath) {
+        PackageName packageName = PackageName.from(".");
+        PackageOrg packageOrg = PackageOrg.from(System.getProperty("user.name"));
+        PackageVersion packageVersion = PackageVersion.from("0.0.0");
+        PackageDescriptor packageDescriptor = new PackageDescriptor(packageName,
+                packageOrg, packageVersion, Collections.emptyList());
+        final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, true, packageDescriptor);
         this.addPackage(packageConfig);
     }
 
