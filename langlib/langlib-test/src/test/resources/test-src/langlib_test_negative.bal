@@ -19,18 +19,23 @@ public function testDiagnostics() {
     var s = words.'map(s => s.toLowerAscii()).indexOf("bear");
 }
 
-json j = {name: "apple", color: "red", price: [1.22, 4, 3.5], quality: true};
+json j = {
+    name: "apple", 
+    color: "red", 
+    price: [
+        1.22,
+        4, 
+        3.5
+        ], 
+    quality: true
+    };
 
 function testRequiredTypeWithArray() returns error? {
     float[] age = check j.price;
 }
 
-function testRequiredTypeWithBoolean() returns error? {
-    boolean age = check j.quality;
-}
-
 function testRequiredTypeWithUnion1() returns error? {
-    int|string|boolean name = check j.name;
+    int|string|float[] name = check j.name;
 }
 
 function assertEquality(any|error expected, any|error actual) {
