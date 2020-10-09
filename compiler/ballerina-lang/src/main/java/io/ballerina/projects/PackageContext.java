@@ -147,6 +147,11 @@ class PackageContext {
                 moduleId -> new ModuleCompilation(this, moduleContext));
     }
 
+    PackageCompilation getPackageCompilation() {
+        // TODO - cache the package compilation?
+        return new PackageCompilation(this);
+    }
+
     Collection<PackageDependency> packageDependencies() {
         return packageDependencies;
     }
