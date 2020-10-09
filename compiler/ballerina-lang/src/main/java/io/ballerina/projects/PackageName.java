@@ -50,6 +50,10 @@ public class PackageName {
         return packageNameStr.equals(that.packageNameStr);
     }
 
+    public String value() {
+        return packageNameStr;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(packageNameStr);
