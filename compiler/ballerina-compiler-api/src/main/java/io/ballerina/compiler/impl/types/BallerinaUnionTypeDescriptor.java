@@ -43,7 +43,7 @@ public class BallerinaUnionTypeDescriptor extends AbstractTypeDescriptor impleme
     }
 
     @Override
-    public List<BallerinaTypeDescriptor> getMemberTypes() {
+    public List<BallerinaTypeDescriptor> memberTypeDescriptors() {
         if (this.memberTypes == null) {
             this.memberTypes = new ArrayList<>();
             for (BType memberType : ((BUnionType) this.getBType()).getMemberTypes()) {
@@ -56,7 +56,7 @@ public class BallerinaUnionTypeDescriptor extends AbstractTypeDescriptor impleme
     @Override
     public String signature() {
         StringJoiner joiner = new StringJoiner("|");
-        this.getMemberTypes().forEach(typeDescriptor -> joiner.add(typeDescriptor.signature()));
+        this.memberTypeDescriptors().forEach(typeDescriptor -> joiner.add(typeDescriptor.signature()));
         return joiner.toString();
     }
 }

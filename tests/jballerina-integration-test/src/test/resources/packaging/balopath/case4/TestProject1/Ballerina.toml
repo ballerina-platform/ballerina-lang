@@ -3,7 +3,7 @@ org-name = "bcintegrationtest"
 version = "1.2.0"
 
 [platform]
-target = "java8"
+target = "java11"
 
     [[platform.libraries]]
     artifactId = "utils"

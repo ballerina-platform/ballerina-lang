@@ -26,8 +26,10 @@ import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
 /**
@@ -53,8 +55,9 @@ public class SuspendedContext {
         this.owningThread = threadRef;
         this.frame = frame;
         this.projectRoot = projectRoot;
-        this.sourceType = projectRoot != null ? DebugSourceType.MODULE : DebugSourceType.SINGLE_FILE;
         this.breakPointSourcePath = getSourcePath(frame, projectRoot);
+        this.sourceType = findProjectRoot(Paths.get(breakPointSourcePath)) != null ? DebugSourceType.MODULE :
+                DebugSourceType.SINGLE_FILE;
         this.fileName = getFileNameFrom(this.breakPointSourcePath);
     }
 

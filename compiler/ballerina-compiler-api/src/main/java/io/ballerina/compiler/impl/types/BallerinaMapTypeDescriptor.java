@@ -40,7 +40,7 @@ public class BallerinaMapTypeDescriptor extends AbstractTypeDescriptor implement
     }
 
     @Override
-    public Optional<BallerinaTypeDescriptor> getMemberTypeDescriptor() {
+    public Optional<BallerinaTypeDescriptor> typeParameter() {
         if (this.memberTypeDesc == null) {
             this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BMapType) this.getBType()).constraint);
         }
@@ -49,7 +49,7 @@ public class BallerinaMapTypeDescriptor extends AbstractTypeDescriptor implement
 
     @Override
     public String signature() {
-        Optional<BallerinaTypeDescriptor> memberTypeDescriptor = this.getMemberTypeDescriptor();
+        Optional<BallerinaTypeDescriptor> memberTypeDescriptor = this.typeParameter();
         return memberTypeDescriptor.map(typeDescriptor -> "map<" + typeDescriptor.signature() + ">").orElse("map<>");
     }
 }

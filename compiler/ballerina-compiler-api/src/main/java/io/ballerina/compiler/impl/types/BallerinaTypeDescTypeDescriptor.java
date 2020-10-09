@@ -40,7 +40,7 @@ public class BallerinaTypeDescTypeDescriptor extends AbstractTypeDescriptor impl
     }
 
     @Override
-    public Optional<BallerinaTypeDescriptor> getTypeParameter() {
+    public Optional<BallerinaTypeDescriptor> typeParameter() {
         if (this.typeParameter == null) {
             this.typeParameter = TypesFactory.getTypeDescriptor(((BTypedescType) this.getBType()).constraint);
         }
@@ -50,8 +50,8 @@ public class BallerinaTypeDescTypeDescriptor extends AbstractTypeDescriptor impl
 
     @Override
     public String signature() {
-        if (this.getTypeParameter().isPresent()) {
-            return this.kind().name() + "<" + this.getTypeParameter().get().signature() + ">";
+        if (this.typeParameter().isPresent()) {
+            return this.kind().name() + "<" + this.typeParameter().get().signature() + ">";
         }
         return this.kind().name();
     }

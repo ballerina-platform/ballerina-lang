@@ -9,7 +9,7 @@ import static io.ballerina.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
  */
 public class DebugUtils {
 
-    private static final String DEBUG_ARGS_JAVA8 = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y";
+    private static final String DEBUG_ARGS_JAVA11 = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y";
     private static final String JAVA_VERSION_PROP = "java.version";
     private static final String COMPATIBLE_JRE_VERSION = "1.8";
 
@@ -36,6 +36,6 @@ public class DebugUtils {
             context.err().printf("WARNING: Incompatible JRE version '%s' found. Ballerina program debugging supports " +
                     "on JRE version '%s'%n", javaVersion, COMPATIBLE_JRE_VERSION);
         }
-        return String.format("%s,address=%s", DEBUG_ARGS_JAVA8, System.getProperty(SYSTEM_PROP_BAL_DEBUG));
+        return String.format("%s,address=%s", DEBUG_ARGS_JAVA11, System.getProperty(SYSTEM_PROP_BAL_DEBUG));
     }
 }
