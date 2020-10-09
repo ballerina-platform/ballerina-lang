@@ -66,9 +66,21 @@ public class ModuleCompilation {
         return new DependencyGraph<>(dependencyIdMap);
     }
 
-    void addModuleDependencies(ModuleId moduleId, Map<ModuleId, Set<ModuleId>> dependencyIdMap) {
+    private void addModuleDependencies(ModuleId moduleId, Map<ModuleId, Set<ModuleId>> dependencyIdMap) {
         Package pkg = packageResolver.getPackage(moduleId.packageId());
         Collection<ModuleId> directDependencies = pkg.moduleDependencyGraph().getDirectDependencies(moduleId);
+
+        ModuleContext moduleContext = pkg.packageContext().moduleContext(moduleId);
+        for (ModuleDependency moduleDependency : moduleContext.dependencies()) {
+            PackageId packageId = moduleDependency.packageDependency().packageId();
+            if (packageId == pkg.packageId()) {
+                continue;
+            }
+            ModuleId dependentModuleId = moduleDependency.moduleId();
+            directDependencies.add(dependentModuleId);
+            addModuleDependencies(dependentModuleId, dependencyIdMap);
+        }
+
         dependencyIdMap.put(moduleId, new HashSet<>(directDependencies));
         for (ModuleId depModuleId : directDependencies) {
             addModuleDependencies(depModuleId, dependencyIdMap);
