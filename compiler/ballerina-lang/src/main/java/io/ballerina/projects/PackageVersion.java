@@ -25,15 +25,24 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class PackageVersion {
-    private final String packageVersionStr;
+    private final SemanticVersion version;
 
-    private PackageVersion(String packageVersionStr) {
-        this.packageVersionStr = packageVersionStr;
+    private PackageVersion(SemanticVersion version) {
+        this.version = version;
     }
 
-    public static PackageVersion from(String packageNameStr) {
+    public static PackageVersion from(String versionString) {
         // TODO Check whether the packageOrg is a valid Ballerina identifier
-        return new PackageVersion(packageNameStr);
+        return PackageVersion.from(SemanticVersion.from(versionString));
+    }
+
+    public static PackageVersion from(SemanticVersion version) {
+        // TODO Check whether the packageOrg is a valid Ballerina identifier
+        return new PackageVersion(version);
+    }
+
+    public SemanticVersion version() {
+        return this.version;
     }
 
     @Override
@@ -47,16 +56,16 @@ public class PackageVersion {
         }
 
         PackageVersion that = (PackageVersion) o;
-        return packageVersionStr.equals(that.packageVersionStr);
+        return version.equals(that.version);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(packageVersionStr);
+        return Objects.hash(version);
     }
 
     @Override
     public String toString() {
-        return packageVersionStr;
+        return version.toString();
     }
 }
