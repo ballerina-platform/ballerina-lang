@@ -27,9 +27,9 @@ import java.util.Optional;
 public interface FutureTypeDescriptor extends BallerinaTypeDescriptor {
 
     /**
-     * Get the member type descriptor.
+     * Get the type descriptor by which the future is constrained.
      *
-     * @return {@link Optional} member type descriptor
+     * @return {@link Optional} constraining type descriptor
      */
-    Optional<BallerinaTypeDescriptor> memberTypeDescriptor();
+    Optional<BallerinaTypeDescriptor> typeParameter();
 }
