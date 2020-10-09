@@ -20,33 +20,20 @@ package org.ballerinalang.langlib.transaction;
 
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
-
 /**
  * Extern function transaction:getHostAddress.
  *
  * @since 2.0.0-preview1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "getHostAddress",
-        args = {},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class GetHostAddress {
 
-    public static BString getHostAddress(Strand strand) {
+    public static BString getHostAddress() {
         return BStringUtils.fromString(getLocalHostLANAddress().getHostAddress());
     }
 

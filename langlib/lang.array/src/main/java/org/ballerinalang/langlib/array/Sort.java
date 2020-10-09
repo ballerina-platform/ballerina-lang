@@ -21,7 +21,7 @@ package org.ballerinalang.langlib.array;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BType;
@@ -29,10 +29,6 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -42,23 +38,15 @@ import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_TYPE_TO_SORT;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:sort((any|error)[], direction, function).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "sort",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "direction", type = TypeKind.OBJECT),
-                @Argument(name = "func", type = TypeKind.OBJECT)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-        isPublic = true
-)
 public class Sort {
 
-    public static ArrayValue sort(Strand strand, ArrayValue arr, Object direction, Object func) {
+    public static ArrayValue sort(ArrayValue arr, Object direction, Object func) {
         checkIsArrayOnlyOperation(arr.getType(), "sort()");
         FPValue<Object, Object> function = (FPValue<Object, Object>) func;
         BType elemType = ((BArrayType) arr.getType()).getElementType();
@@ -73,7 +61,7 @@ public class Sort {
             boolean elementTypeIdentified = false;
             elemType = ((BFunctionType) function.getType()).retType;
             for (int i = 0; i < arr.size(); i++) {
-                sortArr[i][0] = function.call(new Object[]{strand, arr.get(i), true});
+                sortArr[i][0] = function.call(new Object[]{Scheduler.getStrand(), arr.get(i), true});
                 // Get the type of the sortArr elements when there is an arrow expression as the key function
                 if (!elementTypeIdentified && elemType.getTag() == TypeTags.UNION_TAG &&
                         ((BUnionType) elemType).getMemberTypes().size() > 2) {

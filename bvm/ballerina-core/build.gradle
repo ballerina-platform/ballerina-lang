@@ -29,22 +29,38 @@ dependencies {
     implementation 'io.netty:netty-buffer'
     implementation 'io.netty:netty-common'
     implementation 'io.netty:netty-codec-http'
-    implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
-    implementation 'org.apache.ws.commons.axiom:axiom-api'
-    implementation 'org.apache.ws.commons.axiom:axiom-impl'
-    implementation 'org.apache.ws.commons.axiom:axiom-dom'
-    implementation 'org.apache.ws.commons.axiom:axiom-c14n'
-    implementation 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec'
-    implementation 'org.wso2.staxon:staxon-core'
-    implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
-    implementation 'org.codehaus.woodstox:stax2-api:4.2'
+    //implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
+    implementation ('org.apache.ws.commons.axiom:axiom-api') {
+        exclude group: 'org.apache.geronimo.specs', module: 'geronimo-stax-api_1.0_spec'
+        exclude group: 'jaxen', module: 'jaxen'
+    }
+    implementation ('org.apache.ws.commons.axiom:axiom-impl') {
+        exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-api'
+    }
+//    implementation ('org.apache.ws.commons.axiom:axiom-dom') {
+//        exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-api'
+//    }
+    implementation ('org.apache.ws.commons.axiom:axiom-c14n') {
+        exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-api'
+        exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-impl'
+    }
+    //implementation 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec'
+    //implementation 'org.wso2.staxon:staxon-core'
+    implementation ('org.codehaus.woodstox:woodstox-core-asl:4.4.1') {
+        exclude group: 'javax.xml.stream', module: 'stax-api'
+        exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
+    }
+    //implementation 'org.codehaus.woodstox:stax2-api:4.2'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'javax.transaction:javax.transaction-api'
-    implementation 'io.ballerina.messaging:broker-common'
-    implementation 'io.ballerina.messaging:broker-core'
+//    implementation 'io.ballerina.messaging:broker-common'
+//    implementation 'io.ballerina.messaging:broker-core'
     implementation 'io.opentracing:opentracing-api'
     implementation 'io.opentracing:opentracing-util'
-    implementation 'org.awaitility:awaitility'
+    implementation ('org.awaitility:awaitility') {
+        exclude group: 'org.hamcrest', module: 'hamcrest-library'
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
     implementation 'com.zaxxer:HikariCP'
     implementation 'org.slf4j:slf4j-jdk14'
     implementation 'commons-codec:commons-codec'
@@ -62,7 +78,19 @@ configurations {
 }
 
 serviceLoaderBuild {
-    inputs.files(sourceSets.main.java);
+    inputs.files(sourceSets.main.java)
     outputs.dir("$buildDir/resources/main/META-INF/services/")
     outputs.cacheIf { true }
+}
+
+ext.moduleName = 'ballerina.core'
+
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
 }

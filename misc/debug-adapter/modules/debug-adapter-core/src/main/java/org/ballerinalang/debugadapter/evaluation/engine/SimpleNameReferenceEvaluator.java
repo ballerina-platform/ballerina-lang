@@ -18,7 +18,7 @@ package org.ballerinalang.debugadapter.evaluation.engine;
 
 import com.sun.jdi.Field;
 import com.sun.jdi.ReferenceType;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
