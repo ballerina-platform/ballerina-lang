@@ -12674,7 +12674,7 @@ public class BallerinaParser extends AbstractParser {
                 typeOrExpr = parseQualifiedIdentifier(ParserRuleContext.TYPE_NAME_OR_VAR_NAME);
                 return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
             case OPEN_BRACKET_TOKEN:
-                typeOrExpr = parseTypedDescOrExprStartsWithOpenBracket();
+                typeOrExpr = parseTupleTypeDescOrExprStartsWithOpenBracket();
                 return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
             case ISOLATED_KEYWORD:
                 if (isFuncDefOrFuncTypeStart()) {
@@ -12883,7 +12883,7 @@ public class BallerinaParser extends AbstractParser {
                 typeOrExpr = parseQualifiedIdentifier(ParserRuleContext.TYPE_NAME_OR_VAR_NAME);
                 return parseTypeDescOrExprRhs(typeOrExpr);
             case OPEN_BRACKET_TOKEN:
-                typeOrExpr = parseTypedDescOrExprStartsWithOpenBracket();
+                typeOrExpr = parseTupleTypeDescOrExprStartsWithOpenBracket();
                 break;
             case ISOLATED_KEYWORD:
                 if (isFuncDefOrFuncTypeStart()) {
@@ -12907,7 +12907,6 @@ public class BallerinaParser extends AbstractParser {
                 if (isValidExpressionStart(nextToken.kind, 1)) {
                     return parseActionOrExpressionInLhs(STNodeFactory.createEmptyNodeList());
                 }
-
                 return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
         }
 
@@ -13175,13 +13174,19 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseTypedDescOrExprStartsWithOpenBracket() {
+    private STNode parseTupleTypeDescOrExprStartsWithOpenBracket() {
         startContext(ParserRuleContext.BRACKETED_LIST);
         STNode openBracket = parseOpenBracket();
         List<STNode> members = new ArrayList<>();
         STNode memberEnd;
         while (!isEndOfListConstructor(peek().kind)) {
             STNode expr = parseTypeDescOrExpr();
+            // Tuple type desc can contain rest descriptor which is not a regular type desc,
+            // hence handle it here.
+            if (peek().kind == SyntaxKind.ELLIPSIS_TOKEN && isDefiniteTypeDesc(expr.kind)) {
+                STNode ellipsis = consume();
+                expr = STNodeFactory.createRestDescriptorNode(expr, ellipsis);
+            }
             members.add(expr);
 
             memberEnd = parseBracketedListMemberEnd();
