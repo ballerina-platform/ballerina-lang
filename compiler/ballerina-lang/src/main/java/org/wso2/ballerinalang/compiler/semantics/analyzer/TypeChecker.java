@@ -4506,7 +4506,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr) {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
-        boolean firstVisit = checkedExpr.expr.type == null;
+        BLangExpression exprWithCheckingKeyword = checkedExpr.expr;
+        boolean firstVisit = exprWithCheckingKeyword.type == null;
         BType exprExpType;
         if (expType == symTable.noType) {
             exprExpType = symTable.noType;
@@ -4514,17 +4515,17 @@ public class TypeChecker extends BLangNodeVisitor {
             exprExpType = BUnionType.create(null, expType, symTable.errorType);
         }
 
-        if (checkedExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                checkedExpr.getKind() == NodeKind.CHECK_EXPR && types.isUnionOfSimpleBasicTypes(expType)) {
+        if (exprWithCheckingKeyword.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                operatorType.equals("check") && types.isUnionOfSimpleBasicTypes(expType)) {
             ArrayList<BLangExpression> argExprs = new ArrayList<>();
             BType typedescType = new BTypedescType(expType, null);
             BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
             typedescExpr.resolvedType = expType;
             typedescExpr.type = typedescType;
-            argExprs.add(checkedExpr.expr);
+            argExprs.add(exprWithCheckingKeyword);
             argExprs.add(typedescExpr);
             BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_REQUIRE_TYPE,
-                    argExprs, checkedExpr.expr, checkedExpr.pos);
+                    argExprs, exprWithCheckingKeyword, checkedExpr.pos);
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(exprExpType,
                     names.fromString(invocation.name.value));
             BInvokableType bInvokableType = (BInvokableType) invokableSymbol.type;
