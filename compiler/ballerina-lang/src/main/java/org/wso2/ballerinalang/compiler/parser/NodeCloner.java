@@ -739,7 +739,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangListMatchPattern clone = new BLangListMatchPattern();
         source.cloneRef = clone;
         clone.matchExpr = source.matchExpr;
-        clone.setRestMatchPattern(source.getRestMatchPattern());
+        clone.restMatchPattern = clone(source.restMatchPattern);
         clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
         clone.matchPatterns = cloneList(source.matchPatterns);
         clone.declaredVars = source.declaredVars;

@@ -37,7 +37,6 @@ import java.util.Map;
 public class BLangListMatchPattern extends BLangMatchPattern implements ListMatchPatternNode {
     public List<BLangMatchPattern> matchPatterns = new ArrayList<>();
     public BLangRestMatchPattern restMatchPattern;
-//    public Map<String, BVarSymbol> declaredVars = new HashMap<>();
 
     @Override
     public List<? extends MatchPatternNode> getMatchPatterns() {

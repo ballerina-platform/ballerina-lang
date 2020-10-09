@@ -846,7 +846,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
-        Map<String, BVarSymbol> declaredVarsInMatchPattern = new HashMap<>();
+        Map<String, BVarSymbol> variablesInMatchPattern = new HashMap<>();
         boolean patternListContainsSameVars = true;
 
         for (BLangMatchPattern matchPattern : matchClause.matchPatterns) {
@@ -857,7 +857,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 dlog.error(matchClause.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
             }
             if (patternListContainsSameVars) {
-                patternListContainsSameVars = containsAllDeclaredVars(declaredVarsInMatchPattern, matchPattern);
+                patternListContainsSameVars = compareVariables(variablesInMatchPattern, matchPattern);
             }
 
             this.isJSONContext = types.isJSONContext(matchExprType);
@@ -868,21 +868,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!patternListContainsSameVars) {
             dlog.error(matchClause.pos, DiagnosticCode.MATCH_PATTERNS_SHOULD_CONTAIN_SAME_SET_OF_VARIABLES);
         }
+        matchClause.declaredVars.putAll(matchClause.matchPatterns.get(0).declaredVars);
 
         analyzeNode(matchClause.blockStmt, env);
         resetStatementReturns();
     }
 
-    private boolean containsAllDeclaredVars(Map<String, BVarSymbol> varsInPreviousMatchPattern,
-                                                      BLangMatchPattern matchPattern) {
+    private boolean compareVariables(Map<String, BVarSymbol> varsInPreviousMatchPattern,
+                                     BLangMatchPattern matchPattern) {
         NodeKind patternKind = matchPattern.getKind();
         Map<String, BVarSymbol> varsInCurrentMatchPattern;
         switch (patternKind) {
             case VAR_BINDING_PATTERN_MATCH_PATTERN:
-                varsInCurrentMatchPattern = ((BLangVarBindingPatternMatchPattern) matchPattern).declaredVars;
-                break;
             case LIST_MATCH_PATTERN:
-                varsInCurrentMatchPattern = ((BLangListMatchPattern) matchPattern).declaredVars;
+                varsInCurrentMatchPattern = matchPattern.declaredVars;
                 break;
             default:
                 return true;

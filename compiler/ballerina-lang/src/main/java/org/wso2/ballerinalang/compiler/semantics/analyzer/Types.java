@@ -287,14 +287,10 @@ public class Types {
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BType listMatchPatternType,
-                                                 BLangListMatchPattern listMatchPattern) {
-
-        if (isAssignable(listMatchPatternType, matchExprType)) {
-            return listMatchPatternType;
-        }
-        if (isAssignable(matchExprType, listMatchPatternType)) {
-            return matchExprType;
+    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BType listMatchPatternType) {
+        BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType);
+        if (intersectionType != symTable.semanticError) {
+            return intersectionType;
         }
         return symTable.noType;
     }
@@ -353,7 +349,7 @@ public class Types {
         return symTable.noType;
     }
 
-    public boolean containsAnyType(BType type) {
+    private boolean containsAnyType(BType type) {
         if (type.tag != TypeTags.UNION) {
             return type.tag == TypeTags.ANY;
         }
@@ -364,6 +360,16 @@ public class Types {
             }
         }
         return false;
+    }
+
+    public BType mergeTypes(BType typeFirst, BType typeSecond) {
+        if (containsAnyType(typeFirst)) {
+            return typeSecond;
+        }
+        if (isSameBasicType(typeFirst, typeSecond)) {
+            return typeFirst;
+        }
+        return BUnionType.create(null, typeFirst, typeSecond);
     }
 
     public boolean isSubTypeOfMapping(BType type) {
