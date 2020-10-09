@@ -38,6 +38,7 @@ import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
@@ -230,6 +231,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private static final String FUNCTION_NAME_POP = "pop";
     private static final String FUNCTION_NAME_SHIFT = "shift";
     private static final String FUNCTION_NAME_UNSHIFT = "unshift";
+    private static final String FUNCTION_NAME_REQUIRE_TYPE = "requireType";
 
     private Names names;
     private SymbolTable symTable;
@@ -3627,6 +3629,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypedescExpr accessExpr) {
+        if (accessExpr.typeNode == null) {
+            return;
+        }
+
         accessExpr.resolvedType = symResolver.resolveTypeNode(accessExpr.typeNode, env);
         int resolveTypeTag = accessExpr.resolvedType.tag;
         final BType actualType;
@@ -4502,14 +4508,30 @@ public class TypeChecker extends BLangNodeVisitor {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         boolean firstVisit = checkedExpr.expr.type == null;
         BType exprExpType;
-        if (checkedExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                checkedExpr.getKind() == NodeKind.CHECK_EXPR) {
-            ((BLangFieldBasedAccess) checkedExpr.expr).isWithCheckExpr = true;
-        }
         if (expType == symTable.noType) {
             exprExpType = symTable.noType;
         } else {
             exprExpType = BUnionType.create(null, expType, symTable.errorType);
+        }
+
+        if (checkedExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                checkedExpr.getKind() == NodeKind.CHECK_EXPR && types.isUnionOfSimpleBasicTypes(expType)) {
+            ArrayList<BLangExpression> argExprs = new ArrayList<>();
+            BType typedescType = new BTypedescType(expType, null);
+            BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+            typedescExpr.resolvedType = expType;
+            typedescExpr.type = typedescType;
+            argExprs.add(checkedExpr.expr);
+            argExprs.add(typedescExpr);
+            BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_REQUIRE_TYPE,
+                    argExprs, checkedExpr.expr, checkedExpr.pos);
+            BInvokableSymbol invokableSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(exprExpType,
+                    names.fromString(invocation.name.value));
+            BInvokableType bInvokableType = (BInvokableType) invokableSymbol.type;
+            bInvokableType.retType = exprExpType;
+            invocation.symbol = invokableSymbol;
+            invocation.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            checkedExpr.expr = invocation;
         }
 
         BType exprType = checkExpr(checkedExpr.expr, env, exprExpType);
@@ -6162,36 +6184,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (fieldAccessExpr.fieldKind == FieldKind.WITH_NS) {
                 resolveXMLNamespace((BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) fieldAccessExpr);
             }
-
-            BType laxFieldAccessType;
-            if (fieldAccessExpr.isWithCheckExpr && fieldAccessExpr.expectedType.tag != TypeTags.NONE) {
-                BUnionType unionType = (BUnionType) fieldAccessExpr.expectedType;
-                // Filter out the list of types which are not equivalent with the error type.
-                List<BType> expectedTypes = new ArrayList<>();
-                for (BType type : unionType.getMemberTypes()) {
-                    if (symTable.errorType != type) {
-                        expectedTypes.add(type);
-                    }
-                }
-                boolean isConvertible = true;
-                for (BType expectedType : expectedTypes) {
-                    if (!((expectedType.tag != TypeTags.BOOLEAN && types.isSimpleBasicType(expectedType.tag))
-                            || expectedType.tag == TypeTags.JSON)) {
-                        isConvertible = false;
-                        break;
-                    }
-                }
-                BUnionType expectType = BUnionType.create(null, new LinkedHashSet<>(expectedTypes));
-                if (isConvertible) {
-                    laxFieldAccessType = expectType;
-                } else {
-                    dlog.error(fieldAccessExpr.pos,
-                            DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_ASSIGNMENT, expectType);
-                    return symTable.semanticError;
-                }
-            } else {
-                laxFieldAccessType = getLaxFieldAccessType(varRefType);
-            }
+            BType laxFieldAccessType = getLaxFieldAccessType(varRefType);
             actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
             fieldAccessExpr.originalType = laxFieldAccessType;
         } else if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&

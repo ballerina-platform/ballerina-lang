@@ -19,6 +19,7 @@ package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 
@@ -30,7 +31,7 @@ import org.ballerinalang.jvm.values.TypedescValue;
 
 public class RequireType {
     public static Object requireType(Object value, TypedescValue type) {
-        if (value instanceof ErrorValue) {
+        if (TypeChecker.getType(value).getTag() == TypeTags.ERROR_TAG) {
             return value;
         }
         return convert(type.getDescribingType(), value);

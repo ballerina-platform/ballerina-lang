@@ -183,7 +183,7 @@ public class ASTBuilderUtil {
         return bLangFunction;
     }
 
-    static BLangType createTypeNode(BType type) {
+    public static BLangType createTypeNode(BType type) {
         BLangType bLangType = new BLangType() {
             @Override
             public void accept(BLangNodeVisitor visitor) {
@@ -452,6 +452,18 @@ public class ASTBuilderUtil {
         invokeLambda.symbol = invokableSymbol;
         invokeLambda.type = ((BInvokableType) invokableSymbol.type).retType;
         return invokeLambda;
+    }
+
+    public static BLangInvocation createLangLibInvocationNode(String name, ArrayList<BLangExpression> argExprs,
+                                                              BLangExpression onExpr, DiagnosticPos pos) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.name = createIdentifier(pos, name);
+        invocationNode.expr = onExpr;
+        invocationNode.pos = pos;
+        invocationNode.argExprs = argExprs;
+        invocationNode.langLibInvocation = true;
+
+        return invocationNode;
     }
 
     static BLangInvocation createInvocationExprForMethod(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
