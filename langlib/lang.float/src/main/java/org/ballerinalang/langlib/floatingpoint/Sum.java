@@ -18,31 +18,22 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.FLOAT_VERSION;
-
 /**
  * Native implementation of lang.float:sum(float...).
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", version = FLOAT_VERSION, functionName = "sum",
-        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.FLOAT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.float", functionName = "sum",
+//        args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.FLOAT)},
+//        isPublic = true
+//)
 public class Sum {
 
-    public static double sum(Strand strand, ArrayValue ns) {
+    public static double sum(double[] ns) {
         double sum = 0;
-        int size = ns.size();
+        int size = ns.length;
         for (int i = 0; i < size; i++) {
-            sum += ns.getFloat(i);
+            sum += ns[i];
         }
         return sum;
     }

@@ -18,9 +18,9 @@
  */
 package org.ballerinalang.test.statements.matchstmt;
 
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -198,7 +198,7 @@ public class MatchStructuredRecordPatternsTest {
     }
 
     // TODO : Syntax used in test case should be invalid per spec. Please refer git issue #16961.
-    @Test(description = "Test structured pattern with closed record")
+    @Test(description = "Test structured pattern with closed record", enabled = false)
     public void testClosedRecord() {
         BValue[] returns = BRunUtil.invoke(result, "testClosedRecord", new BValue[]{});
         Assert.assertEquals(returns.length, 1);

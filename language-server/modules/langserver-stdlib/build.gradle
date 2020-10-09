@@ -29,7 +29,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
 
     baloCreat project(':lib-creator')
     implementation project(':ballerina-runtime')

@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.types.bytetype;
 
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;

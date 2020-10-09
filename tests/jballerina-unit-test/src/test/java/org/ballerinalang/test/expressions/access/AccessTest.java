@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.test.expressions.access;
 
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -56,7 +56,7 @@ public class AccessTest {
         validateError(negativeResult, i, "invalid operation: type 'Delta?' does not support indexing", 70, 17);
     }
 
-    @Test(dataProvider = "fieldAndOptionalFieldAccessFunctions")
+    @Test(dataProvider = "fieldAndOptionalFieldAccessFunctions", enabled = false)
     public void testFieldAndOptionalFieldAccess(String function) {
         BValue[] returns = BRunUtil.invoke(result, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());

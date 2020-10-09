@@ -20,28 +20,15 @@ package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 
 /**
  * Extern function lang.string:startsWith(string, string).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "fromCodePointInt",
-        args = {@Argument(name = "codePoint", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
 public class FromCodePointInt {
 
-    public static Object fromCodePointInt(Strand strand, long codePoint) {
+    public static Object fromCodePointInt(long codePoint) {
         try {
             StringBuilder builder = new StringBuilder();
             builder.appendCodePoint(((Long) codePoint).intValue());

@@ -186,7 +186,7 @@ public class PackagingNegativeTestCase extends BaseTest {
 
     @Test(description = "Pull a non-existing module")
     public void testPullNonExistingPackage() throws Exception {
-        String msg = "error: module not found: natasha/nomodule:*_java8 or natasha/nomodule:*_any";
+        String msg = "error: module not found: natasha/nomodule:*_java11 or natasha/nomodule:*_any";
         LogLeecher leecher = new LogLeecher(msg, LogLeecher.LeecherType.ERROR);
         balClient.runMain("pull", new String[]{"natasha/nomodule"}, envVariables, new String[0],
                 new LogLeecher[]{leecher}, balServer.getServerHome());

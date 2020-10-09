@@ -18,6 +18,15 @@
               "kind": "LIST",
               "children": [
                 {
+                  "kind": "TRANSACTIONAL_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
                   "kind": "ISOLATED_KEYWORD",
                   "trailingMinutiae": [
                     {

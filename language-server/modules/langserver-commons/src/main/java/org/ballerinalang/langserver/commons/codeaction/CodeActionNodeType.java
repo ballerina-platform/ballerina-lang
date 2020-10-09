@@ -23,9 +23,11 @@ package org.ballerinalang.langserver.commons.codeaction;
 public enum CodeActionNodeType {
     FUNCTION,
     OBJECT_FUNCTION,
+    CLASS_FUNCTION,
     RESOURCE,
     SERVICE,
     OBJECT,
+    CLASS,
     RECORD,
     IMPORTS,
     NONE;
