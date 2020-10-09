@@ -220,7 +220,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean inferredIsolated = true;
     private boolean inLockStatement = false;
     private Map<BSymbol, List<BLangSimpleVarRef>> references = new HashMap<>();
-    private Stack<CopyInInLockInfo> copyInInLockInfoStack = new Stack<>();
+    private Stack<PotentiallyInvalidExpressionInfo> copyInInLockInfoStack = new Stack<>();
 
     private IsolationAnalyzer(CompilerContext context) {
         context.put(ISOLATION_ANALYZER_KEY, this);
@@ -672,11 +672,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangLock lockNode) {
         boolean prevInLockStatement = this.inLockStatement;
         this.inLockStatement = true;
-        copyInInLockInfoStack.push(new CopyInInLockInfo(env.enclInvokable));
+        copyInInLockInfoStack.push(new PotentiallyInvalidExpressionInfo(env.enclInvokable));
 
         analyzeNode(lockNode.body, SymbolEnv.createLockEnv(lockNode, env));
 
-        CopyInInLockInfo copyInInLockInfo = copyInInLockInfoStack.pop();
+        PotentiallyInvalidExpressionInfo copyInInLockInfo = copyInInLockInfoStack.pop();
 
         this.inLockStatement = prevInLockStatement;
 
@@ -684,11 +684,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             for (BLangSimpleVarRef varRef : copyInInLockInfo.varRefs) {
                 dlog.error(varRef.pos, DiagnosticCode.INVALID_COPY_IN_OF_MUTABLE_VALUE_INTO_ISOLATED_OBJECT);
             }
+
+            for (BLangInvocation invocation : copyInInLockInfo.invocations) {
+                dlog.error(invocation.pos, DiagnosticCode.INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_OBJECT_METHOD);
+            }
+
             return;
         }
 
         for (int i = copyInInLockInfoStack.size() - 1; i >= 0; i--) {
-            CopyInInLockInfo prevCopyInInLockInfo = copyInInLockInfoStack.get(i);
+            PotentiallyInvalidExpressionInfo prevCopyInInLockInfo = copyInInLockInfoStack.get(i);
 
             BLangInvokableNode enclInvokableNode = prevCopyInInLockInfo.enclInvokableNode;
             if (enclInvokableNode.getKind() != NodeKind.FUNCTION) {
@@ -1470,6 +1475,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        if (inLockStatement && isInIsolatedObjectMethod(env, true)) {
+            copyInInLockInfoStack.peek().invocations.add(invocationExpr);
+        }
+
         inferredIsolated = false;
 
         if (isInIsolatedFunction(env.enclInvokable)) {
@@ -1780,12 +1789,19 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return isInvalidCopyIn(varRefExpr, name, symTag, env.enclEnv);
     }
 
-    private static class CopyInInLockInfo {
+    /**
+     * For isolated objects, invalid copy ins and non-isolated invocations should result in compilation errors if
+     * they happen in a lock statement accessing a mutable field of the object. This class holds potentially
+     * erroneous expression per lock statement, and whether or not the lock statement accesses a mutable field.
+     */
+    private static class PotentiallyInvalidExpressionInfo {
         BLangInvokableNode enclInvokableNode;
         boolean hasMutableAccessInLock = false;
-        List<BLangSimpleVarRef> varRefs = new ArrayList<>();
 
-        private CopyInInLockInfo(BLangInvokableNode enclInvokableNode) {
+        List<BLangSimpleVarRef> varRefs = new ArrayList<>();
+        List<BLangInvocation> invocations = new ArrayList<>();
+
+        private PotentiallyInvalidExpressionInfo(BLangInvokableNode enclInvokableNode) {
             this.enclInvokableNode = enclInvokableNode;
         }
     }

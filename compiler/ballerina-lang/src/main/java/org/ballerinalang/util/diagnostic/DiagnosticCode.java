@@ -607,6 +607,8 @@ public enum DiagnosticCode {
             "invalid.non.unique.expression.as.initial.value.in.isolated.object"),
     INVALID_COPY_OUT_OF_MUTABLE_VALUE_FROM_ISOLATED_OBJECT("invalid.copy.out.of.mutable.value.from.isolated.object"),
     INVALID_COPY_IN_OF_MUTABLE_VALUE_INTO_ISOLATED_OBJECT("invalid.copy.in.of.mutable.value.into.isolated.object"),
+    INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_OBJECT_METHOD(
+            "invalid.non.isolated.invocation.in.isolated.object.method"),
 
     COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
     ;
