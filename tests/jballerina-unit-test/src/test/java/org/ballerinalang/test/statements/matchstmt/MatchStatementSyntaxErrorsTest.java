@@ -40,10 +40,11 @@ public class MatchStatementSyntaxErrorsTest {
 
     @Test
     public void testSyntaxErrors() {
-        Assert.assertEquals(result.getErrorCount(), 11);
+        Assert.assertEquals(result.getErrorCount(), 12);
 
         int i = -1;
         BAssertUtil.validateError(result, ++i, "undefined symbol 'v'", 5, 9);
+        BAssertUtil.validateError(result, ++i, "variable 'v' should be declared as constant", 5, 9);
         BAssertUtil.validateError(result, ++i, "missing open brace token", 6, 1);
         BAssertUtil.validateError(result, ++i, "missing right double arrow token", 6, 1);
         BAssertUtil.validateError(result, ++i, "missing close brace token", 8, 1);

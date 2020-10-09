@@ -2384,7 +2384,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         typeChecker.checkExpr(constPatternExpr, env);
         if (constPatternExpr instanceof BLangSimpleVarRef) {
             BLangSimpleVarRef constRef = (BLangSimpleVarRef) constPatternExpr;
-            if (!(constRef.symbol.kind == SymbolKind.CONSTANT)) {
+            if (!(constRef.symbol != null && constRef.symbol.kind == SymbolKind.CONSTANT)) {
                 dlog.error(constMatchPattern.pos, DiagnosticCode.VARIABLE_SHOULD_BE_DECLARED_AS_CONSTANT,
                         constRef.variableName);
             }
