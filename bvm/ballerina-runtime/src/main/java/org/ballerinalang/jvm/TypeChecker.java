@@ -1362,6 +1362,12 @@ public class TypeChecker {
         unresolvedTypes.add(pair);
 
         BObjectType sourceObjectType = (BObjectType) sourceType;
+
+        if (Flags.isFlagOn(targetType.flags, Flags.ISOLATED) &&
+                !Flags.isFlagOn(sourceObjectType.flags, Flags.ISOLATED)) {
+            return false;
+        }
+
         Map<String, BField> targetFields = targetType.getFields();
         Map<String, BField> sourceFields = sourceObjectType.getFields();
         AttachedFunction[] targetFuncs = targetType.getAttachedFunctions();

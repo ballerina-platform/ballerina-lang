@@ -265,6 +265,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         for (BLangClassDefinition classDefinition : pkgNode.classDefinitions) {
+            if (classDefinition.flagSet.contains(Flag.ANONYMOUS) && isIsolated(classDefinition.type.flags)) {
+                // If this is a class definition for an object constructor expression, and the type is `isolated`,
+                // that is due to the expected type being an `isolated` object. We now mark the class definition also
+                // as `isolated`, to enforce the isolation validation.
+                classDefinition.flagSet.add(Flag.ISOLATED);
+                classDefinition.symbol.flags |= Flags.ISOLATED;
+            }
+
             analyzeNode(classDefinition, env);
         }
 
