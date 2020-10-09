@@ -36,9 +36,7 @@ class PackageContext {
     private final Collection<ModuleId> moduleIds;
     private final Project project;
     private final PackageId packageId;
-    private final PackageName packageName;
-    private final PackageOrg packageOrg;
-    private final PackageVersion packageVersion;
+    private final PackageDescriptor packageDescriptor;
     private ModuleContext defaultModuleContext;
     private boolean dependenciesResolved;
 
@@ -48,35 +46,19 @@ class PackageContext {
     // TODO Try to reuse the unaffected compilations if possible
     private final Map<ModuleId, ModuleCompilation> moduleCompilationMap;
 
-    PackageContext(Project project, PackageId packageId, PackageName packageName, PackageOrg packageOrg,
-            PackageVersion packageVersion, Map<ModuleId, ModuleContext> moduleContextMap) {
+    PackageContext(Project project,
+                   PackageId packageId,
+                   PackageDescriptor packageDescriptor,
+                   Map<ModuleId, ModuleContext> moduleContextMap) {
         this.project = project;
         this.packageId = packageId;
-        this.packageName = packageName;
-        this.packageOrg = packageOrg;
-        this.packageVersion = packageVersion;
+        this.packageDescriptor = packageDescriptor;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
         this.moduleContextMap = moduleContextMap;
         // TODO Try to reuse previous unaffected compilations
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
         this.moduleDependencyGraph = DependencyGraph.emptyGraph();
-    }
-
-    private PackageContext(Project project, PackageId packageId, PackageName packageName, PackageOrg packageOrg,
-            PackageVersion packageVersion, Map<ModuleId, ModuleContext> moduleContextMap,
-            Set<PackageDependency> packageDependencies, DependencyGraph<ModuleId> moduleDependencyGraph) {
-        this.project = project;
-        this.packageId = packageId;
-        this.packageName = packageName;
-        this.packageOrg = packageOrg;
-        this.packageVersion = packageVersion;
-        this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
-        this.moduleContextMap = moduleContextMap;
-        // TODO Try to reuse previous unaffected compilations
-        this.moduleCompilationMap = new HashMap<>();
-        this.packageDependencies = Collections.unmodifiableSet(packageDependencies);
-        this.moduleDependencyGraph = moduleDependencyGraph;
     }
 
     static PackageContext from(Project project, PackageConfig packageConfig) {
@@ -86,32 +68,36 @@ class PackageContext {
         }
 
         // Create module dependency graph
-        return new PackageContext(project, packageConfig.packageId(), packageConfig.packageName(),
-                packageConfig.packageOrg(), packageConfig.packageVersion(), moduleContextMap);
+        return new PackageContext(project, packageConfig.packageId(),
+                packageConfig.packageDescriptor(), moduleContextMap);
     }
 
     PackageId packageId() {
-        return this.packageId;
+        return packageId;
     }
 
     PackageName packageName() {
-        return this.packageName;
+        return packageDescriptor.name();
     }
 
     PackageOrg packageOrg() {
-        return this.packageOrg;
+        return packageDescriptor.org();
     }
 
     PackageVersion packageVersion() {
-        return this.packageVersion;
+        return packageDescriptor.version();
+    }
+
+    PackageDescriptor packageDescriptor() {
+        return packageDescriptor;
     }
 
     Collection<ModuleId> moduleIds() {
-        return this.moduleIds;
+        return moduleIds;
     }
 
     ModuleContext moduleContext(ModuleId moduleId) {
-        return this.moduleContextMap.get(moduleId);
+        return moduleContextMap.get(moduleId);
     }
 
     ModuleContext moduleContext(ModuleName moduleName) {

@@ -31,34 +31,26 @@ public class PackageConfig {
 
     // This class should contain Specific project-agnostic information
     private final PackageId packageId;
-    private final PackageName packageName;
-    private final PackageOrg packageOrg;
-    private final PackageVersion packageVersion;
+    private final PackageDescriptor packageDescriptor;
     private final Path packagePath;
     // Ballerina toml file config
     private final Collection<ModuleConfig> otherModules;
 
     private PackageConfig(PackageId packageId,
-                          PackageName packageName,
-                          PackageOrg packageOrg,
-                          PackageVersion packageVersion,
                           Path packagePath,
+                          PackageDescriptor packageDescriptor,
                           Collection<ModuleConfig> moduleConfigs) {
         this.packageId = packageId;
-        this.packageName = packageName;
-        this.packageOrg = packageOrg;
-        this.packageVersion = packageVersion;
         this.packagePath = packagePath;
+        this.packageDescriptor = packageDescriptor;
         this.otherModules = moduleConfigs;
     }
 
     public static PackageConfig from(PackageId packageId,
-                                     PackageName packageName,
-                                     PackageOrg packageOrg,
-                                     PackageVersion packageVersion,
                                      Path packagePath,
+                                     PackageDescriptor packageDescriptor,
                                      Collection<ModuleConfig> moduleConfigs) {
-        return new PackageConfig(packageId, packageName, packageOrg, packageVersion, packagePath, moduleConfigs);
+        return new PackageConfig(packageId, packagePath, packageDescriptor, moduleConfigs);
     }
 
     public PackageId packageId() {
@@ -66,15 +58,19 @@ public class PackageConfig {
     }
 
     public PackageName packageName() {
-        return packageName;
+        return packageDescriptor.name();
     }
 
     public PackageOrg packageOrg() {
-        return packageOrg;
+        return packageDescriptor.org();
     }
 
     public PackageVersion packageVersion() {
-        return packageVersion;
+        return packageDescriptor.version();
+    }
+
+    public PackageDescriptor packageDescriptor() {
+        return packageDescriptor;
     }
 
     // TODO Check whether it makes sense to expose Java Path in the API

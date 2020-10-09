@@ -64,6 +64,10 @@ public class Package {
         return packageContext.packageVersion();
     }
 
+    public PackageDescriptor packageDescriptor() {
+        return packageContext.packageDescriptor();
+    }
+
     public Collection<ModuleId> moduleIds() {
         return this.packageContext.moduleIds();
     }
@@ -159,17 +163,13 @@ public class Package {
      */
     public static class Modifier {
         private PackageId packageId;
-        private PackageName packageName;
-        private PackageOrg packageOrg;
-        private PackageVersion packageVersion;
+        private PackageDescriptor packageDescriptor;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
-            this.packageName = oldPackage.packageName();
-            this.packageOrg = oldPackage.packageOrg();
-            this.packageVersion = oldPackage.packageVersion();
+            this.packageDescriptor = oldPackage.packageDescriptor();
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
         }
@@ -222,7 +222,7 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId,
-                    this.packageName, this.packageOrg, this.packageVersion,  this.moduleContextMap);
+                    this.packageDescriptor, this.moduleContextMap);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
         }
