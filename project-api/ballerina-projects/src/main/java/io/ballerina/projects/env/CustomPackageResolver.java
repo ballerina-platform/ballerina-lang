@@ -65,7 +65,8 @@ public class CustomPackageResolver extends PackageResolver {
                 // TODO load the module from the custom_project_dir
                 module = loadFromCustomProjectDir(modLoadRequest);
             }
-            modLoadResponses.add(new ModuleLoadResponse(currentPkg.packageId(), module.moduleId(), modLoadRequest));
+            modLoadResponses.add(new ModuleLoadResponse(module.packageInstance().packageId(), module.moduleId(),
+                    modLoadRequest));
         }
         return modLoadResponses;
     }
