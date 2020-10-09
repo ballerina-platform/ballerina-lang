@@ -18,14 +18,14 @@
 
 package io.ballerina.projects.importresolver;
 
+import io.ballerina.projects.Document;
+import io.ballerina.projects.Module;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TreeModifier;
-import io.ballerina.projects.Document;
-import io.ballerina.projects.Module;
 
 import java.util.ArrayList;
 import java.util.List;

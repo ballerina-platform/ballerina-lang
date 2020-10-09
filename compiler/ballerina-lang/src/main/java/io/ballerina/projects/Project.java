@@ -48,7 +48,7 @@ public abstract class Project {
     }
 
     public Path sourceRoot() {
-        return sourceRoot;
+        return this.sourceRoot;
     }
 
     public BuildOptions getBuildOptions() {
