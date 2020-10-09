@@ -53,5 +53,5 @@ public interface FunctionTypeDescriptor extends BallerinaTypeDescriptor {
      *
      * @return {@link Optional} return type
      */
-    Optional<BallerinaTypeDescriptor> getReturnType();
+    Optional<BallerinaTypeDescriptor> returnTypeDescriptor();
 }

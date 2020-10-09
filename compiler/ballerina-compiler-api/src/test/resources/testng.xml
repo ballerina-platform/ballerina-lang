@@ -20,11 +20,8 @@
 
 <suite name="ballerina-semantic-api-test-suite">
     <test name="semantic-api-test" parallel="false">
-        <classes>
-            <class name="io.ballerina.semantic.api.test.SymbolLookupTest" />
-            <class name="io.ballerina.semantic.api.test.SymbolAtCursorTest" />
-            <class name="io.ballerina.semantic.api.test.SymbolBIRTest" />
-            <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
-        </classes>
+        <packages>
+            <package name="io.ballerina.semantic.api.test.*" />
+        </packages>
     </test>
 </suite>

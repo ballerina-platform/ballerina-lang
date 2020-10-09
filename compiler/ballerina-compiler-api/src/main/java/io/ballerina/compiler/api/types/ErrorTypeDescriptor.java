@@ -29,5 +29,5 @@ public interface ErrorTypeDescriptor extends BallerinaTypeDescriptor {
      *
      * @return {@link BallerinaTypeDescriptor} detail
      */
-    BallerinaTypeDescriptor getDetail();
+    BallerinaTypeDescriptor detailTypeDescriptor();
 }

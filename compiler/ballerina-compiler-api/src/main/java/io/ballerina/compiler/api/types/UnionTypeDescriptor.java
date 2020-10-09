@@ -31,5 +31,5 @@ public interface UnionTypeDescriptor extends BallerinaTypeDescriptor {
      *
      * @return {@link List} of member types
      */
-    List<BallerinaTypeDescriptor> getMemberTypes();
+    List<BallerinaTypeDescriptor> memberTypeDescriptors();
 }
