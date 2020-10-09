@@ -230,7 +230,7 @@ public isolated function mergeJson(json j1, json j2) returns json|error = @java:
 } external;
 
 # Converts a field in map<json> to a user-specified basic simple type.
-# The basic simple types are ()|int|float|decimal|string.
+# The basic simple types are ()|int|float|decimal|string|boolean.
 # + v - field value of map<json> or json value
 # + t - basic simple type to convert to
 # + return - value belonging to `t`, or error if this cannot be done

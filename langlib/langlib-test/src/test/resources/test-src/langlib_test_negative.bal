@@ -26,9 +26,9 @@ json j = {
         1.22,
         4, 
         3.5
-        ], 
+    ], 
     quality: true
-    };
+};
 
 function testRequiredTypeWithArray() returns error? {
     float[] age = check j.price;

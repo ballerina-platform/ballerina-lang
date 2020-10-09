@@ -1065,7 +1065,7 @@ json  p = {
         "xyz street",
         {province: "southern", Country: "Sri Lanka"},
         81000
-        ],
+    ],
     married: false,
     bloodType: {
         group: "O",

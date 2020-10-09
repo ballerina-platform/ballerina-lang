@@ -183,7 +183,7 @@ public class ASTBuilderUtil {
         return bLangFunction;
     }
 
-    public static BLangType createTypeNode(BType type) {
+    static BLangType createTypeNode(BType type) {
         BLangType bLangType = new BLangType() {
             @Override
             public void accept(BLangNodeVisitor visitor) {
