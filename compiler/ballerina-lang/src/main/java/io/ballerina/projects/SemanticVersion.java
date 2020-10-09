@@ -18,6 +18,8 @@
 package io.ballerina.projects;
 
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Represents a semantic version according to the semvar specification.
@@ -25,6 +27,7 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class SemanticVersion {
+    private static final Pattern pattern = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.)?(\\d*)");
     private final int major;
     private final int minor;
     private final int patch;
@@ -40,7 +43,17 @@ public class SemanticVersion {
     }
 
     public static SemanticVersion from(String versionString) {
-        throw new UnsupportedOperationException("This method is not yet implemented");
+        Matcher matcher = pattern.matcher(versionString);
+        if (!matcher.matches()) {
+            // TODO Proper error handling
+            throw new IllegalArgumentException("Specified version: '" + versionString + "' is not semvar compatible");
+        }
+
+        int major = Integer.parseInt(matcher.group(1));
+        int minor = Integer.parseInt(matcher.group(2));
+        String patchStr = matcher.group(3);
+        int patch = (patchStr != null && !patchStr.isEmpty()) ? Integer.parseInt(patchStr) : 0;
+        return SemanticVersion.from(major, minor, patch);
     }
 
     public int major() {
