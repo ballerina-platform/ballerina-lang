@@ -140,6 +140,9 @@ public class ProjectUtils {
     }
 
     public static String getVersionFromBaloName(String baloName) {
-        return baloName.split("-")[3];
+        // TODO validate this method of getting the version of the balo
+        String versionAndExtension = baloName.split("-")[3];
+        int extensionIndex = versionAndExtension.indexOf(BLANG_COMPILED_PKG_BINARY_EXT);
+        return versionAndExtension.substring(0, extensionIndex);
     }
 }
