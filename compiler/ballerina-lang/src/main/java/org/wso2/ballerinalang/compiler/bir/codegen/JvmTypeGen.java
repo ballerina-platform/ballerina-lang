@@ -350,6 +350,7 @@ class JvmTypeGen {
                     BUnionType unionType = (BUnionType) bType;
                     mv.visitTypeInsn(CHECKCAST, UNION_TYPE);
                     mv.visitInsn(DUP);
+                    mv.visitInsn(DUP);
                     addUnionMembers(mv, unionType.getMemberTypes());
                     addImmutableType(mv, unionType);
                     break;

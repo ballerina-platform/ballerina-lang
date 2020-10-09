@@ -265,9 +265,7 @@ public class SymbolTable {
         trueLiteral.type = this.booleanType;
         trueLiteral.value = Boolean.TRUE;
 
-        defineCloneableCyclicTypeAndDependentTypes();
-        defineJsonCyclicTypeAndDependentTypes();
-        defineAnydataCyclicTypeAndDependentTypes();
+        defineCyclicUnionBasedInternalTypes();
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
                                                                 names.fromString("$anonType$TRUE"),
@@ -729,6 +727,12 @@ public class SymbolTable {
         rootScope.define(name, symbol);
     }
 
+    private void defineCyclicUnionBasedInternalTypes() {
+        defineCloneableCyclicTypeAndDependentTypes();
+        defineAnydataCyclicTypeAndDependentTypes();
+        defineJsonCyclicTypeAndDependentTypes();
+    }
+
     private void defineCloneableCyclicTypeAndDependentTypes() {
         cloneableType = BUnionType.create(null, readonlyType, xmlType);
         BArrayType arrayCloneableType = new BArrayType(cloneableType);
@@ -783,7 +787,6 @@ public class SymbolTable {
         arrayAnydataType = new BArrayType(anydataType);
         mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
         anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
-
         pureType = BUnionType.create(null, anydataType, errorType);
         streamType = new BStreamType(TypeTags.STREAM, pureType, null, null);
         tableType = new BTableType(TypeTags.TABLE, pureType, null);
