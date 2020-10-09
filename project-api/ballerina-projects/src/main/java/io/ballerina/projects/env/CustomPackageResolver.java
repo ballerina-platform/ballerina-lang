@@ -21,10 +21,10 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageId;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.directory.BuildProject;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

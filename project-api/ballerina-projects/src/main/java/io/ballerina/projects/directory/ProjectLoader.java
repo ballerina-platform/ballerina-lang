@@ -15,10 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects;
+package io.ballerina.projects.directory;
 
-import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.utils.ProjectConstants;
 
 import java.nio.file.Path;
