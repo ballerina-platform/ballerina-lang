@@ -86,6 +86,11 @@ public class XMLComment extends XMLNonElementItem {
     }
 
     @Override
+    public String expressionStringValue(BLink parent) {
+        return "xml`" + toString() + "`";
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(data);
     }

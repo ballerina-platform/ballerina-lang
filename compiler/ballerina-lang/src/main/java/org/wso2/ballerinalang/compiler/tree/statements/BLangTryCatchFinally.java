@@ -29,6 +29,7 @@ import java.util.List;
  *
  * @deprecated since 0.983.0, use trap instead.
  */
+@Deprecated
 public class BLangTryCatchFinally extends BLangStatement implements TryCatchFinallyNode {
     public BLangBlockStmt tryBody;
     public List<BLangCatch> catchBlocks;

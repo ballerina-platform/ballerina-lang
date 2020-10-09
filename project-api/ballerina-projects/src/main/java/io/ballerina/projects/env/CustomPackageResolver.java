@@ -17,14 +17,14 @@
  */
 package io.ballerina.projects.env;
 
-import io.ballerina.projects.Module;
-import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageId;
-import io.ballerina.projects.Project;
+import io.ballerina.build.Module;
+import io.ballerina.build.Package;
+import io.ballerina.build.PackageId;
+import io.ballerina.build.Project;
+import io.ballerina.build.environment.ModuleLoadRequest;
+import io.ballerina.build.environment.ModuleLoadResponse;
+import io.ballerina.build.environment.PackageResolver;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.environment.ModuleLoadRequest;
-import io.ballerina.projects.environment.ModuleLoadResponse;
-import io.ballerina.projects.environment.PackageResolver;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

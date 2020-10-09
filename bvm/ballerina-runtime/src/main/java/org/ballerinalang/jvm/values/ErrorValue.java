@@ -35,6 +35,7 @@ import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -104,11 +105,22 @@ public class ErrorValue extends BError implements RefValue {
     public String stringValue(BLink parent) {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
-            return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue(linkParent) + ")";
+            return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent)
+                    + ")";
         }
-
-        return "error" + getModuleName() + "(" + ((StringValue) message).informalStringValue(linkParent) +
+        return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent) +
                 getCauseToString(linkParent) + getDetailsToString(linkParent) + ")";
+    }
+
+    @Override
+    public String expressionStringValue(BLink parent) {
+        CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
+        if (isEmptyDetail()) {
+            return "error" + getModuleNameToBalString() + "(" + ((StringValue) message)
+                    .informalStringValue(linkParent) + ")";
+        }
+        return "error" + getModuleNameToBalString() + "(" + ((StringValue) message).expressionStringValue(linkParent) +
+                getCauseToBalString(linkParent) + getDetailsToBalString(linkParent) + ")";
     }
 
     private String getCauseToString(BLink parent) {
@@ -146,8 +158,30 @@ public class ErrorValue extends BError implements RefValue {
         return "," + sj.toString();
     }
 
-    private String getModuleName() {
+    private String getModuleNameToString() {
         return type.getPackage().name == null ? "" : " " + type.getName() + " ";
+    }
+
+    private String getDetailsToBalString(BLink parent) {
+        StringJoiner sj = new StringJoiner(",");
+        for (Object key : ((MapValue) details).getKeys()) {
+            Object value = ((MapValue) details).get(key);
+            sj.add(key + "=" + BStringUtils.getExpressionStringValue(value, parent));
+        }
+        return "," + sj.toString();
+    }
+
+    private String getCauseToBalString(BLink parent) {
+        if (cause != null) {
+            return "," + cause.expressionStringValue(parent);
+        }
+        return "";
+    }
+
+    private String getModuleNameToBalString() {
+        return (type.getPackage().org != null && type.getPackage().org.equals("$anon")) ||
+                type.getPackage().name == null ? " " + type.getName() + " " :
+                String.valueOf(BallerinaErrorReasons.getModulePrefixedReason(type.getPackage().name, type.getName()));
     }
 
     @Override

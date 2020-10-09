@@ -11,6 +11,20 @@
       "detail": "Annotation",
       "insertText": "a1",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "serviceAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "serviceAnnotation1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "serviceAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "serviceAnnotation2",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
