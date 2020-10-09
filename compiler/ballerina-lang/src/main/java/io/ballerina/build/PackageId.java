@@ -34,8 +34,8 @@ public final class PackageId {
         this.packageName = packageName;
     }
 
-    public static PackageId create(String packagePath) {
-        return new PackageId(UUID.randomUUID(), packagePath);
+    public static PackageId create(String packageName) {
+        return new PackageId(UUID.randomUUID(), packageName);
     }
 
     public UUID id() {

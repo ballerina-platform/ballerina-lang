@@ -36,6 +36,10 @@ public class PackageOrg {
         return new PackageOrg(packageNameStr);
     }
 
+    public String value() {
+        return packageOrgStr;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
