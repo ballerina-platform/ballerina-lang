@@ -85,6 +85,11 @@ public class SemanticVersion {
     }
 
     @Override
+    public String toString() {
+        return major + "." + minor + "." + patch;
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(major, minor, patch);
     }
