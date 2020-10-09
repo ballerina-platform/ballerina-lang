@@ -426,7 +426,11 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
-        // No implementation
+        ifNode.getCondition().accept(this);
+        ifNode.getBody().accept(this);
+        if (ifNode.getElseStatement() != null) {
+            ifNode.getElseStatement().accept(this);
+        }
     }
 
     @Override
@@ -441,12 +445,14 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
-        // No implementation
+        foreach.body.accept(this);
+        foreach.collection.accept(this);
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
-        // No implementation
+        whileNode.getBody().accept(this);
+        whileNode.getCondition().accept(this);
     }
 
     @Override
