@@ -105,9 +105,9 @@ public class Package {
     }
 
     // PackageCompilation has the emit method
-//    public PackageCompilation getCompilation() {
-//        return this.packageContext.getCompilation();
-//    }
+    public PackageCompilation getCompilation() {
+        return this.packageContext.getPackageCompilation();
+    }
 
     public DependencyGraph<ModuleId> moduleDependencyGraph() {
         // Each Package should know the packages that it depends on and packages that depends on it

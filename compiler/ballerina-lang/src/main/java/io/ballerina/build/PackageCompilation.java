@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.projects;
+package io.ballerina.build;
 
-import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.build.environment.PackageResolver;
+import io.ballerina.build.environment.ProjectEnvironmentContext;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -76,10 +76,7 @@ public class PackageCompilation {
 
         for (PackageId packageId : sortedPackageIds) {
             Package pkg = packageResolver.getPackage(packageId);
-            for (ModuleId moduleId : pkg.moduleIds()) {
-                Module module = pkg.module(moduleId);
-                module.getCompilation();
-            }
+            pkg.getDefaultModule().getCompilation();
         }
     }
 

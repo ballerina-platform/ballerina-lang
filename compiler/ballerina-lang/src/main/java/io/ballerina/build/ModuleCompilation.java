@@ -68,12 +68,13 @@ public class ModuleCompilation {
 
     private void addModuleDependencies(ModuleId moduleId, Map<ModuleId, Set<ModuleId>> dependencyIdMap) {
         Package pkg = packageResolver.getPackage(moduleId.packageId());
-        Collection<ModuleId> directDependencies = pkg.moduleDependencyGraph().getDirectDependencies(moduleId);
+        Collection<ModuleId> directDependencies = new HashSet<>(pkg.moduleDependencyGraph().
+                getDirectDependencies(moduleId));
 
-        ModuleContext moduleContext = pkg.packageContext().moduleContext(moduleId);
-        for (ModuleDependency moduleDependency : moduleContext.dependencies()) {
-            PackageId packageId = moduleDependency.packageDependency().packageId();
-            if (packageId == pkg.packageId()) {
+        ModuleContext moduleCtx = pkg.packageContext().moduleContext(moduleId);
+        for (ModuleDependency moduleDependency : moduleCtx.dependencies()) {
+            PackageId dependentPkgId = moduleDependency.packageDependency().packageId();
+            if (dependentPkgId == pkg.packageId()) {
                 continue;
             }
             ModuleId dependentModuleId = moduleDependency.moduleId();
