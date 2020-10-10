@@ -18,7 +18,7 @@
 
 package io.ballerina.projects.model;
 
-import io.ballerina.build.BuildOptions;
+import io.ballerina.projects.BuildOptions;
 import org.ballerinalang.toml.model.Platform;
 
 import java.util.LinkedHashMap;

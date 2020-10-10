@@ -17,7 +17,7 @@
  */
 package io.ballerina.projects.balo;
 
-import io.ballerina.build.PackageConfig;
+import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.directory.PackageData;
 import io.ballerina.projects.directory.PackageLoader;
 

@@ -17,10 +17,10 @@
  */
 package io.ballerina.projects.directory;
 
-import io.ballerina.build.DocumentId;
-import io.ballerina.build.Module;
-import io.ballerina.build.ModuleId;
-import io.ballerina.build.Project;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.utils.ProjectConstants;
 
 import java.nio.file.Path;

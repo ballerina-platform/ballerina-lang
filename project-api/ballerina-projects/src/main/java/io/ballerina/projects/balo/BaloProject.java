@@ -18,10 +18,10 @@
 
 package io.ballerina.projects.balo;
 
-import io.ballerina.build.PackageConfig;
-import io.ballerina.build.Project;
-import io.ballerina.build.environment.EnvironmentContext;
+import io.ballerina.projects.PackageConfig;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.env.BuildEnvContext;
+import io.ballerina.projects.environment.EnvironmentContext;
 
 import java.nio.file.Path;
 import java.util.Optional;

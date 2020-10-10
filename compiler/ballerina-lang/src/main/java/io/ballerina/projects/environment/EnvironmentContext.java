@@ -15,20 +15,24 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.ls;
+package io.ballerina.projects.environment;
 
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.EnvironmentContext;
 
 /**
- * {@code BuildProject} represents Ballerina project instance created by the language server.
+ * Represents an environment shared by a set of projects.
+ * <p>
+ * An environment can be used to maintain a set of utility services common to a set of project instances.
  *
  * @since 2.0.0
  */
-public class LSProject extends Project {
-    protected LSProject(EnvironmentContext environmentContext) {
-        super(environmentContext);
-    }
-    // Language server specific Project implementation.
-    // TODO Move projects.build package to a different Gradle module.
+public abstract class EnvironmentContext {
+
+    /**
+     * Returns a {@code Project} aware environment context.
+     *
+     * @param project the project instances
+     * @return Returns a project-aware environment context
+     */
+    public abstract ProjectEnvironmentContext projectEnvironmentContext(Project project);
 }

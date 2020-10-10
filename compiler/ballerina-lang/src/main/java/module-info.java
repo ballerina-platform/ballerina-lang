@@ -57,6 +57,6 @@ module io.ballerina.lang {
     exports org.wso2.ballerinalang.compiler.diagnostic;
     exports org.wso2.ballerinalang.compiler.tree.bindingpatterns;
     exports org.wso2.ballerinalang.compiler.tree.matchpatterns;
-    exports io.ballerina.build;
-    exports io.ballerina.build.environment;
+    exports io.ballerina.projects;
+    exports io.ballerina.projects.environment;
 }

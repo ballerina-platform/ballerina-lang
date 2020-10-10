@@ -147,16 +147,16 @@
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIROperand"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.build.internal.CompilerPhaseRunner"/>
+        <Class name="io.ballerina.projects.internal.CompilerPhaseRunner"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.build.ModuleCompilation"/>
+        <Class name="io.ballerina.projects.ModuleCompilation"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.build.BuildOptions"/>
+        <Class name="io.ballerina.projects.BuildOptions"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.build.Project"/>
+        <Class name="io.ballerina.projects.Project"/>
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer"/>

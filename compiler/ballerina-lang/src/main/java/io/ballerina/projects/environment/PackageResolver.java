@@ -15,20 +15,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.ls;
+package io.ballerina.projects.environment;
 
-import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.EnvironmentContext;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageId;
+
+import java.util.Collection;
 
 /**
- * {@code BuildProject} represents Ballerina project instance created by the language server.
+ * This class is responsible for loading packages from various sources and maintaining a cache of already loaded
+ * packages.
  *
  * @since 2.0.0
  */
-public class LSProject extends Project {
-    protected LSProject(EnvironmentContext environmentContext) {
-        super(environmentContext);
-    }
-    // Language server specific Project implementation.
-    // TODO Move projects.build package to a different Gradle module.
+public abstract class PackageResolver {
+
+    public abstract Collection<ModuleLoadResponse> loadPackages(Collection<ModuleLoadRequest> moduleLoadRequests);
+
+    public abstract Package getPackage(PackageId packageId);
 }

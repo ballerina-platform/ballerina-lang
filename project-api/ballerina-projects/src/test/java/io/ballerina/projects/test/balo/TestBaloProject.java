@@ -18,11 +18,11 @@
 
 package io.ballerina.projects.test.balo;
 
-import io.ballerina.build.Document;
-import io.ballerina.build.DocumentId;
-import io.ballerina.build.Module;
-import io.ballerina.build.ModuleId;
-import io.ballerina.build.Package;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.balo.BaloProject;
 import org.testng.Assert;
 import org.testng.annotations.Test;

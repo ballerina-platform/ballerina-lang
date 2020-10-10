@@ -15,28 +15,42 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.env;
+package io.ballerina.projects;
 
-import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.EnvironmentContext;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import java.util.Objects;
 
 /**
- * Represents the {@code EnvironmentContext} of the build project.
+ * Represents a dependency of a {@code Package}.
  *
  * @since 2.0.0
  */
-public class BuildEnvContext extends EnvironmentContext {
-    private static final BuildEnvContext instance = new BuildEnvContext();
+public class PackageDependency {
+    private final PackageId packageId;
 
-    public static BuildEnvContext getInstance() {
-        return instance;
+    public PackageDependency(PackageId packageId) {
+        this.packageId = packageId;
     }
 
-    private BuildEnvContext() {
+    public PackageId packageId() {
+        return this.packageId;
     }
 
-    public ProjectEnvironmentContext projectEnvironmentContext(Project project) {
-        return BuildProjectEnvContext.from(project);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        PackageDependency that = (PackageDependency) o;
+        return packageId.equals(that.packageId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(packageId);
     }
 }
