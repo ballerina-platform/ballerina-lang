@@ -819,10 +819,20 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (entry == NOT_FOUND_ENTRY) {
                     this.env.scope.define(alias, symbol);
                 } else {
+                    boolean isUndefinedModule = true;
+                    if (((BPackageSymbol) entry.symbol).compUnit.value.equals(compUnit.name)) {
+                        isUndefinedModule = false;
+                    }
                     while (entry.next != NOT_FOUND_ENTRY) {
+                        if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnit.name)) {
+                            isUndefinedModule = false;
+                            break;
+                        }
                         entry = entry.next;
                     }
-                    entry.next = new ScopeEntry(symbol, NOT_FOUND_ENTRY);
+                    if (isUndefinedModule) {
+                        entry.next = new ScopeEntry(symbol, NOT_FOUND_ENTRY);
+                    }
                 }
             }
         }
