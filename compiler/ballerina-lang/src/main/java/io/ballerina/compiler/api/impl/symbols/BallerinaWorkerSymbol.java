@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.impl.symbols;
+package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;

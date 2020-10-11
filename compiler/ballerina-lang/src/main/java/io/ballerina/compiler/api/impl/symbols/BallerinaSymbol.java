@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.impl.symbols;
+package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.impl.BallerinaModuleID;
+import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;

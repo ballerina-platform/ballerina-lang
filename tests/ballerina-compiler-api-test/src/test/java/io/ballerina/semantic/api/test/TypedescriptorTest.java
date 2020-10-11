@@ -40,7 +40,7 @@ import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeDescTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import io.ballerina.compiler.api.types.UnionTypeDescriptor;
-import io.ballerina.compiler.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;

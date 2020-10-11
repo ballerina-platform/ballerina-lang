@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.impl.types;
+package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.types.SimpleTypeDescriptor;
-import io.ballerina.compiler.impl.TypesFactory;
+import io.ballerina.compiler.api.impl.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**

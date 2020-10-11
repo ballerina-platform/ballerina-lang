@@ -80,15 +80,15 @@
         <Package name="org.wso2.ballerinalang.compiler.packaging.converters" />
     </Match>
     <Match>
-        <Package name="io.ballerina.compiler.impl" />
+        <Package name="io.ballerina.compiler.api.impl" />
         <Bug pattern="BC_UNCONFIRMED_CAST" />
     </Match>
     <Match>
-        <Package name="io.ballerina.compiler.impl.symbols" />
+        <Package name="io.ballerina.compiler.api.impl.symbols" />
         <Bug pattern="BC_UNCONFIRMED_CAST" />
     </Match>
     <Match>
-        <Package name="io.ballerina.compiler.impl.types" />
+        <Package name="io.ballerina.compiler.api.impl.types" />
         <Bug pattern="BC_UNCONFIRMED_CAST, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
     </Match>
     <Match>

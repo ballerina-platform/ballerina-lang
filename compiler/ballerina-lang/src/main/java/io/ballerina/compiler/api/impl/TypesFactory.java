@@ -15,25 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.impl;
+package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.impl.types.BallerinaArrayTypeDescriptor;
-import io.ballerina.compiler.impl.types.BallerinaErrorTypeDescriptor;
-import io.ballerina.compiler.impl.types.BallerinaFunctionTypeDescriptor;
-import io.ballerina.compiler.impl.types.BallerinaFutureTypeDescriptor;
-import io.ballerina.compiler.impl.types.BallerinaMapTypeDescriptor;
-import io.ballerina.compiler.impl.types.BallerinaNilTypeDescriptor;
-import io.ballerina.compiler.impl.types.BallerinaObjectTypeDescriptor;
-import io.ballerina.compiler.impl.types.BallerinaRecordTypeDescriptor;
-import io.ballerina.compiler.impl.types.BallerinaSimpleTypeDescriptor;
-import io.ballerina.compiler.impl.types.BallerinaStreamTypeDescriptor;
-import io.ballerina.compiler.impl.types.BallerinaTupleTypeDescriptor;
-import io.ballerina.compiler.impl.types.BallerinaTypeDescTypeDescriptor;
-import io.ballerina.compiler.impl.types.BallerinaTypeReferenceTypeDescriptor;
-import io.ballerina.compiler.impl.types.BallerinaUnionTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaArrayTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaErrorTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaFunctionTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaFutureTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaMapTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaNilTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaObjectTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaRecordTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaSimpleTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaStreamTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaTupleTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaTypeDescTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaTypeReferenceTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaUnionTypeDescriptor;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -52,10 +52,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import static org.ballerinalang.model.types.TypeKind.FINITE;
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.ballerinalang.model.types.TypeKind.UNION;
 
 /**
  * Represents a set of factory methods to generate the {@link BallerinaTypeDescriptor}s.

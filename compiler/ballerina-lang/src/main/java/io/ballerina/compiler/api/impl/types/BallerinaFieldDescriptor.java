@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.impl.types;
+package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
-import io.ballerina.compiler.impl.TypesFactory;
-import io.ballerina.compiler.impl.symbols.BallerinaDocumentation;
+import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.impl.symbols.BallerinaDocumentation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.util.Flags;
 

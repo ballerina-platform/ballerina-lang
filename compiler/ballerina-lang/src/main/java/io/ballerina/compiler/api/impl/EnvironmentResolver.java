@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.impl;
+package io.ballerina.compiler.api.impl;
 
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.elements.PackageID;
