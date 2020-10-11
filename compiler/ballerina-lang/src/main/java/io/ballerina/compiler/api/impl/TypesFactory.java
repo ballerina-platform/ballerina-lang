@@ -18,8 +18,6 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.impl.types.BallerinaArrayTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaErrorTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaFunctionTypeDescriptor;
@@ -34,6 +32,8 @@ import io.ballerina.compiler.api.impl.types.BallerinaTupleTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaTypeDescTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaTypeReferenceTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaUnionTypeDescriptor;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeDescKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;

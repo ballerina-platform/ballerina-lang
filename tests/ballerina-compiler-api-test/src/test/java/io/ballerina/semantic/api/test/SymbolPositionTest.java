@@ -17,8 +17,8 @@
 
 package io.ballerina.semantic.api.test;
 
-import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.util.CompileResult;

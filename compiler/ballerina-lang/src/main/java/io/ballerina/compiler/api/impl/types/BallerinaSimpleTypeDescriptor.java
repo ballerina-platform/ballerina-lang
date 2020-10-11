@@ -18,8 +18,8 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.types.SimpleTypeDescriptor;
 import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.types.SimpleTypeDescriptor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**

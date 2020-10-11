@@ -18,10 +18,10 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.UnionTypeDescriptor;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 

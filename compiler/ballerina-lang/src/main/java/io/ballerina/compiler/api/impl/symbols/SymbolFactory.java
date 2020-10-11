@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.impl.types.BallerinaParameter;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
@@ -24,8 +26,6 @@ import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
 import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.impl.TypesFactory;
-import io.ballerina.compiler.api.impl.types.BallerinaParameter;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
