@@ -21,11 +21,11 @@ package org.ballerinalang.test.observability.metrics;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.ballerina.testobserve.metrics.extension.model.Metrics;
-import org.ballerina.testobserve.metrics.extension.model.MockGauge;
 import org.ballerina.testobserve.metrics.extension.model.MockMetric;
 import org.ballerinalang.jvm.observability.metrics.Tag;
 import org.ballerinalang.test.observability.ObservabilityBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
+import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -51,7 +51,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Exception {
-        super.setupServer("metrics", MODULE_NAME, new int[] {10090});
+        super.setupServer("metrics", MODULE_NAME, new int[] {10090, 10091});
     }
 
     @AfterClass(alwaysRun = true)
@@ -104,18 +104,33 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Assert.assertEquals(counter.getValue(), invocationCount);
             } else if (Objects.equals(counter.getId().getName(), "response_time_nanoseconds_total")) {
                 Assert.assertTrue((invocationCount > 0) ? (counter.getValue() > 0) : (counter.getValue() == 0));
+            } else {
+                Assert.fail("Unexpected metric " + counter.getId().getName());
             }
         });
 
-        Assert.assertEquals(functionMetrics.getGauges().size(), 1);
+        Assert.assertEquals(functionMetrics.getGauges().size(), 2);
         Assert.assertEquals(functionMetrics.getGauges().stream()
                         .map(gauge -> gauge.getId().getName())
                         .collect(Collectors.toSet()),
-                new HashSet<>(Collections.singletonList("response_time")));
-        MockGauge gauge = functionMetrics.getGauges().get(0);
-        Assert.assertEquals(gauge.getId().getName(), "response_time");
-        Assert.assertEquals(gauge.getId().getTags(), tags);
-        Assert.assertEquals(gauge.getCount(), invocationCount);
+                new HashSet<>(Arrays.asList("response_time_seconds", "inprogress_requests")));
+        functionMetrics.getGauges().forEach(gauge -> {
+            if (Objects.equals(gauge.getId().getName(), "response_time_seconds")) {
+                Assert.assertEquals(gauge.getId().getTags(), tags);
+                Assert.assertEquals(gauge.getCount(), invocationCount);
+                Assert.assertTrue((invocationCount > 0) ? (gauge.getSum() > 0) : (gauge.getSum() == 0));
+                Assert.assertTrue((invocationCount > 0) ? (gauge.getValue() > 0) : (gauge.getValue() == 0));
+            } else if (Objects.equals(gauge.getId().getName(), "inprogress_requests")) {
+                Set<Tag> inProgressGaugeTags = new HashSet<>(tags);
+                inProgressGaugeTags.remove(Tag.of("error", "true"));
+                Assert.assertEquals(gauge.getId().getTags(), inProgressGaugeTags);
+                Assert.assertEquals(gauge.getCount(), invocationCount * 2);
+                Assert.assertEquals(gauge.getSum(), (double) invocationCount);
+                Assert.assertEquals(gauge.getValue(), 0.0);
+            } else {
+                Assert.fail("Unexpected metric " + gauge.getId().getName());
+            }
+        });
 
         Assert.assertEquals(functionMetrics.getPolledGauges().size(), 0);
     }
@@ -139,6 +154,56 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         );
         assertMetrics(metrics, fileName + ":38:12", 3,
                 Tag.of("function", "calculateSumWithObservability")
+        );
+    }
+
+    @Test
+    public void testResourceFunction() throws Exception {
+        String fileName = "02_resource_function.bal";
+        String serviceName = "testServiceOne";
+        String resourceName = "resourceOne";
+
+        HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:10091/" + serviceName + "/" + resourceName,
+                "15", Collections.emptyMap());
+        Assert.assertEquals(httpResponse.getResponseCode(), 500);
+        Assert.assertEquals(httpResponse.getData(), "Test Error");
+        Thread.sleep(1000);
+
+        Metrics metrics = filterByTag(this.getMetrics(), "service", serviceName);
+        metrics = filterByTag(metrics, "resource", resourceName);
+
+        Assert.assertEquals(metrics.getCounters().size(), 6);
+        Assert.assertEquals(metrics.getGauges().size(), 6);
+        Assert.assertEquals(metrics.getPolledGauges().size(), 0);
+
+        assertMetrics(metrics, fileName + ":23:5", 1,
+                Tag.of("src.module", MODULE_ID),
+                Tag.of("src.entry_point.resource", "true"),
+                Tag.of("connector_name", SERVER_CONNECTOR_NAME),
+                Tag.of("service", serviceName),
+                Tag.of("resource", resourceName),
+                Tag.of("protocol", "http"),
+                Tag.of("http.url", "/testServiceOne/resourceOne"),
+                Tag.of("http.method", "POST"),
+                Tag.of("error", "true")
+        );
+        assertMetrics(metrics, fileName + ":24:24", 1,
+                Tag.of("src.module", MODULE_ID),
+                Tag.of("src.remote", "true"),
+                Tag.of("service", serviceName),
+                Tag.of("resource", resourceName),
+                Tag.of("error", "true"),
+                Tag.of("connector_name", "ballerina-test/testservices/MockClient"),
+                Tag.of("action", "callWithPanic")
+        );
+        assertMetrics(metrics, fileName + ":29:20", 1,
+                Tag.of("src.module", MODULE_ID),
+                Tag.of("src.remote", "true"),
+                Tag.of("service", serviceName),
+                Tag.of("resource", resourceName),
+                Tag.of("error", "true"),
+                Tag.of("connector_name", "ballerina-test/testservices/MockClient"),
+                Tag.of("action", "callWithErrorReturn")
         );
     }
 }

@@ -41,6 +41,8 @@ public class ObservabilityBaseTest extends BaseTest {
     private static final String TEST_NATIVES_JAR = "observability-test-natives.jar";
     private static final String TEST_OBSERVE_JAR = "ballerina-testobserve-0.0.0.jar";
 
+    protected static final String SERVER_CONNECTOR_NAME = "testobserve_listener";
+
     protected void setupServer(String testProject, String testModule, int[] requiredPorts) throws Exception {
         final String serverHome = balServer.getServerHome();
 

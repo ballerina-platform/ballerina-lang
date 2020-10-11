@@ -42,7 +42,6 @@ import java.util.stream.Stream;
 @Test(groups = "tracing-test")
 public class TracingBaseTestCase extends ObservabilityBaseTest {
     private static final String MODULE_NAME = "testservices";
-    protected static final String SERVER_CONNECTOR_NAME = "testobserve_listener";
     protected static final String MODULE_ID = "ballerina-test/" + MODULE_NAME + ":0.0.1";
     protected static final String COMMONS_FILE_NAME = "commons.bal";
 
