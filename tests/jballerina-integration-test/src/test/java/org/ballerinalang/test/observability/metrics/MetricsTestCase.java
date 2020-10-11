@@ -163,8 +163,8 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         String serviceName = "testServiceOne";
         String resourceName = "resourceOne";
 
-        HttpResponse httpResponse = HttpClientRequest.doPost("http://localhost:10091/" + serviceName + "/" + resourceName,
-                "15", Collections.emptyMap());
+        HttpResponse httpResponse = HttpClientRequest.doPost(
+                "http://localhost:10091/" + serviceName + "/" + resourceName, "15", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 500);
         Assert.assertEquals(httpResponse.getData(), "Test Error");
         Thread.sleep(1000);
@@ -177,7 +177,6 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         Assert.assertEquals(metrics.getPolledGauges().size(), 0);
 
         assertMetrics(metrics, fileName + ":23:5", 1,
-                Tag.of("src.module", MODULE_ID),
                 Tag.of("src.entry_point.resource", "true"),
                 Tag.of("connector_name", SERVER_CONNECTOR_NAME),
                 Tag.of("service", serviceName),
@@ -188,7 +187,6 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("error", "true")
         );
         assertMetrics(metrics, fileName + ":24:24", 1,
-                Tag.of("src.module", MODULE_ID),
                 Tag.of("src.remote", "true"),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
@@ -197,13 +195,59 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("action", "callWithPanic")
         );
         assertMetrics(metrics, fileName + ":29:20", 1,
-                Tag.of("src.module", MODULE_ID),
                 Tag.of("src.remote", "true"),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
                 Tag.of("error", "true"),
                 Tag.of("connector_name", "ballerina-test/testservices/MockClient"),
                 Tag.of("action", "callWithErrorReturn")
+        );
+    }
+
+    @Test
+    public void testWorkers() throws Exception {
+        String fileName = "02_resource_function.bal";
+        String serviceName = "testServiceOne";
+        String resourceName = "resourceTwo";
+
+        HttpResponse httpResponse = HttpClientRequest.doPost(
+                "http://localhost:10091/" + serviceName + "/" + resourceName, "15", Collections.emptyMap());
+        Assert.assertEquals(httpResponse.getResponseCode(), 200);
+        Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
+        Thread.sleep(1000);
+
+        Metrics metrics = filterByTag(this.getMetrics(), "service", serviceName);
+        metrics = filterByTag(metrics, "resource", resourceName);
+
+        Assert.assertEquals(metrics.getCounters().size(), 8);
+        Assert.assertEquals(metrics.getGauges().size(), 8);
+        Assert.assertEquals(metrics.getPolledGauges().size(), 0);
+
+        assertMetrics(metrics, fileName + ":34:5", 1,
+                Tag.of("src.entry_point.resource", "true"),
+                Tag.of("connector_name", SERVER_CONNECTOR_NAME),
+                Tag.of("service", serviceName),
+                Tag.of("resource", resourceName),
+                Tag.of("protocol", "http"),
+                Tag.of("http.url", "/testServiceOne/resourceTwo"),
+                Tag.of("http.method", "POST")
+        );
+        assertMetrics(metrics, fileName + ":66:15", 1,
+                Tag.of("src.worker", "true"),
+                Tag.of("service", serviceName),
+                Tag.of("resource", resourceName)
+        );
+        assertMetrics(metrics, fileName + ":71:15", 1,
+                Tag.of("src.worker", "true"),
+                Tag.of("service", serviceName),
+                Tag.of("resource", resourceName)
+        );
+        assertMetrics(metrics, fileName + ":36:20", 1,
+                Tag.of("src.remote", "true"),
+                Tag.of("service", serviceName),
+                Tag.of("resource", resourceName),
+                Tag.of("connector_name", "ballerina/testobserve/Caller"),
+                Tag.of("action", "respond")
         );
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,6 +19,8 @@
 package org.ballerina.testobserve.metrics.extension.model;
 
 import org.ballerinalang.jvm.observability.metrics.Snapshot;
+
+import java.util.Arrays;
 
 /**
  * Class for holding gauge related metrics data.
@@ -54,10 +56,10 @@ public class MockGauge extends MockMetric {
     }
 
     public Snapshot[] getSnapshots() {
-        return snapshots;
+        return snapshots == null ? new Snapshot[0] : Arrays.copyOf(snapshots, snapshots.length);
     }
 
     public void setSnapshots(Snapshot[] snapshots) {
-        this.snapshots = snapshots;
+        this.snapshots = Arrays.copyOf(snapshots, snapshots.length);
     }
 }

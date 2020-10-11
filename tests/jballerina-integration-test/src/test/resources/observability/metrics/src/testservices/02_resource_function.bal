@@ -29,6 +29,12 @@ service testServiceOne on new testobserve:Listener(10091) {
         checkpanic testClient->callWithErrorReturn();
         checkpanic caller->respond("Executed Successfully");
     }
+
+    # Resource function for testing worker interactions
+    resource function resourceTwo(testobserve:Caller caller) {
+        testWorkerInteractions(11);
+        checkpanic caller->respond("Invocation Successful");
+    }
 }
 
 public client class MockClient {
@@ -54,4 +60,21 @@ public client class MockClient {
         error e = error("Test Error");
         panic e;
     }
+}
+
+function testWorkerInteractions(int c) {
+    worker w1 {
+        int a = c + 3;
+        testobserve:sleep(1000);  // Sleep to make the workers not finish together
+        a -> w2;
+    }
+    worker w2 {
+        int b = <- w1;
+        if (b != (c + 3)) {
+            error err = error("worker interaction failed");
+            panic err;
+        }
+    }
+    wait w2;
+    wait w1;
 }
