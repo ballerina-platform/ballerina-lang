@@ -1095,7 +1095,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         // 1) Define type nodeDefinition for service type.
         BLangClassDefinition classDef = (BLangClassDefinition) TreeBuilder.createClassDefNode();
         BLangIdentifier serviceTypeID = createIdentifier(identifierPos, serviceTypeName);
-        serviceTypeID.pos = symTable.builtinPos;
+        serviceTypeID.pos = pos;
         classDef.setName(serviceTypeID);
         classDef.flagSet.add(SERVICE);
 
@@ -1109,7 +1109,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLService.annAttachments = applyAll(serviceConstructorNode.annotations());
         }
 
-        classDef.pos = symTable.builtinPos;
+        classDef.pos = pos;
         addToTop(classDef);
         bLService.serviceClass = classDef;
 
@@ -1117,7 +1117,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         final BLangServiceConstructorExpr serviceConstNode = (BLangServiceConstructorExpr) TreeBuilder
                 .createServiceConstructorNode();
         serviceConstNode.serviceNode = bLService;
-        serviceConstNode.pos = symTable.builtinPos;
+        serviceConstNode.pos = pos;
 
         // Crate Global variable for service.
         bLService.pos = pos;

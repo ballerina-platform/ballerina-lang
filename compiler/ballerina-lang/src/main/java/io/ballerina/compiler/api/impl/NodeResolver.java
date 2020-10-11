@@ -984,6 +984,11 @@ class NodeResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
+        // skip the generated class def for services
+        if (classDefinition.flagSet.contains(Flag.SERVICE)) {
+            return;
+        }
+
         if (setEnclosingNode(classDefinition, classDefinition.name.pos)) {
             return;
         }

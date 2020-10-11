@@ -29,7 +29,7 @@ import java.util.Optional;
 public interface FunctionSymbol extends Symbol, Qualifiable, Deprecatable {
 
     /**
-     * Get the Function Type Descriptor.
+     * Get the type descriptor of the function.
      *
      * @return {@link BallerinaTypeDescriptor}
      */
