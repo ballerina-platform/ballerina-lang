@@ -17,7 +17,14 @@
  */
 package io.ballerina.projects.directory;
 
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.model.BallerinaToml;
+import io.ballerina.projects.model.BallerinaTomlProcessor;
 import io.ballerina.projects.utils.ProjectUtils;
+import org.ballerinalang.toml.exceptions.TomlException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -25,7 +32,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -43,13 +49,13 @@ public class ProjectFiles {
     private ProjectFiles() {
     }
 
-    protected static PackageData loadPackageData(String filePath, boolean singleFileProject) {
+    protected static PackageData loadPackageData(Path filePath, boolean singleFileProject) {
         // Handle single file project
         if (singleFileProject) {
-            DocumentData documentData = loadDocument(Paths.get(filePath));
-            ModuleData defaultModule = ModuleData.from(Paths.get(filePath), Collections.singletonList(documentData),
+            DocumentData documentData = loadDocument(filePath);
+            ModuleData defaultModule = ModuleData.from(filePath, Collections.singletonList(documentData),
                     Collections.emptyList());
-            return PackageData.from(Paths.get(filePath), defaultModule, Collections.emptyList());
+            return PackageData.from(filePath, defaultModule, Collections.emptyList());
         }
 
         // Handle build project
@@ -58,7 +64,7 @@ public class ProjectFiles {
         }
 
         // Check whether the directory exists
-        Path packageDirPath = Paths.get(filePath).toAbsolutePath();
+        Path packageDirPath = filePath.toAbsolutePath();
         if (!packageDirPath.toFile().canRead()
                 || !packageDirPath.toFile().canWrite() || !packageDirPath.toFile().canExecute()) {
             throw new RuntimeException("insufficient privileges to path: " + packageDirPath);
@@ -147,5 +153,18 @@ public class ProjectFiles {
             throw new RuntimeException(e);
         }
         return DocumentData.from(Optional.of(documentFilePath.getFileName()).get().toString(), content);
+    }
+
+    public static PackageDescriptor createPackageDescriptor(Path ballerinaTomlFilePath) {
+        BallerinaToml ballerinaToml;
+        try {
+            ballerinaToml = BallerinaTomlProcessor.parse(ballerinaTomlFilePath);
+            PackageName packageName = PackageName.from(ballerinaToml.getPackage().getName());
+            PackageOrg packageOrg = PackageOrg.from(ballerinaToml.getPackage().getOrg());
+            PackageVersion packageVersion = PackageVersion.from(ballerinaToml.getPackage().getVersion());
+            return new PackageDescriptor(packageName, packageOrg, packageVersion, Collections.emptyList());
+        } catch (IOException | TomlException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 }

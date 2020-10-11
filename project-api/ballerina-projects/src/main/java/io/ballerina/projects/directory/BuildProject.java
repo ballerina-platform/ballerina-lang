@@ -21,6 +21,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageConfig;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.environment.EnvironmentContext;
@@ -85,7 +86,7 @@ public class BuildProject extends Project {
             this.setBuildOptions(new BuildOptions());
         }
 
-        addPackage(projectPath.toString());
+        addPackage(projectPath);
     }
 
     public BuildOptions getBuildOptions() {
@@ -127,8 +128,10 @@ public class BuildProject extends Project {
      *
      * @param projectPath project path
      */
-    private void addPackage(String projectPath) {
-        final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, false);
+    private void addPackage(Path projectPath) {
+        PackageDescriptor packageDescriptor = ProjectFiles.createPackageDescriptor(
+                projectPath.resolve(ProjectConstants.BALLERINA_TOML));
+        final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, false, packageDescriptor);
         this.addPackage(packageConfig);
     }
 
