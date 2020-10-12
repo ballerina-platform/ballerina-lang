@@ -804,38 +804,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
-
-
-        BLangTypeInit typeNewExpr = ASTBuilderUtil.createEmptyTypeInit(objectConstructorExpression.pos,
-                objectConstructorExpression.classNode.type);
-        result = rewriteExpr(typeNewExpr);
-//        BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-//        BLangUserDefinedType userDefinedType = createUserDefinedType(pos, objectConstructorExpression.);
-//        result = createUserDefinedObjectInitFn(objectConstructorExpression.classNode, env);
-
-//        BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
-////        initNode.pos = pos;
-////        initNode.userDefinedType = userDefinedType;
-//
-//        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
-////        invocationNode.pos = pos;
-////        BLangIdentifier pkgAlias = createIdentifier(pos, "");
-////        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, annonClassDef.name);
-//
-////        invocationNode.name = (BLangIdentifier) nameReference.name;
-////        invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-//
-//        initNode.argsExpr.addAll(invocationNode.argExprs);
-//        initNode.initInvocation = invocationNode;
-
-//        objectCtorExpression.classNode = annonClassDef;
-//        objectCtorExpression.typeInit = initNode;
-//        result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
-
-//        BLangTypeInit typeInit = ASTBuilderUtil.createEmptyTypeInit(objectConstructorExpression.pos,
-//                objectConstructorExpression.classNode.type);
-//        objectConstructorExpression.classNode.annAttachments.forEach(attachment ->  rewrite(attachment, env));
-//        result = rewriteExpr(typeInit);
+        result = rewriteExpr(objectConstructorExpression.typeInit);
     }
 
     @Override

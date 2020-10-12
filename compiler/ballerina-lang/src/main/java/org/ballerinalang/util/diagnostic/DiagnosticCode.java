@@ -322,6 +322,7 @@ public enum DiagnosticCode {
     INVALID_TYPE_FOR_REST_DESCRIPTOR("invalid.type.for.rest.descriptor"),
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
     INVALID_USAGE_OF_KEYWORD("invalid.usage.of.keyword"),
+    INVALID_TYPE_OBJECT_CONSTRUCTOR("invalid.type.object.constructor"),
 
     INVALID_RECORD_BINDING_PATTERN("invalid.record.binding.pattern"),
     NO_MATCHING_RECORD_REF_PATTERN("no.matching.record.ref.found"),

@@ -989,6 +989,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         anonClass.setName(anonTypeGenName);
         anonClass.flagSet.add(Flag.PUBLIC);
+        anonClass.induceTypeIds = true;
 
         Optional<TypeDescriptorNode> typeReference = objectConstructorExpressionNode.typeReference();
         typeReference.ifPresent(typeReferenceNode -> {
@@ -1008,29 +1009,25 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
-//        BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-//        BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, anonClass.name);
-//
-////        objectCtorExpression.type = userDefinedType;
-//
-//        BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
-//        initNode.pos = pos;
-//        initNode.userDefinedType = userDefinedType;
-//
-//        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
-//        invocationNode.pos = pos;
-//        BLangIdentifier pkgAlias = createIdentifier(pos, "");
-//        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, anonClass.name);
-//
-//        invocationNode.name = (BLangIdentifier) nameReference.name;
-//        invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
-//
-//        initNode.argsExpr.addAll(invocationNode.argExprs);
-//        initNode.initInvocation = invocationNode;
-//
-//        objectCtorExpression.classNode = anonClass;
-//        objectCtorExpression.typeInit = initNode;
-//        return initNode;
+        BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, anonClass.name);
+
+        BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
+        initNode.pos = pos;
+        initNode.userDefinedType = userDefinedType;
+
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        BLangIdentifier pkgAlias = createIdentifier(pos, "");
+        BLangNameReference nameReference =  new BLangNameReference(pos, null, pkgAlias, anonClass.name);
+
+        invocationNode.name = (BLangIdentifier) nameReference.name;
+        invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+
+        initNode.argsExpr.addAll(invocationNode.argExprs);
+        initNode.initInvocation = invocationNode;
+
+        objectCtorExpression.typeInit = initNode;
         return objectCtorExpression;
     }
 

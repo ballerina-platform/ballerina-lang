@@ -2875,19 +2875,20 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
-        BType actualType;
-        if (objectConstructorExpression.referenceType != null) {
-            actualType = symResolver.resolveTypeNode(objectConstructorExpression.referenceType, env);
-        } else {
-            actualType = symTable.semanticError;
+    public void visit(BLangObjectConstructorExpression objectCtorExpression) {
+        if (objectCtorExpression.referenceType == null && objectCtorExpression.expectedType != null) {
+            BObjectType objectType = (BObjectType) objectCtorExpression.classNode.type;
+            if (objectCtorExpression.expectedType.tag == TypeTags.OBJECT) {
+                BObjectType expObjType = (BObjectType) objectCtorExpression.expectedType;
+                objectType.typeIdSet = expObjType.typeIdSet;
+            }
+            if (objectCtorExpression.expectedType.tag == TypeTags.ANY) {
+                dlog.error(objectCtorExpression.pos, DiagnosticCode.INVALID_TYPE_OBJECT_CONSTRUCTOR, expType);
+                resultType = symTable.semanticError;
+                return;
+            }
         }
-
-//        if (actualType.tag != TypeTags.OBJECT) {
-//            dlog.error(objectConstructorExpression.pos, DiagnosticCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
-//        }
-
-        resultType = actualType;
+        visit(objectCtorExpression.typeInit);
     }
 
     public void visit(BLangTypeInit cIExpr) {

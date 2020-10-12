@@ -370,6 +370,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+        visit(objectConstructorExpression.classNode);
+        visit(objectConstructorExpression.typeInit);
     }
 
     @Override

@@ -1431,6 +1431,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
+        visit(objectConstructorExpression.typeInit);
     }
 
     @Override
