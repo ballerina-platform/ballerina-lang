@@ -93,15 +93,13 @@ public class PackagingTestCase extends BaseTest {
     
         // Update org name
         PackerinaTestUtils.updateManifestOrgName(projectPath, orgName);
-        
-        Assert.assertTrue(Files.exists(projectPath));
+
         Assert.assertTrue(Files.isDirectory(projectPath));
     
         // Create module
         balClient.runMain("add", new String[]{moduleName}, envVariables, new String[]{}, new LogLeecher[]{},
                 projectPath.toString());
-    
-        Assert.assertTrue(Files.exists(projectPath.resolve("src").resolve(moduleName)));
+
         Assert.assertTrue(Files.isDirectory(projectPath.resolve("src").resolve(moduleName)));
     }
 
@@ -225,8 +223,7 @@ public class PackagingTestCase extends BaseTest {
         // Create project
         balClient.runMain("new", new String[]{"pushAllPackageTest"}, envVariables, new String[]{}, new LogLeecher[]{},
                 projectPath.getParent().toString());
-    
-        Assert.assertTrue(Files.exists(projectPath));
+
         Assert.assertTrue(Files.isDirectory(projectPath));
         
         String firstPackage = "firstTestPkg" + PackerinaTestUtils.randomModuleName(10);
@@ -241,7 +238,6 @@ public class PackagingTestCase extends BaseTest {
 
         Path firstPackagePath = projectPath.resolve("src").resolve(firstPackage);
 
-        Assert.assertTrue(Files.exists(firstPackagePath));
         Assert.assertTrue(Files.isDirectory(firstPackagePath));
 
         PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main.bal"),
@@ -255,7 +251,6 @@ public class PackagingTestCase extends BaseTest {
 
         Path secondPackagePath = projectPath.resolve("src").resolve(secondPackage);
 
-        Assert.assertTrue(Files.exists(secondPackagePath));
         Assert.assertTrue(Files.isDirectory(secondPackagePath));
 
         PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main.bal"),
@@ -293,7 +288,6 @@ public class PackagingTestCase extends BaseTest {
         balClient.runMain("new", new String[] { "buildAndRunModuleWithPeriodProject" }, envVariables, new String[] {},
                 new LogLeecher[] {}, projectPath.getParent().toString());
 
-        Assert.assertTrue(Files.exists(projectPath));
         Assert.assertTrue(Files.isDirectory(projectPath));
 
         // Create module named `foo.bar`
@@ -302,7 +296,6 @@ public class PackagingTestCase extends BaseTest {
                 projectPath.toString());
 
         Path modulePath = projectPath.resolve("src").resolve(moduleName);
-        Assert.assertTrue(Files.exists(modulePath));
         Assert.assertTrue(Files.isDirectory(modulePath));
 
         PackerinaTestUtils.copy(Paths.get("src", "test", "resources", "packaging", "pushingModule", "main.bal"),
