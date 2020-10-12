@@ -131,3 +131,29 @@ function testAnyJsonTypes() returns [boolean, boolean, boolean, boolean] {
 
     return [aa is json, bb is json, dd is json, ff is json];
 }
+
+function testIsLike1() {
+    anydata k1 = [1, 2, 3, 4];
+    anydata k2 = k1.cloneReadOnly();
+    assertEquals(k2 is [int, int, anydata...], true);
+
+    anydata k3 = [1, 2, true, "str"];
+    anydata k4 = k3.cloneReadOnly();
+    assertEquals(k4 is [int, int, anydata...], true);
+
+    anydata k5 = [1, "str", true, "str"];
+    anydata k6 = k5.cloneReadOnly();
+    assertEquals(k6 is [int, string, anydata...], true);
+
+    anydata k7 = [1, "str", true, "str"];
+    anydata k8 = k7.cloneReadOnly();
+    assertEquals(k8 is [int, int, anydata...], false);
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

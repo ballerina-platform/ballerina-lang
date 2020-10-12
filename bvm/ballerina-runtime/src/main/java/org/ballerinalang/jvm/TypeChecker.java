@@ -1992,7 +1992,7 @@ public class TypeChecker {
                 return false;
             } else {
                 int targetTypeSize = source.size() - targetTypes.size();
-                for (int i=0; i< targetTypeSize; i++) {
+                for (int i = 0; i < targetTypeSize; i++) {
                     targetTypes.add(targetType.getRestType());
                 }
             }
@@ -2017,7 +2017,6 @@ public class TypeChecker {
             }
         }
         return true;
-
     }
 
     private static BType getArrayElementType(ArrayValue source, int elementIndex) {

@@ -126,4 +126,9 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
     }
+
+    @Test
+    public void testIsLike() {
+        BRunUtil.invoke(compileResult, "testIsLike1");
+    }
 }
