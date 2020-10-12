@@ -231,6 +231,7 @@ import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 
@@ -2892,11 +2893,19 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     private <T extends Node> void checkForNewline(T node) {
+        this.hasNewline = false;
         for (Minutiae minutiae : node.trailingMinutiae()) {
             if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
                 this.hasNewline = true;
-                return;
+                break;
             }
+        }
+
+        // Set the line length for the next line.
+        if (this.hasNewline) {
+            this.lineLength = 0;
+        } else {
+            this.lineLength = node.location().lineRange().endLine().offset();
         }
     }
 
