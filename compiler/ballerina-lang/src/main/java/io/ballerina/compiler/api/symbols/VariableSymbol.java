@@ -19,8 +19,6 @@ package io.ballerina.compiler.api.symbols;
 
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 
-import java.util.Optional;
-
 /**
  * Represents a ballerina variable.
  *
@@ -33,5 +31,5 @@ public interface VariableSymbol extends Symbol, Qualifiable, Deprecatable {
      *
      * @return {@link BallerinaTypeDescriptor} of the variable
      */
-    Optional<BallerinaTypeDescriptor> typeDescriptor();
+    BallerinaTypeDescriptor typeDescriptor();
 }

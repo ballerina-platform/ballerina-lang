@@ -43,7 +43,7 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     }
 
     @Override
-    public Optional<BallerinaTypeDescriptor> typeDescriptor() {
+    public BallerinaTypeDescriptor typeDescriptor() {
         return this.functionSymbol.typeDescriptor();
     }
 

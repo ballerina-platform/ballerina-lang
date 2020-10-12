@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -71,8 +70,8 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
      * @return {@link BallerinaTypeDescriptor} of the variable
      */
     @Override
-    public Optional<BallerinaTypeDescriptor> typeDescriptor() {
-        return Optional.ofNullable(typeDescriptorImpl);
+    public BallerinaTypeDescriptor typeDescriptor() {
+        return typeDescriptorImpl;
     }
 
     @Override
