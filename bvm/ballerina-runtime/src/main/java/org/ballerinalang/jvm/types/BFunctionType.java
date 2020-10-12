@@ -17,12 +17,9 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.util.Flags;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * {@code {@link BFunctionType }} represents a function type in ballerina.
@@ -137,15 +134,5 @@ public class BFunctionType extends AnnotatableType {
     @Override
     public boolean isReadOnly() {
         return true;
-    }
-
-    public List<BString> getParamAnnotationKeys() {
-        List<BString> list = new ArrayList<>();
-        for (BString key : this.annotations.getKeys()) {
-            if (key.getValue().startsWith("$param$")) {
-                list.add(key);
-            }
-        }
-        return list;
     }
 }
