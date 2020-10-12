@@ -6508,6 +6508,25 @@ public class BallerinaParser extends AbstractParser {
     private STNode createArrayTypeDesc(STNode memberTypeDesc, STNode openBracketToken, STNode arrayLengthNode,
                                        STNode closeBracketToken) {
         memberTypeDesc = validateForUsageOfVar(memberTypeDesc);
+        if (arrayLengthNode != null) {
+            switch (arrayLengthNode.kind) {
+                case ASTERISK_LITERAL:
+                case SIMPLE_NAME_REFERENCE:
+                case QUALIFIED_NAME_REFERENCE:
+                    break;
+                case NUMERIC_LITERAL:
+                    SyntaxKind numericLiteralKind = arrayLengthNode.childInBucket(0).kind;
+                    if (numericLiteralKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
+                            numericLiteralKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
+                        break;
+                    }
+                    // fall through
+                default:
+                    openBracketToken = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(openBracketToken,
+                            arrayLengthNode, DiagnosticErrorCode.ERROR_INVALID_ARRAY_LENGTH);
+                    arrayLengthNode = STNodeFactory.createEmptyNode();
+            }
+        }
         return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, openBracketToken, arrayLengthNode,
                 closeBracketToken);
     }
@@ -13921,7 +13940,7 @@ public class BallerinaParser extends AbstractParser {
 
         // Parse first member
         STNode member = parseBracketedListMember(isTypedBindingPattern);
-        SyntaxKind currentNodeType = getBracketedListNodeType(member);
+        SyntaxKind currentNodeType = getBracketedListNodeType(member, isTypedBindingPattern);
         switch (currentNodeType) {
             case ARRAY_TYPE_DESC:
                 STNode typedBindingPattern = parseAsArrayTypeDesc(typeDescOrExpr, openBracket, member, context);
@@ -14274,7 +14293,7 @@ public class BallerinaParser extends AbstractParser {
      * @param memberNode Member node
      * @return Inferred type of the bracketed list
      */
-    private SyntaxKind getBracketedListNodeType(STNode memberNode) {
+    private SyntaxKind getBracketedListNodeType(STNode memberNode, boolean isTypedBindingPattern) {
         if (isEmpty(memberNode)) {
             // empty brackets. could be array-type or list-binding-pattern
             return SyntaxKind.NONE;
@@ -14302,6 +14321,9 @@ public class BallerinaParser extends AbstractParser {
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return SyntaxKind.NONE;
             default:
+                if (isTypedBindingPattern) {
+                    return SyntaxKind.NONE;
+                }
                 return SyntaxKind.INDEXED_EXPRESSION;
         }
     }
