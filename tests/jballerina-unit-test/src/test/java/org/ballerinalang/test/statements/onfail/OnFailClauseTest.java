@@ -18,9 +18,11 @@
 
 package org.ballerinalang.test.statements.onfail;
 
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -32,14 +34,22 @@ import org.testng.annotations.Test;
 
 public class OnFailClauseTest {
     private CompileResult result;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/onfail/on-fail-clause.bal");
+        negativeResult = BCompileUtil.compile("test-src/statements/onfail/on-fail-clause-negative.bal");
     }
 
     @Test(description = "Test on-fail clause edge cases")
     public void testOnFailClause() {
         BRunUtil.invoke(result, "testOnFailEdgeTestcases");
+    }
+
+    @Test(description = "Test on-fail clause negative cases")
+    public void testOnFailClauseNegativeCase() {
+        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        BAssertUtil.validateError(negativeResult, 0, "undefined symbol 'i'", 9, 50);
     }
 }

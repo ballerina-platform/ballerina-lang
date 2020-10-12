@@ -1,6 +1,9 @@
 function testOnFailEdgeTestcases() {
     testUnreachableCodeWithIf();
     testMultiLevelOnFail();
+    testRetryOnFailWithinWhile();
+    testOnFailWithinAnonFunc();
+    testRetryOnFailWithinObjectFunc();
 }
 
 function testUnreachableCodeWithIf(){
@@ -40,6 +43,100 @@ function testMultiLevelOnFail() {
     }
 
     assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+}
+
+public class MyRetryManager {
+    private int count;
+    public function init(int count = 3) {
+        self.count = count;
+    }
+    public function shouldRetry(error? e) returns boolean {
+        if e is error && self.count >  0 {
+            self.count -= 1;
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+function testRetryOnFailWithinWhile() {
+    int i = 0;
+    while (i < 2) {
+        string str = "start";
+        int count = 0;
+        retry<MyRetryManager> (2) {
+            count = count+1;
+            if (count < 2) {
+                str += (" attempt " + count.toString() + ":error,");
+                fail trxError();
+            }
+            str += (" attempt "+ count.toString() + ":result returned end.");
+        } on fail error e {
+            str += "-> error handled";
+        }
+
+        i = i+1;
+        assertEquality("start attempt 1:error, attempt 2:result returned end.", str);
+    }
+
+    assertEquality(2, i);
+}
+
+public function testOnFailWithinAnonFunc() {
+    function () anonFunction =
+        function () {
+            int i = 0;
+            string str = "";
+
+            while (i < 2) {
+                do {
+                    str += " -> Before error thrown, ";
+                    fail getError();
+                } on fail error e {
+                    str += " -> Error caught at level #1";
+                }
+
+                i = i + 1;
+            } on fail error e {
+                str += " -> Error caught at levet #2";
+            }
+
+        assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+    };
+
+    anonFunction();
+}
+
+class TestClass {
+    function runOnFailClause() returns string {
+        int i = 0;
+        string str = "";
+
+        while (i < 2) {
+            do {
+                str += " -> Before error thrown, ";
+                fail getError();
+            } on fail error e {
+                str += " -> Error caught at level #1";
+            }
+
+            i = i + 1;
+        } on fail error e {
+            str += " -> Error caught at levet #2";
+        }
+        return str;
+    }
+}
+
+function testRetryOnFailWithinObjectFunc() {
+    TestClass testClass = new ();
+    string str = testClass.runOnFailClause();
+    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+}
+
+function trxError()  returns error {
+    return error("TransactionError");
 }
 
 function getError() returns error {
