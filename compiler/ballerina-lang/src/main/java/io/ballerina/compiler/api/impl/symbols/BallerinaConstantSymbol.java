@@ -24,7 +24,7 @@ import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Represent Constant Symbol.
@@ -36,12 +36,12 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
     private final Object constValue;
 
     private BallerinaConstantSymbol(String name,
-                                     PackageID moduleID,
-                                     List<Qualifier> qualifiers,
-                                     BallerinaTypeDescriptor typeDescriptor,
-                                     Object constValue,
-                                     BSymbol bSymbol) {
-        super(name, moduleID, SymbolKind.CONST, qualifiers, typeDescriptor, bSymbol);
+                                    PackageID moduleID,
+                                    Set<Qualifier> qualifiers,
+                                    BallerinaTypeDescriptor typeDescriptor,
+                                    Object constValue,
+                                    BSymbol bSymbol) {
+        super(name, moduleID, SymbolKind.CONSTANT, qualifiers, typeDescriptor, bSymbol);
         this.constValue = constValue;
     }
 
