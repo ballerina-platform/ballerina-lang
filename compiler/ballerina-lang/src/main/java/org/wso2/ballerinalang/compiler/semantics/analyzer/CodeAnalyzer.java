@@ -408,7 +408,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
-        visit(objectConstructorExpression.typeInit);
     }
 
     @Override

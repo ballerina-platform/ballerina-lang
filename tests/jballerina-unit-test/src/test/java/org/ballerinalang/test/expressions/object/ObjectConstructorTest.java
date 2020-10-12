@@ -89,6 +89,8 @@ public class ObjectConstructorTest {
         BAssertUtil.validateError(negativeResult, index++, "invalid token 'public'", 34, 29);
         BAssertUtil.validateError(negativeResult, index++, "type inclusions are not allowed in object constructor",
                 40, 1);
+        BAssertUtil.validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with type 'any'",
+                42, 9);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }

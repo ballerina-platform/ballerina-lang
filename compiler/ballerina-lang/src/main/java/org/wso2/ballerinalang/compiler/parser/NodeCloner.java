@@ -2125,6 +2125,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.initFunction = clone(source.initFunction);
         clone.generatedInitFunction = clone(source.generatedInitFunction);
         clone.receiver = clone(source.receiver);
+        clone.induceTypeIds = source.induceTypeIds;
     }
 
     @Override

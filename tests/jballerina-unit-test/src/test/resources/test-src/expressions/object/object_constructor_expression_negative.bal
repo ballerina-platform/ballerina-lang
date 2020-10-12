@@ -38,3 +38,5 @@ class MO {}
 var testObjectWithTypeReference = object {
     *MO;
 };
+
+any o = object {  };

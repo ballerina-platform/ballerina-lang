@@ -590,11 +590,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         return classDefinitions;
     }
 
-//    @Override
-//    public void visit(BLangObjectConstructorExpression bLangObjectConstructorExpression) {
-//        throw new AssertionError();
-//    }
-
     @Override
     public void visit(BLangClassDefinition classDefinition) {
         EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);

@@ -131,6 +131,14 @@ distinct class DistinctFoo {
     int i = 0;
 }
 
+distinct class DistinctFooA {
+    int i = 0;
+}
+
+distinct class DistinctFooB {
+    int i = 0;
+}
+
 function testObjectConstructorWithDistintExpectedType() {
     DistinctFoo distinctObject = object {
                                         int i;
@@ -142,7 +150,7 @@ function testObjectConstructorWithDistintExpectedType() {
 }
 
 function testObjectConstructorWithDistintTypeReference() {
-    DistinctFoo distinctObject = object DistinctFoo {
+    DistinctFooA distinctObject = object DistinctFooA {
                                             int i;
                                             function init() {
                                                 self.i = 30;
@@ -152,13 +160,13 @@ function testObjectConstructorWithDistintTypeReference() {
 }
 
 function testObjectConstructorWithDistintTypeReferenceVar() {
-    var distinctObject = object DistinctFoo {
+    var distinctObject = object DistinctFooB {
                                             int i;
                                             function init() {
                                                 self.i = 25;
                                             }
                                          };
-    DistinctFoo newDistinctRef = distinctObject;
+    DistinctFooB newDistinctRef = distinctObject;
     assertValueEquality(25, newDistinctRef.i);
 }
 
