@@ -17,13 +17,14 @@
  */
 package io.ballerina.projects.directory;
 
-import io.ballerina.build.DocumentId;
-import io.ballerina.build.Module;
-import io.ballerina.build.ModuleId;
-import io.ballerina.build.PackageConfig;
-import io.ballerina.build.Project;
-import io.ballerina.build.environment.EnvironmentContext;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PackageConfig;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.env.BuildEnvContext;
+import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.model.BallerinaToml;
 import io.ballerina.projects.model.BallerinaTomlProcessor;
 import io.ballerina.projects.utils.ProjectConstants;
@@ -85,7 +86,7 @@ public class BuildProject extends Project {
             this.setBuildOptions(new BuildOptions());
         }
 
-        addPackage(projectPath.toString());
+        addPackage(projectPath);
     }
 
     public BuildOptions getBuildOptions() {
@@ -127,15 +128,17 @@ public class BuildProject extends Project {
      *
      * @param projectPath project path
      */
-    private void addPackage(String projectPath) {
-        final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, false);
+    private void addPackage(Path projectPath) {
+        PackageDescriptor packageDescriptor = ProjectFiles.createPackageDescriptor(
+                projectPath.resolve(ProjectConstants.BALLERINA_TOML));
+        final PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, false, packageDescriptor);
         this.addPackage(packageConfig);
     }
 
     /**
      * {@code BuildOptions} represents build options specific to a build project.
      */
-    public static class BuildOptions extends io.ballerina.build.BuildOptions {
+    public static class BuildOptions extends io.ballerina.projects.BuildOptions {
 
         private BuildOptions() {}
 

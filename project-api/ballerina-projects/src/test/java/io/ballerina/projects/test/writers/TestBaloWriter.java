@@ -19,7 +19,7 @@
 package io.ballerina.projects.test.writers;
 
 import com.google.gson.Gson;
-import io.ballerina.build.Project;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.model.BaloJson;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.writers.BaloWriter;

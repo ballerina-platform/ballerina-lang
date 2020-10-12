@@ -17,20 +17,20 @@
  */
 package io.ballerina.projects.test;
 
-import io.ballerina.build.DependencyGraph;
-import io.ballerina.build.Document;
-import io.ballerina.build.DocumentConfig;
-import io.ballerina.build.DocumentId;
-import io.ballerina.build.Module;
-import io.ballerina.build.ModuleCompilation;
-import io.ballerina.build.ModuleConfig;
-import io.ballerina.build.ModuleId;
-import io.ballerina.build.ModuleName;
-import io.ballerina.build.Package;
-import io.ballerina.build.PackageCompilation;
-import io.ballerina.build.PackageId;
-import io.ballerina.projects.ProjectLoader;
+import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentConfig;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleCompilation;
+import io.ballerina.projects.ModuleConfig;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageId;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
 import org.testng.Assert;

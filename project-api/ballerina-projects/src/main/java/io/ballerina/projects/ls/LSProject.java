@@ -17,8 +17,8 @@
  */
 package io.ballerina.projects.ls;
 
-import io.ballerina.build.Project;
-import io.ballerina.build.environment.EnvironmentContext;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.environment.EnvironmentContext;
 
 /**
  * {@code BuildProject} represents Ballerina project instance created by the language server.

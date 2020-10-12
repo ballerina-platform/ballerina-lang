@@ -42,7 +42,7 @@ public class BallerinaStreamTypeDescriptor extends AbstractTypeDescriptor implem
     }
 
     @Override
-    public List<BallerinaTypeDescriptor> getTypeParameters() {
+    public List<BallerinaTypeDescriptor> typeParameters() {
         if (this.typeParameters == null) {
             this.typeParameters = new ArrayList<>();
             typeParameters.add(TypesFactory.getTypeDescriptor(((BStreamType) this.getBType()).constraint));
@@ -54,11 +54,11 @@ public class BallerinaStreamTypeDescriptor extends AbstractTypeDescriptor implem
     @Override
     public String signature() {
         String memberSignature;
-        if (this.getTypeParameters().isEmpty()) {
+        if (this.typeParameters().isEmpty()) {
             memberSignature = "()";
         } else {
             StringJoiner joiner = new StringJoiner(", ");
-            this.getTypeParameters().forEach(typeDescriptor -> joiner.add(typeDescriptor.signature()));
+            this.typeParameters().forEach(typeDescriptor -> joiner.add(typeDescriptor.signature()));
             memberSignature = joiner.toString();
         }
         return "stream<" + memberSignature + ">";

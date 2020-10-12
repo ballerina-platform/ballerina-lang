@@ -57,7 +57,8 @@ dependencies {
     implementation project(':ballerina-config')
     implementation project(':ballerina-mime')
     implementation 'info.picocli:picocli'
-    implementation 'com.github.jknack:handlebars'
+    implementation 'com.github.jknack:handlebars:4.2.0'
+    implementation 'org.antlr:antlr4:4.8'
     implementation 'com.atlassian.commonmark:commonmark'
     implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables'
     implementation 'org.apache.commons:commons-lang3'
@@ -98,7 +99,8 @@ jar {
 shadowJar {
     configurations = [project.configurations.runtimeClasspath]
     dependencies {
-        include(dependency('com.github.jknack:handlebars'))
+        include(dependency('com.github.jknack:handlebars:4.2.0'))
+        include(dependency('org.antlr:antlr4:4.8'))
         include(dependency('com.atlassian.commonmark:commonmark'))
         include(dependency('com.atlassian.commonmark:commonmark-ext-gfm-tables'))
         exclude('META-INF/*.SF')

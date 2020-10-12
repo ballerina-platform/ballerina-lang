@@ -17,9 +17,9 @@
  */
 package io.ballerina.projects.env;
 
-import io.ballerina.build.Project;
-import io.ballerina.build.environment.EnvironmentContext;
-import io.ballerina.build.environment.ProjectEnvironmentContext;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.environment.EnvironmentContext;
+import io.ballerina.projects.environment.ProjectEnvironmentContext;
 
 /**
  * Represents the {@code EnvironmentContext} of the build project.
