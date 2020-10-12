@@ -47,8 +47,8 @@ public class CustomFunctionTest {
     public void testExtraParameters() {
         CompileResult compile = BCompileUtil.compile("test-src/functions/extra-parameters.bal");
         Assert.assertEquals(compile.getErrorCount(), 2);
-        BAssertUtil.validateError(compile, 0, "too many arguments in call to 'foo()'", 4, 9);
-        BAssertUtil.validateError(compile, 1, "missing comma token", 4, 17);
+        BAssertUtil.validateError(compile, 0, "too many arguments in call to 'foo()'", 20, 9);
+        BAssertUtil.validateError(compile, 1, "missing comma token", 20, 17);
     }
 
 }
