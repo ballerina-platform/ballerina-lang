@@ -142,6 +142,7 @@
             <package name="org.ballerinalang.test.types.readonly.*"/>
             <package name="org.ballerinalang.test.strand.*"/>
             <package name="org.ballerinalang.test.klass.*"/>
+            <package name="org.ballerinalang.test.services.*"/>
         </packages>
 
         <classes>
