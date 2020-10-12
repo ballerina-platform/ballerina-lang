@@ -26,13 +26,6 @@ import org.ballerinalang.jvm.values.XMLValue;
  *
  * @since Swan Lake
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-//        functionName = "createText",
-//        args = {@Argument(name = "string", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
 public class CreateText {
 
     public static XMLValue createText(BString string) {

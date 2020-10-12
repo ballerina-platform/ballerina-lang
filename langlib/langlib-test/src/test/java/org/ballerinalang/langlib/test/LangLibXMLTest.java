@@ -191,6 +191,11 @@ public class LangLibXMLTest {
     public void testCreateText() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateText");
         assertEquals((returns[0]).stringValue(), "This is xml text");
+        assertEquals((returns[1]).stringValue(), "");
+        assertEquals((returns[2]).stringValue(), "T");
+        assertEquals((returns[3]).stringValue(), "Thisisxmltext");
+        assertEquals((returns[4]).stringValue(), "XML" + "\n" + "text");
+        assertEquals((returns[5]).stringValue(), "This is xml textT");
     }
 
     @Test

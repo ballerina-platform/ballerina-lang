@@ -154,8 +154,15 @@ function testCreateComment() returns xml {
     return 'xml:createComment("This text should be wraped in xml comment");
 }
 
-function testCreateText() returns xml {
-    return 'xml:createText("This is xml text");
+function testCreateText() returns [xml,xml,xml,xml,xml,xml] {
+    'xml:Text text1 = 'xml:createText("This is xml text");
+    'xml:Text text2 = 'xml:createText("");
+    'xml:Text text3 = 'xml:createText("T");
+    'xml:Text text4 = 'xml:createText("Thisisxmltext");
+    'xml:Text text5 = 'xml:createText("XML" + "\n" + "text");
+    xml text6 = 'xml:concat(text1, text3);
+
+    return [text1, text2, text3, text4, text5, text6];
 }
 
 function testForEach() returns xml {
