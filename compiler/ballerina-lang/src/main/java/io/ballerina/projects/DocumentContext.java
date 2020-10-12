@@ -85,7 +85,7 @@ class DocumentContext {
             return this.syntaxTree;
         }
 
-        this.syntaxTree = SyntaxTree.from(this.textDocument());
+        this.syntaxTree = SyntaxTree.from(this.textDocument(), name);
         return this.syntaxTree;
     }
 
