@@ -872,11 +872,10 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse optional relative resource path.
      *
-     * @param isObjectMember
-     * @param isObjectTypeDesc
+     * @param isObjectMember Whether object member or not
      * @return Parsed node
      */
-    private STNode parseOptionalRelativePath(boolean isObjectMember, boolean isObjectTypeDesc) {
+    private STNode parseOptionalRelativePath(boolean isObjectMember) {
         STNode resourcePath;
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -888,20 +887,14 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createEmptyNodeList();
             default:
                 recover(nextToken, ParserRuleContext.OPTIONAL_RELATIVE_PATH);
-                return parseOptionalRelativePath(isObjectMember, isObjectTypeDesc);
+                return parseOptionalRelativePath(isObjectMember);
         }
 
-        DiagnosticErrorCode diagnosticErrorCode = null;
-        if (isObjectTypeDesc) {
-            diagnosticErrorCode = DiagnosticErrorCode.ERROR_RESOURCE_PATH_IN_METHOD_DECLARATION;
-        } else if (!isObjectMember) {
-            diagnosticErrorCode = DiagnosticErrorCode.ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION;
-        }
-
-        if (diagnosticErrorCode != null) {
-            addInvalidNodeToNextToken(resourcePath, diagnosticErrorCode);
+        if (!isObjectMember) {
+            addInvalidNodeToNextToken(resourcePath, DiagnosticErrorCode.ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION);
             return STNodeFactory.createEmptyNodeList();
         }
+
         return resourcePath;
     }
 
@@ -936,7 +929,7 @@ public class BallerinaParser extends AbstractParser {
         switch (peek().kind) {
             case IDENTIFIER_TOKEN:
                 STNode name = parseFunctionName();
-                STNode resourcePath = parseOptionalRelativePath(isObjectMember, isObjectTypeDesc);
+                STNode resourcePath = parseOptionalRelativePath(isObjectMember);
                 switchContext(ParserRuleContext.FUNC_DEF);
                 STNode funcSignature = parseFuncSignature(false);
                 STNode funcDef = parseFuncDefOrMethodDeclEnd(metadata, visibilityQualifier, qualifierList,
@@ -958,8 +951,8 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * <p>
-     * Parse function definition, object method definition, object method declaration or
-     * resource accessor definition end.
+     * Parse function definition, object method definition, object method declaration,
+     * resource accessor definition or resource accessor declaration end.
      * </p>
      *
      * @return Parsed node
@@ -967,39 +960,41 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseFuncDefOrMethodDeclEnd(STNode metadata, STNode visibilityQualifier, List<STNode> qualifierList,
                                                STNode functionKeyword, STNode name, STNode resourcePath,
                                                STNode funcSignature, boolean isObjectMember, boolean isObjectTypeDesc) {
-        if (isObjectTypeDesc) {
-            STNode semicolon = parseSemicolon();
-            return createMethodDeclaration(metadata, visibilityQualifier, qualifierList, functionKeyword, name,
-                    funcSignature, semicolon);
-        }
-
-        STNode body = parseFunctionBody();
         if (!isObjectMember) {
             return createFunctionDefinition(metadata, visibilityQualifier, qualifierList, functionKeyword, name,
-                    funcSignature, body);
+                    funcSignature);
 
         }
 
         boolean hasResourcePath = !isNodeListEmpty(resourcePath);
-        if (hasResourcePath) {
-            return createResourceAccessorDefinition(metadata, visibilityQualifier, qualifierList, functionKeyword, name,
-                    resourcePath, funcSignature, body);
-        }
-
-        if (isNodeWithSyntaxKindInList(qualifierList, SyntaxKind.RESOURCE_KEYWORD)) {
-            // create missing relative path and direct to resource accessor definition
+        if (!hasResourcePath && isNodeWithSyntaxKindInList(qualifierList, SyntaxKind.RESOURCE_KEYWORD)) {
+            // create missing relative path and direct towards resource accessor definition / declaration
             List<STNode> relativePath = new ArrayList<>();
             relativePath.add(STNodeFactory.createMissingToken(SyntaxKind.DOT_TOKEN));
             resourcePath = STNodeFactory.createNodeList(relativePath);
-            name = SyntaxErrors.addDiagnostic(name,
-                    DiagnosticErrorCode.ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION);
-
-            return createResourceAccessorDefinition(metadata, visibilityQualifier, qualifierList, functionKeyword, name,
-                    resourcePath, funcSignature, body);
+            DiagnosticErrorCode errorCode;
+            if (isObjectTypeDesc) {
+                errorCode = DiagnosticErrorCode.ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DECLARATION;
+            } else {
+                errorCode = DiagnosticErrorCode.ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION;
+            }
+            name = SyntaxErrors.addDiagnostic(name, errorCode);
+            hasResourcePath = true;
         }
 
-        return createMethodDefinition(metadata, visibilityQualifier, qualifierList, functionKeyword, name,
-                funcSignature, body);
+
+        if (hasResourcePath) {
+            return createResourceAccessorDefnOrDecl(metadata, visibilityQualifier, qualifierList, functionKeyword, name,
+                    resourcePath, funcSignature, isObjectTypeDesc);
+        }
+
+        if (isObjectTypeDesc) {
+            return createMethodDeclaration(metadata, visibilityQualifier, qualifierList, functionKeyword, name,
+                    funcSignature);
+        } else {
+            return createMethodDefinition(metadata, visibilityQualifier, qualifierList, functionKeyword, name,
+                   funcSignature);
+        }
     }
 
     /**
@@ -1014,7 +1009,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode createFunctionDefinition(STNode metadata, STNode visibilityQualifier, List<STNode> qualifierList,
-                                            STNode functionKeyword, STNode name, STNode funcSignature, STNode body) {
+                                            STNode functionKeyword, STNode name, STNode funcSignature) {
         /*
          * Validate qualifier list.
          * Rules:
@@ -1028,6 +1023,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
         STNode resourcePath = STNodeFactory.createEmptyNodeList();
+        STNode body = parseFunctionBody();
         return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.FUNCTION_DEFINITION, metadata, qualifiers,
                 functionKeyword, name, resourcePath, funcSignature, body);
     }
@@ -1050,7 +1046,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode createMethodDefinition(STNode metadata, STNode visibilityQualifier, List<STNode> qualifierList,
-                                          STNode functionKeyword, STNode name, STNode funcSignature, STNode body) {
+                                          STNode functionKeyword, STNode name, STNode funcSignature) {
         /*
          * Validate qualifier list.
          * Rules:
@@ -1070,6 +1066,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
         STNode resourcePath = STNodeFactory.createEmptyNodeList();
+        STNode body = parseFunctionBody();
         return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.OBJECT_METHOD_DEFINITION, metadata, qualifiers,
                 functionKeyword, name, resourcePath, funcSignature, body);
     }
@@ -1090,8 +1087,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode createMethodDeclaration(STNode metadata, STNode visibilityQualifier, List<STNode> qualifierList,
-                                           STNode functionKeyword, STNode name, STNode funcSignature,
-                                           STNode semicolon) {
+                                           STNode functionKeyword, STNode name, STNode funcSignature) {
         /*
          * Validate qualifier list.
          * Rules:
@@ -1133,17 +1129,23 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
-        return STNodeFactory.createMethodDeclarationNode(metadata, qualifiers, functionKeyword, name, funcSignature,
-                semicolon);
+        STNode resourcePath = STNodeFactory.createEmptyNodeList();
+        STNode semicolon = parseSemicolon();
+        return STNodeFactory.createMethodDeclarationNode(SyntaxKind.METHOD_DECLARATION, metadata, qualifiers,
+                functionKeyword, name, resourcePath, funcSignature, semicolon);
     }
 
     /**
-     * Parse resource accessor definition.
+     * Parse resource accessor definition or declaration.
      * <p>
      * <code>
      * resource-accessor-defn :=
      *    metadata `resource` `function` accessor-name relative-resource-path
      *    function-signature method-defn-body
+     * <br/>
+     * resource-accessor-decl :=
+     *    metadata `resource` `function` accessor-name relative-resource-path
+     *    function-signature ;
      * <br/>
      * accessor-name := identifier
      * <br/>
@@ -1152,9 +1154,10 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode createResourceAccessorDefinition(STNode metadata, STNode visibilityQualifier,
+    private STNode createResourceAccessorDefnOrDecl(STNode metadata, STNode visibilityQualifier,
                                                     List<STNode> qualifierList, STNode functionKeyword, STNode name,
-                                                    STNode resourcePath, STNode funcSignature, STNode body) {
+                                                    STNode resourcePath, STNode funcSignature,
+                                                    boolean isObjectTypeDesc) {
         /*
          * Validate qualifier list.
          * Rules:
@@ -1194,8 +1197,16 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode qualifiers = STNodeFactory.createNodeList(qualifierList);
-        return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.RESOURCE_ACCESSOR_DEFINITION, metadata, qualifiers,
-                functionKeyword, name, resourcePath, funcSignature, body);
+
+        if (isObjectTypeDesc) {
+            STNode semicolon = parseSemicolon();
+            return STNodeFactory.createMethodDeclarationNode(SyntaxKind.RESOURCE_ACCESSOR_DECLARATION, metadata,
+                    qualifiers, functionKeyword, name, resourcePath, funcSignature, semicolon);
+        } else {
+            STNode body = parseFunctionBody();
+            return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.RESOURCE_ACCESSOR_DEFINITION, metadata,
+                    qualifiers, functionKeyword, name, resourcePath, funcSignature, body);
+        }
     }
 
     /**

@@ -230,6 +230,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_ORDER_KEY("BCE110", "error.missing.order.key"),
     ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION("BCE111",
             "error.missing.resource.path.in.resource.accessor.definition"),
+    ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DECLARATION("BCE112",
+            "error.missing.resource.path.in.resource.accessor.declaration"),
 
     ERROR_MISSING_ANNOTATION_ATTACH_POINT("BCE200", "error.missing.annotation.attach.point"),
     ERROR_MISSING_LET_VARIABLE_DECLARATION("BCE201", "error.missing.let.variable.declaration"),
@@ -254,11 +256,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     // Cannot have private qualifier with object member descriptors
     ERROR_PRIVATE_QUALIFIER_IN_OBJECT_MEMBER_DESCRIPTOR("BCE212",
             "error.private.qualifier.in.object.member.descriptor"),
-    // Resource path is only allowed in method definition
+    // Resource path is not allowed in function definition
     ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION("BCE213", "error.resource.path.in.function.definition"),
-    ERROR_RESOURCE_PATH_IN_METHOD_DECLARATION("BCE214", "error.resource.path.in.method.declaration"),
     // Cannot have type inclusions in object constructor
-    ERROR_TYPE_INCLUSION_IN_OBJECT_CONSTRUCTOR("BCE215", "error.type.inclusion.in.object.constructor"),
+    ERROR_TYPE_INCLUSION_IN_OBJECT_CONSTRUCTOR("BCE214", "error.type.inclusion.in.object.constructor"),
     // Mapping constructor expression cannot be used as a wait expression
     ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR("BCE217", "error.mapping.constructor.expr.as.a.wait.expr"),
     // lhs must be an identifier or a param list

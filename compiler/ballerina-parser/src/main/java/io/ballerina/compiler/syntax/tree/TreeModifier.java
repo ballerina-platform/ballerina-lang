@@ -2262,15 +2262,19 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(methodDeclarationNode.functionKeyword());
         IdentifierToken methodName =
                 modifyNode(methodDeclarationNode.methodName());
+        NodeList<Token> relativeResourcePath =
+                modifyNodeList(methodDeclarationNode.relativeResourcePath());
         FunctionSignatureNode methodSignature =
                 modifyNode(methodDeclarationNode.methodSignature());
         Token semicolon =
                 modifyToken(methodDeclarationNode.semicolon());
         return methodDeclarationNode.modify(
+                methodDeclarationNode.kind(),
                 metadata,
                 qualifierList,
                 functionKeyword,
                 methodName,
+                relativeResourcePath,
                 methodSignature,
                 semicolon);
     }

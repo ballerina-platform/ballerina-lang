@@ -1785,13 +1785,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode qualifierList = modifyNode(methodDeclarationNode.qualifierList);
         STNode functionKeyword = modifyNode(methodDeclarationNode.functionKeyword);
         STNode methodName = modifyNode(methodDeclarationNode.methodName);
+        STNode relativeResourcePath = modifyNode(methodDeclarationNode.relativeResourcePath);
         STNode methodSignature = modifyNode(methodDeclarationNode.methodSignature);
         STNode semicolon = modifyNode(methodDeclarationNode.semicolon);
         return methodDeclarationNode.modify(
+                methodDeclarationNode.kind,
                 metadata,
                 qualifierList,
                 functionKeyword,
                 methodName,
+                relativeResourcePath,
                 methodSignature,
                 semicolon);
     }
