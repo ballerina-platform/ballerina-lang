@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 xmlns "http://sample.com/wso2/a1" as ns;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
@@ -189,17 +191,6 @@ function testTypeNameAsVariable5() {
 }
 
 function testGeneratedNames() {
-    assertEquality(serviceEPAvailable, false);
-    assertEquality(LOCK_STORE, "lockStore");
-}
-
-function assertEquality(any|error expected, any|error actual) {
-    if expected is anydata && actual is anydata && expected == actual {
-        return;
-    }
-    if expected === actual {
-        return;
-    }
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    test:assertFalse(serviceEPAvailable);
+    test:assertEquals(LOCK_STORE, "lockStore");
 }
