@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class TableTest {
 
-    @Test(enabled = false)
+    @Test
     public void testMissingTableKey() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
@@ -44,10 +44,10 @@ public class TableTest {
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 2, 2);
         TomlDiagnostic actualDiag = diagnostics.get(0);
 
-        ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "error missing key", DiagnosticSeverity.ERROR);
+        ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing identifier", DiagnosticSeverity.ERROR);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMissingTableClose() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
@@ -55,14 +55,14 @@ public class TableTest {
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
-        LineRange expectedLineRange = ErrorTestUtils.toLineRange(18, 18, 1, 1);
+        LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 7, 7);
         TomlDiagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing close bracket token",
                 DiagnosticSeverity.ERROR);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testWrongCloseBraceTableArray() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
@@ -70,7 +70,7 @@ public class TableTest {
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
-        LineRange expectedLineRange = ErrorTestUtils.toLineRange(18, 18, 1, 1);
+        LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 9, 9);
         TomlDiagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing close bracket token",

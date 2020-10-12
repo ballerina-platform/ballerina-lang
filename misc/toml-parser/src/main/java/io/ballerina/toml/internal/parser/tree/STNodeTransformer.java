@@ -33,6 +33,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(documentNode);
     }
 
+    public T transform(STTopLevelTriviaNode topLevelTriviaNode) {
+        return transformSyntaxNode(topLevelTriviaNode);
+    }
+
     public T transform(STTableNode tableNode) {
         return transformSyntaxNode(tableNode);
     }

@@ -46,21 +46,33 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stDocumentNode.createUnlinkedFacade();
     }
 
+    public static TopLevelTriviaNode createTopLevelTriviaNode(
+            NodeList<Token> newLines) {
+        Objects.requireNonNull(newLines, "newLines must not be null");
+
+        STNode stTopLevelTriviaNode = STNodeFactory.createTopLevelTriviaNode(
+                newLines.underlyingListNode().internalNode());
+        return stTopLevelTriviaNode.createUnlinkedFacade();
+    }
+
     public static TableNode createTableNode(
             Token openBracket,
             SeparatedNodeList<ValueNode> identifier,
             Token closeBracket,
-            NodeList<KeyValueNode> fields) {
+            NodeList<KeyValueNode> fields,
+            NodeList<Token> newLines) {
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(closeBracket, "closeBracket must not be null");
         Objects.requireNonNull(fields, "fields must not be null");
+        Objects.requireNonNull(newLines, "newLines must not be null");
 
         STNode stTableNode = STNodeFactory.createTableNode(
                 openBracket.internalNode(),
                 identifier.underlyingListNode().internalNode(),
                 closeBracket.internalNode(),
-                fields.underlyingListNode().internalNode());
+                fields.underlyingListNode().internalNode(),
+                newLines.underlyingListNode().internalNode());
         return stTableNode.createUnlinkedFacade();
     }
 
@@ -70,13 +82,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             SeparatedNodeList<ValueNode> identifier,
             Token firstCloseBracket,
             Token secondCloseBracket,
-            NodeList<KeyValueNode> fields) {
+            NodeList<KeyValueNode> fields,
+            NodeList<Token> newLines) {
         Objects.requireNonNull(firstOpenBracket, "firstOpenBracket must not be null");
         Objects.requireNonNull(secondOpenBracket, "secondOpenBracket must not be null");
         Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(firstCloseBracket, "firstCloseBracket must not be null");
         Objects.requireNonNull(secondCloseBracket, "secondCloseBracket must not be null");
         Objects.requireNonNull(fields, "fields must not be null");
+        Objects.requireNonNull(newLines, "newLines must not be null");
 
         STNode stTableArrayNode = STNodeFactory.createTableArrayNode(
                 firstOpenBracket.internalNode(),
@@ -84,22 +98,26 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 identifier.underlyingListNode().internalNode(),
                 firstCloseBracket.internalNode(),
                 secondCloseBracket.internalNode(),
-                fields.underlyingListNode().internalNode());
+                fields.underlyingListNode().internalNode(),
+                newLines.underlyingListNode().internalNode());
         return stTableArrayNode.createUnlinkedFacade();
     }
 
     public static KeyValueNode createKeyValueNode(
             SeparatedNodeList<ValueNode> identifier,
             Token assign,
-            ValueNode value) {
+            ValueNode value,
+            NodeList<Token> newLines) {
         Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(assign, "assign must not be null");
         Objects.requireNonNull(value, "value must not be null");
+        Objects.requireNonNull(newLines, "newLines must not be null");
 
         STNode stKeyValueNode = STNodeFactory.createKeyValueNode(
                 identifier.underlyingListNode().internalNode(),
                 assign.internalNode(),
-                value.internalNode());
+                value.internalNode(),
+                newLines.underlyingListNode().internalNode());
         return stKeyValueNode.createUnlinkedFacade();
     }
 

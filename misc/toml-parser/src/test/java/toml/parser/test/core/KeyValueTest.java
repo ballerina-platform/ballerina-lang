@@ -33,7 +33,7 @@ import java.io.InputStream;
 /**
  * Basic Test for TOML Key Value Pairs.
  */
-public class KeyValueTest {
+public class KeyValueTest extends AbstractTest {
 
     @Test
     public void testKeys() throws IOException {
@@ -62,6 +62,11 @@ public class KeyValueTest {
         Assert.assertEquals(unicode, "value");
         Assert.assertEquals(general, "value");
         Assert.assertEquals(escape, "value");
+    }
+
+    @Test(enabled = false)
+    public void testKeyJson() {
+        super.testFile("keys.toml", "keys.json");
     }
 
     @Test

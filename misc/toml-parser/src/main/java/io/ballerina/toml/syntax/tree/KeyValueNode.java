@@ -44,6 +44,10 @@ public class KeyValueNode extends DocumentMemberDeclarationNode {
         return childInBucket(2);
     }
 
+    public NodeList<Token> newLines() {
+        return new NodeList<>(childInBucket(3));
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -59,24 +63,28 @@ public class KeyValueNode extends DocumentMemberDeclarationNode {
         return new String[]{
                 "identifier",
                 "assign",
-                "value"};
+                "value",
+                "newLines"};
     }
 
     public KeyValueNode modify(
             SeparatedNodeList<ValueNode> identifier,
             Token assign,
-            ValueNode value) {
+            ValueNode value,
+            NodeList<Token> newLines) {
         if (checkForReferenceEquality(
                 identifier.underlyingListNode(),
                 assign,
-                value)) {
+                value,
+                newLines.underlyingListNode())) {
             return this;
         }
 
         return NodeFactory.createKeyValueNode(
                 identifier,
                 assign,
-                value);
+                value,
+                newLines);
     }
 
     public KeyValueNodeModifier modify() {
@@ -93,12 +101,14 @@ public class KeyValueNode extends DocumentMemberDeclarationNode {
         private SeparatedNodeList<ValueNode> identifier;
         private Token assign;
         private ValueNode value;
+        private NodeList<Token> newLines;
 
         public KeyValueNodeModifier(KeyValueNode oldNode) {
             this.oldNode = oldNode;
             this.identifier = oldNode.identifier();
             this.assign = oldNode.assign();
             this.value = oldNode.value();
+            this.newLines = oldNode.newLines();
         }
 
         public KeyValueNodeModifier withIdentifier(
@@ -122,11 +132,19 @@ public class KeyValueNode extends DocumentMemberDeclarationNode {
             return this;
         }
 
+        public KeyValueNodeModifier withNewLines(
+                NodeList<Token> newLines) {
+            Objects.requireNonNull(newLines, "newLines must not be null");
+            this.newLines = newLines;
+            return this;
+        }
+
         public KeyValueNode apply() {
             return oldNode.modify(
                     identifier,
                     assign,
-                    value);
+                    value,
+                    newLines);
         }
     }
 }

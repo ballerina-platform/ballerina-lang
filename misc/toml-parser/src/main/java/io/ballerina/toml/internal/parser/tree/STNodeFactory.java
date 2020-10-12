@@ -45,17 +45,26 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 eofToken);
     }
 
+    public static STNode createTopLevelTriviaNode(
+            STNode newLines) {
+
+        return new STTopLevelTriviaNode(
+                newLines);
+    }
+
     public static STNode createTableNode(
             STNode openBracket,
             STNode identifier,
             STNode closeBracket,
-            STNode fields) {
+            STNode fields,
+            STNode newLines) {
 
         return new STTableNode(
                 openBracket,
                 identifier,
                 closeBracket,
-                fields);
+                fields,
+                newLines);
     }
 
     public static STNode createTableArrayNode(
@@ -64,7 +73,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode identifier,
             STNode firstCloseBracket,
             STNode secondCloseBracket,
-            STNode fields) {
+            STNode fields,
+            STNode newLines) {
 
         return new STTableArrayNode(
                 firstOpenBracket,
@@ -72,18 +82,21 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 identifier,
                 firstCloseBracket,
                 secondCloseBracket,
-                fields);
+                fields,
+                newLines);
     }
 
     public static STNode createKeyValueNode(
             STNode identifier,
             STNode assign,
-            STNode value) {
+            STNode value,
+            STNode newLines) {
 
         return new STKeyValueNode(
                 identifier,
                 assign,
-                value);
+                value,
+                newLines);
     }
 
     public static STNode createArrayNode(

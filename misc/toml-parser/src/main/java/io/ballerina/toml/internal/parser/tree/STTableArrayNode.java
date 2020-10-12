@@ -37,6 +37,7 @@ public class STTableArrayNode extends STDocumentMemberDeclarationNode {
     public final STNode firstCloseBracket;
     public final STNode secondCloseBracket;
     public final STNode fields;
+    public final STNode newLines;
 
     STTableArrayNode(
             STNode firstOpenBracket,
@@ -44,7 +45,8 @@ public class STTableArrayNode extends STDocumentMemberDeclarationNode {
             STNode identifier,
             STNode firstCloseBracket,
             STNode secondCloseBracket,
-            STNode fields) {
+            STNode fields,
+            STNode newLines) {
         this(
                 firstOpenBracket,
                 secondOpenBracket,
@@ -52,6 +54,7 @@ public class STTableArrayNode extends STDocumentMemberDeclarationNode {
                 firstCloseBracket,
                 secondCloseBracket,
                 fields,
+                newLines,
                 Collections.emptyList());
     }
 
@@ -62,6 +65,7 @@ public class STTableArrayNode extends STDocumentMemberDeclarationNode {
             STNode firstCloseBracket,
             STNode secondCloseBracket,
             STNode fields,
+            STNode newLines,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.TABLE_ARRAY, diagnostics);
         this.firstOpenBracket = firstOpenBracket;
@@ -70,6 +74,7 @@ public class STTableArrayNode extends STDocumentMemberDeclarationNode {
         this.firstCloseBracket = firstCloseBracket;
         this.secondCloseBracket = secondCloseBracket;
         this.fields = fields;
+        this.newLines = newLines;
 
         addChildren(
                 firstOpenBracket,
@@ -77,7 +82,8 @@ public class STTableArrayNode extends STDocumentMemberDeclarationNode {
                 identifier,
                 firstCloseBracket,
                 secondCloseBracket,
-                fields);
+                fields,
+                newLines);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -88,6 +94,7 @@ public class STTableArrayNode extends STDocumentMemberDeclarationNode {
                 this.firstCloseBracket,
                 this.secondCloseBracket,
                 this.fields,
+                this.newLines,
                 diagnostics);
     }
 
@@ -97,14 +104,16 @@ public class STTableArrayNode extends STDocumentMemberDeclarationNode {
             STNode identifier,
             STNode firstCloseBracket,
             STNode secondCloseBracket,
-            STNode fields) {
+            STNode fields,
+            STNode newLines) {
         if (checkForReferenceEquality(
                 firstOpenBracket,
                 secondOpenBracket,
                 identifier,
                 firstCloseBracket,
                 secondCloseBracket,
-                fields)) {
+                fields,
+                newLines)) {
             return this;
         }
 
@@ -115,6 +124,7 @@ public class STTableArrayNode extends STDocumentMemberDeclarationNode {
                 firstCloseBracket,
                 secondCloseBracket,
                 fields,
+                newLines,
                 diagnostics);
     }
 

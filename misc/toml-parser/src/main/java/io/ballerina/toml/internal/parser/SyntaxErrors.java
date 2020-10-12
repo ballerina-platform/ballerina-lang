@@ -27,6 +27,7 @@ import io.ballerina.toml.internal.parser.tree.STToken;
 import io.ballerina.toml.internal.syntax.NodeListUtils;
 import io.ballerina.toml.internal.syntax.SyntaxUtils;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
+import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -131,13 +132,13 @@ public class SyntaxErrors {
 
     private static DiagnosticCode getErrorCode(ParserRuleContext currentCtx) {
         switch (currentCtx) {
-            case KEY:
-                return DiagnosticErrorCode.ERROR_MISSING_KEY;
+//            case KEY:
+//                return DiagnosticErrorCode.ERROR_MISSING_KEY;
             case VALUE:
                 return DiagnosticErrorCode.ERROR_MISSING_VALUE;
             case BASIC_LITERAL: // return var-ref for any kind of terminal expression
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
-            case STRING_LITERAL:
+            case STRING_CONTENT:
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
             default:
                 return getSeperatorTokenErrorCode(currentCtx);
@@ -150,20 +151,32 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
             case PLUS_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_PLUS_TOKEN;
-            case CLOSE_BRACKET:
             case ARRAY_VALUE_LIST_END:
+            case TABLE_END:
+            case ARRAY_TABLE_FIRST_END:
+            case ARRAY_TABLE_SECOND_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
             case COMMA:
                 return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
-            case OPEN_BRACKET:
+//            case OPEN_BRACKET:
             case ARRAY_VALUE_LIST_START:
+            case TABLE_START:
+            case ARRAY_TABLE_FIRST_START:
+            case ARRAY_TABLE_SECOND_START:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACKET_TOKEN;
-            case DOUBLE_CLOSE_BRACKET:
-                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_DOUBLE_BRACKET;
             case DOT:
                 return DiagnosticErrorCode.ERROR_MISSING_DOT_TOKEN;
-            case DOUBLE_OPEN_BRACKET:
-                return DiagnosticErrorCode.ERROR_MISSING_OPEN_DOUBLE_BRACKET;
+            case STRING_END:
+            case STRING_START:
+                return DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE_TOKEN;
+            case DECIMAL_INTEGER_LITERAL:
+                return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
+            case DECIMAL_FLOATING_POINT_LITERAL:
+                return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_FLOATING_POINT_LITERAL;
+            case NEW_LINE:
+                return DiagnosticErrorCode.ERROR_MISSING_NEW_LINE;
+            case IDENTIFIER_LITERAL:
+                return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             default:
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }

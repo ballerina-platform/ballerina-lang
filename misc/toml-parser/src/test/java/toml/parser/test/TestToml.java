@@ -16,13 +16,17 @@
  * under the License.
  */
 
+package toml.parser.test;
+
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.internal.parser.ParserFactory;
 import io.ballerina.toml.internal.parser.TomlParser;
 import io.ballerina.toml.internal.parser.tree.STNode;
-import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
+import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
+import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
 import io.ballerina.toml.semantic.ast.TomlTransformer;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.Node;
 
@@ -33,6 +37,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Test the parser.
@@ -66,8 +71,21 @@ public class TestToml {
     private static void testAPI(String path) throws IOException {
         InputStream inputStream = new FileInputStream(path);
         Toml read = Toml.read(inputStream);
-        TomlBooleanValueNode key1 = read.get("key");
+
+        List<TomlDiagnostic> diagnostics = read.getDiagnostics();
+        for (TomlDiagnostic diagnostic: diagnostics) {
+            OUT.println(diagnostic.message());
+        }
+
+        TomlLongValueNode key1 = read.get("key");
         OUT.println(key1.getValue());
+//        TomlArrayValueNode key1 = read.get("key");
+//        OUT.println(key1.get(0));
+
+//        TomlLongValueNode key = read.getTable("key").get("hello ooo");
+//        OUT.println(key);
+
+
 
     }
 }

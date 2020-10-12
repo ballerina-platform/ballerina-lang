@@ -17,10 +17,10 @@
  */
 package io.ballerina.toml.internal.parser.tree;
 
-import io.ballerina.toml.syntax.tree.KeyValueNode;
 import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.toml.syntax.tree.NonTerminalNode;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
+import io.ballerina.toml.syntax.tree.TopLevelTriviaNode;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -30,76 +30,46 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STKeyValueNode extends STDocumentMemberDeclarationNode {
-    public final STNode identifier;
-    public final STNode assign;
-    public final STNode value;
+public class STTopLevelTriviaNode extends STDocumentMemberDeclarationNode {
     public final STNode newLines;
 
-    STKeyValueNode(
-            STNode identifier,
-            STNode assign,
-            STNode value,
+    STTopLevelTriviaNode(
             STNode newLines) {
         this(
-                identifier,
-                assign,
-                value,
                 newLines,
                 Collections.emptyList());
     }
 
-    STKeyValueNode(
-            STNode identifier,
-            STNode assign,
-            STNode value,
+    STTopLevelTriviaNode(
             STNode newLines,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.KEY_VALUE, diagnostics);
-        this.identifier = identifier;
-        this.assign = assign;
-        this.value = value;
+        super(SyntaxKind.INITIAL_TRIVIA, diagnostics);
         this.newLines = newLines;
 
         addChildren(
-                identifier,
-                assign,
-                value,
                 newLines);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STKeyValueNode(
-                this.identifier,
-                this.assign,
-                this.value,
+        return new STTopLevelTriviaNode(
                 this.newLines,
                 diagnostics);
     }
 
-    public STKeyValueNode modify(
-            STNode identifier,
-            STNode assign,
-            STNode value,
+    public STTopLevelTriviaNode modify(
             STNode newLines) {
         if (checkForReferenceEquality(
-                identifier,
-                assign,
-                value,
                 newLines)) {
             return this;
         }
 
-        return new STKeyValueNode(
-                identifier,
-                assign,
-                value,
+        return new STTopLevelTriviaNode(
                 newLines,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new KeyValueNode(this, position, parent);
+        return new TopLevelTriviaNode(this, position, parent);
     }
 
     @Override

@@ -78,6 +78,12 @@ public class TomlLexer extends AbstractLexer {
         reader.advance();
         STToken token;
         switch (c) {
+            case LexerTerminals.NEWLINE:
+                token = getSyntaxToken(SyntaxKind.NEW_LINE);
+                break;
+            case LexerTerminals.CARRIAGE_RETURN:
+                token = getSyntaxToken(SyntaxKind.CARRIAGE_RETURN);
+                break;
             // Separators
             case LexerTerminals.OPEN_BRACKET:
                 token = getSyntaxToken(SyntaxKind.OPEN_BRACKET_TOKEN);
@@ -228,7 +234,7 @@ public class TomlLexer extends AbstractLexer {
             }
         }
 
-        return getLiteral(SyntaxKind.STRING_LITERAL);
+        return getUnquotedKey();
     }
 
     private STToken readLiteralStringToken() {
@@ -259,7 +265,7 @@ public class TomlLexer extends AbstractLexer {
             }
         }
 
-        return getLiteral(SyntaxKind.STRING_LITERAL);
+        return getUnquotedKey();
     }
 
     private STToken getSyntaxToken(SyntaxKind kind) {
@@ -328,13 +334,13 @@ public class TomlLexer extends AbstractLexer {
                 case LexerTerminals.FORM_FEED:
                     triviaList.add(processWhitespaces());
                     break;
-                case LexerTerminals.CARRIAGE_RETURN:
-                case LexerTerminals.NEWLINE:
-                    triviaList.add(processEndOfLine());
-                    if (isLeading) {
-                        break;
-                    }
-                    return;
+//                case LexerTerminals.CARRIAGE_RETURN:
+//                case LexerTerminals.NEWLINE:
+//                    triviaList.add(processEndOfLine());
+//                    if (isLeading) {
+//                        break;
+//                    }
+//                    return;
                 case LexerTerminals.HASH:
                     triviaList.add(processComment());
                     break;
@@ -473,7 +479,7 @@ public class TomlLexer extends AbstractLexer {
             break;
         }
         if (isString) {
-            type = SyntaxKind.IDENTIFIER_LITERAL; //TODO change to identiifer
+            type = SyntaxKind.IDENTIFIER_LITERAL;
         }
         // Integer cannot have a leading zero
         if (startChar == '0' && len > 1) {

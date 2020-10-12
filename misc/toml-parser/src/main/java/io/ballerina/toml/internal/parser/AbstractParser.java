@@ -17,11 +17,8 @@
  */
 package io.ballerina.toml.internal.parser;
 
-
 import io.ballerina.toml.internal.diagnostics.DiagnosticCode;
 import io.ballerina.toml.internal.diagnostics.DiagnosticErrorCode;
-import io.ballerina.toml.internal.parser.AbstractParserErrorHandler.Action;
-import io.ballerina.toml.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerina.toml.internal.parser.tree.STNode;
 import io.ballerina.toml.internal.parser.tree.STNodeList;
 import io.ballerina.toml.internal.parser.tree.STToken;
@@ -103,20 +100,20 @@ public abstract class AbstractParser {
         return token;
     }
 
-    protected Solution recover(STToken token, ParserRuleContext currentCtx, Object... args) {
-        Solution sol = this.errorHandler.recover(currentCtx, token, args);
+    protected AbstractParserErrorHandler.Solution recover(STToken token, ParserRuleContext currentCtx, Object... args) {
+        AbstractParserErrorHandler.Solution sol = this.errorHandler.recover(currentCtx, token, args);
         // If the action is to remove, then re-parse the same rule.
-        if (sol.action == Action.REMOVE) {
+        if (sol.action == AbstractParserErrorHandler.Action.REMOVE) {
             addInvalidTokenToNextToken(sol.removedToken);
-        } else if (sol.action == Action.INSERT) {
+        } else if (sol.action == AbstractParserErrorHandler.Action.INSERT) {
             this.insertedToken = (STToken) sol.recoveredNode;
         }
 
         return sol;
     }
 
-    protected void insertToken(SyntaxKind kind) {
-        this.insertedToken = SyntaxErrors.createMissingTokenWithDiagnostics(kind);
+    protected void insertToken(SyntaxKind kind, ParserRuleContext context) {
+        this.insertedToken = SyntaxErrors.createMissingTokenWithDiagnostics(kind, context);
     }
 
     protected void startContext(ParserRuleContext context) {
@@ -175,20 +172,42 @@ public abstract class AbstractParser {
     }
 
     /**
+     * Clones the last node in list with the invalid node as minutiae and update the list if the nodeList is not empty.
+     * Otherwise adds the invalid node as minutiae to the next consumed token.
+     *
+     * @param nodeList       node list to be updated if not empty
+     * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
+     * @param diagnosticCode diagnostic code related to the invalid node
+     * @param args           additional arguments used in diagnostic message
+     */
+    protected void updateLastNodeInListOrAddInvalidNodeToNextToken(List<STNode> nodeList,
+                                                                   STNode invalidParam,
+                                                                   DiagnosticCode diagnosticCode,
+                                                                   Object... args) {
+        if (nodeList.isEmpty()) {
+            addInvalidNodeToNextToken(invalidParam, diagnosticCode, args);
+        } else {
+            updateLastNodeInListWithInvalidNode(nodeList, invalidParam, diagnosticCode, args);
+        }
+    }
+
+    /**
      * Clones the last node in list with the invalid node as minutiae and update the list.
      *
      * @param nodeList       node list to be updated
      * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
      * @param diagnosticCode diagnostic code related to the invalid node
+     * @param args           additional arguments used in diagnostic message
      */
     protected void updateLastNodeInListWithInvalidNode(List<STNode> nodeList,
                                                        STNode invalidParam,
-                                                       DiagnosticCode diagnosticCode) {
+                                                       DiagnosticCode diagnosticCode,
+                                                       Object... args) {
         int lastIndex = nodeList.size() - 1;
         STNode prevNode = nodeList.remove(lastIndex);
         STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam);
         if (diagnosticCode != null) {
-            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode);
+            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
         }
         nodeList.add(newNode);
     }
@@ -237,4 +256,3 @@ public abstract class AbstractParser {
         }
     }
 }
-

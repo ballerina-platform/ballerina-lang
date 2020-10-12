@@ -43,6 +43,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(documentNode);
     }
 
+    public void visit(TopLevelTriviaNode topLevelTriviaNode) {
+        visitSyntaxNode(topLevelTriviaNode);
+    }
+
     public void visit(TableNode tableNode) {
         visitSyntaxNode(tableNode);
     }
