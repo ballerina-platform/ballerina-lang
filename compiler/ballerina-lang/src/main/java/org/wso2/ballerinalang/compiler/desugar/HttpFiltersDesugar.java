@@ -71,7 +71,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 
 /**
