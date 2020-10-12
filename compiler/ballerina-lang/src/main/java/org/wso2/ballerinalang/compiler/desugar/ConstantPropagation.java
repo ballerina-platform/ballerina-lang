@@ -229,8 +229,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
-        rewrite(objectConstructorExpression.typeInit);
-        result = objectConstructorExpression;
+        result = rewrite(objectConstructorExpression.typeInit);
     }
 
     @Override

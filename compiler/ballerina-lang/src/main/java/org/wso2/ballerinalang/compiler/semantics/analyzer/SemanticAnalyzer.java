@@ -433,7 +433,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
-        visit(objectConstructorExpression.classNode);
+        visit(objectConstructorExpression.typeInit);
     }
 
     private void analyzeClassDefinition(BLangClassDefinition classDefinition) {
