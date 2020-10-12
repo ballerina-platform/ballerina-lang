@@ -99,7 +99,12 @@ dependencies {
     dist 'org.ow2.asm:asm-tree:7.1'
     dist 'org.ow2.asm:asm-util:7.1'
     dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
-    
+
+    // Following dependencies are required for transactions
+    dist 'com.atomikos:transactions-jta:5.0.8'
+    dist 'com.atomikos:transactions-api:5.0.8'
+    dist 'com.atomikos:transactions:5.0.8'
+
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
     dist project(':ballerina-cli-utils')
@@ -275,13 +280,6 @@ def copyKraalLib = {
     }
 }
 
-def copyAtomikosLib = {
-    path -> copySpec {
-        from('lib/transactions*')
-        into("$path/bre/lib")
-    }
-}
-
 def copyJaCoCoAgent = {
     path -> copySpec {
         from('jacoco/jacocoagent.jar')
@@ -442,7 +440,6 @@ task createZip(type: Zip) {
     with copyResourceSpec(basePath)
 //    with copySrcBaloSpec(basePath)
     with copyKraalLib(basePath)
-    with copyAtomikosLib(basePath)
     with copyJaCoCoAgent(basePath)
 }
 
@@ -467,7 +464,6 @@ task updateBalHome(type: Copy) {
     with copyTemplatesSpec(installDir)
     with copyResourceSpec(installDir)
     with copyKraalLib(installDir)
-    with copyAtomikosLib(installDir)
     with copyJaCoCoAgent(installDir)
 //    with copySrcBaloSpec(installDir)
     into System.getenv('BAL_HOME')
@@ -497,7 +493,6 @@ task createDistribution(type: Copy) {
     with copyResourceSpec("")
 //    with copySrcBaloSpec("")
     with copyKraalLib("")
-    with copyAtomikosLib("")
     with copyJaCoCoAgent("")
     destinationDir=file(filePath)
 }
