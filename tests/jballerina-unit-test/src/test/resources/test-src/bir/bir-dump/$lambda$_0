@@ -1,4 +1,4 @@
-$lambda$0 function(map<any | error{map<anydata | readonly>}>, int) -> int {
+$lambda$_0 function(map<any | error{map<anydata | readonly>}>, int) -> int {
     %0(RETURN) int;
     %1(ARG) map<any | error>;
     %2(ARG) int;
