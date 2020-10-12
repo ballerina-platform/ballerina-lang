@@ -6469,7 +6469,7 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 case NUMERIC_LITERAL:
                     SyntaxKind numericLiteralKind = arrayLengthNode.childInBucket(0).kind;
-                    if(numericLiteralKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
+                    if (numericLiteralKind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN ||
                             numericLiteralKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN) {
                         break;
                     }
