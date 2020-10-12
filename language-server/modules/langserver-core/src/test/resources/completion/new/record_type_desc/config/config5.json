@@ -187,6 +187,28 @@
       ]
     },
     {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.future",
       "kind": "Module",
       "detail": "Module",
@@ -560,13 +582,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "c",
-      "kind": "Variable",
-      "detail": "module1:Client",
-      "insertText": "c",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "STRING_VAL",
       "kind": "Variable",
       "detail": "string",
@@ -586,7 +601,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `string` url"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `string` url  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "new(${1});",

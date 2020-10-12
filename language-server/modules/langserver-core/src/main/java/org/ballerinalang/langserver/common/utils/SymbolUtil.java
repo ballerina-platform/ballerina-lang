@@ -47,10 +47,17 @@ public class SymbolUtil {
      * @return {@link Boolean} whether the symbol holds the type object
      */
     public static boolean isObject(Symbol symbol) {
-        if (symbol.kind() != SymbolKind.VARIABLE) {
-            return false;
+        Optional<BallerinaTypeDescriptor> typeDescriptor;
+        switch (symbol.kind()) {
+            case TYPE:
+                typeDescriptor = ((TypeSymbol) symbol).typeDescriptor();
+                break;
+            case VARIABLE:
+                typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
+                break;
+            default:
+                typeDescriptor = Optional.empty();
         }
-        Optional<BallerinaTypeDescriptor> typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
 
         return typeDescriptor.isPresent() && typeDescriptor.get().kind() == TypeDescKind.OBJECT;
     }
@@ -105,7 +112,7 @@ public class SymbolUtil {
      */
     public static ObjectTypeDescriptor getTypeDescForObjectSymbol(Symbol symbol) {
         Optional<? extends BallerinaTypeDescriptor> typeDescriptor = getTypeDescriptor(symbol);
-        if (typeDescriptor.isEmpty() || isObject(symbol)) {
+        if (typeDescriptor.isEmpty() || !isObject(symbol)) {
             throw new UnsupportedOperationException("Cannot find a valid type descriptor");
         }
 
