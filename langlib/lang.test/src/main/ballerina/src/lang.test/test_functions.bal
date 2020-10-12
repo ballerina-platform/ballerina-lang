@@ -14,28 +14,45 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # Tests value equality for two values.
 #
 # + expected - expected value
 # + actual - actual value
-public function assertValueEqual(anydata expected, anydata actual) = external;
+public function assertValueEqual(anydata expected, anydata actual) = @java:Method {
+    'class: "org.ballerinalang.langlib.test.AssertValueEqual",
+    name: "assertValueEqual"
+} external;
 
 # Tests whether a value is of type 'error'.
 #
 # + value - the passed value to be asserted
-public function assertError(any|error value) = external;
+public function assertError(any|error value) = @java:Method {
+    'class: "org.ballerinalang.langlib.test.AssertError",
+    name: "assertError"
+} external;
 
 # Tests whether a value is of a non-error type.
 #
 # + value - the passed value to be asserted
-public function assertNotError(any|error value) = external;
+public function assertNotError(any|error value) = @java:Method {
+    'class: "org.ballerinalang.langlib.test.AssertNotError",
+    name: "assertNotError"
+} external;
 
 # Tests whether a value is 'true'.
 #
 # + value - the passed value to be asserted
-public function assertTrue(boolean value) = external;
+public function assertTrue(boolean value) = @java:Method {
+    'class: "org.ballerinalang.langlib.test.AssertTrue",
+    name: "assertTrue"
+} external;
 
 # Tests whether a value is 'false'.
 #
 # + value - the passed value to be asserted
-public function assertFalse(boolean value) = external;
+public function assertFalse(boolean value) = @java:Method {
+    'class: "org.ballerinalang.langlib.test.AssertFalse",
+    name: "assertFalse"
+} external;

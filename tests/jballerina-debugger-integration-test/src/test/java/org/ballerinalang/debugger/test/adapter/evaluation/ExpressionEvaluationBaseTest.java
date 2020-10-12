@@ -44,7 +44,7 @@ public abstract class ExpressionEvaluationBaseTest extends DebugAdapterBaseTestC
     protected static final String ARRAY_VAR = "v08_arrayVar";
     protected static final String TUPLE_VAR = "v09_tupleVar";
     protected static final String MAP_VAR = "v10_mapVar";
-    protected static final String RECORD_VAR = "v11_john";
+    protected static final String RECORD_VAR = "v11_recordVar";
     protected static final String ANON_RECORD_VAR = "v12_anonRecord";
     protected static final String ERROR_VAR = "v13_errorVar";
     protected static final String ANON_FUNCTION_VAR = "v14_anonFunctionVar";
@@ -62,6 +62,18 @@ public abstract class ExpressionEvaluationBaseTest extends DebugAdapterBaseTestC
     protected static final String STREAM_VAR = "v26_oddNumberStream";
     protected static final String NEVER_VAR = "v27_neverVar";
 
+    protected static final String GLOBAL_VAR_01 = "gv01_nameWithoutType";
+    protected static final String GLOBAL_VAR_02 = "gv02_nameWithType";
+    protected static final String GLOBAL_VAR_03 = "gv03_nameMap";
+    protected static final String GLOBAL_VAR_04 = "gv04_nilWithoutType";
+    protected static final String GLOBAL_VAR_05 = "gv05_nilWithType";
+    protected static final String GLOBAL_VAR_06 = "gv06_stringValue";
+    protected static final String GLOBAL_VAR_07 = "gv07_decimalValue";
+    protected static final String GLOBAL_VAR_08 = "gv08_byteValue";
+    protected static final String GLOBAL_VAR_09 = "gv09_floatValue";
+    protected static final String GLOBAL_VAR_10 = "gv10_jsonVar";
+    protected static final String GLOBAL_VAR_11 = "'gv11_\\ \\/\\:\\@\\[\\`\\{\\~\\u{2324}_IL";
+
     protected void prepareForEvaluation() throws BallerinaTestException {
         testProjectName = "basic-project";
         testModuleName = "advanced";
@@ -69,7 +81,7 @@ public abstract class ExpressionEvaluationBaseTest extends DebugAdapterBaseTestC
         testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
 
-        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 154));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 174));
         initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(25000);
         this.context = debugHitInfo.getRight();

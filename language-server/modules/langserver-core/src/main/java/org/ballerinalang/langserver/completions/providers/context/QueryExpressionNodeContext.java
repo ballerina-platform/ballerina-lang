@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
-import io.ballerinalang.compiler.syntax.tree.QueryExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.QueryPipelineNode;
+import io.ballerina.compiler.syntax.tree.OnConflictClauseNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
+import io.ballerina.compiler.syntax.tree.QueryPipelineNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;

@@ -67,14 +67,14 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
             Assert.fail("error loading resources");
         }
     }
-    
+
     @Test(description = "Compile non .bal file")
     public void testNonBalFileCompile() throws IOException {
         Path nonBalFilePath = this.testResources.resolve("non-bal-file");
         BuildCommand buildCommand = new BuildCommand(nonBalFilePath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("-c", "hello_world.txt");
         buildCommand.execute();
-    
+
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog, "ballerina: invalid Ballerina source path. It should either be a name of a " +
                                       "module in a Ballerina project or a file with a '.bal' extension. " +
@@ -85,7 +85,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
                                       "\n" +
                                       "For more information try --help\n");
     }
-    
+
     @Test(description = "Compile a valid ballerina file")
     public void testCompileBalFile() throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-bal-file");
@@ -94,11 +94,11 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         // name of the file as argument
         new CommandLine(buildCommand).parse("-c", "hello_world.bal");
         buildCommand.execute();
-    
+
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog, "ballerina: '-c' or '--compile' can only be used with modules.\n");
     }
-    
+
     @Test(description = "Compile a valid ballerina file by passing invalid source root path and absolute bal file path")
     public void testCompileBalFileWithAbsolutePath() throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-bal-file");
@@ -108,34 +108,34 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         new CommandLine(buildCommand).parse("-c",
                 validBalFilePath.resolve("hello_world.bal").toAbsolutePath().toString());
         buildCommand.execute();
-    
+
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog, "ballerina: '-c' or '--compile' can only be used with modules.\n");
     }
-    
+
     @Test(description = "Compile a valid ballerina file with toml")
     public void testCompileBalFileWithToml() throws IOException {
         Path sourceRoot = this.testResources.resolve("single-bal-file-with-toml");
         BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("-c", "hello_world.bal");
         buildCommand.execute();
-    
+
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog, "ballerina: '-c' or '--compile' can only be used with modules.\n");
     }
-    
+
     @Test(description = "Compile a ballerina project with no modules.")
     public void testCompileBalProjWithNoModules() throws IOException {
         Path sourceRoot = this.testResources.resolve("project-with-no-modules");
         BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("-a");
-    
+
         String exMsg = executeAndGetException(buildCommand);
         Assert.assertEquals(exMsg, "cannot find module(s) to build/compile as 'src' " +
                                    "directory is missing. modules should be placed inside " +
                                    "an 'src' directory of the project.");
     }
-    
+
     @Test(description = "Compile a ballerina project with non existing module.")
     public void testCompileBalProjectWithInvalidModule() throws IOException {
         Path sourceRoot = this.testResources.resolve("project-with-no-modules");
@@ -152,13 +152,13 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
                                       "\n" +
                                       "For more information try --help\n");
     }
-    
+
     @Test(description = "Compile a ballerina project with non existing module.")
     public void testCompileBalProjectToml() throws IOException {
         Path sourceRoot = this.testResources.resolve("ballerina-toml");
         BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("-c", "foo", "--skip-tests");
-        
+
         buildCommand.execute();
         String compileLog = readOutput(true);
         Assert.assertEquals(compileLog, "Compiling source\n" +
@@ -167,11 +167,12 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
                                       "\ttarget/balo/foo-"
                         + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0.balo\n"
                                       );
-        
+
         deleteDirectory(sourceRoot.resolve("target"));
-        
+
         String tomlContent = "";
-        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(),
+        StandardOpenOption.TRUNCATE_EXISTING);
         buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("-c", "foo");
         String exMsg = executeAndGetException(buildCommand);
@@ -180,22 +181,25 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
                                    "[project]\n" +
                                    "org-name=\"my_org\"\n" +
                                    "version=\"1.0.0\"\n");
-        
+
         tomlContent = "[project]";
-        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(),
+                      StandardOpenOption.TRUNCATE_EXISTING);
         exMsg = executeAndGetException(buildCommand);
         Assert.assertEquals(exMsg, "invalid Ballerina.toml file: cannot find 'org-name' under [project]");
-        
+
         tomlContent = "[project]\norg-name=\"bar\"";
-        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(),
+                      StandardOpenOption.TRUNCATE_EXISTING);
         exMsg = executeAndGetException(buildCommand);
         Assert.assertEquals(exMsg, "invalid Ballerina.toml file: cannot find 'version' under [project]");
-        
+
         tomlContent = "[project]\norg-name=\"bar\"\nversion=\"a.b.c\"";
-        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(),
+                      StandardOpenOption.TRUNCATE_EXISTING);
         exMsg = executeAndGetException(buildCommand);
         Assert.assertEquals(exMsg, "invalid Ballerina.toml file: 'version' under [project] is not semver");
-        
+
         readOutput(true);
     }
 
@@ -236,7 +240,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         Assert.assertTrue(Files.exists(target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)),
                 "Check if balo directory exists");
         // {module}-{lang spec version}-{platform}-{version}.balo
-        String baloName = "mymodule-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0.balo";
+        String baloName = "mymodule-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java11-0.1.0.balo";
         this.moduleBalo = target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)
                 .resolve(baloName);
         Assert.assertTrue(Files.exists(target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)),
@@ -282,7 +286,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
 
                         Module module = new Toml().read(moduleTomlContent).to(Module.class);
                         BaloToml balo = new Toml().read(baloTomlContent).to(BaloToml.class);
-    
+
                         Assert.assertEquals(module.module_version, "0.1.0");
                         Assert.assertEquals(balo.balo_version, "1.0.0");
 

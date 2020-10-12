@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 11,
+    "character": 9
+  },
+  "source": "annotation_ctx/source/annotationDeclAnnotation3.bal",
+  "items": [
+    {
+      "label": "sourceAnnotationAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceAnnotationAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sourceAnnotationAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "sourceAnnotationAnnotation2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

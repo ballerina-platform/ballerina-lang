@@ -75,7 +75,7 @@ public class VarDeclrSemanticTest {
         assertEquals(result.getErrorCount(), indx);
     }
 
-    @Test(groups = "disableOnOldParser")
+    @Test(groups = "disableOnOldParser", enabled = false)
     public void testIncompleteVarDecl() {
         CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/incomplete_var_decl.bal");
         int indx = 0;
