@@ -43,4 +43,13 @@ public class CustomFunctionTest {
         BAssertUtil.validateError(compile, 0, "redeclared symbol 'param'", 1, 35);
     }
 
+    @Test(description = "Test defining ballerina function with extra parameters with missing comma")
+    public void testExtraParameters() {
+        CompileResult compile = BCompileUtil.compile("test-src/functions/extra-parameters.bal");
+        Assert.assertEquals(compile.getErrorCount(), 2);
+        // Checking duplicate parameter definition in a function starting at 35st column
+        BAssertUtil.validateError(compile, 0, "too many arguments in call to 'foo()'", 4, 9);
+        BAssertUtil.validateError(compile, 1, "missing comma token", 4, 17);
+    }
+
 }
