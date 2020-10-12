@@ -1273,6 +1273,11 @@ public class Types {
         int lhsAttachedFuncCount = getObjectFuncCount(lhsStructSymbol);
         int rhsAttachedFuncCount = getObjectFuncCount(rhsStructSymbol);
 
+        // If LHS is a service obj, then RHS must be a service object in order to assignable
+        if (isServiceObject(lhsStructSymbol) && !isServiceObject(rhsStructSymbol)) {
+            return false;
+        }
+
         // RHS type should have at least all the fields as well attached functions of LHS type.
         if (lhsType.fields.size() > rhsType.fields.size() || lhsAttachedFuncCount > rhsAttachedFuncCount) {
             return false;
@@ -1298,6 +1303,11 @@ public class Types {
                     !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
+
+            // If LHS field is a resource field, RHS field must be a resource field
+            if (Symbols.isResource(lhsField.symbol) && !Symbols.isResource(rhsField.symbol)) {
+                return false;
+            }
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
@@ -1315,6 +1325,10 @@ public class Types {
         }
 
         return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet);
+    }
+
+    private boolean isServiceObject(BObjectTypeSymbol rhsStructSymbol) {
+        return (rhsStructSymbol.flags & Flags.SERVICE) == Flags.SERVICE;
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {

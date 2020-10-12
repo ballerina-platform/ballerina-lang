@@ -228,7 +228,6 @@ import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -1031,12 +1030,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         NodeList<Token> qualifierList = objFieldNode.qualifierList();
         for (Token token : qualifierList) {
             if (token.kind() == SyntaxKind.FINAL_KEYWORD) {
-                addFinalQualifier(token, simpleVar);
+                addFinalQualifier(simpleVar);
+            } else if (token.kind() == SyntaxKind.RESOURCE_KEYWORD) {
+                addResourceQualifier(simpleVar);
             }
         }
 
         simpleVar.pos = getPositionWithoutMetadata(objFieldNode);
         return simpleVar;
+    }
+
+    private void addResourceQualifier(BLangSimpleVariable simpleVar) {
+        simpleVar.flagSet.add(Flag.RESOURCE);
     }
 
     @Override
@@ -5075,7 +5080,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private void addFinalQualifier(Token finalKeyword, BLangSimpleVariable simpleVar) {
+    private void addFinalQualifier(BLangSimpleVariable simpleVar) {
         simpleVar.flagSet.add(Flag.FINAL);
     }
 

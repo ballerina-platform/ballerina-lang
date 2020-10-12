@@ -1971,6 +1971,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
                 .collect(getFieldCollector());
 
+        for (Map.Entry<String, BField> fieldEntry : structureType.fields.entrySet()) {
+            boolean isService = Symbols.isService(structureType.tsymbol);
+            validateResourceField(fieldEntry.getValue(), isService);
+            updateServiceResourceFieldVisibilityRegion(fieldEntry.getValue(), isService);
+        }
+
         // Resolve and add the fields of the referenced types to this object.
         resolveReferencedFields(structureTypeNode, typeDefEnv);
 
@@ -1981,6 +1987,19 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             structureType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos,
                                                                   field.symbol));
+        }
+    }
+
+    private void updateServiceResourceFieldVisibilityRegion(BField value, boolean isService) {
+        if (isService && value.symbol != null && Symbols.isResource(value.symbol)) {
+            value.symbol.flags |= Flags.PUBLIC;
+        }
+    }
+
+    private void validateResourceField(BField value, boolean isService) {
+        if (!isService && value.symbol != null && Symbols.isResource(value.symbol)) {
+            value.symbol.flags ^= Flags.RESOURCE;
+            dlog.error(value.pos, DiagnosticCode.RESOURCE_FIELD_ONLY_ALLOWED_IN_SERVICE_TYPE);
         }
     }
 
@@ -2548,11 +2567,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void validateResourceFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
-        if (Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)
-                && (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)
-                || Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE))) {
-            this.dlog.error(funcNode.pos, DiagnosticCode.SERVICE_FUNCTION_INVALID_MODIFIER);
-        }
         if (!Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.RESOURCE)) {
             return;
         }
@@ -2562,6 +2576,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT);
         }
 
+        // todo: We need to remove this
         types.validateErrorOrNilReturn(funcNode, DiagnosticCode.RESOURCE_FUNCTION_INVALID_RETURN_TYPE);
     }
 
