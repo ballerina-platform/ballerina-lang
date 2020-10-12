@@ -18,6 +18,9 @@ xmlns "http://sample.com/wso2/a1" as ns;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
+final boolean serviceEPAvailable = false;
+final string LOCK_STORE = "lockStore";
+
 int name = 10;
 
 type Person record {
@@ -183,4 +186,20 @@ function testTypeNameAsVariable5() {
     }
     var t = typeof name;
     panic error(ASSERTION_ERROR_REASON, message = "expected 'string', found '" + t.toString() + "'");
+}
+
+function testGeneratedNames() {
+    assertEquality(serviceEPAvailable, false);
+    assertEquality(LOCK_STORE, "lockStore");
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    if expected === actual {
+        return;
+    }
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
