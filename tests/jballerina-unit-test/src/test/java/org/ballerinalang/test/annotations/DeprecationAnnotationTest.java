@@ -73,7 +73,7 @@ public class DeprecationAnnotationTest {
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 216, 38);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 217, 5);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 222, 5);
-        BAssertUtil.validateWarning(compileResult, i, "usage of construct '$anonType$4()' is deprecated", 230, 27);
+        BAssertUtil.validateWarning(compileResult, i, "usage of construct '$anonType$_4()' is deprecated", 230, 27);
     }
 
     @Test(description = "Test the deprecation annotation")
