@@ -11,6 +11,10 @@ module io.ballerina.jvm {
     requires axiom.impl;
     requires io.ballerina.config;
     requires io.ballerina.logging;
+    requires transactions.jta;
+    requires java.transaction;
+    requires java.naming;
+
     exports org.ballerinalang.jvm.values;
     exports org.ballerinalang.jvm.types;
     exports org.ballerinalang.jvm.util;
