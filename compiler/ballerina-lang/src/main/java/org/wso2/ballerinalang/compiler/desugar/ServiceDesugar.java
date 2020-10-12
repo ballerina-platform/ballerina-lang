@@ -197,8 +197,6 @@ public class ServiceDesugar {
     }
 
     private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env) {
-        if (HttpFiltersDesugar.isHttpResource(functionNode)) {
-            httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
-        }
+        httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
     }
 }

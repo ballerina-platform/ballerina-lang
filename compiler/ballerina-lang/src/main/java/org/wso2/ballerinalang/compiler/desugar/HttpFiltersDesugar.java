@@ -131,13 +131,7 @@ public class HttpFiltersDesugar {
         this.types = Types.getInstance(context);
     }
 
-    /**
-     * Check if the resource is an http resource.
-     *
-     * @param resourceNode The resource to apply filter on if it is http
-     * @return true if the resource is an http resource
-     */
-    static boolean isHttpResource(BLangFunction resourceNode) {
+    private static boolean isHttpResource(BLangFunction resourceNode) {
         if (resourceNode.requiredParams.size() < 2) {
             return false;
         }
@@ -149,10 +143,13 @@ public class HttpFiltersDesugar {
     /**
      * Apply filter statements.
      *
-     * @param resourceNode The resource to apply filter on if it is http
+     * @param resourceNode The resource to apply filters on
      * @param env          the symbol environment
      */
     void addHttpFilterStatementsToResource(BLangFunction resourceNode, SymbolEnv env) {
+        if (!isHttpResource(resourceNode)) {
+            return;
+        }
         BLangSimpleVariable filterContextVar = addFilterContextCreation(resourceNode, env);
         addAssignmentAndForEach(resourceNode, filterContextVar, env);
     }
