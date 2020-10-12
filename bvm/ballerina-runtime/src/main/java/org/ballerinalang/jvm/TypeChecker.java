@@ -1982,19 +1982,35 @@ public class TypeChecker {
         }
 
         ArrayValue source = (ArrayValue) sourceValue;
-        if (source.size() != targetType.getTupleTypes().size()) {
+        if (targetType.getRestType() == null && source.size() != targetType.getTupleTypes().size()) {
             return false;
+        }
+
+        List<BType> targetTypes = new ArrayList<>(targetType.getTupleTypes());
+        if (targetType.getRestType() != null) {
+            if (source.size() <= targetTypes.size()) {
+                return false;
+            } else {
+                int targetTypeSize = source.size() - targetTypes.size();
+                for (int i=0; i< targetTypeSize; i++) {
+                    targetTypes.add(targetType.getRestType());
+                }
+            }
+        } else {
+            if (source.size() != targetType.getTupleTypes().size()) {
+                return false;
+            }
         }
 
         int bound = source.size();
         for (int i = 0; i < bound; i++) {
             BType elementType = getArrayElementType(source, i);
             if (BTypes.isValueType(elementType)) {
-                if (!checkIsType(elementType, targetType.getTupleTypes().get(i), new ArrayList<>())) {
+                if (!checkIsType(elementType, targetTypes.get(i), new ArrayList<>())) {
                     return false;
                 }
             } else {
-                if (!checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i), unresolvedValues,
+                if (!checkIsLikeType(source.getRefValue(i), targetTypes.get(i), unresolvedValues,
                         allowNumericConversion)) {
                     return false;
                 }
