@@ -23,6 +23,7 @@ import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -847,9 +848,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (inLockStatement && isInIsolatedObjectMethod(env, true) && !varRefExpr.lhsVar &&
-                isInvalidCopyIn(varRefExpr, env)) {
-            copyInInLockInfoStack.peek().varRefs.add(varRefExpr);
+        if (inLockStatement && isInIsolatedObjectMethod(env, true)) {
+            if ((!varRefExpr.lhsVar || varRefExpr.parent.getKind() != NodeKind.ASSIGNMENT)  &&
+                    !Names.SELF.value.equals(varRefExpr.variableName.value) && isInvalidCopyIn(varRefExpr, env)) {
+                copyInInLockInfoStack.peek().varRefs.add(varRefExpr);
+            } else if (!varRefExpr.lhsVar &&
+                    isInvalidCopyingOfMutableValueInIsolatedObject(varRefExpr, true)) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_COPY_OUT_OF_MUTABLE_VALUE_FROM_ISOLATED_OBJECT);
+            }
         }
 
         boolean inIsolatedFunction = isInIsolatedFunction(enclInvokable);
@@ -917,18 +923,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (inLockStatement) {
             copyInInLockInfoStack.peek().hasMutableAccessInLock = true;
-        } else {
-            dlog.error(fieldAccessExpr.pos,
-                       DiagnosticCode.INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
-        }
-
-        if (fieldAccessExpr.lhsVar) {
             return;
         }
 
-        if (isInvalidCopyingOfMutableIsolatedObjectField(fieldAccessExpr)) {
-            dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_COPY_OUT_OF_MUTABLE_VALUE_FROM_ISOLATED_OBJECT);
-        }
+        dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
     }
 
     @Override
@@ -1473,7 +1471,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private void analyzeInvocation(BLangInvocation invocationExpr) {
         List<BLangExpression> args = new ArrayList<>(invocationExpr.requiredArgs);
+
+        BLangExpression expr = invocationExpr.expr;
+        if (expr != null && !args.isEmpty() && args.get(0) != expr) {
+            args.add(0, expr);
+        }
+
         args.addAll(invocationExpr.restArgs);
+
         for (BLangExpression argExpr : args) {
             analyzeNode(argExpr, env);
         }
@@ -1731,7 +1736,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 (methodName.equals(CLONE_LANG_LIB_METHOD) || methodName.equals(CLONE_READONLY_LANG_LIB_METHOD));
     }
 
-    private boolean isInvalidCopyingOfMutableIsolatedObjectField(BLangExpression expression) {
+    private boolean isInvalidCopyingOfMutableValueInIsolatedObject(BLangExpression expression, boolean copyOut) {
         BType type = expression.type;
         if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
             return false;
@@ -1739,23 +1744,115 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         BLangNode parent = expression.parent;
 
+        NodeKind kind = parent.getKind();
         if (!(parent instanceof BLangExpression)) {
-            return true;
+            if (!copyOut) {
+                return true;
+            }
+
+            switch (kind) {
+                case ASSIGNMENT:
+                    BLangExpression varRef = ((BLangAssignment) parent).varRef;
+
+                    if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                        return false;
+                    }
+
+                    BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+                    return isDefinedOutsideLock(names.fromIdNode(simpleVarRef.variableName), simpleVarRef.symbol.tag,
+                                                env);
+                case RECORD_DESTRUCTURE:
+                    return hasRefDefinedOutsideLock(((BLangRecordDestructure) parent).varRef);
+                case TUPLE_DESTRUCTURE:
+                    return hasRefDefinedOutsideLock(((BLangTupleDestructure) parent).varRef);
+                case ERROR_DESTRUCTURE:
+                    return hasRefDefinedOutsideLock(((BLangErrorDestructure) parent).varRef);
+            }
+            return false;
         }
 
         BLangExpression parentExpression = (BLangExpression) parent;
 
-        switch (parent.getKind()) {
+        switch (kind) {
             case FIELD_BASED_ACCESS_EXPR:
             case INDEX_BASED_ACCESS_EXPR:
-                return isInvalidCopyingOfMutableIsolatedObjectField(parentExpression);
+                return isInvalidCopyingOfMutableValueInIsolatedObject(parentExpression, copyOut);
             case INVOCATION:
-                return !isCloneOrCloneReadOnlyInvocation((BLangInvocation) parentExpression);
+                BLangInvocation invocation = (BLangInvocation) parentExpression;
+                BLangExpression calledOnExpr = invocation.expr;
+
+                if (calledOnExpr == expression && !isIsolatedObjectTypes(type)) {
+                    return true;
+                }
+
+                return !isIsolated(invocation.symbol.flags) && !isCloneOrCloneReadOnlyInvocation(invocation);
             case GROUP_EXPR:
-                return isInvalidCopyingOfMutableIsolatedObjectField(((BLangGroupExpr) parentExpression).expression);
+                return isInvalidCopyingOfMutableValueInIsolatedObject(((BLangGroupExpr) parentExpression).expression,
+                                                                      copyOut);
         }
 
         return !isIsolatedObjectTypes(type);
+    }
+
+    private boolean hasRefDefinedOutsideLock(BLangExpression variableReference) {
+        switch (variableReference.getKind()) {
+            case SIMPLE_VARIABLE_REF:
+                BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) variableReference;
+                return isDefinedOutsideLock(names.fromIdNode(simpleVarRef.variableName), simpleVarRef.symbol.tag,
+                                            env);
+            case RECORD_VARIABLE_REF:
+                BLangRecordVarRef recordVarRef = (BLangRecordVarRef) variableReference;
+                for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : recordVarRef.recordRefFields) {
+                    if (hasRefDefinedOutsideLock(recordRefField.variableReference)) {
+                        return true;
+                    }
+                }
+                ExpressionNode recordRestParam = recordVarRef.restParam;
+                return recordRestParam != null && hasRefDefinedOutsideLock((BLangExpression) recordRestParam);
+            case TUPLE_VARIABLE_REF:
+                BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) variableReference;
+                for (BLangExpression expression : tupleVarRef.expressions) {
+                    if (hasRefDefinedOutsideLock(expression)) {
+                        return true;
+                    }
+                }
+                ExpressionNode tupleRestParam = tupleVarRef.restParam;
+                return tupleRestParam != null && hasRefDefinedOutsideLock((BLangExpression) tupleRestParam);
+            case ERROR_VARIABLE_REF:
+                BLangErrorVarRef errorVarRef = (BLangErrorVarRef) variableReference;
+
+                BLangVariableReference message = errorVarRef.message;
+                if (message != null && hasRefDefinedOutsideLock(message)) {
+                    return true;
+                }
+
+                BLangVariableReference cause = errorVarRef.cause;
+                if (cause != null && hasRefDefinedOutsideLock(cause)) {
+                    return true;
+                }
+
+                for (BLangNamedArgsExpression namedArgsExpression : errorVarRef.detail) {
+                    if (hasRefDefinedOutsideLock(namedArgsExpression.expr)) {
+                        return true;
+                    }
+                }
+
+                BLangVariableReference errorRestVar = errorVarRef.restVar;
+                return errorRestVar != null && hasRefDefinedOutsideLock(errorRestVar);
+        }
+        return false;
+    }
+
+    private boolean isDefinedOutsideLock(Name name, int symTag, SymbolEnv currentEnv) {
+        if (symResolver.lookupSymbolInGivenScope(currentEnv, name, symTag) != symTable.notFoundSymbol) {
+            return false;
+        }
+
+        if (currentEnv.node.getKind() == NodeKind.LOCK) {
+            return true;
+        }
+
+        return isDefinedOutsideLock(name, symTag, currentEnv.enclEnv);
     }
 
     private boolean isInIsolatedObjectMethod(SymbolEnv env, boolean ignoreInit) {
@@ -1791,7 +1888,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (currentEnv.node.getKind() == NodeKind.LOCK) {
-            return isInvalidCopyingOfMutableIsolatedObjectField(varRefExpr);
+            return isInvalidCopyingOfMutableValueInIsolatedObject(varRefExpr, false);
         }
 
         return isInvalidCopyIn(varRefExpr, name, symTag, env.enclEnv);
