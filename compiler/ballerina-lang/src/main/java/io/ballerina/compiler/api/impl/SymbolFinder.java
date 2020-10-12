@@ -184,7 +184,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
  *
  * @since 2.0.0
  */
-class NodeResolver extends BLangNodeVisitor {
+class SymbolFinder extends BLangNodeVisitor {
 
     private LinePosition cursorPos;
     private BLangNode enclosingNode;

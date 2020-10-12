@@ -107,8 +107,8 @@ public class BallerinaSemanticModel implements SemanticModel {
     @Override
     public Optional<Symbol> symbol(String srcFile, LinePosition position) {
         BLangCompilationUnit compilationUnit = getCompilationUnit(srcFile);
-        NodeResolver nodeResolver = new NodeResolver();
-        BLangNode node = nodeResolver.lookup(compilationUnit, position);
+        SymbolFinder symbolFinder = new SymbolFinder();
+        BLangNode node = symbolFinder.lookup(compilationUnit, position);
 
         if (node instanceof IdentifiableNode) {
             BSymbol symbol = (BSymbol) ((IdentifiableNode) node).getSymbol();
