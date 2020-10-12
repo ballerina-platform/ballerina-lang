@@ -94,6 +94,10 @@
                   "value": "foo"
                 },
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "FUNCTION_SIGNATURE",
                   "children": [
                     {
@@ -158,6 +162,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "foo0"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",
@@ -226,6 +234,10 @@
                   "value": "foo1"
                 },
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "FUNCTION_SIGNATURE",
                   "children": [
                     {
@@ -280,6 +292,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "foo2"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",

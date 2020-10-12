@@ -3033,7 +3033,6 @@
         {
             "name": "MethodDeclarationNode",
             "base": "Node",
-            "kind": "METHOD_DECLARATION",
             "attributes": [
                 {
                     "name": "metadata",
@@ -3052,6 +3051,11 @@
                 {
                     "name": "methodName",
                     "type": "IdentifierToken"
+                },
+                {
+                    "name": "relativeResourcePath",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "methodSignature",

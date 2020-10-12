@@ -315,6 +315,10 @@
                   "value": "init"
                 },
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "FUNCTION_SIGNATURE",
                   "children": [
                     {
@@ -407,6 +411,10 @@
                   "value": "getName"
                 },
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "FUNCTION_SIGNATURE",
                   "children": [
                     {
@@ -471,6 +479,10 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "value": "get"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
                 },
                 {
                   "kind": "FUNCTION_SIGNATURE",
@@ -802,6 +814,10 @@
                               "value": "init"
                             },
                             {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
                               "kind": "FUNCTION_SIGNATURE",
                               "children": [
                                 {
@@ -892,6 +908,10 @@
                             {
                               "kind": "IDENTIFIER_TOKEN",
                               "value": "getName"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
                             },
                             {
                               "kind": "FUNCTION_SIGNATURE",
