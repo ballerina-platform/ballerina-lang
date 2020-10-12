@@ -128,8 +128,8 @@ dependencies {
     langserverLib project(':language-server:language-server-stdio-launcher')
     langserverLib project(':language-server:language-server-cli')
     langserverLib project(':language-server:language-server-core')
-//    debugAdapterDistribution project(':debug-adapter:debug-adapter-core')
-//    debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
+    debugAdapterDistribution project(':debug-adapter:debug-adapter-core')
+    debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
 
     balSource project(path: ':jballerina', configuration: 'source')
 
@@ -148,7 +148,7 @@ dependencies {
     birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 
     // ballerinax module cache
-    balxBir project(path: ':ballerina-java', configuration: 'bir')
+    balxBir project(path: ':ballerina-lang:java', configuration: 'bir')
 
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
 //    balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
@@ -156,7 +156,7 @@ dependencies {
     // Lang Libs
     balDoc project(path: ':ballerina-lang:internal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:annotations', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-java', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:java', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:array', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:decimal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:error', configuration: 'balDoc')
@@ -176,7 +176,7 @@ dependencies {
     balDoc project(path: ':ballerina-lang:transaction', configuration: 'balDoc')
 
     // ballerinax modules
-    balDoc project(path: ':ballerina-java', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:java', configuration: 'balDoc')
 
     // testerina modules
     balDoc project(path: ':testerina:testerina-core', configuration: 'balDoc')
@@ -376,7 +376,7 @@ task pathingJar(type: Jar) {
 task copyApiDocs(type: Copy) {
     dependsOn configurations.balDoc
     from configurations.balDoc.files
-    into "$buildDir/api-docs";
+    into "$buildDir/api-docs"
     exclude "index.html"
     exclude "html-template-resources"
     exclude "syntax-highlighter"
@@ -385,13 +385,13 @@ task copyApiDocs(type: Copy) {
 task copyHighlighter(type: Copy) {
     dependsOn configurations.syntaxHighlighter
     from configurations.syntaxHighlighter
-    into "$buildDir/api-docs/syntax-highlighter";
+    into "$buildDir/api-docs/syntax-highlighter"
 }
 
 task copyHtmlTemplateResources(type: Copy) {
     dependsOn configurations.htmlTemplateResources
     from configurations.htmlTemplateResources
-    into "$buildDir/api-docs/html-template-resources";
+    into "$buildDir/api-docs/html-template-resources"
 }
 
 task generateDocs(type: JavaExec) {
