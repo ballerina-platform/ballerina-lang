@@ -19,8 +19,6 @@ package io.ballerina.compiler.api.symbols;
 
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 
-import java.util.Optional;
-
 /**
  * Represents a ballerina type definition.
  *
@@ -40,7 +38,7 @@ public interface TypeSymbol extends Symbol, Qualifiable, Deprecatable {
      *
      * @return {@link BallerinaTypeDescriptor} attached
      */
-    Optional<BallerinaTypeDescriptor> typeDescriptor();
+    BallerinaTypeDescriptor typeDescriptor();
 
     /**
      * Checks whether the type is a readonly type.

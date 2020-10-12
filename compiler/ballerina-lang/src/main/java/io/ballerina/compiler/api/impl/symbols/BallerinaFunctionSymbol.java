@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -68,8 +67,8 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
     }
 
     @Override
-    public Optional<BallerinaTypeDescriptor> typeDescriptor() {
-        return Optional.ofNullable(typeDescriptor);
+    public BallerinaTypeDescriptor typeDescriptor() {
+        return this.typeDescriptor;
     }
 
     @Override

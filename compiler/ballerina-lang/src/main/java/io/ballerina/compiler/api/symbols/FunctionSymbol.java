@@ -19,8 +19,6 @@ package io.ballerina.compiler.api.symbols;
 
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 
-import java.util.Optional;
-
 /**
  * Represent Function Symbol.
  *
@@ -33,7 +31,7 @@ public interface FunctionSymbol extends Symbol, Qualifiable, Deprecatable {
      *
      * @return {@link BallerinaTypeDescriptor}
      */
-    Optional<BallerinaTypeDescriptor> typeDescriptor();
+    BallerinaTypeDescriptor typeDescriptor();
 
     /**
      * Checks whether the function body is external or not.
