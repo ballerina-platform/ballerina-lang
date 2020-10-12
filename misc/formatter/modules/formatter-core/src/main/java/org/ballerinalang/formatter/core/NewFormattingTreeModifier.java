@@ -19,33 +19,56 @@ package org.ballerinalang.formatter.core;
 
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
+import io.ballerinalang.compiler.syntax.tree.AnnotAccessExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.AnnotationAttachPointNode;
+import io.ballerinalang.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
+import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.AsyncSendActionNode;
 import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.BreakStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerinalang.compiler.syntax.tree.CommitActionNode;
 import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
+import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
+import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerinalang.compiler.syntax.tree.DistinctTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.DoStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DocumentationReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.DoubleGTTokenNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.EnumMemberNode;
+import io.ballerinalang.compiler.syntax.tree.ErrorBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
+import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
+import io.ballerinalang.compiler.syntax.tree.FailStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternFullNode;
+import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternVarnameNode;
+import io.ballerinalang.compiler.syntax.tree.FieldMatchPatternNode;
+import io.ballerinalang.compiler.syntax.tree.FlushActionNode;
 import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ForkStatementNode;
+import io.ballerinalang.compiler.syntax.tree.FromClauseNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyNode;
@@ -53,20 +76,37 @@ import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionalMatchPatternNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionParameters;
+import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.IntermediateClauseNode;
+import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
 import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.JoinClauseNode;
+import io.ballerinalang.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
+import io.ballerinalang.compiler.syntax.tree.LetClauseNode;
+import io.ballerinalang.compiler.syntax.tree.LetExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.LimitClauseNode;
 import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ListMatchPatternNode;
+import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.LocalTypeDefinitionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.LockStatementNode;
+import io.ballerinalang.compiler.syntax.tree.MappingBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
+import io.ballerinalang.compiler.syntax.tree.MappingMatchPatternNode;
 import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationLineNode;
 import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerinalang.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
@@ -74,53 +114,125 @@ import io.ballerinalang.compiler.syntax.tree.MatchClauseNode;
 import io.ballerinalang.compiler.syntax.tree.MatchGuardNode;
 import io.ballerinalang.compiler.syntax.tree.MatchStatementNode;
 import io.ballerinalang.compiler.syntax.tree.MetadataNode;
+import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.NamedArgBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.NamedArgMatchPatternNode;
+import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarator;
+import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
+import io.ballerinalang.compiler.syntax.tree.ObjectConstructorExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
+import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OnFailClauseNode;
+import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.OrderByClauseNode;
+import io.ballerinalang.compiler.syntax.tree.OrderKeyNode;
 import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
+import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.QueryActionNode;
+import io.ballerinalang.compiler.syntax.tree.QueryConstructTypeNode;
+import io.ballerinalang.compiler.syntax.tree.QueryExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.QueryPipelineNode;
+import io.ballerinalang.compiler.syntax.tree.ReceiveActionNode;
+import io.ballerinalang.compiler.syntax.tree.ReceiveFieldsNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.RestBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.RestMatchPatternNode;
+import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
+import io.ballerinalang.compiler.syntax.tree.RetryStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.RollbackStatementNode;
+import io.ballerinalang.compiler.syntax.tree.SelectClauseNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
+import io.ballerinalang.compiler.syntax.tree.ServiceConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
+import io.ballerinalang.compiler.syntax.tree.StartActionNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
+import io.ballerinalang.compiler.syntax.tree.StreamTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.StreamTypeParamsNode;
+import io.ballerinalang.compiler.syntax.tree.SyncSendActionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TableTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.syntax.tree.TransactionStatementNode;
+import io.ballerinalang.compiler.syntax.tree.TransactionalExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.TrippleGTTokenNode;
 import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeCastParamNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
+import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.TypeReferenceTypeDescNode;
+import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.TypedescTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
+import io.ballerinalang.compiler.syntax.tree.WaitFieldNode;
+import io.ballerinalang.compiler.syntax.tree.WaitFieldsListNode;
+import io.ballerinalang.compiler.syntax.tree.WhereClauseNode;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
+import io.ballerinalang.compiler.syntax.tree.WildcardBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.XMLAtomicNamePatternNode;
+import io.ballerinalang.compiler.syntax.tree.XMLAttributeNode;
+import io.ballerinalang.compiler.syntax.tree.XMLAttributeValue;
+import io.ballerinalang.compiler.syntax.tree.XMLComment;
+import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
+import io.ballerinalang.compiler.syntax.tree.XMLEmptyElementNode;
+import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
+import io.ballerinalang.compiler.syntax.tree.XMLFilterExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.XMLNameNode;
+import io.ballerinalang.compiler.syntax.tree.XMLNamePatternChainingNode;
+import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
+import io.ballerinalang.compiler.syntax.tree.XMLQualifiedNameNode;
+import io.ballerinalang.compiler.syntax.tree.XMLSimpleNameNode;
+import io.ballerinalang.compiler.syntax.tree.XMLStartTagNode;
+import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
+import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -1061,12 +1173,15 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public AnnotationNode transform(AnnotationNode annotationNode) {
         Token atToken = formatToken(annotationNode.atToken(), 0, 0);
-        Node annotReference = formatNode(annotationNode.annotReference(), 1, 0);
+        Node annotReference;
 
         if (annotationNode.annotValue().isPresent()) {
+            annotReference = formatNode(annotationNode.annotReference(), 1, 0);
             MappingConstructorExpressionNode annotValue = formatNode(annotationNode.annotValue().get(),
                     this.trailingWS, this.trailingNL);
             annotationNode = annotationNode.modify().withAnnotValue(annotValue).apply();
+        } else {
+            annotReference = formatNode(annotationNode.annotReference(), this.trailingWS, this.trailingNL);
         }
 
         return annotationNode.modify()
@@ -1078,10 +1193,19 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public MappingConstructorExpressionNode transform(
             MappingConstructorExpressionNode mappingConstructorExpressionNode) {
-        Token openBrace = formatToken(mappingConstructorExpressionNode.openBrace(), 0, 1);
+        int fieldTrailingWS = 0;
+        int fieldTrailingNL = 0;
+        if (shouldExpand(mappingConstructorExpressionNode)) {
+            fieldTrailingNL++;
+        } else {
+            fieldTrailingWS++;
+        }
+
+        Token openBrace = formatToken(mappingConstructorExpressionNode.openBrace(), fieldTrailingWS, fieldTrailingNL);
         indent();
         SeparatedNodeList<MappingFieldNode> fields = formatSeparatedNodeList(
-                mappingConstructorExpressionNode.fields(), 0, 0, 0, 1, 0, 1);
+                mappingConstructorExpressionNode.fields(), 0, 0, fieldTrailingWS, fieldTrailingNL,
+                fieldTrailingWS, fieldTrailingNL);
         unindent();
         Token closeBrace = formatToken(mappingConstructorExpressionNode.closeBrace(), this.trailingWS, this.trailingNL);
 
@@ -1351,7 +1475,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public TableTypeDescriptorNode transform(TableTypeDescriptorNode tableTypeDescriptorNode) {
         Token tableKeywordToken = formatToken(tableTypeDescriptorNode.tableKeywordToken(), 0, 0);
         Node rowTypeParameterNode = formatNode(tableTypeDescriptorNode.rowTypeParameterNode(), 1, 0);
-        Node keyConstraintNode = formatNode(tableTypeDescriptorNode.keyConstraintNode(), 1, 0);
+        Node keyConstraintNode = formatNode(tableTypeDescriptorNode.keyConstraintNode(),
+                this.trailingWS, this.trailingNL);
 
         return tableTypeDescriptorNode.modify()
                 .withTableKeywordToken(tableKeywordToken)
@@ -1540,7 +1665,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public MarkdownDocumentationNode transform(MarkdownDocumentationNode markdownDocumentationNode) {
-        NodeList<Node> documentationLines = formatNodeList(markdownDocumentationNode.documentationLines(), 0, 0, 0, 1);
+        NodeList<Node> documentationLines = formatNodeList(markdownDocumentationNode.documentationLines(),
+                0, 0, this.trailingWS, this.trailingNL);
 
         return markdownDocumentationNode.modify()
                 .withDocumentationLines(documentationLines)
@@ -1550,7 +1676,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public MarkdownDocumentationLineNode transform(MarkdownDocumentationLineNode markdownDocumentationLineNode) {
         Token hashToken = formatToken(markdownDocumentationLineNode.hashToken(), 0, 0);
-        NodeList<Node> documentElements = formatNodeList(markdownDocumentationLineNode.documentElements(), 0, 0, 0, 1);
+        NodeList<Node> documentElements = formatNodeList(markdownDocumentationLineNode.documentElements(),
+                0, 0, this.trailingWS, this.trailingNL);
 
         return markdownDocumentationLineNode.modify()
                 .withDocumentElements(documentElements)
@@ -1565,8 +1692,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token plusToken = formatToken(markdownParameterDocumentationLineNode.plusToken(), 1, 0);
         Token parameterName = formatToken(markdownParameterDocumentationLineNode.parameterName(), 1, 0);
         Token minusToken = formatToken(markdownParameterDocumentationLineNode.minusToken(), 0, 0);
-        NodeList<Node> documentElements =
-                formatNodeList(markdownParameterDocumentationLineNode.documentElements(), 0, 0, 0, 1);
+        NodeList<Node> documentElements = formatNodeList(markdownParameterDocumentationLineNode.documentElements(),
+                0, 0, this.trailingWS, this.trailingNL);
 
         return markdownParameterDocumentationLineNode.modify()
                 .withHashToken(hashToken)
@@ -1592,6 +1719,1122 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .withStartBacktick(startBacktick)
                 .withBacktickContent(backtickContent)
                 .withEndBacktick(endBacktick)
+                .apply();
+    }
+
+    @Override
+    public PositionalArgumentNode transform(PositionalArgumentNode positionalArgumentNode) {
+
+        return super.transform(positionalArgumentNode);
+    }
+
+    @Override
+    public MappingBindingPatternNode transform(MappingBindingPatternNode mappingBindingPatternNode) {
+
+        return super.transform(mappingBindingPatternNode);
+    }
+
+    @Override
+    public FieldBindingPatternFullNode transform(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
+
+        return super.transform(fieldBindingPatternFullNode);
+    }
+
+    @Override
+    public FieldBindingPatternVarnameNode transform(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
+
+        return super.transform(fieldBindingPatternVarnameNode);
+    }
+
+    @Override
+    public TypeTestExpressionNode transform(TypeTestExpressionNode typeTestExpressionNode) {
+
+        return super.transform(typeTestExpressionNode);
+    }
+
+    @Override
+    public ListenerDeclarationNode transform(ListenerDeclarationNode listenerDeclarationNode) {
+
+        return super.transform(listenerDeclarationNode);
+    }
+
+    @Override
+    public ArrayTypeDescriptorNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+
+        return super.transform(arrayTypeDescriptorNode);
+    }
+
+    @Override
+    public MethodCallExpressionNode transform(MethodCallExpressionNode methodCallExpressionNode) {
+
+        return super.transform(methodCallExpressionNode);
+    }
+
+    @Override
+    public NilLiteralNode transform(NilLiteralNode nilLiteralNode) {
+        Token openParenToken = formatToken(nilLiteralNode.openParenToken(), 0, 0);
+        Token closeParenToken = formatToken(nilLiteralNode.closeParenToken(), this.trailingWS, this.trailingNL);
+
+        return nilLiteralNode.modify()
+                .withOpenParenToken(openParenToken)
+                .withCloseParenToken(closeParenToken)
+                .apply();
+    }
+
+    @Override
+    public XMLNamespaceDeclarationNode transform(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
+        Token xmlnsKeyword = formatToken(xMLNamespaceDeclarationNode.xmlnsKeyword(), 1, 0);
+        ExpressionNode namespaceuri;
+
+        if (xMLNamespaceDeclarationNode.asKeyword().isPresent()) {
+            Token asKeyword = formatToken(xMLNamespaceDeclarationNode.asKeyword().get(), 1, 0);
+            xMLNamespaceDeclarationNode = xMLNamespaceDeclarationNode.modify()
+                    .withAsKeyword(asKeyword).apply();
+        }
+
+        if (xMLNamespaceDeclarationNode.namespacePrefix().isPresent()) {
+            namespaceuri = formatNode(xMLNamespaceDeclarationNode.namespaceuri(), 1, 0);
+            IdentifierToken namespacePrefix = formatNode(xMLNamespaceDeclarationNode.namespacePrefix().get(), 0, 0);
+            xMLNamespaceDeclarationNode = xMLNamespaceDeclarationNode.modify()
+                    .withNamespacePrefix(namespacePrefix).apply();
+        } else {
+            namespaceuri = formatNode(xMLNamespaceDeclarationNode.namespaceuri(), 0, 0);
+        }
+
+        Token semicolonToken = formatToken(xMLNamespaceDeclarationNode.semicolonToken(),
+                this.trailingWS, this.trailingNL);
+
+        return xMLNamespaceDeclarationNode.modify()
+                .withXmlnsKeyword(xmlnsKeyword)
+                .withNamespaceuri(namespaceuri)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public ModuleXMLNamespaceDeclarationNode transform(
+            ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
+        Token xmlnsKeyword = formatToken(moduleXMLNamespaceDeclarationNode.xmlnsKeyword(), 1, 0);
+        ExpressionNode namespaceuri = formatNode(moduleXMLNamespaceDeclarationNode.namespaceuri(), 1, 0);
+        Token asKeyword = formatToken(moduleXMLNamespaceDeclarationNode.asKeyword(), 1, 0);
+        IdentifierToken namespacePrefix = formatNode(moduleXMLNamespaceDeclarationNode.namespacePrefix(), 0, 0);
+        Token semicolonToken = formatToken(moduleXMLNamespaceDeclarationNode.semicolonToken(),
+                this.trailingWS, this.trailingNL);
+
+        return moduleXMLNamespaceDeclarationNode.modify()
+                .withNamespacePrefix(namespacePrefix)
+                .withNamespaceuri(namespaceuri)
+                .withXmlnsKeyword(xmlnsKeyword)
+                .withAsKeyword(asKeyword)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public XmlTypeDescriptorNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+
+        return super.transform(xmlTypeDescriptorNode);
+    }
+
+    @Override
+    public XMLElementNode transform(XMLElementNode xMLElementNode) {
+
+        return super.transform(xMLElementNode);
+    }
+
+    @Override
+    public XMLStartTagNode transform(XMLStartTagNode xMLStartTagNode) {
+
+        return super.transform(xMLStartTagNode);
+    }
+
+    @Override
+    public XMLEndTagNode transform(XMLEndTagNode xMLEndTagNode) {
+
+        return super.transform(xMLEndTagNode);
+    }
+
+    @Override
+    public XMLSimpleNameNode transform(XMLSimpleNameNode xMLSimpleNameNode) {
+        Token name = formatToken(xMLSimpleNameNode.name(), this.trailingWS, this.trailingNL);
+
+        return xMLSimpleNameNode.modify()
+                .withName(name)
+                .apply();
+    }
+
+    @Override
+    public XMLQualifiedNameNode transform(XMLQualifiedNameNode xMLQualifiedNameNode) {
+
+        return super.transform(xMLQualifiedNameNode);
+    }
+
+    @Override
+    public XMLEmptyElementNode transform(XMLEmptyElementNode xMLEmptyElementNode) {
+        Token ltToken = formatToken(xMLEmptyElementNode.ltToken(), 0, 0);
+        XMLNameNode name;
+        if (xMLEmptyElementNode.attributes().isEmpty()) {
+            name = formatNode(xMLEmptyElementNode.name(), 0, 0);
+        } else {
+            name = formatNode(xMLEmptyElementNode.name(), 1, 0);
+        }
+
+        NodeList<XMLAttributeNode> attributes = formatNodeList(xMLEmptyElementNode.attributes(), 1, 0, 0, 0);
+        Token slashToken = formatToken(xMLEmptyElementNode.slashToken(), 0, 0);
+        Token getToken = formatToken(xMLEmptyElementNode.getToken(), this.trailingWS, this.trailingNL);
+
+        return xMLEmptyElementNode.modify()
+                .withLtToken(ltToken)
+                .withName(name)
+                .withAttributes(attributes)
+                .withSlashToken(slashToken)
+                .withGetToken(getToken)
+                .apply();
+    }
+
+    @Override
+    public XMLTextNode transform(XMLTextNode xMLTextNode) {
+        Token content = formatToken(xMLTextNode.content(), this.trailingWS, this.trailingNL);
+
+        return xMLTextNode.modify()
+                .withContent(content)
+                .apply();
+    }
+
+    @Override
+    public XMLAttributeNode transform(XMLAttributeNode xMLAttributeNode) {
+
+        return super.transform(xMLAttributeNode);
+    }
+
+    @Override
+    public XMLAttributeValue transform(XMLAttributeValue xMLAttributeValue) {
+
+        return super.transform(xMLAttributeValue);
+    }
+
+    @Override
+    public XMLComment transform(XMLComment xMLComment) {
+        Token commentStart = formatToken(xMLComment.commentStart(), 0, 0);
+        NodeList<Node> content = formatNodeList(xMLComment.content(), 1, 0, 0, 0);
+        Token commentEnd = formatToken(xMLComment.commentEnd(), this.trailingWS, this.trailingNL);
+
+        return xMLComment.modify()
+                .withCommentStart(commentStart)
+                .withContent(content)
+                .withCommentEnd(commentEnd)
+                .apply();
+    }
+
+    @Override
+    public XMLProcessingInstruction transform(XMLProcessingInstruction xMLProcessingInstruction) {
+        Token piStart = formatToken(xMLProcessingInstruction.piStart(), 0, 0);
+        XMLNameNode target = formatNode(xMLProcessingInstruction.target(), 1, 0);
+        NodeList<Node> data = formatNodeList(xMLProcessingInstruction.data(), 1, 0, 0, 0);
+        Token piEnd = formatToken(xMLProcessingInstruction.piEnd(), this.trailingWS, this.trailingNL);
+
+        return xMLProcessingInstruction.modify()
+                .withTarget(target)
+                .withPiStart(piStart)
+                .withData(data)
+                .withPiEnd(piEnd)
+                .apply();
+    }
+
+    @Override
+    public XMLFilterExpressionNode transform(XMLFilterExpressionNode xMLFilterExpressionNode) {
+
+        return super.transform(xMLFilterExpressionNode);
+    }
+
+    @Override
+    public XMLStepExpressionNode transform(XMLStepExpressionNode xMLStepExpressionNode) {
+
+        return super.transform(xMLStepExpressionNode);
+    }
+
+    @Override
+    public XMLNamePatternChainingNode transform(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+
+        return super.transform(xMLNamePatternChainingNode);
+    }
+
+    @Override
+    public XMLAtomicNamePatternNode transform(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+
+        return super.transform(xMLAtomicNamePatternNode);
+    }
+
+    @Override
+    public TemplateExpressionNode transform(TemplateExpressionNode templateExpressionNode) {
+
+        return super.transform(templateExpressionNode);
+    }
+
+    @Override
+    public ByteArrayLiteralNode transform(ByteArrayLiteralNode byteArrayLiteralNode) {
+
+        return super.transform(byteArrayLiteralNode);
+    }
+
+    @Override
+    public TypeReferenceNode transform(TypeReferenceNode typeReferenceNode) {
+
+        return super.transform(typeReferenceNode);
+    }
+
+    @Override
+    public MappingMatchPatternNode transform(MappingMatchPatternNode mappingMatchPatternNode) {
+
+        return super.transform(mappingMatchPatternNode);
+    }
+
+    @Override
+    public StartActionNode transform(StartActionNode startActionNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(startActionNode.annotations(), 0, 1, 0, 1);
+        Token startKeyword = formatToken(startActionNode.startKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(startActionNode.expression(), this.trailingWS, this.trailingNL);
+
+        return startActionNode.modify()
+                .withAnnotations(annotations)
+                .withStartKeyword(startKeyword)
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public FlushActionNode transform(FlushActionNode flushActionNode) {
+        Token flushKeyword = formatToken(flushActionNode.flushKeyword(), 1, 0);
+        NameReferenceNode peerWorker = formatNode(flushActionNode.peerWorker(), this.trailingWS, this.trailingNL);
+
+        return flushActionNode.modify()
+                .withFlushKeyword(flushKeyword)
+                .withPeerWorker(peerWorker)
+                .apply();
+    }
+
+    @Override
+    public NamedWorkerDeclarationNode transform(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+
+        return super.transform(namedWorkerDeclarationNode);
+    }
+
+    @Override
+    public FailStatementNode transform(FailStatementNode failStatementNode) {
+        Token failKeyword = formatToken(failStatementNode.failKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(failStatementNode.expression(), 0, 0);
+        Token semicolonToken = formatToken(failStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+
+        return failStatementNode.modify()
+                .withFailKeyword(failKeyword)
+                .withExpression(expression)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public ContinueStatementNode transform(ContinueStatementNode continueStatementNode) {
+        Token continueToken = formatToken(continueStatementNode.continueToken(), 0, 0);
+        Token semicolonToken = formatToken(continueStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+
+        return continueStatementNode.modify()
+                .withContinueToken(continueToken)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public LocalTypeDefinitionStatementNode transform(
+            LocalTypeDefinitionStatementNode localTypeDefinitionStatementNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(localTypeDefinitionStatementNode.annotations(),
+                1, 0, 1, 0);
+        Token typeKeyword = formatToken(localTypeDefinitionStatementNode.typeKeyword(), 1, 0);
+        Node typeName = formatNode(localTypeDefinitionStatementNode.typeName(), 1, 0);
+        Node typeDescriptor = formatNode(localTypeDefinitionStatementNode.typeDescriptor(), 1, 0);
+        Token semicolonToken = formatToken(localTypeDefinitionStatementNode.semicolonToken(),
+                this.trailingWS, this.trailingNL);
+
+        return localTypeDefinitionStatementNode.modify()
+                .withAnnotations(annotations)
+                .withTypeKeyword(typeKeyword)
+                .withTypeName(typeName)
+                .withTypeDescriptor(typeDescriptor)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public ForkStatementNode transform(ForkStatementNode forkStatementNode) {
+        Token forkKeyword = formatToken(forkStatementNode.forkKeyword(), 1, 0);
+        Token openBraceToken = formatToken(forkStatementNode.openBraceToken(), 0, 1);
+        indent();
+        NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations =
+                formatNodeList(forkStatementNode.namedWorkerDeclarations(), 0, 1, 0, 1);
+        unindent();
+        Token closeBraceToken = formatToken(forkStatementNode.closeBraceToken(), this.trailingWS, this.trailingNL);
+
+        return forkStatementNode.modify()
+                .withForkKeyword(forkKeyword)
+                .withOpenBraceToken(openBraceToken)
+                .withNamedWorkerDeclarations(namedWorkerDeclarations)
+                .withCloseBraceToken(closeBraceToken)
+                .apply();
+    }
+
+    @Override
+    public TypeofExpressionNode transform(TypeofExpressionNode typeofExpressionNode) {
+
+        return super.transform(typeofExpressionNode);
+    }
+
+    @Override
+    public UnaryExpressionNode transform(UnaryExpressionNode unaryExpressionNode) {
+        Token unaryOperator = formatToken(unaryExpressionNode.unaryOperator(), 0, 0);
+        ExpressionNode expression = formatNode(unaryExpressionNode.expression(), this.trailingWS, this.trailingNL);
+
+        return unaryExpressionNode.modify()
+                .withUnaryOperator(unaryOperator)
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public DefaultableParameterNode transform(DefaultableParameterNode defaultableParameterNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(defaultableParameterNode.annotations(), 1, 0, 1, 0);
+        Node typeName = formatNode(defaultableParameterNode.typeName(), 1, 0);
+
+        if (defaultableParameterNode.paramName().isPresent()) {
+            Token paramName = formatToken(defaultableParameterNode.paramName().get(), 1, 0);
+            defaultableParameterNode = defaultableParameterNode.modify().withParamName(paramName).apply();
+        }
+
+        Token equalsToken = formatToken(defaultableParameterNode.equalsToken(), 1, 0);
+        Node expression = formatNode(defaultableParameterNode.expression(), this.trailingWS, this.trailingNL);
+
+        return defaultableParameterNode.modify()
+                .withAnnotations(annotations)
+                .withTypeName(typeName)
+                .withEqualsToken(equalsToken)
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public RestParameterNode transform(RestParameterNode restParameterNode) {
+
+        return super.transform(restParameterNode);
+    }
+
+    @Override
+    public SpreadFieldNode transform(SpreadFieldNode spreadFieldNode) {
+
+        return super.transform(spreadFieldNode);
+    }
+
+    @Override
+    public NamedArgumentNode transform(NamedArgumentNode namedArgumentNode) {
+
+        return super.transform(namedArgumentNode);
+    }
+
+    @Override
+    public RestArgumentNode transform(RestArgumentNode restArgumentNode) {
+
+        return super.transform(restArgumentNode);
+    }
+
+    @Override
+    public ObjectTypeDescriptorNode transform(ObjectTypeDescriptorNode objectTypeDescriptorNode) {
+
+        return super.transform(objectTypeDescriptorNode);
+    }
+
+    @Override
+    public ObjectConstructorExpressionNode transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
+
+        return super.transform(objectConstructorExpressionNode);
+    }
+
+    @Override
+    public ObjectFieldNode transform(ObjectFieldNode objectFieldNode) {
+
+        return super.transform(objectFieldNode);
+    }
+
+    @Override
+    public RecordRestDescriptorNode transform(RecordRestDescriptorNode recordRestDescriptorNode) {
+
+        return super.transform(recordRestDescriptorNode);
+    }
+
+    @Override
+    public AnnotationDeclarationNode transform(AnnotationDeclarationNode annotationDeclarationNode) {
+        if (annotationDeclarationNode.metadata().isPresent()) {
+            MetadataNode metadata = formatNode(annotationDeclarationNode.metadata().get(), 0, 1);
+            annotationDeclarationNode = annotationDeclarationNode.modify().withMetadata(metadata).apply();
+        }
+
+        Token visibilityQualifier = formatToken(annotationDeclarationNode.visibilityQualifier(), 1, 0);
+        Token constKeyword = formatToken(annotationDeclarationNode.constKeyword(), 1, 0);
+        Token annotationKeyword = formatToken(annotationDeclarationNode.annotationKeyword(), 1, 0);
+        Node typeDescriptor = formatNode(annotationDeclarationNode.typeDescriptor(), 1, 0);
+        Token annotationTag = formatToken(annotationDeclarationNode.annotationTag(), 1, 0);
+        Token onKeyword = formatToken(annotationDeclarationNode.onKeyword(), 1, 0);
+        SeparatedNodeList<Node> attachPoints = formatSeparatedNodeList(annotationDeclarationNode.attachPoints(),
+                1, 0, 1, 0);
+        Token semicolonToken = formatToken(annotationDeclarationNode.semicolonToken(),
+                this.trailingWS, this.trailingNL);
+
+        return annotationDeclarationNode.modify()
+                .withVisibilityQualifier(visibilityQualifier)
+                .withConstKeyword(constKeyword)
+                .withAnnotationKeyword(annotationKeyword)
+                .withTypeDescriptor(typeDescriptor)
+                .withAnnotationTag(annotationTag)
+                .withOnKeyword(onKeyword)
+                .withAttachPoints(attachPoints)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public AnnotationAttachPointNode transform(AnnotationAttachPointNode annotationAttachPointNode) {
+
+        return super.transform(annotationAttachPointNode);
+    }
+
+    @Override
+    public NamedWorkerDeclarator transform(NamedWorkerDeclarator namedWorkerDeclarator) {
+
+        return super.transform(namedWorkerDeclarator);
+    }
+
+    @Override
+    public TrapExpressionNode transform(TrapExpressionNode trapExpressionNode) {
+        Token trapKeyword = formatToken(trapExpressionNode.trapKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(trapExpressionNode.expression(), this.trailingWS, this.trailingNL);
+
+        return trapExpressionNode.modify()
+                .withTrapKeyword(trapKeyword)
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public TableConstructorExpressionNode transform(TableConstructorExpressionNode tableConstructorExpressionNode) {
+
+        return super.transform(tableConstructorExpressionNode);
+    }
+
+    @Override
+    public KeySpecifierNode transform(KeySpecifierNode keySpecifierNode) {
+        Token keyKeyword = formatToken(keySpecifierNode.keyKeyword(), 0, 0);
+        Token openParenToken = formatToken(keySpecifierNode.openParenToken(), 0, 0);
+        SeparatedNodeList<IdentifierToken> fieldNames = formatSeparatedNodeList(keySpecifierNode.fieldNames(),
+                1, 0, 0, 0);
+        Token closeParenToken = formatToken(keySpecifierNode.closeParenToken(), this.trailingWS, this.trailingNL);
+
+        return keySpecifierNode.modify()
+                .withKeyKeyword(keyKeyword)
+                .withOpenParenToken(openParenToken)
+                .withFieldNames(fieldNames)
+                .withCloseParenToken(closeParenToken)
+                .apply();
+    }
+
+    @Override
+    public ErrorTypeParamsNode transform(ErrorTypeParamsNode errorTypeParamsNode) {
+
+        return super.transform(errorTypeParamsNode);
+    }
+
+    @Override
+    public StreamTypeDescriptorNode transform(StreamTypeDescriptorNode streamTypeDescriptorNode) {
+        Token streamKeywordToken;
+
+        if (streamTypeDescriptorNode.streamTypeParamsNode().isPresent()) {
+            streamKeywordToken = formatToken(streamTypeDescriptorNode.streamKeywordToken(), 0, 0);
+            Node streamTypeParamsNode = formatNode(streamTypeDescriptorNode.streamTypeParamsNode().get(),
+                    this.trailingWS, this.trailingNL);
+            streamTypeDescriptorNode = streamTypeDescriptorNode.modify()
+                    .withStreamTypeParamsNode(streamTypeParamsNode).apply();
+        } else {
+            streamKeywordToken = formatToken(streamTypeDescriptorNode.streamKeywordToken(),
+                    this.trailingWS, this.trailingNL);
+        }
+
+        return streamTypeDescriptorNode.modify()
+                .withStreamKeywordToken(streamKeywordToken)
+                .apply();
+    }
+
+    @Override
+    public StreamTypeParamsNode transform(StreamTypeParamsNode streamTypeParamsNode) {
+        Token ltToken = formatToken(streamTypeParamsNode.ltToken(), 0, 0);
+        Node leftTypeDescNode = formatNode(streamTypeParamsNode.leftTypeDescNode(), 0, 0);
+        Token gtToken = formatToken(streamTypeParamsNode.gtToken(), this.trailingWS, this.trailingNL);
+
+        if (streamTypeParamsNode.commaToken().isPresent() && streamTypeParamsNode.rightTypeDescNode().isPresent()) {
+            Token commaToken = formatToken(streamTypeParamsNode.commaToken().get(), 1, 0);
+            Node rightTypeDescNode = formatNode(streamTypeParamsNode.rightTypeDescNode().get(), 0, 0);
+            streamTypeParamsNode = streamTypeParamsNode.modify()
+                    .withCommaToken(commaToken)
+                    .withRightTypeDescNode(rightTypeDescNode)
+                    .apply();
+        }
+
+        return streamTypeParamsNode.modify()
+                .withLtToken(ltToken)
+                .withLeftTypeDescNode(leftTypeDescNode)
+                .withGtToken(gtToken)
+                .apply();
+    }
+
+    @Override
+    public TypedescTypeDescriptorNode transform(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
+
+        return super.transform(typedescTypeDescriptorNode);
+    }
+
+    @Override
+    public LetExpressionNode transform(LetExpressionNode letExpressionNode) {
+        Token letKeyword = formatToken(letExpressionNode.letKeyword(), 1, 0);
+        SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
+                formatSeparatedNodeList(letExpressionNode.letVarDeclarations(), 1, 0, 0, 1);
+        Token inKeyword = formatToken(letExpressionNode.inKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(letExpressionNode.expression(), this.trailingWS, this.trailingNL);
+
+        return letExpressionNode.modify()
+                .withLetKeyword(letKeyword)
+                .withLetVarDeclarations(letVarDeclarations)
+                .withInKeyword(inKeyword)
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public LetVariableDeclarationNode transform(LetVariableDeclarationNode letVariableDeclarationNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(letVariableDeclarationNode.annotations(), 0, 1, 0, 1);
+        TypedBindingPatternNode typedBindingPattern = formatNode(letVariableDeclarationNode.typedBindingPattern(),
+                1, 0);
+        Token equalsToken = formatToken(letVariableDeclarationNode.equalsToken(), 1, 0);
+        ExpressionNode expression = formatNode(letVariableDeclarationNode.expression(),
+                this.trailingWS, this.trailingNL);
+
+        return letVariableDeclarationNode.modify()
+                .withAnnotations(annotations)
+                .withTypedBindingPattern(typedBindingPattern)
+                .withEqualsToken(equalsToken)
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public InterpolationNode transform(InterpolationNode interpolationNode) {
+        Token interpolationStartToken = formatToken(interpolationNode.interpolationStartToken(), 0, 0);
+        ExpressionNode expression = formatNode(interpolationNode.expression(), 0, 0);
+        Token interpolationEndToken = formatToken(interpolationNode.interpolationEndToken(),
+                this.trailingWS, this.trailingNL);
+
+        return interpolationNode.modify()
+                .withInterpolationStartToken(interpolationStartToken)
+                .withExpression(expression)
+                .withInterpolationEndToken(interpolationEndToken)
+                .apply();
+    }
+
+    @Override
+    public ExplicitAnonymousFunctionExpressionNode transform(
+            ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+
+        return super.transform(explicitAnonymousFunctionExpressionNode);
+    }
+
+    @Override
+    public ImplicitNewExpressionNode transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+
+        return super.transform(implicitNewExpressionNode);
+    }
+
+    @Override
+    public QueryConstructTypeNode transform(QueryConstructTypeNode queryConstructTypeNode) {
+
+        return super.transform(queryConstructTypeNode);
+    }
+
+    @Override
+    public FromClauseNode transform(FromClauseNode fromClauseNode) {
+        Token fromKeyword = formatToken(fromClauseNode.fromKeyword(), 1, 0);
+        TypedBindingPatternNode typedBindingPattern = formatNode(fromClauseNode.typedBindingPattern(), 1, 0);
+        Token inKeyword = formatToken(fromClauseNode.inKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(fromClauseNode.expression(), this.trailingWS, this.trailingNL);
+
+        return fromClauseNode.modify()
+                .withFromKeyword(fromKeyword)
+                .withTypedBindingPattern(typedBindingPattern)
+                .withInKeyword(inKeyword)
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public WhereClauseNode transform(WhereClauseNode whereClauseNode) {
+        Token whereKeyword = formatToken(whereClauseNode.whereKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(whereClauseNode.expression(), this.trailingWS, this.trailingNL);
+
+        return whereClauseNode.modify()
+                .withWhereKeyword(whereKeyword)
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public LetClauseNode transform(LetClauseNode letClauseNode) {
+        Token letKeyword = formatToken(letClauseNode.letKeyword(), 1, 0);
+        SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
+                formatSeparatedNodeList(letClauseNode.letVarDeclarations(), 1, 0, this.trailingWS, this.trailingNL);
+
+        return letClauseNode.modify()
+                .withLetKeyword(letKeyword)
+                .withLetVarDeclarations(letVarDeclarations)
+                .apply();
+    }
+
+    @Override
+    public QueryPipelineNode transform(QueryPipelineNode queryPipelineNode) {
+        FromClauseNode fromClause = formatNode(queryPipelineNode.fromClause(), 0, 1);
+        NodeList<IntermediateClauseNode> intermediateClauses = formatNodeList(queryPipelineNode.intermediateClauses(),
+                0, 1, this.trailingWS, this.trailingNL);
+
+        return queryPipelineNode.modify()
+                .withFromClause(fromClause)
+                .withIntermediateClauses(intermediateClauses)
+                .apply();
+    }
+
+    @Override
+    public SelectClauseNode transform(SelectClauseNode selectClauseNode) {
+
+        return super.transform(selectClauseNode);
+    }
+
+    @Override
+    public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
+
+        return super.transform(queryExpressionNode);
+    }
+
+    @Override
+    public ImplicitAnonymousFunctionParameters transform(
+            ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+
+        return super.transform(implicitAnonymousFunctionParameters);
+    }
+
+    @Override
+    public ImplicitAnonymousFunctionExpressionNode transform(
+            ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+
+        return super.transform(implicitAnonymousFunctionExpressionNode);
+    }
+
+    @Override
+    public MethodDeclarationNode transform(MethodDeclarationNode methodDeclarationNode) {
+        if (methodDeclarationNode.metadata().isPresent()) {
+            MetadataNode metadata = formatNode(methodDeclarationNode.metadata().get(), 0, 1);
+            methodDeclarationNode = methodDeclarationNode.modify().withMetadata(metadata).apply();
+        }
+
+        NodeList<Token> qualifierList = formatNodeList(methodDeclarationNode.qualifierList(), 1, 0, 1, 0);
+        Token functionKeyword = formatToken(methodDeclarationNode.functionKeyword(), 1, 0);
+        IdentifierToken methodName = formatNode(methodDeclarationNode.methodName(), 0, 0);
+        FunctionSignatureNode methodSignature = formatNode(methodDeclarationNode.methodSignature(), 0, 0);
+        Token semicolon = formatToken(methodDeclarationNode.semicolon(), this.trailingWS, this.trailingNL);
+
+        return methodDeclarationNode.modify()
+                .withQualifierList(qualifierList)
+                .withFunctionKeyword(functionKeyword)
+                .withMethodName(methodName)
+                .withMethodSignature(methodSignature)
+                .withSemicolon(semicolon)
+                .apply();
+    }
+
+    @Override
+    public WildcardBindingPatternNode transform(WildcardBindingPatternNode wildcardBindingPatternNode) {
+        Token underscoreToken = formatToken(wildcardBindingPatternNode.underscoreToken(),
+                this.trailingWS, this.trailingNL);
+
+        return wildcardBindingPatternNode.modify()
+                .withUnderscoreToken(underscoreToken)
+                .apply();
+    }
+
+    @Override
+    public ErrorBindingPatternNode transform(ErrorBindingPatternNode errorBindingPatternNode) {
+
+        return super.transform(errorBindingPatternNode);
+    }
+
+    @Override
+    public NamedArgBindingPatternNode transform(NamedArgBindingPatternNode namedArgBindingPatternNode) {
+
+        return super.transform(namedArgBindingPatternNode);
+    }
+
+    @Override
+    public AsyncSendActionNode transform(AsyncSendActionNode asyncSendActionNode) {
+        ExpressionNode expression = formatNode(asyncSendActionNode.expression(), 1, 0);
+        Token rightArrowToken = formatToken(asyncSendActionNode.rightArrowToken(), 1, 0);
+        SimpleNameReferenceNode peerWorker = formatNode(asyncSendActionNode.peerWorker(),
+                this.trailingWS, this.trailingNL);
+
+        return asyncSendActionNode.modify()
+                .withExpression(expression)
+                .withRightArrowToken(rightArrowToken)
+                .withPeerWorker(peerWorker)
+                .apply();
+    }
+
+    @Override
+    public SyncSendActionNode transform(SyncSendActionNode syncSendActionNode) {
+        ExpressionNode expression = formatNode(syncSendActionNode.expression(), 1, 0);
+        Token syncSendToken = formatToken(syncSendActionNode.syncSendToken(), 1, 0);
+        SimpleNameReferenceNode peerWorker = formatNode(syncSendActionNode.peerWorker(),
+                this.trailingWS, this.trailingNL);
+
+        return syncSendActionNode.modify()
+                .withExpression(expression)
+                .withSyncSendToken(syncSendToken)
+                .withPeerWorker(peerWorker)
+                .apply();
+    }
+
+    @Override
+    public ReceiveActionNode transform(ReceiveActionNode receiveActionNode) {
+        Token leftArrow = formatToken(receiveActionNode.leftArrow(), 1, 0);
+        SimpleNameReferenceNode receiveWorkers = formatNode(receiveActionNode.receiveWorkers(),
+                this.trailingWS, this.trailingNL);
+
+        return receiveActionNode.modify()
+                .withLeftArrow(leftArrow)
+                .withReceiveWorkers(receiveWorkers)
+                .apply();
+    }
+
+    @Override
+    public ReceiveFieldsNode transform(ReceiveFieldsNode receiveFieldsNode) {
+        Token openBrace = formatToken(receiveFieldsNode.openBrace(), 0, 1);
+        indent();
+        SeparatedNodeList<NameReferenceNode> receiveFields = formatSeparatedNodeList(receiveFieldsNode.receiveFields(),
+                0, 1, 0, 1);
+        Token closeBrace = formatToken(receiveFieldsNode.closeBrace(), 0, 1);
+        unindent();
+
+        return receiveFieldsNode.modify()
+                .withOpenBrace(openBrace)
+                .withReceiveFields(receiveFields)
+                .withCloseBrace(closeBrace)
+                .apply();
+    }
+
+    @Override
+    public RestDescriptorNode transform(RestDescriptorNode restDescriptorNode) {
+
+        return super.transform(restDescriptorNode);
+    }
+
+    @Override
+    public DoubleGTTokenNode transform(DoubleGTTokenNode doubleGTTokenNode) {
+        Token openGTToken = formatToken(doubleGTTokenNode.openGTToken(), 0, 0);
+        Token endGTToken = formatToken(doubleGTTokenNode.endGTToken(), this.trailingWS, this.trailingNL);
+
+        return doubleGTTokenNode.modify()
+                .withOpenGTToken(openGTToken)
+                .withEndGTToken(endGTToken)
+                .apply();
+    }
+
+    @Override
+    public TrippleGTTokenNode transform(TrippleGTTokenNode trippleGTTokenNode) {
+        Token openGTToken = formatToken(trippleGTTokenNode.openGTToken(), 0, 0);
+        Token middleGTToken = formatToken(trippleGTTokenNode.middleGTToken(), 0, 0);
+        Token endGTToken = formatToken(trippleGTTokenNode.endGTToken(), this.trailingWS, this.trailingNL);
+
+        return trippleGTTokenNode.modify()
+                .withOpenGTToken(openGTToken)
+                .withMiddleGTToken(middleGTToken)
+                .withEndGTToken(endGTToken)
+                .apply();
+    }
+
+    @Override
+    public WaitActionNode transform(WaitActionNode waitActionNode) {
+        Token waitKeyword = formatToken(waitActionNode.waitKeyword(), 1, 0);
+        Node waitFutureExpr = formatNode(waitActionNode.waitFutureExpr(), this.trailingWS, this.trailingNL);
+
+        return waitActionNode.modify()
+                .withWaitKeyword(waitKeyword)
+                .withWaitFutureExpr(waitFutureExpr)
+                .apply();
+    }
+
+    @Override
+    public WaitFieldsListNode transform(WaitFieldsListNode waitFieldsListNode) {
+
+        return super.transform(waitFieldsListNode);
+    }
+
+    @Override
+    public WaitFieldNode transform(WaitFieldNode waitFieldNode) {
+
+        return super.transform(waitFieldNode);
+    }
+
+    @Override
+    public AnnotAccessExpressionNode transform(AnnotAccessExpressionNode annotAccessExpressionNode) {
+
+        return super.transform(annotAccessExpressionNode);
+    }
+
+    @Override
+    public QueryActionNode transform(QueryActionNode queryActionNode) {
+
+        return super.transform(queryActionNode);
+    }
+
+    @Override
+    public OptionalFieldAccessExpressionNode transform(
+            OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+
+        return super.transform(optionalFieldAccessExpressionNode);
+    }
+
+    @Override
+    public ConditionalExpressionNode transform(ConditionalExpressionNode conditionalExpressionNode) {
+
+        return super.transform(conditionalExpressionNode);
+    }
+
+    @Override
+    public TransactionStatementNode transform(TransactionStatementNode transactionStatementNode) {
+        Token transactionKeyword = formatToken(transactionStatementNode.transactionKeyword(), 1, 0);
+        BlockStatementNode blockStatement;
+
+        if (transactionStatementNode.onFailClause().isPresent()) {
+            blockStatement = formatNode(transactionStatementNode.blockStatement(), 1, 0);
+            OnFailClauseNode onFailClause = formatNode(transactionStatementNode.onFailClause().get(),
+                    this.trailingWS, this.trailingNL);
+            transactionStatementNode = transactionStatementNode.modify().withOnFailClause(onFailClause).apply();
+        } else {
+            blockStatement = formatNode(transactionStatementNode.blockStatement(), this.trailingWS, this.trailingNL);
+        }
+
+        return transactionStatementNode.modify()
+                .withTransactionKeyword(transactionKeyword)
+                .withBlockStatement(blockStatement)
+                .apply();
+    }
+
+    @Override
+    public RollbackStatementNode transform(RollbackStatementNode rollbackStatementNode) {
+        Token rollbackKeyword;
+
+        if (rollbackStatementNode.expression().isPresent()) {
+            rollbackKeyword = formatToken(rollbackStatementNode.rollbackKeyword(), 1, 0);
+            ExpressionNode expression = formatNode(rollbackStatementNode.expression().get(), 0, 0);
+            rollbackStatementNode = rollbackStatementNode.modify().withExpression(expression).apply();
+        } else {
+            rollbackKeyword = formatToken(rollbackStatementNode.rollbackKeyword(), 0, 0);
+        }
+
+        Token semicolon = formatToken(rollbackStatementNode.semicolon(), this.trailingWS, this.trailingNL);
+
+        return rollbackStatementNode.modify()
+                .withRollbackKeyword(rollbackKeyword)
+                .withSemicolon(semicolon)
+                .apply();
+    }
+
+    @Override
+    public RetryStatementNode transform(RetryStatementNode retryStatementNode) {
+        Token retryKeyword;
+        if (retryStatementNode.typeParameter().isPresent() || retryStatementNode.arguments().isPresent()) {
+            retryKeyword = formatToken(retryStatementNode.retryKeyword(), 0, 0);
+        } else {
+            retryKeyword = formatToken(retryStatementNode.retryKeyword(), 1, 0);
+        }
+
+        if (retryStatementNode.typeParameter().isPresent()) {
+            TypeParameterNode typeParameter = formatNode(retryStatementNode.typeParameter().get(), 1, 0);
+            retryStatementNode = retryStatementNode.modify().withTypeParameter(typeParameter).apply();
+        }
+
+        if (retryStatementNode.arguments().isPresent()) {
+            ParenthesizedArgList arguments = formatNode(retryStatementNode.arguments().get(), 1, 0);
+            retryStatementNode = retryStatementNode.modify().withArguments(arguments).apply();
+        }
+        StatementNode retryBody;
+
+        if (retryStatementNode.onFailClause().isPresent()) {
+            retryBody = formatNode(retryStatementNode.retryBody(), 1, 0);
+            OnFailClauseNode onFailClause = formatNode(retryStatementNode.onFailClause().get(),
+                    this.trailingWS, this.trailingNL);
+            retryStatementNode = retryStatementNode.modify().withOnFailClause(onFailClause).apply();
+        } else {
+            retryBody = formatNode(retryStatementNode.retryBody(), this.trailingWS, this.trailingNL);
+        }
+
+        return retryStatementNode.modify()
+                .withRetryKeyword(retryKeyword)
+                .withRetryBody(retryBody)
+                .apply();
+    }
+
+    @Override
+    public CommitActionNode transform(CommitActionNode commitActionNode) {
+        Token commitKeyword = formatToken(commitActionNode.commitKeyword(), this.trailingWS, this.trailingNL);
+
+        return commitActionNode.modify()
+                .withCommitKeyword(commitKeyword)
+                .apply();
+    }
+
+    @Override
+    public TransactionalExpressionNode transform(TransactionalExpressionNode transactionalExpressionNode) {
+
+        return super.transform(transactionalExpressionNode);
+    }
+
+    @Override
+    public ServiceConstructorExpressionNode transform(
+            ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
+
+        return super.transform(serviceConstructorExpressionNode);
+    }
+
+    @Override
+    public TypeReferenceTypeDescNode transform(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+
+        return super.transform(typeReferenceTypeDescNode);
+    }
+
+    @Override
+    public DistinctTypeDescriptorNode transform(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+
+        return super.transform(distinctTypeDescriptorNode);
+    }
+
+    @Override
+    public OnConflictClauseNode transform(OnConflictClauseNode onConflictClauseNode) {
+
+        return super.transform(onConflictClauseNode);
+    }
+
+    @Override
+    public LimitClauseNode transform(LimitClauseNode limitClauseNode) {
+        Token limitKeyword = formatToken(limitClauseNode.limitKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(limitClauseNode.expression(), this.trailingWS, this.trailingNL);
+
+        return limitClauseNode.modify()
+                .withLimitKeyword(limitKeyword)
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public JoinClauseNode transform(JoinClauseNode joinClauseNode) {
+        if (joinClauseNode.outerKeyword().isPresent()) {
+            Token outerKeyword = formatToken(joinClauseNode.outerKeyword().get(), 1, 0);
+            joinClauseNode = joinClauseNode.modify()
+                    .withOuterKeyword(outerKeyword).apply();
+        }
+
+        Token joinKeyword = formatToken(joinClauseNode.joinKeyword(), 1, 0);
+        TypedBindingPatternNode typedBindingPattern = formatNode(joinClauseNode.typedBindingPattern(), 1, 0);
+        Token inKeyword = formatToken(joinClauseNode.inKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(joinClauseNode.expression(), 1, 0);
+        OnClauseNode joinOnCondition = formatNode(joinClauseNode.joinOnCondition(), this.trailingWS, this.trailingNL);
+
+        return joinClauseNode.modify()
+                .withJoinKeyword(joinKeyword)
+                .withTypedBindingPattern(typedBindingPattern)
+                .withInKeyword(inKeyword)
+                .withExpression(expression)
+                .withJoinOnCondition(joinOnCondition)
+                .apply();
+    }
+
+    @Override
+    public OnClauseNode transform(OnClauseNode onClauseNode) {
+
+        return super.transform(onClauseNode);
+    }
+
+    @Override
+    public ListMatchPatternNode transform(ListMatchPatternNode listMatchPatternNode) {
+
+        return super.transform(listMatchPatternNode);
+    }
+
+    @Override
+    public RestMatchPatternNode transform(RestMatchPatternNode restMatchPatternNode) {
+
+        return super.transform(restMatchPatternNode);
+    }
+
+    @Override
+    public FieldMatchPatternNode transform(FieldMatchPatternNode fieldMatchPatternNode) {
+
+        return super.transform(fieldMatchPatternNode);
+    }
+
+    @Override
+    public FunctionalMatchPatternNode transform(FunctionalMatchPatternNode functionalMatchPatternNode) {
+
+        return super.transform(functionalMatchPatternNode);
+    }
+
+    @Override
+    public NamedArgMatchPatternNode transform(NamedArgMatchPatternNode namedArgMatchPatternNode) {
+
+        return super.transform(namedArgMatchPatternNode);
+    }
+
+    @Override
+    public OrderByClauseNode transform(OrderByClauseNode orderByClauseNode) {
+
+        return super.transform(orderByClauseNode);
+    }
+
+    @Override
+    public OrderKeyNode transform(OrderKeyNode orderKeyNode) {
+        ExpressionNode expression = formatNode(orderKeyNode.expression(), 1, 0);
+
+        if (orderKeyNode.orderDirection().isPresent()) {
+            Token orderDirection = formatToken(orderKeyNode.orderDirection().get(), this.trailingWS, this.trailingNL);
+            orderKeyNode = orderKeyNode.modify().withOrderDirection(orderDirection).apply();
+        }
+
+        return orderKeyNode.modify()
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public ClassDefinitionNode transform(ClassDefinitionNode classDefinitionNode) {
+
+        return super.transform(classDefinitionNode);
+    }
+
+    @Override
+    public BreakStatementNode transform(BreakStatementNode breakStatementNode) {
+        Token breakToken = formatToken(breakStatementNode.breakToken(), 0, 0);
+        Token semicolonToken = formatToken(breakStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+
+        return breakStatementNode.modify()
+                .withBreakToken(breakToken)
+                .withSemicolonToken(semicolonToken)
                 .apply();
     }
 
@@ -2193,6 +3436,37 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Check whether a mapping constructor expression needs to be expanded in to multiple lines.
+     *
+     * @param mappingConstructorExpressionNode mapping constructor expression
+     * @return <code>true</code> If the mapping constructor expression needs to be expanded in to multiple lines.
+     *         <code>false</code> otherwise
+     */
+    private boolean shouldExpand(MappingConstructorExpressionNode mappingConstructorExpressionNode) {
+        int fieldCount = mappingConstructorExpressionNode.fields().size();
+
+        if (fieldCount <= 1) {
+            return false;
+        }
+
+        if (fieldCount > 3) {
+            return true;
+        }
+
+        for (Node field : mappingConstructorExpressionNode.fields()) {
+            TextRange textRange = field.textRange();
+            if ((textRange.endOffset() - textRange.startOffset()) > 15) {
+                return true;
+            }
+
+            if (hasNonWSMinutiae(field.leadingMinutiae()) || hasNonWSMinutiae(field.trailingMinutiae())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
