@@ -1,7 +1,6 @@
 package org.ballerinalang.testerina.natives.mock;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.testerina.natives.BExecutor;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.api.values.BObject;
@@ -12,6 +11,7 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.StringValue;
+import org.ballerinalang.testerina.natives.BExecutor;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
