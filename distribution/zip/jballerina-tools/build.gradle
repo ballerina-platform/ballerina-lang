@@ -96,7 +96,7 @@ dependencies {
     dist 'org.jetbrains.kotlin:kotlin-stdlib-common:1.3.31'
     dist 'org.ow2.asm:asm:7.1'
     dist 'org.ow2.asm:asm-analysis:7.1'
-    dist 'org.ow2.asm:asm-tree:7.1'
+    dist 'org.ow2.asm:asm-tree:7.2'
     dist 'org.ow2.asm:asm-util:7.1'
     dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
     
@@ -128,8 +128,8 @@ dependencies {
     langserverLib project(':language-server:language-server-stdio-launcher')
     langserverLib project(':language-server:language-server-cli')
     langserverLib project(':language-server:language-server-core')
-//    debugAdapterDistribution project(':debug-adapter:debug-adapter-core')
-//    debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
+    debugAdapterDistribution project(':debug-adapter:debug-adapter-core')
+    debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
 
     balSource project(path: ':jballerina', configuration: 'source')
 

@@ -49,6 +49,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.ballerinalang.jvm.util.BLangConstants.UNDERSCORE;
+
 /**
  * Service De-sugar.
  *
@@ -147,7 +149,8 @@ public class ServiceDesugar {
             } else {
                 // Define anonymous listener variable.
                 BLangSimpleVariable listenerVar = ASTBuilderUtil
-                        .createVariable(pos, LISTENER + service.name.value + count++, attachExpr.type, attachExpr,
+                        .createVariable(pos, LISTENER + service.name.value + UNDERSCORE + count++, attachExpr.type,
+                                attachExpr,
                                 null);
                 ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol, names);
                 listenerVar.symbol.flags |= Flags.LISTENER;
