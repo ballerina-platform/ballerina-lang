@@ -2201,23 +2201,28 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static MethodDeclarationNode createMethodDeclarationNode(
+            SyntaxKind kind,
             MetadataNode metadata,
             NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken methodName,
+            NodeList<Token> relativeResourcePath,
             FunctionSignatureNode methodSignature,
             Token semicolon) {
         Objects.requireNonNull(qualifierList, "qualifierList must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
         Objects.requireNonNull(methodName, "methodName must not be null");
+        Objects.requireNonNull(relativeResourcePath, "relativeResourcePath must not be null");
         Objects.requireNonNull(methodSignature, "methodSignature must not be null");
         Objects.requireNonNull(semicolon, "semicolon must not be null");
 
         STNode stMethodDeclarationNode = STNodeFactory.createMethodDeclarationNode(
+                kind,
                 getOptionalSTNode(metadata),
                 qualifierList.underlyingListNode().internalNode(),
                 functionKeyword.internalNode(),
                 methodName.internalNode(),
+                relativeResourcePath.underlyingListNode().internalNode(),
                 methodSignature.internalNode(),
                 semicolon.internalNode());
         return stMethodDeclarationNode.createUnlinkedFacade();

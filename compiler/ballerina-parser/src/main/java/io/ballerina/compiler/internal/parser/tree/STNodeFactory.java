@@ -1663,18 +1663,22 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createMethodDeclarationNode(
+            SyntaxKind kind,
             STNode metadata,
             STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
+            STNode relativeResourcePath,
             STNode methodSignature,
             STNode semicolon) {
 
         return new STMethodDeclarationNode(
+                kind,
                 metadata,
                 qualifierList,
                 functionKeyword,
                 methodName,
+                relativeResourcePath,
                 methodSignature,
                 semicolon);
     }
