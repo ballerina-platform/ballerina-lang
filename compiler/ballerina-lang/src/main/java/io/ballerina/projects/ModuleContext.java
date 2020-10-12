@@ -21,6 +21,7 @@ import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ModuleLoadResponse;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -35,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,6 +59,7 @@ class ModuleContext {
 
     private Set<ModuleDependency> moduleDependencies;
     private BLangPackage bLangPackage;
+    private List<Diagnostic> diagnostics;
 
     // TODO How about introducing a ModuleState concept. ModuleState.DEPENDENCIES_RESOLVED
     private boolean dependenciesResolved;
@@ -196,5 +199,27 @@ class ModuleContext {
 
     BLangPackage bLangPackage() {
         return bLangPackage;
+    }
+
+    /**
+     * Returns the list of compilation diagnostics of this module.
+     *
+     * @return Returns the list of compilation diagnostics of this module
+     */
+    List<Diagnostic> diagnostics() {
+        // First get from the cache in ModuleContext
+        if (diagnostics != null) {
+            return diagnostics;
+
+        }
+
+        // Try to get the diagnostics from the bLangPackage, if the module is already compiled
+        if (bLangPackage != null) {
+            diagnostics = bLangPackage.getDiagnostics();
+            return diagnostics;
+        }
+
+        // TODO error handling - Module is not compiled
+        throw new IllegalStateException("Compile the module first!");
     }
 }
