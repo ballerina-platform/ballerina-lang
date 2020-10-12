@@ -313,6 +313,28 @@
       ]
     },
     {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.future",
       "kind": "Module",
       "detail": "Module",
@@ -564,7 +586,7 @@
     {
       "label": "readonly",
       "kind": "Unit",
-      "detail": "Readonly",
+      "detail": "type",
       "insertText": "readonly",
       "insertTextFormat": "Snippet"
     },
@@ -587,16 +609,6 @@
       "kind": "Unit",
       "detail": "Handle",
       "insertText": "handle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ArgsData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Defaultable argument names. This is for internal use.\n"
-      },
-      "insertText": "ArgsData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -652,16 +664,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map",
-      "kind": "Unit",
-      "detail": "Map",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "table",
       "kind": "Unit",
-      "detail": "Table",
+      "detail": "type",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -688,8 +693,8 @@
     },
     {
       "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Finite",
+      "kind": "Unit",
+      "detail": "type",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -710,7 +715,7 @@
     {
       "label": "service",
       "kind": "Unit",
-      "detail": "Service",
+      "detail": "type",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -719,6 +724,13 @@
       "kind": "Unit",
       "detail": "Typedesc",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map",
+      "kind": "Unit",
+      "detail": "type ",
+      "insertText": "map",
       "insertTextFormat": "Snippet"
     },
     {
@@ -778,20 +790,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value4",
-      "kind": "Variable",
-      "detail": "int",
-      "insertText": "value4",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "doSomeTask()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "doSomeTask();",
@@ -804,7 +809,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "testFunction();",

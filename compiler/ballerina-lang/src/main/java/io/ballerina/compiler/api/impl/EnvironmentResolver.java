@@ -117,6 +117,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -1046,6 +1047,11 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         
+    }
+
+    @Override
+    public void visit(BLangDo doNode) {
+        this.acceptNode(doNode.body, symbolEnv);
     }
 
     private void acceptNode(BLangNode node, SymbolEnv env) {

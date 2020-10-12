@@ -46,7 +46,7 @@ public class IfElseStatementNodeContext extends AbstractCompletionProvider<IfEls
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE)
+                .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.FUNCTION)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getModuleCompletionItems(context));

@@ -174,20 +174,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "else if",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "insertText": "else if (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "else",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "insertText": "else {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "continue",
       "kind": "Snippet",
       "detail": "Statement",
@@ -330,6 +316,28 @@
             }
           },
           "newText": "import ballerina/lang.'string;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
         }
       ]
     },
@@ -607,7 +615,7 @@
     {
       "label": "readonly",
       "kind": "Unit",
-      "detail": "Readonly",
+      "detail": "type",
       "insertText": "readonly",
       "insertTextFormat": "Snippet"
     },
@@ -630,16 +638,6 @@
       "kind": "Unit",
       "detail": "Handle",
       "insertText": "handle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ArgsData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Defaultable argument names. This is for internal use.\n"
-      },
-      "insertText": "ArgsData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -695,16 +693,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map",
-      "kind": "Unit",
-      "detail": "Map",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "table",
       "kind": "Unit",
-      "detail": "Table",
+      "detail": "type",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -731,8 +722,8 @@
     },
     {
       "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Finite",
+      "kind": "Unit",
+      "detail": "type",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -753,7 +744,7 @@
     {
       "label": "service",
       "kind": "Unit",
-      "detail": "Service",
+      "detail": "type",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -762,6 +753,13 @@
       "kind": "Unit",
       "detail": "Typedesc",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map",
+      "kind": "Unit",
+      "detail": "type ",
+      "insertText": "map",
       "insertTextFormat": "Snippet"
     },
     {
@@ -827,7 +825,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "testFunction();",
