@@ -23,7 +23,7 @@ public type ServiceTwo service object {
 };
 
 public type Obj object {
-    public resource string message;
+    public string message;
 };
 
 function testSerivceObjectAssignability() {

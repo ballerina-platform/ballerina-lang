@@ -47,19 +47,19 @@ public type ObjWithSingleMethod object {
     public function foo(int i) returns int;
 };
 
-public type ServiceWithRemtoeMethod service object {
+public type ServiceWithRemoteMethod service object {
     remote function foo(int i) returns int;
 };
 
-public type ServiceWithRemtoeMethodTwo service object {
+public type ServiceWithRemoteMethodTwo service object {
     remote function foo(int i) returns int;
 };
 
 function testAssignabilityWithRemoteMethods() {
     any i = 0;
-    ServiceWithRemtoeMethod k = <ServiceWithRemtoeMethod> i;
+    ServiceWithRemoteMethod k = <ServiceWithRemoteMethod> i;
     ObjWithSingleMethod q = k;
-    ServiceWithRemtoeMethodTwo p = k;
+    ServiceWithRemoteMethodTwo p = k;
 }
 
 public type ObjWithResourceField object {

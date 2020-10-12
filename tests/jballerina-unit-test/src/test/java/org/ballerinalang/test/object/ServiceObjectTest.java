@@ -63,7 +63,7 @@ public class ServiceObjectTest {
         CompileResult result = BCompileUtil.compile("test-src/object/object_service_object_negative.bal");
         validateError(result, 0, "incompatible types: expected 'ServiceTwo', found 'Obj'", 34, 21);
         validateError(result, 1, "incompatible types: expected 'ServiceWithSingleMethod', found 'ServiceOne'", 36, 44);
-        validateError(result, 2, "incompatible types: expected 'ObjWithSingleMethod', found 'ServiceWithRemtoeMethod'",
+        validateError(result, 2, "incompatible types: expected 'ObjWithSingleMethod', found 'ServiceWithRemoteMethod'",
                 61, 29);
         validateError(result, 3, "resource fields are only allowed in service types", 66, 5);
         Assert.assertEquals(result.getErrorCount(), 4);
