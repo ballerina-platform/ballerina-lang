@@ -19,8 +19,12 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +43,7 @@ public class PackageCompilation {
     private final PackageResolver packageResolver;
 
     private final DependencyGraph<PackageId> dependencyGraph;
+    private List<Diagnostic> diagnostics;
 
     PackageCompilation(PackageContext packageContext) {
         this.packageContext = packageContext;
@@ -49,7 +54,8 @@ public class PackageCompilation {
         ProjectEnvironmentContext projectEnvContext = packageContext.project().environmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.dependencyGraph = buildDependencyGraph();
-        compile();
+        CompilerContext compilerContext = projectEnvContext.getService(CompilerContext.class);
+        compile(compilerContext);
     }
 
     private DependencyGraph<PackageId> buildDependencyGraph() {
@@ -69,18 +75,35 @@ public class PackageCompilation {
         }
     }
 
-    private void compile() {
-
-        // Compile all the packages and its modules
+    private void compile(CompilerContext compilerContext) {
+        diagnostics = new ArrayList<>();
+        // Topologically sort packages in the package dependency graph.
+        // Iterate through the sorted package list
+        // Get the module dependency graph of the package.
+        // This graph should only contain the modules in that particular package.
+        // Topologically sort the module dependency graph.
+        // Iterate through the sorted module list.
+        // Compile the module and collect diagnostics.
+        // Repeat this for each module in each package in the package dependency graph.
         List<PackageId> sortedPackageIds = dependencyGraph.toTopologicallySortedList();
-
         for (PackageId packageId : sortedPackageIds) {
             Package pkg = packageResolver.getPackage(packageId);
-            pkg.getDefaultModule().getCompilation();
+            DependencyGraph<ModuleId> moduleDependencyGraph = pkg.moduleDependencyGraph();
+            List<ModuleId> sortedModuleIds = moduleDependencyGraph.toTopologicallySortedList();
+            for (ModuleId moduleId : sortedModuleIds) {
+                ModuleContext moduleContext = pkg.module(moduleId).moduleContext();
+                moduleContext.compile(compilerContext, pkg.packageName());
+                diagnostics.addAll(moduleContext.diagnostics());
+            }
         }
+        diagnostics = Collections.unmodifiableList(diagnostics);
     }
 
     public DependencyGraph<PackageId> packageDependencyGraph() {
         return this.dependencyGraph;
+    }
+
+    public List<Diagnostic> diagnostics() {
+        return diagnostics;
     }
 }
