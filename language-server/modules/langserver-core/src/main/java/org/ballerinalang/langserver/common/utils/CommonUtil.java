@@ -456,25 +456,6 @@ public class CommonUtil {
     }
 
     /**
-     * Check whether the symbol is a listener object.
-     *
-     * @param symbol Symbol to evaluate
-     * @return {@link Boolean}  whether listener or not
-     */
-    public static boolean isListenerObject(Symbol symbol) {
-        if (symbol.kind() != VARIABLE) {
-            return false;
-        }
-        Optional<BallerinaTypeDescriptor> typeDesc = ((VariableSymbol) symbol).typeDescriptor();
-        if (!typeDesc.isPresent() || typeDesc.get().kind() != TypeDescKind.OBJECT) {
-            return false;
-        }
-
-        return ((ObjectTypeDescriptor) typeDesc.get()).typeQualifiers()
-                .contains(ObjectTypeDescriptor.TypeQualifier.LISTENER);
-    }
-
-    /**
      * Get completion items list for struct fields.
      *
      * @param context Language server operation context

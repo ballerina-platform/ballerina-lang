@@ -55,13 +55,6 @@ public interface ModuleSymbol extends Symbol {
     List<TypeSymbol> listeners();
 
     /**
-     * Get the module class definitions.
-     * 
-     * @return {@link List} of classes defined at the module level
-     */
-    List<ClassSymbol> classes();
-
-    /**
      * Get the module service definitions.
      * 
      * @return {@link List} of services defined at the module level

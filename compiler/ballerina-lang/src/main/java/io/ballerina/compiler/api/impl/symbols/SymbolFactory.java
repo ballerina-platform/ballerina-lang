@@ -30,7 +30,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
@@ -55,7 +54,7 @@ public class SymbolFactory {
      * Get the matching {@link Symbol} for a given {@link BSymbol}.
      *
      * @param symbol BSymbol to generated the BCompiled Symbol
-     * @param name symbol name
+     * @param name   symbol name
      * @return generated compiled symbol
      */
     public static Symbol getBCompiledSymbol(BSymbol symbol, String name) {
@@ -104,7 +103,7 @@ public class SymbolFactory {
      * Create Function Symbol.
      *
      * @param invokableSymbol {@link BInvokableSymbol} to convert
-     * @param name symbol name
+     * @param name            symbol name
      * @return {@link Symbol} generated
      */
     public static BallerinaFunctionSymbol createFunctionSymbol(BInvokableSymbol invokableSymbol, String name) {
@@ -138,7 +137,7 @@ public class SymbolFactory {
      * Create Method Symbol.
      *
      * @param invokableSymbol {@link BInvokableSymbol} to convert
-     * @param name symbol name
+     * @param name            symbol name
      * @return {@link Symbol} generated
      */
     public static BallerinaMethodSymbol createMethodSymbol(BInvokableSymbol invokableSymbol, String name) {
@@ -155,7 +154,7 @@ public class SymbolFactory {
      * Create a generic variable symbol.
      *
      * @param symbol {@link BVarSymbol} to convert
-     * @param name symbol name
+     * @param name   symbol name
      * @return {@link BallerinaVariableSymbol} generated
      */
     public static BallerinaVariableSymbol createVariableSymbol(BVarSymbol symbol, String name) {
@@ -211,7 +210,7 @@ public class SymbolFactory {
      * Create a Ballerina Type Definition Symbol.
      *
      * @param typeSymbol type symbol to convert
-     * @param name symbol name
+     * @param name       symbol name
      * @return {@link}
      */
     public static BallerinaTypeSymbol createTypeDefinition(BTypeSymbol typeSymbol, String name) {
@@ -239,7 +238,7 @@ public class SymbolFactory {
      * Create a constant symbol.
      *
      * @param constantSymbol BConstantSymbol to convert
-     * @param name symbol name
+     * @param name           symbol name
      * @return {@link BallerinaConstantSymbol} generated
      */
     public static BallerinaConstantSymbol createConstantSymbol(BConstantSymbol constantSymbol, String name) {
@@ -250,7 +249,7 @@ public class SymbolFactory {
         if ((constantSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withAccessModifier(Qualifier.PUBLIC);
         }
-        
+
         return symbolBuilder.build();
     }
 
@@ -267,7 +266,7 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
         symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.attachedType.getType()));
-        
+
         return symbolBuilder.build();
     }
 

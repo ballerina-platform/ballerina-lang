@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -28,10 +27,8 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -41,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.model.symbols.SymbolKind.ANNOTATION;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols.isFlagOn;
 
@@ -104,7 +100,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
                     .map(symbol -> (TypeSymbol) symbol)
                     .collect(Collectors.toUnmodifiableList());
         }
-        
+
         return this.typeDefs;
     }
 
@@ -147,11 +143,6 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
         // TODO:
         this.listeners = new ArrayList<>();
         return this.listeners;
-    }
-
-    @Override
-    public List<ClassSymbol> classes() {
-        return new ArrayList<>();
     }
 
     @Override

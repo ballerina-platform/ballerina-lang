@@ -19,7 +19,8 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -29,6 +30,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -63,8 +65,8 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
             (2) public listener mod:Listener test = new a<cursor>
              */
             List<ObjectTypeDescriptor> filteredList = visibleSymbols.stream()
-                    .filter(CommonUtil::isListenerObject)
-                    .map(symbol -> (ObjectTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get())
+                    .filter(symbol -> symbol.kind() == SymbolKind.TYPE && SymbolUtil.isListener((TypeSymbol) symbol))
+                    .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor().get())
                     .collect(Collectors.toList());
             for (ObjectTypeDescriptor objectTypeDesc : filteredList) {
                 completionItems.add(this.getExplicitNewCompletionItem(objectTypeDesc, context));
@@ -78,8 +80,8 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
                 return completionItems;
             }
             List<ObjectTypeDescriptor> filteredList = module.get().allSymbols().stream()
-                    .filter(CommonUtil::isListenerObject)
-                    .map(symbol -> (ObjectTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get())
+                    .filter(symbol -> symbol.kind() == SymbolKind.TYPE && SymbolUtil.isListener((TypeSymbol) symbol))
+                    .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor().get())
                     .collect(Collectors.toList());
             for (ObjectTypeDescriptor objectTypeDesc : filteredList) {
                 completionItems.add(this.getExplicitNewCompletionItem(objectTypeDesc, context));

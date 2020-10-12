@@ -9,7 +9,7 @@
       "label": "mod",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "A",
+      "sortText": "C",
       "insertText": "mod",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "lang",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "A",
+      "sortText": "C",
       "insertText": "lang",
       "insertTextFormat": "Snippet"
     },
@@ -133,6 +133,29 @@
             }
           },
           "newText": "import ballerina/lang.'string;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BD",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
         }
       ]
     },
@@ -393,7 +416,7 @@
       "label": "Listener",
       "kind": "Interface",
       "detail": "Object",
-      "sortText": "A",
+      "sortText": "C",
       "insertText": "Listener",
       "insertTextFormat": "Snippet"
     }

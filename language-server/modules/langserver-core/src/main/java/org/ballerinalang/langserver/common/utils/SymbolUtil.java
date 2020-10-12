@@ -27,7 +27,9 @@ import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.RecordTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Carries a set of utilities to check the types of the symbols.
@@ -126,13 +128,36 @@ public class SymbolUtil {
     }
 
     /**
-     * Check Whether the provided symbol is a type symbol.
+     * Check Whether the provided symbol is a listener symbol.
      *
      * @param symbol to be evaluated
      * @return {@link Boolean} status of the evaluation
      */
-    public static boolean isListener(Symbol symbol) {
-        return false;
+    public static boolean isListener(TypeSymbol symbol) {
+        if (symbol.typeDescriptor().isEmpty() || symbol.typeDescriptor().get().kind() != TypeDescKind.OBJECT) {
+            return false;
+        }
+        List<String> attachedMethods = ((ObjectTypeDescriptor) symbol.typeDescriptor().get()).methods().stream()
+                .map(Symbol::name)
+                .collect(Collectors.toList());
+        return attachedMethods.contains("__start") && attachedMethods.contains("__immediateStop")
+                && attachedMethods.contains("__immediateStop") && attachedMethods.contains("__attach");
+    }
+
+    /**
+     * Check whether the symbol is a listener object.
+     *
+     * @param symbol Symbol to evaluate
+     * @return {@link Boolean}  whether listener or not
+     */
+    public static boolean isListener(VariableSymbol symbol) {
+        Optional<BallerinaTypeDescriptor> typeDesc = symbol.typeDescriptor();
+        if (typeDesc.isEmpty() || typeDesc.get().kind() != TypeDescKind.OBJECT) {
+            return false;
+        }
+
+        return ((ObjectTypeDescriptor) typeDesc.get()).typeQualifiers()
+                .contains(ObjectTypeDescriptor.TypeQualifier.LISTENER);
     }
 
     /**

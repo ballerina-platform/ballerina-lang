@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
@@ -149,7 +150,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
         List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<Symbol> listeners = visibleSymbols.stream()
-                .filter(CommonUtil::isListenerObject)
+                .filter(symbol -> symbol.kind() == SymbolKind.TYPE && SymbolUtil.isListener((TypeSymbol) symbol))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(listeners, context));
 
@@ -168,7 +169,9 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             return completionItems;
         }
 
-        List<TypeSymbol> listeners = moduleSymbol.get().listeners();
+        List<TypeSymbol> listeners = moduleSymbol.get().typeDefinitions().stream()
+                .filter(SymbolUtil::isListener)
+                .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(listeners, context));
 
         return completionItems;
@@ -252,15 +255,16 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             if (moduleSymbol.isEmpty()) {
                 return Optional.empty();
             }
-            typeSymbol = moduleSymbol.get().listeners().stream()
-                    .filter(variableSymbol -> variableSymbol.name().equals(nameReferenceNode.identifier().text()))
+            typeSymbol = moduleSymbol.get().typeDefinitions().stream()
+                    .filter(type -> SymbolUtil.isListener(type)
+                            && type.name().equals(nameReferenceNode.identifier().text()))
                     .findAny();
 
         } else if (typeDescriptor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) typeDescriptor;
             typeSymbol = visibleSymbols.stream()
                     .filter(visibleSymbol -> visibleSymbol.kind() == TYPE
-                            && SymbolUtil.isListener(visibleSymbol)
+                            && SymbolUtil.isListener((TypeSymbol) visibleSymbol)
                             && visibleSymbol.name().equals(nameReferenceNode.name().text()))
                     .map(visibleSymbol -> (TypeSymbol) visibleSymbol)
                     .findAny();

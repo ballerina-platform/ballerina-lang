@@ -16,6 +16,8 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -60,7 +62,7 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
              */
             List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
             List<Symbol> listeners = visibleSymbols.stream()
-                    .filter(SymbolUtil::isListener)
+                    .filter(symbol -> symbol.kind() == SymbolKind.TYPE && SymbolUtil.isListener((TypeSymbol) symbol))
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(listeners, context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
