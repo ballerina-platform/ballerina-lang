@@ -350,17 +350,6 @@ public class RunTestsTask implements Task {
         String jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
                 .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
 
-        Path jacocoCoreJarPath =  Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve("org.jacoco.core-0.8.5.jar");
-        Path jacocoReportJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve("org.jacoco.report-0.8.5.jar");
-        Path asmJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve("asm-7.1.jar");
-        Path asmTreeJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve("asm-tree-7.2.jar");
-        Path asmCommonsJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve("asm-commons-7.2.jar");
-
         try {
             if (coverage) {
                 String agentCommand = "-javaagent:"
@@ -374,11 +363,7 @@ public class RunTestsTask implements Task {
                 cmdArgs.add(agentCommand);
             }
 
-            testDependencies.add(jacocoCoreJarPath);
-            testDependencies.add(jacocoReportJarPath);
-            testDependencies.add(asmJarPath);
-            testDependencies.add(asmTreeJarPath);
-            testDependencies.add(asmCommonsJarPath);
+            resolveTestDependencies(testDependencies);
 
             String classPath = getClassPath(getTestRuntimeJar(buildContext), testDependencies);
             cmdArgs.addAll(Lists.of("-cp", classPath));
@@ -485,5 +470,24 @@ public class RunTestsTask implements Task {
         }
 
         return new ArrayList<String>();
+    }
+
+    private void resolveTestDependencies(HashSet<Path> testDependencies) {
+        Path jacocoCoreJarPath =  Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.JACOCO_CORE_JAR);
+        Path jacocoReportJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.JACOCO_REPORT_JAR);
+        Path asmJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.ASM_JAR);
+        Path asmTreeJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.ASM_TREE_JAR);
+        Path asmCommonsJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.ASM_COMMONS_JAR);
+
+        testDependencies.add(jacocoCoreJarPath);
+        testDependencies.add(jacocoReportJarPath);
+        testDependencies.add(asmJarPath);
+        testDependencies.add(asmTreeJarPath);
+        testDependencies.add(asmCommonsJarPath);
     }
 }
