@@ -125,6 +125,43 @@ function testObjectConstructorIncludedMethod() {
     assertTrue(objWithIncludedMethod.n == 100);
 }
 
+// test distinct id support
+
+distinct class DistinctFoo {
+    int i = 0;
+}
+
+function testObjectConstructorWithDistintExpectedType() {
+    DistinctFoo distinctObject = object {
+                                        int i;
+                                        function init() {
+                                            self.i = 20;
+                                        }
+                                    };
+    assertValueEquality(20, distinctObject.i);
+}
+
+function testObjectConstructorWithDistintTypeReference() {
+    DistinctFoo distinctObject = object DistinctFoo {
+                                            int i;
+                                            function init() {
+                                                self.i = 30;
+                                            }
+                                         };
+    assertValueEquality(30, distinctObject.i);
+}
+
+function testObjectConstructorWithDistintTypeReferenceVar() {
+    var distinctObject = object DistinctFoo {
+                                            int i;
+                                            function init() {
+                                                self.i = 25;
+                                            }
+                                         };
+    DistinctFoo newDistinctRef = distinctObject;
+    assertValueEquality(25, newDistinctRef.i);
+}
+
 // assertion helpers
 
 const ASSERTION_ERROR_REASON = "AssertionError";

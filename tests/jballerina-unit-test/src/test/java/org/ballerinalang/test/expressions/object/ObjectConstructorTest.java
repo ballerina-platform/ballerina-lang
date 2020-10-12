@@ -60,6 +60,21 @@ public class ObjectConstructorTest {
     }
 
     @Test
+    public void testObjectConstructorWithDistintExpectedType() {
+        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDistintExpectedType");
+    }
+
+    @Test
+    public void testObjectConstructorWithDistintTypeReference() {
+        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDistintTypeReference");
+    }
+
+    @Test
+    public void testObjectConstructorWithDistintTypeReferenceVar() {
+        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDistintTypeReferenceVar");
+    }
+
+    @Test
     public void testObjectConstructorNegative() {
 
         CompileResult negativeResult = BCompileUtil.compile(
