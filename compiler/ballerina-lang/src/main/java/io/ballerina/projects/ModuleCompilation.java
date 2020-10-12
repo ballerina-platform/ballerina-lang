@@ -20,12 +20,15 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +47,7 @@ public class ModuleCompilation {
     private final CompilerContext compilerContext;
 
     private final DependencyGraph<ModuleId> dependencyGraph;
+    private List<Diagnostic> diagnostics;
 
     ModuleCompilation(PackageContext packageContext, ModuleContext moduleContext) {
         this.packageContext = packageContext;
@@ -98,12 +102,17 @@ public class ModuleCompilation {
         packageCache.putSymbol(ANNOTATIONS, symbolTable.langAnnotationModuleSymbol);
 
         // Compile all the modules
+        diagnostics = new ArrayList<>();
         List<ModuleId> sortedModuleIds = dependencyGraph.toTopologicallySortedList();
         for (ModuleId sortedModuleId : sortedModuleIds) {
             Package pkg = packageResolver.getPackage(sortedModuleId.packageId());
             ModuleContext moduleContext = pkg.module(sortedModuleId).moduleContext();
             moduleContext.compile(compilerContext, pkg.packageName());
+            diagnostics.addAll(moduleContext.diagnostics());
         }
+
+        // Create an immutable list
+        diagnostics = Collections.unmodifiableList(diagnostics);
     }
 
     public void getSemanticModel() {
@@ -112,6 +121,10 @@ public class ModuleCompilation {
 
     BLangPackage bLangPackage() {
         return this.moduleContext.bLangPackage();
+    }
+
+    public List<Diagnostic> diagnostics() {
+        return diagnostics;
     }
 }
 
