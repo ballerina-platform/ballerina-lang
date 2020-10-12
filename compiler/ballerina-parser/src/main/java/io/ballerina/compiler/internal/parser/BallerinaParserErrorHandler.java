@@ -675,7 +675,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.IDENTIFIER, ParserRuleContext.DOT };
 
     private static final ParserRuleContext[] RELATIVE_RESOURCE_PATH_END =
-            { ParserRuleContext.SLASH, ParserRuleContext.RESOURCE_ACCESSOR_DEF_RHS };
+            { ParserRuleContext.SLASH, ParserRuleContext.RESOURCE_ACCESSOR_DEF_OR_DECL_RHS};
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -2367,8 +2367,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TERMINAL_EXPRESSION:
                 return getNextRuleForExpr();
             case FUNC_NAME:
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.OBJECT_MEMBER || parentCtx == ParserRuleContext.CLASS_MEMBER) {
+                ParserRuleContext grandParentCtx = getGrandParentContext();
+                if (grandParentCtx == ParserRuleContext.OBJECT_MEMBER ||
+                        grandParentCtx == ParserRuleContext.CLASS_MEMBER ||
+                        grandParentCtx == ParserRuleContext.OBJECT_MEMBER_DESCRIPTOR) {
                     return ParserRuleContext.OPTIONAL_RELATIVE_PATH;
                 }
                 return ParserRuleContext.OPEN_PARENTHESIS;
@@ -2644,7 +2646,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPED_BINDING_PATTERN_TYPE_RHS;
             case RELATIVE_RESOURCE_PATH:
                 return ParserRuleContext.RELATIVE_RESOURCE_PATH_START;
-            case RESOURCE_ACCESSOR_DEF_RHS:
+            case RESOURCE_ACCESSOR_DEF_OR_DECL_RHS:
                 endContext(); // end relative-resource-path
                 return ParserRuleContext.OPEN_PARENTHESIS;
             default:
@@ -4179,7 +4181,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         if (parentCtx == ParserRuleContext.IMPORT_DECL) {
             return ParserRuleContext.IMPORT_MODULE_NAME;
         } else if (parentCtx == ParserRuleContext.RELATIVE_RESOURCE_PATH) {
-            return ParserRuleContext.RESOURCE_ACCESSOR_DEF_RHS;
+            return ParserRuleContext.RESOURCE_ACCESSOR_DEF_OR_DECL_RHS;
         }
         return ParserRuleContext.FIELD_ACCESS_IDENTIFIER;
     }

@@ -127,7 +127,7 @@ public enum ParserRuleContext {
     RELATIVE_RESOURCE_PATH_START("relative-resource-path-start"),
     RELATIVE_RESOURCE_PATH_END("relative-resource-path-end"),
     RESOURCE_PATH_END("relative-resource-path-end"),
-    RESOURCE_ACCESSOR_DEF_RHS("resource-accessor-def-rhs"),
+    RESOURCE_ACCESSOR_DEF_OR_DECL_RHS("resource-accessor-def-or-decl-rhs"),
     LISTENER_DECL("listener-decl"),
     CONSTANT_DECL("const-decl"),
     CONST_DECL_TYPE("const-decl-type"),
