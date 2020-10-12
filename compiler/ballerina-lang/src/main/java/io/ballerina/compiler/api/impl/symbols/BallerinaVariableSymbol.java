@@ -23,11 +23,14 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents a ballerina variable.
@@ -36,18 +39,20 @@ import java.util.Optional;
  */
 public class BallerinaVariableSymbol extends BallerinaSymbol implements VariableSymbol {
 
-    private final List<Qualifier> qualifiers;
+    private final Set<Qualifier> qualifiers;
     private final BallerinaTypeDescriptor typeDescriptorImpl;
+    private final boolean deprecated;
 
     protected BallerinaVariableSymbol(String name,
-                                          PackageID moduleID,
-                                          SymbolKind ballerinaSymbolKind,
-                                          List<Qualifier> qualifiers,
-                                          BallerinaTypeDescriptor typeDescriptorImpl,
-                                          BSymbol bSymbol) {
+                                      PackageID moduleID,
+                                      SymbolKind ballerinaSymbolKind,
+                                      Set<Qualifier> qualifiers,
+                                      BallerinaTypeDescriptor typeDescriptorImpl,
+                                      BSymbol bSymbol) {
         super(name, moduleID, ballerinaSymbolKind, bSymbol);
-        this.qualifiers = Collections.unmodifiableList(qualifiers);
+        this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptorImpl = typeDescriptorImpl;
+        this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
     }
 
     /**
@@ -56,7 +61,7 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
      * @return {@link List} of access modifiers
      */
     @Override
-    public List<Qualifier> qualifiers() {
+    public Set<Qualifier> qualifiers() {
         return qualifiers;
     }
 
@@ -70,12 +75,17 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
         return Optional.ofNullable(typeDescriptorImpl);
     }
 
+    @Override
+    public boolean deprecated() {
+        return this.deprecated;
+    }
+
     /**
      * Represents Ballerina XML Namespace Symbol Builder.
      */
     static class VariableSymbolBuilder extends SymbolBuilder<VariableSymbolBuilder> {
 
-        protected List<Qualifier> qualifiers = new ArrayList<>();
+        protected Set<Qualifier> qualifiers = new HashSet<>();
         protected BallerinaTypeDescriptor typeDescriptor;
 
         public VariableSymbolBuilder(String name, PackageID moduleID, BSymbol bSymbol) {
@@ -97,7 +107,7 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
             return this;
         }
 
-        public VariableSymbolBuilder withAccessModifier(Qualifier qualifier) {
+        public VariableSymbolBuilder withQualifier(Qualifier qualifier) {
             this.qualifiers.add(qualifier);
             return this;
         }
