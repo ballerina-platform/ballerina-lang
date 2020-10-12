@@ -1,7 +1,7 @@
 package org.ballerinalang.testerina.natives.mock;
 
 import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BExecutor;
+import org.ballerinalang.testerina.natives.BExecutor;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BArray;
 import org.ballerinalang.jvm.api.values.BObject;
