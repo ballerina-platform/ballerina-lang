@@ -43,6 +43,7 @@ import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
+import org.ballerinalang.langserver.compiler.config.ClientConfigListener;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
@@ -133,7 +134,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         this.languageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.docManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
         this.diagnosticsHelper = globalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
-        LSClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
+        LSClientConfigHolder.getInstance().register((ClientConfigListener) (oldConfig, newConfig) -> {
             this.enableStdlibDefinition = newConfig.getGoToDefinition().isEnableStdlib();
         });
         this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);

@@ -15,6 +15,10 @@
  */
 package org.ballerinalang.langserver.compiler.config;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,11 +27,13 @@ import java.util.List;
  */
 public class LSClientConfigHolder {
     private static final LSClientConfigHolder INSTANCE = new LSClientConfigHolder();
+    private final Gson GSON = new Gson();
 
-    private List<ConfigChangeListener> listeners = new ArrayList<>();
+    private final List<BaseClientConfigListener> listeners = new ArrayList<>();
 
     // Init ballerina client configuration with defaults
     private LSClientConfig clientConfig = LSClientConfig.getDefault();
+    private JsonElement clientConfigJson = GSON.toJsonTree(this.clientConfig).getAsJsonObject();
 
     private LSClientConfigHolder() {
     }
@@ -46,33 +52,46 @@ public class LSClientConfigHolder {
     }
 
     /**
+     * Returns current client configuration.
+     *
+     * @return {@link T}
+     */
+    public <T> T getConfigAs(Class<T> type) {
+        return GSON.fromJson(clientConfigJson, (Type) type);
+    }
+
+    /**
      * Register config listener.
      *
-     * @param listener  Config change listener to register
+     * @param listener Config change listener to register
      */
-    public void register(ConfigChangeListener listener) {
+    public void register(BaseClientConfigListener listener) {
         listeners.add(listener);
     }
 
     /**
      * Unregister config listener.
      *
-     * @param listener  Config change listener to unregister
+     * @param listener Config change listener to unregister
      */
-    public void unregister(ConfigChangeListener listener) {
+    public void unregister(BaseClientConfigListener listener) {
         listeners.remove(listener);
     }
 
     /**
      * Update current client configuration.
      *
-     * @param newConfig {@link LSClientConfig} new configuration
+     * @param newClientConfigJson {@link JsonElement} new configuration
      */
-    public void updateConfig(LSClientConfig newConfig) {
+    public void updateConfig(JsonElement newClientConfigJson) {
+        LSClientConfig newClientConfig = GSON.fromJson(newClientConfigJson, LSClientConfig.class);
         // Update config
-        LSClientConfig oldConfig = clientConfig;
-        clientConfig = newConfig;
+        LSClientConfig oldClientConfig = this.clientConfig;
+        JsonElement oldClientConfigJson = this.clientConfigJson;
+        this.clientConfig = newClientConfig;
+        this.clientConfigJson = newClientConfigJson;
         // Notify listeners
-        listeners.stream().parallel().forEach(listener -> listener.didChange(oldConfig, newConfig));
+        this.listeners.forEach(listener -> listener.didChangeConfig(oldClientConfig, newClientConfig));
+        this.listeners.forEach(listener -> listener.didChangeJson(oldClientConfigJson, newClientConfigJson));
     }
 }

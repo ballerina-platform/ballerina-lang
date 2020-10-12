@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,30 @@
  */
 package org.ballerinalang.langserver.compiler.config;
 
+import com.google.gson.JsonElement;
+
 /**
  * Represents a ballerina client config change listener.
+ *
+ * @since 2.0.0
  */
-public interface ConfigChangeListener {
+@FunctionalInterface
+public interface ExtendedClientConfigListener extends BaseClientConfigListener {
     /**
      * Callback method for configuration changes.
      *
      * @param oldConfig old configuration
      * @param newConfig new configuration
      */
-    void didChange(LSClientConfig oldConfig, LSClientConfig newConfig);
+    default void didChangeConfig(LSClientConfig oldConfig, LSClientConfig newConfig) {
+        // do nothing
+    }
+
+    /**
+     * Callback method for configuration json changes.
+     *
+     * @param oldConfigJson old configuration json
+     * @param newConfigJson new configuration json
+     */
+    void didChangeJson(JsonElement oldConfigJson, JsonElement newConfigJson);
 }

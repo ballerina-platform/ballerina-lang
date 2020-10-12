@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.compiler.config;
+package org.ballerinalang.datamapper.config;
 
 /**
  * Ballerina Data Mapper code action Configuration.
