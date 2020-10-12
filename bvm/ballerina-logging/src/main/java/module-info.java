@@ -4,4 +4,5 @@ module io.ballerina.logging {
     requires gson;
     exports org.ballerinalang.logging;
     exports org.ballerinalang.logging.util;
+    exports org.ballerinalang.logging.formatters;
 }

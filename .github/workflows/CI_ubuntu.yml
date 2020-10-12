@@ -42,7 +42,7 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build -x createJavadoc -x test --max-workers=2 --scan --no-daemon
+          ./gradlew build -x test --max-workers=2 --scan --no-daemon
           find ~/.gradle/caches/ -name "*.lock" -type f -delete 
 
   run_integration_test:
@@ -78,7 +78,7 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew :jballerina-integration-test:test --fail-fast -x createJavadoc --max-workers=1 --scan --no-daemon
+          ./gradlew :jballerina-integration-test:test --fail-fast --max-workers=1 --scan --no-daemon
 
   run_jbal_long_running_test:
     name: Run jbal & long running tests

@@ -114,8 +114,8 @@ public abstract class AbstractParser {
         return sol;
     }
 
-    protected void insertToken(SyntaxKind kind) {
-        this.insertedToken = SyntaxErrors.createMissingTokenWithDiagnostics(kind);
+    protected void insertToken(SyntaxKind kind, ParserRuleContext context) {
+        this.insertedToken = SyntaxErrors.createMissingTokenWithDiagnostics(kind, context);
     }
 
     protected void startContext(ParserRuleContext context) {

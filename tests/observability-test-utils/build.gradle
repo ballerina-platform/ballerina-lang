@@ -19,9 +19,14 @@ apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
-
-configurations.all {
-    resolutionStrategy.preferProjectModules()
+configurations {
+    all {
+        resolutionStrategy.preferProjectModules()
+    }
+    jballerinaTools
+    testUtils {
+        transitive false
+    }
 }
 
 dependencies {
@@ -32,11 +37,19 @@ dependencies {
     shadow project(':ballerina-lang')
     shadow project(':ballerina-lang:annotations')
 
+    implementation 'io.netty:netty-codec-http'
     implementation 'io.opentracing:opentracing-mock'
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-java')
+    implementation project(':ballerina-lang:java')
 
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
+
+    testCompile 'org.testng:testng'
+    testCompile 'org.slf4j:slf4j-jdk14'
+    testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
+
+    testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
+    jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
 }
 
 description = 'Ballerina - Observability - Tracing Test Utils'
@@ -56,4 +69,23 @@ shadowJar {
 
 createBalo {
     jvmTarget = 'true'
+}
+
+test {
+    // make sure ballerina zip is built before test run
+    dependsOn ':jballerina-tools:build'
+    dependsOn shadowJar
+    systemProperty 'enableJBallerinaTests', 'true'
+
+    systemProperty 'basedir', "$buildDir"
+    systemProperty 'libdir', "$buildDir"
+    systemProperty 'server.zip', configurations.jballerinaTools.asPath
+    systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
+    systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
+    systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
+    systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
+    systemProperty 'observability-test-natives.jar', tasks.shadowJar.archiveFile.get().asFile
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }

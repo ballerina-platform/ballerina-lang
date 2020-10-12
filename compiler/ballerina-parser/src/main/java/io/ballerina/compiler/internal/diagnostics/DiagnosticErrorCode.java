@@ -288,7 +288,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_USAGE_OF_VAR("BCE232", "error.invalid.usage.of.var"),
     ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN("BCE233",
             "error.more.match.patterns.after.rest.match.pattern"),
-    ERROR_MATCH_PATTERN_NOT_ALLOWED("BCE234", "error-match-pattern-not-allowed"),
+    ERROR_MATCH_PATTERN_NOT_ALLOWED("BCE234", "error.match.pattern.not.allowed"),
+    ERROR_MATCH_STATEMENT_SHOULD_HAVE_ONE_OR_MORE_MATCH_CLAUSES("BCE235",
+            "error.match.statement.should.have.one.or.more.match.clauses"),
 
     ERROR_PARAMETER_AFTER_THE_REST_PARAMETER("BCE300", "error.parameter.after.the.rest.parameter"),
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE301",

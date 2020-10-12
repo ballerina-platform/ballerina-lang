@@ -135,4 +135,9 @@ public class ShadowingTest {
     public void testTypeNameAsVariable5() {
         BRunUtil.invoke(result, "testTypeNameAsVariable5");
     }
+
+    @Test(description = "test shadowing with ballerina generated names")
+    public void testGeneratedNames() {
+        BRunUtil.invoke(result, "testGeneratedNames");
+    }
 }

@@ -36,7 +36,6 @@ public class IdentifierUtils {
     private static final String CHAR_PREFIX = "$";
     private static final String ESCAPE_PREFIX = "\\";
     private static final String ENCODABLE_CHAR_SET = "\\.:;[]/<>$";
-    private static final Pattern ENCODING_PATTERN = Pattern.compile("\\$(\\d{4})");
     private static final Pattern UNESCAPED_SPECIAL_CHAR_SET =
             Pattern.compile("(?<!\\\\)(?:\\\\\\\\)*([$&+,:;=\\?@#|/' \\[\\}\\]<\\>.\"^*{}~`()%!-])");
 
@@ -76,8 +75,6 @@ public class IdentifierUtils {
         }
         if (identifier.contains(ESCAPE_PREFIX)) {
             identifier = encodeSpecialCharacters(identifier);
-        } else {
-            identifier = ENCODING_PATTERN.matcher(identifier).replaceAll("\\$#$1");
         }
         return StringEscapeUtils.unescapeJava(identifier);
     }
@@ -96,10 +93,7 @@ public class IdentifierUtils {
         int index = 0;
         while (index < encodedIdentifier.length()) {
             if (encodedIdentifier.charAt(index) == '$' && index + 4 < encodedIdentifier.length()) {
-                if (isDollarHashPattern(encodedIdentifier, index)) {
-                    sb.append("$").append(encodedIdentifier, index + 2, index + 6);
-                    index += 6;
-                } else if (isUnicodePoint(encodedIdentifier, index)) {
+                if (isUnicodePoint(encodedIdentifier, index)) {
                     sb.append((char) Integer.parseInt(encodedIdentifier.substring(index + 1, index + 5)));
                     index += 5;
                 } else {
@@ -127,11 +121,6 @@ public class IdentifierUtils {
 
     private static boolean isUnicodePoint(String encodedName, int index) {
         return (containsOnlyDigits(encodedName.substring(index + 1, index + 5)));
-    }
-
-    private static boolean isDollarHashPattern(String encodedName, int index) {
-        return encodedName.charAt(index + 1) == '#' && index + 5 < encodedName.length() &&
-                containsOnlyDigits(encodedName.substring(index + 2, index + 6));
     }
 
     private static boolean containsOnlyDigits(String digitString) {
