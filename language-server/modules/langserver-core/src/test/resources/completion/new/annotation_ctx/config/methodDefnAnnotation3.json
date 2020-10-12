@@ -1,0 +1,44 @@
+{
+  "position": {
+    "line": 4,
+    "character": 17
+  },
+  "source": "annotation_ctx/source/methodDefnAnnotation3.bal",
+  "items": [
+    {
+      "label": "a2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "a2 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "functionAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "functionAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "functionAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "functionAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "objectFunctionAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "objectFunctionAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "objectFunctionAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "objectFunctionAnnotation2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

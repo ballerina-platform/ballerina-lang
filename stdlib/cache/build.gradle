@@ -30,7 +30,7 @@ dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-java')
+    implementation project(':ballerina-lang:java')
     implementation 'commons-logging:commons-logging'
     implementation 'org.slf4j:slf4j-jdk14'
 
@@ -40,7 +40,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-log-api", configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-system')

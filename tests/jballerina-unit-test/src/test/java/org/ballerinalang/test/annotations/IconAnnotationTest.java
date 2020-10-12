@@ -59,7 +59,7 @@ public class IconAnnotationTest {
                 "/fooIconPath.icon}");
     }
 
-    @Test
+    @Test (enabled = false)
     public void testIconOnObjectAndMemberFunction() {
         ClassDefinition clz = result.getAST().getClassDefinitions().get(0);
         List<? extends AnnotationAttachmentNode> objAnnot = clz.getAnnotationAttachments();

@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.jvm.IdentifierEncoder;
+import org.ballerinalang.jvm.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -1388,7 +1388,7 @@ public class JvmInstructionGen {
             this.mv.visitMethodInsn(INVOKESPECIAL,
                                     getTypeValueClassName(objectType.tsymbol.pkgID, toNameString(objectType)),
                                     "setOnInitialization",
-                                    String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), true);
+                                    String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), false);
             return;
         }
 
@@ -1641,7 +1641,7 @@ public class JvmInstructionGen {
         this.mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         this.mv.visitInsn(DUP);
 
-        String lambdaName = IdentifierEncoder.encodeIdentifier(inst.funcName.value) + "$lambda" +
+        String lambdaName = IdentifierUtils.encodeIdentifier(inst.funcName.value) + "$lambda" +
                 asyncDataCollector.getLambdaIndex() + "$";
         asyncDataCollector.incrementLambdaIndex();
         String pkgName = JvmCodeGenUtil.getPackageName(inst.pkgId);

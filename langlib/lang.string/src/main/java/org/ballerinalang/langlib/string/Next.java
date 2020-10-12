@@ -21,19 +21,12 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 
 
 /**
@@ -41,17 +34,10 @@ import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "next",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "StringIterator",
-                structPackage = "ballerina/lang.string"),
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
 public class Next {
 
     //TODO: refactor hard coded values
-    public static Object next(Strand strand, ObjectValue m) {
+    public static Object next(ObjectValue m) {
         StringCharacterIterator stringCharacterIterator = (StringCharacterIterator) m.getNativeData("&iterator&");
         if (stringCharacterIterator == null) {
             String s = ((BString) m.get(BStringUtils.fromString("m"))).getValue();

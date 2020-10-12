@@ -29,14 +29,14 @@ import org.testng.annotations.Test;
 @Test
 public class ListenerServiceTaintedStatusPropagationTest {
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test(groups = { "disableOnOldParser" }, enabled = false)
     public void testUntaintedListernBasedService() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/taintchecking/propagation/listener-taintedness-propagation-untainted-listener.bal");
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testTaintednessPropagationFromTaintedListener() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/taintchecking/propagation/listener-taintedness-propagation-tainted-listener.bal");
