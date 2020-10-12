@@ -22,6 +22,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.ballerina.testobserve.metrics.extension.model.Metrics;
 import org.ballerina.testobserve.metrics.extension.model.MockMetric;
+import org.ballerinalang.jvm.observability.metrics.PercentileValue;
+import org.ballerinalang.jvm.observability.metrics.Snapshot;
 import org.ballerinalang.jvm.observability.metrics.Tag;
 import org.ballerinalang.test.observability.ObservabilityBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -33,6 +35,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -86,40 +89,95 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 .collect(Collectors.toList());
     }
 
-    private void assertMetrics(Metrics allMetrics, String invocationPosition, long invocationCount,
-                               Tag ...additionalTags) {
+    private void assertFunctionMetrics(Metrics allMetrics, String invocationPosition, long invocationCount,
+                                       Tag ...additionalTags) {
         Metrics functionMetrics = filterByTag(allMetrics, "src.position", invocationPosition);
         Set<Tag> tags = new HashSet<>(Arrays.asList(additionalTags));
         tags.add(Tag.of("src.module", MODULE_ID));
         tags.add(Tag.of("src.position", invocationPosition));
 
-        Assert.assertEquals(functionMetrics.getCounters().size(), 2);
         Assert.assertEquals(functionMetrics.getCounters().stream()
                         .map(gauge -> gauge.getId().getName())
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList("requests_total", "response_time_nanoseconds_total")));
+        Assert.assertEquals(functionMetrics.getCounters().size(), 2);
         functionMetrics.getCounters().forEach(counter -> {
             Assert.assertEquals(counter.getId().getTags(), tags);
             if (Objects.equals(counter.getId().getName(), "requests_total")) {
                 Assert.assertEquals(counter.getValue(), invocationCount);
             } else if (Objects.equals(counter.getId().getName(), "response_time_nanoseconds_total")) {
-                Assert.assertTrue((invocationCount > 0) ? (counter.getValue() > 0) : (counter.getValue() == 0));
+                if (invocationCount > 0) {
+                    Assert.assertTrue(counter.getValue() > 0,
+                            "response_time_nanoseconds_total expected to be greater than 0, but found "
+                            + counter.getValue());
+                } else {
+                    Assert.assertEquals(counter.getValue(), 0);
+                }
             } else {
                 Assert.fail("Unexpected metric " + counter.getId().getName());
             }
         });
 
-        Assert.assertEquals(functionMetrics.getGauges().size(), 2);
         Assert.assertEquals(functionMetrics.getGauges().stream()
                         .map(gauge -> gauge.getId().getName())
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList("response_time_seconds", "inprogress_requests")));
+        Assert.assertEquals(functionMetrics.getGauges().size(), 2);
         functionMetrics.getGauges().forEach(gauge -> {
             if (Objects.equals(gauge.getId().getName(), "response_time_seconds")) {
                 Assert.assertEquals(gauge.getId().getTags(), tags);
                 Assert.assertEquals(gauge.getCount(), invocationCount);
-                Assert.assertTrue((invocationCount > 0) ? (gauge.getSum() > 0) : (gauge.getSum() == 0));
-                Assert.assertTrue((invocationCount > 0) ? (gauge.getValue() > 0) : (gauge.getValue() == 0));
+                if (invocationCount > 0) {
+                    Assert.assertTrue(gauge.getSum() > 0, "Expected sum of response_time_seconds "
+                            + "to be greater than 0, but got " + gauge.getSum());
+                    Assert.assertTrue(gauge.getValue() > 0, "Expected value of response_time_seconds "
+                            + "to be greater than 0, but got " + gauge.getValue());
+                } else {
+                    Assert.assertEquals(gauge.getSum(), 0);
+                    Assert.assertEquals(gauge.getValue(), 0);
+                }
+                Assert.assertEquals(gauge.getSnapshots().length, 3);
+                for (Snapshot snapshot : gauge.getSnapshots()) {
+                    List<Duration> durations = Arrays.asList(Duration.ofMinutes(1), Duration.ofMinutes(5),
+                            Duration.ofMinutes(15));
+                    Assert.assertTrue(durations.contains(snapshot.getTimeWindow()), "time window "
+                            + snapshot.getTimeWindow() + " of snapshot not equal to either one of "
+                            + durations.toString());
+
+                    if (invocationCount > 0) {
+                        Assert.assertTrue(snapshot.getMax() > 0, "Expected max of "
+                                + snapshot.getTimeWindow().getSeconds() + " seconds time window to be greater than 0,"
+                                + " but got " + snapshot.getMax());
+                        Assert.assertTrue(snapshot.getMin() > 0, "Expected min of "
+                                + snapshot.getTimeWindow().getSeconds() + " seconds time window to be greater than 0,"
+                                + " but got " + snapshot.getMin());
+                        Assert.assertTrue(snapshot.getMean() > 0, "Expected mean of "
+                                + snapshot.getTimeWindow().getSeconds() + " seconds time window to be greater than 0,"
+                                + " but got " + snapshot.getMean());
+                    } else {
+                        Assert.assertEquals(snapshot.getMax(), 0);
+                        Assert.assertEquals(snapshot.getMin(), 0);
+                        Assert.assertEquals(snapshot.getMean(), 0);
+                    }
+                    Assert.assertTrue(snapshot.getStdDev() >= 0, "Expected standard deviation of "
+                            + snapshot.getTimeWindow().getSeconds() + " seconds time window to be greater than 0,"
+                            + " but got " + snapshot.getStdDev());
+
+                    Assert.assertEquals(snapshot.getPercentileValues().length, 7);
+                    for (PercentileValue percentileValue : snapshot.getPercentileValues()) {
+                        List<Double> expectedPercentiles = Arrays.asList(0.33, 0.5, 0.66, 0.75, 0.95, 0.99, 0.999);
+                        Assert.assertTrue(expectedPercentiles.contains(percentileValue.getPercentile()),
+                                "percentile " + percentileValue.getPercentile()
+                                        + " is not one of the expected percentiles " + expectedPercentiles.toString());
+                        if (invocationCount > 0) {
+                            Assert.assertTrue(percentileValue.getValue() > 0, "percentile "
+                                    + percentileValue.getPercentile() + " expected to be greater than 0, but found "
+                                    + percentileValue.getValue());
+                        } else {
+                            Assert.assertEquals(percentileValue.getValue(), 0);
+                        }
+                    }
+                }
             } else if (Objects.equals(gauge.getId().getName(), "inprogress_requests")) {
                 Set<Tag> inProgressGaugeTags = new HashSet<>(tags);
                 inProgressGaugeTags.remove(Tag.of("error", "true"));
@@ -127,6 +185,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Assert.assertEquals(gauge.getCount(), invocationCount * 2);
                 Assert.assertEquals(gauge.getSum(), (double) invocationCount);
                 Assert.assertEquals(gauge.getValue(), 0.0);
+                Assert.assertEquals(gauge.getSnapshots().length, 0);
             } else {
                 Assert.fail("Unexpected metric " + gauge.getId().getName());
             }
@@ -144,15 +203,15 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         Assert.assertEquals(metrics.getGauges().size(), 6);
         Assert.assertEquals(metrics.getPolledGauges().size(), 0);
 
-        assertMetrics(metrics, fileName + ":19:1", 1,
+        assertFunctionMetrics(metrics, fileName + ":19:1", 1,
                 Tag.of("function", "main"),
                 Tag.of("src.entry_point.main", "true")
         );
-        assertMetrics(metrics, fileName + ":24:24", 1,
+        assertFunctionMetrics(metrics, fileName + ":24:24", 1,
                 Tag.of("object_name", "ballerina-test/testservices/ObservableAdder"),
                 Tag.of("function", "getSum")
         );
-        assertMetrics(metrics, fileName + ":38:12", 3,
+        assertFunctionMetrics(metrics, fileName + ":38:12", 3,
                 Tag.of("function", "calculateSumWithObservability")
         );
     }
@@ -176,7 +235,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         Assert.assertEquals(metrics.getGauges().size(), 6);
         Assert.assertEquals(metrics.getPolledGauges().size(), 0);
 
-        assertMetrics(metrics, fileName + ":23:5", 1,
+        assertFunctionMetrics(metrics, fileName + ":23:5", 1,
                 Tag.of("src.entry_point.resource", "true"),
                 Tag.of("connector_name", SERVER_CONNECTOR_NAME),
                 Tag.of("service", serviceName),
@@ -186,7 +245,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("http.method", "POST"),
                 Tag.of("error", "true")
         );
-        assertMetrics(metrics, fileName + ":24:24", 1,
+        assertFunctionMetrics(metrics, fileName + ":24:24", 1,
                 Tag.of("src.remote", "true"),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
@@ -194,7 +253,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("connector_name", "ballerina-test/testservices/MockClient"),
                 Tag.of("action", "callWithPanic")
         );
-        assertMetrics(metrics, fileName + ":29:20", 1,
+        assertFunctionMetrics(metrics, fileName + ":29:20", 1,
                 Tag.of("src.remote", "true"),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
@@ -223,7 +282,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         Assert.assertEquals(metrics.getGauges().size(), 8);
         Assert.assertEquals(metrics.getPolledGauges().size(), 0);
 
-        assertMetrics(metrics, fileName + ":34:5", 1,
+        assertFunctionMetrics(metrics, fileName + ":34:5", 1,
                 Tag.of("src.entry_point.resource", "true"),
                 Tag.of("connector_name", SERVER_CONNECTOR_NAME),
                 Tag.of("service", serviceName),
@@ -232,17 +291,17 @@ public class MetricsTestCase extends ObservabilityBaseTest {
                 Tag.of("http.url", "/testServiceOne/resourceTwo"),
                 Tag.of("http.method", "POST")
         );
-        assertMetrics(metrics, fileName + ":66:15", 1,
+        assertFunctionMetrics(metrics, fileName + ":66:15", 1,
                 Tag.of("src.worker", "true"),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName)
         );
-        assertMetrics(metrics, fileName + ":71:15", 1,
+        assertFunctionMetrics(metrics, fileName + ":71:15", 1,
                 Tag.of("src.worker", "true"),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName)
         );
-        assertMetrics(metrics, fileName + ":36:20", 1,
+        assertFunctionMetrics(metrics, fileName + ":36:20", 1,
                 Tag.of("src.remote", "true"),
                 Tag.of("service", serviceName),
                 Tag.of("resource", resourceName),
