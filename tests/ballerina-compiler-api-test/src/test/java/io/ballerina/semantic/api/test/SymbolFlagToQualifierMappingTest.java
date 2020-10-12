@@ -18,11 +18,11 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.impl.BallerinaSemanticModel;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
