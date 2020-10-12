@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 11,
+    "character": 33
+  },
+  "source": "annotation_ctx/source/returnTypeDescAnnotation3.bal",
+  "items": [
+    {
+      "label": "returnAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "returnAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "returnAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "returnAnnotation2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

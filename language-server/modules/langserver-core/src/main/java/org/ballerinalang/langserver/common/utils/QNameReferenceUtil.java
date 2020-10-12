@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;

@@ -183,7 +183,6 @@ public class JvmConstants {
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
-    public static final String CONSTRUCTOR_INIT_METHOD = "<init>";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";
     public static final String MODULE_START = "$moduleStart";
@@ -207,14 +206,19 @@ public class JvmConstants {
     public static final String GET_VALUE_METHOD = "getValue";
     public static final String ANY_TO_BYTE_METHOD = "anyToByte";
     public static final String ANY_TO_INT_METHOD = "anyToInt";
+    public static final String ANY_TO_FLOAT_METHOD = "anyToFloat";
+    public static final String ANY_TO_DECIMAL_METHOD = "anyToDecimal";
+    public static final String ANY_TO_BOOLEAN_METHOD = "anyToBoolean";
     public static final String DECIMAL_VALUE_OF_J_METHOD = "valueOfJ";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String POPULATE_INITIAL_VALUES_METHOD = "populateInitialValues";
     public static final String CREATE_TYPES_METHOD = "$createTypes";
     public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
     public static final String GLOBAL_LOCK_NAME = "lock";
-    public static final String SERVICE_EP_AVAILABLE = "serviceEPAvailable";
-    public static final String LOCK_STORE_VAR_NAME = "LOCK_STORE";
+    public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
+    public static final String LOCK_STORE_VAR_NAME = "$LOCK_STORE";
+    public static final String RECORD_INIT_WRAPPER_NAME = "$init";
+
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";

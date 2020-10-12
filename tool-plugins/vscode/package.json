@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Language Intelligence, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "2.0.0-Preview4-SNAPSHOT",
+    "version": "2.0.0-Preview4",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -91,16 +91,6 @@
                     "type": "boolean",
                     "default": true,
                     "description": "If set to true ballerina documentation code lens feature will be allowed"
-                },
-                "ballerina.codeLens.services.enabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "If set to true ballerina services code lens feature will be allowed"
-                },
-                "ballerina.codeLens.endpoints.enabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "If set to true ballerina endpoints code lens feature will be allowed"
                 },
                 "ballerina.dataMapper.enabled": {
                     "type": "boolean",
