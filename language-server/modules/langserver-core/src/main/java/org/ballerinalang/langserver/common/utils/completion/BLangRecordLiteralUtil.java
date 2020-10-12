@@ -33,8 +33,8 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -85,9 +85,9 @@ public class BLangRecordLiteralUtil {
 
         CompletionItem cItem;
         if (canSpread && symbol.kind() == SymbolKind.FUNCTION) {
-            cItem = BFunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
+            cItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
         } else if (canSpread) {
-            cItem = BVariableCompletionItemBuilder.build((VariableSymbol) symbol, symbol.name(),
+            cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbol.name(),
                     CommonUtil.getBTypeName(typeDescriptor.get(), context, false));
         } else {
             return Optional.empty();

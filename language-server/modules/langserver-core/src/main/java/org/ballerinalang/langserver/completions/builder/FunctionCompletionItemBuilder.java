@@ -53,8 +53,8 @@ import java.util.stream.Collectors;
  *
  * @since 0.983.0
  */
-public final class BFunctionCompletionItemBuilder {
-    private BFunctionCompletionItemBuilder() {
+public final class FunctionCompletionItemBuilder {
+    private FunctionCompletionItemBuilder() {
     }
 
     /**

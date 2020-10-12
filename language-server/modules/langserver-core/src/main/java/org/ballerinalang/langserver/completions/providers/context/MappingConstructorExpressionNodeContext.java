@@ -49,7 +49,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
@@ -204,7 +204,7 @@ public class MappingConstructorExpressionNodeContext extends
             if (fieldTypeMap.containsKey(symbolName) && typeDescriptor.isPresent()
                     && fieldTypeMap.get(symbolName).kind() == typeDescriptor.get().kind()) {
                 String bTypeName = CommonUtil.getBTypeName(typeDescriptor.get(), ctx, false);
-                CompletionItem cItem = BVariableCompletionItemBuilder.build((VariableSymbol) symbol, symbolName,
+                CompletionItem cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbolName,
                         bTypeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
             }

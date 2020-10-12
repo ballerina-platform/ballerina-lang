@@ -30,6 +30,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -96,15 +97,8 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         if (varRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) varRef).name().text();
             objectType = visibleSymbols.stream()
-                    .filter(symbol -> {
-                        if (symbol.kind() != SymbolKind.VARIABLE) {
-                            return false;
-                        }
-                        Optional<BallerinaTypeDescriptor> typeDesc = ((VariableSymbol) symbol).typeDescriptor();
-                        return typeDesc.isPresent() && typeDesc.get().kind() == TypeDescKind.OBJECT
-                                && symbol.name().equals(identifier);
-                    })
-                    .map(symbol -> (ObjectTypeDescriptor) (((VariableSymbol) symbol).typeDescriptor().get()))
+                    .filter(symbol -> symbol.name().equals(identifier) && SymbolUtil.isObject(symbol))
+                    .map(SymbolUtil::getTypeDescForObjectSymbol)
                     .findAny();
         } else {
             objectType = Optional.empty();

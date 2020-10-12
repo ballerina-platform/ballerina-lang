@@ -33,8 +33,8 @@ import java.util.Optional;
  *
  * @since 1.0
  */
-public class BConstantCompletionItemBuilder {
-    private BConstantCompletionItemBuilder() {
+public class ConstantCompletionItemBuilder {
+    private ConstantCompletionItemBuilder() {
     }
 
     /**

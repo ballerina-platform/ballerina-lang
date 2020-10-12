@@ -37,8 +37,8 @@ import java.util.Optional;
  *
  * @since 0.983.0
  */
-public class BTypeCompletionItemBuilder {
-    private BTypeCompletionItemBuilder() {
+public class TypeCompletionItemBuilder {
+    private TypeCompletionItemBuilder() {
     }
 
     /**

@@ -187,6 +187,28 @@
       ]
     },
     {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.future",
       "kind": "Module",
       "detail": "Module",
@@ -536,7 +558,7 @@
     {
       "label": "l1",
       "kind": "Variable",
-      "detail": "module1:Listener",
+      "detail": " object {int portfunction () returns |() function () returns |() function () returns |() function (service s) returns |() function (service s) returns |() function () returns |() function (service s,string|() name) returns |() function () returns |() function () returns |() function (service s) returns |()}",
       "insertText": "l1",
       "insertTextFormat": "Snippet"
     },
@@ -554,7 +576,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "testFunction();",

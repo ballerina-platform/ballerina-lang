@@ -27,8 +27,8 @@ import org.eclipse.lsp4j.CompletionItemKind;
  *
  * @since 0.983.0
  */
-public final class BVariableCompletionItemBuilder {
-    private BVariableCompletionItemBuilder() {
+public final class VariableCompletionItemBuilder {
+    private VariableCompletionItemBuilder() {
     }
 
     /**

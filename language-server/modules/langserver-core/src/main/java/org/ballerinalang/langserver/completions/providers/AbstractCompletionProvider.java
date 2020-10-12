@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -47,16 +48,16 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.TypeCompletionItem;
-import org.ballerinalang.langserver.completions.builder.BConstantCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.ConstantCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.WorkerCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -154,19 +155,22 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
             if (CommonUtil.isValidFunctionSymbol(symbol)) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbol, context));
             } else if (symbol.kind() == SymbolKind.CONST) {
-                CompletionItem constantCItem = BConstantCompletionItemBuilder.build((ConstantSymbol) symbol, context);
+                CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, context);
                 completionItems.add(new SymbolCompletionItem(context, symbol, constantCItem));
             } else if (symbol.kind() == SymbolKind.VARIABLE) {
                 VariableSymbol varSymbol = (VariableSymbol) symbol;
                 Optional<BallerinaTypeDescriptor> typeDesc = (varSymbol).typeDescriptor();
                 String typeName = typeDesc.isPresent() ? CommonUtil.getBTypeName(typeDesc.get(), context, false) : "";
-                CompletionItem variableCItem = BVariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
+                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(context, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE) {
                 // Fixme
                 // Here skip all the package symbols since the package is added separately
-                CompletionItem typeCItem = BTypeCompletionItemBuilder.build(symbol, symbol.name());
+                CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.name());
                 completionItems.add(new SymbolCompletionItem(context, symbol, typeCItem));
+            } else if (symbol.kind() == SymbolKind.WORKER) {
+                CompletionItem workerItem = WorkerCompletionItemBuilder.build((WorkerSymbol) symbol);
+                completionItems.add(new SymbolCompletionItem(context, symbol, workerItem));
             }
             processedSymbols.add(symbol);
         });
@@ -196,7 +200,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(bSymbol -> {
             if (bSymbol.kind() == SymbolKind.TYPE) {
-                CompletionItem cItem = BTypeCompletionItemBuilder.build(bSymbol, bSymbol.name());
+                CompletionItem cItem = TypeCompletionItemBuilder.build(bSymbol, bSymbol.name());
                 completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }
         });
@@ -410,16 +414,16 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
      * @return {@link LSCompletionItem} generated
      */
     protected LSCompletionItem getImplicitNewCompletionItem(ObjectTypeDescriptor objectType, LSContext context) {
-        CompletionItem cItem = BFunctionCompletionItemBuilder.build(objectType,
-                BFunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
+        CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
+                FunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
         MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;
 
         return new SymbolCompletionItem(context, initMethod, cItem);
     }
 
     protected LSCompletionItem getExplicitNewCompletionItem(ObjectTypeDescriptor objectType, LSContext context) {
-        CompletionItem cItem = BFunctionCompletionItemBuilder.build(objectType,
-                BFunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
+        CompletionItem cItem = FunctionCompletionItemBuilder.build(objectType,
+                FunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
         MethodSymbol initMethod = objectType.initMethod().isPresent() ? objectType.initMethod().get() : null;
 
         return new SymbolCompletionItem(context, initMethod, cItem);
@@ -437,7 +441,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         if (symbol.kind() != SymbolKind.FUNCTION && symbol.kind() != SymbolKind.METHOD) {
             return null;
         }
-        CompletionItem completionItem = BFunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
+        CompletionItem completionItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
         return new SymbolCompletionItem(context, symbol, completionItem);
     }
 
