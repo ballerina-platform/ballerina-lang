@@ -21,8 +21,6 @@ package io.ballerina.compiler.api.impl;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.symbols.Symbol;
-import org.ballerinalang.model.tree.IdentifiableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -180,18 +178,18 @@ import java.util.List;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
- * Finds the enclosing AST node for the given position.
+ * Finds the enclosing AST node's symbol for the given position.
  *
  * @since 2.0.0
  */
 class SymbolFinder extends BLangNodeVisitor {
 
     private LinePosition cursorPos;
-    private BLangNode enclosingNode;
+    private BSymbol symbolAtCursor;
 
-    BLangNode lookup(BLangCompilationUnit unit, LinePosition cursorPos) {
+    BSymbol lookup(BLangCompilationUnit unit, LinePosition cursorPos) {
         this.cursorPos = cursorPos;
-        this.enclosingNode = null;
+        this.symbolAtCursor = null;
 
         for (TopLevelNode node : unit.topLevelNodes) {
             if (!PositionUtil.withinBlock(this.cursorPos, node.getPosition()) || isLambdaFunction(node)) {
@@ -201,7 +199,7 @@ class SymbolFinder extends BLangNodeVisitor {
             ((BLangNode) node).accept(this);
         }
 
-        return this.enclosingNode;
+        return this.symbolAtCursor;
     }
 
     private void lookupNodes(List<? extends BLangNode> nodes) {
@@ -227,20 +225,20 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
-        if (importPkgNode.orgName.pos != null && setEnclosingNode(importPkgNode, importPkgNode.orgName.pos)) {
+        if (importPkgNode.orgName.pos != null && setEnclosingNode(importPkgNode.symbol, importPkgNode.orgName.pos)) {
             return;
         }
-        if (setEnclosingNode(importPkgNode, importPkgNode.alias.pos)) {
+        if (setEnclosingNode(importPkgNode.symbol, importPkgNode.alias.pos)) {
             return;
         }
         if (importPkgNode.version.pos != null) {
-            setEnclosingNode(importPkgNode, importPkgNode.version.pos);
+            setEnclosingNode(importPkgNode.symbol, importPkgNode.version.pos);
         }
     }
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
-        if (setEnclosingNode(xmlnsNode, xmlnsNode.prefix.pos)) {
+        if (setEnclosingNode(xmlnsNode.symbol, xmlnsNode.prefix.pos)) {
             return;
         }
 
@@ -249,7 +247,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        if (setEnclosingNode(funcNode, funcNode.name.pos)) {
+        if (setEnclosingNode(funcNode.symbol, funcNode.name.pos)) {
             return;
         }
 
@@ -276,7 +274,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        if (setEnclosingNode(serviceNode, serviceNode.name.pos)) {
+        if (setEnclosingNode(serviceNode.symbol, serviceNode.name.pos)) {
             return;
         }
 
@@ -287,7 +285,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        if (setEnclosingNode(typeDefinition, typeDefinition.name.pos)) {
+        if (setEnclosingNode(typeDefinition.symbol, typeDefinition.name.pos)) {
             return;
         }
 
@@ -296,7 +294,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        if (setEnclosingNode(constant, constant.name.pos)) {
+        if (setEnclosingNode(constant.symbol, constant.name.pos)) {
             return;
         }
 
@@ -306,7 +304,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        if (setEnclosingNode(varNode, varNode.name.pos)) {
+        if (setEnclosingNode(varNode.symbol, varNode.name.pos)) {
             return;
         }
 
@@ -321,7 +319,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotation annotationNode) {
-        if (setEnclosingNode(annotationNode, annotationNode.name.pos)) {
+        if (setEnclosingNode(annotationNode.symbol, annotationNode.name.pos)) {
             return;
         }
 
@@ -330,7 +328,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        if (setEnclosingNode(annAttachmentNode, annAttachmentNode.annotationName.pos)) {
+        if (setEnclosingNode(annAttachmentNode.annotationSymbol, annAttachmentNode.annotationName.pos)) {
             return;
         }
 
@@ -566,16 +564,16 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        if (setEnclosingNode(workerSendNode.expr, workerSendNode.expr.pos)) {
+        if (setEnclosingNode(workerSendNode.workerSymbol, workerSendNode.workerIdentifier.pos)) {
             return;
         }
 
-        setEnclosingNode(workerSendNode, workerSendNode.workerIdentifier.pos);
+        lookupNode(workerSendNode.expr);
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        setEnclosingNode(workerReceiveNode, workerReceiveNode.workerIdentifier.pos);
+        setEnclosingNode(workerReceiveNode.workerSymbol, workerReceiveNode.workerIdentifier.pos);
     }
 
     @Override
@@ -590,7 +588,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstRef constRef) {
-        this.enclosingNode = constRef;
+        this.symbolAtCursor = constRef.symbol;
     }
 
     @Override
@@ -626,16 +624,16 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        if (setEnclosingNode(varRefExpr, varRefExpr.variableName.pos)) {
+        if (setEnclosingNode(varRefExpr.symbol, varRefExpr.variableName.pos)) {
             return;
         }
 
-        setEnclosingNode(new BLangIdentifiableNode(varRefExpr.pkgSymbol), varRefExpr.pkgAlias.pos);
+        setEnclosingNode(varRefExpr.pkgSymbol, varRefExpr.pkgAlias.pos);
     }
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        if (setEnclosingNode(fieldAccessExpr, fieldAccessExpr.field.pos)) {
+        if (setEnclosingNode(fieldAccessExpr.symbol, fieldAccessExpr.field.pos)) {
             return;
         }
 
@@ -652,8 +650,8 @@ class SymbolFinder extends BLangNodeVisitor {
     public void visit(BLangInvocation invocationExpr) {
         // The assumption for the first condition is that if it's moduled-qualified, it must be a public symbol.
         // Hence owner would be a package symbol.
-        if (setEnclosingNode(new BLangIdentifiableNode(invocationExpr.symbol.owner), invocationExpr.pkgAlias.pos)
-                || setEnclosingNode(invocationExpr, invocationExpr.name.pos)) {
+        if (setEnclosingNode(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos)
+                || setEnclosingNode(invocationExpr.symbol, invocationExpr.name.pos)) {
             return;
         }
 
@@ -672,9 +670,8 @@ class SymbolFinder extends BLangNodeVisitor {
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
         // The assumption for the first condition is that if it's moduled-qualified, it must be a public symbol.
         // Hence owner would be a package symbol.
-        if (setEnclosingNode(new BLangIdentifiableNode(actionInvocationExpr.symbol.owner),
-                             actionInvocationExpr.pkgAlias.pos)
-                || setEnclosingNode(actionInvocationExpr, actionInvocationExpr.name.pos)) {
+        if (setEnclosingNode(actionInvocationExpr.symbol.owner, actionInvocationExpr.pkgAlias.pos)
+                || setEnclosingNode(actionInvocationExpr.symbol, actionInvocationExpr.name.pos)) {
             return;
         }
 
@@ -766,11 +763,11 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLQName xmlQName) {
-        if (setEnclosingNode(xmlQName, xmlQName.prefix.pos)) {
+        if (setEnclosingNode(xmlQName.nsSymbol, xmlQName.prefix.pos)) {
             return;
         }
 
-        setEnclosingNode(xmlQName, xmlQName.localname.pos);
+        setEnclosingNode(xmlQName.nsSymbol, xmlQName.localname.pos);
     }
 
     @Override
@@ -920,7 +917,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangValueType valueType) {
-        this.enclosingNode = valueType;
+        this.symbolAtCursor = valueType.type.tsymbol;
     }
 
     @Override
@@ -930,15 +927,15 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        this.enclosingNode = builtInRefType;
+        this.symbolAtCursor = builtInRefType.type.tsymbol;
     }
 
     @Override
     public void visit(BLangConstrainedType constrainedType) {
         lookupNode(constrainedType.constraint);
 
-        if (this.enclosingNode == null) {
-            this.enclosingNode = constrainedType;
+        if (this.symbolAtCursor == null) {
+            this.symbolAtCursor = ((BLangNode) constrainedType).type.tsymbol;
         }
     }
 
@@ -958,11 +955,11 @@ class SymbolFinder extends BLangNodeVisitor {
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
         if (userDefinedType.type.tsymbol.origin == VIRTUAL
-                || setEnclosingNode(userDefinedType, userDefinedType.typeName.pos)) {
+                || setEnclosingNode(userDefinedType.type.tsymbol, userDefinedType.typeName.pos)) {
             return;
         }
 
-        setEnclosingNode(new BLangIdentifiableNode(userDefinedType.type.tsymbol.owner), userDefinedType.pkgAlias.pos);
+        setEnclosingNode(userDefinedType.type.tsymbol.owner, userDefinedType.pkgAlias.pos);
     }
 
     @Override
@@ -989,7 +986,7 @@ class SymbolFinder extends BLangNodeVisitor {
             return;
         }
 
-        if (setEnclosingNode(classDefinition, classDefinition.name.pos)) {
+        if (setEnclosingNode(classDefinition.symbol, classDefinition.name.pos)) {
             return;
         }
 
@@ -1032,38 +1029,38 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
-        this.enclosingNode = localVarRef;
+        this.symbolAtCursor = localVarRef.symbol;
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
-        this.enclosingNode = fieldVarRef;
+        this.symbolAtCursor = fieldVarRef.symbol;
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
-        this.enclosingNode = packageVarRef;
+        this.symbolAtCursor = packageVarRef.symbol;
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangFunctionVarRef functionVarRef) {
-        this.enclosingNode = functionVarRef;
+        this.symbolAtCursor = functionVarRef.symbol;
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
-        this.enclosingNode = typeLoad;
+        this.symbolAtCursor = typeLoad.symbol;
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
         lookupNode(fieldAccessExpr.expr);
-        setEnclosingNode(fieldAccessExpr, fieldAccessExpr.indexExpr.pos);
+        setEnclosingNode(fieldAccessExpr.symbol, fieldAccessExpr.indexExpr.pos);
     }
 
     @Override
     public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef functionVarRef) {
-        if (setEnclosingNode(functionVarRef, functionVarRef.field.pos)) {
+        if (setEnclosingNode(functionVarRef.symbol, functionVarRef.field.pos)) {
             return;
         }
 
@@ -1110,7 +1107,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
-        if (setEnclosingNode(bFunctionPointerInvocation, bFunctionPointerInvocation.name.pos)) {
+        if (setEnclosingNode(bFunctionPointerInvocation.symbol, bFunctionPointerInvocation.name.pos)) {
             return;
         }
         lookupNodes(bFunctionPointerInvocation.requiredArgs);
@@ -1119,7 +1116,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
-        if (setEnclosingNode(iExpr, iExpr.name.pos)) {
+        if (setEnclosingNode(iExpr.symbol, iExpr.name.pos)) {
             return;
         }
         lookupNode(iExpr.expr);
@@ -1146,7 +1143,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
-        if (setEnclosingNode(xmlnsNode, xmlnsNode.prefix.pos)) {
+        if (setEnclosingNode(xmlnsNode.symbol, xmlnsNode.prefix.pos)) {
             return;
         }
 
@@ -1155,7 +1152,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-        if (setEnclosingNode(xmlnsNode, xmlnsNode.prefix.pos)) {
+        if (setEnclosingNode(xmlnsNode.symbol, xmlnsNode.prefix.pos)) {
             return;
         }
 
@@ -1264,16 +1261,16 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
-        setEnclosingNode(workerFlushExpr, workerFlushExpr.workerIdentifier.pos);
+        setEnclosingNode(workerFlushExpr.workerSymbol, workerFlushExpr.workerIdentifier.pos);
     }
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        if (setEnclosingNode(syncSendExpr.expr, syncSendExpr.expr.pos)) {
+        if (setEnclosingNode(syncSendExpr.workerSymbol, syncSendExpr.workerIdentifier.pos)) {
             return;
         }
 
-        setEnclosingNode(syncSendExpr, syncSendExpr.workerIdentifier.pos);
+        lookupNode(syncSendExpr.expr);
     }
 
     @Override
@@ -1309,7 +1306,7 @@ class SymbolFinder extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLElementFilter xmlElementFilter) {
-        setEnclosingNode(xmlElementFilter, xmlElementFilter.elemNamePos);
+        setEnclosingNode(xmlElementFilter.namespaceSymbol, xmlElementFilter.elemNamePos);
     }
 
     @Override
@@ -1325,9 +1322,9 @@ class SymbolFinder extends BLangNodeVisitor {
         lookupNodes(xmlNavigation.filters);
     }
 
-    private boolean setEnclosingNode(BLangNode node, DiagnosticPos pos) {
+    private boolean setEnclosingNode(BSymbol symbol, DiagnosticPos pos) {
         if (PositionUtil.withinBlock(this.cursorPos, pos)) {
-            this.enclosingNode = node;
+            this.symbolAtCursor = symbol;
             return true;
         }
 
@@ -1341,34 +1338,5 @@ class SymbolFinder extends BLangNodeVisitor {
 
         BLangFunction func = (BLangFunction) node;
         return func.flagSet.contains(Flag.LAMBDA);
-    }
-
-    private static class BLangIdentifiableNode extends BLangNode implements IdentifiableNode {
-
-        private BSymbol symbol;
-
-        BLangIdentifiableNode(BSymbol symbol) {
-            this.symbol = symbol;
-        }
-
-        @Override
-        public Symbol getSymbol() {
-            return this.symbol;
-        }
-
-        @Override
-        public void setSymbol(Symbol symbol) {
-            this.symbol = (BSymbol) symbol;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            // Ignore. No need to visit this.
-        }
-
-        @Override
-        public NodeKind getKind() {
-            return null;
-        }
     }
 }

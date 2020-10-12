@@ -24,8 +24,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.tree.IdentifiableNode;
-import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -33,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -48,7 +45,6 @@ import java.util.Optional;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
-import static org.ballerinalang.model.tree.NodeKind.USER_DEFINED_TYPE;
 
 /**
  * Semantic model representation of a given syntax tree.
@@ -108,22 +104,13 @@ public class BallerinaSemanticModel implements SemanticModel {
     public Optional<Symbol> symbol(String srcFile, LinePosition position) {
         BLangCompilationUnit compilationUnit = getCompilationUnit(srcFile);
         SymbolFinder symbolFinder = new SymbolFinder();
-        BLangNode node = symbolFinder.lookup(compilationUnit, position);
+        BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
 
-        if (node instanceof IdentifiableNode) {
-            BSymbol symbol = (BSymbol) ((IdentifiableNode) node).getSymbol();
-            return Optional.ofNullable(SymbolFactory.getBCompiledSymbol(symbol, symbol.name.value));
-        } else if (node != null && (node.getKind() == USER_DEFINED_TYPE
-                || node.getKind() == NodeKind.UNION_TYPE_NODE
-                || node.getKind() == NodeKind.INTERSECTION_TYPE_NODE
-                || node.getKind() == NodeKind.VALUE_TYPE
-                || node.getKind() == NodeKind.BUILT_IN_REF_TYPE
-                || node.getKind() == NodeKind.CONSTRAINED_TYPE)) {
-            return Optional.ofNullable(
-                    SymbolFactory.createTypeDefinition(node.type.tsymbol, node.type.tsymbol.name.value));
+        if (symbolAtCursor == null) {
+            return Optional.empty();
         }
 
-        return Optional.empty();
+        return Optional.ofNullable(SymbolFactory.getBCompiledSymbol(symbolAtCursor, symbolAtCursor.name.value));
     }
 
     /**
