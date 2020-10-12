@@ -31,15 +31,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.Map;
 
 /**
  * Test class for language construct related debug scenarios.
  */
 public class LanguageConstructDebugTest extends DebugAdapterBaseTestCase {
-
-    Comparator<Variable> compareByName = Comparator.comparing(Variable::getName);
 
     @BeforeClass
     public void setup() {
@@ -82,14 +79,11 @@ public class LanguageConstructDebugTest extends DebugAdapterBaseTestCase {
         resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = waitForDebugHit(10000);
 
-        Variable[] variables = fetchDebugHitVariables(debugHitInfo.getRight());
-        Arrays.sort(variables, compareByName);
-
+        Map<String, Variable> variables = fetchVariables(debugHitInfo.getRight(), VariableScope.LOCAL);
         // Variable visibility test for object method
-        assertVariable(variables[1], "v02_fullName", "John Doe", "string");
-
+        assertVariable(variables, "v02_fullName", "John Doe", "string");
         // Variable visibility test for remote object function
-        assertVariable(variables[3], "v04_statusCode", "500", "int");
+        assertVariable(variables, "v04_statusCode", "500", "int");
     }
 
     @Test(enabled = false)
