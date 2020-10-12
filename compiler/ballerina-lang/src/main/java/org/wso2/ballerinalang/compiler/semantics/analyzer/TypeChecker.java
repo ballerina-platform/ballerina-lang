@@ -2900,7 +2900,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.OBJECT:
                 if ((actualType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
                     dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT,
-                               actualType.tsymbol);
+                            actualType.tsymbol);
                     cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
                     resultType = symTable.semanticError;
                     return;
@@ -2919,8 +2919,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.STREAM:
-                if (cIExpr.initInvocation.argExprs.size() != 1) {
-                    dlog.error(cIExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR, cIExpr.initInvocation.name);
+                if (cIExpr.initInvocation.argExprs.size() > 1) {
+                    dlog.error(cIExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR, cIExpr.initInvocation);
                     resultType = symTable.semanticError;
                     return;
                 }
@@ -2935,24 +2935,26 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
 
-                BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
-                BType constructType = checkExpr(iteratorExpr, env, symTable.noType);
-                BUnionType nextReturnType = types.getVarTypeFromIteratorFuncReturnType(constructType);
-                BUnionType expectedReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
-                if (nextReturnType == null) {
-                    dlog.error(iteratorExpr.pos, DiagnosticCode.MISSING_REQUIRED_METHOD_NEXT,
-                            constructType, expectedReturnType);
-                    resultType = symTable.semanticError;
-                    return;
+                if (!cIExpr.initInvocation.argExprs.isEmpty()) {
+                    BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
+                    BType constructType = checkExpr(iteratorExpr, env, symTable.noType);
+                    BUnionType nextReturnType = types.getVarTypeFromIteratorFuncReturnType(constructType);
+                    BUnionType expectedReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
+                    if (nextReturnType == null) {
+                        dlog.error(iteratorExpr.pos, DiagnosticCode.MISSING_REQUIRED_METHOD_NEXT,
+                                constructType, expectedReturnType);
+                        resultType = symTable.semanticError;
+                        return;
+                    }
+                    if (types.getErrorType(nextReturnType) == null
+                            && (types.getErrorType(expectedReturnType) != null)) {
+                        dlog.error(iteratorExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR_EXP_TYPE, iteratorExpr);
+                        resultType = symTable.semanticError;
+                        return;
+                    }
+                    types.checkType(iteratorExpr.pos, nextReturnType, expectedReturnType,
+                            DiagnosticCode.INCOMPATIBLE_TYPES);
                 }
-                if (types.getErrorType(nextReturnType) == null && (types.getErrorType(expectedReturnType) != null)) {
-                    dlog.error(iteratorExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR_EXP_TYPE, iteratorExpr);
-                    resultType = symTable.semanticError;
-                    return;
-                }
-
-                types.checkType(iteratorExpr.pos, nextReturnType, expectedReturnType,
-                        DiagnosticCode.INCOMPATIBLE_TYPES);
                 resultType = actualType;
                 return;
             case TypeTags.UNION:
