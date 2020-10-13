@@ -70,7 +70,7 @@ class FormatterUtils {
                 node.kind() == SyntaxKind.IF_ELSE_STATEMENT || node.kind() == SyntaxKind.ELSE_BLOCK) {
             startOffset = (startOffset / 4) * 4;
         }
-        return new DiagnosticPos(null, null, null, startPos.line() + 1, endPos.line() + 1,
+        return new DiagnosticPos(null, null, startPos.line() + 1, endPos.line() + 1,
                 startOffset, endPos.offset());
     }
 

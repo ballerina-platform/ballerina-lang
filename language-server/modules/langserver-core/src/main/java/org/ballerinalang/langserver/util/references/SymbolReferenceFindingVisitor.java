@@ -1119,10 +1119,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         }
         DiagnosticPos diagnosticPos = bLangType.pos;
         BObjectType objectType = (BObjectType) bLangType.type;
-        DiagnosticPos pos = new DiagnosticPos(diagnosticPos.getSource(),
-                diagnosticPos.lineRange().filePath(),
-                diagnosticPos.getPackageID(), diagnosticPos.getStartLine(), diagnosticPos.getEndLine(),
-                diagnosticPos.getStartColumn(), diagnosticPos.getEndColumn());
+        DiagnosticPos pos = new DiagnosticPos(diagnosticPos.lineRange().filePath(),
+                                              diagnosticPos.getPackageID(),
+                                              diagnosticPos.getStartLine(),
+                                              diagnosticPos.getEndLine(),
+                                              diagnosticPos.getStartColumn(),
+                                              diagnosticPos.getEndColumn());
         this.addSymbol(bLangType, objectType.tsymbol, false, pos);
     }
 }

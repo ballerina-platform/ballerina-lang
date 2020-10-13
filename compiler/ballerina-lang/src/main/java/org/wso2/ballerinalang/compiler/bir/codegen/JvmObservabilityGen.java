@@ -103,7 +103,7 @@ class JvmObservabilityGen {
     private static final String ANONYMOUS_SERVICE_IDENTIFIER = "$anonService$";
     private static final String INVOCATION_INSTRUMENTATION_TYPE = "invocation";
     private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "funcBody";
-    private static final DiagnosticPos COMPILE_TIME_CONST_POS = new DiagnosticPos(null, null, null, -1, -1, -1, -1);
+    private static final DiagnosticPos COMPILE_TIME_CONST_POS = new DiagnosticPos(null, null, -1, -1, -1, -1);
 
     private final PackageCache packageCache;
     private final SymbolTable symbolTable;

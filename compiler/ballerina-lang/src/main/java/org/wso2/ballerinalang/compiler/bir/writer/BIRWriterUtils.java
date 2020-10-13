@@ -42,7 +42,7 @@ public class BIRWriterUtils {
             eLine = pos.getEndLine();
             sCol = pos.getStartColumn();
             eCol = pos.getEndColumn();
-            if (pos.getSource() != null) {
+            if (pos.lineRange().filePath() != null) {
                 sourceFileName = pos.lineRange().filePath();
             }
         }

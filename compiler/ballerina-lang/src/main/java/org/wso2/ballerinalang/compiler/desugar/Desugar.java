@@ -5785,8 +5785,7 @@ public class Desugar extends BLangNodeVisitor {
         if (invokableNode.workers.size() == 0 && isNeverOrNilableReturn && (funcBody.stmts.size() < 1 ||
                 funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
             DiagnosticPos invPos = invokableNode.pos;
-            DiagnosticPos returnStmtPos = new DiagnosticPos(invPos.getSource(),
-                                                            invPos.lineRange().filePath(),
+            DiagnosticPos returnStmtPos = new DiagnosticPos(invPos.lineRange().filePath(),
                                                             invPos.getPackageID(),
                                                             invPos.getEndLine(),
                                                             invPos.getEndLine(),

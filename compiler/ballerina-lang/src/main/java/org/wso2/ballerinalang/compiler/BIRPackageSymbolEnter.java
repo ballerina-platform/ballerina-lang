@@ -87,7 +87,6 @@ import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
@@ -866,8 +865,7 @@ public class BIRPackageSymbolEnter {
         int sCol = dataInStream.readInt();
         int eLine = dataInStream.readInt();
         int eCol = dataInStream.readInt();
-        BDiagnosticSource diagSrc = new BDiagnosticSource(this.env.pkgSymbol.pkgID, cUnitName);
-        return new DiagnosticPos(diagSrc, cUnitName, this.env.pkgSymbol.pkgID, sLine, eLine, sCol, eCol);
+        return new DiagnosticPos(cUnitName, this.env.pkgSymbol.pkgID, sLine, eLine, sCol, eCol);
     }
 
     // private utility methods

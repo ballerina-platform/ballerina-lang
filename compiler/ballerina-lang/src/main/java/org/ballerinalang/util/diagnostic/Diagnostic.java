@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.util.diagnostic;
 
+import org.ballerinalang.model.elements.PackageID;
+
 /**
  * The interface for Ballerina diagnostics. A diagnostic represents an error,
  * a warning or a message at a specific position in a source file.
@@ -37,15 +39,6 @@ public interface Diagnostic extends Comparable<Diagnostic> {
     }
 
     /**
-     * The interface that represents the source file in a diagnostic.
-     *
-     * @since 0.94
-     */
-    interface DiagnosticSource extends Comparable<DiagnosticSource> {
-
-    }
-
-    /**
      * The interface that represents the source position in a diagnostic.
      *
      * Source position is a combination of the source file, start and end line numbers,
@@ -55,7 +48,7 @@ public interface Diagnostic extends Comparable<Diagnostic> {
      */
     interface DiagnosticPosition extends Comparable<DiagnosticPosition> {
 
-        DiagnosticSource getSource();
+        PackageID getPackageID();
 
         int getStartLine();
 
@@ -67,8 +60,6 @@ public interface Diagnostic extends Comparable<Diagnostic> {
     }
 
     Kind getKind();
-
-    DiagnosticSource getSource();
 
     DiagnosticPosition getPosition();
 

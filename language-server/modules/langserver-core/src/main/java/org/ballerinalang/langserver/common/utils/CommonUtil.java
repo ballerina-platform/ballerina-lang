@@ -179,7 +179,7 @@ public class CommonUtil {
         int endLine = diagnosticPos.getEndLine() - 1;
         int startColumn = diagnosticPos.getStartColumn() - 1;
         int endColumn = diagnosticPos.getEndColumn() - 1;
-        return new DiagnosticPos(diagnosticPos.getSource(), diagnosticPos.lineRange().filePath(),
+        return new DiagnosticPos(diagnosticPos.lineRange().filePath(),
                 diagnosticPos.getPackageID(), startLine, endLine, startColumn, endColumn);
     }
 
@@ -208,9 +208,7 @@ public class CommonUtil {
         int endLine = diagnosticPos.getEndLine();
         int startColumn = diagnosticPos.getStartColumn();
         int endColumn = diagnosticPos.getEndColumn();
-        return new DiagnosticPos(diagnosticPos.getSource(),
-                                 diagnosticPos.lineRange().filePath(),
-                                 diagnosticPos.getPackageID(),
+        return new DiagnosticPos(diagnosticPos.lineRange().filePath(), diagnosticPos.getPackageID(),
                                  startLine, endLine, startColumn, endColumn);
     }
 

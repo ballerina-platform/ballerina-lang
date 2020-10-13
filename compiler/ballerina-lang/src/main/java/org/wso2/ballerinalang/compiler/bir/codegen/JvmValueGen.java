@@ -547,7 +547,7 @@ class JvmValueGen {
                                              BIRNode.BIRTypeDefinition typeDef) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        if (typeDef.pos != null && typeDef.pos.getSource() != null) {
+        if (typeDef.pos != null) {
             cw.visitSource(typeDef.pos.lineRange().filePath(), null);
         } else {
             cw.visitSource(className, null);
@@ -660,7 +660,7 @@ class JvmValueGen {
                                           BIRNode.BIRTypeDefinition typeDef) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        if (typeDef.pos != null && typeDef.pos.getSource() != null) {
+        if (typeDef.pos != null) {
             cw.visitSource(typeDef.pos.lineRange().filePath(), null);
         } else {
             cw.visitSource(className, null);

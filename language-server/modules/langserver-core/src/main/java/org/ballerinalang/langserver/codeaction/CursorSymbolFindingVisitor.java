@@ -128,7 +128,7 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
         List<TopLevelNode> filteredNodes = topLevelNodes.stream().filter(topLevelNode -> {
             Diagnostic.DiagnosticPosition position = topLevelNode.getPosition();
             DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(
-                    new DiagnosticPos(null, null, null, position.getStartLine(),
+                    new DiagnosticPos(null, null, position.getStartLine(),
                                                         position.getEndLine(),
                                                         position.getStartColumn(),
                                                         position.getEndColumn()));

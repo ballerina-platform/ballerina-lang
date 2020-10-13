@@ -410,7 +410,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -438,7 +437,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
     private BLangDiagnosticLog dlog;
     private SymbolTable symTable;
-    private BDiagnosticSource diagnosticSource;
 
     private PackageCache packageCache;
     private PackageID packageID;
@@ -453,13 +451,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     /* To keep track if we are inside a block statment for the use of type definition creation */
     private boolean isInLocalContext = false;
 
-    public BLangNodeTransformer(CompilerContext context, BDiagnosticSource diagnosticSource,
+    public BLangNodeTransformer(CompilerContext context,
                                 PackageID packageID, String entryName) {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.packageID = packageID;
         this.currentCompUnitName = entryName;
-        this.diagnosticSource = diagnosticSource;
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
     }
@@ -495,11 +492,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         LineRange lineRange = node.lineRange();
         LinePosition startPos = lineRange.startLine();
         LinePosition endPos = lineRange.endLine();
-        return new DiagnosticPos(diagnosticSource, currentCompUnitName, packageID,
-                                startPos.line(),
-                                endPos.line(),
-                                startPos.offset(),
-                                endPos.offset());
+        return new DiagnosticPos(currentCompUnitName, packageID,
+                startPos.line(),
+                endPos.line(),
+                startPos.offset(),
+                endPos.offset());
     }
 
     private DiagnosticPos getPositionWithoutMetadata(Node node) {
@@ -518,7 +515,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             startPos = nodeLineRange.startLine();
         }
         LinePosition endPos = nodeLineRange.endLine();
-        return new DiagnosticPos(diagnosticSource, currentCompUnitName, packageID,
+        return new DiagnosticPos(currentCompUnitName, packageID,
                 startPos.line(),
                 endPos.line(),
                 startPos.offset(),
@@ -545,7 +542,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
         }
 
-        DiagnosticPos newLocation = new DiagnosticPos(pos.getSource(), pos.lineRange().filePath(), pos.getPackageID(),
+        DiagnosticPos newLocation = new DiagnosticPos(pos.lineRange().filePath(), pos.getPackageID(),
                                                 0, 0, 0, 0);
 
         compilationUnit.pos = newLocation;
@@ -4470,7 +4467,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     String hexStringWithBraces = matcher.group(0);
                     int offset = originalText.indexOf(hexStringWithBraces) + 1;
                     DiagnosticPos pos = getPosition(literal);
-                    dlog.error(new DiagnosticPos(this.diagnosticSource, currentCompUnitName, packageID,
+                    dlog.error(new DiagnosticPos(currentCompUnitName, packageID,
                                     pos.getStartLine(),
                                     pos.getEndLine(),
                                     pos.getStartColumn() + offset,
@@ -4930,14 +4927,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } catch (Exception e) {
             DiagnosticPos pos = getPosition(literal);
             if (sign == SyntaxKind.MINUS_TOKEN) {
-                pos = new DiagnosticPos(
-                        pos.getSource(),
-                        pos.lineRange().filePath(),
-                        pos.getPackageID(),
-                        pos.lineRange().startLine().line(),
-                        pos.lineRange().endLine().line(),
-                        pos.lineRange().startLine().offset() - 1,
-                        pos.lineRange().endLine().offset());
+                pos = new DiagnosticPos(pos.lineRange().filePath(),
+                                        pos.getPackageID(),
+                                        pos.lineRange().startLine().line(),
+                                        pos.lineRange().endLine().line(),
+                                        pos.lineRange().startLine().offset() - 1,
+                                        pos.lineRange().endLine().offset());
                 dlog.error(pos, code1, originalNodeValue);
             } else {
                 dlog.error(pos, code2, originalNodeValue);
@@ -5249,8 +5244,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                (location.lineRange().startLine().line() == upTo.lineRange().startLine().line() &&
                        location.lineRange().startLine().offset() >= upTo.lineRange().startLine().offset());
 
-        DiagnosticPos expandedLocation = new DiagnosticPos(
-                location.getSource(), location.lineRange().filePath(),
+        DiagnosticPos expandedLocation = new DiagnosticPos(location.lineRange().filePath(),
                 location.getPackageID(),
                 upTo.lineRange().startLine().line(),
                 location.lineRange().endLine().line(),
@@ -5269,13 +5263,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (location.lineRange().startLine().line() == upTo.lineRange().startLine().line() &&
                         location.lineRange().startLine().offset() <= upTo.lineRange().startLine().offset());
 
-        DiagnosticPos trimmedLocation = new DiagnosticPos(
-                location.getSource(), location.lineRange().filePath(),
-                location.getPackageID(),
-                upTo.lineRange().startLine().line(),
-                location.lineRange().endLine().line(),
-                upTo.lineRange().startLine().offset(),
-                location.lineRange().endLine().offset());
+        DiagnosticPos trimmedLocation = new DiagnosticPos(location.lineRange().filePath(), location.getPackageID(),
+                                                          upTo.lineRange().startLine().line(),
+                                                          location.lineRange().endLine().line(),
+                                                          upTo.lineRange().startLine().offset(),
+                                                          location.lineRange().endLine().offset());
 
         return trimmedLocation;
     }
@@ -5290,13 +5282,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (location.lineRange().endLine().line() == upTo.lineRange().endLine().line() &&
                         location.lineRange().endLine().offset() >= upTo.lineRange().endLine().offset());
 
-        DiagnosticPos trimmedLocation = new DiagnosticPos(
-                location.getSource(), location.lineRange().filePath(),
-                location.getPackageID(),
-                location.lineRange().startLine().line(),
-                upTo.lineRange().endLine().line(),
-                location.lineRange().startLine().offset(),
-                upTo.lineRange().endLine().offset());
+        DiagnosticPos trimmedLocation = new DiagnosticPos(location.lineRange().filePath(), location.getPackageID(),
+                                                          location.lineRange().startLine().line(),
+                                                          upTo.lineRange().endLine().line(),
+                                                          location.lineRange().startLine().offset(),
+                                                          upTo.lineRange().endLine().offset());
 
         return trimmedLocation;
     }

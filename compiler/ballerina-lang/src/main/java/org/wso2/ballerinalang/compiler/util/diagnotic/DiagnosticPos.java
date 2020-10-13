@@ -38,16 +38,12 @@ public class DiagnosticPos implements DiagnosticPosition, Location {
     private TextRange textRange;
     private PackageID packageID;
 
-    private BDiagnosticSource src;
-
-    public DiagnosticPos(BDiagnosticSource source, String filePath, PackageID pkgId, int startLine, int endLine,
-                                   int startColumn, int endColumn) {
+    public DiagnosticPos(String filePath, PackageID pkgId, int startLine, int endLine,
+                         int startColumn, int endColumn) {
         this.packageID = pkgId;
         this.lineRange = LineRange.from(filePath, LinePosition.from(startLine, startColumn),
                 LinePosition.from(endLine, endColumn));
         this.textRange = TextRange.from(0, 0);
-
-        this.src = source;
     }
 
     @Override
@@ -62,15 +58,6 @@ public class DiagnosticPos implements DiagnosticPosition, Location {
 
     public PackageID getPackageID() {
         return packageID;
-    }
-
-    public void setPackageID(PackageID packageID) {
-        this.packageID = packageID;
-    }
-
-    @Override
-    public BDiagnosticSource getSource() {
-        return src;
     }
 
     @Override
@@ -102,19 +89,28 @@ public class DiagnosticPos implements DiagnosticPosition, Location {
             return false;
         }
         DiagnosticPos diagnosticPos = (DiagnosticPos) obj;
-        return getSource().equals(diagnosticPos.getSource()) && (getStartLine() == diagnosticPos.getStartLine() && getEndLine() == diagnosticPos.getEndLine() &&
+        return packageID.equals(diagnosticPos.getPackageID()) &&
+                lineRange().filePath().equals(diagnosticPos.lineRange().filePath()) &&
+                (getStartLine() == diagnosticPos.getStartLine() && getEndLine() == diagnosticPos.getEndLine() &&
                 getStartColumn() == diagnosticPos.getStartColumn() && getEndColumn() == diagnosticPos.getEndColumn());
     }
 
     @Override
     public int hashCode() {
-        return getSource().hashCode() + getStartLine() + getEndLine() + getStartColumn() + getEndColumn();
+        return  packageID.hashCode() + lineRange().filePath().hashCode() +
+                getStartLine() + getEndLine() + getStartColumn() + getEndColumn();
     }
 
     @Override
     public int compareTo(DiagnosticPosition diagnosticPosition) {
+
         // Compare the source first.
-        int value = this.getSource().compareTo(diagnosticPosition.getSource());
+        String thisDiagnosticString = packageID.name.value + packageID.version.value + lineRange().filePath();
+        String otherDiagnosticString = diagnosticPosition.getPackageID().name.value +
+                diagnosticPosition.getPackageID().version.value +
+                ((DiagnosticPos) diagnosticPosition).lineRange().filePath();
+        int value = thisDiagnosticString.compareTo(otherDiagnosticString);
+
         if (value != 0) {
             return value;
         }

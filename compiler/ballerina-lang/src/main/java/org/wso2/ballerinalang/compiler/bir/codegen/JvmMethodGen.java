@@ -2078,7 +2078,7 @@ public class JvmMethodGen {
         String frameClassName = getFrameClassName(JvmCodeGenUtil.getPackageName(pkg), func.name.value,
                                                   attachedType);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        if (func.pos != null && func.pos.getSource() != null) {
+        if (func.pos != null) {
             cw.visitSource(func.pos.lineRange().filePath(), null);
         }
         cw.visit(V1_8, Opcodes.ACC_PUBLIC + ACC_SUPER, frameClassName, null, OBJECT, null);
