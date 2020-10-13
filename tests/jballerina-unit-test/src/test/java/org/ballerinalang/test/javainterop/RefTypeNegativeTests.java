@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.javainterop;
 
-import io.ballerina.jvm.api.values.BFuture;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.FutureValue;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.FPValue;
+import io.ballerina.runtime.values.FutureValue;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -72,7 +72,7 @@ public class RefTypeNegativeTests {
                                   "{ballerina/java}METHOD_SIGNATURE_DOES_NOT_MATCH 'Incompatible return type for " +
                                           "method 'returnReadOnlyValue' in class " +
                                           "'org.ballerinalang.test.javainterop.RefTypeNegativeTests': Java type " +
-                                          "'io.ballerina.jvm.api.values.BFuture' will not be matched to " +
+                                          "'io.ballerina.runtime.api.values.BFuture' will not be matched to " +
                                           "ballerina type 'readonly''", 51, 1);
     }
 

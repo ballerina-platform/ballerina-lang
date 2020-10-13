@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.utils;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;

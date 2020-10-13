@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.test.functions;
 
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.types.BTupleType;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.TupleValueImpl;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.types.BTupleType;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.TupleValueImpl;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
@@ -433,8 +433,8 @@ public class FunctionSignatureTest {
     }
 
     public static ArrayValue mockedNativeFuncWithOptionalParams(long a, double b,
-                                                                io.ballerina.jvm.api.values.BString c, long d,
-                                                                io.ballerina.jvm.api.values.BString e) {
+                                                                io.ballerina.runtime.api.values.BString c, long d,
+                                                                io.ballerina.runtime.api.values.BString e) {
         BTupleType tupleType = new BTupleType(
                 Arrays.asList(Types.TYPE_INT, Types.TYPE_FLOAT, Types.TYPE_STRING, Types.TYPE_INT, Types.TYPE_STRING));
         ArrayValue tuple = new TupleValueImpl(tupleType);

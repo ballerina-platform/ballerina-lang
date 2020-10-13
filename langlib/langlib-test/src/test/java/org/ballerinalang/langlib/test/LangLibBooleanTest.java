@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.test;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -32,9 +32,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static io.ballerina.jvm.util.BLangConstants.BOOLEAN_LANG_LIB;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.BOOLEAN_PARSING_ERROR_IDENTIFIER;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.util.BLangConstants.BOOLEAN_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.BOOLEAN_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * This class tests boolean lang module functionality.

@@ -1,1 +1,1 @@
-io.ballerina.jvm.observability.metrics.noop.NoOpMetricReporter
+io.ballerina.runtime.observability.metrics.noop.NoOpMetricReporter

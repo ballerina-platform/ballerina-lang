@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.jvm.services;
+package io.ballerina.runtime.services;
 
 import java.io.PrintStream;
 

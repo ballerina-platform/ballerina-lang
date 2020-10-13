@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.jvm.internal;
+package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.BStringUtils;
@@ -24,15 +24,15 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.values.ErrorValue;
 import io.ballerina.runtime.values.MapValueImpl;
 
 import static io.ballerina.runtime.api.BErrorCreator.createError;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR;
-import static io.ballerina.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR;
+import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * This class contains internal methods used by codegen and runtime classes to handle errors.

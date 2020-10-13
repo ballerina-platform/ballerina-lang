@@ -18,11 +18,11 @@
 
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.jvm.JSONParser;
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 /**
  * Parse a string in JSON format and return the the value that it represents.

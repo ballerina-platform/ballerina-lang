@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.jvm.api.values.BRefValue;
+import io.ballerina.runtime.api.values.BRefValue;
 
 import java.util.HashMap;
 

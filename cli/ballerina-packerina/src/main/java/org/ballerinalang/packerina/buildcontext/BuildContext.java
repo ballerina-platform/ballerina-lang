@@ -18,7 +18,7 @@
 
 package org.ballerinalang.packerina.buildcontext;
 
-import io.ballerina.jvm.util.BLangConstants;
+import io.ballerina.runtime.util.BLangConstants;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;

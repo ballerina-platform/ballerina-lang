@@ -16,11 +16,11 @@
 
 package org.ballerinalang.langlib.string;
 
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.internal.ErrorUtils;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
 /**
  * Extern function ballerina.model.arrays:substring(string, int, int).

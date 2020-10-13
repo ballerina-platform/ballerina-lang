@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.file.service.endpoint;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BalEnv;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.types.AttachedFunction;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.types.AttachedFunction;
 import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.ballerinalang.stdlib.file.service.FSListener;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
@@ -87,7 +87,7 @@ public class Register {
                     + DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE + " ,"
                     + DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY + ". " + "Parameter should be of type - "
                     + "file:" + FILE_SYSTEM_EVENT;
-            throw new io.ballerina.jvm.util.exceptions.BallerinaConnectorException(msg);
+            throw new io.ballerina.runtime.util.exceptions.BallerinaConnectorException(msg);
         }
         return registry;
     }

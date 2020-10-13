@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.jvm.api.values.BIterator;
-import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BMap;
 
 /**
  * Native implementation of lang.map:iterator(map).

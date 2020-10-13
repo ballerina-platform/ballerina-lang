@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.mime;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.types.BMapType;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.types.BMapType;
 import org.ballerinalang.core.model.util.JsonParser;
 import org.ballerinalang.core.model.util.XMLUtils;
 import org.ballerinalang.core.model.values.BMap;
@@ -124,7 +124,7 @@ public class MimeUtilityFunctionTest {
         BObject mediaType = BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
         mediaType.set(PRIMARY_TYPE_FIELD, BStringUtils.fromString("application"));
         mediaType.set(SUBTYPE_FIELD, BStringUtils.fromString("test+xml"));
-        io.ballerina.jvm.api.values.BMap<io.ballerina.jvm.api.values.BString, Object> mapValue =
+        io.ballerina.runtime.api.values.BMap<io.ballerina.runtime.api.values.BString, Object> mapValue =
                 BValueCreator.createMapValue(new BMapType(Types.TYPE_STRING));;
         mapValue.put(BStringUtils.fromString("charset"), BStringUtils.fromString("utf-8"));
         mediaType.set(PARAMETER_MAP_FIELD, mapValue);

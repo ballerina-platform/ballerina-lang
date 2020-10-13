@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BXML;
 
-import static io.ballerina.jvm.api.BErrorCreator.createError;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
+import static io.ballerina.runtime.api.BErrorCreator.createError;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
 
 /**
  * Return name of the element if `x` is a element or nil if element name is not set, else error.

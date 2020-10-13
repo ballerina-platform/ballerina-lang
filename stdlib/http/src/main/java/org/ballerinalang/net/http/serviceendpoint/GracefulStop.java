@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
-import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;

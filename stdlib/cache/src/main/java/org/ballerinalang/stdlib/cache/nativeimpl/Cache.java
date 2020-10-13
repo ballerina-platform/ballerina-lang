@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.cache.nativeimpl;
 
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.concurrent.ConcurrentHashMap;
 

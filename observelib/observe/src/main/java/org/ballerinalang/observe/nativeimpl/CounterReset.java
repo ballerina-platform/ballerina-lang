@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.observability.metrics.Counter;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.metrics.Counter;
 
 /**
  * This is the native reset function implementation of the Counter object.

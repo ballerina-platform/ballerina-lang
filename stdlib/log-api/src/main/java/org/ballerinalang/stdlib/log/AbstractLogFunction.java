@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.log;
 
-import io.ballerina.jvm.api.values.BFunctionPointer;
-import io.ballerina.jvm.observability.ObserveUtils;
-import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.slf4j.Logger;

@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.packerina.cmd;
 
-import io.ballerina.jvm.launch.LaunchUtils;
-import io.ballerina.jvm.util.BLangConstants;
+import io.ballerina.runtime.launch.LaunchUtils;
+import io.ballerina.runtime.util.BLangConstants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.packerina.JarResolverImpl;
@@ -51,7 +51,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 
-import static io.ballerina.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+import static io.ballerina.runtime.util.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;

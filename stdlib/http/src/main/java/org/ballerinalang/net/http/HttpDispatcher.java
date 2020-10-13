@@ -17,17 +17,17 @@
 */
 package org.ballerinalang.net.http;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.TypeTags;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BXML;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.util.exceptions.BallerinaConnectorException;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.langlib.value.CloneWithType;
 import org.ballerinalang.mime.util.EntityBodyHandler;

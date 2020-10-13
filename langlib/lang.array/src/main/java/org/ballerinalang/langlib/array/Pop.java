@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.runtime.api.values.BArray;
 
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 

@@ -17,25 +17,25 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.TypeTags;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.types.BField;
-import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.types.BRecordType;
-import io.ballerina.jvm.util.Flags;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.util.exceptions.RuntimeErrors;
-import io.ballerina.jvm.values.MapValue;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.types.BField;
+import io.ballerina.runtime.types.BMapType;
+import io.ballerina.runtime.types.BRecordType;
+import io.ballerina.runtime.util.Flags;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.values.MapValue;
 
-import static io.ballerina.jvm.util.BLangConstants.MAP_LANG_LIB;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.util.BLangConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for MapValue insertion/manipulation.

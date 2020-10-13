@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.jvm.observability.tracer;
+package io.ballerina.runtime.observability.tracer;
 
 import io.ballerina.runtime.launch.LaunchListener;
-import io.ballerina.jvm.observability.ObserveUtils;
+import io.ballerina.runtime.observability.ObserveUtils;
 import org.ballerinalang.config.ConfigRegistry;
 
-import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 
 /**
  * Listen to Launcher events and initialize Tracing.

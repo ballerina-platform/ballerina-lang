@@ -18,10 +18,10 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.mime.util.MimeUtil;
 
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_STRUCT;

@@ -18,21 +18,21 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.values.BFunctionPointer;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.runtime.AsyncUtils;
-import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.types.BFunctionType;
-import io.ballerina.jvm.types.BMapType;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.AsyncUtils;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.types.BFunctionType;
+import io.ballerina.runtime.types.BMapType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.jvm.util.BLangConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.MAP_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**

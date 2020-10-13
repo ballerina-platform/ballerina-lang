@@ -18,16 +18,14 @@
 
 package org.ballerina.testobserve.listenerendpoint;
 
-import io.ballerina.jvm.api.runtime.Module;
-
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * Mock Listener related constants.
  */
 public class Constants {
     public static final Module TEST_OBSERVE_PACKAGE = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "testobserve",
-            "0.0.0");
+                                                                 "0.0.0");
     public static final String MOCK_LISTENER_ERROR_TYPE = "MockListenerError";
     public static final String CALLER_TYPE_NAME = "Caller";
 

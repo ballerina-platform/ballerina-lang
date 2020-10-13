@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.jvm.api.values.BXML;
-import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
 /**
  * Get the type of a XML as a string. If the xml is singleton, type can be one of 

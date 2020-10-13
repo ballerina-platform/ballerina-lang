@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.runtime.api.values.BMap;
 
 /**
  * Native implementation of lang.map:length(map).

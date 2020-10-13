@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.jvm.JSONParser;
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BTypedesc;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 
 /**
  * Extern function lang.values:fromJsonWithType.

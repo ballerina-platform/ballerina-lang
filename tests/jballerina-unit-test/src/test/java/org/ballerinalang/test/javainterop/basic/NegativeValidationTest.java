@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import io.ballerina.jvm.api.values.BFuture;
-import io.ballerina.jvm.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BTypedesc;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;

@@ -216,88 +216,88 @@ int T_INT = 10;
 int T_LONG = 11;
 
 // javm values public API classes
-const string BXML_QNAME = "io/ballerina/jvm/values/api/BXMLQName";
+const string BXML_QNAME = "io/ballerina/runtime/values/api/BXMLQName";
 
 // jvm runtime values related classes
-const string MAP_VALUE = "io/ballerina/jvm/values/MapValue";
-const string MAP_VALUE_IMPL = "io/ballerina/jvm/values/MapValueImpl";
-const string TABLE_VALUE = "io/ballerina/jvm/values/TableValue";
-const string STREAM_VALUE = "io/ballerina/jvm/values/StreamValue";
-const string ARRAY_VALUE = "io/ballerina/jvm/values/ArrayValue";
-const string OBJECT_VALUE = "io/ballerina/jvm/values/ObjectValue";
-const string ABSTRACT_OBJECT_VALUE = "io/ballerina/jvm/values/AbstractObjectValue";
-const string REF_VALUE = "io/ballerina/jvm/values/RefValue";
-const string ERROR_VALUE = "io/ballerina/jvm/values/ErrorValue";
+const string MAP_VALUE = "io/ballerina/runtime/values/MapValue";
+const string MAP_VALUE_IMPL = "io/ballerina/runtime/values/MapValueImpl";
+const string TABLE_VALUE = "io/ballerina/runtime/values/TableValue";
+const string STREAM_VALUE = "io/ballerina/runtime/values/StreamValue";
+const string ARRAY_VALUE = "io/ballerina/runtime/values/ArrayValue";
+const string OBJECT_VALUE = "io/ballerina/runtime/values/ObjectValue";
+const string ABSTRACT_OBJECT_VALUE = "io/ballerina/runtime/values/AbstractObjectValue";
+const string REF_VALUE = "io/ballerina/runtime/values/RefValue";
+const string ERROR_VALUE = "io/ballerina/runtime/values/ErrorValue";
 const string STRING_VALUE = "java/lang/String";
-const string I_STRING_VALUE = "io/ballerina/jvm/values/StringValue";
-const string B_STRING_VALUE = "io/ballerina/jvm/values/api/BString";
-const string BMP_STRING_VALUE = "io/ballerina/jvm/values/BmpStringValue";
-const string NON_BMP_STRING_VALUE = "io/ballerina/jvm/values/NonBmpStringValue";
+const string I_STRING_VALUE = "io/ballerina/runtime/values/StringValue";
+const string B_STRING_VALUE = "io/ballerina/runtime/values/api/BString";
+const string BMP_STRING_VALUE = "io/ballerina/runtime/values/BmpStringValue";
+const string NON_BMP_STRING_VALUE = "io/ballerina/runtime/values/NonBmpStringValue";
 const string LONG_VALUE = "java/lang/Long";
 const string BOOLEAN_VALUE = "java/lang/Boolean";
 const string DOUBLE_VALUE = "java/lang/Double";
-const string DECIMAL_VALUE = "io/ballerina/jvm/values/DecimalValue";
+const string DECIMAL_VALUE = "io/ballerina/runtime/values/DecimalValue";
 const string INT_VALUE = "java/lang/Integer";
-const string XML_VALUE = "io/ballerina/jvm/values/XMLValue";
-const string XML_QNAME = "io/ballerina/jvm/values/XMLQName";
-const string FUTURE_VALUE = "io/ballerina/jvm/values/FutureValue";
-const string TYPEDESC_VALUE = "io/ballerina/jvm/values/TypedescValue";
-const string HANDLE_VALUE = "io/ballerina/jvm/values/HandleValue";
-const string LOCK_VALUE = "io/ballerina/jvm/BLock";
-const string LOCK_STORE = "io/ballerina/jvm/BLockStore";
-const string FUNCTION_POINTER = "io/ballerina/jvm/values/FPValue";
-const string ARRAY_VALUE_IMPL = "io/ballerina/jvm/values/ArrayValueImpl";
-const string TUPLE_VALUE_IMPL = "io/ballerina/jvm/values/TupleValueImpl";
-const string SIMPLE_VALUE = "io/ballerina/jvm/values/SimpleValue";
+const string XML_VALUE = "io/ballerina/runtime/values/XMLValue";
+const string XML_QNAME = "io/ballerina/runtime/values/XMLQName";
+const string FUTURE_VALUE = "io/ballerina/runtime/values/FutureValue";
+const string TYPEDESC_VALUE = "io/ballerina/runtime/values/TypedescValue";
+const string HANDLE_VALUE = "io/ballerina/runtime/values/HandleValue";
+const string LOCK_VALUE = "io/ballerina/runtime/BLock";
+const string LOCK_STORE = "io/ballerina/runtime/BLockStore";
+const string FUNCTION_POINTER = "io/ballerina/runtime/values/FPValue";
+const string ARRAY_VALUE_IMPL = "io/ballerina/runtime/values/ArrayValueImpl";
+const string TUPLE_VALUE_IMPL = "io/ballerina/runtime/values/TupleValueImpl";
+const string SIMPLE_VALUE = "io/ballerina/runtime/values/SimpleValue";
 
-const string BHANDLE = "io/ballerina/jvm/values/api/BHandle";
+const string BHANDLE = "io/ballerina/runtime/values/api/BHandle";
 
 // types related classes
-const string BTYPE = "io/ballerina/jvm/types/BType";
-const string BTYPES = "io/ballerina/jvm/types/BTypes";
-const string ARRAY_TYPE = "io/ballerina/jvm/types/BArrayType";
-const string MAP_TYPE = "io/ballerina/jvm/types/BMapType";
-const string TABLE_TYPE = "io/ballerina/jvm/types/BTableType";
-const string STREAM_TYPE = "io/ballerina/jvm/types/BStreamType";
-const string UNION_TYPE = "io/ballerina/jvm/types/BUnionType";
-const string RECORD_TYPE = "io/ballerina/jvm/types/BRecordType";
-const string OBJECT_TYPE = "io/ballerina/jvm/types/BObjectType";
-const string SERVICE_TYPE = "io/ballerina/jvm/types/BServiceType";
-const string ERROR_TYPE = "io/ballerina/jvm/types/BErrorType";
-const string TUPLE_TYPE = "io/ballerina/jvm/types/BTupleType";
-const string FUNCTION_TYPE = "io/ballerina/jvm/types/BFunctionType";
-const string TYPEDESC_TYPE = "io/ballerina/jvm/types/BTypedescType";
-const string BFIELD = "io/ballerina/jvm/types/BField";
-const string ATTACHED_FUNCTION = "io/ballerina/jvm/types/AttachedFunction";
-const string FINITE_TYPE = "io/ballerina/jvm/types/BFiniteType";
-const string FUTURE_TYPE = "io/ballerina/jvm/types/BFutureType";
-const string PACKAGE_TYPE = "io/ballerina/jvm/types/BPackage";
+const string BTYPE = "io/ballerina/runtime/types/BType";
+const string BTYPES = "io/ballerina/runtime/types/BTypes";
+const string ARRAY_TYPE = "io/ballerina/runtime/types/BArrayType";
+const string MAP_TYPE = "io/ballerina/runtime/types/BMapType";
+const string TABLE_TYPE = "io/ballerina/runtime/types/BTableType";
+const string STREAM_TYPE = "io/ballerina/runtime/types/BStreamType";
+const string UNION_TYPE = "io/ballerina/runtime/types/BUnionType";
+const string RECORD_TYPE = "io/ballerina/runtime/types/BRecordType";
+const string OBJECT_TYPE = "io/ballerina/runtime/types/BObjectType";
+const string SERVICE_TYPE = "io/ballerina/runtime/types/BServiceType";
+const string ERROR_TYPE = "io/ballerina/runtime/types/BErrorType";
+const string TUPLE_TYPE = "io/ballerina/runtime/types/BTupleType";
+const string FUNCTION_TYPE = "io/ballerina/runtime/types/BFunctionType";
+const string TYPEDESC_TYPE = "io/ballerina/runtime/types/BTypedescType";
+const string BFIELD = "io/ballerina/runtime/types/BField";
+const string ATTACHED_FUNCTION = "io/ballerina/runtime/types/AttachedFunction";
+const string FINITE_TYPE = "io/ballerina/runtime/types/BFiniteType";
+const string FUTURE_TYPE = "io/ballerina/runtime/types/BFutureType";
+const string PACKAGE_TYPE = "io/ballerina/runtime/types/BPackage";
 
 // other jvm-specific classes
-const string TYPE_CHECKER = "io/ballerina/jvm/TypeChecker";
-const string SCHEDULER = "io/ballerina/jvm/scheduling/Scheduler";
-const string JSON_UTILS = "io/ballerina/jvm/JSONUtils";
-const string STRAND = "io/ballerina/jvm/scheduling/Strand";
-const string TYPE_CONVERTER = "io/ballerina/jvm/TypeConverter";
-const string LIST_UTILS = "io/ballerina/jvm/Lists";
-const string STRAND_STATE = "io/ballerina/jvm/scheduling/State";
-const string VALUE_CREATOR = "io/ballerina/jvm/values/ValueCreator";
-const string XML_FACTORY = "io/ballerina/jvm/XMLFactory";
-const string WD_CHANNELS = "io/ballerina/jvm/scheduling/WDChannels";
-const string WORKER_DATA_CHANNEL = "io/ballerina/jvm/scheduling/WorkerDataChannel";
-const string CHANNEL_DETAILS = "io/ballerina/jvm/values/ChannelDetails";
-const string WORKER_UTILS = "io/ballerina/jvm/scheduling/WorkerUtils";
-const string MAP_UTILS = "io/ballerina/jvm/MapUtils";
-const string STRING_UTILS = "io/ballerina/jvm/StringUtils";
-const string BAL_ERRORS = "io/ballerina/jvm/BallerinaErrors";
-const string RUNTIME_UTILS = "io/ballerina/jvm/util/RuntimeUtils";
-const string ARGUMENT_PARSER = "io/ballerina/jvm/util/ArgumentParser";
-const string LAUNCH_UTILS = "io/ballerina/jvm/launch/LaunchUtils";
-const string MATH_UTILS = "io/ballerina/jvm/MathUtils";
-const string BAL_ERROR_REASONS = "io/ballerina/jvm/util/exceptions/BallerinaErrorReasons";
-const string RUNTIME_ERRORS = "io/ballerina/jvm/util/exceptions/RuntimeErrors";
-const string BLANG_EXCEPTION_HELPER = "io/ballerina/jvm/util/exceptions/BLangExceptionHelper";
-const string COMPATIBILITY_CHECKER = "io/ballerina/jvm/util/CompatibilityChecker";
+const string TYPE_CHECKER = "io/ballerina/runtime/TypeChecker";
+const string SCHEDULER = "io/ballerina/runtime/scheduling/Scheduler";
+const string JSON_UTILS = "io/ballerina/runtime/JSONUtils";
+const string STRAND = "io/ballerina/runtime/scheduling/Strand";
+const string TYPE_CONVERTER = "io/ballerina/runtime/TypeConverter";
+const string LIST_UTILS = "io/ballerina/runtime/Lists";
+const string STRAND_STATE = "io/ballerina/runtime/scheduling/State";
+const string VALUE_CREATOR = "io/ballerina/runtime/values/ValueCreator";
+const string XML_FACTORY = "io/ballerina/runtime/XMLFactory";
+const string WD_CHANNELS = "io/ballerina/runtime/scheduling/WDChannels";
+const string WORKER_DATA_CHANNEL = "io/ballerina/runtime/scheduling/WorkerDataChannel";
+const string CHANNEL_DETAILS = "io/ballerina/runtime/values/ChannelDetails";
+const string WORKER_UTILS = "io/ballerina/runtime/scheduling/WorkerUtils";
+const string MAP_UTILS = "io/ballerina/runtime/MapUtils";
+const string STRING_UTILS = "io/ballerina/runtime/StringUtils";
+const string BAL_ERRORS = "io/ballerina/runtime/BallerinaErrors";
+const string RUNTIME_UTILS = "io/ballerina/runtime/util/RuntimeUtils";
+const string ARGUMENT_PARSER = "io/ballerina/runtime/util/ArgumentParser";
+const string LAUNCH_UTILS = "io/ballerina/runtime/launch/LaunchUtils";
+const string MATH_UTILS = "io/ballerina/runtime/MathUtils";
+const string BAL_ERROR_REASONS = "io/ballerina/runtime/util/exceptions/BallerinaErrorReasons";
+const string RUNTIME_ERRORS = "io/ballerina/runtime/util/exceptions/RuntimeErrors";
+const string BLANG_EXCEPTION_HELPER = "io/ballerina/runtime/util/exceptions/BLangExceptionHelper";
+const string COMPATIBILITY_CHECKER = "io/ballerina/runtime/util/CompatibilityChecker";
 
 // other java classes
 const string OBJECT = "java/lang/Object";
@@ -323,7 +323,7 @@ const string BIG_DECIMAL = "java/math/BigDecimal";
 const string NUMBER = "java/lang/Number";
 
 // service objects, annotation processing related classes
-const string ANNOTATION_UTILS = "io/ballerina/jvm/AnnotationUtils";
+const string ANNOTATION_UTILS = "io/ballerina/runtime/AnnotationUtils";
 const string ANNOTATION_MAP_NAME = "$annotation_data";
 const string DEFAULTABLE_ARGS_ANOT_NAME = "DefaultableArgs";
 const string DEFAULTABLE_ARGS_ANOT_FIELD = "args";
@@ -340,7 +340,7 @@ const string ERROR_REASON_CLASS_TOO_LARGE = "ClassTooLarge";
 const string TRAP_ERROR_METHOD = "trapError";
 
 // exception classes
-const string BLANG_RUNTIME_EXCEPTION = "io/ballerina/jvm/util/exceptions/BLangRuntimeException";
+const string BLANG_RUNTIME_EXCEPTION = "io/ballerina/runtime/util/exceptions/BLangRuntimeException";
 const string THROWABLE = "java/lang/Throwable";
 const string STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
 const string HANDLE_THROWABLE_METHOD = "handleRuntimeErrors";
@@ -369,8 +369,8 @@ const string SCHEDULE_LOCAL_METHOD = "scheduleLocal";
 const string SCHEDULER_START_METHOD =  "start";
 
 // observability related constants
-const string OBSERVER_CONTEXT = "io/ballerina/jvm/observability/ObserverContext";
-const string OBSERVE_UTILS = "io/ballerina/jvm/observability/ObserveUtils";
+const string OBSERVER_CONTEXT = "io/ballerina/runtime/observability/ObserverContext";
+const string OBSERVE_UTILS = "io/ballerina/runtime/observability/ObserveUtils";
 
 // visibility flags
 const int BAL_PUBLIC = 1;

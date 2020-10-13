@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langlib.future;
 
-import io.ballerina.jvm.api.values.BFuture;
+import io.ballerina.runtime.api.values.BFuture;
 
 /**
  * Extern function future.cancel().

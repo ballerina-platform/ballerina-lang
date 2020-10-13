@@ -1,12 +1,12 @@
 package org.ballerinalang.runtime.test;
 
-import io.ballerina.jvm.values.NonBmpStringValue;
+import io.ballerina.runtime.values.NonBmpStringValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
 /**
- * Test cases for {@link io.ballerina.jvm.values.StringValue class} implementations.
+ * Test cases for {@link io.ballerina.runtime.values.StringValue class} implementations.
  */
 public class StringValueTests {
 

@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.test;
 
-import io.ballerina.jvm.TypeChecker;
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Native implementation of assertValueEqual(anydata expected, anydata actual).

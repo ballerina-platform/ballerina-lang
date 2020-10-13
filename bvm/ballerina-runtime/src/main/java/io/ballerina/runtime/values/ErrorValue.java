@@ -24,18 +24,18 @@ import io.ballerina.runtime.api.BValueCreator;
 import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.jvm.services.ErrorHandlerUtils;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.types.BErrorType;
-import io.ballerina.jvm.types.BTypeIdSet;
-import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.services.ErrorHandlerUtils;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.types.BErrorType;
+import io.ballerina.runtime.types.BTypeIdSet;
+import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -45,15 +45,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG_ID;
-import static io.ballerina.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-import static io.ballerina.jvm.util.BLangConstants.GENERATE_PKG_INIT;
-import static io.ballerina.jvm.util.BLangConstants.GENERATE_PKG_START;
-import static io.ballerina.jvm.util.BLangConstants.GENERATE_PKG_STOP;
-import static io.ballerina.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
-import static io.ballerina.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
-import static io.ballerina.jvm.util.BLangConstants.START_FUNCTION_SUFFIX;
-import static io.ballerina.jvm.util.BLangConstants.STOP_FUNCTION_SUFFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_RUNTIME_PKG_ID;
+import static io.ballerina.runtime.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
+import static io.ballerina.runtime.util.BLangConstants.GENERATE_PKG_INIT;
+import static io.ballerina.runtime.util.BLangConstants.GENERATE_PKG_START;
+import static io.ballerina.runtime.util.BLangConstants.GENERATE_PKG_STOP;
+import static io.ballerina.runtime.util.BLangConstants.INIT_FUNCTION_SUFFIX;
+import static io.ballerina.runtime.util.BLangConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.util.BLangConstants.START_FUNCTION_SUFFIX;
+import static io.ballerina.runtime.util.BLangConstants.STOP_FUNCTION_SUFFIX;
 
 /**
  * <p>

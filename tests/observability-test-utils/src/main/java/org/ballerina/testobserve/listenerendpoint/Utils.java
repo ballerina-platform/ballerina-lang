@@ -18,10 +18,10 @@
 
 package org.ballerina.testobserve.listenerendpoint;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
 
 import java.io.PrintStream;
 

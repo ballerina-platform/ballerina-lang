@@ -18,14 +18,14 @@
 package io.ballerina.runtime;
 
 import com.ctc.wstx.api.WstxOutputProperties;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BXML;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.values.XMLComment;
-import io.ballerina.jvm.values.XMLItem;
-import io.ballerina.jvm.values.XMLPi;
-import io.ballerina.jvm.values.XMLSequence;
-import io.ballerina.jvm.values.XMLText;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.values.XMLComment;
+import io.ballerina.runtime.values.XMLItem;
+import io.ballerina.runtime.values.XMLPi;
+import io.ballerina.runtime.values.XMLSequence;
+import io.ballerina.runtime.values.XMLText;
 
 import java.io.IOException;
 import java.io.OutputStream;

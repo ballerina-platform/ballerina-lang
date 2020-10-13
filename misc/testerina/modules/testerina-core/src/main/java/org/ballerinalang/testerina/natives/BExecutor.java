@@ -17,18 +17,18 @@
  */
 package org.ballerinalang.testerina.natives;
 
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.api.connector.CallableUnitCallback;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BFuture;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.connector.CallableUnitCallback;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.observability.metrics.Counter;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.metrics.Counter;
 
 /**
  * This is the native register function implementation of the Counter object.

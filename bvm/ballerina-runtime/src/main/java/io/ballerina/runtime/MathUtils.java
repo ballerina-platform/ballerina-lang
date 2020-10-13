@@ -17,10 +17,10 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 
 /**
  * Common utility methods used for arithmatic operations.

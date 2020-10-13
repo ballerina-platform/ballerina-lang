@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BIterator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BIterator;
 
 /**
  * Native implementation of lang.array:iterator(Type[]).

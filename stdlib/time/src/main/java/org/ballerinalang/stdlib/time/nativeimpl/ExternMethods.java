@@ -18,14 +18,14 @@
 
 package org.ballerinalang.stdlib.time.nativeimpl;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.types.BTupleType;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.types.BTupleType;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 
 import java.time.Instant;

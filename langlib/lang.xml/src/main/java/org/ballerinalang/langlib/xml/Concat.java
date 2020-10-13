@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.jvm.XMLFactory;
-import io.ballerina.jvm.XMLNodeType;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.XMLNodeType;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
 
 import java.util.ArrayList;
 import java.util.List;

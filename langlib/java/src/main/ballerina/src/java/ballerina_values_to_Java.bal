@@ -38,7 +38,7 @@ public isolated function fromString(string value) returns handle = @Method {
 public isolated function toString(handle value) returns string? = @Method {
     'class: "org.ballerinalang.langlib.java.ToString",
     name: "toString",
-    paramTypes: ["io.ballerina.jvm.api.values.BHandle"]
+    paramTypes: ["io.ballerina.runtime.api.values.BHandle"]
 } external;
 
 # Returns `true` if this handle refers to Java null.
@@ -88,7 +88,7 @@ public isolated function createNull() returns handle = @Method {
 public isolated function getClass(string name) returns handle | error = @Method {
     'class: "org.ballerinalang.langlib.java.JavaUtils",
     name: "getClass",
-    paramTypes: ["io.ballerina.jvm.api.values.BString"]
+    paramTypes: ["io.ballerina.runtime.api.values.BString"]
 } external;
 
 # Returns an `JObject|error`, which is obtained after casting the provided `JObject` instance

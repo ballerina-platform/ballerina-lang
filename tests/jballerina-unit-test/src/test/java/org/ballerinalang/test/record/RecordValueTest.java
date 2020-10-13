@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.record;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.MapValue;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.values.MapValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;

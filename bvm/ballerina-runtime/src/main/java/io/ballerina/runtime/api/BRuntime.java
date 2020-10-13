@@ -18,12 +18,12 @@ package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.api.connector.CallableUnitCallback;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.jvm.observability.ObservabilityConstants;
-import io.ballerina.jvm.observability.ObserveUtils;
-import io.ballerina.jvm.observability.ObserverContext;
-import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.scheduling.StrandMetadata;
+import io.ballerina.runtime.observability.ObservabilityConstants;
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.observability.ObserverContext;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.scheduling.StrandMetadata;
 
 import java.util.Map;
 import java.util.function.Function;

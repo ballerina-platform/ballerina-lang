@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.stdlib.crypto;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.values.BError;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BError;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;

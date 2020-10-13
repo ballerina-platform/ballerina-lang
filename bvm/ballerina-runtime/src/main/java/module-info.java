@@ -1,4 +1,4 @@
-module io.ballerina.jvm {
+module io.ballerina.runtime {
     requires java.xml;
     requires woodstox.core.asl;
     requires org.apache.commons.lang3;
@@ -16,27 +16,27 @@ module io.ballerina.jvm {
     requires java.transaction;
     requires java.naming;
 
-    exports io.ballerina.jvm.types;
-    exports io.ballerina.jvm.util;
-    exports io.ballerina.jvm.api;
-    exports io.ballerina.jvm.api.connector;
-    exports io.ballerina.jvm.api.values;
-    exports io.ballerina.jvm.internal;
-    exports io.ballerina.jvm.util.exceptions;
-    exports io.ballerina.jvm.launch;
-    exports io.ballerina.jvm;
-    exports io.ballerina.jvm.values.connector;
-    exports io.ballerina.jvm.scheduling;
-    exports io.ballerina.jvm.observability;
-    exports io.ballerina.jvm.runtime;
-    exports io.ballerina.jvm.transactions;
-    exports io.ballerina.jvm.services;
-    exports io.ballerina.jvm.observability.metrics;
-    exports io.ballerina.jvm.commons;
-    exports io.ballerina.jvm.observability.tracer;
-    exports io.ballerina.jvm.observability.metrics.spi;
-    exports io.ballerina.jvm.services.spi;
-    exports io.ballerina.jvm.annotation;
-    exports io.ballerina.jvm.api.types;
-    exports io.ballerina.jvm.api.runtime;
+    exports io.ballerina.runtime.types;
+    exports io.ballerina.runtime.util;
+    exports io.ballerina.runtime.api;
+    exports io.ballerina.runtime.api.connector;
+    exports io.ballerina.runtime.api.values;
+    exports io.ballerina.runtime.internal;
+    exports io.ballerina.runtime.util.exceptions;
+    exports io.ballerina.runtime.launch;
+    exports io.ballerina.runtime;
+    exports io.ballerina.runtime.values.connector;
+    exports io.ballerina.runtime.scheduling;
+    exports io.ballerina.runtime.observability;
+    exports io.ballerina.runtime.runtime;
+    exports io.ballerina.runtime.api.transactions;
+    exports io.ballerina.runtime.services;
+    exports io.ballerina.runtime.observability.metrics;
+    exports io.ballerina.runtime.commons;
+    exports io.ballerina.runtime.observability.tracer;
+    exports io.ballerina.runtime.observability.metrics.spi;
+    exports io.ballerina.runtime.services.spi;
+    exports io.ballerina.runtime.annotation;
+    exports io.ballerina.runtime.api.types;
+    exports io.ballerina.runtime.api.runtime;
 }

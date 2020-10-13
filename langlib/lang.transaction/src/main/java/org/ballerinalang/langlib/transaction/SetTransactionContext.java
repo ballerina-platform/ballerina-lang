@@ -18,18 +18,18 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.transactions.TransactionConstants;
-import io.ballerina.jvm.transactions.TransactionLocalContext;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.api.transactions.TransactionConstants;
+import io.ballerina.runtime.api.transactions.TransactionLocalContext;
 
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import static io.ballerina.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
+import static io.ballerina.runtime.api.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 
 /**
  * Extern function transaction:setTransactionContext.

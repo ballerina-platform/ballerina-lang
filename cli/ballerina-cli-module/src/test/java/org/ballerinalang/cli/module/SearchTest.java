@@ -18,10 +18,10 @@
 
 package org.ballerinalang.cli.module;
 
-import io.ballerina.jvm.JSONParser;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.MapValue;
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.MapValue;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;

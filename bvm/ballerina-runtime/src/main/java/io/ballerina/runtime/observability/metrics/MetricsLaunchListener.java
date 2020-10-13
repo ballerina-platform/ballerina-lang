@@ -15,15 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.jvm.observability.metrics;
+package io.ballerina.runtime.observability.metrics;
 
 import io.ballerina.runtime.launch.LaunchListener;
-import io.ballerina.jvm.observability.ObserveUtils;
-import io.ballerina.jvm.observability.metrics.noop.NoOpMetricProvider;
-import io.ballerina.jvm.observability.metrics.noop.NoOpMetricReporter;
-import io.ballerina.jvm.observability.metrics.spi.MetricProvider;
-import io.ballerina.jvm.observability.metrics.spi.MetricReporter;
-import io.ballerina.jvm.observability.tracer.InvalidConfigurationException;
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.observability.metrics.noop.NoOpMetricProvider;
+import io.ballerina.runtime.observability.metrics.noop.NoOpMetricReporter;
+import io.ballerina.runtime.observability.metrics.spi.MetricProvider;
+import io.ballerina.runtime.observability.metrics.spi.MetricReporter;
+import io.ballerina.runtime.observability.tracer.InvalidConfigurationException;
 import org.ballerinalang.config.ConfigRegistry;
 
 import java.io.PrintStream;
@@ -31,9 +31,9 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.ServiceLoader;
 
-import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
-import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_PROVIDER;
-import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_PROVIDER;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
 
 /**
  * Listen to Launcher events and initialize Metrics.

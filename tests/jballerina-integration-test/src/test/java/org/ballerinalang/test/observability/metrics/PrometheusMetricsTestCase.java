@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.observability.metrics;
 
-import io.ballerina.jvm.observability.ObservabilityConstants;
+import io.ballerina.runtime.observability.ObservabilityConstants;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
 import static org.awaitility.Awaitility.await;
 
 /**

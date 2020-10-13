@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.string;
 
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Extern function lang.string:toCodePointInts(string).

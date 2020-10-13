@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.jvm.observability.tracer;
+package io.ballerina.runtime.observability.tracer;
 
 import io.opentracing.Tracer;
 

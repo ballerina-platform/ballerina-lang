@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.string;
 
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.internal.ErrorUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.ErrorUtils;
 
 /**
  * Extern function ballerina.model.strings:length.

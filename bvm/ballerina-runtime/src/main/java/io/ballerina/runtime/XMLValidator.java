@@ -16,10 +16,10 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BXMLQName;
-import io.ballerina.jvm.values.XMLQName;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BXMLQName;
+import io.ballerina.runtime.values.XMLQName;
 
 /**
  * This class defines the basic set of utility methods to validate XML.

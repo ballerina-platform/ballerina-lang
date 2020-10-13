@@ -18,18 +18,18 @@
 
 package org.ballerinalang.mime.util;
 
-import io.ballerina.jvm.JSONParser;
-import io.ballerina.jvm.XMLFactory;
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BXML;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.types.BObjectType;
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.types.BObjectType;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;

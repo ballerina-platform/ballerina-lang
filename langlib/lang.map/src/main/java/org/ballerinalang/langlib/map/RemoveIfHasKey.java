@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 
-import static io.ballerina.jvm.MapUtils.checkIsMapOnlyOperation;
+import static io.ballerina.runtime.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
 
 /**
@@ -41,7 +41,7 @@ public class RemoveIfHasKey {
         validateRequiredFieldForRecord(m, k.getValue());
         try {
             return m.remove(k);
-        } catch (io.ballerina.jvm.util.exceptions.BLangFreezeException e) {
+        } catch (io.ballerina.runtime.util.exceptions.BLangFreezeException e) {
             throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
                                             BStringUtils.fromString("Failed to remove element: " + e.getDetail()));
         }

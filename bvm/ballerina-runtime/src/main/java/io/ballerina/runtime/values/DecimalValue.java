@@ -23,8 +23,8 @@ import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.jvm.internal.ErrorUtils;
-import io.ballerina.jvm.util.BLangConstants;
+import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.util.BLangConstants;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

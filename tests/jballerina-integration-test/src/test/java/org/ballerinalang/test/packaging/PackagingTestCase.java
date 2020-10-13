@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.packaging;
 
-import io.ballerina.jvm.JSONParser;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.values.MapValue;
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.values.MapValue;
 import org.awaitility.Duration;
 import org.ballerinalang.cli.module.util.Utils;
 import org.ballerinalang.test.BaseTest;

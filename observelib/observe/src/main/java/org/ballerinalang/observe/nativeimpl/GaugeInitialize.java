@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.observability.metrics.Gauge;
-import io.ballerina.jvm.observability.metrics.StatisticConfig;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.observability.metrics.Gauge;
+import io.ballerina.runtime.observability.metrics.StatisticConfig;
 
 import java.time.Duration;
 

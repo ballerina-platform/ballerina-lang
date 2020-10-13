@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BTable;
-import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.types.BArrayType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**

@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.types.string;
 
-import io.ballerina.jvm.XMLFactory;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.XMLItem;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.XMLItem;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.core.model.util.JsonParser;
 import org.ballerinalang.core.model.values.BBoolean;

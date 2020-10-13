@@ -17,15 +17,15 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.jvm.XMLNodeType;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BXML;
-import io.ballerina.jvm.api.values.BXMLQName;
+import io.ballerina.runtime.XMLNodeType;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXMLQName;
 
-import static io.ballerina.jvm.api.BErrorCreator.createError;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
+import static io.ballerina.runtime.api.BErrorCreator.createError;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
 
 /**
  * Return attribute value matching attribute name `attrName`.

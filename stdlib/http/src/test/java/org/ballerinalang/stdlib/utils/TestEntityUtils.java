@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.stdlib.utils;
 
-import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.runtime.api.values.BObject;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;

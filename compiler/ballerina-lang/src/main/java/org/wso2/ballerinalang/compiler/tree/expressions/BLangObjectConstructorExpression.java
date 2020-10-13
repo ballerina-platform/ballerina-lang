@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;

@@ -17,18 +17,18 @@
  */
 package org.ballerinalang.test.javainterop;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.util.exceptions.BLangRuntimeException;
-import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.FutureValue;
-import io.ballerina.jvm.values.HandleValue;
-import io.ballerina.jvm.values.TypedescValue;
-import io.ballerina.jvm.values.TypedescValueImpl;
-import io.ballerina.jvm.values.XMLItem;
-import io.ballerina.jvm.values.XMLValue;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.values.ErrorValue;
+import io.ballerina.runtime.values.FPValue;
+import io.ballerina.runtime.values.FutureValue;
+import io.ballerina.runtime.values.HandleValue;
+import io.ballerina.runtime.values.TypedescValue;
+import io.ballerina.runtime.values.TypedescValueImpl;
+import io.ballerina.runtime.values.XMLItem;
+import io.ballerina.runtime.values.XMLValue;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BHandleValue;
@@ -349,7 +349,7 @@ public class RefTypeTests {
         return new XMLItem(new QName("hello"));
     }
 
-    public static io.ballerina.jvm.api.values.BString getStringFromXML(XMLValue x) {
+    public static io.ballerina.runtime.api.values.BString getStringFromXML(XMLValue x) {
         return BStringUtils.fromString(x.toString());
     }
 
@@ -389,7 +389,7 @@ public class RefTypeTests {
         return (FPValue) fp;
     }
 
-    public static io.ballerina.jvm.api.values.BString useTypeDesc(TypedescValue type) {
+    public static io.ballerina.runtime.api.values.BString useTypeDesc(TypedescValue type) {
         return BStringUtils.fromString(type.stringValue(null));
     }
 
@@ -411,7 +411,7 @@ public class RefTypeTests {
         return new HandleValue(m);
     }
 
-    public static io.ballerina.jvm.api.values.BString useHandle(HandleValue h) {
+    public static io.ballerina.runtime.api.values.BString useHandle(HandleValue h) {
         Map<String, String> m = (Map<String, String>) h.getValue();
         return BStringUtils.fromString(m.get("name"));
     }

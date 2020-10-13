@@ -17,8 +17,8 @@
 */
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.scheduling.State;
-import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.runtime.scheduling.State;
+import io.ballerina.runtime.scheduling.Strand;
 
 import java.util.ArrayDeque;
 

@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.jvm.util.Flags;
+import io.ballerina.runtime.util.Flags;
 
 import java.util.Arrays;
 

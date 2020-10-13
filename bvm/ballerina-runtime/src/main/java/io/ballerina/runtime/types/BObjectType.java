@@ -19,11 +19,11 @@ package io.ballerina.runtime.types;
 
 import io.ballerina.runtime.api.BValueCreator;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.jvm.util.Flags;
+import io.ballerina.runtime.util.Flags;
 
 import java.util.Map.Entry;
 import java.util.StringJoiner;

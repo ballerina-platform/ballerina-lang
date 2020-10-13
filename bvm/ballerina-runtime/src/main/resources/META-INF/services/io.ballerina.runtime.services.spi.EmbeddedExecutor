@@ -1,1 +1,1 @@
-io.ballerina.jvm.services.JVMEmbeddedExecutor
+io.ballerina.runtime.services.JVMEmbeddedExecutor

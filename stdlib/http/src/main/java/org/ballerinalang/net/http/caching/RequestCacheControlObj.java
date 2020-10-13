@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.caching;
 
-import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.runtime.api.values.BObject;
 
 import java.util.Map;
 

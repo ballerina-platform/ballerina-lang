@@ -16,7 +16,7 @@
 
 package org.ballerinalang.observe.trace.extension.choreo.client;
 
-import io.ballerina.jvm.observability.ObservabilityConstants;
+import io.ballerina.runtime.observability.ObservabilityConstants;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;
 import org.ballerinalang.observe.trace.extension.choreo.client.secret.AnonymousAppSecretHandler;

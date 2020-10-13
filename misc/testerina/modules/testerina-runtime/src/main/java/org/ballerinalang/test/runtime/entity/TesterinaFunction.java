@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BFuture;
-import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

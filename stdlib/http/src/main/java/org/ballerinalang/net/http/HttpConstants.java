@@ -18,14 +18,14 @@
 
 package org.ballerinalang.net.http;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.runtime.Module;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.scheduling.StrandMetadata;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.StrandMetadata;
 
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG;
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for HTTP.

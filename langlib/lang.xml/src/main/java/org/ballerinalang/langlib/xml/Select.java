@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.jvm.api.values.BXML;
-import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
 /**
  * Get all the elements-type items in the given sequence, that matches a given qualified name.

@@ -17,7 +17,7 @@
 */
 package io.ballerina.runtime.api.types;
 
-import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.commons.Module;
 
 /**
  * {@code BType} represents a type in Ballerina.

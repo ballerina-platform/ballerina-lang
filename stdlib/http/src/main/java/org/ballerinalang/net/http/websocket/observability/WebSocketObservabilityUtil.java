@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http.websocket.observability;
 
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;

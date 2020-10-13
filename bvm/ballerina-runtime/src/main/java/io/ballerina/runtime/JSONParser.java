@@ -17,18 +17,18 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.TypeTags;
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.DecimalValue;
-import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.types.BMapType;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.ArrayValueImpl;
+import io.ballerina.runtime.values.DecimalValue;
+import io.ballerina.runtime.values.MapValueImpl;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.BufferedInputStream;

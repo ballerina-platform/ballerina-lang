@@ -127,7 +127,7 @@ function assertStrandMetadataResult(string assertString) {
 }
 
 function getName(handle strand) returns handle = @java:Method {
-    'class: "io.ballerina.jvm.scheduling.Strand"
+    'class: "io.ballerina.runtime.scheduling.Strand"
 } external;
 
 function get(handle optional) returns handle = @java:Method {
@@ -143,35 +143,35 @@ function isPresent(handle optional) returns boolean = @java:Method {
 } external;
 
 function getId(handle strand) returns int = @java:Method {
-    'class: "io.ballerina.jvm.scheduling.Strand"
+    'class: "io.ballerina.runtime.scheduling.Strand"
 } external;
 
 function getStrand() returns handle = @java:Method {
-    'class: "io.ballerina.jvm.scheduling.Scheduler"
+    'class: "io.ballerina.runtime.scheduling.Scheduler"
 } external;
 
 function getMetadata(handle strand) returns handle = @java:Method {
-    'class: "io.ballerina.jvm.scheduling.Strand"
+    'class: "io.ballerina.runtime.scheduling.Strand"
 } external;
 
 function getModuleOrg(handle strandMetadata) returns handle = @java:Method {
-    'class: "io.ballerina.jvm.scheduling.StrandMetadata"
+    'class: "io.ballerina.runtime.scheduling.StrandMetadata"
 } external;
 
 function getModuleName(handle strandMetadata) returns handle = @java:Method {
-    'class: "io.ballerina.jvm.scheduling.StrandMetadata"
+    'class: "io.ballerina.runtime.scheduling.StrandMetadata"
 } external;
 
 function getModuleVersion(handle strandMetadata) returns handle = @java:Method {
-    'class: "io.ballerina.jvm.scheduling.StrandMetadata"
+    'class: "io.ballerina.runtime.scheduling.StrandMetadata"
 } external;
 
 function getParentFunctionName(handle strandMetadata) returns handle = @java:Method {
-    'class: "io.ballerina.jvm.scheduling.StrandMetadata"
+    'class: "io.ballerina.runtime.scheduling.StrandMetadata"
 } external;
 
 function getTypeName(handle strandMetadata) returns handle = @java:Method {
-    'class: "io.ballerina.jvm.scheduling.StrandMetadata"
+    'class: "io.ballerina.runtime.scheduling.StrandMetadata"
 } external;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

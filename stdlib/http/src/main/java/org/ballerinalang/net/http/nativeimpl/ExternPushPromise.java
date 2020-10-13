@@ -18,12 +18,12 @@
 
 package org.ballerinalang.net.http.nativeimpl;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.types.BArrayType;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.types.BArrayType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 

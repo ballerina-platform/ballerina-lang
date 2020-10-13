@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;

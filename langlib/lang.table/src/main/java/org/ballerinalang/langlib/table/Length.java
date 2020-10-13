@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.jvm.api.values.BTable;
-import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.scheduling.Strand;
 
 /**
  * Native implementation of lang.table:length(map).

@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.time.util;
 
-import io.ballerina.jvm.api.runtime.Module;
-
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 /**
  * Constants used in Ballerina Time library.
  *
@@ -31,7 +29,7 @@ public class Constants {
 
     public static final String TIME_PACKAGE_VERSION = "1.0.0";
     public static final Module TIME_PACKAGE_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "time",
-                                                                TIME_PACKAGE_VERSION);
+                                                            TIME_PACKAGE_VERSION);
     public static final String STRUCT_TYPE_TIME = "Time";
     public static final String STRUCT_TYPE_TIMEZONE = "TimeZone";
 

@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.runtime.util;
 
-import io.ballerina.jvm.util.BLangConstants;
-import io.ballerina.jvm.util.RuntimeUtils;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.runtime.util.RuntimeUtils;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.ballerinalang.test.runtime.BTestRunner;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;

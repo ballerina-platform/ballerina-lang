@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.jvm.observability;
+package io.ballerina.runtime.observability;
 
-import io.ballerina.jvm.observability.metrics.Tag;
+import io.ballerina.runtime.observability.metrics.Tag;
 
 import java.util.Collections;
 import java.util.HashMap;

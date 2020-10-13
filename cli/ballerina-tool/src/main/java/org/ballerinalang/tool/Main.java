@@ -18,7 +18,7 @@
 
 package org.ballerinalang.tool;
 
-import io.ballerina.jvm.util.RuntimeUtils;
+import io.ballerina.runtime.util.RuntimeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;

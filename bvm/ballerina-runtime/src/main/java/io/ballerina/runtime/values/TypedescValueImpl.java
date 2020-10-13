@@ -21,9 +21,9 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BInitialValueEntry;
 import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.types.BTypedescType;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.types.BTypedescType;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 import java.util.Map;
 

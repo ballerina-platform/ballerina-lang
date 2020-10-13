@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.runtime.api.values.BXML;
 
 /**
  * Native implementation of lang.xml:length(xml).

@@ -16,10 +16,10 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import io.ballerina.jvm.api.BalEnv;
-import io.ballerina.jvm.api.BalFuture;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.BalFuture;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;

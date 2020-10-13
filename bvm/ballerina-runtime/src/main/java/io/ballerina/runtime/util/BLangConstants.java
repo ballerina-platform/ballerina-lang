@@ -18,7 +18,7 @@
 package io.ballerina.runtime.util;
 
 import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.values.BString;
 
 import java.math.BigDecimal;

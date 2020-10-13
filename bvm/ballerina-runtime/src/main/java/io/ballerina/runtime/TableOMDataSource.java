@@ -17,19 +17,19 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.TypeTags;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.types.BField;
-import io.ballerina.jvm.types.BStructureType;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.DecimalValue;
-import io.ballerina.jvm.values.IteratorValue;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.TableValueImpl;
-import io.ballerina.jvm.values.TupleValueImpl;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.types.BField;
+import io.ballerina.runtime.types.BStructureType;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.DecimalValue;
+import io.ballerina.runtime.values.IteratorValue;
+import io.ballerina.runtime.values.MapValueImpl;
+import io.ballerina.runtime.values.TableValueImpl;
+import io.ballerina.runtime.values.TupleValueImpl;
 import org.apache.axiom.om.ds.AbstractPushOMDataSource;
 
 import javax.xml.stream.XMLStreamException;

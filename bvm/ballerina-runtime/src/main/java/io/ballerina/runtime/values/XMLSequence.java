@@ -26,9 +26,9 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.api.values.BXMLSequence;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.util.BLangConstants;
-import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,8 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.ballerina.jvm.util.BLangConstants.STRING_EMPTY_VALUE;
-import static io.ballerina.jvm.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.util.BLangConstants.STRING_EMPTY_VALUE;
+import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
 
 /**
  * <p>

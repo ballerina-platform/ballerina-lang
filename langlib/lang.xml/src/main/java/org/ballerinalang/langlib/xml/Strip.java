@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.jvm.api.values.BXML;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
 /**
  * Strips the insignificant parts of the an xml value.

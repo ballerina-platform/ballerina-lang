@@ -18,22 +18,22 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.observability.metrics.Counter;
-import io.ballerina.jvm.observability.metrics.DefaultMetricRegistry;
-import io.ballerina.jvm.observability.metrics.Gauge;
-import io.ballerina.jvm.observability.metrics.Metric;
-import io.ballerina.jvm.observability.metrics.MetricId;
-import io.ballerina.jvm.observability.metrics.PolledGauge;
-import io.ballerina.jvm.observability.metrics.Tag;
-import io.ballerina.jvm.observability.metrics.Tags;
-import io.ballerina.jvm.types.BMapType;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.observability.metrics.Counter;
+import io.ballerina.runtime.observability.metrics.DefaultMetricRegistry;
+import io.ballerina.runtime.observability.metrics.Gauge;
+import io.ballerina.runtime.observability.metrics.Metric;
+import io.ballerina.runtime.observability.metrics.MetricId;
+import io.ballerina.runtime.observability.metrics.PolledGauge;
+import io.ballerina.runtime.observability.metrics.Tag;
+import io.ballerina.runtime.observability.metrics.Tags;
+import io.ballerina.runtime.types.BMapType;
 
 import java.util.HashSet;
 import java.util.Map;

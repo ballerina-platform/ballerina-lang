@@ -22,15 +22,15 @@ import io.ballerina.runtime.api.BErrorCreator;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.types.BMapType;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
 import javax.xml.XMLConstants;
 
-import static io.ballerina.jvm.util.BLangConstants.XML_LANG_LIB;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static io.ballerina.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 import static io.ballerina.runtime.values.XMLItem.XMLNS_URL_PREFIX;
 
 /**

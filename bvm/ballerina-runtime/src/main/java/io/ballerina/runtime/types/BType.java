@@ -20,10 +20,10 @@ package io.ballerina.runtime.types;
 import io.ballerina.runtime.IdentifierUtils;
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 import java.util.Objects;
 

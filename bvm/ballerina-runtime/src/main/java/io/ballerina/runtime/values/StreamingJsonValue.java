@@ -23,8 +23,8 @@ import io.ballerina.runtime.JSONUtils;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BStreamingJson;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.types.BMapType;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.types.BMapType;
 
 import java.io.IOException;
 import java.io.OutputStream;

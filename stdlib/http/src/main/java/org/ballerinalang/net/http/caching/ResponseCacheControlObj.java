@@ -18,11 +18,11 @@
 
 package org.ballerinalang.net.http.caching;
 
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.runtime.Module;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.Map;
 import java.util.StringJoiner;

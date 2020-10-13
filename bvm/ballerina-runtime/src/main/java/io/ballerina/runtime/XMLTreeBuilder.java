@@ -17,17 +17,17 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BXML;
-import io.ballerina.jvm.api.values.BXMLSequence;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.XMLComment;
-import io.ballerina.jvm.values.XMLItem;
-import io.ballerina.jvm.values.XMLPi;
-import io.ballerina.jvm.values.XMLQName;
-import io.ballerina.jvm.values.XMLSequence;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXMLSequence;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.values.MapValue;
+import io.ballerina.runtime.values.XMLComment;
+import io.ballerina.runtime.values.XMLItem;
+import io.ballerina.runtime.values.XMLPi;
+import io.ballerina.runtime.values.XMLQName;
+import io.ballerina.runtime.values.XMLSequence;
 
 import java.io.Reader;
 import java.io.StringReader;

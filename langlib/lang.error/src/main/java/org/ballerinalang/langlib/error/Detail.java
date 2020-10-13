@@ -17,8 +17,8 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
 
 /**
  * Get the reason phrase of an error value.

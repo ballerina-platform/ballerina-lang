@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BTypedesc;
-import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.scheduling.Strand;
 
 /**
  * Extern function lang.typedesc:typeIds.

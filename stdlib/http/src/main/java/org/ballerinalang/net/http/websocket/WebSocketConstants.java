@@ -18,11 +18,11 @@
 
 package org.ballerinalang.net.http.websocket;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.runtime.Module;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.util.BLangConstants;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.util.BLangConstants;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MODULE_VERSION;
 

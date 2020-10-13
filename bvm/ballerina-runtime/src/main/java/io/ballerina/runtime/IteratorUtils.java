@@ -18,12 +18,12 @@
 
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.api.TypeConstants;
-import io.ballerina.jvm.api.TypeFlags;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.types.BField;
-import io.ballerina.jvm.types.BRecordType;
-import io.ballerina.jvm.util.Flags;
+import io.ballerina.runtime.api.TypeConstants;
+import io.ballerina.runtime.api.TypeFlags;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.types.BField;
+import io.ballerina.runtime.types.BRecordType;
+import io.ballerina.runtime.util.Flags;
 
 import java.util.HashMap;
 import java.util.Map;

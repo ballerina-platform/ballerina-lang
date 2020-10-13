@@ -17,17 +17,17 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.TypeTags;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.types.AttachedFunction;
-import io.ballerina.jvm.types.BAnnotatableType;
-import io.ballerina.jvm.types.BObjectType;
-import io.ballerina.jvm.types.BServiceType;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.MapValue;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.types.AttachedFunction;
+import io.ballerina.runtime.types.BAnnotatableType;
+import io.ballerina.runtime.types.BObjectType;
+import io.ballerina.runtime.types.BServiceType;
+import io.ballerina.runtime.values.FPValue;
+import io.ballerina.runtime.values.MapValue;
 
 /**
  * Utility methods related to annotation loading.

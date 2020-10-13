@@ -16,11 +16,11 @@
  */
 package org.ballerinalang.test.util;
 
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.FutureValue;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.values.ErrorValue;
+import io.ballerina.runtime.values.FutureValue;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
@@ -205,10 +205,10 @@ public class BCompileUtil {
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof io.ballerina.jvm.util.exceptions.BLangRuntimeException) {
+                if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof io.ballerina.jvm.util.exceptions.BallerinaConnectorException) {
+                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {

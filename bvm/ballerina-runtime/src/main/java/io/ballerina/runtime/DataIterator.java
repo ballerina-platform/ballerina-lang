@@ -17,9 +17,9 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.types.BStructureType;
-import io.ballerina.jvm.values.DecimalValue;
-import io.ballerina.jvm.values.MapValue;
+import io.ballerina.runtime.types.BStructureType;
+import io.ballerina.runtime.values.DecimalValue;
+import io.ballerina.runtime.values.MapValue;
 
 import java.util.List;
 

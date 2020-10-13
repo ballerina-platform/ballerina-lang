@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BIterator;
-import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BObject;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -18,10 +18,10 @@
 
 package org.ballerinalang.stdlib.utils;
 
-import io.ballerina.jvm.api.BRuntime;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.util.exceptions.BallerinaConnectorException;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.api.BRuntime;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.netty.handler.codec.http.HttpContent;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;

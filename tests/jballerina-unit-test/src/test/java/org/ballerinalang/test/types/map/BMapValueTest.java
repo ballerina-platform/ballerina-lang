@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.types.map;
 
-import io.ballerina.jvm.XMLFactory;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.values.MapValue;
+import io.ballerina.runtime.values.MapValueImpl;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BRefType;
@@ -204,7 +204,7 @@ public class BMapValueTest {
 
     @Test(description = "Testing convert map values to string")
     public void testBMapToString() {
-        MapValue<io.ballerina.jvm.api.values.BString, Object> map = new MapValueImpl<>();
+        MapValue<io.ballerina.runtime.api.values.BString, Object> map = new MapValueImpl<>();
         map.put(BStringUtils.fromString("key1"), 1);
         map.put(BStringUtils.fromString("key2"), BStringUtils.fromString("foo"));
         map.put(BStringUtils.fromString("key3"), XMLFactory.parse("<bar>hello</bar>"));

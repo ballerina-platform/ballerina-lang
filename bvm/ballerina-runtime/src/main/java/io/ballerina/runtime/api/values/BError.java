@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.runtime.values.ArrayValue;
 
 import java.io.PrintWriter;
 

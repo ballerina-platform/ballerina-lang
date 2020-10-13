@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.api;
 
-import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.Field;
@@ -31,18 +31,18 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XMLType;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.types.BErrorType;
-import io.ballerina.jvm.types.BField;
-import io.ballerina.jvm.types.BJSONType;
-import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.types.BObjectType;
-import io.ballerina.jvm.types.BRecordType;
-import io.ballerina.jvm.types.BStreamType;
-import io.ballerina.jvm.types.BTableType;
-import io.ballerina.jvm.types.BTupleType;
-import io.ballerina.jvm.types.BUnionType;
-import io.ballerina.jvm.types.BXMLType;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.types.BErrorType;
+import io.ballerina.runtime.types.BField;
+import io.ballerina.runtime.types.BJSONType;
+import io.ballerina.runtime.types.BMapType;
+import io.ballerina.runtime.types.BObjectType;
+import io.ballerina.runtime.types.BRecordType;
+import io.ballerina.runtime.types.BStreamType;
+import io.ballerina.runtime.types.BTableType;
+import io.ballerina.runtime.types.BTupleType;
+import io.ballerina.runtime.types.BUnionType;
+import io.ballerina.runtime.types.BXMLType;
 
 import java.util.List;
 import java.util.Map;

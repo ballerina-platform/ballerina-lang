@@ -18,18 +18,18 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import io.ballerina.jvm.JSONParser;
-import io.ballerina.jvm.TypeChecker;
-import io.ballerina.jvm.XMLFactory;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BRefValue;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BRefValue;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityHeaderHandler;
 import org.ballerinalang.mime.util.MimeConstants;

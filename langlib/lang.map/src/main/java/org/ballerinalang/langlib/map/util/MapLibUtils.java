@@ -18,27 +18,27 @@
 
 package org.ballerinalang.langlib.map.util;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.TypeTags;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.types.BField;
-import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.types.BRecordType;
-import io.ballerina.jvm.types.BUnionType;
-import io.ballerina.jvm.util.Flags;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.types.BField;
+import io.ballerina.runtime.types.BMapType;
+import io.ballerina.runtime.types.BRecordType;
+import io.ballerina.runtime.types.BUnionType;
+import io.ballerina.runtime.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import static io.ballerina.jvm.MapUtils.createOpNotSupportedError;
-import static io.ballerina.jvm.util.BLangConstants.MAP_LANG_LIB;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.MapUtils.createOpNotSupportedError;
+import static io.ballerina.runtime.util.BLangConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Utility methods for map lib functions.

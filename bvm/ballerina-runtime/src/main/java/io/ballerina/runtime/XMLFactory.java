@@ -17,20 +17,20 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BXML;
-import io.ballerina.jvm.api.values.BXMLQName;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.TableValueImpl;
-import io.ballerina.jvm.values.XMLComment;
-import io.ballerina.jvm.values.XMLItem;
-import io.ballerina.jvm.values.XMLPi;
-import io.ballerina.jvm.values.XMLSequence;
-import io.ballerina.jvm.values.XMLText;
-import io.ballerina.jvm.values.XMLValue;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXMLQName;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.values.TableValueImpl;
+import io.ballerina.runtime.values.XMLComment;
+import io.ballerina.runtime.values.XMLItem;
+import io.ballerina.runtime.values.XMLPi;
+import io.ballerina.runtime.values.XMLSequence;
+import io.ballerina.runtime.values.XMLText;
+import io.ballerina.runtime.values.XMLValue;
 import org.apache.axiom.om.DeferredParsingException;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
@@ -55,7 +55,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import static io.ballerina.jvm.values.XMLItem.createXMLItemWithDefaultNSAttribute;
+import static io.ballerina.runtime.values.XMLItem.createXMLItemWithDefaultNSAttribute;
 
 /**
  * Common utility methods used for XML manipulation.
@@ -193,9 +193,9 @@ public class XMLFactory {
     }
 
     /**
-     * Converts a {@link io.ballerina.jvm.values.TableValue} to {@link XMLValue}.
+     * Converts a {@link io.ballerina.runtime.values.TableValue} to {@link XMLValue}.
      *
-     * @param table {@link io.ballerina.jvm.values.TableValue} to convert
+     * @param table {@link io.ballerina.runtime.values.TableValue} to convert
      * @return converted {@link XMLValue}
      */
     public static BXML tableToXML(TableValueImpl table) {

@@ -16,10 +16,10 @@
 
 package org.ballerinalang.cli.module;
 
-import io.ballerina.jvm.JSONParser;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.cli.module.util.ErrorUtil;
 import org.ballerinalang.cli.module.util.Utils;
 

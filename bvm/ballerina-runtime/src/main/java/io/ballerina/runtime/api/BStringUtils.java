@@ -21,17 +21,17 @@ import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.types.AttachedFunction;
-import io.ballerina.jvm.types.BObjectType;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.AbstractObjectValue;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.BmpStringValue;
-import io.ballerina.jvm.values.DecimalValue;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.NonBmpStringValue;
-import io.ballerina.jvm.values.RefValue;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.types.AttachedFunction;
+import io.ballerina.runtime.types.BObjectType;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.values.AbstractObjectValue;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.BmpStringValue;
+import io.ballerina.runtime.values.DecimalValue;
+import io.ballerina.runtime.values.MapValueImpl;
+import io.ballerina.runtime.values.NonBmpStringValue;
+import io.ballerina.runtime.values.RefValue;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -44,9 +44,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static io.ballerina.jvm.util.BLangConstants.STRING_LANG_LIB;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.util.BLangConstants.STRING_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for String manipulation.

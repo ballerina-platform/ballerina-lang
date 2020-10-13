@@ -17,24 +17,24 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.TypeTags;
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BIterator;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BTable;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.types.BField;
-import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.types.BStructureType;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.DecimalValue;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.TupleValueImpl;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.types.BField;
+import io.ballerina.runtime.types.BMapType;
+import io.ballerina.runtime.types.BStructureType;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.ArrayValueImpl;
+import io.ballerina.runtime.values.DecimalValue;
+import io.ballerina.runtime.values.MapValue;
+import io.ballerina.runtime.values.MapValueImpl;
+import io.ballerina.runtime.values.TupleValueImpl;
 
 import java.io.IOException;
 import java.math.BigDecimal;

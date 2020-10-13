@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import static io.ballerina.jvm.util.BLangConstants.STRING_NULL_VALUE;
+import static io.ballerina.runtime.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
  * XML nodes containing atomic content such as text, comment and processing instructions.

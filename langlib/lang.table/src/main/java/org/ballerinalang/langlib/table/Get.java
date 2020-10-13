@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.jvm.api.values.BTable;
+import io.ballerina.runtime.api.values.BTable;
 
 /**
  * Native implementation of lang.table:get(table&lt;Type&gt;, KeyType).

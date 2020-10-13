@@ -17,8 +17,8 @@
  */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.types.BObjectType;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.types.BObjectType;
 
 import java.util.HashMap;
 

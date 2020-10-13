@@ -17,7 +17,7 @@
 */
 package io.ballerina.runtime.values.connector;
 
-import io.ballerina.jvm.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.util.exceptions.BLangRuntimeException;
 
 import java.util.HashMap;
 import java.util.Map;

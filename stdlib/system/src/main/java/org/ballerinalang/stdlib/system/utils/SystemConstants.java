@@ -18,10 +18,8 @@
 
 package org.ballerinalang.stdlib.system.utils;
 
-import io.ballerina.jvm.api.runtime.Module;
-
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for system package functions.

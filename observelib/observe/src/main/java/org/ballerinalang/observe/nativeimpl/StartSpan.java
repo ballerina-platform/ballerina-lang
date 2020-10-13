@@ -19,12 +19,12 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.observability.ObservabilityConstants;
-import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.observability.ObservabilityConstants;
+import io.ballerina.runtime.scheduling.Scheduler;
 
 /**
  * This function which implements the startSpan method for observe.

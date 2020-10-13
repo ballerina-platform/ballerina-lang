@@ -17,31 +17,30 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.api.runtime.Module;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BFuture;
-import io.ballerina.jvm.api.values.BLink;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.types.AttachedFunction;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.types.BField;
-import io.ballerina.jvm.types.BObjectType;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.types.AttachedFunction;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.types.BField;
+import io.ballerina.runtime.types.BObjectType;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.ballerina.jvm.api.values.BError.CALL_STACK_ELEMENT;
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG_ID;
+import static io.ballerina.runtime.api.values.BError.CALL_STACK_ELEMENT;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_LANG_ERROR_PKG_ID;
 
 /**
  * Get the stackTrace of an error value.

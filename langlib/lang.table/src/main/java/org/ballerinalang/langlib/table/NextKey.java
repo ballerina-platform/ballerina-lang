@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.jvm.api.values.BTable;
+import io.ballerina.runtime.api.values.BTable;
 
 /**
  * Extern function to get next key from the table.

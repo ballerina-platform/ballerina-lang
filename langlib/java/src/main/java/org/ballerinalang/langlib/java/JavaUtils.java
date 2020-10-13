@@ -17,13 +17,12 @@
  */
 package org.ballerinalang.langlib.java;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.runtime.Module;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.util.BLangConstants;
-import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 
 /**
  * This class contains various utility functions required to provide the 'ballerina/java' module API.

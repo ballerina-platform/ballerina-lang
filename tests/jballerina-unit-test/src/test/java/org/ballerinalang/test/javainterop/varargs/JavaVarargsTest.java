@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.javainterop.varargs;
 
-import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.runtime.values.ArrayValue;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BHandleValue;
 import org.ballerinalang.core.model.values.BInteger;

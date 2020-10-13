@@ -18,12 +18,11 @@
 
 package org.ballerinalang.mime.util;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.runtime.Module;
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BString;
 
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
  * Constants related to MIME.
@@ -37,10 +36,10 @@ public class MimeConstants {
     public static final String PROTOCOL_MIME_PKG_VERSION = "1.0.0";
     public static final String PROTOCOL_IO_PKG_VERSION = "0.5.0";
     public static final Module PROTOCOL_MIME_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "mime",
-                                                                     PROTOCOL_MIME_PKG_VERSION);
+                                                                 PROTOCOL_MIME_PKG_VERSION);
     public static final String PROTOCOL_PACKAGE_IO = BALLERINA_PACKAGE_PREFIX + "io";
     public static final Module PROTOCOL_IO_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "io",
-                                                                   PROTOCOL_IO_PKG_VERSION);
+                                                               PROTOCOL_IO_PKG_VERSION);
     public static final String READABLE_BYTE_CHANNEL_STRUCT = "ReadableByteChannel";
     public static final String MIME_ERROR_MESSAGE = "message";
 

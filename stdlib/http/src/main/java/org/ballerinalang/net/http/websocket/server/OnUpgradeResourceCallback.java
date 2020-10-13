@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http.websocket.server;
 
-import io.ballerina.jvm.api.connector.CallableUnitCallback;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.services.ErrorHandlerUtils;
+import io.ballerina.runtime.api.connector.CallableUnitCallback;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.services.ErrorHandlerUtils;
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;

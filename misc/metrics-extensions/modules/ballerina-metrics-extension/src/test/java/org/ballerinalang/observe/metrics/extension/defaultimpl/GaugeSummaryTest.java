@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.observe.metrics.extension.defaultimpl;
 
-import io.ballerina.jvm.observability.metrics.Gauge;
-import io.ballerina.jvm.observability.metrics.MetricRegistry;
-import io.ballerina.jvm.observability.metrics.PercentileValue;
-import io.ballerina.jvm.observability.metrics.Snapshot;
-import io.ballerina.jvm.observability.metrics.StatisticConfig;
+import io.ballerina.runtime.observability.metrics.Gauge;
+import io.ballerina.runtime.observability.metrics.MetricRegistry;
+import io.ballerina.runtime.observability.metrics.PercentileValue;
+import io.ballerina.runtime.observability.metrics.Snapshot;
+import io.ballerina.runtime.observability.metrics.StatisticConfig;
 import org.HdrHistogram.DoubleHistogram;
 import org.HdrHistogram.DoubleRecorder;
 import org.testng.Assert;

@@ -18,21 +18,21 @@
 
 package org.ballerinalang.mime.util;
 
-import io.ballerina.jvm.TypeChecker;
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.TypeTags;
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.api.types.ArrayType;
-import io.ballerina.jvm.api.types.MapType;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BStreamingJson;
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BStreamingJson;
+import io.ballerina.runtime.api.values.BString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -191,7 +191,7 @@ public class MimeUtil {
     public static BObject parseMediaType(BObject mediaType, String contentType) {
         try {
             BMap<BString, Object> parameterMap =
-                   BValueCreator.createMapValue(new io.ballerina.jvm.types.BMapType(Types.TYPE_STRING));
+                   BValueCreator.createMapValue(new io.ballerina.runtime.types.BMapType(Types.TYPE_STRING));
             BString suffix, primaryType, subType;
 
             if (contentType != null) {
@@ -500,7 +500,7 @@ public class MimeUtil {
             }
             return (String) dataSource;
         } else if (type.getTag() == TypeTags.ARRAY_TAG &&
-                ((io.ballerina.jvm.types.BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                ((io.ballerina.runtime.types.BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
             return new String(((BArray) dataSource).getBytes(), StandardCharsets.UTF_8);
         }
 

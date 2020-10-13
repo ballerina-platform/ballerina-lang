@@ -18,20 +18,20 @@
 
 package org.ballerinalang.langlib.java;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.types.TypedescType;
-import io.ballerina.jvm.api.values.BHandle;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BTypedesc;
-import io.ballerina.jvm.types.BField;
-import io.ballerina.jvm.types.BObjectType;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypedescType;
+import io.ballerina.runtime.api.values.BHandle;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.types.BField;
+import io.ballerina.runtime.types.BObjectType;
 
-import static io.ballerina.jvm.api.BErrorCreator.createError;
-import static io.ballerina.jvm.api.BValueCreator.createHandleValue;
-import static io.ballerina.jvm.api.BValueCreator.createObjectValue;
+import static io.ballerina.runtime.api.BErrorCreator.createError;
+import static io.ballerina.runtime.api.BValueCreator.createHandleValue;
+import static io.ballerina.runtime.api.BValueCreator.createObjectValue;
 
 /**
  * This class contains the implementation of the "cast" Ballerina function in ballerina/java module.

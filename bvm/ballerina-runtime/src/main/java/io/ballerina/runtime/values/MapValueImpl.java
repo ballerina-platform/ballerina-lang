@@ -33,13 +33,13 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
-import io.ballerina.jvm.types.BField;
-import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.types.BRecordType;
-import io.ballerina.jvm.types.BTupleType;
-import io.ballerina.jvm.types.BUnionType;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.types.BField;
+import io.ballerina.runtime.types.BMapType;
+import io.ballerina.runtime.types.BRecordType;
+import io.ballerina.runtime.types.BTupleType;
+import io.ballerina.runtime.types.BUnionType;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -57,11 +57,11 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.JSONUtils.mergeJson;
-import static io.ballerina.jvm.util.BLangConstants.MAP_LANG_LIB;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static io.ballerina.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.util.BLangConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 import static io.ballerina.runtime.values.ReadOnlyUtils.handleInvalidUpdate;
 
 /**

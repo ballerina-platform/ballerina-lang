@@ -19,7 +19,7 @@ package io.ballerina.runtime.types;
 
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.BValueCreator;
-import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;

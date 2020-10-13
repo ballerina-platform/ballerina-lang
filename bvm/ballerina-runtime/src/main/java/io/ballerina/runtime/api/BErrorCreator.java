@@ -18,14 +18,14 @@
 package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.jvm.types.BErrorType;
-import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.runtime.types.BErrorType;
+import io.ballerina.runtime.values.ErrorValue;
+import io.ballerina.runtime.values.MapValueImpl;
 
 /**
  * Class @{@link BErrorCreator} provides apis to create ballerina error instances.

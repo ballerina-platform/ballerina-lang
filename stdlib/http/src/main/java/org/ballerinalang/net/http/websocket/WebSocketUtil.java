@@ -18,18 +18,18 @@
 
 package org.ballerinalang.net.http.websocket;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BRuntime;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.BalFuture;
-import io.ballerina.jvm.api.runtime.Module;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.services.ErrorHandlerUtils;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BRuntime;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.BalFuture;
+import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.services.ErrorHandlerUtils;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CodecException;
 import io.netty.handler.codec.TooLongFrameException;

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.values.BDecimal;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.values.BDecimal;
 
 /**
  * Native implementation of lang.decimal:abs(decimal).

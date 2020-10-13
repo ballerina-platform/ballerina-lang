@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.multipart;
 
-import io.ballerina.jvm.XMLFactory;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BXML;
 import org.ballerinalang.core.model.util.JsonParser;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;

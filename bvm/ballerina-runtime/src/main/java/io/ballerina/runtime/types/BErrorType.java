@@ -18,7 +18,7 @@
 package io.ballerina.runtime.types;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.values.ErrorValue;

@@ -18,10 +18,10 @@
 
 package org.ballerina.testobserve.listenerendpoint;
 
-import io.ballerina.jvm.api.BalEnv;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpResponseStatus;
 

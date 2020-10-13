@@ -18,7 +18,7 @@
 package io.ballerina.runtime.types;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.types.ReadonlyType;
 import io.ballerina.runtime.values.RefValue;
 

@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
-import io.ballerina.jvm.util.BLangConstants;
+import io.ballerina.runtime.util.BLangConstants;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
@@ -279,7 +279,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
-import static io.ballerina.jvm.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;

@@ -18,8 +18,8 @@
 
 package org.ballerina.testobserve.tracing.extension;
 
-import io.ballerina.jvm.observability.tracer.InvalidConfigurationException;
-import io.ballerina.jvm.observability.tracer.OpenTracer;
+import io.ballerina.runtime.observability.tracer.InvalidConfigurationException;
+import io.ballerina.runtime.observability.tracer.OpenTracer;
 import io.opentracing.Tracer;
 import io.opentracing.mock.MockTracer;
 

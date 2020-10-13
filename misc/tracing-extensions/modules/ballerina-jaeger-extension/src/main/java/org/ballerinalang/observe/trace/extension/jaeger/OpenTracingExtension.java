@@ -18,8 +18,8 @@
 
 package org.ballerinalang.observe.trace.extension.jaeger;
 
-import io.ballerina.jvm.observability.tracer.InvalidConfigurationException;
-import io.ballerina.jvm.observability.tracer.OpenTracer;
+import io.ballerina.runtime.observability.tracer.InvalidConfigurationException;
+import io.ballerina.runtime.observability.tracer.OpenTracer;
 import io.jaegertracing.Configuration;
 import io.jaegertracing.internal.samplers.ConstSampler;
 import io.jaegertracing.internal.samplers.ProbabilisticSampler;

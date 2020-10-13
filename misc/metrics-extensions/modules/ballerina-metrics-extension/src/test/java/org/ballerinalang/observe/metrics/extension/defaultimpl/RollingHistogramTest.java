@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.observe.metrics.extension.defaultimpl;
 
-import io.ballerina.jvm.observability.metrics.PercentileValue;
-import io.ballerina.jvm.observability.metrics.Snapshot;
-import io.ballerina.jvm.observability.metrics.StatisticConfig;
+import io.ballerina.runtime.observability.metrics.PercentileValue;
+import io.ballerina.runtime.observability.metrics.Snapshot;
+import io.ballerina.runtime.observability.metrics.StatisticConfig;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

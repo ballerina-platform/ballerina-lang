@@ -18,15 +18,15 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.TypeTags;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.types.BTupleType;
-import io.ballerina.jvm.types.BUnionType;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.types.BTupleType;
+import io.ballerina.runtime.types.BUnionType;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -7,7 +7,7 @@ module io.ballerina.language.server.core {
     requires org.apache.commons.lang3;
     requires org.eclipse.lsp4j.jsonrpc;
     requires io.ballerina.lang;
-    requires io.ballerina.jvm;
+    requires io.ballerina.runtime;
     requires org.apache.commons.io;
 //    requires io.ballerina.openapi.convertor;
     requires handlebars;

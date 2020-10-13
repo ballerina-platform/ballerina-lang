@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.pipelining;
 
-import io.ballerina.jvm.util.exceptions.BallerinaConnectorException;
+import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -18,16 +18,16 @@
 
 package org.ballerina.testobserve.listenerendpoint;
 
-import io.ballerina.jvm.api.BRuntime;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.connector.CallableUnitCallback;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.observability.ObservabilityConstants;
-import io.ballerina.jvm.observability.ObserverContext;
-import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.types.AttachedFunction;
+import io.ballerina.runtime.api.BRuntime;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.connector.CallableUnitCallback;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.ObservabilityConstants;
+import io.ballerina.runtime.observability.ObserverContext;
+import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.types.AttachedFunction;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -62,10 +62,10 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import static io.ballerina.jvm.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
+import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
 import static org.ballerina.testobserve.listenerendpoint.Constants.CALLER_TYPE_NAME;
 import static org.ballerina.testobserve.listenerendpoint.Constants.NETTY_CONTEXT_NATIVE_DATA_KEY;
 import static org.ballerina.testobserve.listenerendpoint.Constants.TEST_OBSERVE_PACKAGE;

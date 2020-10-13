@@ -19,7 +19,7 @@ package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.runtime.scheduling.Strand;
 
 /**
  * <p>

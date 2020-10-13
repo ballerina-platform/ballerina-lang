@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.http.websocket;
 
-import io.ballerina.jvm.api.BRuntime;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.types.AttachedFunction;
+import io.ballerina.runtime.api.BRuntime;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.types.AttachedFunction;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

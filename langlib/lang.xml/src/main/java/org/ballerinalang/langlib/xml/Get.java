@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.jvm.XMLNodeType;
-import io.ballerina.jvm.api.values.BXML;
-import io.ballerina.jvm.api.values.BXMLSequence;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.XMLNodeType;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXMLSequence;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
 import java.util.List;
 

@@ -17,9 +17,9 @@
  */
 package org.ballerina.test.listener;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.launch.LaunchListener;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.launch.LaunchListener;
 
 /**
  * Test Launcher Listener used for testing purpose.

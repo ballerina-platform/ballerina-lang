@@ -18,25 +18,25 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.jvm.TypeChecker;
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.TypeTags;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BFunctionPointer;
-import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.types.BFunctionType;
-import io.ballerina.jvm.types.BUnionType;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.types.BFunctionType;
+import io.ballerina.runtime.types.BUnionType;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.PrimitiveIterator;
 
-import static io.ballerina.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INVALID_TYPE_TO_SORT;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.util.BLangConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INVALID_TYPE_TO_SORT;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**

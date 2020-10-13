@@ -173,7 +173,7 @@ public class FilterUtils {
                 BSymbol symbol = firstMemberEntries.get(name).symbol;
                 if (firstMemberType.tag == TypeTags.RECORD /*&& (invocationTokenType == BallerinaParser.DOT
                         || invocationTokenType == BallerinaParser.NOT)*/
-                        && (io.ballerina.jvm.util.Flags.isFlagOn(symbol.flags, Flags.OPTIONAL))) {
+                        && (io.ballerina.runtime.util.Flags.isFlagOn(symbol.flags, Flags.OPTIONAL))) {
                     continue;
                 }
                 resultEntries.add(firstMemberEntries.get(name));

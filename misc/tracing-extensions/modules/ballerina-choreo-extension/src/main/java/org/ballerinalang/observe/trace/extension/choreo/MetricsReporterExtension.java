@@ -16,17 +16,17 @@
 
 package org.ballerinalang.observe.trace.extension.choreo;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.observability.metrics.Counter;
-import io.ballerina.jvm.observability.metrics.DefaultMetricRegistry;
-import io.ballerina.jvm.observability.metrics.Gauge;
-import io.ballerina.jvm.observability.metrics.Metric;
-import io.ballerina.jvm.observability.metrics.PercentileValue;
-import io.ballerina.jvm.observability.metrics.PolledGauge;
-import io.ballerina.jvm.observability.metrics.Snapshot;
-import io.ballerina.jvm.observability.metrics.Tag;
-import io.ballerina.jvm.observability.metrics.spi.MetricReporter;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.observability.metrics.Counter;
+import io.ballerina.runtime.observability.metrics.DefaultMetricRegistry;
+import io.ballerina.runtime.observability.metrics.Gauge;
+import io.ballerina.runtime.observability.metrics.Metric;
+import io.ballerina.runtime.observability.metrics.PercentileValue;
+import io.ballerina.runtime.observability.metrics.PolledGauge;
+import io.ballerina.runtime.observability.metrics.Snapshot;
+import io.ballerina.runtime.observability.metrics.Tag;
+import io.ballerina.runtime.observability.metrics.spi.MetricReporter;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClient;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClientHolder;
 import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;

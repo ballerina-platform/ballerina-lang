@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.observability.metrics.Gauge;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.metrics.Gauge;
 
 /**
  * This is the native getValue function implementation of the Gauge object.

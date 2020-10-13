@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.string;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.internal.ErrorUtils;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.ErrorUtils;
 
 import java.util.Locale;
 

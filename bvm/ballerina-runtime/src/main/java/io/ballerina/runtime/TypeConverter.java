@@ -17,29 +17,29 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.TypeTags;
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.commons.TypeValuePair;
-import io.ballerina.jvm.internal.ErrorUtils;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.types.BField;
-import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.types.BRecordType;
-import io.ballerina.jvm.types.BTableType;
-import io.ballerina.jvm.types.BUnionType;
-import io.ballerina.jvm.util.Flags;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.jvm.util.exceptions.RuntimeErrors;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.DecimalValue;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.commons.TypeValuePair;
+import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.types.BField;
+import io.ballerina.runtime.types.BMapType;
+import io.ballerina.runtime.types.BRecordType;
+import io.ballerina.runtime.types.BTableType;
+import io.ballerina.runtime.types.BUnionType;
+import io.ballerina.runtime.util.Flags;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.DecimalValue;
+import io.ballerina.runtime.values.MapValue;
+import io.ballerina.runtime.values.MapValueImpl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -57,9 +57,9 @@ import static io.ballerina.runtime.TypeChecker.isSigned8LiteralValue;
 import static io.ballerina.runtime.TypeChecker.isUnsigned16LiteralValue;
 import static io.ballerina.runtime.TypeChecker.isUnsigned32LiteralValue;
 import static io.ballerina.runtime.TypeChecker.isUnsigned8LiteralValue;
-import static io.ballerina.jvm.util.BLangConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
-import static io.ballerina.jvm.util.BLangConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
-import static io.ballerina.jvm.values.DecimalValue.isDecimalWithinIntRange;
+import static io.ballerina.runtime.util.BLangConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
+import static io.ballerina.runtime.util.BLangConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
+import static io.ballerina.runtime.values.DecimalValue.isDecimalWithinIntRange;
 
 /**
  * Provides utils methods for casting, stamping and conversion of values.

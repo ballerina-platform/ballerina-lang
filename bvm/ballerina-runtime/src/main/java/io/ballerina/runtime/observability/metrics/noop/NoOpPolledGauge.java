@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.jvm.observability.metrics.noop;
+package io.ballerina.runtime.observability.metrics.noop;
 
-import io.ballerina.jvm.observability.metrics.AbstractMetric;
-import io.ballerina.jvm.observability.metrics.MetricId;
-import io.ballerina.jvm.observability.metrics.PolledGauge;
+import io.ballerina.runtime.observability.metrics.AbstractMetric;
+import io.ballerina.runtime.observability.metrics.MetricId;
+import io.ballerina.runtime.observability.metrics.PolledGauge;
 
 /**
  * Implementation of No-Op {@link PolledGauge}.

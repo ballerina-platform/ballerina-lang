@@ -21,12 +21,12 @@ import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.BValueCreator;
 import io.ballerina.runtime.api.TypeFlags;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.jvm.util.Flags;
+import io.ballerina.runtime.util.Flags;
 import io.ballerina.runtime.values.MapValue;
 import io.ballerina.runtime.values.MapValueImpl;
 

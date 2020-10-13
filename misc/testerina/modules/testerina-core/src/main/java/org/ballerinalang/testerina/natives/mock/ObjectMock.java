@@ -17,21 +17,21 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
-import io.ballerina.jvm.TypeChecker;
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BIterator;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BTypedesc;
-import io.ballerina.jvm.types.AttachedFunction;
-import io.ballerina.jvm.types.BField;
-import io.ballerina.jvm.types.BObjectType;
-import io.ballerina.jvm.types.BUnionType;
-import io.ballerina.jvm.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.types.AttachedFunction;
+import io.ballerina.runtime.types.BField;
+import io.ballerina.runtime.types.BObjectType;
+import io.ballerina.runtime.types.BUnionType;
+import io.ballerina.runtime.util.exceptions.BLangRuntimeException;
 
 import java.util.List;
 import java.util.Map;

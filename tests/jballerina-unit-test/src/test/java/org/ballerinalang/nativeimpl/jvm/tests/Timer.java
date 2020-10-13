@@ -16,9 +16,9 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import io.ballerina.jvm.api.BRuntime;
-import io.ballerina.jvm.api.BalEnv;
-import io.ballerina.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.BRuntime;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.values.ObjectValue;
 
 /**
  * This class is used for Java interoperability tests.

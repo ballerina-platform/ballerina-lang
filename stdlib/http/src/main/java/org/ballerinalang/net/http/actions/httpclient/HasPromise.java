@@ -16,10 +16,10 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
-import io.ballerina.jvm.api.BalEnv;
-import io.ballerina.jvm.api.BalFuture;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.BalFuture;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;

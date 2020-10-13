@@ -31,7 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static io.ballerina.jvm.util.BLangConstants.STRING_NULL_VALUE;
+import static io.ballerina.runtime.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
  * Functionality common to PI, COMMENT and TEXT nodes.

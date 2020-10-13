@@ -22,21 +22,21 @@ import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeFlags;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.types.BField;
-import io.ballerina.jvm.types.BIntersectionType;
-import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.types.BObjectType;
-import io.ballerina.jvm.types.BRecordType;
-import io.ballerina.jvm.types.BTableType;
-import io.ballerina.jvm.types.BTupleType;
-import io.ballerina.jvm.types.BUnionType;
-import io.ballerina.jvm.types.BXMLType;
-import io.ballerina.jvm.util.Flags;
-import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.util.exceptions.BLangFreezeException;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.types.BField;
+import io.ballerina.runtime.types.BIntersectionType;
+import io.ballerina.runtime.types.BMapType;
+import io.ballerina.runtime.types.BObjectType;
+import io.ballerina.runtime.types.BRecordType;
+import io.ballerina.runtime.types.BTableType;
+import io.ballerina.runtime.types.BTupleType;
+import io.ballerina.runtime.types.BUnionType;
+import io.ballerina.runtime.types.BXMLType;
+import io.ballerina.runtime.util.Flags;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.BLangFreezeException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,11 +46,11 @@ import java.util.Map;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.TypeConstants.READONLY_XML_TNAME;
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.jvm.util.BLangConstants.XML_LANG_LIB;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static io.ballerina.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 
 /**
  * Util class for readonly-typed value related operations.

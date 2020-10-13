@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.tool;
 
-import io.ballerina.jvm.api.values.BError;
+import io.ballerina.runtime.api.values.BError;
 
 import java.io.IOException;
 import java.io.PrintStream;

@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.stdlib.services.nativeimpl.response;
 
-import io.ballerina.jvm.XMLFactory;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.XMLSequence;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.XMLSequence;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;

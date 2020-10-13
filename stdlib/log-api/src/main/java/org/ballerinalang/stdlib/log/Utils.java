@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.log;
 
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.scheduling.Scheduler;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
 import org.ballerinalang.logging.util.BLogLevel;
 
 /**

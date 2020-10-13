@@ -29,8 +29,8 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.api.values.BXMLItem;
 import io.ballerina.runtime.api.values.BXMLSequence;
-import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
@@ -53,8 +53,8 @@ import javax.xml.stream.XMLStreamException;
 
 import static io.ballerina.runtime.XMLNodeType.ELEMENT;
 import static io.ballerina.runtime.XMLNodeType.TEXT;
-import static io.ballerina.jvm.util.BLangConstants.STRING_NULL_VALUE;
-import static io.ballerina.jvm.util.BLangConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.util.BLangConstants.STRING_NULL_VALUE;
+import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
 
 /**
  * {@code XMLItem} represents a single XML element in Ballerina.

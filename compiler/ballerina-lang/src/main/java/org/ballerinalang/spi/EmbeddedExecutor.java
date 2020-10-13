@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.spi;
 
-import io.ballerina.jvm.scheduling.StrandMetadata;
+import io.ballerina.runtime.scheduling.StrandMetadata;
 
 import java.util.Optional;
 

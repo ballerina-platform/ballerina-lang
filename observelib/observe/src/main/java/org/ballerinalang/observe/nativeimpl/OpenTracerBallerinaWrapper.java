@@ -19,11 +19,11 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.jvm.observability.ObserveUtils;
-import io.ballerina.jvm.observability.ObserverContext;
-import io.ballerina.jvm.observability.TracingUtils;
-import io.ballerina.jvm.observability.tracer.TracersStore;
-import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.observability.ObserverContext;
+import io.ballerina.runtime.observability.TracingUtils;
+import io.ballerina.runtime.observability.tracer.TracersStore;
+import io.ballerina.runtime.scheduling.Strand;
 import io.opentracing.Tracer;
 import org.ballerinalang.config.ConfigRegistry;
 
@@ -32,9 +32,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
-import static io.ballerina.jvm.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
-import static io.ballerina.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 
 /**
  * This class wraps opentracing apis and exposes extern functions to use within ballerina.

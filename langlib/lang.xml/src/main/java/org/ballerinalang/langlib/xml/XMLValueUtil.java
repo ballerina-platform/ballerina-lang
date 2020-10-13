@@ -1,6 +1,6 @@
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.runtime.api.values.BXML;
 import org.apache.axiom.om.OMComment;
 import org.apache.axiom.om.OMProcessingInstruction;
 

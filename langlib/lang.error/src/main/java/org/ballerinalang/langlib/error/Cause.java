@@ -17,7 +17,7 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import io.ballerina.jvm.api.values.BError;
+import io.ballerina.runtime.api.values.BError;
 
 /**
  * Get error cause.

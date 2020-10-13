@@ -18,13 +18,13 @@
 
 package org.ballerina.testobserve.listenerendpoint;
 
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.types.AttachedFunction;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.types.AttachedFunction;
 
 import java.util.Objects;
 
-import static io.ballerina.jvm.api.TypeConstants.STRING_TNAME;
+import static io.ballerina.runtime.api.TypeConstants.STRING_TNAME;
 import static org.ballerina.testobserve.listenerendpoint.Constants.CALLER_TYPE_NAME;
 import static org.ballerina.testobserve.listenerendpoint.Constants.TEST_OBSERVE_PACKAGE;
 

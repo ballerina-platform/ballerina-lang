@@ -157,7 +157,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
-import static io.ballerina.jvm.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 

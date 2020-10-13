@@ -15,15 +15,15 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package io.ballerina.jvm.transactions;
+package io.ballerina.runtime.api.transactions;
 
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.connector.CallableUnitCallback;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.ballerina.runtime.values.FutureValue;
 import io.ballerina.runtime.values.MapValue;
 import io.ballerina.runtime.values.ObjectValue;
@@ -34,12 +34,12 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
-import static io.ballerina.jvm.transactions.TransactionConstants.COORDINATOR_ABORT_TRANSACTION;
-import static io.ballerina.jvm.transactions.TransactionConstants.TRANSACTION_BLOCK_CLASS_NAME;
-import static io.ballerina.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_FQN;
-import static io.ballerina.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
-import static io.ballerina.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.api.transactions.TransactionConstants.COORDINATOR_ABORT_TRANSACTION;
+import static io.ballerina.runtime.api.transactions.TransactionConstants.TRANSACTION_BLOCK_CLASS_NAME;
+import static io.ballerina.runtime.api.transactions.TransactionConstants.TRANSACTION_PACKAGE_FQN;
+import static io.ballerina.runtime.api.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
+import static io.ballerina.runtime.api.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * Utility methods used in transaction handling.

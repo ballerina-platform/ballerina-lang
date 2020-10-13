@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.pipelining;
 
-import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.net.http.DataContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 

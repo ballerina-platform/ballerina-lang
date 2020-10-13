@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.string;
 
-import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BArray;
 
 import java.nio.charset.StandardCharsets;
 

@@ -16,11 +16,11 @@
  *  under the License.
  */
 
-package io.ballerina.jvm.observability;
+package io.ballerina.runtime.observability;
 
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.jvm.observability.tracer.BSpan;
+import io.ballerina.runtime.observability.tracer.BSpan;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.values.ErrorValue;
@@ -35,27 +35,27 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
-import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
-import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
-import static io.ballerina.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
-import static io.ballerina.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_ACTION;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_CONNECTOR_NAME;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_FUNCTION;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_INVOCATION_POSITION;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_IS_MAIN_ENTRY_POINT;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_IS_REMOTE;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_IS_RESOURCE_ENTRY_POINT;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_IS_WORKER;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_MODULE;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_OBJECT_NAME;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_RESOURCE;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_KEY_SERVICE;
-import static io.ballerina.jvm.observability.ObservabilityConstants.TAG_TRUE_VALUE;
-import static io.ballerina.jvm.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
-import static io.ballerina.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
-import static io.ballerina.jvm.observability.tracer.TraceConstants.KEY_SPAN;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ACTION;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_CONNECTOR_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_FUNCTION;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_INVOCATION_POSITION;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_MAIN_ENTRY_POINT;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_REMOTE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_RESOURCE_ENTRY_POINT;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_WORKER;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_MODULE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_OBJECT_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_RESOURCE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SERVICE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_TRUE_VALUE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_RESOURCE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_SERVICE;
+import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
 
 /**
  * Util class used for observability.

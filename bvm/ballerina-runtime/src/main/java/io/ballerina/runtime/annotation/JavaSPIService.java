@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-package io.ballerina.jvm.annotation;
+package io.ballerina.runtime.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

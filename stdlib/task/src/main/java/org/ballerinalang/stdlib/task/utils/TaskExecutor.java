@@ -17,12 +17,12 @@
 */
 package org.ballerinalang.stdlib.task.utils;
 
-import io.ballerina.jvm.api.BRuntime;
-import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.types.AttachedFunction;
+import io.ballerina.runtime.api.BRuntime;
+import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.types.AttachedFunction;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_VERSION;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;

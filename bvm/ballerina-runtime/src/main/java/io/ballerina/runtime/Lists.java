@@ -19,9 +19,9 @@
 
 package io.ballerina.runtime;
 
-import io.ballerina.jvm.api.TypeTags;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.values.ArrayValue;
 
 /**
  * Common utility methods used for List manipulation.

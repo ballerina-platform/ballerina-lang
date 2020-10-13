@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.config;
 
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.config.ConfigRegistry;
 
 /**

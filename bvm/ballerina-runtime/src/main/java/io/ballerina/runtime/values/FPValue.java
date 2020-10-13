@@ -20,10 +20,10 @@ package io.ballerina.runtime.values;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.jvm.runtime.AsyncUtils;
-import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.util.BLangConstants;
+import io.ballerina.runtime.scheduling.AsyncUtils;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.util.BLangConstants;
 
 import java.util.Map;
 import java.util.function.Consumer;

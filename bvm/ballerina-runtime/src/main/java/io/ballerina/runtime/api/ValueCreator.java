@@ -19,19 +19,19 @@ package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.MapValue;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.values.MapValue;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.ballerina.jvm.util.BLangConstants.ANON_ORG;
-import static io.ballerina.jvm.util.BLangConstants.DOT;
-import static io.ballerina.jvm.util.BLangConstants.EMPTY;
-import static io.ballerina.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
-import static io.ballerina.jvm.util.BLangConstants.VERSION_SEPARATOR;
+import static io.ballerina.runtime.util.BLangConstants.ANON_ORG;
+import static io.ballerina.runtime.util.BLangConstants.DOT;
+import static io.ballerina.runtime.util.BLangConstants.EMPTY;
+import static io.ballerina.runtime.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.runtime.util.BLangConstants.VERSION_SEPARATOR;
 
 /**
  * A {@code ValueCreator} is an API that will be implemented by all the module init classed from jvm codegen.

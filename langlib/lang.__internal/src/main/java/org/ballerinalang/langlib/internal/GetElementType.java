@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.TypeTags;
-import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BTypedesc;
-import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.types.BStreamType;
-import io.ballerina.jvm.types.BTableType;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.types.BArrayType;
+import io.ballerina.runtime.types.BStreamType;
+import io.ballerina.runtime.types.BTableType;
 
 /**
  * Native implementation of lang.internal:getElementType(typedesc).

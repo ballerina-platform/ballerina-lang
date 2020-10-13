@@ -16,9 +16,9 @@
 *  under the License.
 */
 
-package io.ballerina.jvm.launch;
+package io.ballerina.runtime.launch;
 
-import io.ballerina.jvm.util.RuntimeUtils;
+import io.ballerina.runtime.util.RuntimeUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
 
@@ -34,17 +34,17 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.logging.LogManager;
 
-import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
-import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_ENABLED;
-import static io.ballerina.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_ARGS_INIT_PREFIX;
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_ARGS_INIT_PREFIX_LENGTH;
-import static io.ballerina.jvm.util.BLangConstants.CONFIG_FILE_PROPERTY;
-import static io.ballerina.jvm.util.BLangConstants.CONFIG_SEPARATOR;
-import static io.ballerina.jvm.util.BLangConstants.UTIL_LOGGING_CONFIG_CLASS_PROPERTY;
-import static io.ballerina.jvm.util.BLangConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
-import static io.ballerina.jvm.util.BLangConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
-import static io.ballerina.jvm.util.BLangConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_ENABLED;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_ARGS_INIT_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_ARGS_INIT_PREFIX_LENGTH;
+import static io.ballerina.runtime.util.BLangConstants.CONFIG_FILE_PROPERTY;
+import static io.ballerina.runtime.util.BLangConstants.CONFIG_SEPARATOR;
+import static io.ballerina.runtime.util.BLangConstants.UTIL_LOGGING_CONFIG_CLASS_PROPERTY;
+import static io.ballerina.runtime.util.BLangConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
+import static io.ballerina.runtime.util.BLangConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
+import static io.ballerina.runtime.util.BLangConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
 
 /**
  * Util methods to be used during starting and ending a ballerina program.

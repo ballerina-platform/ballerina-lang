@@ -17,8 +17,8 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Get the error message of an error value.

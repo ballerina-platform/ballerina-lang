@@ -18,14 +18,14 @@
 
 package org.ballerinalang.stdlib.mime;
 
-import io.ballerina.jvm.XMLFactory;
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BArray;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.mime.util.EntityBodyChannel;
@@ -78,7 +78,7 @@ public class Util {
     public static BArray getArrayOfBodyParts(ArrayList<BObject> bodyParts) {
         Type typeOfBodyPart = bodyParts.get(0).getType();
         BObject[] result = bodyParts.toArray(new BObject[bodyParts.size()]);
-        return BValueCreator.createArrayValue(result, new io.ballerina.jvm.types.BArrayType(typeOfBodyPart));
+        return BValueCreator.createArrayValue(result, new io.ballerina.runtime.types.BArrayType(typeOfBodyPart));
     }
 
     /**

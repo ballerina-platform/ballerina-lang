@@ -21,8 +21,8 @@ package io.ballerina.runtime.values;
  import io.ballerina.runtime.api.types.Type;
  import io.ballerina.runtime.api.values.BFuture;
  import io.ballerina.runtime.api.values.BLink;
- import io.ballerina.jvm.scheduling.Strand;
- import io.ballerina.jvm.types.BFutureType;
+ import io.ballerina.runtime.scheduling.Strand;
+ import io.ballerina.runtime.types.BFutureType;
 
  import java.util.Map;
  import java.util.StringJoiner;

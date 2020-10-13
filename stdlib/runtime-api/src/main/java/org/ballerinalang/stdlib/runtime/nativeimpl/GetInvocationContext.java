@@ -18,17 +18,17 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
-import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.api.ValueCreator;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.scheduling.Strand;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 
 import java.util.UUID;
 
-import static io.ballerina.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG_ID;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_RUNTIME_PKG_ID;
 
 /**
  * Extern function to get invocation context record.

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.array.utils;
 
-import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.runtime.api.values.BArray;
 
 /**
  * Functional interface for retrieving a value from an array. This is intended to abstract the different use cases of

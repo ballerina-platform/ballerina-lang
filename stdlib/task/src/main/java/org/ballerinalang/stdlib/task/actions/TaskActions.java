@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.stdlib.task.actions;
 
-import io.ballerina.jvm.api.BRuntime;
-import io.ballerina.jvm.api.BalEnv;
-import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.api.values.BString;
+import io.ballerina.runtime.api.BRuntime;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.stdlib.task.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.impl.TaskServerConnectorImpl;
