@@ -132,7 +132,7 @@ function testAnyJsonTypes() returns [boolean, boolean, boolean, boolean] {
     return [aa is json, bb is json, dd is json, ff is json];
 }
 
-function testIsLike1() {
+function testIsLikeForTupleWithRestDescriptor() {
     anydata k1 = [1, 2, 3, 4];
     anydata k2 = k1.cloneReadOnly();
     assertEquals(k2 is [int, int, anydata...], true);

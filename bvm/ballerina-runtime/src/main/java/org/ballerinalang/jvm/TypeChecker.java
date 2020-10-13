@@ -1982,41 +1982,43 @@ public class TypeChecker {
         }
 
         ArrayValue source = (ArrayValue) sourceValue;
-        if (targetType.getRestType() == null && source.size() != targetType.getTupleTypes().size()) {
+        List<BType> targetTypes = new ArrayList<>(targetType.getTupleTypes());
+        int sourceTypeSize = source.size();
+        int targetTypeSize = targetTypes.size();
+        BType targetRestType = targetType.getRestType();
+
+        if (targetRestType == null && sourceTypeSize != targetTypeSize) {
+            return false;
+        }
+        if (targetRestType != null && sourceTypeSize <= targetTypeSize) {
             return false;
         }
 
-        List<BType> targetTypes = new ArrayList<>(targetType.getTupleTypes());
-        if (targetType.getRestType() != null) {
-            if (source.size() <= targetTypes.size()) {
-                return false;
-            } else {
-                int targetTypeSize = source.size() - targetTypes.size();
-                for (int i = 0; i < targetTypeSize; i++) {
-                    targetTypes.add(targetType.getRestType());
-                }
-            }
-        } else {
-            if (source.size() != targetType.getTupleTypes().size()) {
+        for (int i = 0; i < targetTypeSize; i++) {
+            if (!checkTupleElementType(getArrayElementType(source, i), targetTypes.get(i), source.getRefValue(i),
+                    unresolvedValues, allowNumericConversion)) {
                 return false;
             }
         }
 
-        int bound = source.size();
-        for (int i = 0; i < bound; i++) {
-            BType elementType = getArrayElementType(source, i);
-            if (BTypes.isValueType(elementType)) {
-                if (!checkIsType(elementType, targetTypes.get(i), new ArrayList<>())) {
-                    return false;
-                }
-            } else {
-                if (!checkIsLikeType(source.getRefValue(i), targetTypes.get(i), unresolvedValues,
-                        allowNumericConversion)) {
-                    return false;
-                }
+        for (int i = targetTypeSize; i < sourceTypeSize; i++) {
+            if (!checkTupleElementType(getArrayElementType(source, i), targetRestType, source.getRefValue(i),
+                    unresolvedValues, allowNumericConversion)) {
+                return false;
             }
         }
         return true;
+    }
+
+    private static boolean checkTupleElementType(BType sourceElementType, BType targetElementType,
+                                                 Object sourceRefValue, List<TypeValuePair> unresolvedValues,
+                                                 boolean allowNumericConversion) {
+        if (BTypes.isValueType(sourceElementType)) {
+            return checkIsType(sourceElementType, targetElementType, new ArrayList<>());
+        } else {
+            return checkIsLikeType(sourceRefValue, targetElementType, unresolvedValues,
+                    allowNumericConversion);
+        }
     }
 
     private static BType getArrayElementType(ArrayValue source, int elementIndex) {

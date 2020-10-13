@@ -128,7 +128,7 @@ public class TypeTestExprTest {
     }
 
     @Test
-    public void testIsLike() {
-        BRunUtil.invoke(compileResult, "testIsLike1");
+    public void testIsLikeForTupleWithRestDescriptor() {
+        BRunUtil.invoke(compileResult, "testIsLikeForTupleWithRestDescriptor");
     }
 }
