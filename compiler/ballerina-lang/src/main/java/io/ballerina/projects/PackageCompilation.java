@@ -23,16 +23,12 @@ import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.nio.file.AccessDeniedException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -123,9 +119,11 @@ public class PackageCompilation {
             //TODO: add the rt jar - platformLibs?
             if (this.packageContext.defaultModuleContext().bLangPackage().symbol.entryPointExists) {
                 List<PackageId> sortedPackageIds = dependencyGraph.toTopologicallySortedList();
-                List<BLangPackage> bLangPackageList = sortedPackageIds.stream().map(packageResolver::getPackage)
-                        .map(pkg -> pkg.getDefaultModule().getCompilation().bLangPackage())
-                        .collect(Collectors.toList());
+                List<BLangPackage> bLangPackageList = new ArrayList<>();
+                sortedPackageIds.stream().map(packageResolver::getPackage).forEach(pkg -> {
+                    pkg.moduleIds().stream().map(moduleId ->
+                            pkg.module(moduleId).getCompilation().bLangPackage()).forEach(bLangPackageList::add);
+                });
                 try {
                     JarWriter.write(bLangPackageList, filePath);
 
