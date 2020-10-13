@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -47,7 +48,7 @@ public class WhileStatementNodeContext extends AbstractCompletionProvider<WhileS
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> symbol instanceof VariableSymbol)
+                .filter(symbol -> symbol instanceof VariableSymbol || symbol.kind() == SymbolKind.FUNCTION)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getModuleCompletionItems(context));
