@@ -43,11 +43,6 @@ public interface Diagnostic extends Comparable<Diagnostic> {
      */
     interface DiagnosticSource extends Comparable<DiagnosticSource> {
 
-        String getPackageName();
-
-        String getPackageVersion();
-
-        String getCompilationUnitName();
     }
 
     /**

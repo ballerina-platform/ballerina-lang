@@ -1036,8 +1036,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (typeDefinitions.isEmpty()) {
                 // If a type is declared, it should either get defined successfully or added to the unresolved
                 // types list. If a type is not in either one of them, that means it is an undefined type.
-                LocationData locationData = new LocationData(currentTypeNodeName, currentTypeOrClassNode.pos.sLine,
-                        currentTypeOrClassNode.pos.sCol);
+                LocationData locationData = new LocationData(currentTypeNodeName,
+                                                             currentTypeOrClassNode.pos.getStartLine(),
+                                                             currentTypeOrClassNode.pos.getStartColumn());
                 if (unknownTypeRefs.add(locationData)) {
                     dlog.error(currentTypeOrClassNode.pos, DiagnosticCode.UNKNOWN_TYPE, currentTypeNodeName);
                 }
@@ -1073,7 +1074,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public boolean isUnknownTypeRef(BLangUserDefinedType bLangUserDefinedType) {
         LocationData locationData = new LocationData(bLangUserDefinedType.typeName.value,
-                                                     bLangUserDefinedType.pos.sLine, bLangUserDefinedType.pos.sCol);
+                bLangUserDefinedType.pos.getStartLine(), bLangUserDefinedType.pos.getStartColumn());
         return unknownTypeRefs.contains(locationData);
     }
 
@@ -1361,7 +1362,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                    funcNode.hasBody(), symbolPos,
                                                                    getOrigin(funcNode.name.value));
-        funcSymbol.source = funcNode.pos.src.cUnitName;
+        funcSymbol.source = funcNode.pos.lineRange().filePath();
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);

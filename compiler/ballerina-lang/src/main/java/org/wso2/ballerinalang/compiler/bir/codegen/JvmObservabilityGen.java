@@ -103,7 +103,7 @@ class JvmObservabilityGen {
     private static final String ANONYMOUS_SERVICE_IDENTIFIER = "$anonService$";
     private static final String INVOCATION_INSTRUMENTATION_TYPE = "invocation";
     private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "funcBody";
-    private static final DiagnosticPos COMPILE_TIME_CONST_POS = new DiagnosticPos(null, -1, -1, -1, -1);
+    private static final DiagnosticPos COMPILE_TIME_CONST_POS = new DiagnosticPos(null, null, null, -1, -1, -1, -1);
 
     private final PackageCache packageCache;
     private final SymbolTable symbolTable;
@@ -872,7 +872,7 @@ class JvmObservabilityGen {
      * @return The generated ID
      */
     private String generatePositionId(DiagnosticPos pos) {
-        return String.format("%s:%d:%d", pos.src.cUnitName, pos.sLine + 1, pos.sCol + 1);
+        return String.format("%s:%d:%d", pos.lineRange().filePath(), pos.getStartLine() + 1, pos.getStartColumn() + 1);
     }
 
     /**

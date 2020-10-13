@@ -693,7 +693,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.getSource().getCompilationUnitName()));
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -714,7 +714,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.getSource().getCompilationUnitName()));
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -735,7 +735,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.getSource().getCompilationUnitName()));
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -756,7 +756,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.getSource().getCompilationUnitName()));
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;

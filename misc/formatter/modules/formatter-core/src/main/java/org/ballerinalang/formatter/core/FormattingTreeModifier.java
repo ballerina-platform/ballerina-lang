@@ -2755,7 +2755,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return letExpressionNode.modify()
                 .withLetKeyword(formatToken(letKeyword, 0, 1, 0, 0))
                 .withLetVarDeclarations(letVarDeclarations)
-                .withInKeyword(formatToken(inKeyword, getPosition(letExpressionNode).sCol + 4, 1, 1, 0))
+                .withInKeyword(formatToken(inKeyword, getPosition(letExpressionNode).getStartColumn() + 4, 1, 1, 0))
                 .withExpression(expression)
                 .apply();
     }
@@ -3995,7 +3995,7 @@ public class FormattingTreeModifier extends TreeModifier {
     private int getStartColumn(Node node, boolean addSpaces) {
         Node parent = getParent(node, node.kind());
         if (parent != null) {
-            return getPosition(parent).sCol + (addSpaces ? getIndentation(node, 0, options) : 0);
+            return getPosition(parent).getStartColumn() + (addSpaces ? getIndentation(node, 0, options) : 0);
         }
         return 0;
     }

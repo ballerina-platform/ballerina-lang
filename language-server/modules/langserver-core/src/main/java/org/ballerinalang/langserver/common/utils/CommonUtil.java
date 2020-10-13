@@ -179,7 +179,8 @@ public class CommonUtil {
         int endLine = diagnosticPos.getEndLine() - 1;
         int startColumn = diagnosticPos.getStartColumn() - 1;
         int endColumn = diagnosticPos.getEndColumn() - 1;
-        return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
+        return new DiagnosticPos(diagnosticPos.getSource(), diagnosticPos.lineRange().filePath(),
+                diagnosticPos.getPackageID(), startLine, endLine, startColumn, endColumn);
     }
 
     /**
@@ -207,7 +208,10 @@ public class CommonUtil {
         int endLine = diagnosticPos.getEndLine();
         int startColumn = diagnosticPos.getStartColumn();
         int endColumn = diagnosticPos.getEndColumn();
-        return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
+        return new DiagnosticPos(diagnosticPos.getSource(),
+                                 diagnosticPos.lineRange().filePath(),
+                                 diagnosticPos.getPackageID(),
+                                 startLine, endLine, startColumn, endColumn);
     }
 
     public static LSCompletionItem getAnnotationCompletionItem(PackageID moduleID, BAnnotationSymbol annotationSymbol,
@@ -884,7 +888,7 @@ public class CommonUtil {
         String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit ->
-                        cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR)
+                        cUnit.getPosition().lineRange().filePath().replace("/", FILE_SEPARATOR)
                                 .equals(relativeFilePath))
                 .findAny().orElse(null);
         List<TopLevelNode> topLevelNodes = filteredCUnit == null
@@ -1138,7 +1142,7 @@ public class CommonUtil {
     public static Predicate<BLangImportPackage> importInCurrentFilePredicate(LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         //TODO: Removed `importPkg.getWS() != null` check, need to find another way to skip streaming imports
-        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile);
+        return importPkg -> importPkg.pos.lineRange().filePath().replace("/", FILE_SEPARATOR).equals(currentFile);
     }
 
     /**
@@ -1148,7 +1152,7 @@ public class CommonUtil {
      */
     public static Predicate<BLangImportPackage> stdLibImportsNotCachedPredicate(LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
+        return importPkg -> importPkg.pos.lineRange().filePath().replace("/", FILE_SEPARATOR).equals(currentFile)
                 && importPkg.getWS() != null && (importPkg.orgName.value.equals(BALLERINA_ORG_NAME)
                 || importPkg.orgName.value.equals(BALLERINAX_ORG_NAME));
     }

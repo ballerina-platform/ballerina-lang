@@ -279,7 +279,7 @@ public class HttpFiltersDesugar {
      * @return the alias name.
      */
     private String getPackageAlias(SymbolEnv env, BLangNode node) {
-        String compUnitName = node.pos.getSource().getCompilationUnitName();
+        String compUnitName = node.pos.lineRange().filePath();
         for (BLangImportPackage importStmt : env.enclPkg.imports) {
             if (!ORG_NAME.equals(importStmt.symbol.pkgID.orgName.value) ||
                     !PACKAGE_NAME.equals(importStmt.symbol.pkgID.name.value)) {

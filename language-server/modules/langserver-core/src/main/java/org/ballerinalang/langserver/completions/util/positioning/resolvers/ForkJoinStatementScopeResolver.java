@@ -49,10 +49,10 @@ public class ForkJoinStatementScopeResolver extends CursorPositionResolver {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
-        int nodeSLine = zeroBasedPos.sLine;
-        int nodeSCol = zeroBasedPos.sCol;
-        int nodeELine = zeroBasedPos.eLine;
-        int nodeECol = zeroBasedPos.eCol;
+        int nodeSLine = zeroBasedPos.getStartLine();
+        int nodeSCol = zeroBasedPos.getStartColumn();
+        int nodeELine = zeroBasedPos.getEndLine();
+        int nodeECol = zeroBasedPos.getEndColumn();
         BLangForkJoin parent = treeVisitor.getForkJoinStack().peek();
 
         boolean isLastStatement = this.isNodeLastStatement(parent, node);
@@ -76,8 +76,8 @@ public class ForkJoinStatementScopeResolver extends CursorPositionResolver {
             return false;
         } else {
             DiagnosticPos diagnosticPos = CommonUtil.toZeroBasedPosition(parent.pos);
-            int blockOwnerELine = diagnosticPos.eLine;
-            int blockOwnerECol = diagnosticPos.eCol;
+            int blockOwnerELine = diagnosticPos.getEndLine();
+            int blockOwnerECol = diagnosticPos.getEndColumn();
 
             return (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
                     (line > nodeELine || (line == nodeELine && col > nodeECol));

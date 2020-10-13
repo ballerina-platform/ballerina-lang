@@ -37,14 +37,13 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 
 /**
@@ -73,8 +72,8 @@ public class CompletionVisitorUtil {
                                               LSContext lsContext, TreeVisitor treeVisitor) {
         DiagnosticPos zeroBasedPosition = CommonUtil.toZeroBasedPosition(nodePosition);
         int line = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
-        int nodeSLine = zeroBasedPosition.sLine;
-        int nodeELine = zeroBasedPosition.eLine;
+        int nodeSLine = zeroBasedPosition.getStartLine();
+        int nodeELine = zeroBasedPosition.getEndLine();
 
         if ((nodeSLine <= line && nodeELine >= line)) {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries = new HashMap<>();
@@ -113,11 +112,11 @@ public class CompletionVisitorUtil {
         BLangExpression firstExpr = attachedExprs.get(0);
         BLangExpression lastExpr = CommonUtil.getLastItem(attachedExprs);
         DiagnosticPos firstExprPos = CommonUtil.toZeroBasedPosition(firstExpr.pos);
-        int fSLine = firstExprPos.sLine;
-        int fSCol = firstExprPos.sCol;
+        int fSLine = firstExprPos.getStartLine();
+        int fSCol = firstExprPos.getStartColumn();
         DiagnosticPos lastExprPos = CommonUtil.toZeroBasedPosition(lastExpr.pos);
-        int lSLine = lastExprPos.sLine;
-        int lECol = lastExprPos.eCol;
+        int lSLine = lastExprPos.getStartLine();
+        int lECol = lastExprPos.getEndColumn();
 
         if (fSLine <= line && lSLine >= line && (fSCol <= col && lECol >= col)) {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries = new HashMap<>();
@@ -148,8 +147,8 @@ public class CompletionVisitorUtil {
         ArrayList<Whitespace> whitespaces = new ArrayList<>(funcNode.getWS());
         int cursorLine = cursorPosition.getLine();
         int cursorCol = cursorPosition.getCharacter();
-        int sLine = position.sLine;
-        int sCol = position.sCol;
+        int sLine = position.getStartLine();
+        int sCol = position.getStartColumn();
         int openBraceStart = cursorCol;
         int counter = 1;
         
@@ -205,10 +204,10 @@ public class CompletionVisitorUtil {
 
         int cursorLine = cursorPosition.getLine();
         int cursorCol = cursorPosition.getCharacter();
-        int sLine = exprPosition.sLine;
-        int eLine = exprPosition.eLine;
-        int sCol = exprPosition.sCol;
-        int eCol = exprPosition.eCol;
+        int sLine = exprPosition.getStartLine();
+        int eLine = exprPosition.getEndLine();
+        int sCol = exprPosition.getStartColumn();
+        int eCol = exprPosition.getEndColumn();
 
         if ((cursorLine > sLine && cursorLine < eLine)
                 || ((cursorLine == sLine || cursorLine == eLine) && cursorCol >= sCol && cursorCol <= eCol)) {
@@ -291,10 +290,10 @@ public class CompletionVisitorUtil {
         }
 
         DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.pos);
-        int sLine = nodePos.sLine;
-        int eLine = nodePos.eLine;
-        int sCol = nodePos.sCol;
-        int eCol = nodePos.eCol;
+        int sLine = nodePos.getStartLine();
+        int eLine = nodePos.getEndLine();
+        int sCol = nodePos.getStartColumn();
+        int eCol = nodePos.getEndColumn();
 
         if ((cursorLine > sLine && cursorLine < eLine)
                 || (cursorLine == sLine && sCol < cursorCol && eCol > cursorCol)) {
@@ -318,8 +317,8 @@ public class CompletionVisitorUtil {
         int cursorLine = position.getLine();
         int cursorCol = position.getCharacter();
         DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
-        int endLine = nodePos.eLine;
-        int endCol = nodePos.eCol;
+        int endLine = nodePos.getEndLine();
+        int endCol = nodePos.getEndColumn();
 
         return cursorLine < endLine || (cursorLine == endLine && cursorCol < endCol);
     }

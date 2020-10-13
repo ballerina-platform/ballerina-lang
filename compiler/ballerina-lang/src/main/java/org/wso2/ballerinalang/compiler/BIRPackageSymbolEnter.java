@@ -361,7 +361,7 @@ public class BIRPackageSymbolEnter {
                 Symbols.createFunctionSymbol(flags, names.fromString(funcName), this.env.pkgSymbol.pkgID, funcType,
                                              this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE),
                                              pos, toOrigin(origin));
-        invokableSymbol.source = pos.src.cUnitName;
+        invokableSymbol.source = pos.lineRange().filePath();
         invokableSymbol.retType = funcType.retType;
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
@@ -867,7 +867,7 @@ public class BIRPackageSymbolEnter {
         int eLine = dataInStream.readInt();
         int eCol = dataInStream.readInt();
         BDiagnosticSource diagSrc = new BDiagnosticSource(this.env.pkgSymbol.pkgID, cUnitName);
-        return new DiagnosticPos(diagSrc, sLine, eLine, sCol, eCol);
+        return new DiagnosticPos(diagSrc, cUnitName, this.env.pkgSymbol.pkgID, sLine, eLine, sCol, eCol);
     }
 
     // private utility methods

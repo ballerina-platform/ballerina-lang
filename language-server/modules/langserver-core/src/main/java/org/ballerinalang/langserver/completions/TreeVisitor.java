@@ -124,14 +124,13 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 /**
  * @since 0.94
@@ -877,10 +876,10 @@ public class TreeVisitor extends LSNodeVisitor {
         Position position = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int cLine = position.getLine();
         int cCol = position.getCharacter();
-        int sLine = pos.sLine;
-        int eLine = pos.eLine;
-        int sCol = pos.sCol;
-        int eCol = pos.eCol;
+        int sLine = pos.getStartLine();
+        int eLine = pos.getEndLine();
+        int sCol = pos.getStartColumn();
+        int eCol = pos.getEndColumn();
 
         if ((sLine < cLine && eLine > cLine) || (sLine == cLine && eLine == cLine && cCol >= sCol && cCol <= eCol)) {
             throw new CompletionContextNotSupportedException("Completion within Literals are not Supported");

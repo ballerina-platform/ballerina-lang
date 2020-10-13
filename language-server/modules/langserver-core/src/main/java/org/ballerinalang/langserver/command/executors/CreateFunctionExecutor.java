@@ -173,14 +173,14 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             if (!nodeLocation.getRight()) {
                 prependLineFeed = false;
             }
-            eLine = nodeLocation.getLeft().eLine - 1;
-            String cUnitName = nodeLocation.getLeft().src.cUnitName;
+            eLine = nodeLocation.getLeft().getEndLine() - 1;
+            String cUnitName = nodeLocation.getLeft().lineRange().filePath();
             String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
-            String pkgName = nodeLocation.getLeft().src.pkgID.name.toString();
+            String pkgName = nodeLocation.getLeft().getPackageID().name.toString();
             String uri = new File(sourceRoot).toPath().resolve("src").resolve(pkgName)
                     .resolve(cUnitName).toUri().toString();
             textDocumentIdentifier.setUri(uri);
-            if (!nodeLocation.getLeft().src.pkgID.equals(functionNode.pos.src.pkgID)) {
+            if (!nodeLocation.getLeft().getPackageID().equals(functionNode.pos.getPackageID())) {
                 modifiers += "public ";
             }
         }

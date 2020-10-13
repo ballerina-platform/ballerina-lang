@@ -719,7 +719,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // marks the injected import as used
         Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
-        Name compUnitName = names.fromString(transactionNode.pos.getSource().getCompilationUnitName());
+        Name compUnitName = names.fromString(transactionNode.pos.lineRange().filePath());
         this.symResolver.resolvePrefixSymbol(env, transactionPkgName, compUnitName);
     }
 

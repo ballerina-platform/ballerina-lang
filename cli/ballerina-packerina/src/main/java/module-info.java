@@ -2,6 +2,7 @@ module io.ballerina.packerina {
     requires io.ballerina.lang;
     requires io.ballerina.cli.module;
     requires io.ballerina.tool;
+    requires io.ballerina.tools.api;
     requires io.ballerina.jvm;
     requires toml4j;
     requires info.picocli;

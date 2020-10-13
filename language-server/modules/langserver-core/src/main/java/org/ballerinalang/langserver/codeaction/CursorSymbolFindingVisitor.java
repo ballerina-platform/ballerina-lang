@@ -82,10 +82,12 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
         this.currentCUnitMode = currentCUnitMode;
         this.pkgName = pkgName;
         this.isWithinNode = zeroBasedPos ->
-                ((cursorLine == zeroBasedPos.sLine && cursorCol >= zeroBasedPos.sCol && cursorCol <= zeroBasedPos.eCol)
-                        || (zeroBasedPos.sLine == zeroBasedPos.eLine && cursorLine == zeroBasedPos.eLine &&
-                        cursorCol <= zeroBasedPos.eCol)
-                        || (cursorLine > zeroBasedPos.sLine && cursorLine < zeroBasedPos.eLine));
+                ((cursorLine == zeroBasedPos.getStartLine() && cursorCol >= zeroBasedPos.getStartColumn()
+                        && cursorCol <= zeroBasedPos.getEndColumn())
+                        || (zeroBasedPos.getStartLine() == zeroBasedPos.getEndLine()
+                        && cursorLine == zeroBasedPos.getEndLine() &&
+                        cursorCol <= zeroBasedPos.getEndColumn())
+                        || (cursorLine > zeroBasedPos.getStartLine() && cursorLine < zeroBasedPos.getEndLine()));
     }
 
     @Override
@@ -104,8 +106,8 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;
         SymbolReferencesModel.Reference ref = this.getSymbolReference(zeroBasedPos, bSymbol, bLangNode);
-        if (this.cursorLine == zeroBasedPos.sLine && this.cursorCol >= zeroBasedPos.sCol
-                && this.cursorCol <= zeroBasedPos.eCol) {
+        if (this.cursorLine == zeroBasedPos.getStartLine() && this.cursorCol >= zeroBasedPos.getStartColumn()
+                && this.cursorCol <= zeroBasedPos.getEndColumn()) {
             // This is the symbol at current cursor position
             this.symbolReferences.setReferenceAtCursor(ref);
         }
@@ -126,8 +128,10 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
         List<TopLevelNode> filteredNodes = topLevelNodes.stream().filter(topLevelNode -> {
             Diagnostic.DiagnosticPosition position = topLevelNode.getPosition();
             DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(
-                    new DiagnosticPos(null, position.getStartLine(), position.getEndLine(), position.getStartColumn(),
-                                      position.getEndColumn()));
+                    new DiagnosticPos(null, null, null, position.getStartLine(),
+                                                        position.getEndLine(),
+                                                        position.getStartColumn(),
+                                                        position.getEndColumn()));
             boolean isLambda = false;
             if (topLevelNode instanceof BLangFunction) {
                 BLangFunction func = (BLangFunction) topLevelNode;

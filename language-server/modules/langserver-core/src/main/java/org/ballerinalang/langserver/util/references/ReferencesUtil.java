@@ -299,8 +299,8 @@ public class ReferencesUtil {
     }
 
     private static Range getRange(DiagnosticPos referencePos) {
-        Position start = new Position(referencePos.sLine, referencePos.sCol);
-        Position end = new Position(referencePos.eLine, referencePos.eCol);
+        Position start = new Position(referencePos.getStartLine(), referencePos.getStartColumn());
+        Position end = new Position(referencePos.getEndLine(), referencePos.getEndColumn());
         return new Range(start, end);
     }
 }

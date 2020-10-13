@@ -120,7 +120,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     }
 
     private String generateHash(BLangCompilationUnit compUnit, String basePath) {
-        return compUnit.getPosition().getSource().pkgID.toString() + "$" + basePath + "$" + compUnit.getName();
+        return compUnit.getPackageID().toString() + "$" + basePath + "$" + compUnit.getName();
     }
 
     @Override

@@ -111,15 +111,15 @@ public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
                                 && !hasReturnKeyword(func.returnTypeNode,
                                                      documentManager.getTree(filePath.get()))) {
                             // eg. function test() {...}
-                            start = new Position(func.returnTypeNode.pos.sLine - 1,
-                                                 func.returnTypeNode.pos.eCol - 1);
-                            end = new Position(func.returnTypeNode.pos.eLine - 1, func.returnTypeNode.pos.eCol - 1);
+                            start = new Position(func.returnTypeNode.pos.getStartLine() - 1,
+                                                 func.returnTypeNode.pos.getEndColumn() - 1);
+                            end = new Position(func.returnTypeNode.pos.getEndLine() - 1, func.returnTypeNode.pos.getEndColumn() - 1);
                             editText = " returns (" + editText + ")";
                         } else {
                             // eg. function test() returns () {...}
-                            start = new Position(func.returnTypeNode.pos.sLine - 1,
-                                                 func.returnTypeNode.pos.sCol - 1);
-                            end = new Position(func.returnTypeNode.pos.eLine - 1, func.returnTypeNode.pos.eCol - 1);
+                            start = new Position(func.returnTypeNode.pos.getStartLine() - 1,
+                                                 func.returnTypeNode.pos.getStartColumn() - 1);
+                            end = new Position(func.returnTypeNode.pos.getEndLine() - 1, func.returnTypeNode.pos.getEndColumn() - 1);
                         }
                         edits.add(new TextEdit(new Range(start, end), editText));
 
@@ -137,7 +137,7 @@ public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
 
     private static boolean hasReturnKeyword(BLangType returnTypeNode, SyntaxTree tree) {
         if (tree.rootNode().kind() == SyntaxKind.MODULE_PART) {
-            Token token = ((ModulePartNode) tree.rootNode()).findToken(returnTypeNode.pos.sCol);
+            Token token = ((ModulePartNode) tree.rootNode()).findToken(returnTypeNode.pos.getStartColumn());
             return token.kind() == SyntaxKind.RETURN_KEYWORD;
         }
         return false;

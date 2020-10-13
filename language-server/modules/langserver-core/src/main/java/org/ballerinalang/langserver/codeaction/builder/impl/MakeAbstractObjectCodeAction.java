@@ -67,7 +67,7 @@ public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
         Iterator<Whitespace> iterator = whitespaces.iterator();
 
         String commandTitle = String.format(CommandConstants.MAKE_OBJ_ABSTRACT_TITLE, simpleObjName);
-        int colBeforeObjKeyword = objType.get().pos.sCol;
+        int colBeforeObjKeyword = objType.get().pos.getStartColumn();
         boolean isFirst = true;
         StringBuilder str = new StringBuilder();
         while (iterator.hasNext()) {
@@ -85,7 +85,7 @@ public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
         colBeforeObjKeyword += str.toString().length();
 
         String editText = " abstract";
-        Position pos = new Position(objType.get().pos.sLine - 1, colBeforeObjKeyword - 1);
+        Position pos = new Position(objType.get().pos.getStartLine() - 1, colBeforeObjKeyword - 1);
 
         List<TextEdit> edits = Collections.singletonList(new TextEdit(new Range(pos, pos), editText));
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));

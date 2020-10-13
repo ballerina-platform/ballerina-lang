@@ -38,12 +38,12 @@ public class BIRWriterUtils {
         int eCol = Integer.MIN_VALUE;
         String sourceFileName = "";
         if (pos != null) {
-            sLine = pos.sLine;
-            eLine = pos.eLine;
-            sCol = pos.sCol;
-            eCol = pos.eCol;
-            if (pos.src != null) {
-                sourceFileName = pos.src.cUnitName;
+            sLine = pos.getStartLine();
+            eLine = pos.getEndLine();
+            sCol = pos.getStartColumn();
+            eCol = pos.getEndColumn();
+            if (pos.getSource() != null) {
+                sourceFileName = pos.lineRange().filePath();
             }
         }
         buf.writeInt(addStringCPEntry(sourceFileName, cp));

@@ -76,8 +76,8 @@ public class SymbolReferencesModel {
             this.symbolPkgName = (symbol != null)
                     ? symbol.pkgID.nameComps.stream().map(Name::getValue).collect(Collectors.joining("."))
                     : "";
-            this.compilationUnit = position.src.cUnitName;
-            this.sourcePkgName = position.src.pkgID.name.value;
+            this.compilationUnit = position.lineRange().filePath();
+            this.sourcePkgName = position.getPackageID().name.value;
         }
 
         public DiagnosticPos getPosition() {

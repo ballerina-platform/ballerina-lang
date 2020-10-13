@@ -94,7 +94,7 @@ public class OptimizeImportsCodeAction implements NodeBasedCodeAction {
         List<TextEdit> edits = new ArrayList<>();
 
         // Find the imports range
-        int importSLine = fileImports.get(0).pos.sLine - 1;
+        int importSLine = fileImports.get(0).pos.getStartLine() - 1;
         List<Range> importLines = new ArrayList<>();
         for (int i = 0; i < fileImports.size(); i++) {
             BLangImportPackage importPkg = fileImports.get(i);
@@ -105,13 +105,13 @@ public class OptimizeImportsCodeAction implements NodeBasedCodeAction {
             String version = importPkg.version.value;
 
             // Get imports starting line
-            if (importSLine > pos.sLine) {
-                importSLine = pos.sLine - 1;
+            if (importSLine > pos.getStartLine()) {
+                importSLine = pos.getStartLine() - 1;
             }
 
             // Mark locations of the imports
-            Range range = new Range(new Position(pos.sLine - 1, pos.sCol - 1),
-                                    new Position(pos.eLine - 1, pos.eCol - 1));
+            Range range = new Range(new Position(pos.getStartLine() - 1, pos.getStartColumn() - 1),
+                                    new Position(pos.getEndLine() - 1, pos.getEndColumn() - 1));
             importLines.add(range);
 
             // Remove any matching imports on-the-go

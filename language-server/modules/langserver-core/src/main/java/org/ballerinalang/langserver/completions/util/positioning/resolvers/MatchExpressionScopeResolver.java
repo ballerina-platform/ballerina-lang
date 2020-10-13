@@ -59,7 +59,7 @@ public class MatchExpressionScopeResolver extends CursorPositionResolver {
         if ((line < nodeLine) || (line == nodeLine && col < nodeCol)) {
             isBeforeNode = true;
         } else if (patternClauseList.indexOf(node) == patternClauseList.size() - 1) {
-            isBeforeNode = (line < matchNodePos.getEndLine()) 
+            isBeforeNode = (line < matchNodePos.getEndLine())
                     || (line == matchNodePos.getEndLine() && col < matchNodePos.getEndColumn());
         }
         

@@ -172,6 +172,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
 
+import javax.xml.XMLConstants;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -181,8 +182,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
-import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
@@ -351,12 +350,12 @@ public class BIRGen extends BLangNodeVisitor {
                         // Replace the function call with the equivalent $MOCK_ substitiute
                         String desugarFunction = "$MOCK_" + callTerminator.name.getValue();
                         callTerminator.name = new Name(desugarFunction);
-                        callTerminator.calleePkg = function.pos.src.pkgID;
+                        callTerminator.calleePkg = function.pos.getPackageID();
                     } else if (mockFunctionMap.get(legacyKey) != null) {
                         // Just "get" the reference. If this doesnt work then it doesnt exist
                         String mockfunctionName = mockFunctionMap.get(legacyKey);
                         callTerminator.name = new Name(mockfunctionName);
-                        callTerminator.calleePkg = function.pos.src.pkgID;
+                        callTerminator.calleePkg = function.pos.getPackageID();
                     }
                 }
             }

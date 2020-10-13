@@ -27,29 +27,12 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
  */
 public class BDiagnosticSource implements Diagnostic.DiagnosticSource {
 
-    public PackageID pkgID;
-    public String cUnitName;
+    private PackageID pkgID;
+    private String cUnitName;
 
     public BDiagnosticSource(PackageID packageID, String compUnitName) {
         this.pkgID = packageID;
         this.cUnitName = compUnitName;
-    }
-
-    @Override
-    @Deprecated
-    public String getPackageName() {
-        return pkgID.name.value;
-    }
-
-    @Override
-    @Deprecated
-    public String getPackageVersion() {
-        return pkgID.version.value;
-    }
-
-    @Override
-    public String getCompilationUnitName() {
-        return cUnitName;
     }
 
     @Override
@@ -71,10 +54,10 @@ public class BDiagnosticSource implements Diagnostic.DiagnosticSource {
 
     @Override
     public int compareTo(Diagnostic.DiagnosticSource diagnosticSource) {
-        String thisDiagnosticSourceString = pkgID.name.value + pkgID.version.value + getCompilationUnitName();
+        String thisDiagnosticSourceString = pkgID.name.value + pkgID.version.value + cUnitName;
         String otherDiagnosticSourceString = ((BDiagnosticSource) diagnosticSource).pkgID.name.value +
                 ((BDiagnosticSource) diagnosticSource).pkgID.getPackageVersion().value +
-                diagnosticSource.getCompilationUnitName();
+                ((BDiagnosticSource) diagnosticSource).cUnitName;
         return thisDiagnosticSourceString.compareTo(otherDiagnosticSourceString);
     }
 }

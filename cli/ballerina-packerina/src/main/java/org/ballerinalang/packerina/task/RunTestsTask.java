@@ -258,7 +258,7 @@ public class RunTestsTask implements Task {
             String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                                                                        bLangPackage.packageID.name.value,
                                                                        bLangPackage.packageID.version.value,
-                                                                       getClassName(function.pos.src.cUnitName));
+                                                                       getClassName(function.pos.lineRange().filePath()));
             suite.addTestUtilityFunction(function.name.value, functionClassName);
         });
         // add test functions
@@ -270,7 +270,7 @@ public class RunTestsTask implements Task {
                 String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                                                                            bLangPackage.packageID.name.value,
                                                                            bLangPackage.packageID.version.value,
-                                                                           getClassName(function.pos.src.cUnitName));
+                                                                           getClassName(function.pos.lineRange().filePath()));
                 suite.addTestUtilityFunction(function.name.value, functionClassName);
             });
         } else {

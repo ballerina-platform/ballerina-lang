@@ -121,13 +121,13 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             throws WorkspaceDocumentException, IOException {
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         BLangNode bLangNode = referenceAtCursor.getbLangNode();
-        Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
-        Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);
-        Position endPos = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol - 1);
+        Position startPos = new Position(bLangNode.pos.getStartLine() - 1, bLangNode.pos.getStartColumn() - 1);
+        Position endPosWithSemiColon = new Position(bLangNode.pos.getEndLine() - 1, bLangNode.pos.getEndColumn());
+        Position endPos = new Position(bLangNode.pos.getEndLine() - 1, bLangNode.pos.getEndColumn() - 1);
         Range newTextRange = new Range(startPos, endPosWithSemiColon);
 
         List<TextEdit> edits = new ArrayList<>();
-        String spaces = StringUtils.repeat('\t', bLangNode.pos.sCol - 1);
+        String spaces = StringUtils.repeat('\t', bLangNode.pos.getStartColumn() - 1);
         String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
         String content = CommandUtil.getContentOfRange(docManager, uri, new Range(startPos, endPos));
         // Remove last line feed

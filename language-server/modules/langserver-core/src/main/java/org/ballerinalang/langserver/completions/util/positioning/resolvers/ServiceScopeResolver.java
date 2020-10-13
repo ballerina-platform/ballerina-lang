@@ -49,8 +49,8 @@ public class ServiceScopeResolver extends CursorPositionResolver {
         DiagnosticPos zeroBasedPo = CommonUtil.toZeroBasedPosition(nodePosition);
         int line = position.getLine();
         int col = position.getCharacter();
-        int nodeSLine = zeroBasedPo.sLine;
-        int nodeSCol = zeroBasedPo.sCol;
+        int nodeSLine = zeroBasedPo.getStartLine();
+        int nodeSCol = zeroBasedPo.getStartColumn();
 
         if (line < nodeSLine
                 || (line == nodeSLine && col <= nodeSCol)

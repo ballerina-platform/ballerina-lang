@@ -57,12 +57,12 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
-        int nodeSLine = zeroBasedPos.sLine;
-        int nodeSCol = zeroBasedPos.sCol;
+        int nodeSLine = zeroBasedPos.getStartLine();
+        int nodeSCol = zeroBasedPos.getStartColumn();
         // node endLine for the BLangIf node has to calculate by considering the else node. End line of the BLangIf
         // node is the endLine of the else node.
-        int nodeELine = node instanceof BLangIf ? getIfElseNodeEndLine((BLangIf) node) : zeroBasedPos.eLine;
-        int nodeECol = zeroBasedPos.eCol;
+        int nodeELine = node instanceof BLangIf ? getIfElseNodeEndLine((BLangIf) node) : zeroBasedPos.getEndLine();
+        int nodeECol = zeroBasedPos.getEndColumn();
 
         BlockNode bLangBlockStmt = treeVisitor.getBlockStmtStack().peek();
         Node blockOwner = treeVisitor.getBlockOwnerStack().peek();
@@ -196,7 +196,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         BLangIf ifNode = bLangIf;
         while (true) {
             if (ifNode.elseStmt == null) {
-                return CommonUtil.toZeroBasedPosition(ifNode.getPosition()).eLine;
+                return CommonUtil.toZeroBasedPosition(ifNode.getPosition()).getEndLine();
             } else if (ifNode.elseStmt instanceof BLangIf) {
                 ifNode = (BLangIf) ifNode.elseStmt;
             } else {

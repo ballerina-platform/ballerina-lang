@@ -124,7 +124,7 @@ public class ImplementFunctionsCodeAction implements DiagBasedCodeAction {
         String modifiers = (isPublic) ? "public " : "";
         String editText = FunctionGenerator.createFunction(function.funcName.value, funcArgs, returnType, returnValue,
                                                            modifiers, false, StringUtils.repeat(' ', 4));
-        Position editPos = new Position(object.pos.eLine - 1, 0);
+        Position editPos = new Position(object.pos.getEndLine() - 1, 0);
         edits.addAll(importsAcceptor.getNewImportTextEdits());
         edits.add(new TextEdit(new Range(editPos, editPos), editText));
         return edits;

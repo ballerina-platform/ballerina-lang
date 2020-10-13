@@ -78,6 +78,7 @@ public class BallerinaSemanticModel implements SemanticModel {
                 symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(compilationUnit, linePosition));
 
         DiagnosticPos cursorPos = new DiagnosticPos(new BDiagnosticSource(bLangPackage.packageID, compilationUnit.name),
+                                                    compilationUnit.name, bLangPackage.packageID,
                                                     linePosition.line(), linePosition.line(),
                                                     linePosition.offset(), linePosition.offset());
 

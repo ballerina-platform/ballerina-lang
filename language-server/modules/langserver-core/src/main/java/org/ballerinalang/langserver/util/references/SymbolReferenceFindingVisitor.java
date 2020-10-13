@@ -1034,8 +1034,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;
         SymbolReferencesModel.Reference ref = this.getSymbolReference(zeroBasedPos, bSymbol, bLangNode);
-        if (this.currentCUnitMode && this.cursorLine == zeroBasedPos.sLine && this.cursorCol >= zeroBasedPos.sCol
-                && this.cursorCol <= zeroBasedPos.eCol) {
+        if (this.currentCUnitMode && this.cursorLine == zeroBasedPos.getStartLine() && this.cursorCol >= zeroBasedPos.getStartColumn()
+                && this.cursorCol <= zeroBasedPos.getEndColumn()) {
             // This is the symbol at current cursor position
             this.symbolReferences.setReferenceAtCursor(ref);
             if (isDefinition) {
@@ -1073,8 +1073,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         return this.workerLambdas.stream()
                 .filter(function -> {
                     DiagnosticPos namePosition = function.defaultWorkerName.getPosition();
-                    return namePosition.sLine == position.sLine && namePosition.eLine == position.eLine
-                            && namePosition.sCol == position.sCol && namePosition.eCol == position.eCol;
+                    return namePosition.getStartLine() == position.getStartLine() && namePosition.getEndLine() == position.getEndLine()
+                            && namePosition.getStartColumn() == position.getStartColumn() && namePosition.getEndColumn() == position.getEndColumn();
                 })
                 .findAny();
     }
@@ -1097,8 +1097,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         return this.workerVarDefMap.entrySet().stream()
                 .filter(workerPos -> {
                     DiagnosticPos posValue = workerPos.getValue();
-                    return posValue.sLine == pos.sLine && posValue.eLine == pos.eLine
-                            && posValue.sCol == pos.sCol && posValue.eCol == pos.eCol;
+                    return posValue.getStartLine() == pos.getStartLine() && posValue.getEndLine() == pos.getEndLine()
+                            && posValue.getStartColumn() == pos.getStartColumn() && posValue.getEndColumn() == pos.getEndColumn();
                 })
                 .findAny()
                 .map(Map.Entry::getKey)
@@ -1119,8 +1119,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         }
         DiagnosticPos diagnosticPos = bLangType.pos;
         BObjectType objectType = (BObjectType) bLangType.type;
-        DiagnosticPos pos = new DiagnosticPos(diagnosticPos.src, diagnosticPos.sLine, diagnosticPos.eLine,
-                diagnosticPos.sCol, diagnosticPos.eCol);
+        DiagnosticPos pos = new DiagnosticPos(diagnosticPos.getSource(),
+                diagnosticPos.lineRange().filePath(),
+                diagnosticPos.getPackageID(), diagnosticPos.getStartLine(), diagnosticPos.getEndLine(),
+                diagnosticPos.getStartColumn(), diagnosticPos.getEndColumn());
         this.addSymbol(bLangType, objectType.tsymbol, false, pos);
     }
 }

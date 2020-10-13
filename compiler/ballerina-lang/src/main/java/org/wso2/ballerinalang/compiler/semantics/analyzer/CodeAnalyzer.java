@@ -396,7 +396,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         // To ensure the order of the compile errors
-        bLangFunctionList.sort(Comparator.comparingInt(function -> function.pos.sLine));
+        bLangFunctionList.sort(Comparator.comparingInt(function -> function.pos.getStartLine()));
         for (BLangFunction function : bLangFunctionList) {
             this.analyzeNode(function, objectEnv);
         }
@@ -2808,7 +2808,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         // To ensure the order of the compile errors
-        bLangFunctionList.sort(Comparator.comparingInt(function -> function.pos.sLine));
+        bLangFunctionList.sort(Comparator.comparingInt(function -> function.pos.getStartLine()));
         for (BLangFunction function : bLangFunctionList) {
             this.analyzeNode(function, objectEnv);
         }

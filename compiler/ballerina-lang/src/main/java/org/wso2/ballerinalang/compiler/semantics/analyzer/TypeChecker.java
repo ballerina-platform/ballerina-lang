@@ -6978,7 +6978,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private Name getCurrentCompUnit(BLangNode node) {
-        return names.fromString(node.pos.getSource().getCompilationUnitName());
+        return names.fromString(node.pos.lineRange().filePath());
     }
 
     private BType getRepresentativeBroadType(List<BType> inferredTypeList) {

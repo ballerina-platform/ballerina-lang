@@ -100,8 +100,8 @@ class AIDataMapperCodeActionUtil {
 
         // Insert function call in the code where error is found
         BLangNode bLangNode = refAtCursor.getbLangNode();
-        Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
-        Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);
+        Position startPos = new Position(bLangNode.pos.getStartLine() - 1, bLangNode.pos.getStartColumn() - 1);
+        Position endPosWithSemiColon = new Position(bLangNode.pos.getEndLine() - 1, bLangNode.pos.getEndColumn());
         Range newTextRange = new Range(startPos, endPosWithSemiColon);
 
         BSymbol symbolAtCursor = refAtCursor.getSymbol();

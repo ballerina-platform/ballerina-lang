@@ -74,7 +74,7 @@ public class SemanticHighlightProvider {
         Map<Integer, int[]> lineInfo = new HashMap<>();
         ArrayList<SemanticHighlightingInformation> highlightsArr = new ArrayList<>();
         context.get(SemanticHighlightingKeys.SEMANTIC_HIGHLIGHTING_KEY).forEach(element-> {
-            int line = element.identifier.pos.sLine - 1;
+            int line = element.identifier.pos.getStartLine() - 1;
             int[] token = getToken(element);
 
             if (lineInfo.get(line) != null) {
@@ -92,8 +92,8 @@ public class SemanticHighlightProvider {
     }
 
     private static int[] getToken(HighlightInfo element) {
-        int character = element.identifier.pos.sCol - 1;
-        int length = element.identifier.pos.eCol - element.identifier.pos.sCol;
+        int character = element.identifier.pos.getStartColumn() - 1;
+        int length = element.identifier.pos.getEndColumn() - element.identifier.pos.getStartColumn();
         int scope = element.scopeEnum.getScopeId();
 
         SemanticHighlightingToken highlightingToken = new SemanticHighlightingToken(character, length, scope);
