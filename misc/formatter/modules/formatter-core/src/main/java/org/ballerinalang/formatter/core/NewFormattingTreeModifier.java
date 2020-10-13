@@ -1668,7 +1668,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public MarkdownDocumentationNode transform(MarkdownDocumentationNode markdownDocumentationNode) {
         NodeList<Node> documentationLines = formatNodeList(markdownDocumentationNode.documentationLines(),
-                0, 0, this.trailingWS, this.trailingNL);
+                0, 1, this.trailingWS, this.trailingNL);
 
         return markdownDocumentationNode.modify()
                 .withDocumentationLines(documentationLines)
