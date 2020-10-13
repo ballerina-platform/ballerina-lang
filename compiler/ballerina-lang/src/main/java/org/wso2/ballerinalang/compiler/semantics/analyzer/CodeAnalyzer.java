@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -419,6 +420,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
 
         analyzeNode(bLangErrorVariableDef.errorVariable, this.env);
+    }
+
+    public void visit(BLangResourceFunction funcNode) {
+        visit((BLangFunction) funcNode);
     }
 
     @Override

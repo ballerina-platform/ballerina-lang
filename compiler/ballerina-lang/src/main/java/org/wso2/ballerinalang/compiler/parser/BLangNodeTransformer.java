@@ -631,8 +631,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         StringBuilder sb = new StringBuilder();
         sb.append("$");
         sb.append(createIdentifier(accessorName).getValue());
+        sb.append("$");
         for (Token token : relativeResourcePath) {
-            sb.append("$");
             sb.append(createIdentifier(token).getValue());
         }
         String resourceFuncName = sb.toString();

@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
@@ -384,6 +385,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangResourceFunction funcNode) {
+        visit((BLangFunction) funcNode);
+    }
+
+    @Override
     public void visit(BLangFunction funcNode) {
         if (funcNode.flagSet.contains(Flag.LAMBDA)) {
             funcNode.symbol.taintTable = null;
@@ -405,7 +411,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         analysisState.restParam = funcNode.restParam;
 
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        if (funcNode.flagSet.contains(Flag.RESOURCE) || CompilerUtils.isMainFunction(funcNode)) {
+        boolean isResourceFuncDef = funcNode.flagSet.contains(Flag.RESOURCE) && !funcNode.interfaceFunction;
+        if (isResourceFuncDef || CompilerUtils.isMainFunction(funcNode)) {
             // This is to analyze the entry-point function and attach taint table to it.
             entryPointPreAnalysis = true;
             boolean isBlocked = visitInvokable(funcNode, funcEnv);

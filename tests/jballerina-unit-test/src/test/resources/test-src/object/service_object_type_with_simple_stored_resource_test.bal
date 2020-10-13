@@ -16,7 +16,7 @@
 
 public type ServiceOne service object {
     resource string message;
-    resource function get detail\name\otherBit() returns string;
+    resource function get detail/name/otherBit() returns string;
 };
 
 public type ServiceTwo service object {

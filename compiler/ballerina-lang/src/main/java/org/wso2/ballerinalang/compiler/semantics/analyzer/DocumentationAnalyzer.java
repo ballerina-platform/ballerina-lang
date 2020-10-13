@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -145,6 +146,11 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         validateReferences(varNode);
         validateDeprecationDocumentation(varNode.markdownDocumentationAttachment, false, varNode.pos);
         validateDeprecatedParametersDocumentation(varNode.markdownDocumentationAttachment, varNode.pos);
+    }
+
+    @Override
+    public void visit(BLangResourceFunction funcNode) {
+        visit((BLangFunction) funcNode);
     }
 
     @Override
