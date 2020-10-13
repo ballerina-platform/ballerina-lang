@@ -139,6 +139,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -1051,13 +1052,18 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+        
+    }
+
+    @Override
     public void visit(BLangDo doNode) {
         this.acceptNode(doNode.body, symbolEnv);
     }
 
     @Override
     public void visit(BLangMatchStatement matchStatementNode) {
-        
+
     }
 
     private void acceptNode(BLangNode node, SymbolEnv env) {
