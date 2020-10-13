@@ -1197,17 +1197,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         MetadataNode metadata =
                 modifyNode(annotationDeclarationNode.metadata().orElse(null));
         Token visibilityQualifier =
-                modifyToken(annotationDeclarationNode.visibilityQualifier());
+                modifyToken(annotationDeclarationNode.visibilityQualifier().orElse(null));
         Token constKeyword =
-                modifyToken(annotationDeclarationNode.constKeyword());
+                modifyToken(annotationDeclarationNode.constKeyword().orElse(null));
         Token annotationKeyword =
                 modifyToken(annotationDeclarationNode.annotationKeyword());
         Node typeDescriptor =
-                modifyNode(annotationDeclarationNode.typeDescriptor());
+                modifyNode(annotationDeclarationNode.typeDescriptor().orElse(null));
         Token annotationTag =
                 modifyToken(annotationDeclarationNode.annotationTag());
         Token onKeyword =
-                modifyToken(annotationDeclarationNode.onKeyword());
+                modifyToken(annotationDeclarationNode.onKeyword().orElse(null));
         SeparatedNodeList<Node> attachPoints =
                 modifySeparatedNodeList(annotationDeclarationNode.attachPoints());
         Token semicolonToken =
@@ -1228,11 +1228,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public AnnotationAttachPointNode transform(
             AnnotationAttachPointNode annotationAttachPointNode) {
         Token sourceKeyword =
-                modifyToken(annotationAttachPointNode.sourceKeyword());
+                modifyToken(annotationAttachPointNode.sourceKeyword().orElse(null));
         Token firstIdent =
                 modifyToken(annotationAttachPointNode.firstIdent());
         Token secondIdent =
-                modifyToken(annotationAttachPointNode.secondIdent());
+                modifyToken(annotationAttachPointNode.secondIdent().orElse(null));
         return annotationAttachPointNode.modify(
                 sourceKeyword,
                 firstIdent,
