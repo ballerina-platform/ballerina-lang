@@ -341,6 +341,8 @@ public class Desugar extends BLangNodeVisitor {
     private BLangOnFailClause onFailClause;
     private BType forceCastReturnType = null;
     private boolean skipFailDesugaring = false;
+    private BLangOnFailClause enclosingOnFailClause = null;
+    private BLangSimpleVariableDef enclosingOnFailCallFunc = null;
 
     private SymbolEnv env;
     private int lambdaFunctionCount = 0;
@@ -2518,8 +2520,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+//        BLangOnFailClause currentOnFailClause = this.onFailClause;
+//        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+        assignAsEnclosingOnFail();
         if (retryNode.onFailClause != null) {
             BLangOnFailClause onFailClause = retryNode.onFailClause;
             retryNode.onFailClause = null;
@@ -2609,8 +2612,7 @@ public class Desugar extends BLangNodeVisitor {
             //  returns <TypeCast>$result$;
             result = createExpressionStatement(pos, retryTransactionStmtExpr, retryNode.retryBodyReturns, env);
         }
-        this.onFailClause = currentOnFailClause;
-        this.onFailCallFuncDef = currentOnFailCallDef;
+        swapAndResetEnclosingOnFail();
     }
 
     protected BLangWhile createRetryWhileLoop(DiagnosticPos retryBlockPos, BLangSimpleVariableDef retryManagerVarDef,
@@ -2910,8 +2912,9 @@ public class Desugar extends BLangNodeVisitor {
         //      io:println("Matched String Value Hello");
         //
         //  }
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+//        BLangOnFailClause currentOnFailClause = this.onFailClause;
+//        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+        assignAsEnclosingOnFail();
 
         // First create a block statement to hold generated statements
         BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
@@ -2942,14 +2945,16 @@ public class Desugar extends BLangNodeVisitor {
 
         rewrite(matchBlockStmt, this.env);
         result = matchBlockStmt;
-        this.onFailClause = currentOnFailClause;
-        this.onFailCallFuncDef = currentOnFailCallDef;
+//        this.onFailClause = currentOnFailClause;
+//        this.onFailCallFuncDef = currentOnFailCallDef;
+        swapAndResetEnclosingOnFail();
     }
 
     @Override
     public void visit(BLangMatchStatement matchStatement) {
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+        assignAsEnclosingOnFail();
+//        BLangOnFailClause currentOnFailClause = this.onFailClause;
+//        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
         matchBlockStmt.pos = matchStatement.pos;
         matchBlockStmt.isBreakable = matchStatement.onFailClause != null;
@@ -2971,8 +2976,9 @@ public class Desugar extends BLangNodeVisitor {
         rewrite(matchBlockStmt, this.env);
 
         result = matchBlockStmt;
-        this.onFailClause = currentOnFailClause;
-        this.onFailCallFuncDef = currentOnFailCallDef;
+        swapAndResetEnclosingOnFail();
+//        this.onFailClause = currentOnFailClause;
+//        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     private BLangStatement convertMatchClausesToIfElseStmt(List<BLangMatchClause> matchClauses,
@@ -3075,8 +3081,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+        assignAsEnclosingOnFail();
+//        BLangOnFailClause currentOnFailClause = this.onFailClause;
+//        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         if (foreach.onFailClause != null) {
             rewrite(foreach.onFailClause, env);
         }
@@ -3116,28 +3123,61 @@ public class Desugar extends BLangNodeVisitor {
 
         // Rewrite the block.
         rewrite(blockNode, this.env);
-        this.onFailClause = currentOnFailClause;
-        this.onFailCallFuncDef = currentOnFailCallDef;
+//        this.onFailClause = currentOnFailClause;
+//        this.onFailCallFuncDef = currentOnFailCallDef;
+        swapAndResetEnclosingOnFail();
         result = blockNode;
     }
 
     @Override
     public void visit(BLangDo doNode) {
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
-        if (doNode.onFailClause != null) {
-            rewrite(doNode.onFailClause, env);
-        }
+        assignAsEnclosingOnFail();
+        analyzeOnFailClause(doNode.onFailClause, doNode.body);
         result = rewrite(doNode.body, this.env);
-        this.onFailClause = currentOnFailClause;
-        this.onFailCallFuncDef = currentOnFailCallDef;
+        swapAndResetEnclosingOnFail();
+    }
+
+    private void assignAsEnclosingOnFail() {
+        this.enclosingOnFailClause = this.onFailClause;
+        this.enclosingOnFailCallFunc = this.onFailCallFuncDef;
+    }
+
+    private void swapAndResetEnclosingOnFail () {
+        this.onFailClause = this.enclosingOnFailClause;
+        this.onFailCallFuncDef = this.enclosingOnFailCallFunc;
+        this.enclosingOnFailClause = null;
+        this.enclosingOnFailCallFunc = null;
+    }
+
+    private void analyzeOnFailClause(BLangOnFailClause onFailClause, BLangBlockStmt blockStmt) {
+        if (onFailClause != null) {
+            this.onFailClause = onFailClause;
+            if (onFailClause.bodyContainsFail) {
+                blockStmt.isBreakable = false;
+            } else {
+                rewrite(onFailClause, env);
+            }
+        }
+    }
+
+    private BLangBlockStmt rewriteNestedOnFail(BLangOnFailClause onFailClause, BLangExpression expression) {
+        BLangBlockStmt onFailBody = onFailClause.body;
+        BLangSimpleVariableDef onFailErrorVariableDef = (BLangSimpleVariableDef) onFailClause.variableDefinitionNode;
+        onFailErrorVariableDef.var.expr = expression;
+        onFailBody.stmts.add(0, onFailErrorVariableDef);
+        this.onFailClause = this.enclosingOnFailClause;
+        this.onFailCallFuncDef = this.enclosingOnFailCallFunc;
+        onFailBody.scope.define(onFailErrorVariableDef.var.symbol.name, onFailErrorVariableDef.var.symbol);
+        onFailBody = rewrite(onFailBody, env);
+        this.onFailClause = null;
+        this.onFailCallFuncDef = null;
+        return onFailBody;
     }
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
         this.onFailClause = onFailClause;
         boolean currentSkipDesugring = this.skipFailDesugaring;
-        this.skipFailDesugaring = true;
         BLangType onFailReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
 
         BLangSimpleVariableDef onFailErrorVariableDef = (BLangSimpleVariableDef) onFailClause.variableDefinitionNode;
@@ -3327,8 +3367,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+//        BLangOnFailClause currentOnFailClause = this.onFailClause;
+//        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+        assignAsEnclosingOnFail();
         if (whileNode.onFailClause != null) {
             BLangOnFailClause onFailClause = whileNode.onFailClause;
             whileNode.onFailClause = null;
@@ -3339,8 +3380,9 @@ public class Desugar extends BLangNodeVisitor {
             whileNode.body = rewrite(whileNode.body, env);
             result = whileNode;
         }
-        this.onFailClause = currentOnFailClause;
-        this.onFailCallFuncDef = currentOnFailCallDef;
+        swapAndResetEnclosingOnFail();
+//        this.onFailClause = currentOnFailClause;
+//        this.onFailCallFuncDef = currentOnFailCallDef;
     }
 
     private BLangDo wrapStatementWithinDo(DiagnosticPos pos, BLangStatement statement, BLangOnFailClause onFailClause) {
@@ -3371,8 +3413,9 @@ public class Desugar extends BLangNodeVisitor {
         // if (res is error) {
         //      panic res;
         // }
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
+        assignAsEnclosingOnFail();
+//        BLangOnFailClause currentOnFailClause = this.onFailClause;
+//        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(lockNode.pos);
         if (lockNode.onFailClause != null) {
             blockStmt.isBreakable = true;
@@ -3418,8 +3461,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangIf ifelse = ASTBuilderUtil.createIfElseStmt(lockNode.pos, isErrorTest, ifBody, null);
         blockStmt.addStatement(ifelse);
         result = rewrite(blockStmt, env);
-        this.onFailClause = currentOnFailClause;
-        this.onFailCallFuncDef = currentOnFailCallDef;
+//        this.onFailClause = currentOnFailClause;
+//        this.onFailCallFuncDef = currentOnFailCallDef;
+        swapAndResetEnclosingOnFail();
         enclLocks.pop();
     }
 
@@ -3435,17 +3479,16 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        BLangOnFailClause currentOnFailClause = this.onFailClause;
-        BLangSimpleVariableDef currentOnFailCallDef = this.onFailCallFuncDef;
-        if (transactionNode.onFailClause != null) {
-            rewrite(transactionNode.onFailClause, env);
-        }
+        assignAsEnclosingOnFail();
+        analyzeOnFailClause(transactionNode.onFailClause, transactionNode.transactionBody);
+//        if (transactionNode.onFailClause != null) {
+//            rewrite(transactionNode.onFailClause, env);
+//        }
         BLangStatementExpression transactionStmtExpr = transactionDesugar.rewrite(transactionNode, env,
                 onFailClause != null);
         result = createExpressionStatement(transactionNode.pos, transactionStmtExpr,
                 transactionNode.statementBlockReturns, env);
-        this.onFailClause = currentOnFailClause;
-        this.onFailCallFuncDef = currentOnFailCallDef;
+        swapAndResetEnclosingOnFail();
     }
 
     @Override
@@ -4991,13 +5034,15 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFail failNode) {
         if (this.onFailClause != null && !skipFailDesugaring) {
-            if (failNode.exprStmt == null) {
+            if (this.onFailClause.bodyContainsFail) {
+                result = rewriteNestedOnFail(this.onFailClause, failNode.expr);
+            } else {
                 BLangStatementExpression expression = createOnFailInvocation(onFailCallFuncDef, onFailClause,
                         failNode.expr);
                 failNode.exprStmt = createExpressionStatement(failNode.pos, expression,
                         onFailClause.statementBlockReturns, env);
+                result = failNode;
             }
-            result = failNode;
         } else {
             BLangReturn stmt = ASTBuilderUtil.createReturnStmt(failNode.pos, failNode.expr);
             result = rewrite(stmt, env);
