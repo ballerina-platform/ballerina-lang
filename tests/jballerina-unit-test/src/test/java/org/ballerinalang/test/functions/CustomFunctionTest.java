@@ -47,7 +47,7 @@ public class CustomFunctionTest {
     public void testExtraParameters() {
         CompileResult compile = BCompileUtil.compile("test-src/functions/extra-parameters.bal");
         Assert.assertEquals(compile.getErrorCount(), 2);
-        BAssertUtil.validateError(compile, 0, "undefined symbol 'byte'", 20, 13);
+        BAssertUtil.validateError(compile, 0, "invalid operation: type 'byte' does not support indexing", 20, 13);
         BAssertUtil.validateError(compile, 1, "missing key expr in member access expr", 20, 18);
     }
 

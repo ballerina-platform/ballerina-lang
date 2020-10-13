@@ -2584,6 +2584,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
         // First analyze the variable reference expression.
+        if(indexBasedAccessExpr.expr instanceof  BLangTypedescExpr) {
+            dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+                    ((BLangTypedescExpr) indexBasedAccessExpr.expr).typeNode);
+            resultType = symTable.semanticError;
+            return;
+        }
         ((BLangVariableReference) indexBasedAccessExpr.expr).lhsVar = indexBasedAccessExpr.lhsVar;
         ((BLangVariableReference) indexBasedAccessExpr.expr).compoundAssignmentLhsVar =
                 indexBasedAccessExpr.compoundAssignmentLhsVar;
