@@ -156,6 +156,8 @@ function testFailExprWithinOnFail() {
     }
 
     assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+    //assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Error caught at level #2", str);
+    at level #1", str);
 }
 
 function testCheckExprWithinOnFail() {
@@ -175,6 +177,7 @@ function testCheckExprWithinOnFail() {
     }
 
     assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+    //assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Error caught at level #2", str);
 }
 
 function getCheckError()  returns int|error {
