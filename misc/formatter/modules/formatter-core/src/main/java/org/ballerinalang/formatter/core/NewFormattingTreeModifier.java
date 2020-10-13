@@ -124,6 +124,13 @@ import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
+import io.ballerinalang.compiler.syntax.tree.XMLAttributeNode;
+import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
+import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
+import io.ballerinalang.compiler.syntax.tree.XMLItemNode;
+import io.ballerinalang.compiler.syntax.tree.XMLNameNode;
+import io.ballerinalang.compiler.syntax.tree.XMLStartTagNode;
+import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -1645,6 +1652,63 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .apply();
 
     }
+
+    @Override
+    public XMLElementNode transform(XMLElementNode xMLElementNode) {
+        XMLStartTagNode startTagNode = formatNode(xMLElementNode.startTag(), 0, 0);
+        NodeList<XMLItemNode> content = formatNodeList(xMLElementNode.content(), 0, 0, 0, 0);
+        XMLEndTagNode endTagNode = formatNode(xMLElementNode.endTag(), 0, 0);
+        return xMLElementNode.modify()
+                .withStartTag(startTagNode)
+                .withContent(content)
+                .withEndTag(endTagNode)
+                .apply();
+    }
+
+    @Override
+    public XMLStartTagNode transform(XMLStartTagNode xMLStartTagNode) {
+        Token ltToken = formatToken(xMLStartTagNode.ltToken(), 0, 0);
+        XMLNameNode name = formatNode(xMLStartTagNode.name(), 0, 0);
+        NodeList<XMLAttributeNode> attributes = formatNodeList(xMLStartTagNode.attributes(), 0, 0, 0, 0);
+        Token getToken = formatToken(xMLStartTagNode.getToken(), 0, 0);
+        return xMLStartTagNode.modify()
+                .withLtToken(ltToken)
+                .withName(name)
+                .withAttributes(attributes)
+                .withGetToken(getToken)
+                .apply();
+    }
+
+    @Override
+    public XMLEndTagNode transform(XMLEndTagNode xMLEndTagNode) {
+        Token ltToken = formatToken(xMLEndTagNode.ltToken(), 0, 0);
+        Token slashToken = formatToken(xMLEndTagNode.slashToken(), 0, 0);
+        XMLNameNode name = formatNode(xMLEndTagNode.name(), 0,0);
+        Token getToken = formatToken(xMLEndTagNode.getToken(), 0,0);
+        return xMLEndTagNode.modify()
+                .withLtToken(ltToken)
+                .withSlashToken(slashToken)
+                .withName(name)
+                .withGetToken(getToken)
+                .apply();
+    }
+
+    @Override
+    public XmlTypeDescriptorNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        Token xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), 1, 0);
+        if (xmlTypeDescriptorNode.xmlTypeParamsNode().isPresent()) {
+            TypeParameterNode xmlTypeParamsNode = formatNode(xmlTypeDescriptorNode.xmlTypeParamsNode().orElse(null),
+                    0, 0);
+            xmlTypeDescriptorNode = xmlTypeDescriptorNode.modify()
+                    .withXmlTypeParamsNode(xmlTypeParamsNode)
+                    .apply();
+        }
+        return xmlTypeDescriptorNode.modify()
+                .withXmlKeywordToken(xmlKeywordToken)
+                .apply();
+    }
+
+
 
     @Override
     public IdentifierToken transform(IdentifierToken identifier) {
