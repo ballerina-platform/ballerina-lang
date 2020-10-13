@@ -239,7 +239,6 @@ import io.ballerina.tools.text.TextRange;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.formatter.core.FormatterUtils.getToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
 
 /**
@@ -2941,8 +2940,9 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .withReturnTypeDesc(returnTypeDesc)
                     .apply();
         }
-        BlockStatementNode workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), 0, 1);
 
+        BlockStatementNode workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), 0, 1);
+        
         return namedWorkerDeclarationNode.modify()
                 .withAnnotations(annotations)
                 .withWorkerKeyword(workerKeyword)
@@ -2976,6 +2976,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         XMLStartTagNode startTagNode = formatNode(xMLElementNode.startTag(), 0, 0);
         NodeList<XMLItemNode> content = formatNodeList(xMLElementNode.content(), 0, 0, 0, 0);
         XMLEndTagNode endTagNode = formatNode(xMLElementNode.endTag(), 0, 0);
+
         return xMLElementNode.modify()
                 .withStartTag(startTagNode)
                 .withContent(content)
@@ -2990,6 +2991,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         XMLNameNode name = formatNode(xMLStartTagNode.name(), nameTrailingWS, 0);
         NodeList<XMLAttributeNode> attributes = formatNodeList(xMLStartTagNode.attributes(), 1, 0, 0, 0);
         Token getToken = formatToken(xMLStartTagNode.getToken(), 0, 0);
+
         return xMLStartTagNode.modify()
                 .withLtToken(ltToken)
                 .withName(name)
@@ -3004,6 +3006,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token slashToken = formatToken(xMLEndTagNode.slashToken(), 0, 0);
         XMLNameNode name = formatNode(xMLEndTagNode.name(), 0,0);
         Token getToken = formatToken(xMLEndTagNode.getToken(), 0,0);
+
         return xMLEndTagNode.modify()
                 .withLtToken(ltToken)
                 .withSlashToken(slashToken)
@@ -3022,6 +3025,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .withXmlTypeParamsNode(xmlTypeParamsNode)
                     .apply();
         }
+
         return xmlTypeDescriptorNode.modify()
                 .withXmlKeywordToken(xmlKeywordToken)
                 .apply();
@@ -3032,6 +3036,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         XMLNameNode attributeName = formatNode(xMLAttributeNode.attributeName(), 0, 0);
         Token equalToken = formatToken(xMLAttributeNode.equalToken(), 0, 0);
         XMLAttributeValue value = formatNode(xMLAttributeNode.value(), this.trailingWS, 0);
+
         return xMLAttributeNode.modify()
                 .withAttributeName(attributeName)
                 .withEqualToken(equalToken)
@@ -3041,10 +3046,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public XMLAttributeValue transform(XMLAttributeValue xMLAttributeValue) {
-
         Token startQuote = formatToken(xMLAttributeValue.startQuote(), 0,0);
         NodeList<Node> value = formatNodeList(xMLAttributeValue.value(), 0, 0, 0, 0);
         Token endQuote = formatToken(xMLAttributeValue.endQuote(), this.trailingWS, 0);
+
         return xMLAttributeValue.modify()
                 .withStartQuote(startQuote)
                 .withValue(value)
