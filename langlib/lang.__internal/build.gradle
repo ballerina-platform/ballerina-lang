@@ -23,6 +23,7 @@ dependencies {
     baloCreat project(':lib-creator')
     implementation 'org.slf4j:slf4j-api'
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
 }
 
 createBalo {

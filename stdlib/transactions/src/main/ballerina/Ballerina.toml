@@ -3,7 +3,7 @@ org-name = "ballerina"
 version = "0.5.0"
 
 [platform]
-target = "java8"
+target = "java11"
 
     [[platform.libraries]]
     artifactId = "transactions"

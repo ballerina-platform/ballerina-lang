@@ -15,21 +15,21 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
+import io.ballerina.compiler.syntax.tree.AsyncSendActionNode;
+import io.ballerina.compiler.syntax.tree.ChildNodeList;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.Minutiae;
+import io.ballerina.compiler.syntax.tree.MinutiaeList;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
-import io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory;
-import io.ballerinalang.compiler.syntax.tree.AsyncSendActionNode;
-import io.ballerinalang.compiler.syntax.tree.ChildNodeList;
-import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.Minutiae;
-import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.syntax.tree.Token;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static io.ballerinalang.compiler.syntax.tree.AbstractNodeFactory.createWhitespaceMinutiae;
+import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createWhitespaceMinutiae;
 
 /**
  * Class that contains the util functions used by the formatting tree modifier.
@@ -672,11 +672,11 @@ class FormatterUtils {
             this.addSpaces = addSpaces;
         }
 
-        private Node getParent() {
+        Node getParent() {
             return parent;
         }
 
-        private boolean getAddSpaces() {
+        boolean getAddSpaces() {
             return addSpaces;
         }
     }

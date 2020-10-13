@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
@@ -28,32 +27,27 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
-import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:slice((any|error)[]).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", version = ARRAY_VERSION, functionName = "slice",
-        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "startIndex", type = TypeKind.INT),
-                @Argument(name = "endIndex", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.array", functionName = "slice",
+//        args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "startIndex", type = TypeKind.INT),
+//                @Argument(name = "endIndex", type = TypeKind.INT)},
+//        returnType = {@ReturnType(type = TypeKind.ARRAY)},
+//        isPublic = true
+//)
 public class Slice {
 
-    public static ArrayValue slice(Strand strand, ArrayValue arr, long startIndex, long endIndex) {
+    public static ArrayValue slice(ArrayValue arr, long startIndex, long endIndex) {
         int size = arr.size();
 
         if (startIndex < 0) {

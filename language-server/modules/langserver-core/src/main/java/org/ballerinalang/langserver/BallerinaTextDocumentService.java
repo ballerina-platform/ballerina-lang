@@ -15,17 +15,13 @@
  */
 package org.ballerinalang.langserver;
 
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.langserver.codeaction.CodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -107,7 +103,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -501,9 +496,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             Path compilationPath = getUntitledFilePath(docSymbolFilePath.toString()).orElse(docSymbolFilePath.get());
             Optional<Lock> lock = docManager.lockFile(compilationPath);
+
+            LSContext codeLensContext = new DocumentServiceOperationContext
+                    .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_LENS)
+                    .withCommonParams(null, fileUri, docManager)
+                    .build();
+
             try {
-                // Compile source document
-                lenses = CodeLensUtil.compileAndGetCodeLenses(fileUri, docManager);
+                lenses = CodeLensUtil.getCodeLenses(codeLensContext);
                 docManager.setCodeLenses(compilationPath, lenses);
                 return lenses;
             } catch (UserErrorException e) {

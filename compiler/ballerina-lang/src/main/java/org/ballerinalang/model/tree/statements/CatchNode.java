@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
  *
  * @deprecated since 0.983.0, use trap instead.
  */
+@Deprecated
 public interface CatchNode extends Node {
     SimpleVariableNode getParameter();
 

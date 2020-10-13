@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.jvm.IdentifierEncoder;
+import org.ballerinalang.jvm.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -102,7 +102,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTRUCTOR_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -542,7 +541,7 @@ public class JvmTerminatorGen {
             mv.visitTypeInsn(NEW, BAL_ENV);
             mv.visitInsn(DUP);
             this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
-            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, CONSTRUCTOR_INIT_METHOD, String.format("(L%s;)V", STRAND_CLASS),
+            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD, String.format("(L%s;)V", STRAND_CLASS),
                                false);
         }
 
@@ -685,7 +684,7 @@ public class JvmTerminatorGen {
     private void genFuncCall(BIRTerminator.Call callIns, String orgName, String moduleName, String version,
                              int localVarOffset) {
 
-        String methodName = IdentifierEncoder.encodeIdentifier(callIns.name.value);
+        String methodName = IdentifierUtils.encodeIdentifier(callIns.name.value);
         this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodName);
     }
 
@@ -876,7 +875,7 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(AASTORE);
             paramIndex += 1;
         }
-        String funcName = IdentifierEncoder.encodeIdentifier(callIns.name.value);
+        String funcName = IdentifierUtils.encodeIdentifier(callIns.name.value);
         String lambdaName = "$" + funcName + "$lambda$" + asyncDataCollector.getLambdaIndex() + "$";
 
         JvmCodeGenUtil.createFunctionPointer(this.mv, asyncDataCollector.getEnclosingClass(), lambdaName);

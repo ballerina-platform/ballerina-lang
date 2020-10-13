@@ -31,7 +31,7 @@ configurations {
 }
 
 dependencies {
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 

@@ -18,7 +18,7 @@
     <div class="annotations">
         <div class="data-wrapper">
             {{#each annotations}}
-            <div class="params-listing">
+            <div class="params-listing" id="{{ name }}">
                 <ul>
                     <li>
                         <b {{#if isDeprecated}}class="strike" {{/if}}>{{ name }}</b>

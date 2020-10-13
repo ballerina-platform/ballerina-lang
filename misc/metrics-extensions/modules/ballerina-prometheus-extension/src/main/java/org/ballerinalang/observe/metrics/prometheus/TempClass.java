@@ -19,16 +19,9 @@
 
 package org.ballerinalang.observe.metrics.prometheus;
 
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-
 /**
  * Added as a workaround to force gradle to create this.map.json.
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "prometheus",
-        functionName = "mockFunction"
-)
 public class TempClass {
         // TODO: Remove
 }
