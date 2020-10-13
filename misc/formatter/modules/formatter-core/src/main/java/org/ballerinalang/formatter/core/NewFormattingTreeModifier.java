@@ -62,6 +62,7 @@ import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FailStatementNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternFullNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.FieldMatchPatternNode;
 import io.ballerina.compiler.syntax.tree.FlushActionNode;
@@ -231,13 +232,13 @@ import io.ballerina.compiler.syntax.tree.XMLStartTagNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
-import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.formatter.core.FormatterUtils.getToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
 
 /**
@@ -1731,20 +1732,44 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public MappingBindingPatternNode transform(MappingBindingPatternNode mappingBindingPatternNode) {
+        Token openBraceToken = formatToken(mappingBindingPatternNode.openBrace(), 1, 0);
+        SeparatedNodeList<FieldBindingPatternNode> fieldBindingPatternNodes =
+                formatSeparatedNodeList(mappingBindingPatternNode.fieldBindingPatterns(), 1, 0, 1, 0);
+        if (mappingBindingPatternNode.restBindingPattern().isPresent()) {
+            RestBindingPatternNode restBindingPattern =
+                    formatNode(mappingBindingPatternNode.restBindingPattern().get(), 1, 0);
+            mappingBindingPatternNode = mappingBindingPatternNode.modify()
+                    .withRestBindingPattern(restBindingPattern).apply();
+        }
 
-        return super.transform(mappingBindingPatternNode);
+        Token closeBraceToken = formatToken(mappingBindingPatternNode.closeBrace(), this.trailingWS, this.trailingNL);
+        return mappingBindingPatternNode.modify()
+                .withOpenBrace(openBraceToken)
+                .withFieldBindingPatterns(fieldBindingPatternNodes)
+                .withCloseBrace(closeBraceToken)
+                .apply();
     }
 
     @Override
     public FieldBindingPatternFullNode transform(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
-
-        return super.transform(fieldBindingPatternFullNode);
+        SimpleNameReferenceNode variableName = formatNode(fieldBindingPatternFullNode.variableName(), 1, 0);
+        Token colon = formatToken(fieldBindingPatternFullNode.colon(), 1, 0);
+        BindingPatternNode bindingPatternNode = formatNode(fieldBindingPatternFullNode.bindingPattern(),
+                this.trailingWS, this.leadingNL);
+        return fieldBindingPatternFullNode.modify()
+                .withVariableName(variableName)
+                .withColon(colon)
+                .withBindingPattern(bindingPatternNode)
+                .apply();
     }
 
     @Override
     public FieldBindingPatternVarnameNode transform(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
-
-        return super.transform(fieldBindingPatternVarnameNode);
+        SimpleNameReferenceNode variableName = formatNode(fieldBindingPatternVarnameNode.variableName(),
+                this.trailingWS, this.leadingNL);
+        return fieldBindingPatternVarnameNode.modify()
+                .withVariableName(variableName)
+                .apply();
     }
 
     @Override
@@ -1986,8 +2011,23 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public MappingMatchPatternNode transform(MappingMatchPatternNode mappingMatchPatternNode) {
+        Token openBraceToken = formatToken(mappingMatchPatternNode.openBraceToken(), 1, 0);
+        SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns =
+                formatSeparatedNodeList(mappingMatchPatternNode.fieldMatchPatterns(), 1, 0, 1, 0);
 
-        return super.transform(mappingMatchPatternNode);
+        if (mappingMatchPatternNode.restMatchPattern().isPresent()) {
+            RestMatchPatternNode restMatchPattern =
+                    formatNode(mappingMatchPatternNode.restMatchPattern().orElse(null), 1, 0);
+            mappingMatchPatternNode = mappingMatchPatternNode.modify()
+                    .withRestMatchPattern(restMatchPattern).apply();
+        }
+
+        Token closeBraceToken = getToken(mappingMatchPatternNode.closeBraceToken());
+        return mappingMatchPatternNode.modify()
+                .withOpenBraceToken(openBraceToken)
+                .withFieldMatchPatterns(fieldMatchPatterns)
+                .withCloseBraceToken(closeBraceToken)
+                .apply();
     }
 
     @Override
@@ -2164,8 +2204,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public RecordRestDescriptorNode transform(RecordRestDescriptorNode recordRestDescriptorNode) {
-
-        return super.transform(recordRestDescriptorNode);
+        Node typeName = formatNode(recordRestDescriptorNode.typeName(), 0, 0);
+        Token ellipsisToken = formatToken(recordRestDescriptorNode.ellipsisToken(), 0, 0);
+        Token semicolonToken = formatToken(recordRestDescriptorNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        return recordRestDescriptorNode.modify()
+                .withTypeName(typeName)
+                .withEllipsisToken(ellipsisToken)
+                .withSemicolonToken(semicolonToken)
+                .apply();
     }
 
     @Override
@@ -2479,8 +2525,15 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public NamedArgBindingPatternNode transform(NamedArgBindingPatternNode namedArgBindingPatternNode) {
-
-        return super.transform(namedArgBindingPatternNode);
+        IdentifierToken argName = formatToken(namedArgBindingPatternNode.argName(), 1, 0);
+        Token equalsToken = formatToken(namedArgBindingPatternNode.equalsToken(), 1, 0);
+        BindingPatternNode bindingPattern = formatNode(namedArgBindingPatternNode.bindingPattern(), this.trailingWS,
+                this.leadingNL);
+        return namedArgBindingPatternNode.modify()
+                .withArgName(argName)
+                .withEqualsToken(equalsToken)
+                .withBindingPattern(bindingPattern)
+                .apply();
     }
 
     @Override
@@ -2716,8 +2769,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public TypeReferenceTypeDescNode transform(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
-
-        return super.transform(typeReferenceTypeDescNode);
+        NameReferenceNode typeRef = formatNode(typeReferenceTypeDescNode.typeRef(), this.trailingWS, this.trailingNL);
+        return typeReferenceTypeDescNode.modify()
+                .withTypeRef(typeRef)
+                .apply();
     }
 
     @Override
@@ -2774,8 +2829,24 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public ListMatchPatternNode transform(ListMatchPatternNode listMatchPatternNode) {
+        Token openBracket = formatToken(listMatchPatternNode.openBracket(), 1, 0);
+        SeparatedNodeList<Node> matchPatterns =
+                formatSeparatedNodeList(listMatchPatternNode.matchPatterns(), 1, 0, 1, 0);
 
-        return super.transform(listMatchPatternNode);
+        if (listMatchPatternNode.restMatchPattern().isPresent()) {
+            RestMatchPatternNode restMatchPattern =
+                    formatNode(listMatchPatternNode.restMatchPattern().get(), 1, 0);
+            listMatchPatternNode = listMatchPatternNode.modify()
+                    .withRestMatchPattern(restMatchPattern)
+                    .apply();
+        }
+
+        Token closeBracket = formatToken(listMatchPatternNode.closeBracket(), this.trailingWS, this.trailingNL);
+        return listMatchPatternNode.modify()
+                .withOpenBracket(openBracket)
+                .withMatchPatterns(matchPatterns)
+                .withCloseBracket(closeBracket)
+                .apply();
     }
 
     @Override
@@ -2797,8 +2868,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public NamedArgMatchPatternNode transform(NamedArgMatchPatternNode namedArgMatchPatternNode) {
-
-        return super.transform(namedArgMatchPatternNode);
+        IdentifierToken identifier = formatToken(namedArgMatchPatternNode.identifier(), 1, 0);
+        Token equalToken = formatToken(namedArgMatchPatternNode.equalToken(), 1, 0);
+        Node matchPattern = formatNode(namedArgMatchPatternNode.matchPattern(), this.trailingWS, this.trailingNL);
+        return namedArgMatchPatternNode.modify()
+                .withIdentifier(identifier)
+                .withEqualToken(equalToken)
+                .withMatchPattern(matchPattern)
+                .apply();
     }
 
     @Override
