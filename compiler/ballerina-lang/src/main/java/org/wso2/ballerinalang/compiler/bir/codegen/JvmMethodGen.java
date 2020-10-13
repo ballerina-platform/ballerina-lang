@@ -69,7 +69,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -194,6 +193,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  */
 public class JvmMethodGen {
 
+    private static final String INIT_FUNCTION_SUFFIX = "<init>";
     private static final String START_FUNCTION_SUFFIX = "<start>";
     private static final String STOP_FUNCTION_SUFFIX = "<stop>";
 
@@ -1000,7 +1000,7 @@ public class JvmMethodGen {
     }
 
     private String calculateModuleInitFuncName(PackageID id) {
-        return calculateModuleSpecialFuncName(id, JVM_INIT_METHOD);
+        return calculateModuleSpecialFuncName(id, INIT_FUNCTION_SUFFIX);
     }
 
     private String calculateModuleSpecialFuncName(PackageID id, String funcSuffix) {
@@ -1194,8 +1194,7 @@ public class JvmMethodGen {
 
     private String getFrameClassName(String pkgName, String funcName, BType attachedType) {
         String frameClassName = pkgName;
-        if (attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType instanceof BServiceType ||
-                attachedType.tag == TypeTags.RECORD)) {
+        if (attachedType != null && (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD)) {
             frameClassName += JvmCodeGenUtil.cleanupReadOnlyTypeName(JvmCodeGenUtil.toNameString(attachedType)) + "_";
         }
 
@@ -1628,7 +1627,7 @@ public class JvmMethodGen {
 
         if (hasInitFunction(pkg)) {
             generateMethodCall(initClass, asyncDataCollector, mv, indexMap, schedulerVarIndex, MODULE_INIT,
-                               "<init>", "initdummy");
+                               INIT_FUNCTION_SUFFIX, "initdummy");
         }
 
         if (userMainFunc != null) {
@@ -1907,7 +1906,7 @@ public class JvmMethodGen {
                                    BIRPackage pkg, List<PackageID> moduleImports) {
 
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
-        BIRFunction initFunc = generateDepModInit(moduleImports, pkg, MODULE_INIT, JVM_INIT_METHOD);
+        BIRFunction initFunc = generateDepModInit(moduleImports, pkg, MODULE_INIT, INIT_FUNCTION_SUFFIX);
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
 
@@ -2017,7 +2016,7 @@ public class JvmMethodGen {
                 continue;
             }
             BType bType = optionalTypeDef.type;
-            if (bType.tag != TypeTags.FINITE && !(bType instanceof BServiceType)) {
+            if (bType.tag != TypeTags.FINITE) {
                 loadAnnots(mv, typePkgName, optionalTypeDef);
             }
 

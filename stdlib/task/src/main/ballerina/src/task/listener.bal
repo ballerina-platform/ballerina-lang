@@ -47,7 +47,7 @@ public class Listener {
     # + s - Service to attach to the listener
     # + name - Name of the service
     # + return - () or else a `task:ListenerError` upon failure to attach the service
-    public function __attach(service s, string? name = ()) returns error? {
+    public function __attach(service object { } s, string? name = ()) returns error? {
         // ignore param 'name'
         var result = attachExternal(self, s);
         if (result is error) {
@@ -59,7 +59,7 @@ public class Listener {
     #
     # + s - Service to be detached from the listener
     # + return - () or else a `task:ListenerError` upon failure to detach the service
-    public function __detach(service s) returns error? {
+    public function __detach(service object { } s) returns error? {
         return detachExternal(self, s);
     }
 
@@ -149,12 +149,12 @@ function initExternal(Listener task) returns ListenerError? = @java:Method {
     'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
-function detachExternal(Listener task, service attachedService) returns ListenerError? = @java:Method {
+function detachExternal(Listener task, service object {} attachedService) returns ListenerError? = @java:Method {
     name: "detach",
     'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
-function attachExternal(Listener task, service s, any... attachments) returns ListenerError? = @java:Method {
+function attachExternal(Listener task, service object {} s, any... attachments) returns ListenerError? = @java:Method {
     name: "attach",
     'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;

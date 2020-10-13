@@ -64,7 +64,7 @@ public class Listener {
     # + s - Type descriptor of the service
     # + name - Name of the service
     # + return - () or else error upon failure to attach to the service
-    public function __attach(service s, string? name = ()) returns error? {
+    public function __attach(service object {} s, string? name = ()) returns error? {
         return register(self, s, name);
     }
 
@@ -72,7 +72,7 @@ public class Listener {
     #
     # + s - Type descriptor of the service
     # + return - () or else error upon failure to detach to the service
-    public function __detach(service s) returns error? {
+    public function __detach(service object {} s) returns error? {
     }
 }
 
@@ -90,7 +90,7 @@ function initEndpoint(Listener fileListener) returns error? = @java:Method {
     name: "initEndpoint"
 } external;
 
-function register(Listener fileListener, service s, string? name) returns error? = @java:Method {
+function register(Listener fileListener, service object {} s, string? name) returns error? = @java:Method {
     'class: "org.ballerinalang.stdlib.file.service.endpoint.Register",
     name: "register"
 } external;

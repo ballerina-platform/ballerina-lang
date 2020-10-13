@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
@@ -47,7 +48,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -240,11 +240,11 @@ class JvmTypeGen {
             if (bType.tag == TypeTags.RECORD) {
                 createRecordType(mv, (BRecordType) bType);
             } else if (bType.tag == TypeTags.OBJECT) {
-                if (bType instanceof BServiceType) {
-                    createServiceType(mv, (BServiceType) bType);
-                } else {
-                    createObjectType(mv, (BObjectType) bType);
-                }
+//                if (bType instanceof BServiceType) {
+//                    createServiceType(mv, (BServiceType) bType);
+//                } else {
+                createObjectType(mv, (BObjectType) bType);
+//                }
             } else if (bType.tag == TypeTags.ERROR) {
                 createErrorType(mv, (BErrorType) bType, bType.tsymbol.name.value);
             } else {
@@ -291,28 +291,28 @@ class JvmTypeGen {
                     addImmutableType(mv, recordType);
                     break;
                 case TypeTags.OBJECT:
-                    if (bType instanceof BServiceType) {
-                        BServiceType serviceType = (BServiceType) bType;
-                        mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
-                        mv.visitInsn(DUP);
-                        addObjectFields(mv, serviceType.fields);
-                        addObjectAttachedFunctions(mv, ((BObjectTypeSymbol) serviceType.tsymbol).attachedFuncs,
-                                serviceType, indexMap, symbolTable);
-                    } else {
-                        BObjectType objectType = (BObjectType) bType;
-                        mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
-                        mv.visitInsn(DUP);
-                        mv.visitInsn(DUP);
-                        addObjectFields(mv, objectType.fields);
-                        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
-                        addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, objectType, indexMap,
-                                "$init$", "setGeneratedInitializer", symbolTable);
-                        addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, objectType, indexMap, "init",
-                                "setInitializer", symbolTable);
-                        addObjectAttachedFunctions(mv, objectTypeSymbol.attachedFuncs, objectType, indexMap,
-                                symbolTable);
-                        addImmutableType(mv, objectType);
-                    }
+//                    if (bType instanceof BServiceType) {
+//                        BServiceType serviceType = (BServiceType) bType;
+//                        mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+//                        mv.visitInsn(DUP);
+//                        addObjectFields(mv, serviceType.fields);
+//                        addObjectAttachedFunctions(mv, ((BObjectTypeSymbol) serviceType.tsymbol).attachedFuncs,
+//                                serviceType, indexMap, symbolTable);
+//                    } else {
+                    BObjectType objectType = (BObjectType) bType;
+                    mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+                    mv.visitInsn(DUP);
+                    mv.visitInsn(DUP);
+                    addObjectFields(mv, objectType.fields);
+                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
+                    addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, objectType, indexMap,
+                            "$init$", "setGeneratedInitializer", symbolTable);
+                    addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, objectType, indexMap, "init",
+                            "setInitializer", symbolTable);
+                    addObjectAttachedFunctions(mv, objectTypeSymbol.attachedFuncs, objectType, indexMap,
+                            symbolTable);
+                    addImmutableType(mv, objectType);
+//                    }
                     BTypeIdSet objTypeIdSet = ((BObjectType) bType).typeIdSet;
                     if (!objTypeIdSet.isEmpty()) {
                         mv.visitInsn(DUP);
@@ -474,8 +474,8 @@ class JvmTypeGen {
                                String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRAND_METADATA, SCHEDULER,
                                              STRAND_CLASS, MAP), false);
             mv.visitInsn(SWAP);
-            mv.visitMethodInsn(INVOKESTATIC, className, "$init", String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE),
-                               false);
+            mv.visitMethodInsn(INVOKESTATIC, className, JvmConstants.RECORD_INIT_WRAPPER_NAME,
+                    String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), false);
 
             mv.visitInsn(ARETURN);
             i += 1;
@@ -1129,18 +1129,17 @@ class JvmTypeGen {
                     loadTypedescType(mv, (BTypedescType) bType);
                     return;
                 case TypeTags.OBJECT:
-                    if (bType instanceof BServiceType) {
-                        if (!Objects.equals(getTypeFieldName(toNameString(bType)), "$type$service")) {
-                            loadUserDefinedType(mv, bType);
-                            return;
-                        } else {
-                            typeFieldName = "typeAnyService";
-                        }
-                    } else if (bType instanceof BObjectType) {
-                        loadUserDefinedType(mv, bType);
-                        return;
-                    }
-                    break;
+//                    if (bType instanceof BServiceType) {
+//                        if (!Objects.equals(getTypeFieldName(toNameString(bType)), "$type$service")) {
+//                            loadUserDefinedType(mv, bType);
+//                            return;
+//                        } else {
+//                            typeFieldName = "typeAnyService";
+//                        }
+//                    } else if (bType instanceof BObjectType) {
+                    loadUserDefinedType(mv, bType);
+                    return;
+//                    }
                 case TypeTags.HANDLE:
                     typeFieldName = "typeHandle";
                     break;
@@ -1696,10 +1695,9 @@ class JvmTypeGen {
     }
 
     static boolean isServiceDefAvailable(List<BIRTypeDefinition> typeDefs) {
-
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
-            if (bType instanceof BServiceType) {
+            if ((bType.flags & Flags.SERVICE) == Flags.SERVICE) {
                 return true;
             }
         }

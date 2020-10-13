@@ -216,6 +216,10 @@ public class Symbols {
         return (sym.flags & Flags.PRIVATE) == Flags.PRIVATE;
     }
 
+    public static boolean isResource(BSymbol sym) {
+        return (sym.flags & Flags.RESOURCE) == Flags.RESOURCE;
+    }
+
     public static boolean isRemote(BSymbol sym) {
         return (sym.flags & Flags.REMOTE) == Flags.REMOTE;
     }
@@ -238,5 +242,9 @@ public class Symbols {
 
     public static boolean isTagOn(BSymbol symbol, int symTag) {
         return (symbol.tag & symTag) == symTag;
+    }
+
+    public static boolean isService(BSymbol sym) {
+        return (sym.flags & Flags.SERVICE) == Flags.SERVICE;
     }
 }

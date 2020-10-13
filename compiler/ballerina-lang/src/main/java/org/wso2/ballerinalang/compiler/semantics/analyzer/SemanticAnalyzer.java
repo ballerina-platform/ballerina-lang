@@ -307,7 +307,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // annotation validation for workers is done for the invocation.
             funcNode.annAttachments.forEach(annotationAttachment -> {
                 if (Symbols.isFlagOn(funcNode.symbol.flags, Flags.RESOURCE)) {
-                    annotationAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
+                    annotationAttachment.attachPoints.add(AttachPoint.Point.SERVICE_REMOTE);
                 } else if (funcNode.attachedFunction) {
                     annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT_METHOD);
                 }

@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -91,6 +90,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.jvm.util.BLangConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
@@ -286,7 +286,7 @@ public class AnnotationDesugar {
                 String identifier = function.attachedFunction ? function.symbol.name.value : function.name.value;
 
                 int index;
-                if (function.attachedFunction && function.receiver.type instanceof BServiceType) {
+                if (function.attachedFunction && ((function.receiver.type.flags & Flags.SERVICE) == Flags.SERVICE)) {
                     addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
                     index = calculateIndex(initFnBody.stmts, function.receiver.type.tsymbol);
                 } else {
@@ -537,7 +537,7 @@ public class AnnotationDesugar {
     }
 
     private BLangFunction defineFunction(DiagnosticPos pos, PackageID pkgID, BSymbol owner) {
-        String funcName = ANNOT_FUNC + annotFuncCount++;
+        String funcName = ANNOT_FUNC + UNDERSCORE + annotFuncCount++;
         BLangFunction function = ASTBuilderUtil.createFunction(pos, funcName);
         function.type = new BInvokableType(Collections.emptyList(), symTable.mapType, null);
 

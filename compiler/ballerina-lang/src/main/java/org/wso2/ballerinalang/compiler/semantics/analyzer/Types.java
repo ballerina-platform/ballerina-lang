@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -95,6 +94,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.jvm.util.BLangConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
@@ -1040,8 +1040,6 @@ public class Types {
             case TypeTags.TYPEDESC:
             case TypeTags.HANDLE:
                 return true;
-            case TypeTags.SERVICE:
-                return type instanceof BServiceType; // Since the tag for both service and object are the same.
         }
         return false;
     }
@@ -1276,6 +1274,11 @@ public class Types {
         int lhsAttachedFuncCount = getObjectFuncCount(lhsStructSymbol);
         int rhsAttachedFuncCount = getObjectFuncCount(rhsStructSymbol);
 
+        // If LHS is a service obj, then RHS must be a service object in order to assignable
+        if (isServiceObject(lhsStructSymbol) && !isServiceObject(rhsStructSymbol)) {
+            return false;
+        }
+
         // RHS type should have at least all the fields as well attached functions of LHS type.
         if (lhsType.fields.size() > rhsType.fields.size() || lhsAttachedFuncCount > rhsAttachedFuncCount) {
             return false;
@@ -1301,6 +1304,11 @@ public class Types {
                     !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
+
+            // If LHS field is a resource field, RHS field must be a resource field
+            if (Symbols.isResource(lhsField.symbol) && !Symbols.isResource(rhsField.symbol)) {
+                return false;
+            }
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
@@ -1318,6 +1326,10 @@ public class Types {
         }
 
         return lhsType.typeIdSet.isAssignableFrom(rhsType.typeIdSet);
+    }
+
+    private boolean isServiceObject(BObjectTypeSymbol rhsStructSymbol) {
+        return (rhsStructSymbol.flags & Flags.SERVICE) == Flags.SERVICE;
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
@@ -2289,11 +2301,6 @@ public class Types {
         }
 
         @Override
-        public Boolean visit(BServiceType t, BType s) {
-            return t == s || t.tag == s.tag;
-        }
-
-        @Override
         public Boolean visit(BTypedescType t, BType s) {
 
             if (s.tag != TypeTags.TYPEDESC) {
@@ -2654,10 +2661,10 @@ public class Types {
 
         // Create a new finite type representing the assignable values.
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteType.tsymbol.flags,
-                                                                names.fromString("$anonType$" + finiteTypeCount++),
-                                                                finiteType.tsymbol.pkgID, null,
-                                                                finiteType.tsymbol.owner, finiteType.tsymbol.pos,
-                                                                VIRTUAL);
+                names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
+                finiteType.tsymbol.pkgID, null,
+                finiteType.tsymbol.owner, finiteType.tsymbol.pos,
+                VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
@@ -3131,10 +3138,10 @@ public class Types {
         }
 
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, originalType.tsymbol.flags,
-                                                                names.fromString("$anonType$" + finiteTypeCount++),
-                                                                originalType.tsymbol.pkgID, null,
-                                                                originalType.tsymbol.owner, originalType.tsymbol.pos,
-                                                                VIRTUAL);
+                names.fromString("$anonType$" + UNDERSCORE + finiteTypeCount++),
+                originalType.tsymbol.pkgID, null,
+                originalType.tsymbol.owner, originalType.tsymbol.pos,
+                VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, remainingValueSpace);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;

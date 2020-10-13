@@ -176,7 +176,6 @@ public enum DiagnosticCode {
     // Service, endpoint related errors codes
     SERVICE_INVALID_OBJECT_TYPE("service.invalid.object.type"),
     SERVICE_INVALID_ENDPOINT_TYPE("service.invalid.endpoint.type"),
-    SERVICE_FUNCTION_INVALID_MODIFIER("service.function.invalid.modifier"),
     SERVICE_FUNCTION_INVALID_INVOCATION("service.function.invalid.invocation"),
     SERVICE_SERVICE_TYPE_REQUIRED_ANONYMOUS("service.service.type.required.anonymous"),
     ENDPOINT_OBJECT_TYPE_REQUIRED("endpoint.object.type.required"),
@@ -185,12 +184,13 @@ public enum DiagnosticCode {
     ENDPOINT_INVALID_TYPE_NO_FUNCTION("endpoint.invalid.type.no.function"),
     ENDPOINT_SPI_INVALID_FUNCTION("endpoint.spi.invalid.function"),
 
-    REMOTE_FUNCTION_IN_NON_CLIENT_OBJECT("remote.function.in.non.client.object"),
+    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("remote.function.in.non.network.object"),
     RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT("resource.function.in.non.service.object"),
     RESOURCE_FUNCTION_INVALID_RETURN_TYPE("resource.function.invalid.return.type"),
     REMOTE_IN_NON_OBJECT_FUNCTION("remote.in.non.object.function"),
     INVALID_LISTENER_VARIABLE("invalid.listener.var"),
     INVALID_LISTENER_ATTACHMENT("invalid.listener.attachment"),
+    RESOURCE_FIELD_ONLY_ALLOWED_IN_SERVICE_TYPE("resource.field.in.non.service.type"),
 
     ENDPOINT_NOT_SUPPORT_REGISTRATION("endpoint.not.support.registration"),
     INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),

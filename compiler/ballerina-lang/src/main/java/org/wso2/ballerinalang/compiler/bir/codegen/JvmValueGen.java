@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -167,7 +166,7 @@ class JvmValueGen {
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
-            if (bType instanceof BServiceType || (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
+            if ((bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
                 desugarObjectMethods(module, bType, optionalTypeDef.attachedFuncs, jvmMethodGen, jvmPackageGen);
             }
@@ -591,7 +590,7 @@ class JvmValueGen {
             if (typeRef.tag == TypeTags.RECORD) {
                 String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
                 mv.visitInsn(DUP2);
-                mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
+                mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, JvmConstants.RECORD_INIT_WRAPPER_NAME,
                                    String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), false);
             }
         }
@@ -765,7 +764,7 @@ class JvmValueGen {
     // TODO: remove this method, logic moved to createInstantiateMethod, see #23012
     private void createRecordInitWrapper(ClassWriter cw, String className, BIRNode.BIRTypeDefinition typeDef) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init",
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, JvmConstants.RECORD_INIT_WRAPPER_NAME,
                                           String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), null, null);
         mv.visitCode();
         // load strand
@@ -783,7 +782,7 @@ class JvmValueGen {
             String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID,
                                                             toNameString(typeRef));
             mv.visitInsn(DUP2);
-            mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
+            mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, JvmConstants.RECORD_INIT_WRAPPER_NAME,
                                String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), false);
         }
 
@@ -1345,12 +1344,13 @@ class JvmValueGen {
 
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
             BType bType = optionalTypeDef.type;
-            if (bType instanceof BServiceType) {
-                BServiceType serviceType = (BServiceType) bType;
-                String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
-                byte[] bytes = this.createObjectValueClass(serviceType, className, optionalTypeDef, true);
-                jarEntries.put(className + ".class", bytes);
-            } else if (bType.tag == TypeTags.OBJECT &&
+//            if (bType instanceof BServiceType) {
+//                BServiceType serviceType = (BServiceType) bType;
+//                String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
+//                byte[] bytes = this.createObjectValueClass(serviceType, className, optionalTypeDef, true);
+//                jarEntries.put(className + ".class", bytes);
+//            } else
+            if (bType.tag == TypeTags.OBJECT &&
                     Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
                 String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);

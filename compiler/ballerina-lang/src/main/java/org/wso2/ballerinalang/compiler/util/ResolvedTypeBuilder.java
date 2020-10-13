@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -350,12 +349,8 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BFiniteType originalType, BType newType) {
-        // Not applicable for finite types since the descriptor has to be defined before using in the return type.
-        return originalType;
-    }
 
-    @Override
-    public BType visit(BServiceType originalType, BType newType) {
+        // Not applicable for finite types since the descriptor has to be defined before using in the return type.
         return originalType;
     }
 

@@ -155,13 +155,12 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 
             switch (kind) {
                 case SERVICE_DECLARATION:
-                case SERVICE_CONSTRUCTOR_EXPRESSION:
                     if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.SERVICE)) {
                         completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
                     }
                     break;
                 case RESOURCE_KEYWORD:
-                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.RESOURCE)
+                    if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.SERVICE_REMOTE)
                             || Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FUNCTION)) {
                         completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
                     }

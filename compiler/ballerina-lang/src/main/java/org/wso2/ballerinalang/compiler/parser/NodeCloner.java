@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -415,16 +416,8 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction source) {
-
         BLangFunction clone = new BLangFunction();
-        source.cloneRef = clone;
-
-        clone.attachedFunction = source.attachedFunction;
-        clone.objInitFunction = source.objInitFunction;
-        clone.interfaceFunction = source.interfaceFunction;
-        clone.anonForkName = source.anonForkName;
-
-        cloneBLangInvokableNode(source, clone);
+        cloneFunctionNode(source, clone);
     }
 
     @Override
@@ -2125,6 +2118,26 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.initFunction = clone(source.initFunction);
         clone.generatedInitFunction = clone(source.generatedInitFunction);
         clone.receiver = clone(source.receiver);
+    }
+
+    @Override
+    public void visit(BLangResourceFunction source) {
+        BLangResourceFunction clone = new BLangResourceFunction();
+        cloneFunctionNode(source, clone);
+
+        clone.resourcePath = cloneList(source.resourcePath);
+        clone.accessorName = clone(source.accessorName);
+    }
+
+    private void cloneFunctionNode(BLangFunction source, BLangFunction clone) {
+        source.cloneRef = clone;
+
+        clone.attachedFunction = source.attachedFunction;
+        clone.objInitFunction = source.objInitFunction;
+        clone.interfaceFunction = source.interfaceFunction;
+        clone.anonForkName = source.anonForkName;
+
+        cloneBLangInvokableNode(source, clone);
     }
 
     @Override

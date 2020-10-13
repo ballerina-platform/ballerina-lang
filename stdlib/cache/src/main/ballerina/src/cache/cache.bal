@@ -45,8 +45,8 @@ type CacheEntry record {|
 boolean cleanupInProgress = false;
 
 // Cleanup service which cleans the cache entries periodically.
-service cleanupService = service {
-    resource function onTrigger(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
+service class CleanupService {
+    remote function onTrigger(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
         // This check will skip the processes triggered while the clean up in progress.
         if (!cleanupInProgress) {
             cleanupInProgress = true;
@@ -54,7 +54,7 @@ service cleanupService = service {
             cleanupInProgress = false;
         }
     }
-};
+}
 
 # The `cache:Cache` object, which is used for all the cache-related operations. It is not recommended to insert `()`
 # as the value of the cache since it doesn't make any sense to cache a nil.
@@ -105,7 +105,7 @@ public class Cache {
                 initialDelayInMillis: cleanupIntervalInSeconds
             };
             task:Scheduler cleanupScheduler = new(timerConfiguration);
-            task:SchedulerError? result = cleanupScheduler.attach(cleanupService, self, self.list, self.evictionPolicy);
+            task:SchedulerError? result = cleanupScheduler.attach(new CleanupService(), self, self.list, self.evictionPolicy);
             if (result is task:SchedulerError) {
                 panic prepareError("Failed to create the cache cleanup task.", result);
             }

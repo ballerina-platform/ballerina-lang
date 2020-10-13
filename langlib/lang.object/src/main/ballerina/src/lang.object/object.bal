@@ -21,14 +21,14 @@ public type Listener object {
     # + s - the service to attach
     # + name - optionally a name associated with the service
     # + return - `()` if no error occurred, and an error otherwise
-    public function __attach(service s, string? name = ()) returns error?;
+    public function __attach(service object {} s, string? name = ()) returns error?;
 
     # Handle service detachment from the listener.
     #
     # + s - the service to detach
     # + return - `()` if no error occurred, and an error otherwise
 
-    public function __detach(service s) returns error?;
+    public function __detach(service object {} s) returns error?;
     # Handle listener start.
     #
     # + return - `()` if no error occurred, and an error otherwise
