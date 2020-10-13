@@ -98,7 +98,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
@@ -513,7 +512,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         variableToStackFrameMap.put(child, rootNode);
     }
 
-    @Nullable
     private StackFrame toDapStackFrame(StackFrameProxyImpl stackFrame) {
         try {
             long variableReference = nextVarReference.getAndIncrement();

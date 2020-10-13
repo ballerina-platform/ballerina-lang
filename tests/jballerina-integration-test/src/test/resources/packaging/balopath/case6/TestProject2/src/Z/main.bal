@@ -1,7 +1,9 @@
-import ballerina/io;
-
 # Prints `Hello World`.
 
 public function main() {
-    io:println("Hello world from module Z!");
+    string s = sayFromZ();
+}
+
+public function sayFromZ() returns string {
+    return "Hello world from module Z!";
 }
