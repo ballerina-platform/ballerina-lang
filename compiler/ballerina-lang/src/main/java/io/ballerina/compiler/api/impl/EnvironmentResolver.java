@@ -126,6 +126,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -157,19 +158,19 @@ import java.util.List;
 
 /**
  * Visitor to lookup symbols based on the location.
- * 
+ *
  * @since 2.0.0
  */
 public class EnvironmentResolver extends BLangNodeVisitor {
     LinePosition linePosition = null;
     private SymbolEnv symbolEnv;
     private SymbolEnv scope;
-    
+
     public EnvironmentResolver(SymbolEnv pkgEnv) {
         this.symbolEnv = pkgEnv;
         this.scope = pkgEnv;
     }
-    
+
     public SymbolEnv lookUp(BLangCompilationUnit compilationUnit, LinePosition linePosition) {
         this.linePosition = linePosition;
         compilationUnit.accept(this);
@@ -512,7 +513,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     public void visit(BLangDoClause doClause) {
         this.acceptNode(doClause.body, symbolEnv);
     }
-    
+
     @Override
     public void visit(BLangPackage pkgNode) {
     }
@@ -531,192 +532,192 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIdentifier identifierNode) {
-        
+
     }
 
     @Override
     public void visit(BLangLock.BLangLockStmt lockStmtNode) {
-        
+
     }
 
     @Override
     public void visit(BLangLock.BLangUnLockStmt unLockNode) {
-        
+
     }
 
     @Override
     public void visit(BLangFromClause fromClause) {
-        
+
     }
 
     @Override
     public void visit(BLangLetClause letClause) {
-        
+
     }
 
     @Override
     public void visit(BLangSelectClause selectClause) {
-        
+
     }
 
     @Override
     public void visit(BLangWhereClause whereClause) {
-        
+
     }
 
     @Override
     public void visit(BLangTryCatchFinally tryNode) {
-        
+
     }
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
-        
+
     }
 
     @Override
     public void visit(BLangRecordDestructure stmt) {
-        
+
     }
 
     @Override
     public void visit(BLangErrorDestructure stmt) {
-        
+
     }
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangConstRef constRef) {
-        
+
     }
 
     @Override
     public void visit(BLangNumericLiteral literalExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangWaitExpr awaitExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangTrapExpr trapExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangElvisExpr elvisExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangLetExpression letExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangLetVariable letVariable) {
-        
+
     }
 
     @Override
     public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
-        
+
     }
 
     @Override
     public void visit(BLangListConstructorExpr.BLangArrayLiteral arrayLiteral) {
-        
+
     }
 
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangTypedescExpr accessExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangXMLQName xmlQName) {
-        
+
     }
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
-        
+
     }
 
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        
+
     }
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        
+
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        
+
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-        
+
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        
+
     }
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        
+
     }
 
     @Override
@@ -726,227 +727,227 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        
+
     }
 
     @Override
     public void visit(BLangIntRangeExpression intRangeExpression) {
-        
+
     }
 
     @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
-        
+
     }
 
     @Override
     public void visit(BLangIsAssignableExpr assignableExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangIsLikeExpr typeTestExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangIgnoreExpr ignoreExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangValueType valueType) {
-        
+
     }
 
     @Override
     public void visit(BLangArrayType arrayType) {
-        
+
     }
 
     @Override
     public void visit(BLangBuiltInRefTypeNode builtInRefType) {
-        
+
     }
 
     @Override
     public void visit(BLangConstrainedType constrainedType) {
-        
+
     }
 
     @Override
     public void visit(BLangStreamType streamType) {
-        
+
     }
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        
+
     }
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        
+
     }
 
     @Override
     public void visit(BLangUnionTypeNode unionTypeNode) {
-        
+
     }
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
-        
+
     }
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        
+
     }
 
     @Override
     public void visit(BLangErrorType errorType) {
-        
+
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
-        
+
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
-        
+
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
-        
+
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangFunctionVarRef functionVarRef) {
-        
+
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
-        
+
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef functionVarRef) {
-        
+
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapKeyAccessExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangTupleAccessExpr arrayIndexAccessExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlAccessExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
-        
+
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
-        
+
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangChannelLiteral channelLiteral) {
-        
+
     }
 
     @Override
     public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
-        
+
     }
 
     @Override
     public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangListConstructorExpr.BLangJSONArrayLiteral jsonArrayLiteral) {
-        
+
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
-        
+
     }
 
     @Override
     public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-        
+
     }
 
     @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        
+
     }
 
     @Override
@@ -956,102 +957,107 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMarkdownDocumentationLine bLangMarkdownDocumentationLine) {
-        
+
     }
 
     @Override
     public void visit(BLangMarkdownParameterDocumentation bLangDocumentationParameter) {
-        
+
     }
 
     @Override
     public void visit(BLangMarkdownReturnParameterDocumentation bLangMarkdownReturnParameterDocumentation) {
-        
+
     }
 
     @Override
     public void visit(BLangMarkDownDeprecationDocumentation bLangMarkDownDeprecationDocumentation) {
-        
+
     }
 
     @Override
     public void visit(BLangMarkdownDocumentation bLangMarkdownDocumentation) {
-        
+
     }
 
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
-        
+
     }
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
-        
+
     }
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
-        
+
     }
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
-        
+
     }
 
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        
+
     }
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
-        
+
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField) {
-        
+
     }
 
     @Override
     public void visit(BLangMarkdownReferenceDocumentation bLangMarkdownReferenceDocumentation) {
-        
+
     }
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
-        
+
     }
 
     @Override
     public void visit(BLangXMLElementFilter xmlElementFilter) {
-        
+
     }
 
     @Override
     public void visit(BLangXMLElementAccess xmlElementAccess) {
-        
+
     }
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
-        
+
     }
 
     @Override
     public void visit(BLangDo doNode) {
         this.acceptNode(doNode.body, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangMatchStatement matchStatementNode) {
+        
     }
 
     private void acceptNode(BLangNode node, SymbolEnv env) {

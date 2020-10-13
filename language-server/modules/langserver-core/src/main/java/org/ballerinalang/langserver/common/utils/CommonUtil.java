@@ -442,20 +442,6 @@ public class CommonUtil {
     }
 
     /**
-     * Check whether a given symbol is client object or not.
-     *
-     * @param bSymbol BSymbol to evaluate
-     * @return {@link Boolean}  Symbol evaluation status
-     */
-    public static boolean isClientObject(Symbol bSymbol) {
-        return false;
-        // Fixme: revamp
-//        return bSymbol.type != null && bSymbol.type.tsymbol != null
-//                && SymbolKind.OBJECT.equals(bSymbol.type.tsymbol.kind)
-//                && (bSymbol.type.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT;
-    }
-
-    /**
      * Get completion items list for struct fields.
      *
      * @param context Language server operation context

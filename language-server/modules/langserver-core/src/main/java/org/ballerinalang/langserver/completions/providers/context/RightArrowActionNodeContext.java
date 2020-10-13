@@ -74,7 +74,7 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
         if (filteredEntry.isEmpty()) {
             return completionItems;
         }
-        if (CommonUtil.isClientObject(filteredEntry.get())) {
+        if (SymbolUtil.isClient(filteredEntry.get())) {
             /*
             Covers the following case where a is a client object and we suggest the remote actions
             (1) a -> g<cursor>

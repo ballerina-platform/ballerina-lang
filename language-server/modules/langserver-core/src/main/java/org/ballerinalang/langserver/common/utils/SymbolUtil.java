@@ -152,6 +152,20 @@ public class SymbolUtil {
     }
 
     /**
+     * Check Whether the provided symbol is a client symbol.
+     *
+     * @param symbol to be evaluated
+     * @return {@link Boolean} status of the evaluation
+     */
+    public static boolean isClient(Symbol symbol) {
+        if (!isObject(symbol)) {
+            return false;
+        }
+        ObjectTypeDescriptor typeDesc = getTypeDescForObjectSymbol(symbol);
+        return typeDesc.typeQualifiers().contains(ObjectTypeDescriptor.TypeQualifier.CLIENT);
+    }
+
+    /**
      * Check whether the symbol is a listener object.
      *
      * @param symbol Symbol to evaluate

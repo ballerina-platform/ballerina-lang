@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -144,7 +145,7 @@ class SemanticHighlightingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        if (CommonUtil.isClientObject(/*varNode.symbol*/null)) {
+        if (SymbolUtil.isClient(/*varNode.symbol*/null)) {
             SemanticHighlightProvider.HighlightInfo highlightInfo =
                     new SemanticHighlightProvider.HighlightInfo(ScopeEnum.ENDPOINT, varNode.name);
             highlights.add(highlightInfo);
@@ -157,7 +158,7 @@ class SemanticHighlightingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        if (!CommonUtil.isClientObject(/*varRefExpr.symbol*/null)) {
+        if (!SymbolUtil.isClient(/*varRefExpr.symbol*/null)) {
             return;
         }
         SemanticHighlightProvider.HighlightInfo highlightInfo =
