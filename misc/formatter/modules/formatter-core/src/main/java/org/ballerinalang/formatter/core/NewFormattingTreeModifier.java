@@ -1810,21 +1810,19 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public XMLNamespaceDeclarationNode transform(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
         Token xmlnsKeyword = formatToken(xMLNamespaceDeclarationNode.xmlnsKeyword(), 1, 0);
-        ExpressionNode namespaceuri;
+        ExpressionNode namespaceUri;
 
         if (xMLNamespaceDeclarationNode.asKeyword().isPresent()) {
+            namespaceUri = formatNode(xMLNamespaceDeclarationNode.namespaceuri(), 1, 0);
             Token asKeyword = formatToken(xMLNamespaceDeclarationNode.asKeyword().get(), 1, 0);
-            xMLNamespaceDeclarationNode = xMLNamespaceDeclarationNode.modify()
-                    .withAsKeyword(asKeyword).apply();
-        }
-
-        if (xMLNamespaceDeclarationNode.namespacePrefix().isPresent()) {
-            namespaceuri = formatNode(xMLNamespaceDeclarationNode.namespaceuri(), 1, 0);
             IdentifierToken namespacePrefix = formatNode(xMLNamespaceDeclarationNode.namespacePrefix().get(), 0, 0);
+
             xMLNamespaceDeclarationNode = xMLNamespaceDeclarationNode.modify()
-                    .withNamespacePrefix(namespacePrefix).apply();
+                    .withAsKeyword(asKeyword)
+                    .withNamespacePrefix(namespacePrefix)
+                    .apply();
         } else {
-            namespaceuri = formatNode(xMLNamespaceDeclarationNode.namespaceuri(), 0, 0);
+            namespaceUri = formatNode(xMLNamespaceDeclarationNode.namespaceuri(), 0, 0);
         }
 
         Token semicolonToken = formatToken(xMLNamespaceDeclarationNode.semicolonToken(),
@@ -1832,7 +1830,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         return xMLNamespaceDeclarationNode.modify()
                 .withXmlnsKeyword(xmlnsKeyword)
-                .withNamespaceuri(namespaceuri)
+                .withNamespaceuri(namespaceUri)
                 .withSemicolonToken(semicolonToken)
                 .apply();
     }
@@ -2503,9 +2501,11 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public QueryPipelineNode transform(QueryPipelineNode queryPipelineNode) {
+        indent();
         FromClauseNode fromClause = formatNode(queryPipelineNode.fromClause(), 0, 1);
         NodeList<IntermediateClauseNode> intermediateClauses = formatNodeList(queryPipelineNode.intermediateClauses(),
                 0, 1, this.trailingWS, this.trailingNL);
+        unindent();
 
         return queryPipelineNode.modify()
                 .withFromClause(fromClause)
@@ -2515,14 +2515,40 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public SelectClauseNode transform(SelectClauseNode selectClauseNode) {
+        Token selectKeyword = formatToken(selectClauseNode.selectKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(selectClauseNode.expression(), this.trailingWS, this.trailingNL);
 
-        return super.transform(selectClauseNode);
+        return selectClauseNode.modify()
+                .withSelectKeyword(selectKeyword)
+                .withExpression(expression)
+                .apply();
     }
 
     @Override
     public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
+        if (queryExpressionNode.queryConstructType().isPresent()) {
+            QueryConstructTypeNode queryConstructType = formatNode(queryExpressionNode.queryConstructType().get(),
+                    1, 0);
+            queryExpressionNode = queryExpressionNode.modify().withQueryConstructType(queryConstructType).apply();
+        }
 
-        return super.transform(queryExpressionNode);
+        QueryPipelineNode queryPipeline = formatNode(queryExpressionNode.queryPipeline(), 0, 1);
+        indent();
+        SelectClauseNode selectClause;
+
+        if (queryExpressionNode.onConflictClause().isPresent()) {
+            selectClause = formatNode(queryExpressionNode.selectClause(), 0, 1);
+            OnConflictClauseNode onConflictClause = formatNode(queryExpressionNode.onConflictClause().get(), this.trailingWS, this.trailingNL);
+            queryExpressionNode = queryExpressionNode.modify().withOnConflictClause(onConflictClause).apply();
+        } else {
+            selectClause = formatNode(queryExpressionNode.selectClause(), this.trailingWS, this.trailingNL);
+        }
+        unindent();
+
+        return queryExpressionNode.modify()
+                .withQueryPipeline(queryPipeline)
+                .withSelectClause(selectClause)
+                .apply();
     }
 
     @Override
@@ -2934,17 +2960,28 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public OrderByClauseNode transform(OrderByClauseNode orderByClauseNode) {
+        Token orderKeyword = formatToken(orderByClauseNode.orderKeyword(), 1, 0);
+        Token byKeyword = formatToken(orderByClauseNode.byKeyword(), 1, 0);
+        SeparatedNodeList<OrderKeyNode> orderKey = formatSeparatedNodeList(orderByClauseNode.orderKey(),
+                1, 0, this.trailingWS, this.trailingNL);
 
-        return super.transform(orderByClauseNode);
+        return orderByClauseNode.modify()
+                .withOrderKeyword(orderKeyword)
+                .withByKeyword(byKeyword)
+                .withOrderKey(orderKey)
+                .apply();
     }
 
     @Override
     public OrderKeyNode transform(OrderKeyNode orderKeyNode) {
-        ExpressionNode expression = formatNode(orderKeyNode.expression(), 1, 0);
+        ExpressionNode expression;
 
         if (orderKeyNode.orderDirection().isPresent()) {
+            expression = formatNode(orderKeyNode.expression(), 1, 0);
             Token orderDirection = formatToken(orderKeyNode.orderDirection().get(), this.trailingWS, this.trailingNL);
             orderKeyNode = orderKeyNode.modify().withOrderDirection(orderDirection).apply();
+        } else {
+            expression = formatNode(orderKeyNode.expression(), this.trailingWS, this.trailingNL);
         }
 
         return orderKeyNode.modify()
