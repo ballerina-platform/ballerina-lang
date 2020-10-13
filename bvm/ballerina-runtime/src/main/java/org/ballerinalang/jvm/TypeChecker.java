@@ -1265,8 +1265,7 @@ public class TypeChecker {
                         return false;
                     }
                 }
-            }
-            else {
+            } else {
                 for (BType sourceElementType : tupleTypes) {
                     if (!checkIsType(sourceElementType, targetElementType, unresolvedTypes)) {
                         return false;
