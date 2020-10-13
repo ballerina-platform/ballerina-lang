@@ -154,15 +154,18 @@ function testCreateComment() returns xml {
     return 'xml:createComment("This text should be wraped in xml comment");
 }
 
-function testCreateText() returns [xml,xml,xml,xml,xml,xml] {
+function testCreateText() {
     'xml:Text text1 = 'xml:createText("This is xml text");
     'xml:Text text2 = 'xml:createText("");
     'xml:Text text3 = 'xml:createText("T");
     'xml:Text text4 = 'xml:createText("Thisisxmltext");
-    'xml:Text text5 = 'xml:createText("XML" + "\n" + "text");
-    xml text6 = 'xml:concat(text1, text3);
+    'xml:Text text5 = 'xml:createText("XML\ntext");
 
-    return [text1, text2, text3, text4, text5, text6];
+    assert(<string>text1, "This is xml text");
+    assert(<string>text2, "");
+    assert(<string>text3, "T");
+    assert(<string>text4, "Thisisxmltext");
+    assert(<string>text5, "XML\ntext");
 }
 
 function testForEach() returns xml {
@@ -389,4 +392,6 @@ function assert(anydata actual, anydata expected) {
         panic e;
     }
 }
+
+
 
