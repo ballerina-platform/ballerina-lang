@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import io.ballerina.jvm.values.DecimalValue;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BDecimal;
 
 /**
  * Native implementation of lang.decimal:abs(decimal).
@@ -33,7 +34,7 @@ import io.ballerina.jvm.values.DecimalValue;
 //)
 public class Abs {
 
-    public static DecimalValue abs(DecimalValue n) {
-        return new DecimalValue(n.value().abs());
+    public static BDecimal abs(BDecimal n) {
+        return BValueCreator.createDecimalValue(n.value().abs());
     }
 }

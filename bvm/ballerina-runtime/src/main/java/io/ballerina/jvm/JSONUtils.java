@@ -27,6 +27,7 @@ import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTable;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BField;
 import io.ballerina.jvm.types.BJSONType;
@@ -44,7 +45,6 @@ import io.ballerina.jvm.values.ErrorValue;
 import io.ballerina.jvm.values.MapValue;
 import io.ballerina.jvm.values.MapValueImpl;
 import io.ballerina.jvm.values.RefValue;
-import io.ballerina.jvm.values.TableValueImpl;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -538,12 +538,12 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link TableValueImpl} to JSON.
+     * Convert {@link BTable} to JSON.
      *
-     * @param table {@link TableValueImpl} to be converted
+     * @param table {@link BTable} to be converted
      * @return JSON representation of the provided table
      */
-    public static Object toJSON(TableValueImpl table) {
+    public static Object toJSON(BTable table) {
         TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
         return jsonDataSource.build();
     }

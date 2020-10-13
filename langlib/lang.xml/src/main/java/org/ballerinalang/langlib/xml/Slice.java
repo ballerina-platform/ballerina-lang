@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Slice and return a subsequence of the an XML sequence.
@@ -37,9 +37,9 @@ public class Slice {
 
     private static final String OPERATION = "slice xml";
 
-    public static XMLValue slice(XMLValue xml, long startIndex, long endIndex) {
+    public static BXML slice(BXML xml, long startIndex, long endIndex) {
         try {
-            return (XMLValue) xml.slice(startIndex, endIndex);
+            return (BXML) xml.slice(startIndex, endIndex);
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

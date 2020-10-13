@@ -18,8 +18,8 @@ package org.ballerinalang.cli.module;
 
 import io.ballerina.jvm.JSONParser;
 import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BMap;
 import org.ballerinalang.cli.module.util.ErrorUtil;
 import org.ballerinalang.cli.module.util.Utils;
 
@@ -84,7 +84,7 @@ public class Search {
         try {
             // 200 - modules found
             // Other - Error occurred, json returned with the error message
-            MapValue payload;
+            BMap payload;
             if (statusCode == HttpURLConnection.HTTP_OK) {
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(conn.getInputStream(), Charset.defaultCharset()))) {
@@ -93,13 +93,13 @@ public class Search {
                     while ((line = reader.readLine()) != null) {
                         result.append(line);
                     }
-                    payload = (MapValue) JSONParser.parse(result.toString());
+                    payload = (BMap) JSONParser.parse(result.toString());
                 } catch (IOException e) {
                     throw ErrorUtil.createCommandException(e.getMessage());
                 }
 
                 if (payload.getIntValue(BStringUtils.fromString("count")) > 0) {
-                    ArrayValue modules = payload.getArrayValue(BStringUtils.fromString("modules"));
+                    BArray modules = payload.getArrayValue(BStringUtils.fromString("modules"));
                     printModules(modules, terminalWidth);
                 } else {
                     outStream.println("no modules found");
@@ -116,7 +116,7 @@ public class Search {
                     throw ErrorUtil.createCommandException(e.getMessage());
                 }
 
-                payload = (MapValue) JSONParser.parse(result.toString());
+                payload = (BMap) JSONParser.parse(result.toString());
                 throw ErrorUtil.createCommandException(
                         payload.getStringValue(BStringUtils.fromString("message")).getValue());
             }
@@ -131,7 +131,7 @@ public class Search {
      * @param modules       modules array
      * @param terminalWidth terminal width of the CLI
      */
-    public static void printModules(ArrayValue modules, String terminalWidth) {
+    public static void printModules(BArray modules, String terminalWidth) {
         int rightMargin = 3;
         int width = Integer.parseInt(terminalWidth) - rightMargin;
         int dateColWidth = 15;
@@ -150,7 +150,7 @@ public class Search {
 
         int i = 0;
         while (i < modules.size()) {
-            printModule((MapValue) modules.get(i), dateColWidth, versionColWidth, authorsColWidth, nameColWidth,
+            printModule((BMap) modules.get(i), dateColWidth, versionColWidth, authorsColWidth, nameColWidth,
                     descColWidth, minDescColWidth);
             i = i + 1;
             outStream.println();
@@ -170,7 +170,7 @@ public class Search {
      * @param minDescColWidth minimum description column width
      * @param authorsColWidth authors column width
      */
-    private static void printModule(MapValue module, int dateColWidth, int versionColWidth, int authorsColWidth,
+    private static void printModule(BMap module, int dateColWidth, int versionColWidth, int authorsColWidth,
             int nameColWidth, int descColWidth, int minDescColWidth) {
         String orgName = module.getStringValue(BStringUtils.fromString("orgName")).getValue();
         String packageName = module.getStringValue(BStringUtils.fromString("name")).getValue();
@@ -181,7 +181,7 @@ public class Search {
         if (descColWidth >= minDescColWidth) {
             printInCLI(summary, descColWidth - authorsColWidth);
             String authors = "";
-            ArrayValue authorsArr = module.getArrayValue(BStringUtils.fromString("authors"));
+            BArray authorsArr = module.getArrayValue(BStringUtils.fromString("authors"));
 
             if (authorsArr.size() > 0) {
                 for (int j = 0; j < authorsArr.size(); j++) {

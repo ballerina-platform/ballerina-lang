@@ -19,8 +19,8 @@ package org.ballerinalang.observe.nativeimpl;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.observability.metrics.Counter;
-import io.ballerina.jvm.values.ObjectValue;
 
 /**
  * This is the native register function implementation of the Counter object.
@@ -30,7 +30,7 @@ import io.ballerina.jvm.values.ObjectValue;
 
 public class CounterRegister {
 
-    public static Object register(ObjectValue counterObj) {
+    public static Object register(BObject counterObj) {
         try {
             Counter counter = (Counter) counterObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
             Counter registeredCounter = counter.register();

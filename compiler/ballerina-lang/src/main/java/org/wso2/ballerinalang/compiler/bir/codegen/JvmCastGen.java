@@ -68,6 +68,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRIN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE_OF_J_METHOD;
@@ -85,7 +86,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NUMBER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SIMPLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
@@ -1315,7 +1315,7 @@ public class JvmCastGen {
                 targetTypeClass = STREAM_VALUE;
                 break;
             case TypeTags.OBJECT:
-                targetTypeClass = OBJECT_VALUE;
+                targetTypeClass = B_OBJECT;
                 break;
             case TypeTags.ERROR:
                 targetTypeClass = ERROR_VALUE;

@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.transaction;
 
+import io.ballerina.jvm.api.values.BFunctionPointer;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.transactions.TransactionLocalContext;
 import io.ballerina.jvm.transactions.TransactionResourceManager;
-import io.ballerina.jvm.values.FPValue;
 
 /**
  * Extern function transaction:onCommit.
@@ -30,10 +30,10 @@ import io.ballerina.jvm.values.FPValue;
  */
 public class OnCommit {
 
-    public static void onCommit(FPValue fpValue) {
+    public static void onCommit(BFunctionPointer bFunctionPointer) {
         TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerCommittedFunction(transactionLocalContext.getGlobalTransactionId(),
-                fpValue);
+                bFunctionPointer);
     }
 }

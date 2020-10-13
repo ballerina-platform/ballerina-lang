@@ -19,11 +19,11 @@ package org.ballerinalang.langlib.java;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.runtime.Module;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.util.BLangConstants;
 import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.jvm.values.HandleValue;
 
 /**
  * This class contains various utility functions required to provide the 'ballerina/java' module API.
@@ -52,12 +52,12 @@ public class JavaUtils {
         String name = namebStr.getValue();
         Class<?> clazz = getPrimitiveTypeClass(name);
         if (clazz != null) {
-            return new HandleValue(clazz);
+            return BValueCreator.createHandleValue(clazz);
         }
 
         try {
             clazz = Class.forName(name);
-            return new HandleValue(clazz);
+            return BValueCreator.createHandleValue(clazz);
         } catch (ClassNotFoundException e) {
             return BErrorCreator.createDistinctError(BallerinaErrorReasons.JAVA_CLASS_NOT_FOUND_ERROR,
                                                      JAVA_PACKAGE_ID, BStringUtils.fromString(name));

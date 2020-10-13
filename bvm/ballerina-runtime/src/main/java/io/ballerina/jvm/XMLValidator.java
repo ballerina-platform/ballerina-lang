@@ -18,6 +18,7 @@ package io.ballerina.jvm;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BXMLQName;
 import io.ballerina.jvm.values.XMLQName;
 
 /**
@@ -265,7 +266,7 @@ public class XMLValidator {
      * 
      * @param qname {@link XMLQName} to check the validity
      */
-    public static void validateXMLQName(XMLQName qname) {
+    public static void validateXMLQName(BXMLQName qname) {
         validateXMLName(qname.getLocalName());
         validateXMLName(qname.getPrefix());
     }

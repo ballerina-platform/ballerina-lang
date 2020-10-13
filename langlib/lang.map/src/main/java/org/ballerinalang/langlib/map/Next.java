@@ -20,10 +20,10 @@ package org.ballerinalang.langlib.map;
 
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.IteratorValue;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.ObjectValue;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BIterator;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BObject;
 
 /**
  * Native implementation of lang.map.MapIterator:next().
@@ -39,17 +39,17 @@ import io.ballerina.jvm.values.ObjectValue;
 //)
 public class Next {
     //TODO: refactor hard coded values
-    public static Object next(ObjectValue m) {
-        IteratorValue mapIterator = (IteratorValue) m.getNativeData("&iterator&");
-        MapValueImpl mapValue = (MapValueImpl) m.get(BStringUtils.fromString("m"));
+    public static Object next(BObject m) {
+        BIterator mapIterator = (BIterator) m.getNativeData("&iterator&");
+        BMap bMap = (BMap) m.get(BStringUtils.fromString("m"));
         if (mapIterator == null) {
-            mapIterator = mapValue.getIterator();
+            mapIterator = bMap.getIterator();
             m.addNativeData("&iterator&", mapIterator);
         }
 
         if (mapIterator.hasNext()) {
-            ArrayValue keyValueTuple = (ArrayValue) mapIterator.next();
-            return BValueCreator.createRecordValue(new MapValueImpl<>(mapValue.getIteratorNextReturnType()),
+            BArray keyValueTuple = (BArray) mapIterator.next();
+            return BValueCreator.createRecordValue(BValueCreator.createMapValue(bMap.getIteratorNextReturnType()),
                                                    keyValueTuple.get(1));
         }
 

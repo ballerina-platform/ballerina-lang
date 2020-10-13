@@ -12,7 +12,6 @@ module io.ballerina.jvm {
     requires io.ballerina.config;
     requires io.ballerina.logging;
 
-    exports io.ballerina.jvm.values;
     exports io.ballerina.jvm.types;
     exports io.ballerina.jvm.util;
     exports io.ballerina.jvm.api;
@@ -23,7 +22,6 @@ module io.ballerina.jvm {
     exports io.ballerina.jvm.api.commons;
     exports io.ballerina.jvm.internal;
     exports io.ballerina.jvm.util.exceptions;
-    exports io.ballerina.jvm.values.utils;
     exports io.ballerina.jvm.launch;
     exports io.ballerina.jvm;
     exports io.ballerina.jvm.values.connector;

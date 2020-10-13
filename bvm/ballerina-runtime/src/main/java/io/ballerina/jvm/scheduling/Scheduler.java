@@ -21,11 +21,11 @@ import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.connector.CallableUnitCallback;
 import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BFunctionPointer;
 import io.ballerina.jvm.util.BLangConstants;
 import io.ballerina.jvm.util.RuntimeUtils;
 import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.jvm.values.ChannelDetails;
-import io.ballerina.jvm.values.FPValue;
 import io.ballerina.jvm.values.FutureValue;
 
 import java.io.PrintStream;
@@ -113,7 +113,7 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return {@link FutureValue} reference to the given function pointer invocation.
      */
-    public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent, Type returnType,
+    public FutureValue scheduleFunction(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
                                         String strandName, StrandMetadata metadata) {
         return schedule(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
     }
@@ -129,13 +129,13 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return {@link FutureValue} reference to the given function invocation.
      */
-    public FutureValue scheduleLocal(Object[] params, FPValue<?, ?> fp, Strand parent, Type returnType,
+    public FutureValue scheduleLocal(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, Type returnType,
                                      String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, null, null, returnType, strandName, metadata);
         return scheduleLocal(params, fp, parent, future);
     }
 
-    public FutureValue scheduleLocal(Object[] params, FPValue<?, ?> fp, Strand parent, FutureValue future) {
+    public FutureValue scheduleLocal(Object[] params, BFunctionPointer<?, ?> fp, Strand parent, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(fp.getFunction(), params, future);
         future.strand.schedulerItem = item;

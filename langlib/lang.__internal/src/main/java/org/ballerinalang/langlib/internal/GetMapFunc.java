@@ -20,9 +20,9 @@ package org.ballerinalang.langlib.internal;
 
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BFunctionPointer;
 import io.ballerina.jvm.types.BFunctionType;
 import io.ballerina.jvm.types.BUnionType;
-import io.ballerina.jvm.values.FPValue;
 
 /**
  * Native implementation of lang.internal:getMapFunc(func).
@@ -36,10 +36,10 @@ import io.ballerina.jvm.values.FPValue;
 //)
 public class GetMapFunc {
 
-    public static FPValue getMapFunc(Object obj) {
-        FPValue fpValue = (FPValue) obj;
-        BFunctionType functionType = (BFunctionType) fpValue.getType();
+    public static BFunctionPointer getMapFunc(Object obj) {
+        BFunctionPointer functionPointer = (BFunctionPointer) obj;
+        BFunctionType functionType = (BFunctionType) functionPointer.getType();
         functionType.paramTypes[0] = new BUnionType(new Type[]{Types.TYPE_ANY, Types.TYPE_ERROR}, 0);
-        return fpValue;
+        return functionPointer;
     }
 }

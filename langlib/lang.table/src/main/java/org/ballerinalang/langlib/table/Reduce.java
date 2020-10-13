@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.jvm.api.values.BFunctionPointer;
+import io.ballerina.jvm.api.values.BTable;
 import io.ballerina.jvm.runtime.AsyncUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.TableValueImpl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -49,7 +49,7 @@ public class Reduce {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "reduce");
 
-    public static Object reduce(TableValueImpl tbl, FPValue<Object, Object> func, Object initial) {
+    public static Object reduce(BTable tbl, BFunctionPointer<Object, Object> func, Object initial) {
         int size = tbl.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
@@ -62,8 +62,8 @@ public class Reduce {
         return accum.get();
     }
 
-    public static Object reduce_bstring(Strand strand, TableValueImpl tbl,
-                                        FPValue<Object, Object> func, Object initial) {
+    public static Object reduce_bstring(Strand strand, BTable tbl,
+                                        BFunctionPointer<Object, Object> func, Object initial) {
         return reduce(tbl, func, initial);
     }
 }

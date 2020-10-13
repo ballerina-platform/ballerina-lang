@@ -18,14 +18,15 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BFunctionPointer;
+import io.ballerina.jvm.api.values.BTable;
 import io.ballerina.jvm.runtime.AsyncUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
 import io.ballerina.jvm.types.BTableType;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.TableValueImpl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -49,9 +50,9 @@ public class Filter {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "filter");
 
-    public static TableValueImpl filter(TableValueImpl tbl, FPValue<Object, Boolean> func) {
+    public static BTable filter(BTable tbl, BFunctionPointer<Object, Boolean> func) {
         Type newTableType = tbl.getType();
-        TableValueImpl newTable = new TableValueImpl((BTableType) newTableType);
+        BTable newTable = BValueCreator.createTableValue((BTableType) newTableType);
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         // accessing the parent strand here to use it with each iteration
@@ -71,7 +72,7 @@ public class Filter {
         return newTable;
     }
 
-    public static TableValueImpl filter_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Boolean> func) {
+    public static BTable filter_bstring(Strand strand, BTable tbl, BFunctionPointer<Object, Boolean> func) {
         return filter(tbl, func);
     }
 }

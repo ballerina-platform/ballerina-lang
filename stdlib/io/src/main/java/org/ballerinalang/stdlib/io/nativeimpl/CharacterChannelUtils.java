@@ -24,8 +24,8 @@ import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.XMLValue;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
@@ -159,7 +159,7 @@ public class CharacterChannelUtils {
         return null;
     }
 
-    public static Object writeXml(BObject characterChannelObj, XMLValue content) {
+    public static Object writeXml(BObject characterChannelObj, BXML content) {
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj
                     .getNativeData(CHARACTER_CHANNEL_NAME);

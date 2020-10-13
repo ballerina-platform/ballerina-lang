@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.IteratorValue;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BIterator;
 
 /**
  * Native implementation of lang.array:iterator(Type[]).
@@ -34,7 +34,7 @@ import io.ballerina.jvm.values.IteratorValue;
 //)
 public class GetIterator {
 
-    public static IteratorValue iterator(ArrayValue arr) {
+    public static BIterator iterator(BArray arr) {
         return arr.getIterator();
     }
 }

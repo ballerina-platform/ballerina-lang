@@ -21,18 +21,17 @@ import io.ballerina.jvm.TypeChecker;
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BIterator;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTypedesc;
 import io.ballerina.jvm.types.AttachedFunction;
 import io.ballerina.jvm.types.BField;
 import io.ballerina.jvm.types.BObjectType;
 import io.ballerina.jvm.types.BUnionType;
 import io.ballerina.jvm.util.exceptions.BLangRuntimeException;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.IteratorValue;
-import io.ballerina.jvm.values.ObjectValue;
-import io.ballerina.jvm.values.TypedescValue;
 
 import java.util.List;
 import java.util.Map;
@@ -45,11 +44,11 @@ public class ObjectMock {
     /**
      * Returns a generic mock object pretending to be the type of the provided typedesc.
      *
-     * @param typedescValue typedesc of the mock obejct
+     * @param bTypedesc typedesc of the mock obejct
      * @param objectValue mock object to impersonate the type
      * @return mock object of provided type
      */
-    public static BObject mock(TypedescValue typedescValue, BObject objectValue) {
+    public static BObject mock(BTypedesc bTypedesc, BObject objectValue) {
         if (!objectValue.getType().getName().contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
             // handle user-defined mock object
             if (objectValue.getType().getAttachedFunctions().length == 0 &&
@@ -61,23 +60,23 @@ public class ObjectMock {
                         BStringUtils.fromString(detail));
             } else {
                 for (AttachedFunction attachedFunction : objectValue.getType().getAttachedFunctions()) {
-                    BError errorValue = validateFunctionSignatures(attachedFunction,
-                            ((BObjectType) typedescValue.getDescribingType()).getAttachedFunctions());
-                    if (errorValue != null) {
-                        throw  errorValue;
+                    BError error = validateFunctionSignatures(attachedFunction,
+                            ((BObjectType) bTypedesc.getDescribingType()).getAttachedFunctions());
+                    if (error != null) {
+                        throw  error;
                     }
                 }
                 for (Map.Entry<String, BField> field : objectValue.getType().getFields().entrySet()) {
-                    BError bError = validateField(field,
-                            ((BObjectType) typedescValue.getDescribingType()).getFields());
-                    if (bError != null) {
-                        throw  bError;
+                    BError error = validateField(field,
+                            ((BObjectType) bTypedesc.getDescribingType()).getFields());
+                    if (error != null) {
+                        throw  error;
                     }
                 }
             }
         }
         // handle default mock generation
-        BObjectType bObjectType = (BObjectType) typedescValue.getDescribingType();
+        BObjectType bObjectType = (BObjectType) bTypedesc.getDescribingType();
         return new GenericMockObjectValue(bObjectType, objectValue);
     }
 
@@ -109,7 +108,7 @@ public class ObjectMock {
      * @return an optional error if a validation fails
      */
 
-    public static BError validateFunctionName(String functionName, ObjectValue mockObject) {
+    public static BError validateFunctionName(String functionName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
         if (!validateFunctionName(functionName, genericMock.getType().getAttachedFunctions())) {
             String detail = "invalid function name '" + functionName + " ' provided";
@@ -127,7 +126,7 @@ public class ObjectMock {
      * @param mockObject ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
-    public static BError validateFieldName(String fieldName, ObjectValue mockObject) {
+    public static BError validateFieldName(String fieldName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
         if (!validateFieldName(fieldName, genericMock.getType().getFields())) {
             String detail = "invalid field name '" + fieldName + "' provided";
@@ -144,11 +143,11 @@ public class ObjectMock {
      * @param caseObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
-    public static BError validateArguments(ObjectValue caseObj) {
+    public static BError validateArguments(BObject caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
                 BStringUtils.fromString("mockObject"));
         String functionName = caseObj.getStringValue(BStringUtils.fromString("functionName")).toString();
-        ArrayValue argsList = caseObj.getArrayValue(BStringUtils.fromString("args"));
+        BArray argsList = caseObj.getArrayValue(BStringUtils.fromString("args"));
 
         for (AttachedFunction attachedFunction : genericMock.getType().getAttachedFunctions()) {
             if (attachedFunction.getName().equals(functionName)) {
@@ -163,7 +162,7 @@ public class ObjectMock {
 
                 // validate if each argument is compatible with the type given in the function signature
                 int i = 0;
-                for (IteratorValue it = argsList.getIterator(); it.hasNext(); i++) {
+                for (BIterator it = argsList.getIterator(); it.hasNext(); i++) {
                     if (attachedFunction.type.getParameterType()[i] instanceof BUnionType) {
                         Object arg = it.next();
                         boolean isTypeAvailable = false;
@@ -204,7 +203,7 @@ public class ObjectMock {
      * @param caseObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
-    public static BError thenReturn(ObjectValue caseObj) {
+    public static BError thenReturn(BObject caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj
                 .get(BStringUtils.fromString("mockObject"));
         BObject mockObj = genericMock.getMockObj();
@@ -220,7 +219,7 @@ public class ObjectMock {
         }
         if (functionName != null) {
             // register return value for member function
-            ArrayValue args = caseObj.getArrayValue(BStringUtils.fromString("args"));
+            BArray args = caseObj.getArrayValue(BStringUtils.fromString("args"));
             if (!validateReturnValue(functionName, returnVal, genericMock.getType().getAttachedFunctions())) {
                 String detail =
                         "return value provided does not match the return type of function " + functionName + "()";
@@ -252,12 +251,12 @@ public class ObjectMock {
      * @param caseObj ballerina object that contains information about the case to register
      * @return an optional error if a validation fails
      */
-    public static BError thenReturnSequence(ObjectValue caseObj) {
+    public static BError thenReturnSequence(BObject caseObj) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj
                 .get(BStringUtils.fromString("mockObject"));
         BObject mockObj = genericMock.getMockObj();
         String functionName = caseObj.getStringValue(BStringUtils.fromString("functionName")).toString();
-        ArrayValue returnVals = caseObj.getArrayValue(BStringUtils.fromString("returnValueSeq"));
+        BArray returnVals = caseObj.getArrayValue(BStringUtils.fromString("returnValueSeq"));
 
         for (int i = 0; i < returnVals.getValues().length; i++) {
             if (returnVals.getValues()[i] == null) {

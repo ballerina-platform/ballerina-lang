@@ -18,7 +18,7 @@ package org.ballerinalang.cli.module;
 
 import io.ballerina.jvm.JSONParser;
 import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.api.values.BMap;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.ballerinalang.cli.module.util.ErrorUtil;
@@ -139,7 +139,7 @@ public class Push {
                         result.append(line);
                     }
 
-                    MapValue payload = (MapValue) JSONParser.parse(result.toString());
+                    BMap payload = (BMap) JSONParser.parse(result.toString());
                     String message = payload.getStringValue(BStringUtils.fromString("message")).getValue();
                     if (message.contains("module md file cannot be empty")) {
                         errStream.println(message);

@@ -18,14 +18,13 @@
 
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BFunctionPointer;
 import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.runtime.AsyncUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.XMLSequence;
-import io.ballerina.jvm.values.XMLValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +52,7 @@ public class Map {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                       XML_VERSION, "filter");
 
-    public static XMLValue map(XMLValue x, FPValue<Object, Object> func) {
+    public static BXML map(BXML x, BFunctionPointer<Object, Object> func) {
         if (x.isSingleton()) {
             func.asyncCall(new Object[]{Scheduler.getStrand(), x, true}, METADATA);
             return null;
@@ -64,9 +63,9 @@ public class Map {
         AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
                         () -> new Object[]{parentStrand, x.getItem(index.incrementAndGet()),
                                 true},
-                        result -> elements.add((XMLValue) result),
-                                                       () -> new XMLSequence(elements),
+                        result -> elements.add((BXML) result),
+                                                       () -> BValueCreator.createXMLSequence(elements),
                                                        Scheduler.getStrand().scheduler);
-        return new XMLSequence(elements);
+        return BValueCreator.createXMLSequence(elements);
     }
 }

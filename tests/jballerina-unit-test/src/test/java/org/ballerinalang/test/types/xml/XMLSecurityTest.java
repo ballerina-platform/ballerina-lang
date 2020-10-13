@@ -18,8 +18,8 @@
 package org.ballerinalang.test.types.xml;
 
 import io.ballerina.jvm.XMLFactory;
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.XMLValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -36,7 +36,7 @@ public class XMLSecurityTest {
                 "<!ELEMENT foo ANY >" +
                 "<!ENTITY xxe SYSTEM \"https://www.w3schools.com/xml/note.xml\" >]>" +
                 "<foo>&xxe;</foo>";
-        XMLValue xmlDocument = XMLFactory.parse(xmlString);
+        BXML xmlDocument = XMLFactory.parse(xmlString);
         Assert.assertEquals(xmlDocument.toString(), "<foo></foo>");
     }
 

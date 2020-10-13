@@ -32,6 +32,8 @@ public abstract class BError extends RuntimeException implements BRefValue {
 
     public static final String ERROR_PRINT_PREFIX = "error: ";
 
+    public static final String CALL_STACK_ELEMENT = "CallStackElement";
+
     @Deprecated
     public BError(String message) {
         super(message);

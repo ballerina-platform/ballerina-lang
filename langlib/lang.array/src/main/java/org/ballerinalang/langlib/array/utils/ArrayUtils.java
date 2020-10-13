@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package io.ballerina.jvm.values.utils;
+package org.ballerinalang.langlib.array.utils;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.values.ArrayValue;
 
 import static io.ballerina.jvm.util.BLangConstants.ARRAY_LANG_LIB;
 import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
@@ -38,7 +38,7 @@ import static java.lang.String.format;
 public class ArrayUtils {
 
     @Deprecated
-    public static void add(ArrayValue arr, int elemTypeTag, long index, Object value) {
+    public static void add(BArray arr, int elemTypeTag, long index, Object value) {
         switch (elemTypeTag) {
             case TypeTags.INT_TAG:
                 arr.add(index, (long) value);
@@ -63,9 +63,9 @@ public class ArrayUtils {
     public static GetFunction getElementAccessFunction(Type arrType, String funcName) {
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                return ArrayValue::get;
+                return BArray::get;
             case TypeTags.TUPLE_TAG:
-                return ArrayValue::getRefValue;
+                return BArray::getRefValue;
             default:
                 throw createOpNotSupportedError(arrType, funcName);
         }

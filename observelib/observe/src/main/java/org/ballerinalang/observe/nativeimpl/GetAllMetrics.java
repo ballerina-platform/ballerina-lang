@@ -22,6 +22,7 @@ import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.observability.metrics.Counter;
@@ -34,10 +35,6 @@ import io.ballerina.jvm.observability.metrics.PolledGauge;
 import io.ballerina.jvm.observability.metrics.Tag;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.MapValueImpl;
 
 import java.util.Set;
 
@@ -54,16 +51,16 @@ public class GetAllMetrics {
             .createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.METRIC)
             .getType();
 
-    public static ArrayValue getAllMetrics() {
+    public static BArray getAllMetrics() {
         Metric[] metrics = DefaultMetricRegistry.getInstance().getAllMetrics();
 
-        ArrayValue bMetrics = new ArrayValueImpl(new BArrayType(METRIC_TYPE));
+        BArray bMetrics = BValueCreator.createArrayValue(new BArrayType(METRIC_TYPE));
         int metricIndex = 0;
         for (Metric metric : metrics) {
             MetricId metricId = metric.getId();
             Object metricValue = null;
             String metricType = null;
-            ArrayValue summary = null;
+            BArray summary = null;
             if (metric instanceof Counter) {
                 metricValue = ((Counter) metric).getValue();
                 metricType = MetricConstants.COUNTER;
@@ -94,8 +91,8 @@ public class GetAllMetrics {
         return bMetrics;
     }
 
-    private static MapValue<BString, Object> getTags(MetricId metricId) {
-        MapValue<BString, Object> bTags = new MapValueImpl<>(new BMapType(Types.TYPE_STRING));
+    private static BMap<BString, Object> getTags(MetricId metricId) {
+        BMap<BString, Object> bTags = BValueCreator.createMapValue(new BMapType(Types.TYPE_STRING));
         Set<Tag> tags = metricId.getTags();
         for (Tag tag : tags) {
             bTags.put(BStringUtils.fromString(tag.getKey()), BStringUtils.fromString(tag.getValue()));

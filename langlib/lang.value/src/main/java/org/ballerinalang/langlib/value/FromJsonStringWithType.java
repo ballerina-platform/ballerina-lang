@@ -21,8 +21,8 @@ import io.ballerina.jvm.JSONParser;
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTypedesc;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.TypedescValue;
 
 import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 
@@ -34,7 +34,7 @@ import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_
  */
 public class FromJsonStringWithType {
 
-    public static Object fromJsonStringWithType(BString value, TypedescValue t) {
+    public static Object fromJsonStringWithType(BString value, BTypedesc t) {
 
         String str = value.getValue();
         try {

@@ -16,9 +16,9 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,8 +45,8 @@ import static org.bytedeco.llvm.global.LLVM.LLVMStructSetBody;
         })
 public class LLVMStructSetBody1 {
 
-    public static void llvmStructSetBody1(Strand strand, MapValue<String, Object> structTy,
-            ArrayValue elementTypes, long elementCount, long packed) {
+    public static void llvmStructSetBody1(Strand strand, BMap<String, Object> structTy,
+            BArray elementTypes, long elementCount, long packed) {
         LLVMTypeRef structTyRef = (LLVMTypeRef) FFIUtil.getRecodeArgumentNative(structTy);
         Pointer[] elementTypesRef = FFIUtil.getRecodeArrayArgumentNative(elementTypes);
         int elementCountRef = (int) elementCount;

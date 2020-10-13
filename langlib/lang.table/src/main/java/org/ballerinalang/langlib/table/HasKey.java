@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.jvm.values.TableValueImpl;
+import io.ballerina.jvm.api.values.BTable;
 
 /**
  * Extern function to check existence of key.
@@ -35,7 +35,7 @@ import io.ballerina.jvm.values.TableValueImpl;
 public class HasKey {
 
     @Deprecated
-    public static boolean hasKey(TableValueImpl tbl, Object key) {
+    public static boolean hasKey(BTable tbl, Object key) {
         return tbl.containsKey(key);
     }
 }

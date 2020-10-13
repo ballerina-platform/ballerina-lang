@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
+import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.observability.metrics.Gauge;
-import io.ballerina.jvm.values.ObjectValue;
 
 /**
  * This is the nativeIncrement function implementation of the Gauge object.
@@ -28,7 +28,7 @@ import io.ballerina.jvm.values.ObjectValue;
 
 public class GaugeIncrement {
 
-    public static void increment(ObjectValue guage, double amount) {
+    public static void increment(BObject guage, double amount) {
         Gauge gauge = (Gauge) guage.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         gauge.increment(amount);
     }

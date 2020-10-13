@@ -20,10 +20,10 @@ package org.ballerinalang.langlib.map;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.values.MapValue;
+import io.ballerina.jvm.api.values.BMap;
 
 import static io.ballerina.jvm.MapUtils.checkIsMapOnlyOperation;
-import static io.ballerina.jvm.MapUtils.validateRecord;
+import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRecord;
 
 /**
  * ENative implementation of lang.map:removeAll(map&lt;Type&gt;).
@@ -32,7 +32,7 @@ import static io.ballerina.jvm.MapUtils.validateRecord;
  */
 public class RemoveAll {
 
-    public static void removeAll(MapValue<?, ?> m) {
+    public static void removeAll(BMap<?, ?> m) {
         checkIsMapOnlyOperation(m.getType(), "removeAll()");
         validateRecord(m);
         try {

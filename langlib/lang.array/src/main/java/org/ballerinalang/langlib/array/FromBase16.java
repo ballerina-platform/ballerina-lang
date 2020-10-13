@@ -20,8 +20,8 @@ package org.ballerinalang.langlib.array;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.ArrayValueImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +67,6 @@ public class FromBase16 {
                                                      .fromString("Invalid character(s): " + invalidChars.toString()));
         }
 
-        return new ArrayValueImpl(bytes);
+        return BValueCreator.createArrayValue(bytes);
     }
 }

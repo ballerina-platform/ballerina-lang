@@ -19,9 +19,9 @@
 package org.ballerinalang.langlib.internal;
 
 import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BFunctionPointer;
+import io.ballerina.jvm.api.values.BTypedesc;
 import io.ballerina.jvm.types.BFunctionType;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.TypedescValue;
 
 /**
  * Native implementation of lang.internal:getReturnType(func).
@@ -30,9 +30,9 @@ import io.ballerina.jvm.values.TypedescValue;
  */
 public class GetReturnType {
 
-    public static TypedescValue getReturnType(Object obj) {
-        FPValue fpValue = (FPValue) obj;
-        BFunctionType functionType = (BFunctionType) fpValue.getType();
-        return (TypedescValue) BValueCreator.createTypedescValue(functionType.retType);
+    public static BTypedesc getReturnType(Object obj) {
+        BFunctionPointer bFunctionPointer = (BFunctionPointer) obj;
+        BFunctionType functionType = (BFunctionType) bFunctionPointer.getType();
+        return BValueCreator.createTypedescValue(functionType.retType);
     }
 }

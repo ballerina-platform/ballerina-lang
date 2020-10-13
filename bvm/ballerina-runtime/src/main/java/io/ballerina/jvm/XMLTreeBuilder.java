@@ -20,6 +20,7 @@ package io.ballerina.jvm;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.api.values.BXMLSequence;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
 import io.ballerina.jvm.values.MapValue;
 import io.ballerina.jvm.values.XMLComment;
@@ -27,7 +28,6 @@ import io.ballerina.jvm.values.XMLItem;
 import io.ballerina.jvm.values.XMLPi;
 import io.ballerina.jvm.values.XMLQName;
 import io.ballerina.jvm.values.XMLSequence;
-import io.ballerina.jvm.values.XMLValue;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -71,7 +71,7 @@ public class XMLTreeBuilder {
 
     private XMLStreamReader xmlStreamReader;
     private Map<String, String> namespaces; // xml ns declarations from Bal source [xmlns "http://ns.com" as ns]
-    private Deque<XMLSequence> seqDeque;
+    private Deque<BXMLSequence> seqDeque;
     private Deque<List<BXML>> siblingDeque;
 
     public XMLTreeBuilder(String str) {
@@ -99,7 +99,7 @@ public class XMLTreeBuilder {
         throw new BallerinaException(e.getMessage(), e);
     }
 
-    public XMLValue parse() {
+    public BXML parse() {
         try {
             while (xmlStreamReader.hasNext()) {
                 int next = xmlStreamReader.next();
@@ -155,7 +155,7 @@ public class XMLTreeBuilder {
         siblingDeque.peek().add(xmlComment);
     }
 
-    private XMLValue buildDocument() {
+    private BXMLSequence buildDocument() {
         this.siblingDeque.pop();
         return this.seqDeque.pop();
     }

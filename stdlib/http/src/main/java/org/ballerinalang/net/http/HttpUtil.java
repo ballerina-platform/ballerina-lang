@@ -22,10 +22,15 @@ import io.ballerina.jvm.JSONGenerator;
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.RefValue;
+import io.ballerina.jvm.api.values.StreamingJsonValue;
+import io.ballerina.jvm.api.values.XMLItem;
+import io.ballerina.jvm.api.values.XMLSequence;
 import io.ballerina.jvm.observability.ObserveUtils;
 import io.ballerina.jvm.observability.ObserverContext;
 import io.ballerina.jvm.scheduling.Strand;
@@ -33,13 +38,6 @@ import io.ballerina.jvm.services.ErrorHandlerUtils;
 import io.ballerina.jvm.transactions.TransactionConstants;
 import io.ballerina.jvm.types.AttachedFunction;
 import io.ballerina.jvm.util.exceptions.BallerinaConnectorException;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.RefValue;
-import io.ballerina.jvm.values.StreamingJsonValue;
-import io.ballerina.jvm.values.XMLItem;
-import io.ballerina.jvm.values.XMLSequence;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -329,13 +327,13 @@ public class HttpUtil {
         for (String key : httpHeaders.names()) {
             String[] values = httpHeaders.getAll(key).toArray(new String[0]);
             headers.put(BStringUtils.fromString(key.toLowerCase()),
-                        new ArrayValueImpl(BStringUtils.fromStringArray(values)));
+                        BValueCreator.createArrayValue(BStringUtils.fromStringArray(values)));
         }
         entity.set(HEADERS_MAP_FIELD, headers);
 
         Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         distinctNames.addAll(httpHeaders.names());
-        entity.set(HEADER_NAMES_ARRAY_FIELD, new ArrayValueImpl(
+        entity.set(HEADER_NAMES_ARRAY_FIELD, BValueCreator.createArrayValue(
                 BStringUtils.fromStringSet(distinctNames)));
     }
 
@@ -464,7 +462,7 @@ public class HttpUtil {
     }
 
     private static String getErrorMessage(BError error) {
-        MapValue errorDetails = (MapValue) error.getDetails();
+        BMap errorDetails = (BMap) error.getDetails();
         if (!errorDetails.isEmpty()) {
             return errorDetails.get(HTTP_ERROR_MESSAGE).toString();
         }
@@ -613,12 +611,12 @@ public class HttpUtil {
         return BErrorCreator.createDistinctError(errorTypeId, packageName, BStringUtils.fromString(message));
     }
 
-    public static HttpCarbonMessage getCarbonMsg(BObject objectValue, HttpCarbonMessage defaultMsg) {
-        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) objectValue.getNativeData(TRANSPORT_MESSAGE);
+    public static HttpCarbonMessage getCarbonMsg(BObject BObject, HttpCarbonMessage defaultMsg) {
+        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) BObject.getNativeData(TRANSPORT_MESSAGE);
         if (httpCarbonMessage != null) {
             return httpCarbonMessage;
         }
-        addCarbonMsg(objectValue, defaultMsg);
+        addCarbonMsg(BObject, defaultMsg);
         return defaultMsg;
     }
 
@@ -681,7 +679,7 @@ public class HttpUtil {
         inboundRequest.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequest.addNativeData(REQUEST, true);
 
-        MapValue<BString, Object> mutualSslRecord = ValueCreatorUtils.createHTTPRecordValue(
+        BMap<BString, Object> mutualSslRecord = ValueCreatorUtils.createHTTPRecordValue(
                 MUTUAL_SSL_HANDSHAKE_RECORD);
         mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
                             BStringUtils.fromString(
@@ -755,8 +753,8 @@ public class HttpUtil {
      */
     public static void enrichHttpCallerWithConnectionInfo(BObject httpCaller, HttpCarbonMessage inboundMsg,
                                                           HttpResource httpResource, BMap config) {
-        MapValue<BString, Object> remote = ValueCreatorUtils.createHTTPRecordValue(HttpConstants.REMOTE);
-        MapValue<BString, Object> local = ValueCreatorUtils.createHTTPRecordValue(HttpConstants.LOCAL);
+        BMap<BString, Object> remote = ValueCreatorUtils.createHTTPRecordValue(HttpConstants.REMOTE);
+        BMap<BString, Object> local = ValueCreatorUtils.createHTTPRecordValue(HttpConstants.LOCAL);
 
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteSocketAddress instanceof InetSocketAddress) {
@@ -884,7 +882,7 @@ public class HttpUtil {
         BMap<BString, Object> entityHeaders = EntityHeaderHandler.getEntityHeaderMap(entityObj);
 
         for (BString entryKey : entityHeaders.getKeys()) {
-            ArrayValueImpl entryValues = (ArrayValueImpl) entityHeaders.get(entryKey);
+            BArray entryValues = (BArray) entityHeaders.get(entryKey);
             if (entryValues.size() > 1) {
                 Iterator<String> valueIterator = Arrays.stream(entryValues.getStringArray()).map(String::valueOf)
                         .iterator();
@@ -967,7 +965,7 @@ public class HttpUtil {
         return (entityObj != null && EntityBodyHandler.getMessageDataSource(entityObj) != null);
     }
 
-    private static void setCompressionHeaders(MapValue<BString, Object> compressionConfig, HttpCarbonMessage requestMsg,
+    private static void setCompressionHeaders(BMap<BString, Object> compressionConfig, HttpCarbonMessage requestMsg,
                                               HttpCarbonMessage outboundResponseMsg) {
         if (!checkConfigAnnotationAvailability(compressionConfig)) {
             return;
@@ -985,7 +983,7 @@ public class HttpUtil {
 
         String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
         List<String> contentTypesAnnotationValues = getAsStringList(
-                compressionConfig.getArrayValue(ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES).getStringArray());
+                compressionConfig.getBArray(ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES).getStringArray());
         String contentType = outboundResponseMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
 
         if (contentTypesAnnotationValues.isEmpty() || isContentTypeMatched(contentTypesAnnotationValues, contentType)) {
@@ -1115,8 +1113,8 @@ public class HttpUtil {
                 reqMsg.getHeader(HttpHeaderNames.EXPECT.toString())) || statusCode == 100;
     }
 
-    public static MapValue getTransactionConfigAnnotation(AttachedFunction resource, String transactionPackagePath) {
-        return (MapValue) resource.getAnnotation(transactionPackagePath,
+    public static BMap getTransactionConfigAnnotation(AttachedFunction resource, String transactionPackagePath) {
+        return (BMap) resource.getAnnotation(transactionPackagePath,
                                                  TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
     }
 
@@ -1216,9 +1214,9 @@ public class HttpUtil {
     }
 
     public static void populateSenderConfigurations(SenderConfiguration senderConfiguration,
-            MapValue<BString, Object> clientEndpointConfig, String scheme) {
+            BMap<BString, Object> clientEndpointConfig, String scheme) {
         ProxyServerConfiguration proxyServerConfiguration;
-        MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
+        BMap secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION).getValue();
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(senderConfiguration, secureSocket);
@@ -1231,9 +1229,9 @@ public class HttpUtil {
             }
         }
         if (HTTP_1_1_VERSION.equals(httpVersion)) {
-            MapValue<BString, Object> http1Settings = (MapValue<BString, Object>) clientEndpointConfig
+            BMap<BString, Object> http1Settings = (BMap<BString, Object>) clientEndpointConfig
                     .get(HttpConstants.HTTP1_SETTINGS);
-            MapValue proxy = http1Settings.getMapValue(HttpConstants.PROXY_STRUCT_REFERENCE);
+            BMap proxy = http1Settings.getMapValue(HttpConstants.PROXY_STRUCT_REFERENCE);
             if (proxy != null) {
                 String proxyHost = proxy.getStringValue(HttpConstants.PROXY_HOST).getValue();
                 int proxyPort = proxy.getIntValue(HttpConstants.PROXY_PORT).intValue();
@@ -1267,7 +1265,7 @@ public class HttpUtil {
         senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
     }
 
-    public static ConnectionManager getConnectionManager(MapValue<BString, Long> poolStruct) {
+    public static ConnectionManager getConnectionManager(BMap<BString, Long> poolStruct) {
         ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
         if (poolManager == null) {
             synchronized (poolStruct) {
@@ -1282,7 +1280,7 @@ public class HttpUtil {
         return poolManager;
     }
 
-    public static void populatePoolingConfig(MapValue<BString, Long> poolRecord, PoolConfiguration poolConfiguration) {
+    public static void populatePoolingConfig(BMap<BString, Long> poolRecord, PoolConfiguration poolConfiguration) {
         long maxActiveConnections = poolRecord.get(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS);
         poolConfiguration.setMaxActivePerPool(
                 validateConfig(maxActiveConnections,
@@ -1318,11 +1316,11 @@ public class HttpUtil {
      * @param sslConfiguration  ssl configuration instance.
      * @param secureSocket    secure socket configuration.
      */
-    public static void populateSSLConfiguration(SslConfiguration sslConfiguration, MapValue secureSocket) {
-        MapValue trustStore = secureSocket.getMapValue(ENDPOINT_CONFIG_TRUST_STORE);
-        MapValue keyStore = secureSocket.getMapValue(ENDPOINT_CONFIG_KEY_STORE);
-        MapValue protocols = secureSocket.getMapValue(ENDPOINT_CONFIG_PROTOCOLS);
-        MapValue validateCert = secureSocket.getMapValue(ENDPOINT_CONFIG_VALIDATE_CERT);
+    public static void populateSSLConfiguration(SslConfiguration sslConfiguration, BMap secureSocket) {
+        BMap trustStore = secureSocket.getMapValue(ENDPOINT_CONFIG_TRUST_STORE);
+        BMap keyStore = secureSocket.getMapValue(ENDPOINT_CONFIG_KEY_STORE);
+        BMap protocols = secureSocket.getMapValue(ENDPOINT_CONFIG_PROTOCOLS);
+        BMap validateCert = secureSocket.getMapValue(ENDPOINT_CONFIG_VALIDATE_CERT);
         String keyFile = secureSocket.getStringValue(ENDPOINT_CONFIG_KEY).getValue();
         String certFile = secureSocket.getStringValue(ENDPOINT_CONFIG_CERTIFICATE).getValue();
         String trustCerts = secureSocket.getStringValue(ENDPOINT_CONFIG_TRUST_CERTIFICATES).getValue();
@@ -1377,7 +1375,7 @@ public class HttpUtil {
         }
         if (protocols != null) {
             List<String> sslEnabledProtocolsValueList = Arrays.asList(
-                    protocols.getArrayValue(ENABLED_PROTOCOLS).getStringArray());
+                    protocols.getBArray(ENABLED_PROTOCOLS).getStringArray());
             if (!sslEnabledProtocolsValueList.isEmpty()) {
                 String sslEnabledProtocols = sslEnabledProtocolsValueList.stream()
                         .collect(Collectors.joining(",", "", ""));
@@ -1415,7 +1413,7 @@ public class HttpUtil {
 
         sslConfiguration.setSslHandshakeTimeOut(secureSocket.getDefaultableIntValue(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
 
-        Object[] cipherConfigs = secureSocket.getArrayValue(HttpConstants.SSL_CONFIG_CIPHERS).getStringArray();
+        Object[] cipherConfigs = secureSocket.getBArray(HttpConstants.SSL_CONFIG_CIPHERS).getStringArray();
         if (cipherConfigs != null) {
             List<Object> ciphersValueList = Arrays.asList(cipherConfigs);
             if (ciphersValueList.size() > 0) {
@@ -1476,11 +1474,11 @@ public class HttpUtil {
         //TODO check the possibility of value being null
         if (value == null) {
             throw createHttpError("error occurred while serializing null data");
-        } else if (value instanceof ArrayValue) {
+        } else if (value instanceof BArray) {
             if (value instanceof StreamingJsonValue) {
                 ((StreamingJsonValue) value).serialize(outputStream);
             } else {
-                ((ArrayValue) value).serialize(outputStream);
+                ((BArray) value).serialize(outputStream);
             }
         } else if (value instanceof MultipartDataSource) {
             ((MultipartDataSource) value).serialize(outputStream);
@@ -1504,7 +1502,7 @@ public class HttpUtil {
      * @param configAnnotation      Represent the annotation
      * @return True if the annotation and the annotation value are available
      */
-    public static boolean checkConfigAnnotationAvailability(MapValue configAnnotation) {
+    public static boolean checkConfigAnnotationAvailability(BMap configAnnotation) {
         return configAnnotation != null;
     }
 
@@ -1517,14 +1515,14 @@ public class HttpUtil {
      */
     public static ListenerConfiguration getListenerConfig(long port, BMap endpointConfig) {
         String host = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_HOST).getValue();
-        MapValue sslConfig = endpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
+        BMap sslConfig = endpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_VERSION).getValue();
-        MapValue<BString, Object> http1Settings;
+        BMap<BString, Object> http1Settings;
         long idleTimeout = endpointConfig.getIntValue(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (HTTP_1_1_VERSION.equals(httpVersion)) {
-            http1Settings = (MapValue<BString, Object>) endpointConfig.get(HttpConstants.HTTP1_SETTINGS);
+            http1Settings = (BMap<BString, Object>) endpointConfig.get(HttpConstants.HTTP1_SETTINGS);
             listenerConfiguration.setPipeliningLimit(http1Settings.getIntValue(HttpConstants.PIPELINING_REQUEST_LIMIT));
             String keepAlive = http1Settings.getStringValue(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE).getValue();
             listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
@@ -1575,7 +1573,7 @@ public class HttpUtil {
         return listenerConfiguration;
     }
 
-    private static void setRequestSizeValidationConfig(MapValue http1Settings,
+    private static void setRequestSizeValidationConfig(BMap http1Settings,
                                                      ListenerConfiguration listenerConfiguration) {
         long maxUriLength = http1Settings.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_URL_LENGTH);
         long maxHeaderSize = http1Settings.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_HEADER_SIZE);
@@ -1616,13 +1614,13 @@ public class HttpUtil {
         return userAgent;
     }
 
-    private static ListenerConfiguration setSslConfig(MapValue sslConfig, ListenerConfiguration listenerConfiguration) {
+    private static ListenerConfiguration setSslConfig(BMap sslConfig, ListenerConfiguration listenerConfiguration) {
         listenerConfiguration.setScheme(PROTOCOL_HTTPS);
-        MapValue trustStore = sslConfig.getMapValue(ENDPOINT_CONFIG_TRUST_STORE);
-        MapValue keyStore = sslConfig.getMapValue(ENDPOINT_CONFIG_KEY_STORE);
-        MapValue protocols = sslConfig.getMapValue(ENDPOINT_CONFIG_PROTOCOLS);
-        MapValue validateCert = sslConfig.getMapValue(ENDPOINT_CONFIG_VALIDATE_CERT);
-        MapValue ocspStapling = sslConfig.getMapValue(ENDPOINT_CONFIG_OCSP_STAPLING);
+        BMap trustStore = sslConfig.getMapValue(ENDPOINT_CONFIG_TRUST_STORE);
+        BMap keyStore = sslConfig.getMapValue(ENDPOINT_CONFIG_KEY_STORE);
+        BMap protocols = sslConfig.getMapValue(ENDPOINT_CONFIG_PROTOCOLS);
+        BMap validateCert = sslConfig.getMapValue(ENDPOINT_CONFIG_VALIDATE_CERT);
+        BMap ocspStapling = sslConfig.getMapValue(ENDPOINT_CONFIG_OCSP_STAPLING);
         String keyFile = sslConfig.getStringValue(ENDPOINT_CONFIG_KEY).getValue();
         String certFile = sslConfig.getStringValue(ENDPOINT_CONFIG_CERTIFICATE).getValue();
         String trustCerts = sslConfig.getStringValue(ENDPOINT_CONFIG_TRUST_CERTIFICATES).getValue();
@@ -1690,7 +1688,7 @@ public class HttpUtil {
         Parameter serverParameters;
         if (protocols != null) {
             List<String> sslEnabledProtocolsValueList = Arrays.asList(
-                    protocols.getArrayValue(ENABLED_PROTOCOLS).getStringArray());
+                    protocols.getBArray(ENABLED_PROTOCOLS).getStringArray());
             if (!sslEnabledProtocolsValueList.isEmpty()) {
                 String sslEnabledProtocols = sslEnabledProtocolsValueList.stream()
                         .collect(Collectors.joining(",", "", ""));
@@ -1705,7 +1703,7 @@ public class HttpUtil {
         }
 
         List<String> ciphersValueList = Arrays.asList(
-                sslConfig.getArrayValue(HttpConstants.SSL_CONFIG_CIPHERS).getStringArray());
+                sslConfig.getBArray(HttpConstants.SSL_CONFIG_CIPHERS).getStringArray());
         if (!ciphersValueList.isEmpty()) {
             String ciphers = ciphersValueList.stream().collect(Collectors.joining(",", "", ""));
             serverParameters = new Parameter(HttpConstants.CIPHERS, ciphers);

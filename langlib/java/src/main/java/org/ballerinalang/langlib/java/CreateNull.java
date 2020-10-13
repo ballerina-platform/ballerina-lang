@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.langlib.java;
 
-import io.ballerina.jvm.values.HandleValue;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BHandle;
 
 /**
  * This class contains the implementation of the "createNull" ballerina function in ballerina/java module.
@@ -26,7 +27,7 @@ import io.ballerina.jvm.values.HandleValue;
  */
 public class CreateNull {
 
-    public static HandleValue createNull() {
-        return new HandleValue(null);
+    public static BHandle createNull() {
+        return BValueCreator.createHandleValue(null);
     }
 }

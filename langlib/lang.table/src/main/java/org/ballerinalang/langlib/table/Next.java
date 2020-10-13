@@ -22,14 +22,12 @@ import io.ballerina.jvm.TypeChecker;
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BIterator;
+import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTable;
 import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.IteratorValue;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.ObjectValue;
-import io.ballerina.jvm.values.TableValueImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,10 +45,10 @@ public class Next {
     private static final BString MUTATED_TABLE_ERROR_DETAIL =  BStringUtils.fromString("Table was mutated after the " +
                                                                                                "iterator was created");
     //TODO: refactor hard coded values
-    public static Object next(ObjectValue t) {
-        IteratorValue tableIterator = (IteratorValue) t.getNativeData("&iterator&");
-        TableValueImpl table = (TableValueImpl) t.get(BStringUtils.fromString("t"));
-        ArrayValueImpl keys = (ArrayValueImpl) t.get(BStringUtils.fromString("keys"));
+    public static Object next(BObject t) {
+        BIterator tableIterator = (BIterator) t.getNativeData("&iterator&");
+        BTable table = (BTable) t.get(BStringUtils.fromString("t"));
+        BArray keys = (BArray) t.get(BStringUtils.fromString("keys"));
         long initialSize = (long) t.get(BStringUtils.fromString("size"));
         if (tableIterator == null) {
             tableIterator = table.getIterator();
@@ -63,16 +61,16 @@ public class Next {
         List<Object> returnedKeys = (ArrayList<Object>) t.getNativeData("&returnedKeys&");
         handleMutation(table, keys, returnedKeys, initialSize);
         if (tableIterator.hasNext()) {
-            ArrayValue keyValueTuple = (ArrayValue) tableIterator.next();
+            BArray keyValueTuple = (BArray) tableIterator.next();
             returnedKeys.add(keyValueTuple.get(0));
-            return BValueCreator.createRecordValue(new MapValueImpl<>(table.getIteratorNextReturnType()),
+            return BValueCreator.createRecordValue(BValueCreator.createMapValue(table.getIteratorNextReturnType()),
                                                    keyValueTuple.get(1));
         }
 
         return null;
     }
 
-    private static void handleMutation(TableValueImpl table, ArrayValueImpl keys,
+    private static void handleMutation(BTable table, BArray keys,
                                        List<Object> returnedKeys, long initialSize) {
         if (initialSize < table.size() ||
                 // Key-less situation, mutation can occur only by calling add() or removeAll()
@@ -91,8 +89,8 @@ public class Next {
             }
         }
 
-        ArrayValueImpl currentKeyArray = (ArrayValueImpl) BValueCreator.createArrayValue((BArrayType) keys.getType(),
-                currentKeys.size());
+        BArray currentKeyArray = (BArray) BValueCreator.createArrayValue((BArrayType) keys.getType(),
+                                                                         currentKeys.size());
         for (int i = 0; i < currentKeys.size(); i++) {
             Object key = currentKeys.get(i);
             currentKeyArray.add(i, key);

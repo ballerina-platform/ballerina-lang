@@ -16,8 +16,8 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,7 +39,7 @@ import static org.bytedeco.llvm.global.LLVM.LLVMDisposeTargetMachine;
         })
 public class LLVMDisposeTargetMachine {
 
-    public static void llvmDisposeTargetMachine(Strand strand, MapValue<String, Object> arg0) {
+    public static void llvmDisposeTargetMachine(Strand strand, BMap<String, Object> arg0) {
 
         LLVMTargetMachineRef t = (LLVMTargetMachineRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVMDisposeTargetMachine(t);

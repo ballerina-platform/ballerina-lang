@@ -110,7 +110,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_INITIAL_VALUES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
@@ -1377,7 +1377,7 @@ class JvmValueGen {
         cw.visitSource(typeDef.pos.getSource().cUnitName, null);
 
         AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{OBJECT_VALUE});
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
 
         Map<String, BField> fields = objectType.fields;
         this.createObjectFields(cw, fields);

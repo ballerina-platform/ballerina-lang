@@ -23,11 +23,9 @@ import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.ObjectValue;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 
 import java.io.ByteArrayInputStream;
@@ -91,11 +89,11 @@ public class Utils {
     public static Object encode(Object input, String charset, boolean isMimeSpecific) {
         switch (TypeChecker.getType(input).getTag()) {
             case TypeTags.ARRAY_TAG:
-                return encodeBlob(((ArrayValue) input).getBytes(), isMimeSpecific);
+                return encodeBlob(((BArray) input).getBytes(), isMimeSpecific);
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
                 //TODO : recheck following casing
-                BObject byteChannel = (ObjectValue) input;
+                BObject byteChannel = (BObject) input;
                 if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
                     return encodeByteChannel(byteChannel, isMimeSpecific);
                 }
@@ -118,10 +116,10 @@ public class Utils {
     public static Object decode(Object encodedInput, String charset, boolean isMimeSpecific) {
         switch (TypeChecker.getType(encodedInput).getTag()) {
             case TypeTags.ARRAY_TAG:
-                return decodeBlob(((ArrayValue) encodedInput).getBytes(), isMimeSpecific);
+                return decodeBlob(((BArray) encodedInput).getBytes(), isMimeSpecific);
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return decodeByteChannel((ObjectValue) encodedInput, isMimeSpecific);
+                return decodeByteChannel((BObject) encodedInput, isMimeSpecific);
             case TypeTags.STRING_TAG:
                 return decodeString(encodedInput, charset, isMimeSpecific);
             default:
@@ -235,14 +233,14 @@ public class Utils {
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      * @return encoded blob
      */
-    public static ArrayValue encodeBlob(byte[] bytes, boolean isMimeSpecific) {
+    public static BArray encodeBlob(byte[] bytes, boolean isMimeSpecific) {
         byte[] encodedContent;
         if (isMimeSpecific) {
             encodedContent = Base64.getMimeEncoder().encode(bytes);
         } else {
             encodedContent = Base64.getEncoder().encode(bytes);
         }
-        return new ArrayValueImpl(encodedContent);
+        return BValueCreator.createArrayValue(encodedContent);
     }
 
     /**
@@ -252,13 +250,13 @@ public class Utils {
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      * @return decoded blob
      */
-    public static ArrayValue decodeBlob(byte[] encodedContent, boolean isMimeSpecific) {
+    public static BArray decodeBlob(byte[] encodedContent, boolean isMimeSpecific) {
         byte[] decodedContent;
         if (isMimeSpecific) {
             decodedContent = Base64.getMimeDecoder().decode(encodedContent);
         } else {
             decodedContent = Base64.getDecoder().decode(encodedContent);
         }
-        return new ArrayValueImpl(decodedContent);
+        return BValueCreator.createArrayValue(decodedContent);
     }
 }

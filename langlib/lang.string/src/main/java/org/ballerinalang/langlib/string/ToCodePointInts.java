@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.string;
 
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
 
 /**
  * Extern function lang.string:toCodePointInts(string).
@@ -35,8 +35,8 @@ import io.ballerina.jvm.values.ArrayValueImpl;
 //)
 public class ToCodePointInts {
 
-    public static ArrayValue toCodePointInts(BString str) {
+    public static BArray toCodePointInts(BString str) {
         long[] ints = str.getValue().codePoints().asLongStream().toArray();
-        return new ArrayValueImpl(ints);
+        return BValueCreator.createArrayValue(ints);
     }
 }

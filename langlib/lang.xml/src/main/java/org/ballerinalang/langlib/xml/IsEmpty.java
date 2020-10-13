@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Check whether the XML sequence is empty.
@@ -37,7 +37,7 @@ public class IsEmpty {
 
     private static final String OPERATION = "check xml is empty";
 
-    public static boolean isEmpty(Strand strand, XMLValue xml) {
+    public static boolean isEmpty(Strand strand, BXML xml) {
         try {
             return xml.isEmpty();
         } catch (Throwable e) {

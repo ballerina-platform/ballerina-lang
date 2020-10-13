@@ -78,7 +78,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACK
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA_VAR_PREFIX;
@@ -201,7 +201,7 @@ public class JvmCodeGenUtil {
                 case TypeTags.FUTURE:
                     return String.format("L%s;", FUTURE_VALUE);
                 case TypeTags.OBJECT:
-                    return String.format("L%s;", OBJECT_VALUE);
+                    return String.format("L%s;", B_OBJECT);
                 case TypeTags.TYPEDESC:
                     return String.format("L%s;", TYPEDESC_VALUE);
                 case TypeTags.INVOKABLE:
@@ -406,7 +406,7 @@ public class JvmCodeGenUtil {
             case TypeTags.TYPEDESC:
                 return String.format("L%s;", TYPEDESC_VALUE);
             case TypeTags.OBJECT:
-                return String.format("L%s;", OBJECT_VALUE);
+                return String.format("L%s;", B_OBJECT);
             case TypeTags.HANDLE:
                 return String.format("L%s;", HANDLE_VALUE);
             default:
@@ -461,7 +461,7 @@ public class JvmCodeGenUtil {
             case TypeTags.READONLY:
                 return String.format(")L%s;", OBJECT);
             case TypeTags.OBJECT:
-                return String.format(")L%s;", OBJECT_VALUE);
+                return String.format(")L%s;", B_OBJECT);
             case TypeTags.INVOKABLE:
                 return String.format(")L%s;", FUNCTION_POINTER);
             case TypeTags.HANDLE:

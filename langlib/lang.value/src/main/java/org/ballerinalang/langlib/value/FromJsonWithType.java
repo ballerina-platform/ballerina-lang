@@ -25,8 +25,12 @@ import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTable;
+import io.ballerina.jvm.api.values.BTypedesc;
 import io.ballerina.jvm.commons.TypeValuePair;
 import io.ballerina.jvm.internal.ErrorUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
@@ -39,15 +43,6 @@ import io.ballerina.jvm.types.BTupleType;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
 import io.ballerina.jvm.util.exceptions.RuntimeErrors;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.StringValue;
-import io.ballerina.jvm.values.TableValueImpl;
-import io.ballerina.jvm.values.TupleValueImpl;
-import io.ballerina.jvm.values.TypedescValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,11 +62,11 @@ import static io.ballerina.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVER
 public class FromJsonWithType {
     private static final String AMBIGUOUS_TARGET = "ambiguous target type";
 
-    public static Object fromJsonWithType(Object v, TypedescValue t) {
+    public static Object fromJsonWithType(Object v, BTypedesc t) {
         Type describingType = t.getDescribingType();
         try {
             return convert(v, describingType, new ArrayList<>(), t);
-        } catch (ErrorValue e) {
+        } catch (BError e) {
             return e;
         } catch (BallerinaException e) {
             return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
@@ -80,7 +75,7 @@ public class FromJsonWithType {
     }
 
     private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues,
-                                  TypedescValue t) {
+                                  BTypedesc t) {
 
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
         Type sourceType = TypeChecker.getType(value);
@@ -113,16 +108,16 @@ public class FromJsonWithType {
         switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                newValue = convertMap((MapValue<?, ?>) value, matchingType, unresolvedValues, t);
+                newValue = convertMap((BMap<?, ?>) value, matchingType, unresolvedValues, t);
                 break;
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
-                newValue = convertArray((ArrayValue) value, matchingType, unresolvedValues, t);
+                newValue = convertArray((BArray) value, matchingType, unresolvedValues, t);
                 break;
             default:
                 if (TypeTags.isXMLTypeTag(matchingType.getTag())) {
                     try {
-                        newValue = XMLFactory.parse(((StringValue) value).getValue());
+                        newValue = XMLFactory.parse(((BString) value).getValue());
                         break;
                     } catch (Throwable e) {
                         throw createConversionError(value, targetType, e.getMessage());
@@ -147,11 +142,11 @@ public class FromJsonWithType {
         return newValue;
     }
 
-    private static Object convertMap(MapValue<?, ?> map, Type targetType, List<TypeValuePair> unresolvedValues,
-                                     TypedescValue t) {
+    private static Object convertMap(BMap<?, ?> map, Type targetType, List<TypeValuePair> unresolvedValues,
+                                     BTypedesc t) {
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
-                MapValueImpl<BString, Object> newMap = new MapValueImpl<>(targetType);
+                BMap<BString, Object> newMap = BValueCreator.createMapValue(targetType);
                 Type constraintType = ((BMapType) targetType).getConstrainedType();
                 for (Map.Entry entry : map.entrySet()) {
                     putToMap(newMap, entry, constraintType, unresolvedValues, t);
@@ -159,11 +154,11 @@ public class FromJsonWithType {
                 return newMap;
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recordType = (BRecordType) targetType;
-                MapValueImpl<BString, Object> newRecord;
+                BMap<BString, Object> newRecord;
                 if (t.getDescribingType() == targetType) {
-                    newRecord = (MapValueImpl<BString, Object>) t.instantiate(Scheduler.getStrand());
+                    newRecord = (BMap<BString, Object>) t.instantiate(Scheduler.getStrand());
                 } else {
-                    newRecord = (MapValueImpl<BString, Object>) BValueCreator
+                    newRecord = (BMap<BString, Object>) BValueCreator
                             .createRecordValue(recordType.getPackage(), recordType.getName());
                 }
 
@@ -187,12 +182,12 @@ public class FromJsonWithType {
     }
 
 
-    private static Object convertArray(ArrayValue array, Type targetType, List<TypeValuePair> unresolvedValues,
-                                       TypedescValue t) {
+    private static Object convertArray(BArray array, Type targetType, List<TypeValuePair> unresolvedValues,
+                                       BTypedesc t) {
         switch (targetType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) targetType;
-                ArrayValueImpl newArray = new ArrayValueImpl(arrayType);
+                BArray newArray = BValueCreator.createArrayValue(arrayType);
                 for (int i = 0; i < array.size(); i++) {
                     Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues, t);
                     newArray.add(i, newValue);
@@ -200,7 +195,7 @@ public class FromJsonWithType {
                 return newArray;
             case TypeTags.TUPLE_TAG:
                 BTupleType tupleType = (BTupleType) targetType;
-                TupleValueImpl newTuple = new TupleValueImpl(tupleType);
+                BArray newTuple = BValueCreator.createTupleValue(tupleType);
                 int minLen = tupleType.getTupleTypes().size();
                 for (int i = 0; i < array.size(); i++) {
                     Type elementType = (i < minLen) ? tupleType.getTupleTypes().get(i) : tupleType.getRestType();
@@ -209,7 +204,7 @@ public class FromJsonWithType {
                 }
                 return newTuple;
             case TypeTags.JSON_TAG:
-                newArray = new ArrayValueImpl((BArrayType) Types.TYPE_JSON_ARRAY);
+                newArray = BValueCreator.createArrayValue((BArrayType) Types.TYPE_JSON_ARRAY);
                 for (int i = 0; i < array.size(); i++) {
                     Object newValue = convert(array.get(i), targetType, unresolvedValues, t);
                     newArray.add(i, newValue);
@@ -217,11 +212,11 @@ public class FromJsonWithType {
                 return newArray;
             case TypeTags.TABLE_TAG:
                 BTableType tableType = (BTableType) targetType;
-                TableValueImpl newTable = new TableValueImpl(tableType);
+                BTable newTable = BValueCreator.createTableValue(tableType);
                 for (int i = 0; i < array.size(); i++) {
-                    MapValueImpl mapValue = (MapValueImpl) convert(array.get(i), tableType.getConstrainedType(),
+                    BMap bMap = (BMap) convert(array.get(i), tableType.getConstrainedType(),
                             unresolvedValues, t);
-                    newTable.add(mapValue);
+                    newTable.add(bMap);
                 }
                 return newTable;
         }
@@ -229,8 +224,8 @@ public class FromJsonWithType {
         throw ErrorUtils.createConversionError(array, targetType);
     }
 
-    private static void putToMap(MapValue<BString, Object> map, Map.Entry entry, Type fieldType,
-                                 List<TypeValuePair> unresolvedValues, TypedescValue t) {
+    private static void putToMap(BMap<BString, Object> map, Map.Entry entry, Type fieldType,
+                                 List<TypeValuePair> unresolvedValues, BTypedesc t) {
         Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, t);
         map.put(BStringUtils.fromString(entry.getKey().toString()), newValue);
     }

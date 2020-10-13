@@ -27,6 +27,8 @@ import io.ballerina.jvm.api.values.BLink;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.api.values.BXMLItem;
+import io.ballerina.jvm.api.values.BXMLSequence;
 import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
 import org.apache.axiom.om.OMElement;
@@ -61,7 +63,7 @@ import static io.ballerina.jvm.util.BLangConstants.XML_LANG_LIB;
  * </p>
  * @since 0.995.0
  */
-public final class XMLItem extends XMLValue {
+public final class XMLItem extends XMLValue implements BXMLItem {
 
     public static final String XMLNS_URL_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
     public static final String XMLNS = "xmlns";
@@ -628,7 +630,7 @@ public final class XMLItem extends XMLValue {
         }
     }
 
-    public XMLSequence getChildrenSeq() {
+    public BXMLSequence getChildrenSeq() {
         return children;
     }
 

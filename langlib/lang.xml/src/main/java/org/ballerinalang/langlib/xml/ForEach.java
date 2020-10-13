@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.jvm.api.values.BFunctionPointer;
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.runtime.AsyncUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.XMLValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,7 +41,7 @@ public class ForEach {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                       XML_VERSION, "forEach");
 
-    public static void forEach(XMLValue x, FPValue<Object, Object> func) {
+    public static void forEach(BXML x, BFunctionPointer<Object, Object> func) {
         if (x.isSingleton()) {
             func.asyncCall(new Object[]{Scheduler.getStrand(), x, true}, METADATA);
             return;

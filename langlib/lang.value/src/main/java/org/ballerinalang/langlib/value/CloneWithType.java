@@ -26,8 +26,12 @@ import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.api.types.TypedescType;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BRefValue;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTypedesc;
 import io.ballerina.jvm.commons.TypeValuePair;
 import io.ballerina.jvm.internal.ErrorUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
@@ -40,14 +44,6 @@ import io.ballerina.jvm.types.BTupleType;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
 import io.ballerina.jvm.util.exceptions.RuntimeErrors;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.RefValue;
-import io.ballerina.jvm.values.TupleValueImpl;
-import io.ballerina.jvm.values.TypedescValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,7 +64,7 @@ public class CloneWithType {
 
     private static final String AMBIGUOUS_TARGET = "ambiguous target type";
 
-    public static Object cloneWithType(Object v, TypedescValue t) {
+    public static Object cloneWithType(Object v, BTypedesc t) {
         Type describingType = t.getDescribingType();
         // typedesc<json>.constructFrom like usage
         if (describingType.getTag() == TypeTags.TYPEDESC_TAG) {
@@ -82,10 +78,10 @@ public class CloneWithType {
         return convert(convertType, inputValue, null, null);
     }
 
-    public static Object convert(Type convertType, Object inputValue, TypedescValue t, Strand strand) {
+    public static Object convert(Type convertType, Object inputValue, BTypedesc t, Strand strand) {
         try {
             return convert(inputValue, convertType, new ArrayList<>(), t, strand);
-        } catch (ErrorValue e) {
+        } catch (BError e) {
             return e;
         } catch (BallerinaException e) {
             return createError(CONSTRUCT_FROM_CONVERSION_ERROR, BStringUtils.fromString(e.getDetail()));
@@ -129,13 +125,13 @@ public class CloneWithType {
     }
 
     private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues,
-                                  TypedescValue t, Strand strand) {
+                                  BTypedesc t, Strand strand) {
         return convert(value, targetType, unresolvedValues, false, t, strand);
     }
 
 
     private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues,
-                                  boolean allowAmbiguity, TypedescValue t, Strand strand) {
+                                  boolean allowAmbiguity, BTypedesc t, Strand strand) {
         if (value == null) {
             if (targetType.isNilable()) {
                 return null;
@@ -163,11 +159,11 @@ public class CloneWithType {
             }
         }
 
-        return convert((RefValue) value, matchingType, unresolvedValues, t, strand);
+        return convert((BRefValue) value, matchingType, unresolvedValues, t, strand);
     }
 
-    private static Object convert(RefValue value, Type targetType, List<TypeValuePair> unresolvedValues,
-                                  TypedescValue t, Strand strand) {
+    private static Object convert(BRefValue value, Type targetType, List<TypeValuePair> unresolvedValues,
+                                  BTypedesc t, Strand strand) {
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
 
         if (unresolvedValues.contains(typeValuePair)) {
@@ -183,11 +179,11 @@ public class CloneWithType {
         switch (value.getType().getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                newValue = convertMap((MapValue<?, ?>) value, targetType, unresolvedValues, t, strand);
+                newValue = convertMap((BMap<?, ?>) value, targetType, unresolvedValues, t, strand);
                 break;
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
-                newValue = convertArray((ArrayValue) value, targetType, unresolvedValues, t, strand);
+                newValue = convertArray((BArray) value, targetType, unresolvedValues, t, strand);
                 break;
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
@@ -206,11 +202,11 @@ public class CloneWithType {
         return newValue;
     }
 
-    private static Object convertMap(MapValue<?, ?> map, Type targetType, List<TypeValuePair> unresolvedValues,
-                                     TypedescValue t, Strand strand) {
+    private static Object convertMap(BMap<?, ?> map, Type targetType, List<TypeValuePair> unresolvedValues,
+                                     BTypedesc t, Strand strand) {
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
-                MapValueImpl<BString, Object> newMap = new MapValueImpl<>(targetType);
+                BMap<BString, Object> newMap = BValueCreator.createMapValue(targetType);
                 for (Map.Entry entry : map.entrySet()) {
                     Type constraintType = ((BMapType) targetType).getConstrainedType();
                     putToMap(newMap, entry, constraintType, unresolvedValues, t, strand);
@@ -218,11 +214,11 @@ public class CloneWithType {
                 return newMap;
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recordType = (BRecordType) targetType;
-                MapValueImpl<BString, Object> newRecord;
+                BMap<BString, Object> newRecord;
                 if (t != null && t.getDescribingType() == targetType) {
-                    newRecord = (MapValueImpl<BString, Object>) t.instantiate(strand);
+                    newRecord = (BMap<BString, Object>) t.instantiate(strand);
                 } else {
-                    newRecord = (MapValueImpl<BString, Object>) BValueCreator
+                    newRecord = BValueCreator
                             .createRecordValue(recordType.getPackage(), recordType.getName());
                 }
 
@@ -248,12 +244,12 @@ public class CloneWithType {
     }
 
 
-    private static Object convertArray(ArrayValue array, Type targetType, List<TypeValuePair> unresolvedValues,
-                                       TypedescValue t, Strand strand) {
+    private static Object convertArray(BArray array, Type targetType, List<TypeValuePair> unresolvedValues,
+                                       BTypedesc t, Strand strand) {
         switch (targetType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) targetType;
-                ArrayValueImpl newArray = new ArrayValueImpl(arrayType);
+                BArray newArray = BValueCreator.createArrayValue(arrayType);
                 for (int i = 0; i < array.size(); i++) {
                     Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues, t, strand);
                     newArray.add(i, newValue);
@@ -261,7 +257,7 @@ public class CloneWithType {
                 return newArray;
             case TypeTags.TUPLE_TAG:
                 BTupleType tupleType = (BTupleType) targetType;
-                TupleValueImpl newTuple = new TupleValueImpl(tupleType);
+                BArray newTuple = BValueCreator.createTupleValue(tupleType);
                 int minLen = tupleType.getTupleTypes().size();
                 for (int i = 0; i < array.size(); i++) {
                     Type elementType = (i < minLen) ? tupleType.getTupleTypes().get(i) : tupleType.getRestType();
@@ -270,7 +266,7 @@ public class CloneWithType {
                 }
                 return newTuple;
             case TypeTags.JSON_TAG:
-                newArray = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
+                newArray = BValueCreator.createArrayValue(new BArrayType(Types.TYPE_JSON));
                 for (int i = 0; i < array.size(); i++) {
                     Object newValue = convert(array.get(i), Types.TYPE_JSON, unresolvedValues, t, strand);
                     newArray.add(i, newValue);
@@ -283,8 +279,8 @@ public class CloneWithType {
         throw ErrorUtils.createConversionError(array, targetType);
     }
 
-    private static void putToMap(MapValue<BString, Object> map, Map.Entry entry, Type fieldType,
-                                 List<TypeValuePair> unresolvedValues, TypedescValue t, Strand strand) {
+    private static void putToMap(BMap<BString, Object> map, Map.Entry entry, Type fieldType,
+                                 List<TypeValuePair> unresolvedValues, BTypedesc t, Strand strand) {
         Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, true, t, strand);
         map.put(BStringUtils.fromString(entry.getKey().toString()), newValue);
     }

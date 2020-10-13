@@ -19,7 +19,9 @@
 package org.ballerinalang.net.http.actions.httpclient;
 
 import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.observability.ObservabilityConstants;
 import io.ballerina.jvm.observability.ObserveUtils;
@@ -28,8 +30,6 @@ import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.transactions.TransactionLocalContext;
 import io.ballerina.jvm.util.exceptions.BallerinaConnectorException;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.MapValue;
 import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -82,7 +82,7 @@ public abstract class AbstractHTTPAction {
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
     }
 
-    protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, MapValue config,
+    protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, BMap config,
                                                                 String path, BObject request) {
         if (request == null) {
             request = ValueCreatorUtils.createRequestObject();
@@ -96,7 +96,7 @@ public abstract class AbstractHTTPAction {
         return requestMsg;
     }
 
-    static String getCompressionConfigFromEndpointConfig(MapValue clientEndpointConfig) {
+    static String getCompressionConfigFromEndpointConfig(BMap clientEndpointConfig) {
         return clientEndpointConfig.get(ANN_CONFIG_ATTR_COMPRESSION).toString();
     }
 
@@ -385,7 +385,7 @@ public abstract class AbstractHTTPAction {
      */
     private static void serializeMultiparts(BObject entityObj, OutputStream messageOutputStream,
                                             String boundaryString) throws IOException {
-        ArrayValue bodyParts = EntityBodyHandler.getBodyPartArray(entityObj);
+        BArray bodyParts = EntityBodyHandler.getBodyPartArray(entityObj);
         if (bodyParts != null && bodyParts.size() > 0) {
             serializeMultipartDataSource(messageOutputStream, boundaryString, entityObj);
         } else { //If the content is in a byte channel

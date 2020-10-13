@@ -25,7 +25,6 @@ import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.transactions.TransactionConstants;
 import io.ballerina.jvm.transactions.TransactionLocalContext;
-import io.ballerina.jvm.values.MapValue;
 
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -39,7 +38,7 @@ import static io.ballerina.jvm.transactions.TransactionConstants.TRANSACTION_PAC
  */
 public class SetTransactionContext {
 
-    public static void setTransactionContext(MapValue txDataStruct, Object prevAttemptInfo) {
+    public static void setTransactionContext(BMap txDataStruct, Object prevAttemptInfo) {
         String globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).toString();
         String transactionBlockId = txDataStruct.get(TransactionConstants.TRANSACTION_BLOCK_ID).toString();
         String url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).toString();

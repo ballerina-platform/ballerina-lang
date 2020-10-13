@@ -17,11 +17,11 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.ballerina.jvm.api.BalEnv;
 import io.ballerina.jvm.api.BalFuture;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.values.ArrayValue;
 import io.netty.channel.ChannelFuture;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -62,7 +62,7 @@ public class WebSocketConnector {
         return null;
     }
 
-    public static Object pushBinary(BalEnv env, BObject wsConnection, ArrayValue binaryData,
+    public static Object pushBinary(BalEnv env, BObject wsConnection, BArray binaryData,
                                     boolean finalFrame) {
         Strand strand = Scheduler.getStrand();
         BalFuture future = env.markAsync();
@@ -87,7 +87,7 @@ public class WebSocketConnector {
         return null;
     }
 
-    public static Object ping(BalEnv env, BObject wsConnection, ArrayValue binaryData) {
+    public static Object ping(BalEnv env, BObject wsConnection, BArray binaryData) {
         Strand strand = Scheduler.getStrand();
         BalFuture balFuture = env.markAsync();
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
@@ -110,7 +110,7 @@ public class WebSocketConnector {
         return null;
     }
 
-    public static Object pong(BalEnv env, BObject wsConnection, ArrayValue binaryData) {
+    public static Object pong(BalEnv env, BObject wsConnection, BArray binaryData) {
         Strand strand = Scheduler.getStrand();
         BalFuture balFuture = env.markAsync();
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection

@@ -74,7 +74,6 @@ public class ErrorValue extends BError implements RefValue {
     private final Object details;
 
     public static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
-    public static final String CALL_STACK_ELEMENT = "CallStackElement";
 
     public ErrorValue(BString message, Object details) {
         this(new BErrorType(TypeConstants.ERROR, Types.TYPE_ERROR.getPackage(), TypeChecker.getType(details)),

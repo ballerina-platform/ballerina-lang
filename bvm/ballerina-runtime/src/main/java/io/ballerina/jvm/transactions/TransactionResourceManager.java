@@ -18,9 +18,9 @@
 package io.ballerina.jvm.transactions;
 
 import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BFunctionPointer;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.FPValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +50,8 @@ public class TransactionResourceManager {
     private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
     private Map<String, Xid> xidRegistry;
 
-    private Map<String, List<FPValue>> committedFuncRegistry;
-    private Map<String, List<FPValue>> abortedFuncRegistry;
+    private Map<String, List<BFunctionPointer>> committedFuncRegistry;
+    private Map<String, List<BFunctionPointer>> abortedFuncRegistry;
 
     private ConcurrentSkipListSet<String> failedResourceParticipantSet = new ConcurrentSkipListSet<>();
     private ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
@@ -96,7 +96,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param fpValue   the function pointer for the committed function
      */
-    public void registerCommittedFunction(String transactionBlockId, FPValue fpValue) {
+    public void registerCommittedFunction(String transactionBlockId, BFunctionPointer fpValue) {
         if (fpValue != null) {
             committedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new ArrayList<>()).add(fpValue);
         }
@@ -108,7 +108,7 @@ public class TransactionResourceManager {
      * @param transactionBlockId the block id of the transaction
      * @param fpValue   the function pointer for the aborted function
      */
-    public void registerAbortedFunction(String transactionBlockId, FPValue fpValue) {
+    public void registerAbortedFunction(String transactionBlockId, BFunctionPointer fpValue) {
         if (fpValue != null) {
             abortedFuncRegistry.computeIfAbsent(transactionBlockId, list -> new ArrayList<>()).add(fpValue);
         }
@@ -124,8 +124,8 @@ public class TransactionResourceManager {
      * @param strand             ballerina strand of the participant
      * @since 0.990.0
      */
-    public void registerParticipation(String gTransactionId, String transactionBlockId, FPValue committed,
-                                      FPValue aborted, Strand strand) {
+    public void registerParticipation(String gTransactionId, String transactionBlockId, BFunctionPointer committed,
+                                      BFunctionPointer aborted, Strand strand) {
         localParticipants.computeIfAbsent(gTransactionId, gid -> new ConcurrentSkipListSet<>()).add(transactionBlockId);
 
         TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
@@ -315,11 +315,11 @@ public class TransactionResourceManager {
     }
 
     private void invokeCommittedFunction(Strand strand, String transactionId, String transactionBlockId) {
-        List<FPValue> fpValueList = committedFuncRegistry.get(transactionId);
+        List<BFunctionPointer> fpValueList = committedFuncRegistry.get(transactionId);
         Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true };
         if (fpValueList != null) {
             for (int i = fpValueList.size(); i > 0; i--) {
-                FPValue fp = fpValueList.get(i - 1);
+                BFunctionPointer fp = fpValueList.get(i - 1);
                 //TODO: Replace fp.getFunction().apply
 //                BRuntime.getCurrentRuntime().invokeFunctionPointerAsyncIteratively(fp, 1, () -> args,
 //                        results -> {}, () -> null);
@@ -329,12 +329,12 @@ public class TransactionResourceManager {
     }
 
     private void invokeAbortedFunction(Strand strand, String transactionId, String transactionBlockId, Object error) {
-        List<FPValue> fpValueList = abortedFuncRegistry.get(transactionId);
+        List<BFunctionPointer> fpValueList = abortedFuncRegistry.get(transactionId);
         //TODO: Need to pass the retryManager to get the willRetry value.
         Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true, error, true, false, true };
         if (fpValueList != null) {
             for (int i = fpValueList.size(); i > 0; i--) {
-                FPValue fp = fpValueList.get(i - 1);
+                BFunctionPointer fp = fpValueList.get(i - 1);
                 //TODO: Replace fp.getFunction().apply
 //                BRuntime.getCurrentRuntime().invokeFunctionPointerAsyncIteratively(fp, 1, () -> args,
 //                        results -> {}, () -> null);

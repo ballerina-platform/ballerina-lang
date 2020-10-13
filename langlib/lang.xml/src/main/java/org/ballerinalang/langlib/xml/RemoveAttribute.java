@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Remove an attribute from an XML.
@@ -37,7 +37,7 @@ public class RemoveAttribute {
 
     private static final String OPERATION = "remove attribute";
 
-    public static void removeAttribute(Strand strand, XMLValue xml, String qname) {
+    public static void removeAttribute(Strand strand, BXML xml, String qname) {
         try {
             xml.removeAttribute(qname);
         } catch (Throwable e) {

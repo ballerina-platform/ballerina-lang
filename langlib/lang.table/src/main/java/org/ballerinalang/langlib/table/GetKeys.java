@@ -20,10 +20,10 @@ package org.ballerinalang.langlib.table;
 
 import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTable;
 import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.TableValueImpl;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
@@ -41,7 +41,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 //)
 public class GetKeys {
 
-    public static ArrayValue keys(TableValueImpl tbl) {
+    public static BArray keys(BTable tbl) {
         Type tableKeyType = tbl.getKeyType();
         Object[] keys = tbl.getKeys();
         switch (tableKeyType.getTag()) {
@@ -51,37 +51,37 @@ public class GetKeys {
                     Object key = keys[i];
                     boolArr[i] = (boolean) key;
                 }
-                return (ArrayValue) BValueCreator.createArrayValue(boolArr);
+                return (BArray) BValueCreator.createArrayValue(boolArr);
             case TypeTags.INT:
                 long[] intArr  = new long[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
                     intArr[i] = (long) key;
                 }
-                return (ArrayValue) BValueCreator.createArrayValue(intArr);
+                return (BArray) BValueCreator.createArrayValue(intArr);
             case TypeTags.BYTE:
                 byte[] byteArr  = new byte[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
                     byteArr[i] = (byte) key;
                 }
-                return (ArrayValue) BValueCreator.createArrayValue(byteArr);
+                return (BArray) BValueCreator.createArrayValue(byteArr);
             case TypeTags.FLOAT:
                 double[] floatArr  = new double[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
                     floatArr[i] = (double) key;
                 }
-                return (ArrayValue) BValueCreator.createArrayValue(floatArr);
+                return (BArray) BValueCreator.createArrayValue(floatArr);
             case TypeTags.STRING:
                 BString[] stringArr  = new BString[keys.length];
                 for (int i = 0; i < keys.length; i++) {
                     Object key = keys[i];
                     stringArr[i] = (BString) key;
                 }
-                return (ArrayValue) BValueCreator.createArrayValue(stringArr);
+                return (BArray) BValueCreator.createArrayValue(stringArr);
             default:
-                return (ArrayValue) BValueCreator.createArrayValue(tbl.getKeys(), new BArrayType(tbl.getKeyType()));
+                return (BArray) BValueCreator.createArrayValue(tbl.getKeys(), new BArrayType(tbl.getKeyType()));
         }
     }
 }

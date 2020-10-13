@@ -17,6 +17,7 @@
  */
 package io.ballerina.jvm.api.values;
 
+import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
 import io.ballerina.jvm.values.ArrayValue;
 import io.ballerina.jvm.values.MapValue;
@@ -187,4 +188,6 @@ public interface BMap<K, V> extends BRefValue, BCollection {
     ObjectValue getObjectValue(BString key);
 
     ArrayValue getArrayValue(BString key);
+
+    Type getIteratorNextReturnType();
 }

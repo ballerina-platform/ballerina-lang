@@ -26,7 +26,6 @@ import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.types.AttachedFunction;
-import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Appointment;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
@@ -74,7 +73,7 @@ public class Utils {
     public static String getCronExpressionFromAppointmentRecord(Object record) throws SchedulingException {
         String cronExpression;
         if (RECORD_APPOINTMENT_DATA.equals(TypeChecker.getType(record).getName())) {
-            cronExpression = buildCronExpression((MapValue<BString, Object>) record);
+            cronExpression = buildCronExpression((BMap<BString, Object>) record);
             if (!isValidExpression(cronExpression)) {
                 throw new SchedulingException("AppointmentData \"" + record.toString() + "\" is invalid.");
             }
@@ -88,7 +87,7 @@ public class Utils {
     }
 
     // Following code is reported as duplicates since all the lines doing same function call.
-    private static String buildCronExpression(MapValue<BString, Object> record) {
+    private static String buildCronExpression(BMap<BString, Object> record) {
         String cronExpression = getStringFieldValue(record, FIELD_SECONDS) + " " +
                 getStringFieldValue(record, FIELD_MINUTES) + " " +
                 getStringFieldValue(record, FIELD_HOURS) + " " +
@@ -99,7 +98,7 @@ public class Utils {
         return cronExpression.trim();
     }
 
-    private static String getStringFieldValue(MapValue<BString, Object> record, BString fieldName) {
+    private static String getStringFieldValue(BMap<BString, Object> record, BString fieldName) {
         if (FIELD_DAYS_OF_MONTH.equals(fieldName) && Objects.isNull(record.get(FIELD_DAYS_OF_MONTH))) {
             return "?";
         } else if (Objects.nonNull(record.get(fieldName))) {

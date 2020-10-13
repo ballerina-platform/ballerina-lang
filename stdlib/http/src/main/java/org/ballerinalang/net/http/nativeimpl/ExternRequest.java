@@ -25,7 +25,6 @@ import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -64,7 +63,7 @@ public class ExternRequest {
         try {
             Object queryParams = requestObj.getNativeData(QUERY_PARAM_MAP);
             if (queryParams != null) {
-                return (MapValue<BString, Object>) queryParams;
+                return (BMap<BString, Object>) queryParams;
             }
             HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) requestObj
                     .getNativeData(HttpConstants.TRANSPORT_MESSAGE);

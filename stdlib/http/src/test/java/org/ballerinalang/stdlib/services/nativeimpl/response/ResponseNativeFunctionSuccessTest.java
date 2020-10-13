@@ -20,9 +20,7 @@ package org.ballerinalang.stdlib.services.nativeimpl.response;
 import io.ballerina.jvm.XMLFactory;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.XMLSequence;
-import io.ballerina.jvm.values.XMLValue;
+import io.ballerina.jvm.api.values.XMLSequence;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -484,7 +482,7 @@ public class ResponseNativeFunctionSuccessTest {
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD.getValue());
         Object bJson = TestEntityUtils.getMessageDataSource(entity);
         Assert.assertEquals(
-                ((MapValueImpl<BString, Object>) bJson).get(BStringUtils.fromString("name"))
+                ((BMap<BString, Object>) bJson).get(BStringUtils.fromString("name"))
                         .toString(), "wso2", "Payload is not set properly");
     }
 
@@ -535,8 +533,8 @@ public class ResponseNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD.getValue());
-        Object xmlValue = TestEntityUtils.getMessageDataSource(entity);
-        Assert.assertEquals(((XMLValue) xmlValue).getTextValue(), "Ballerina", "Payload is not set properly");
+        Object BXML = TestEntityUtils.getMessageDataSource(entity);
+        Assert.assertEquals(((BXML) BXML).getTextValue(), "Ballerina", "Payload is not set properly");
     }
 
     @Test

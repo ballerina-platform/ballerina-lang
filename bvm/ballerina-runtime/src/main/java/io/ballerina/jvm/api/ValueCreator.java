@@ -15,12 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.jvm.values;
+package io.ballerina.jvm.api;
 
+import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
+import io.ballerina.jvm.values.MapValue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -80,6 +82,6 @@ public abstract class ValueCreator {
 
     public abstract MapValue<BString, Object> createRecordValue(String recordTypeName);
 
-    public abstract ObjectValue createObjectValue(String objectTypeName, Scheduler scheduler, Strand parent,
-                                                  Map<String, Object> properties, Object[] args);
+    public abstract BObject createObjectValue(String objectTypeName, Scheduler scheduler, Strand parent,
+                                              Map<String, Object> properties, Object[] args);
 }

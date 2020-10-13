@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
 import io.ballerina.jvm.util.exceptions.RuntimeErrors;
-import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Return children of provided xml element value, panic if provided is not a element.
@@ -29,13 +29,13 @@ import io.ballerina.jvm.values.XMLValue;
 //@BallerinaFunction(
 //        orgName = "ballerina", packageName = "lang.xml",
 //        functionName = "getChildren",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
+//        args = {@Argument(name = "BXML", type = TypeKind.XML)},
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
 public class GetChildren {
 
-    public static XMLValue getChildren(XMLValue xmlVal) {
+    public static BXML getChildren(BXML xmlVal) {
         if (!IsElement.isElement(xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getChildren", "element");
         }

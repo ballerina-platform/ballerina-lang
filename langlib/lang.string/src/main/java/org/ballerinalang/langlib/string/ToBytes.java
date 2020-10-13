@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.langlib.string;
 
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
 
 import java.nio.charset.StandardCharsets;
 
@@ -36,9 +36,9 @@ import java.nio.charset.StandardCharsets;
 //)
 public class ToBytes {
 
-    public static ArrayValue toBytes(BString value) {
+    public static BArray toBytes(BString value) {
 
         byte[] bytes = value.getValue().getBytes(StandardCharsets.UTF_8);
-        return new ArrayValueImpl(bytes);
+        return BValueCreator.createArrayValue(bytes);
     }
 }

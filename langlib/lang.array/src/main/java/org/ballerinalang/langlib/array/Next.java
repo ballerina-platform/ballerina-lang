@@ -20,10 +20,9 @@ package org.ballerinalang.langlib.array;
 
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
-import io.ballerina.jvm.values.AbstractArrayValue;
-import io.ballerina.jvm.values.IteratorValue;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.ObjectValue;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BIterator;
+import io.ballerina.jvm.api.values.BObject;
 
 /**
  * Native implementation of lang.array.ArrayIterator:next().
@@ -32,9 +31,9 @@ import io.ballerina.jvm.values.ObjectValue;
  */
 public class Next {
     //TODO: refactor hard coded values
-    public static Object next(ObjectValue m) {
-        IteratorValue arrIterator = (IteratorValue) m.getNativeData("&iterator&");
-        AbstractArrayValue arr = (AbstractArrayValue) m.get(BStringUtils.fromString("m"));
+    public static Object next(BObject m) {
+        BIterator arrIterator = (BIterator) m.getNativeData("&iterator&");
+        BArray arr = (BArray) m.get(BStringUtils.fromString("m"));
         if (arrIterator == null) {
             arrIterator = arr.getIterator();
             m.addNativeData("&iterator&", arrIterator);
@@ -42,7 +41,8 @@ public class Next {
 
         if (arrIterator.hasNext()) {
             Object element = arrIterator.next();
-            return BValueCreator.createRecordValue(new MapValueImpl<>(arr.getIteratorNextReturnType()), element);
+            return BValueCreator.createRecordValue(BValueCreator.createMapValue(arr.getIteratorNextReturnType()),
+                                                   element);
         }
 
         return null;

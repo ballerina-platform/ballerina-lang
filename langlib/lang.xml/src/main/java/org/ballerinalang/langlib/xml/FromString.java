@@ -18,8 +18,8 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.jvm.XMLFactory;
+import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.ErrorValue;
 
 /**
  * Converts a XML to the corresponding JSON representation.
@@ -38,8 +38,8 @@ public class FromString {
     public static Object fromString(BString string) {
         try {
             return XMLFactory.parse(string.getValue());
-        } catch (ErrorValue errorValue) {
-            return errorValue;
+        } catch (BError BError) {
+            return BError;
         }
     }
 }

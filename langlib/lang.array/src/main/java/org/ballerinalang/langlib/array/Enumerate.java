@@ -18,20 +18,19 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BTupleType;
 import io.ballerina.jvm.types.BUnionType;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.TupleValueImpl;
-import io.ballerina.jvm.values.utils.GetFunction;
+import org.ballerinalang.langlib.array.utils.GetFunction;
 
 import java.util.Arrays;
 
-import static io.ballerina.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.array:enumerate(Type[]).
@@ -46,7 +45,7 @@ import static io.ballerina.jvm.values.utils.ArrayUtils.createOpNotSupportedError
 //)
 public class Enumerate {
 
-    public static ArrayValue enumerate(ArrayValue arr) {
+    public static BArray enumerate(BArray arr) {
         Type arrType = arr.getType();
         int size = arr.size();
         BTupleType elemType;
@@ -55,23 +54,24 @@ public class Enumerate {
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 elemType = new BTupleType(Arrays.asList(Types.TYPE_INT, arr.getElementType()));
-                getFn = ArrayValue::get;
+                getFn = BArray::get;
                 break;
             case TypeTags.TUPLE_TAG:
                 BTupleType tupleType = (BTupleType) arrType;
                 BUnionType tupElemType = new BUnionType(tupleType.getTupleTypes(), tupleType.getTypeFlags());
                 elemType = new BTupleType(Arrays.asList(Types.TYPE_INT, tupElemType));
-                getFn = ArrayValue::getRefValue;
+                getFn = BArray::getRefValue;
                 break;
             default:
                 throw createOpNotSupportedError(arrType, "enumerate()");
         }
 
         BArrayType newArrType = new BArrayType(elemType);
-        ArrayValue newArr = new ArrayValueImpl(newArrType); // TODO: 7/8/19 Verify whether this needs to be sealed
+        BArray newArr = BValueCreator.createArrayValue(newArrType); // TODO: 7/8/19 Verify whether this needs to be
+        // sealed
 
         for (int i = 0; i < size; i++) {
-            TupleValueImpl entry = new TupleValueImpl(elemType);
+            BArray entry = BValueCreator.createTupleValue(elemType);
             entry.add(0, Long.valueOf(i));
             entry.add(1, getFn.get(arr, i));
             newArr.add(i, entry);

@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.observability.metrics.Counter;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.ObjectValue;
 
 /**
  * This is the native initialize function that's getting called when instantiating the Counter object.
@@ -28,10 +28,10 @@ import io.ballerina.jvm.values.ObjectValue;
  */
 public class CounterInitialize {
 
-    public static void initialize(ObjectValue counterObj) {
+    public static void initialize(BObject counterObj) {
         Counter counter = Counter.builder(counterObj.get(ObserveNativeImplConstants.NAME_FIELD).toString())
                 .description(counterObj.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).toString())
-                .tags(Utils.toStringMap((MapValue) counterObj.get(ObserveNativeImplConstants.TAGS_FIELD)))
+                .tags(Utils.toStringMap((BMap) counterObj.get(ObserveNativeImplConstants.TAGS_FIELD)))
                 .build();
         counterObj.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, counter);
     }

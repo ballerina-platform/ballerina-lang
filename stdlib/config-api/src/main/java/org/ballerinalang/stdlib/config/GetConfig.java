@@ -24,10 +24,10 @@ import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BMapInitialValueEntry;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.values.MappingInitialValueEntry;
 import org.ballerinalang.config.ConfigRegistry;
 
 import java.util.List;
@@ -55,9 +55,9 @@ public class GetConfig {
                 case "BOOLEAN":
                     return configRegistry.getAsBoolean(configKey.getValue());
                 case "MAP":
-                    return buildMapValue(configRegistry.getAsMap(configKey.getValue()));
+                    return buildBMap(configRegistry.getAsMap(configKey.getValue()));
                 case "ARRAY":
-                    return buildArrayValue(configRegistry.getAsArray(configKey.getValue()));
+                    return buildBArray(configRegistry.getAsArray(configKey.getValue()));
                 default:
                     throw new IllegalStateException("invalid value type: " + type);
             }
@@ -68,19 +68,19 @@ public class GetConfig {
     }
 
     @SuppressWarnings("unchecked")
-    private static BMap<BString, Object> buildMapValue(Map<String, Object> section) {
-        MappingInitialValueEntry.KeyValueEntry[] keyValues = new MappingInitialValueEntry.KeyValueEntry[section.size()];
+    private static BMap<BString, Object> buildBMap(Map<String, Object> section) {
+        BMapInitialValueEntry[] keyValues = new BMapInitialValueEntry[section.size()];
         int i = 0;
         for (Map.Entry<String, Object> entry : section.entrySet()) {
-            MappingInitialValueEntry.KeyValueEntry keyValue = new MappingInitialValueEntry.KeyValueEntry(
-                    BStringUtils.fromString(entry.getKey()), getConvertedValue(entry.getValue()));
+            BMapInitialValueEntry keyValue = BValueCreator
+                    .createKeyFieldEntry(BStringUtils.fromString(entry.getKey()), getConvertedValue(entry.getValue()));
             keyValues[i] = keyValue;
             i++;
         }
         return BValueCreator.createMapValue(mapType, keyValues);
     }
 
-    private static BArray buildArrayValue(List value) {
+    private static BArray buildBArray(List value) {
         Object[] convertedValues = new Object[value.size()];
         for (Object entry : value) {
             convertedValues[value.indexOf(entry)] = getConvertedValue(entry);
@@ -93,9 +93,9 @@ public class GetConfig {
         if (obj instanceof Long || obj instanceof Double || obj instanceof Boolean) {
             return obj;
         } else if (obj instanceof Map) {
-            return buildMapValue((Map<String, Object>) obj);
+            return buildBMap((Map<String, Object>) obj);
         } else if (obj instanceof List) {
-            return buildArrayValue((List) obj);
+            return buildBArray((List) obj);
         }
         return BStringUtils.fromString(String.valueOf(obj));
     }

@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langlib.future;
 
-import io.ballerina.jvm.values.FutureValue;
+import io.ballerina.jvm.api.values.BFuture;
 
 /**
  * Extern function future.cancel().
@@ -28,7 +28,7 @@ import io.ballerina.jvm.values.FutureValue;
 //)
 public class Cancel {
 
-    public static void cancel(FutureValue futureValue) {
+    public static void cancel(BFuture futureValue) {
         futureValue.cancel();
     }
     

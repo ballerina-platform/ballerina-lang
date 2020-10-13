@@ -16,8 +16,8 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,7 +39,7 @@ import static org.bytedeco.llvm.global.LLVM.LLVMDisposePassManager;
         })
 public class LLVMDisposePassManager {
 
-    public static void llvmDisposePassManager(Strand strand, MapValue<String, Object> arg0) {
+    public static void llvmDisposePassManager(Strand strand, BMap<String, Object> arg0) {
 
         LLVMPassManagerRef pm = (LLVMPassManagerRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVMDisposePassManager(pm);

@@ -50,8 +50,8 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             //Adding service registries to native data
             resetRegistry(serviceEndpoint);
             return null;
-        } catch (BError errorValue) {
-            return errorValue;
+        } catch (BError BError) {
+            return BError;
         } catch (Exception e) {
             return HttpUtil.createHttpError(e.getMessage(), HttpErrorType.GENERIC_LISTENER_ERROR);
         }

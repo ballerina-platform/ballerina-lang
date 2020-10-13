@@ -18,8 +18,8 @@ package org.ballerinalang.nativeimpl.llvm.gen;
 
 import io.ballerina.jvm.BallerinaValues;
 import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -49,12 +49,12 @@ import static org.bytedeco.llvm.global.LLVM.LLVMPointerType;
 
 public class LLVMPointerType {
 
-    public static MapValue<String, Object> llvmPointerType(Strand strand, MapValue<String, Object> typeRef,
+    public static BMap<String, Object> llvmPointerType(Strand strand, BMap<String, Object> typeRef,
                                                            long addressSpace) {
 
         LLVMTypeRef elementType = (LLVMTypeRef) FFIUtil.getRecodeArgumentNative(typeRef);
         LLVMTypeRef returnValue = LLVMPointerType(elementType, (int) addressSpace);
-        MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new Module("ballerina",
+        BMap<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new Module("ballerina",
                 "llvm"), "LLVMTypeRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
 

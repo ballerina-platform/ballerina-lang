@@ -18,24 +18,24 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BFunctionPointer;
 import io.ballerina.jvm.runtime.AsyncUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BFunctionType;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.utils.GetFunction;
+import org.ballerinalang.langlib.array.utils.GetFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.jvm.util.BLangConstants.ARRAY_LANG_LIB;
 import static io.ballerina.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static io.ballerina.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
 import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
@@ -54,20 +54,20 @@ public class Map {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
                                                                       ARRAY_VERSION, "map");
 
-    public static ArrayValue map(ArrayValue arr, FPValue<Object, Object> func) {
+    public static BArray map(BArray arr, BFunctionPointer<Object, Object> func) {
         Type elemType = ((BFunctionType) func.getType()).retType;
         Type retArrType = new BArrayType(elemType);
-        ArrayValue retArr = new ArrayValueImpl((BArrayType) retArrType);
+        BArray retArr = BValueCreator.createArrayValue((BArrayType) retArrType);
         int size = arr.size();
         GetFunction getFn;
 
         Type arrType = arr.getType();
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                getFn = ArrayValue::get;
+                getFn = BArray::get;
                 break;
             case TypeTags.TUPLE_TAG:
-                getFn = ArrayValue::getRefValue;
+                getFn = BArray::getRefValue;
                 break;
             default:
                 throw createOpNotSupportedError(arrType, "map()");

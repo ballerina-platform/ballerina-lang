@@ -18,17 +18,18 @@
 
 package org.ballerinalang.langlib.map;
 
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BFunctionPointer;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.runtime.AsyncUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
 import io.ballerina.jvm.types.BMapType;
 import io.ballerina.jvm.types.BRecordType;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.MapValueImpl;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,7 +49,7 @@ public class Filter {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "filter");
 
-    public static MapValue filter(MapValue<?, ?> m, FPValue<Object, Boolean> func) {
+    public static BMap filter(BMap<?, ?> m, BFunctionPointer<Object, Boolean> func) {
         Type mapType = m.getType();
         Type newMapType;
         switch (mapType.getTag()) {
@@ -62,7 +63,7 @@ public class Filter {
             default:
                 throw createOpNotSupportedError(mapType, "filter()");
         }
-        MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
+        BMap<BString, Object> newMap = BValueCreator.createMapValue(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
@@ -73,7 +74,7 @@ public class Filter {
                                                              if ((Boolean) result) {
                                                                  Object key = m.getKeys()[index.get()];
                                                                  Object value = m.get(key);
-                                                                 newMap.put(key, value);
+                                                                 newMap.put((BString) key, value);
                                                              }
                                                          }, () -> newMap, Scheduler.getStrand().scheduler);
         return newMap;

@@ -19,9 +19,10 @@ package org.ballerinalang.langlib.internal;
 
 import io.ballerina.jvm.XMLNodeType;
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.XMLQName;
-import io.ballerina.jvm.values.XMLValue;
+import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.api.values.BXMLQName;
 
 import static io.ballerina.jvm.api.BErrorCreator.createError;
 import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
@@ -33,7 +34,7 @@ import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATI
  */
 public class GetAttribute {
 
-    public static Object getAttribute(XMLValue xmlVal, BString attrName, boolean optionalFiledAccess) {
+    public static Object getAttribute(BXML xmlVal, BString attrName, boolean optionalFiledAccess) {
         if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE && xmlVal.size() == 0) {
             return null;
         }
@@ -42,7 +43,7 @@ public class GetAttribute {
                                BStringUtils.fromString("Invalid xml attribute access on xml " +
                                                                xmlVal.getNodeType().value()));
         }
-        XMLQName qname = new XMLQName(attrName);
+        BXMLQName qname = BValueCreator.createXMLQName(attrName);
         BString attrVal = xmlVal.getAttribute(qname.getLocalName(), qname.getUri());
         if (attrVal == null && !optionalFiledAccess) {
             return createError(XML_OPERATION_ERROR, BStringUtils.fromString("attribute '" + attrName + "' not found"));

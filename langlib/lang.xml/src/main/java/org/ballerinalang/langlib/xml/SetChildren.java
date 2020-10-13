@@ -24,10 +24,10 @@ import io.ballerina.jvm.api.TypeFlags;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.types.BUnionType;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
 import io.ballerina.jvm.util.exceptions.RuntimeErrors;
-import io.ballerina.jvm.values.XMLValue;
 
 import java.util.Arrays;
 
@@ -47,14 +47,14 @@ public class SetChildren {
 
     private static final String OPERATION = "set children to xml element";
 
-    public static void setChildren(XMLValue xml, Object children) {
+    public static void setChildren(BXML xml, Object children) {
         if (!IsElement.isElement(xml)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "setChildren", "element");
         }
 
         Type childrenType = TypeChecker.getType(children);
         if (childrenType.getTag() == TypeTags.STRING_TAG) {
-            XMLValue xmlText = XMLFactory.createXMLText((String) children);
+            BXML xmlText = XMLFactory.createXMLText((String) children);
             children = xmlText;
         } else if (TypeTags.isXMLTypeTag(childrenType.getTag())) {
             BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
@@ -64,7 +64,7 @@ public class SetChildren {
         }
 
         try {
-            xml.setChildren((XMLValue) children);
+            xml.setChildren((BXML) children);
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

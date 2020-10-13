@@ -25,7 +25,10 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 public class JvmConstants {
 
     // jvm values public API classes
-    public static final String BXML_QNAME = "io/ballerina/jvm/api/values/BXMLQName";
+    public static final String B_XML_QNAME = "io/ballerina/jvm/api/values/BXMLQName";
+    public static final String B_FUNCTION_POINTER = "io/ballerina/jvm/api/values/BFunctionPointer";
+    public static final String B_MAP = "io/ballerina/jvm/api/values/BMap";
+    public static final String B_OBJECT = "io/ballerina/jvm/api/values/BObject";
 
     // jvm runtime values related classes
     public static final String MAP_VALUE = "io/ballerina/jvm/values/MapValue";
@@ -67,6 +70,7 @@ public class JvmConstants {
     public static final String BHANDLE = "io/ballerina/jvm/api/values/BHandle";
 
     public static final String BINITIAL_VALUE_ENTRY = "io/ballerina/jvm/api/values/BInitialValueEntry";
+    public static final String BMAPPING_INITIAL_VALUE_ENTRY = "io/ballerina/jvm/api/values/BMapInitialValueEntry";
     public static final String MAPPING_INITIAL_VALUE_ENTRY = "io/ballerina/jvm/values/MappingInitialValueEntry";
     public static final String MAPPING_INITIAL_KEY_VALUE_ENTRY =
             "io/ballerina/jvm/values/MappingInitialValueEntry$KeyValueEntry";
@@ -133,7 +137,7 @@ public class JvmConstants {
     public static final String BAL_FUTURE = "io/ballerina/jvm/api/BalFuture";
     public static final String TYPE_CONVERTER = "io/ballerina/jvm/TypeConverter";
     public static final String STRAND_STATE = "io/ballerina/jvm/scheduling/State";
-    public static final String VALUE_CREATOR = "io/ballerina/jvm/values/ValueCreator";
+    public static final String VALUE_CREATOR = "io/ballerina/jvm/api/ValueCreator";
     public static final String XML_FACTORY = "io/ballerina/jvm/XMLFactory";
     public static final String WD_CHANNELS = "io/ballerina/jvm/scheduling/WDChannels";
     public static final String WORKER_DATA_CHANNEL = "io/ballerina/jvm/scheduling/WorkerDataChannel";

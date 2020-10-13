@@ -18,7 +18,8 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import io.ballerina.jvm.values.DecimalValue;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BDecimal;
 
 import java.math.BigDecimal;
 
@@ -33,8 +34,8 @@ import java.math.BigDecimal;
 //)
 public class Sum {
 
-    public static DecimalValue sum(DecimalValue[] ns) {
-        DecimalValue sum = new DecimalValue(BigDecimal.ZERO);
+    public static BDecimal sum(BDecimal[] ns) {
+        BDecimal sum = BValueCreator.createDecimalValue(BigDecimal.ZERO);
         int size = ns.length;
         for (int i = 0; i < size; i++) {
             sum = sum.add(ns[i]);

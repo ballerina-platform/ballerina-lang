@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.jvm.api.values.BTable;
 import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.values.TableValueImpl;
 
 /**
  * Native implementation of lang.table:add(table&lt;Type&gt;, (any|error)...).
@@ -33,11 +33,11 @@ import io.ballerina.jvm.values.TableValueImpl;
 //)
 public class Add {
 
-    public static void add(TableValueImpl tbl, Object val) {
+    public static void add(BTable tbl, Object val) {
         tbl.add(val);
     }
 
-    public static void add_bstring(Strand strand, TableValueImpl tbl, Object val) {
+    public static void add_bstring(Strand strand, BTable tbl, Object val) {
         add(tbl, val);
     }
 }

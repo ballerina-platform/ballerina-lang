@@ -22,18 +22,15 @@ import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BTable;
+import io.ballerina.jvm.api.values.BTypedesc;
 import io.ballerina.jvm.types.BField;
 import io.ballerina.jvm.types.BStructureType;
 import io.ballerina.jvm.types.BTableType;
 import io.ballerina.jvm.types.BUnionType;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.ObjectValue;
-import io.ballerina.jvm.values.TableValue;
-import io.ballerina.jvm.values.TableValueImpl;
-import io.ballerina.jvm.values.TypedescValue;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
@@ -42,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -59,10 +57,10 @@ public class GetTable {
     private GetTable() {
     }
 
-    public static Object getTable(BObject csvChannel, TypedescValue typedescValue, ArrayValue key) {
+    public static Object getTable(BObject csvChannel, BTypedesc bTypedesc, BArray key) {
         try {
             final BObject delimitedObj =
-                    (ObjectValue) csvChannel.get(BStringUtils.fromString(CSV_CHANNEL_DELIMITED_STRUCT_FIELD));
+                    (BObject) csvChannel.get(BStringUtils.fromString(CSV_CHANNEL_DELIMITED_STRUCT_FIELD));
             DelimitedRecordChannel delimitedChannel = (DelimitedRecordChannel) delimitedObj
                     .getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             if (delimitedChannel.hasReachedEnd()) {
@@ -72,22 +70,22 @@ public class GetTable {
             while (delimitedChannel.hasNext()) {
                 records.add(delimitedChannel.read());
             }
-            return getTable(typedescValue, key, records);
+            return getTable(bTypedesc, key, records);
         } catch (BallerinaIOException | BallerinaException e) {
             String msg = "failed to process the delimited file: " + e.getMessage();
             return IOUtils.createError(msg);
         }
     }
 
-    private static TableValue getTable(TypedescValue typedescValue, ArrayValue key, List<String[]> records) {
-        Type describingType = typedescValue.getDescribingType();
+    private static BTable getTable(BTypedesc bTypedesc, BArray key, List<String[]> records) {
+        Type describingType = bTypedesc.getDescribingType();
         BTableType newTableType;
         if (key.size() == 0) {
             newTableType = new BTableType(describingType, false);
         } else {
             newTableType = new BTableType(describingType, key.getStringArray(), false);
         }
-        TableValue table = new TableValueImpl(newTableType);
+        BTable table = BValueCreator.createTableValue(newTableType);
         BStructureType structType = (BStructureType) describingType;
         for (String[] fields : records) {
             final Map<String, Object> struct = getStruct(fields, structType);
@@ -102,10 +100,10 @@ public class GetTable {
     private static Map<String, Object> getStruct(String[] fields, final BStructureType structType) {
         Map<String, BField> internalStructFields = structType.getFields();
         int fieldLength = internalStructFields.size();
-        MapValueImpl<String, Object> struct = null;
+        Map<String, Object> struct = null;
         if (fields.length > 0) {
             Iterator<Map.Entry<String, BField>> itr = internalStructFields.entrySet().iterator();
-            struct = new MapValueImpl<>(structType);
+            struct = new HashMap();
             for (int i = 0; i < fieldLength; i++) {
                 final BField internalStructField = itr.next().getValue();
                 final int type = internalStructField.getFieldType().getTag();

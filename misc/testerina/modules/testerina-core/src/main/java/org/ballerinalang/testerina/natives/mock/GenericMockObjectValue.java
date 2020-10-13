@@ -17,28 +17,34 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BFuture;
+import io.ballerina.jvm.api.values.BLink;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.types.BObjectType;
 import io.ballerina.jvm.types.BRecordType;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.AbstractObjectValue;
-import io.ballerina.jvm.values.FutureValue;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A generic mock object to create a mock of any given typedesc.
  */
-public class GenericMockObjectValue extends AbstractObjectValue {
+public class GenericMockObjectValue implements BObject {
 
     private BObject mockObj;
 
+    private BObjectType type;
+
     public GenericMockObjectValue(BObjectType type, BObject mockObj) {
-        super(type);
+        this.type = type;
         this.mockObj = mockObj;
     }
 
@@ -80,14 +86,80 @@ public class GenericMockObjectValue extends AbstractObjectValue {
     }
 
     @Override
+    public long getIntValue(BString fieldName) {
+        return 0;
+    }
+
+    @Override
+    public double getFloatValue(BString fieldName) {
+        return 0;
+    }
+
+    @Override
+    public BString getStringValue(BString fieldName) {
+        return null;
+    }
+
+    @Override
+    public boolean getBooleanValue(BString fieldName) {
+        return false;
+    }
+
+    @Override
+    public BMap getMapValue(BString fieldName) {
+        return null;
+    }
+
+    @Override
+    public BObject getObjectValue(BString fieldName) {
+        return null;
+    }
+
+    @Override
+    public BArray getArrayValue(BString fieldName) {
+        return null;
+    }
+
+    @Override
+    public void addNativeData(String key, Object data) {
+
+    }
+
+    @Override
+    public Object getNativeData(String key) {
+        return null;
+    }
+
+    @Override
+    public HashMap<String, Object> getNativeData() {
+        return null;
+    }
+
+    @Override
     public void set(BString fieldName, Object value) {
 
     }
 
 
     @Override
-    public FutureValue start(Strand strand, String funcName, Object... args) {
+    public BFuture start(Strand strand, String funcName, Object... args) {
         return null;
+    }
+
+
+    @Override
+    public String stringValue(BLink parent) {
+        return null;
+    }
+
+    @Override
+    public String expressionStringValue(BLink parent) {
+        return null;
+    }
+
+    @Override
+    public BObjectType getType() {
+        return type;
     }
 
     public BObject getMockObj() {
@@ -112,7 +184,7 @@ public class GenericMockObjectValue extends AbstractObjectValue {
         // 2) add case for function with ANY specified for objects and records
         for (Object arg : args) {
             caseId.append("-");
-            if (arg instanceof AbstractObjectValue || arg instanceof BRecordType) {
+            if (arg instanceof BObject || arg instanceof BRecordType) {
                 caseId.append(MockRegistry.ANY);
             } else {
                 caseId.append(arg);
@@ -125,7 +197,7 @@ public class GenericMockObjectValue extends AbstractObjectValue {
         // 3) add case for function with ANY specified for objects
         for (Object arg : args) {
             caseId.append("-");
-            if (arg instanceof AbstractObjectValue) {
+            if (arg instanceof BObject) {
                 caseId.append(MockRegistry.ANY);
             } else {
                 caseId.append(arg);
@@ -160,5 +232,15 @@ public class GenericMockObjectValue extends AbstractObjectValue {
             i += 2;
         }
         return newArgs.toArray();
+    }
+
+    @Override
+    public Object copy(Map<Object, Object> refs) {
+        return null;
+    }
+
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        return null;
     }
 }

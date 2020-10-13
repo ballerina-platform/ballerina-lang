@@ -32,17 +32,17 @@ import io.ballerina.jvm.api.types.StringType;
 import io.ballerina.jvm.api.types.TupleType;
 import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.api.types.XMLType;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BDecimal;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.DecimalValue;
-import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.ObjectValue;
-import io.ballerina.jvm.values.XMLValue;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.entity.TesterinaFunction;
@@ -613,9 +613,9 @@ public class BTestRunner {
 
     private String formatErrorMessage(Throwable e) {
         String message;
-        if (e.getCause() instanceof ErrorValue) {
+        if (e.getCause() instanceof BError) {
             try {
-                message = ((ErrorValue) e.getCause()).getPrintableStackTrace();
+                message = ((BError) e.getCause()).getPrintableStackTrace();
             } catch (ClassCastException castException) {
                 // throw the exception to top
                 throw new BallerinaException(e);
@@ -641,17 +641,17 @@ public class BTestRunner {
     private List<Object[]> extractArguments(Object valueSets) {
         List<Object[]> argsList = new ArrayList<>();
 
-        if (valueSets instanceof ArrayValue) {
-            ArrayValue arrayValue = (ArrayValue) valueSets;
-            if (arrayValue.getElementType() instanceof BArrayType) {
+        if (valueSets instanceof BArray) {
+            BArray bArray = (BArray) valueSets;
+            if (bArray.getElementType() instanceof BArrayType) {
                 // Ok we have an array of an array
-                for (int i = 0; i < arrayValue.size(); i++) {
+                for (int i = 0; i < bArray.size(); i++) {
                     // Iterate array elements and set parameters
-                    setTestFunctionParams(argsList, (ArrayValue) arrayValue.get(i));
+                    setTestFunctionParams(argsList, (BArray) bArray.get(i));
                 }
             } else {
                 // Iterate array elements and set parameters
-                setTestFunctionParams(argsList, arrayValue);
+                setTestFunctionParams(argsList, bArray);
             }
         }
         return argsList;
@@ -665,16 +665,16 @@ public class BTestRunner {
     private static Class<?>[] extractArgumentTypes(Object valueSets) {
         List<Class<?>> typeList = new ArrayList<>();
         typeList.add(Strand.class);
-        if (valueSets instanceof ArrayValue) {
-            ArrayValue arrayValue = (ArrayValue) valueSets;
-            if (arrayValue.getElementType() instanceof BArrayType) {
+        if (valueSets instanceof BArray) {
+            BArray bArray = (BArray) valueSets;
+            if (bArray.getElementType() instanceof BArrayType) {
                 // Ok we have an array of an array
                 // Get the first entry
                 // Iterate elements and get class types.
-                setTestFunctionSignature(typeList, (ArrayValue) arrayValue.get(0));
+                setTestFunctionSignature(typeList, (BArray) bArray.get(0));
             } else {
                 // Iterate elements and get class types.
-                setTestFunctionSignature(typeList, arrayValue);
+                setTestFunctionSignature(typeList, bArray);
             }
         }
         Class<?>[] typeListArray = new Class[typeList.size()];
@@ -682,9 +682,9 @@ public class BTestRunner {
         return typeListArray;
     }
 
-    private static void setTestFunctionSignature(List<Class<?>> typeList, ArrayValue arrayValue) {
-        Class<?> type = getArgTypeToClassMapping(arrayValue.getElementType());
-        for (int i = 0; i < arrayValue.size(); i++) {
+    private static void setTestFunctionSignature(List<Class<?>> typeList, BArray bArray) {
+        Class<?> type = getArgTypeToClassMapping(bArray.getElementType());
+        for (int i = 0; i < bArray.size(); i++) {
             // Add the param type.
             typeList.add(type);
             // This is in jvm function signature to tel if args is passed or not.
@@ -692,13 +692,13 @@ public class BTestRunner {
         }
     }
 
-    private static void setTestFunctionParams(List<Object[]> valueList, ArrayValue arrayValue) {
+    private static void setTestFunctionParams(List<Object[]> valueList, BArray bArray) {
         List<Object> params = new ArrayList<>();
         // Add a place holder to Strand
         params.add(new Object());
-        for (int i = 0; i < arrayValue.size(); i++) {
+        for (int i = 0; i < bArray.size(); i++) {
             // Add the param type.
-            params.add(arrayValue.get(i));
+            params.add(bArray.get(i));
             // This is in jvm function signature to tel if args is passed or not.
             params.add(Boolean.TRUE);
         }
@@ -715,19 +715,19 @@ public class BTestRunner {
         } else if (elementType instanceof BooleanType) {
             type = Boolean.TYPE;
         } else if (elementType instanceof DecimalType) {
-            type = DecimalValue.class;
+            type = BDecimal.class;
         } else if (elementType instanceof ByteType) {
             type = Integer.TYPE;
         } else if (elementType instanceof ArrayType || elementType instanceof TupleType) {
-            type = ArrayValue.class;
+            type = BArray.class;
         } else if (elementType instanceof FloatType) {
             type = Double.TYPE;
         } else if (elementType instanceof MapType || elementType instanceof RecordType) {
-            type = MapValue.class;
+            type = BMap.class;
         } else if (elementType instanceof XMLType) {
-            type = XMLValue.class;
+            type = BXML.class;
         } else if (elementType instanceof ObjectType) {
-            type = ObjectValue.class;
+            type = BObject.class;
         } else {
             // default case
             type = Object.class;

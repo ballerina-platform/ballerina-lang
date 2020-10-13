@@ -175,7 +175,7 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      * @param qnames Qualified names of the descendants to search
      */
     protected void addDescendants(List<BXML> descendants, XMLItem currentElement, List<String> qnames) {
-        for (BXML child : currentElement.getChildrenSeq().children) {
+        for (BXML child : currentElement.getChildrenSeq().getChildrenList()) {
             if (child.getNodeType() == XMLNodeType.ELEMENT) {
                 String elemName = ((XMLItem) child).getQName().toString();
                 if (qnames.contains(elemName)) {

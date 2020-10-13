@@ -18,8 +18,8 @@
 package org.ballerinalang.langlib.java;
 
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BHandle;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.HandleValue;
 
 /**
  * This class contains the implementation of the "toString" ballerina function in ballerina/java module.
@@ -28,7 +28,7 @@ import io.ballerina.jvm.values.HandleValue;
  */
 public class ToString {
 
-    public static Object toString(HandleValue value) {
+    public static Object toString(BHandle value) {
         Object referredValue = value.getValue();
         if (referredValue == null) {
             return null;

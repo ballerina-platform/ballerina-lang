@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package io.ballerina.jvm.values.utils;
+package org.ballerinalang.langlib.array.utils;
 
-import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.api.values.BArray;
 
 /**
  * Functional interface for retrieving a value from an array. This is intended to abstract the different use cases of
@@ -27,5 +27,5 @@ import io.ballerina.jvm.values.ArrayValue;
  * @since 1.0
  */
 public interface GetFunction {
-    Object get(ArrayValue arr, long index);
+    Object get(BArray arr, long index);
 }

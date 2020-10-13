@@ -27,15 +27,12 @@ import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.types.ArrayType;
 import io.ballerina.jvm.api.types.MapType;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BStreamingJson;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.ObjectValue;
-import io.ballerina.jvm.values.StreamingJsonValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +93,7 @@ public class MimeUtil {
      */
     public static String getBaseType(BObject entity) {
         if (entity.get(MEDIA_TYPE_FIELD) != null) {
-            BObject mediaType = (ObjectValue) entity.get(MEDIA_TYPE_FIELD);
+            BObject mediaType = (BObject) entity.get(MEDIA_TYPE_FIELD);
             if (mediaType != null) {
                 return mediaType.get(PRIMARY_TYPE_FIELD).toString() + "/" +
                         mediaType.get(SUBTYPE_FIELD).toString();
@@ -115,15 +112,15 @@ public class MimeUtil {
         if (entity.get(MEDIA_TYPE_FIELD) == null) {
             return EntityHeaderHandler.getHeaderValue(entity, CONTENT_TYPE);
         }
-        BObject mediaType = (ObjectValue) entity.get(MEDIA_TYPE_FIELD);
+        BObject mediaType = (BObject) entity.get(MEDIA_TYPE_FIELD);
         String primaryType = String.valueOf(mediaType.get(PRIMARY_TYPE_FIELD));
         String subType = String.valueOf(mediaType.get(SUBTYPE_FIELD));
         String contentType = null;
         if (!primaryType.isEmpty() && !subType.isEmpty()) {
             contentType = primaryType + "/" + subType;
             if (mediaType.get(PARAMETER_MAP_FIELD) != null) {
-                MapValue<BString, BString> map = mediaType.get(PARAMETER_MAP_FIELD) != null ?
-                        (MapValue<BString, BString>) mediaType.get(PARAMETER_MAP_FIELD) : null;
+                BMap<BString, BString> map = mediaType.get(PARAMETER_MAP_FIELD) != null ?
+                        (BMap<BString, BString>) mediaType.get(PARAMETER_MAP_FIELD) : null;
                 if (map != null && !map.isEmpty()) {
                     contentType = contentType + SEMICOLON;
                     return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
@@ -291,7 +288,7 @@ public class MimeUtil {
         StringBuilder dispositionBuilder = new StringBuilder();
         if (entity.get(CONTENT_DISPOSITION_FIELD) != null) {
             BObject contentDispositionStruct =
-                    (ObjectValue) entity.get(CONTENT_DISPOSITION_FIELD);
+                    (BObject) entity.get(CONTENT_DISPOSITION_FIELD);
             if (contentDispositionStruct != null) {
                 Object disposition = contentDispositionStruct.get(DISPOSITION_FIELD);
                 if (disposition == null || disposition.toString().isEmpty()) {
@@ -327,8 +324,8 @@ public class MimeUtil {
                     .append(includeQuotes(fileName)).append(SEMICOLON);
         }
         if (contentDispositionStruct.get(CONTENT_DISPOSITION_PARA_MAP_FIELD) != null) {
-            MapValue<BString, BString> map =
-                    (MapValue<BString, BString>) contentDispositionStruct.get(CONTENT_DISPOSITION_PARA_MAP_FIELD);
+            BMap<BString, BString> map =
+                    (BMap<BString, BString>) contentDispositionStruct.get(CONTENT_DISPOSITION_PARA_MAP_FIELD);
             HeaderUtil.appendHeaderParams(appendSemiColon(dispositionBuilder), map);
         }
 
@@ -469,12 +466,12 @@ public class MimeUtil {
      *
      * @param errorTypeName The error type
      * @param errMsg  The actual error message
-     * @param errorValue  The error cause
+     * @param bError  The error cause
      * @return Ballerina error value
      */
-    public static BError createError(String errorTypeName, String errMsg, ErrorValue errorValue) {
+    public static BError createError(String errorTypeName, String errMsg, BError bError) {
         return BErrorCreator.createDistinctError(errorTypeName, PROTOCOL_MIME_PKG_ID, BStringUtils
-                .fromString(errMsg), errorValue);
+                .fromString(errMsg), bError);
     }
 
     public static boolean isJSONCompatible(Type type) {
@@ -504,7 +501,7 @@ public class MimeUtil {
             return (String) dataSource;
         } else if (type.getTag() == TypeTags.ARRAY_TAG &&
                 ((io.ballerina.jvm.types.BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
-            return new String(((ArrayValue) dataSource).getBytes(), StandardCharsets.UTF_8);
+            return new String(((BArray) dataSource).getBytes(), StandardCharsets.UTF_8);
         }
 
         return BStringUtils.getJsonString(dataSource);
@@ -518,7 +515,7 @@ public class MimeUtil {
      * @return flag indicating whether the given value should be serialized specifically as a JSON
      */
     public static boolean generateAsJSON(Object value, BObject entity) {
-        if (value instanceof StreamingJsonValue) {
+        if (value instanceof BStreamingJson) {
             /* Streaming JSON should be serialized using the serialize() method. This is because there are two types
             of JSON in Ballerina namely internally built and custom built. The custom built needs to be parsed
             differently than the internally built. StreamingJsonValue being the custom built type it is parsed in the
@@ -527,8 +524,7 @@ public class MimeUtil {
             return false;
         }
 
-        return parseAsJson(entity) && isJSONCompatible(
-                TypeChecker.getType(value));
+        return parseAsJson(entity) && isJSONCompatible(TypeChecker.getType(value));
     }
 
     private static boolean parseAsJson(BObject entity) {

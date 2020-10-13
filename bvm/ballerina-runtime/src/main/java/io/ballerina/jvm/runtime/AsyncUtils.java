@@ -19,12 +19,12 @@
 package io.ballerina.jvm.runtime;
 
 import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BFunctionPointer;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.State;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
 import io.ballerina.jvm.types.BFunctionType;
-import io.ballerina.jvm.values.FPValue;
 import io.ballerina.jvm.values.FutureValue;
 
 import java.util.concurrent.CompletableFuture;
@@ -64,9 +64,9 @@ public class AsyncUtils {
      * @param scheduler            The scheduler for invoking functions
      * @return Future Value
      */
-    public static FutureValue invokeFunctionPointerAsync(FPValue<?, ?> func, String strandName, StrandMetadata metadata,
-                                                         Object[] args, Function<Object, Object> resultHandleFunction,
-                                                         Scheduler scheduler) {
+    public static FutureValue invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, String strandName,
+                                                         StrandMetadata metadata, Object[] args, Function<Object,
+            Object> resultHandleFunction, Scheduler scheduler) {
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
             public void notifySuccess() {
@@ -81,7 +81,7 @@ public class AsyncUtils {
         return invokeFunctionPointerAsync(func, Scheduler.getStrand(), strandName, metadata, args, callback, scheduler);
     }
 
-    public static FutureValue invokeFunctionPointerAsync(FPValue<?, ?> func, Strand parent, String name,
+    public static FutureValue invokeFunctionPointerAsync(BFunctionPointer<?, ?> func, Strand parent, String name,
                                                          StrandMetadata metadata, Object[] args,
                                                          AsyncFunctionCallback callback, Scheduler scheduler) {
 
@@ -118,7 +118,7 @@ public class AsyncUtils {
      * @param returnValueSupplier  Suppler used to set the final return value for the parent function invocation.
      * @param scheduler            The scheduler for invoking functions
      */
-    public static void invokeFunctionPointerAsyncIteratively(FPValue<?, ?> func, String strandName,
+    public static void invokeFunctionPointerAsyncIteratively(BFunctionPointer<?, ?> func, String strandName,
                                                              StrandMetadata metadata, int noOfIterations,
                                                              Supplier<Object[]> argsSupplier,
                                                              Consumer<Object> futureResultConsumer,
@@ -135,7 +135,7 @@ public class AsyncUtils {
                              futureResultConsumer, returnValueSupplier, scheduler);
     }
 
-    private static void scheduleNextFunction(FPValue<?, ?> func, Strand strand, String strandName,
+    private static void scheduleNextFunction(BFunctionPointer<?, ?> func, Strand strand, String strandName,
                                              StrandMetadata metadata, int noOfIterations,
                                              AtomicInteger callCount, Supplier<Object[]> argsSupplier,
                                              Consumer<Object> futureResultConsumer,

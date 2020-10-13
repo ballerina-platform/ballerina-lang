@@ -23,12 +23,12 @@ import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BFunctionPointer;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BFunctionType;
 import io.ballerina.jvm.types.BUnionType;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.FPValue;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.PrimitiveIterator;
 import static io.ballerina.jvm.util.BLangConstants.ARRAY_LANG_LIB;
 import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INVALID_TYPE_TO_SORT;
 import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static io.ballerina.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**
  * Native implementation of lang.array:sort((any|error)[], direction, function).
@@ -46,9 +46,9 @@ import static io.ballerina.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation
  */
 public class Sort {
 
-    public static ArrayValue sort(ArrayValue arr, Object direction, Object func) {
+    public static BArray sort(BArray arr, Object direction, Object func) {
         checkIsArrayOnlyOperation(arr.getType(), "sort()");
-        FPValue<Object, Object> function = (FPValue<Object, Object>) func;
+        BFunctionPointer<Object, Object> function = (BFunctionPointer<Object, Object>) func;
         Type elemType = ((BArrayType) arr.getType()).getElementType();
         boolean isAscending = true;
         if (direction.toString().equals("descending")) {
@@ -196,8 +196,8 @@ public class Sort {
         } else if (type.getTag() == TypeTags.BYTE_TAG) {
             return Integer.compare((int) value1, (int) value2);
         } else if (type.getTag() == TypeTags.ARRAY_TAG) {
-            int lengthVal1 = ((ArrayValue) value1).size();
-            int lengthVal2 = ((ArrayValue) value2).size();
+            int lengthVal1 = ((BArray) value1).size();
+            int lengthVal2 = ((BArray) value2).size();
             if (lengthVal1 == 0) {
                 if (lengthVal2 == 0) {
                     return 0;
@@ -210,7 +210,7 @@ public class Sort {
             int len = Math.min(lengthVal1, lengthVal2);
             int c = 0;
             for (int i = 0; i < len; i++) {
-                c = sortFunc(((ArrayValue) value1).get(i), ((ArrayValue) value2).get(i),
+                c = sortFunc(((BArray) value1).get(i), ((BArray) value2).get(i),
                         ((BArrayType) type).getElementType(), isAscending);
                 if (c != 0) {
                     break;

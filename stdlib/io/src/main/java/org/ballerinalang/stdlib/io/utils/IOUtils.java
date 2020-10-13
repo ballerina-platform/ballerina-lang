@@ -21,7 +21,6 @@ package org.ballerinalang.stdlib.io.utils;
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.values.BError;
-import io.ballerina.jvm.values.ErrorValue;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
@@ -171,9 +170,9 @@ public class IOUtils {
      * @param channel the channel the content should be read into.
      * @return the number of bytes read.
      * @throws IOException   errors which occurs while execution.
-     * @throws ErrorValue instance of {ballerina/io}EoF when channel reach the EoF.
+     * @throws BError instance of {ballerina/io}EoF when channel reach the EoF.
      */
-    public static int readFull(Channel channel, byte[] content) throws IOException, ErrorValue {
+    public static int readFull(Channel channel, byte[] content) throws IOException, BError {
         int numberOfBytesToRead = content.length;
         int nBytesRead = 0;
         do {
@@ -194,9 +193,9 @@ public class IOUtils {
      * @param content byte [] which will hold the content which is read.
      * @return the number of bytes read.
      * @throws IOException   errors which occur during execution.
-     * @throws ErrorValue instance of {ballerina/io}EoF when channel reach the EoF.
+     * @throws BError instance of {ballerina/io}EoF when channel reach the EoF.
      */
-    private static int read(Channel channel, byte[] content) throws IOException, ErrorValue {
+    private static int read(Channel channel, byte[] content) throws IOException, BError {
         if (channel.hasReachedEnd()) {
             throw createEoFError();
         } else {

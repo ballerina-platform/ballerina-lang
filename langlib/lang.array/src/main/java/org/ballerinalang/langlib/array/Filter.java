@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BFunctionPointer;
 import io.ballerina.jvm.runtime.AsyncUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
 import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.FPValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,8 +43,8 @@ public class Filter {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
                                                                       ARRAY_VERSION, "filter");
 
-    public static ArrayValue filter(ArrayValue arr, FPValue<Object, Boolean> func) {
-        ArrayValue newArr = new ArrayValueImpl((BArrayType) arr.getType());
+    public static BArray filter(BArray arr, BFunctionPointer<Object, Boolean> func) {
+        BArray newArr = BValueCreator.createArrayValue((BArrayType) arr.getType());
         int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
         AtomicInteger index = new AtomicInteger(-1);

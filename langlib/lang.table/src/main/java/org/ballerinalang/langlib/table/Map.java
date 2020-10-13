@@ -18,16 +18,16 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BFunctionPointer;
+import io.ballerina.jvm.api.values.BTable;
 import io.ballerina.jvm.runtime.AsyncUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
 import io.ballerina.jvm.types.BFunctionType;
 import io.ballerina.jvm.types.BTableType;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.TableValue;
-import io.ballerina.jvm.values.TableValueImpl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -45,12 +45,12 @@ public class Map {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "map");
 
-    public static TableValueImpl map(TableValueImpl tbl, FPValue<Object, Object> func) {
+    public static BTable map(BTable tbl, BFunctionPointer<Object, Object> func) {
         Type newConstraintType = ((BFunctionType) func.getType()).retType;
         BTableType tblType = (BTableType) tbl.getType();
         BTableType newTableType = new BTableType(newConstraintType, tblType.getFieldNames(), tblType.isReadOnly());
 
-        TableValueImpl newTable = new TableValueImpl(newTableType);
+        BTable newTable = BValueCreator.createTableValue(newTableType);
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
@@ -64,7 +64,7 @@ public class Map {
         return newTable;
     }
 
-    public static TableValue map_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
+    public static BTable map_bstring(Strand strand, BTable tbl, BFunctionPointer<Object, Object> func) {
         return map(tbl, func);
     }
 }

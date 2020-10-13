@@ -144,7 +144,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE_IMPL;
@@ -496,7 +496,7 @@ class JvmTypeGen {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_OBJECT_VALUE,
                                           String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;", STRING_VALUE, SCHEDULER,
                                                         STRAND_CLASS, MAP, OBJECT,
-                                                        OBJECT_VALUE), null, null);
+                                                        B_OBJECT), null, null);
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
 
@@ -593,7 +593,7 @@ class JvmTypeGen {
             mv.visitVarInsn(ALOAD, argsIndex);
 
             String methodDesc = String.format("(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT);
-            mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
+            mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "call", methodDesc, true);
 
             BIRVariableDcl tempResult = new BIRVariableDcl(symbolTable.anyType, new Name("tempResult"),
                     VarScope.FUNCTION, VarKind.LOCAL);
@@ -1636,7 +1636,7 @@ class JvmTypeGen {
             case TypeTags.DECIMAL:
                 return String.format("L%s;", DECIMAL_VALUE);
             case TypeTags.OBJECT:
-                return String.format("L%s;", OBJECT_VALUE);
+                return String.format("L%s;", B_OBJECT);
             case TypeTags.HANDLE:
                 return String.format("L%s;", HANDLE_VALUE);
             case TypeTags.INVOKABLE:

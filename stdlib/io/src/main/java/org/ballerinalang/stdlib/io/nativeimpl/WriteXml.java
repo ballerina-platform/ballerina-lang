@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import io.ballerina.jvm.values.ObjectValue;
-import io.ballerina.jvm.values.XMLValue;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BXML;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
@@ -32,7 +32,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
  */
 public class WriteXml {
 
-    public static Object writeXml(ObjectValue characterChannelObj, XMLValue content) {
+    public static Object writeXml(BObject characterChannelObj, BXML content) {
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj.getNativeData(
                     IOConstants.CHARACTER_CHANNEL_NAME);

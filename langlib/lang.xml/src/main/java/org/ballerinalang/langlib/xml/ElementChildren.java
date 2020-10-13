@@ -18,11 +18,11 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.jvm.XMLNodeType;
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.api.values.BXML;
-import io.ballerina.jvm.values.XMLItem;
-import io.ballerina.jvm.values.XMLSequence;
-import io.ballerina.jvm.values.XMLValue;
+import io.ballerina.jvm.api.values.BXMLItem;
+import io.ballerina.jvm.api.values.BXMLSequence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,28 +35,28 @@ import java.util.List;
 //@BallerinaFunction(
 //        orgName = "ballerina", packageName = "lang.xml",
 //        functionName = "elementChildren",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML), @Argument(name = "nm", type = TypeKind.UNION)},
+//        args = {@Argument(name = "BXML", type = TypeKind.XML), @Argument(name = "nm", type = TypeKind.UNION)},
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
 public class ElementChildren {
 
-    public static XMLValue elementChildren(XMLValue xmlVal, Object nameObj) {
+    public static BXML elementChildren(BXML xmlVal, Object nameObj) {
         boolean namedQuery = nameObj != null;
         String name = namedQuery ? ((BString) nameObj).getValue() : null;
         if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
             if (namedQuery) {
-                return (XMLValue) ((XMLItem) xmlVal).children().elements(name);
+                return (xmlVal).children().elements(name);
             }
-            return (XMLValue) ((XMLItem) xmlVal).children().elements();
+            return (xmlVal).children().elements();
         } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
             List<BXML> items = new ArrayList<>();
-            XMLSequence sequence = (XMLSequence) xmlVal.elements();
+            BXMLSequence sequence = (BXMLSequence) xmlVal.elements();
             for (BXML bxml : sequence.getChildrenList()) {
                 if (bxml.getNodeType() != XMLNodeType.ELEMENT) {
                     continue;
                 }
-                for (BXML childElement : ((XMLItem) bxml).getChildrenSeq().getChildrenList()) {
+                for (BXML childElement : ((BXMLItem) bxml).getChildrenSeq().getChildrenList()) {
                     if (childElement.getNodeType() != XMLNodeType.ELEMENT) {
                         continue;
                     }
@@ -68,8 +68,8 @@ public class ElementChildren {
                     items.add(childElement);
                 }
             }
-            return new XMLSequence(items);
+            return BValueCreator.createXMLSequence(items);
         }
-        return new XMLSequence();
+        return BValueCreator.createXMLSequence();
     }
 }

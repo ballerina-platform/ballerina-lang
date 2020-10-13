@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.table;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.values.TableValueImpl;
+import io.ballerina.jvm.api.values.BTable;
 
 /**
  * Native implementation of lang.table:removeAll(table&lt;Type&gt;).
@@ -29,7 +29,7 @@ import io.ballerina.jvm.values.TableValueImpl;
  */
 public class RemoveAll {
 
-    public static void removeAll(TableValueImpl tbl) {
+    public static void removeAll(BTable tbl) {
         try {
             tbl.clear();
         } catch (io.ballerina.jvm.util.exceptions.BLangFreezeException e) {

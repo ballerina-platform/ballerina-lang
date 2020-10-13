@@ -20,9 +20,9 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.ArrayValue;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.csv.Format;
@@ -107,7 +107,7 @@ public class RecordChannelUtils {
         }
     }
 
-    public static Object write(BObject channel, ArrayValue content) {
+    public static Object write(BObject channel, BArray content) {
         DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel
                 .getNativeData(TXT_RECORD_CHANNEL_NAME);
         try {

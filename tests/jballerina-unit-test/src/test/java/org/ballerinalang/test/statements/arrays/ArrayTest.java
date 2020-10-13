@@ -19,9 +19,9 @@ package org.ballerinalang.test.statements.arrays;
 
 import io.ballerina.jvm.XMLFactory;
 import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.values.ArrayValue;
 import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.XMLValue;
 import org.ballerinalang.core.model.types.BArrayType;
 import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.values.BInteger;
@@ -134,7 +134,7 @@ public class ArrayTest {
         ArrayValue bBooleanArray = new ArrayValueImpl(boolArray);
         Assert.assertEquals(bBooleanArray.stringValue(null), "[true,true,false]");
 
-        XMLValue[] xmlArray = { XMLFactory.parse("<foo> </foo>"), XMLFactory.parse("<bar>hello</bar>") };
+        BXML[] xmlArray = { XMLFactory.parse("<foo> </foo>"), XMLFactory.parse("<bar>hello</bar>") };
         ArrayValue bXmlArray = new ArrayValueImpl(xmlArray,
                 new io.ballerina.jvm.types.BArrayType(Types.TYPE_XML));
         Assert.assertEquals(bXmlArray.stringValue(null), "[`<foo> </foo>`,`<bar>hello</bar>`]");

@@ -22,12 +22,10 @@ import io.ballerina.jvm.XMLFactory;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.ObjectValue;
-import io.ballerina.jvm.values.XMLValue;
+import io.ballerina.jvm.api.values.BXML;
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.mime.util.EntityBodyChannel;
@@ -77,10 +75,10 @@ public class Util {
      * @param bodyParts List of body parts
      * @return BValueArray representing an array of entities
      */
-    public static ArrayValue getArrayOfBodyParts(ArrayList<BObject> bodyParts) {
+    public static BArray getArrayOfBodyParts(ArrayList<BObject> bodyParts) {
         Type typeOfBodyPart = bodyParts.get(0).getType();
-        ObjectValue[] result = bodyParts.toArray(new ObjectValue[bodyParts.size()]);
-        return new ArrayValueImpl(result, new io.ballerina.jvm.types.BArrayType(typeOfBodyPart));
+        BObject[] result = bodyParts.toArray(new BObject[bodyParts.size()]);
+        return BValueCreator.createArrayValue(result, new io.ballerina.jvm.types.BArrayType(typeOfBodyPart));
     }
 
     /**
@@ -181,7 +179,7 @@ public class Util {
      * @return A ballerina struct that represent a body part
      */
     public static BObject getXmlBodyPart() {
-        XMLValue xmlNode = XMLFactory.parse("<name>Ballerina</name>");
+        BXML xmlNode = XMLFactory.parse("<name>Ballerina</name>");
         BObject bodyPart = createEntityObject();
         EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
                 xmlNode.stringValue(null).getBytes(StandardCharsets.UTF_8)));
@@ -336,7 +334,7 @@ public class Util {
         Assert.assertEquals(BStringUtils.getJsonString(jsonData), "{\"" + "bodyPart" + "\":\"" + "jsonPart" + "\"}");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(1));
-        XMLValue xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);
+        BXML xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);
         Assert.assertNotNull(xmlData);
         Assert.assertEquals(xmlData.stringValue(null), "<name>Ballerina xml file part</name>");
 
@@ -346,7 +344,7 @@ public class Util {
         Assert.assertEquals(textData.getValue(), "Ballerina text body part");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(3));
-        ArrayValue blobDataSource = EntityBodyHandler.constructBlobDataSource(bodyPart);
+        BArray blobDataSource = EntityBodyHandler.constructBlobDataSource(bodyPart);
         Assert.assertNotNull(blobDataSource);
 
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();

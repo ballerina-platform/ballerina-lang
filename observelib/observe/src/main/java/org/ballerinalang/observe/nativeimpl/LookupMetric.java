@@ -21,6 +21,7 @@ package org.ballerinalang.observe.nativeimpl;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
@@ -33,8 +34,6 @@ import io.ballerina.jvm.observability.metrics.PolledGauge;
 import io.ballerina.jvm.observability.metrics.Tag;
 import io.ballerina.jvm.observability.metrics.Tags;
 import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.MapValue;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -55,7 +54,7 @@ public class LookupMetric {
 
     public static Object lookupMetric(BString metricName, Object tags) {
 
-        Map<String, String> tagMap = Utils.toStringMap((MapValue<BString, ?>) tags);
+        Map<String, String> tagMap = Utils.toStringMap((BMap<BString, ?>) tags);
         Set<Tag> tagSet = new HashSet<>();
         Tags.tags(tagSet, tagMap);
         Metric metric = DefaultMetricRegistry.getInstance().lookup(new MetricId(metricName.getValue(), "", tagSet));
@@ -70,14 +69,14 @@ public class LookupMetric {
                 return counter;
             } else if (metric instanceof Gauge) {
                 Gauge gauge = (Gauge) metric;
-                ArrayValue statisticConfigs = Utils.createBStatisticConfig(gauge.getStatisticsConfig());
+                BArray statisticConfigs = Utils.createBStatisticConfig(gauge.getStatisticsConfig());
                 BObject bGauge = BValueCreator.createObjectValue(
                         OBSERVE_PACKAGE_ID, GAUGE, BStringUtils.fromString(metricId.getName()),
                         BStringUtils.fromString(metricId.getDescription()), getTags(metricId), statisticConfigs);
                 bGauge.addNativeData(METRIC_NATIVE_INSTANCE_KEY, metric);
                 return bGauge;
             } else if (metric instanceof PolledGauge) {
-                ArrayValue statisticConfigs = Utils.createBStatisticConfig(null);
+                BArray statisticConfigs = Utils.createBStatisticConfig(null);
                 BObject bGauge = BValueCreator.createObjectValue(
                         OBSERVE_PACKAGE_ID, GAUGE, BStringUtils.fromString(metricId.getName()),
                         BStringUtils.fromString(metricId.getDescription()), getTags(metricId), statisticConfigs);

@@ -16,7 +16,9 @@
  * under the License.
  */
 
-package io.ballerina.jvm.values;
+package org.ballerinalang.langlib.value;
+
+import io.ballerina.jvm.api.values.BRefValue;
 
 import java.util.HashMap;
 
@@ -39,11 +41,11 @@ public class CloneUtils {
             return null;
         }
 
-        if (!(value instanceof RefValue)) {
+        if (!(value instanceof BRefValue)) {
             return value;
         }
 
-        RefValue refValue = (RefValue) value;
+        BRefValue refValue = (BRefValue) value;
         return refValue.copy(new HashMap<>());
     }
 
@@ -59,11 +61,11 @@ public class CloneUtils {
             return null;
         }
 
-        if (!(value instanceof RefValue)) {
+        if (!(value instanceof BRefValue)) {
             return value;
         }
 
-        RefValue refValue = (RefValue) value;
+        BRefValue refValue = (BRefValue) value;
         return refValue.frozenCopy(new HashMap<>());
     }
 }

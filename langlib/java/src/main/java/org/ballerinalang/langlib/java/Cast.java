@@ -21,16 +21,16 @@ package org.ballerinalang.langlib.java;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.api.types.TypedescType;
+import io.ballerina.jvm.api.values.BHandle;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTypedesc;
 import io.ballerina.jvm.types.BField;
 import io.ballerina.jvm.types.BObjectType;
-import io.ballerina.jvm.values.HandleValue;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.ObjectValue;
-import io.ballerina.jvm.values.TypedescValue;
 
 import static io.ballerina.jvm.api.BErrorCreator.createError;
+import static io.ballerina.jvm.api.BValueCreator.createHandleValue;
 import static io.ballerina.jvm.api.BValueCreator.createObjectValue;
 
 /**
@@ -46,21 +46,21 @@ public class Cast {
     private static final String classAttribute = "class";
     private static final String jObjField = "jObj";
 
-    public static Object cast(ObjectValue value, TypedescValue castType) {
-        HandleValue handleObj;
+    public static Object cast(BObject value, BTypedesc castType) {
+        BHandle handleObj;
         BObjectType objType = value.getType();
         String valueObjName = objType.getName();
-        handleObj = (HandleValue) value.get(BStringUtils.fromString(jObjField));
+        handleObj = (BHandle) value.get(BStringUtils.fromString(jObjField));
         Object jObj = handleObj.getValue();
         if (jObj == null) {
             return createError(BStringUtils.fromString(moduleName + " Empty handle reference found for `"
                     + jObjField + "` field in `" + valueObjName + "`"));
         }
         try {
-            MapValue objAnnotation;
+            BMap objAnnotation;
             BString objClass;
             try {
-                objAnnotation = (MapValue) objType.getAnnotation(BStringUtils.fromString(annotationType));
+                objAnnotation = (BMap) objType.getAnnotation(BStringUtils.fromString(annotationType));
                 objClass = objAnnotation.getStringValue(BStringUtils.fromString(classAttribute));
             } catch (Exception e) {
                 return createError(BStringUtils.fromString(moduleName + " Error while retrieving details of the `" +
@@ -84,7 +84,7 @@ public class Cast {
                         "parameter: " + e));
             }
             try {
-                MapValue castObjAnnotation = (MapValue) castObjType.getAnnotation(
+                BMap castObjAnnotation = (BMap) castObjType.getAnnotation(
                         BStringUtils.fromString(annotationType));
                 castObjClass = (BString) castObjAnnotation.getStringValue(BStringUtils.fromString(classAttribute));
             } catch (Exception e) {
@@ -97,7 +97,7 @@ public class Cast {
             if (isList) {
                 BObject bObject;
                 try {
-                    bObject = createObjectValue(objType.getPackage(), castObjType.getName(), new HandleValue(jObj));
+                    bObject = createObjectValue(objType.getPackage(), castObjType.getName(), createHandleValue(jObj));
                 } catch (Exception e) {
                     return createError(BStringUtils.fromString(moduleName + " Error while initializing the new " +
                             "object from `" + castObjTypeName + "` type: " + e));

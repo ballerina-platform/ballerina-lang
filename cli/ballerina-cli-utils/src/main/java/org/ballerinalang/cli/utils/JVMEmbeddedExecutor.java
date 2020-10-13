@@ -19,15 +19,15 @@
 package org.ballerinalang.cli.utils;
 
 import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BFuture;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.util.ArgumentParser;
 import io.ballerina.jvm.util.RuntimeUtils;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.FutureValue;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
@@ -112,10 +112,10 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                     throw new BallerinaException("Method has private access", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                                                       Types.TYPE_NULL, strandName, metaData);
+            final BFuture out = scheduler.schedule(new Object[1], func, null, null, null,
+                                                   Types.TYPE_NULL, strandName, metaData);
             scheduler.start();
-            final Throwable t = out.panic;
+            final Throwable t = out.getPanic();
             if (t != null) {
                 if (t instanceof io.ballerina.jvm.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
@@ -123,9 +123,9 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 if (t instanceof io.ballerina.jvm.util.exceptions.BallerinaConnectorException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof ErrorValue) {
+                if (t instanceof BError) {
                     throw new BLangRuntimeException(
-                            "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
+                            "error: " + ((BError) t).getPrintableStackTrace().replaceAll("\\{}", ""));
                 }
                 throw (RuntimeException) t;
             }
@@ -151,7 +151,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
         try {
             Class<?> mainClass = Class.forName("ballerina." + moduleName + "." +
                                                        moduleVersion.replace(".", "_") + "." + moduleName);
-            final Method mainMethod = mainClass.getDeclaredMethod("main", Strand.class, ArrayValue.class,
+            final Method mainMethod = mainClass.getDeclaredMethod("main", Strand.class, BArray.class,
                     boolean.class);
             Object[] entryFuncArgs =
                     ArgumentParser.extractEntryFuncArgs(new RuntimeUtils.ParamInfo[]{
@@ -171,10 +171,10 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                     throw new BallerinaException("Method has private access", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(entryFuncArgs, func, null, null, null,
+            final BFuture out = scheduler.schedule(entryFuncArgs, func, null, null, null,
                                                        Types.TYPE_NULL, strandName, metaData);
             scheduler.start();
-            final Throwable t = out.panic;
+            final Throwable t = out.getPanic();
             if (t != null) {
                 if (t instanceof io.ballerina.jvm.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
@@ -182,9 +182,9 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 if (t instanceof io.ballerina.jvm.util.exceptions.BallerinaConnectorException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof ErrorValue) {
+                if (t instanceof BError) {
                     throw new BLangRuntimeException(
-                            "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
+                            "error: " + ((BError) t).getPrintableStackTrace().replaceAll("\\{}", ""));
                 }
                 throw (RuntimeException) t;
             }
@@ -221,10 +221,10 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                     throw new BallerinaException("Method has private access", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
+            final BFuture out = scheduler.schedule(new Object[1], func, null, null, null,
                                                        Types.TYPE_NULL, strandName, metaData);
             scheduler.start();
-            final Throwable t = out.panic;
+            final Throwable t = out.getPanic();
             if (t != null) {
                 if (t instanceof io.ballerina.jvm.util.exceptions.BLangRuntimeException) {
                     throw new BLangRuntimeException(t.getMessage());
@@ -232,9 +232,9 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 if (t instanceof io.ballerina.jvm.util.exceptions.BallerinaConnectorException) {
                     throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof ErrorValue) {
+                if (t instanceof BError) {
                     throw new BLangRuntimeException(
-                            "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
+                            "error: " + ((BError) t).getPrintableStackTrace().replaceAll("\\{}", ""));
                 }
                 throw (RuntimeException) t;
             }

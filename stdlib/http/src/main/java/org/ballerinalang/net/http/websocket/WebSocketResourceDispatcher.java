@@ -31,6 +31,7 @@ import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.observability.ObservabilityConstants;
 import io.ballerina.jvm.observability.ObserveUtils;
 import io.ballerina.jvm.scheduling.StrandMetadata;
@@ -38,8 +39,6 @@ import io.ballerina.jvm.services.ErrorHandlerUtils;
 import io.ballerina.jvm.types.AttachedFunction;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BStructureType;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.XMLValue;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
 import org.ballerinalang.net.http.HttpConstants;
@@ -218,7 +217,7 @@ public class WebSocketResourceDispatcher {
                 case TypeTags.JSON_TAG:
                     return JSONParser.parse(aggregateString);
                 case TypeTags.XML_TAG:
-                    XMLValue bxml = XMLFactory.parse(aggregateString);
+                    BXML bxml = XMLFactory.parse(aggregateString);
                     if (bxml.getNodeType() != XMLNodeType.SEQUENCE) {
                         throw WebSocketUtil.getWebSocketException("Invalid XML data", null,
                                 WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
@@ -229,7 +228,7 @@ public class WebSocketResourceDispatcher {
                                                          (BStructureType) dataType);
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                        return new ArrayValueImpl(
+                        return BValueCreator.createArrayValue(
                                 aggregateString.getBytes(StandardCharsets.UTF_8));
                     }
                     break;
@@ -277,7 +276,7 @@ public class WebSocketResourceDispatcher {
             Object[] bValues = new Object[paramDetails.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
-            bValues[2] = new ArrayValueImpl(binaryMessage.getByteArray());
+            bValues[2] = BValueCreator.createArrayValue(binaryMessage.getByteArray());
             bValues[3] = true;
             if (paramDetails.length == 3) {
                 bValues[4] = binaryMessage.isFinalFragment();
@@ -318,7 +317,7 @@ public class WebSocketResourceDispatcher {
             Object[] bValues = new Object[paramTypes.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
-            bValues[2] = new ArrayValueImpl(controlMessage.getByteArray());
+            bValues[2] = BValueCreator.createArrayValue(controlMessage.getByteArray());
             bValues[3] = true;
             executeResource(wsService, new WebSocketResourceCallback(
                     connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_PING),
@@ -348,7 +347,7 @@ public class WebSocketResourceDispatcher {
             Object[] bValues = new Object[paramDetails.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
-            bValues[2] = new ArrayValueImpl(controlMessage.getByteArray());
+            bValues[2] = BValueCreator.createArrayValue(controlMessage.getByteArray());
             bValues[3] = true;
             executeResource(wsService, new WebSocketResourceCallback(
                     connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_PONG),

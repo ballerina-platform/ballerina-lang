@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.map;
 
+import io.ballerina.jvm.api.values.BFunctionPointer;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.runtime.AsyncUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.MapValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -42,7 +42,7 @@ public class Reduce {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "reduce");
 
-    public static Object reduce(MapValue<?, ?> m, FPValue<Object, Object> func, Object initial) {
+    public static Object reduce(BMap<?, ?> m, BFunctionPointer<Object, Object> func, Object initial) {
         int size = m.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);

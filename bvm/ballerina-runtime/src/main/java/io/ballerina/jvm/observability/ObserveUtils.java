@@ -18,12 +18,12 @@
 
 package io.ballerina.jvm.observability;
 
+import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.observability.tracer.BSpan;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.ObjectValue;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.config.ConfigRegistry;
 
@@ -183,7 +183,7 @@ public class ObserveUtils {
      * @param position The source code position the resource in defined in
      */
     public static void startCallableObservation(boolean isRemote, boolean isMainEntryPoint, boolean isWorker,
-                                                ObjectValue typeDef, BString functionName, BString pkg,
+                                                BObject typeDef, BString functionName, BString pkg,
                                                 BString position) {
         if (!enabled) {
             return;

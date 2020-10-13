@@ -22,9 +22,9 @@ import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.values.ArrayValue;
 
 import static io.ballerina.jvm.util.BLangConstants.ARRAY_LANG_LIB;
 import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
@@ -40,7 +40,7 @@ public class ToBase16 {
     private static final char[] chars = "0123456789abcdef".toCharArray();
     private static final BString NOT_SUPPORTED_ERROR_DETAIL = BStringUtils.fromString("toBase16() is only supported " +
                                                                                                "on 'byte[]'");
-    public static BString toBase16(ArrayValue arr) {
+    public static BString toBase16(BArray arr) {
         Type arrType = arr.getType();
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {

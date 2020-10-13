@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.jvm.values.TableValueImpl;
+import io.ballerina.jvm.api.values.BTable;
 
 /**
  * Extern function to get next key from the table.
@@ -27,7 +27,7 @@ import io.ballerina.jvm.values.TableValueImpl;
  * @since 1.3.0
  */
 public class NextKey {
-    public static long nextKey(TableValueImpl tbl) {
+    public static long nextKey(BTable tbl) {
         return tbl.getNextKey();
     }
 }

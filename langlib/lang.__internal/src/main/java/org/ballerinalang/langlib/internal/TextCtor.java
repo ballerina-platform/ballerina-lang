@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.internal;
 
 import io.ballerina.jvm.XMLFactory;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.XMLValue;
+import io.ballerina.jvm.api.values.BXML;
 
 /**
  * XML Text constructor function.
@@ -36,7 +36,7 @@ import io.ballerina.jvm.values.XMLValue;
 //)
 public class TextCtor {
 
-    public static XMLValue textCtor(BString characters) {
+    public static BXML textCtor(BString characters) {
         return XMLFactory.createXMLText(characters);
     }
 }

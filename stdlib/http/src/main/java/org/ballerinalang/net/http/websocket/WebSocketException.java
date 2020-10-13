@@ -27,14 +27,13 @@ import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.types.BErrorType;
-import io.ballerina.jvm.values.ErrorValue;
 
 /**
  * Exceptions that could occur in WebSocket.
  *
  * @since 0.995
  */
-public class WebSocketException extends ErrorValue {
+public class WebSocketException extends BError {
     private final String message;
 
     public WebSocketException(Throwable ex, String typeIdName) {

@@ -21,9 +21,8 @@ package org.ballerinalang.langlib.string;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.ObjectValue;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
@@ -37,7 +36,7 @@ import java.text.StringCharacterIterator;
 public class Next {
 
     //TODO: refactor hard coded values
-    public static Object next(ObjectValue m) {
+    public static Object next(BObject m) {
         StringCharacterIterator stringCharacterIterator = (StringCharacterIterator) m.getNativeData("&iterator&");
         if (stringCharacterIterator == null) {
             String s = ((BString) m.get(BStringUtils.fromString("m"))).getValue();
@@ -49,7 +48,8 @@ public class Next {
             char character = stringCharacterIterator.current();
             stringCharacterIterator.next();
             Object charAsStr = BStringUtils.fromString(String.valueOf(character));
-            return BValueCreator.createRecordValue(new MapValueImpl<>(Types.STRING_ITR_NEXT_RETURN_TYPE), charAsStr);
+            return BValueCreator.createRecordValue(BValueCreator.createMapValue(Types.STRING_ITR_NEXT_RETURN_TYPE),
+                                                   charAsStr);
         }
 
         return null;

@@ -20,8 +20,8 @@ package org.ballerinalang.langlib.array;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.ArrayValueImpl;
 
 import java.util.Base64;
 
@@ -35,7 +35,7 @@ public class FromBase64 {
     public static Object fromBase64(BString str) {
         try {
             byte[] decodedArr = Base64.getDecoder().decode(str.getValue());
-            return new ArrayValueImpl(decodedArr);
+            return BValueCreator.createArrayValue(decodedArr);
         } catch (IllegalArgumentException e) {
             return BErrorCreator.createError(BStringUtils.fromString("Invalid base64 string"),
                                              BStringUtils.fromString(e.getMessage()));

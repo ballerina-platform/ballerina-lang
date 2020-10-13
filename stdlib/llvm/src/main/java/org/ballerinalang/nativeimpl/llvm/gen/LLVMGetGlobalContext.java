@@ -17,8 +17,8 @@
 package org.ballerinalang.nativeimpl.llvm.gen;
 
 import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -39,9 +39,9 @@ import static org.bytedeco.llvm.global.LLVM.LLVMGetGlobalContext;
 )
 public class LLVMGetGlobalContext {
 
-    public static MapValue<String, Object> llvmGetGlobalContext(Strand strand) {
+    public static BMap<String, Object> llvmGetGlobalContext(Strand strand) {
         LLVMContextRef returnValue = LLVMGetGlobalContext();
-        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new Module("ballerina",
+        BMap<String, Object> returnWrappedRecord = FFIUtil.newRecord(new Module("ballerina",
                 "llvm"), "LLVMContextRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
         return returnWrappedRecord;

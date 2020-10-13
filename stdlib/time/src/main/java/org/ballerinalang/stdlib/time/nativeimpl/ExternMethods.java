@@ -19,14 +19,13 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.types.BTupleType;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.TupleValueImpl;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 
 import java.time.Instant;
@@ -60,11 +59,11 @@ public class ExternMethods {
     private static final BTupleType getTimeTupleType = new BTupleType(
             Arrays.asList(Types.TYPE_INT, Types.TYPE_INT, Types.TYPE_INT, Types.TYPE_INT));
 
-    public static BString toString(MapValue<BString, Object> timeRecord) {
+    public static BString toString(BMap<BString, Object> timeRecord) {
         return getDefaultString(timeRecord);
     }
 
-    public static Object format(MapValue<BString, Object> timeRecord, BString pattern) {
+    public static Object format(BMap<BString, Object> timeRecord, BString pattern) {
         try {
             if ("RFC_1123".equals(pattern.getValue())) {
                 ZonedDateTime zonedDateTime = getZonedDateTime(timeRecord);
@@ -77,56 +76,56 @@ public class ExternMethods {
         }
     }
 
-    public static long getYear(MapValue<BString, Object> timeRecord) {
+    public static long getYear(BMap<BString, Object> timeRecord) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getYear();
     }
 
-    public static long getMonth(MapValue<BString, Object> timeRecord) {
+    public static long getMonth(BMap<BString, Object> timeRecord) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getMonthValue();
     }
 
-    public static long getDay(MapValue<BString, Object> timeRecord) {
+    public static long getDay(BMap<BString, Object> timeRecord) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getDayOfMonth();
     }
 
-    public static BString getWeekday(MapValue<BString, Object> timeRecord) {
+    public static BString getWeekday(BMap<BString, Object> timeRecord) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return BStringUtils.fromString(dateTime.getDayOfWeek().toString());
     }
 
-    public static long getHour(MapValue<BString, Object> timeRecord) {
+    public static long getHour(BMap<BString, Object> timeRecord) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getHour();
     }
 
-    public static long getMinute(MapValue<BString, Object> timeRecord) {
+    public static long getMinute(BMap<BString, Object> timeRecord) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getMinute();
     }
 
-    public static long getSecond(MapValue<BString, Object> timeRecord) {
+    public static long getSecond(BMap<BString, Object> timeRecord) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getSecond();
     }
 
-    public static long getMilliSecond(MapValue<BString, Object> timeRecord) {
+    public static long getMilliSecond(BMap<BString, Object> timeRecord) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getNano() / 1000000;
     }
 
-    public static ArrayValue getDate(MapValue<BString, Object> timeRecord) {
-        TupleValueImpl date = new TupleValueImpl(getDateTupleType);
+    public static BArray getDate(BMap<BString, Object> timeRecord) {
+        BArray date = BValueCreator.createTupleValue(getDateTupleType);
         date.add(0, Long.valueOf(getYear(timeRecord)));
         date.add(1, Long.valueOf(getMonth(timeRecord)));
         date.add(2, Long.valueOf(getDay(timeRecord)));
         return date;
     }
 
-    public static ArrayValue getTime(MapValue<BString, Object> timeRecord) {
-        TupleValueImpl time = new TupleValueImpl(getTimeTupleType);
+    public static BArray getTime(BMap<BString, Object> timeRecord) {
+        BArray time = BValueCreator.createTupleValue(getTimeTupleType);
         time.add(0, Long.valueOf(getHour(timeRecord)));
         time.add(1, Long.valueOf(getMinute(timeRecord)));
         time.add(2, Long.valueOf(getSecond(timeRecord)));
@@ -134,7 +133,7 @@ public class ExternMethods {
         return time;
     }
 
-    public static BMap<BString, Object> addDuration(MapValue<BString, Object> timeRecord, long years, long months,
+    public static BMap<BString, Object> addDuration(BMap<BString, Object> timeRecord, long years, long months,
                                                     long days, long hours, long minutes, long seconds,
                                                     long milliSeconds) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
@@ -145,7 +144,7 @@ public class ExternMethods {
         return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), mSec, getZoneId(timeRecord));
     }
 
-    public static BMap<BString, Object> subtractDuration(MapValue<BString, Object> timeRecord,
+    public static BMap<BString, Object> subtractDuration(BMap<BString, Object> timeRecord,
                                                              long years, long months, long days, long hours,
                                                              long minutes, long seconds, long milliSeconds) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
@@ -156,10 +155,10 @@ public class ExternMethods {
         return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), mSec, getZoneId(timeRecord));
     }
 
-    public static Object toTimeZone(MapValue<BString, Object> timeRecord, BString zoneId) {
+    public static Object toTimeZone(BMap<BString, Object> timeRecord, BString zoneId) {
         try {
             return changeTimezone(timeRecord, zoneId);
-        } catch (ErrorValue e) {
+        } catch (BError e) {
             return TimeUtils.getTimeError(e.getMessage());
         }
     }
@@ -175,7 +174,7 @@ public class ExternMethods {
         try {
             return createDateTime((int) years, (int) months, (int) dates, (int) hours, (int) minutes, (int) seconds,
                                   (int) milliSeconds, zoneId);
-        } catch (ErrorValue e) {
+        } catch (BError e) {
             return TimeUtils.getTimeError(e.getMessage());
         }
     }
@@ -188,7 +187,7 @@ public class ExternMethods {
                 return getTimeRecord(parsedDateTime, dateString, pattern);
             }
             return parseTime(dateString, pattern);
-        } catch (ErrorValue e) {
+        } catch (BError e) {
             return TimeUtils.getTimeError(e.getMessage());
         }
     }

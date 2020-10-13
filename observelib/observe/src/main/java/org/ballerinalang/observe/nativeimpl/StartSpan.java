@@ -21,10 +21,10 @@ package org.ballerinalang.observe.nativeimpl;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.observability.ObservabilityConstants;
 import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.values.MapValue;
 
 /**
  * This function which implements the startSpan method for observe.
@@ -39,7 +39,7 @@ public class StartSpan {
             long spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(
                     (String) Scheduler.getStrand().getProperty(ObservabilityConstants.SERVICE_NAME),
                     spanName.getValue(),
-                    Utils.toStringMap((MapValue<BString, ?>) tags), parentSpanId, Scheduler.getStrand());
+                    Utils.toStringMap((BMap<BString, ?>) tags), parentSpanId, Scheduler.getStrand());
             if (spanId == -1) {
                 return BErrorCreator.createError(BStringUtils.fromString((
                         "No parent span for ID " + parentSpanId + " found. Please recheck the parent span Id")));

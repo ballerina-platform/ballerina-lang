@@ -20,6 +20,7 @@ package org.ballerina.testobserve.listenerendpoint;
 
 import io.ballerina.jvm.api.BExecutor;
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.ValueCreator;
 import io.ballerina.jvm.api.connector.CallableUnitCallback;
 import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BObject;
@@ -28,8 +29,6 @@ import io.ballerina.jvm.observability.ObserverContext;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.StrandMetadata;
 import io.ballerina.jvm.types.AttachedFunction;
-import io.ballerina.jvm.values.ObjectValue;
-import io.ballerina.jvm.values.ValueCreator;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -202,7 +201,7 @@ public class WebServer {
             String serviceName = requestUriSplit[1];
             String resourceName = requestUriSplit[2];
 
-            ObjectValue callerObject = valueCreator.createObjectValue(CALLER_TYPE_NAME, scheduler, null,
+            BObject callerObject = valueCreator.createObjectValue(CALLER_TYPE_NAME, scheduler, null,
                     null, new Object[0]);
             callerObject.addNativeData(NETTY_CONTEXT_NATIVE_DATA_KEY, ctx);
 

@@ -938,7 +938,7 @@ public class BRunUtil {
                 bvmValue = null;
                 break;
             case io.ballerina.jvm.api.TypeTags.OBJECT_TYPE_TAG:
-                ObjectValue jvmObject = (ObjectValue) value;
+                BObject jvmObject = (BObject) value;
                 io.ballerina.jvm.types.BObjectType jvmObjectType = jvmObject.getType();
                 BMap<String, BRefType<?>> bvmObject = new BMap<>(getBVMType(jvmObjectType, new Stack<>()));
                 bvmValueMap.put(String.valueOf(value.hashCode()), bvmObject);

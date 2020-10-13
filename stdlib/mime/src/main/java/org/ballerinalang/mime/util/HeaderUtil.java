@@ -25,7 +25,6 @@ import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.values.MapValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -134,7 +133,7 @@ public class HeaderUtil {
      * @param map         Represent a parameter map
      * @return Header value along with it's parameters as a string
      */
-    public static String appendHeaderParams(StringBuilder headerValue, MapValue<BString, BString> map) {
+    public static String appendHeaderParams(StringBuilder headerValue, BMap<BString, BString> map) {
         int index = 0;
         if (map != null && !map.isEmpty()) {
             BString[] keys = map.getKeys();

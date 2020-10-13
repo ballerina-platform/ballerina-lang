@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
 import io.ballerina.jvm.util.exceptions.RuntimeErrors;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Returns the attribute map of xml element.
@@ -31,19 +31,19 @@ import io.ballerina.jvm.values.XMLValue;
 //@BallerinaFunction(
 //        orgName = "ballerina", packageName = "lang.xml",
 //        functionName = "getAttributes",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
+//        args = {@Argument(name = "BXML", type = TypeKind.XML)},
 //        returnType = {@ReturnType(type = TypeKind.MAP)},
 //        isPublic = true
 //)
 public class GetAttributes {
 
     @SuppressWarnings("unchecked")
-    public static MapValue<BString, BString> getAttributes(XMLValue xmlVal) {
+    public static BMap<BString, BString> getAttributes(BXML xmlVal) {
         if (!IsElement.isElement(xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,
                     "getAttributes", "element");
         }
 
-        return (MapValue<BString, BString>) xmlVal.getAttributesMap();
+        return (BMap<BString, BString>) xmlVal.getAttributesMap();
     }
 }

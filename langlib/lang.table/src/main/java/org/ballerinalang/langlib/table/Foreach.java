@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.jvm.api.values.BFunctionPointer;
+import io.ballerina.jvm.api.values.BTable;
 import io.ballerina.jvm.runtime.AsyncUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.TableValueImpl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -46,7 +46,7 @@ public class Foreach {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "forEach");
 
-    public static void forEach(TableValueImpl tbl, FPValue<Object, Object> func) {
+    public static void forEach(BTable tbl, BFunctionPointer<Object, Object> func) {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
@@ -58,7 +58,7 @@ public class Foreach {
                         }, () -> null, Scheduler.getStrand().scheduler);
     }
 
-    public static void forEach_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
+    public static void forEach_bstring(Strand strand, BTable tbl, BFunctionPointer<Object, Object> func) {
         forEach(tbl, func);
     }
 }

@@ -18,7 +18,7 @@
 package org.ballerinalang.langlib.internal;
 
 import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.values.XMLValue;
+import io.ballerina.jvm.api.values.BXML;
 
 import static io.ballerina.jvm.api.BErrorCreator.createError;
 import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
@@ -30,7 +30,7 @@ import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATI
  */
 public class GetElementNameNilLifting {
 
-    public static Object getElementNameNilLifting(XMLValue xmlVal) {
+    public static Object getElementNameNilLifting(BXML xmlVal) {
         if (IsElement.isElement(xmlVal)) {
             String elementName = xmlVal.getElementName();
             if (elementName.equals("")) {

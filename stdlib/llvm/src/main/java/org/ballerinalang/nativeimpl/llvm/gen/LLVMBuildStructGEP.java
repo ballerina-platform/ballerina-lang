@@ -17,8 +17,8 @@
 package org.ballerinalang.nativeimpl.llvm.gen;
 
 import io.ballerina.jvm.api.runtime.Module;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -49,13 +49,13 @@ import static org.bytedeco.llvm.global.LLVM.LLVMBuildStructGEP;
 )
 public class LLVMBuildStructGEP {
 
-    public static MapValue<String, Object> llvmBuildStructGEP(Strand strand, MapValue<String, Object> b,
-            MapValue<String, Object> pointer, long idx, String name) {
+    public static BMap<String, Object> llvmBuildStructGEP(Strand strand, BMap<String, Object> b,
+            BMap<String, Object> pointer, long idx, String name) {
         LLVMBuilderRef bRef = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(b);
         LLVMValueRef pointerRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(pointer);
         int idxRef = (int) idx;
         LLVMValueRef returnValue = LLVMBuildStructGEP(bRef, pointerRef, idxRef, name);
-        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new Module("ballerina",
+        BMap<String, Object> returnWrappedRecord = FFIUtil.newRecord(new Module("ballerina",
                 "llvm"), "LLVMValueRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
         return returnWrappedRecord;

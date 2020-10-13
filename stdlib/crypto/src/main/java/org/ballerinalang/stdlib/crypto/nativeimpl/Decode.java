@@ -22,7 +22,6 @@ import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.ArrayValueImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
@@ -138,7 +137,7 @@ public class Decode {
                                                                BStringUtils.fromString(Constants.TIMEZONE_GMT)));
 
                 certificateBMap.put(BStringUtils.fromString(Constants.CERTIFICATE_RECORD_SIGNATURE_FIELD),
-                                    new ArrayValueImpl(x509Certificate.getSignature()));
+                                    BValueCreator.createArrayValue(x509Certificate.getSignature()));
                 certificateBMap.put(BStringUtils.fromString(Constants.CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD),
                                     BStringUtils.fromString(x509Certificate.getSigAlgName()));
             }

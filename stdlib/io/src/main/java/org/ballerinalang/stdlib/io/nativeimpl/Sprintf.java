@@ -21,11 +21,11 @@ import io.ballerina.jvm.TypeChecker;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
 import io.ballerina.jvm.util.exceptions.RuntimeErrors;
-import io.ballerina.jvm.values.ArrayValue;
 
 import java.util.IllegalFormatConversionException;
 
@@ -145,7 +145,7 @@ public class Sprintf {
         final Object argsValues = args[k];
         final Type type = TypeChecker.getType(argsValues);
         if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((BArrayType) type).getElementType().getTag()) {
-            ArrayValue byteArray = ((ArrayValue) argsValues);
+            BArray byteArray = ((BArray) argsValues);
             for (int i = 0; i < byteArray.size(); i++) {
                 result.append(String.format("%" + padding + x, byteArray.getByte(i)));
             }

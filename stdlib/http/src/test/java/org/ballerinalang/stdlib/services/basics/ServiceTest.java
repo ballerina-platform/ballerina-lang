@@ -21,8 +21,6 @@ package org.ballerinalang.stdlib.services.basics;
 import io.ballerina.jvm.JSONParser;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.MapValueImpl;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -211,9 +209,9 @@ public class ServiceTest {
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         Object bJson = JSONParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertTrue(bJson instanceof MapValue);
+        Assert.assertTrue(bJson instanceof BMap);
 
-        Assert.assertTrue(((MapValueImpl<BString, BString>) bJson).get(
+        Assert.assertTrue(((BMap<BString, BString>) bJson).get(
                 BStringUtils.fromString("Team")).toString().isEmpty(),
                           "Team variable not set properly");
     }

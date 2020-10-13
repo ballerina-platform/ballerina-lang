@@ -138,6 +138,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARGUMENT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
@@ -169,7 +170,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
@@ -537,7 +538,7 @@ public class JvmMethodGen {
                 break;
             case TypeTags.OBJECT:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                                  String.format("L%s;", OBJECT_VALUE));
+                                  String.format("L%s;", B_OBJECT));
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.ERROR:
@@ -712,7 +713,7 @@ public class JvmMethodGen {
             case TypeTags.OBJECT:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                                  String.format("L%s;", OBJECT_VALUE));
+                                  String.format("L%s;", B_OBJECT));
                 break;
             case TypeTags.INVOKABLE:
                 mv.visitVarInsn(ALOAD, index);
@@ -834,7 +835,7 @@ public class JvmMethodGen {
                 jvmType = String.format("L%s;", ARRAY_VALUE);
                 break;
             case TypeTags.OBJECT:
-                jvmType = String.format("L%s;", OBJECT_VALUE);
+                jvmType = String.format("L%s;", B_OBJECT);
                 break;
             case TypeTags.ERROR:
                 jvmType = String.format("L%s;", ERROR_VALUE);
@@ -1451,7 +1452,7 @@ public class JvmMethodGen {
 
         if (isVirtual) {
             String methodDesc = String.format("(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT);
-            mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
+            mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "call", methodDesc, true);
         } else {
             String jvmClass;
             String encodedFuncName = IdentifierUtils.encodeIdentifier(funcName);
@@ -2176,7 +2177,7 @@ public class JvmMethodGen {
         mv.visitLdcInsn(workerName);
         mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, String.format("L%s;", STRAND_METADATA));
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                           String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND_CLASS,
+                           String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, B_FUNCTION_POINTER, STRAND_CLASS,
                                          TYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
     }
 

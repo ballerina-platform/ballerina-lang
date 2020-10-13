@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.map;
 
+import io.ballerina.jvm.api.values.BFunctionPointer;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.runtime.AsyncUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.MapValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,7 +41,7 @@ public class ForEach {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "forEach");
 
-    public static void forEach(MapValue<?, ?> m, FPValue<Object, Object> func) {
+    public static void forEach(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();

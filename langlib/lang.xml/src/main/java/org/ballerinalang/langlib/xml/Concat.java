@@ -19,10 +19,9 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.jvm.XMLFactory;
 import io.ballerina.jvm.XMLNodeType;
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.api.values.BXML;
-import io.ballerina.jvm.values.XMLSequence;
-import io.ballerina.jvm.values.XMLValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,28 +33,28 @@ import java.util.List;
  */
 public class Concat {
 
-    public static XMLValue concat(Object... arrayValue) {
+    public static BXML concat(Object... arrayValue) {
         List<BXML> backingArray = new ArrayList<>();
-        XMLValue lastItem = null;
+        BXML lastItem = null;
         for (int i = 0; i < arrayValue.length; i++) {
             Object refValue = arrayValue[i];
             if (refValue instanceof BString) {
                 if (lastItem != null && lastItem.getNodeType() == XMLNodeType.TEXT) {
                     // If last added item is a string, then concat prev values with this values and replace prev value.
                     String concat = lastItem.getTextValue() + refValue;
-                    XMLValue xmlText = XMLFactory.createXMLText(concat);
+                    BXML xmlText = XMLFactory.createXMLText(concat);
                     backingArray.set(backingArray.size() - 1, xmlText);
                     lastItem = xmlText;
                     continue;
                 }
-                XMLValue xmlText = XMLFactory.createXMLText((BString) refValue);
+                BXML xmlText = XMLFactory.createXMLText((BString) refValue);
                 backingArray.add(xmlText);
                 lastItem = xmlText;
             } else {
-                backingArray.add((XMLValue) refValue);
-                lastItem = (XMLValue) refValue;
+                backingArray.add((BXML) refValue);
+                lastItem = (BXML) refValue;
             }
         }
-        return new XMLSequence(backingArray);
+        return BValueCreator.createXMLSequence(backingArray);
     }
 }

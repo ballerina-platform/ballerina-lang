@@ -19,11 +19,10 @@ package org.ballerinalang.net.http;
 
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.transactions.TransactionConstants;
 import io.ballerina.jvm.types.AttachedFunction;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.MapValueImpl;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,7 +190,7 @@ public class HttpResource {
 
     public static HttpResource buildHttpResource(AttachedFunction resource, HttpService httpService) {
         HttpResource httpResource = new HttpResource(resource, httpService);
-        MapValue resourceConfigAnnotation = getResourceConfigAnnotation(resource);
+        BMap resourceConfigAnnotation = getResourceConfigAnnotation(resource);
         httpResource.setInterruptible(httpService.isInterruptible() || hasInterruptibleAnnotation(resource));
 
         setupTransactionAnnotations(resource, httpResource);
@@ -199,11 +198,11 @@ public class HttpResource {
             httpResource.setPath(resourceConfigAnnotation.getStringValue(PATH_FIELD).getValue().replaceAll(
                     HttpConstants.REGEX, HttpConstants.SINGLE_SLASH));
             httpResource.setMethods(
-                    getAsStringList(resourceConfigAnnotation.getArrayValue(METHODS_FIELD).getStringArray()));
+                    getAsStringList(resourceConfigAnnotation.getBArray(METHODS_FIELD).getStringArray()));
             httpResource.setConsumes(
-                    getAsStringList(resourceConfigAnnotation.getArrayValue(CONSUMES_FIELD).getStringArray()));
+                    getAsStringList(resourceConfigAnnotation.getBArray(CONSUMES_FIELD).getStringArray()));
             httpResource.setProduces(
-                    getAsStringList(resourceConfigAnnotation.getArrayValue(PRODUCES_FIELD).getStringArray()));
+                    getAsStringList(resourceConfigAnnotation.getBArray(PRODUCES_FIELD).getStringArray()));
             httpResource.setEntityBodyAttributeValue(resourceConfigAnnotation.getStringValue(BODY_FIELD).getValue());
             httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfigAnnotation.getMapValue(CORS_FIELD)));
             httpResource
@@ -223,7 +222,7 @@ public class HttpResource {
     }
 
     private static void setupTransactionAnnotations(AttachedFunction resource, HttpResource httpResource) {
-        MapValue transactionConfigAnnotation = HttpUtil.getTransactionConfigAnnotation(resource,
+        BMap transactionConfigAnnotation = HttpUtil.getTransactionConfigAnnotation(resource,
                         TransactionConstants.TRANSACTION_PACKAGE_PATH);
         if (transactionConfigAnnotation != null) {
             httpResource.transactionAnnotated = true;
@@ -231,19 +230,19 @@ public class HttpResource {
     }
 
     /**
-     * Get the `MapValue` resource configuration of the given resource.
+     * Get the `BMap` resource configuration of the given resource.
      *
      * @param resource The resource
      * @return the resource configuration of the given resource
      */
-    public static MapValue getResourceConfigAnnotation(AttachedFunction resource) {
-        return (MapValue) resource.getAnnotation(PROTOCOL_PACKAGE_HTTP, ANN_NAME_RESOURCE_CONFIG);
+    public static BMap getResourceConfigAnnotation(AttachedFunction resource) {
+        return (BMap) resource.getAnnotation(PROTOCOL_PACKAGE_HTTP, ANN_NAME_RESOURCE_CONFIG);
     }
 
-    protected static MapValue getPathParamOrderMap(AttachedFunction resource) {
+    protected static BMap getPathParamOrderMap(AttachedFunction resource) {
         Object annotation = resource.getAnnotation(PROTOCOL_PACKAGE_HTTP, ANN_NAME_PARAM_ORDER_CONFIG);
-        return annotation == null ? new MapValueImpl<BString, Object>() :
-                (MapValue<BString, Object>) ((MapValue<BString, Object>) annotation).get(ANN_FIELD_PATH_PARAM_ORDER);
+        return annotation == null ? new BMap<BString, Object>() :
+                (BMap<BString, Object>) ((BMap<BString, Object>) annotation).get(ANN_FIELD_PATH_PARAM_ORDER);
     }
 
     private static boolean hasInterruptibleAnnotation(AttachedFunction resource) {

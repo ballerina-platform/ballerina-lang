@@ -22,9 +22,9 @@ import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.values.ArrayValue;
 
 import java.util.Base64;
 
@@ -42,7 +42,7 @@ public class ToBase64 {
     private static final BString NOT_SUPPORT_DETAIL_ERROR = BStringUtils
             .fromString("toBase64() is only supported on 'byte[]'");
 
-    public static BString toBase64(ArrayValue arr) {
+    public static BString toBase64(BArray arr) {
         Type arrType = arr.getType();
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {

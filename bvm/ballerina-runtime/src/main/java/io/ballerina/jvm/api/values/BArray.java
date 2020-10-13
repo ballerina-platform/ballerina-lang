@@ -158,6 +158,14 @@ public interface BArray extends BRefValue, BCollection {
     Object shift();
 
     /**
+     * Removes and returns first member of an array.
+     *
+     * @param index array index
+     * @return the value that was the first member of the array
+     */
+    Object shift(long index);
+
+    /**
      * Adds values to the start of an array.
      * @param values values to add to the start of the array
      */
@@ -193,4 +201,11 @@ public interface BArray extends BRefValue, BCollection {
      */
     Type getElementType();
 
+    Type getIteratorNextReturnType();
+
+    boolean isEmpty();
+
+    BArray slice(long startIndex, long endIndex);
+
+    void setLength(long i);
 }

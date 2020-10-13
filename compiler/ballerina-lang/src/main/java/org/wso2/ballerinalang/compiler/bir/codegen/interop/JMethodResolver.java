@@ -28,9 +28,9 @@ import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BStream;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTable;
 import io.ballerina.jvm.api.values.BTypedesc;
 import io.ballerina.jvm.api.values.BXML;
-import io.ballerina.jvm.values.TableValue;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -427,7 +427,7 @@ class JMethodResolver {
                 case TypeTags.STREAM:
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
-                    return this.classLoader.loadClass(TableValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -570,7 +570,7 @@ class JMethodResolver {
                 case TypeTags.STREAM:
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
-                    return this.classLoader.loadClass(TableValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -615,7 +615,7 @@ class JMethodResolver {
                 isAssignableFrom(BXML.class, jType) ||
                 this.isValidListType(jType, true, jMethodRequest.restParamExist) ||
                 isAssignableFrom(BMap.class, jType) ||
-                isAssignableFrom(TableValue.class, jType);
+                isAssignableFrom(BTable.class, jType);
     }
 
     private boolean isAssignableFrom(Class<?> targetType, Class<?> jType) throws ClassNotFoundException {

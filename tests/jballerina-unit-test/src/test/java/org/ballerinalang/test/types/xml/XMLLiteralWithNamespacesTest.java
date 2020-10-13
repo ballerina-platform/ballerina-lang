@@ -201,7 +201,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testXMLToString() {
-        XMLValue xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+        io.ballerina.jvm.api.values.BXML xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }

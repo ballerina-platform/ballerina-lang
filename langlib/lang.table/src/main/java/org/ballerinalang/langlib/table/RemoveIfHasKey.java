@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.jvm.values.TableValueImpl;
+import io.ballerina.jvm.api.values.BTable;
 
 /**
  * Native implementation of lang.table:removeIfHasKey(table&lt;Type&gt;, KeyType).
@@ -33,7 +33,7 @@ import io.ballerina.jvm.values.TableValueImpl;
 //)
 public class RemoveIfHasKey {
 
-    public static Object removeIfHasKey(TableValueImpl tbl, Object key) {
+    public static Object removeIfHasKey(BTable tbl, Object key) {
         return tbl.remove(key);
     }
 }

@@ -23,6 +23,7 @@ import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.types.TupleType;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BLink;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
@@ -422,6 +423,11 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     public boolean isEmpty() {
         return this.size == 0;
+    }
+
+    @Override
+    public BArray slice(long startIndex, long endIndex) {
+        return null;
     }
 
     @Override

@@ -25,6 +25,7 @@ import io.ballerina.jvm.api.values.BLink;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.api.values.BXMLSequence;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.util.BLangConstants;
 import io.ballerina.jvm.util.exceptions.BallerinaErrorReasons;
@@ -48,7 +49,7 @@ import static io.ballerina.jvm.util.BLangConstants.XML_LANG_LIB;
  * 
  * @since 0.995.0
  */
-public final class XMLSequence extends XMLValue {
+public final class XMLSequence extends XMLValue implements BXMLSequence {
 
     List<BXML> children;
 

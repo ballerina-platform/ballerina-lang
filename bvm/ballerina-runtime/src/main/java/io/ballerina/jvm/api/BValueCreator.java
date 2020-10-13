@@ -30,33 +30,37 @@ import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BDecimal;
 import io.ballerina.jvm.api.values.BFunctionPointer;
+import io.ballerina.jvm.api.values.BHandle;
 import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BMapInitialValueEntry;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BStream;
 import io.ballerina.jvm.api.values.BStreamingJson;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTable;
 import io.ballerina.jvm.api.values.BTypedesc;
 import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.api.values.BXMLQName;
+import io.ballerina.jvm.api.values.BXMLSequence;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.State;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.types.BField;
 import io.ballerina.jvm.types.BRecordType;
+import io.ballerina.jvm.types.BTableType;
 import io.ballerina.jvm.util.Flags;
-import io.ballerina.jvm.values.ArrayValue;
 import io.ballerina.jvm.values.ArrayValueImpl;
 import io.ballerina.jvm.values.DecimalValue;
 import io.ballerina.jvm.values.FPValue;
+import io.ballerina.jvm.values.HandleValue;
 import io.ballerina.jvm.values.MapValue;
 import io.ballerina.jvm.values.MapValueImpl;
 import io.ballerina.jvm.values.MappingInitialValueEntry;
-import io.ballerina.jvm.values.ObjectValue;
 import io.ballerina.jvm.values.StreamValue;
 import io.ballerina.jvm.values.StreamingJsonValue;
+import io.ballerina.jvm.values.TableValueImpl;
 import io.ballerina.jvm.values.TupleValueImpl;
 import io.ballerina.jvm.values.TypedescValueImpl;
-import io.ballerina.jvm.values.ValueCreator;
 import io.ballerina.jvm.values.XMLItem;
 import io.ballerina.jvm.values.XMLQName;
 import io.ballerina.jvm.values.XMLSequence;
@@ -243,6 +247,17 @@ import javax.xml.namespace.QName;
      }
 
      /**
+      * Create a stream with given constraint type and iterator object.
+      *
+      * @param type        constraint type
+      * @param iteratorObj
+      * @return stream value
+      */
+     public static BStream createStreamValue(StreamType type, BObject iteratorObj) {
+         return new StreamValue(type, iteratorObj);
+     }
+
+     /**
       * Create a type descriptor value.
       *
       * @param describingType {@code BType} of the value describe by this value
@@ -299,7 +314,7 @@ import javax.xml.namespace.QName;
       * @param qNameStr qualified name string
       * @return  XML qualified name
       */
-     public static BXMLQName createXMLQName(String qNameStr) {
+     public static BXMLQName createXMLQName(BString qNameStr) {
          return new XMLQName(qNameStr);
      }
 
@@ -308,7 +323,7 @@ import javax.xml.namespace.QName;
       *
       * @return xml sequence
       */
-     public static BXML createXMLSequence() {
+     public static BXMLSequence createXMLSequence() {
          return new XMLSequence();
      }
 
@@ -318,12 +333,32 @@ import javax.xml.namespace.QName;
       * @param sequence xml sequence array
       * @return xml sequence
       */
-     public static BXML createXMLSequence(ArrayValue sequence) {
+     public static BXML createXMLSequence(BArray sequence) {
          List<BXML> children = new ArrayList<>();
          for (Object value : sequence.getValues()) {
              children.add((BXML) value);
          }
          return new XMLSequence(children);
+     }
+
+     /**
+      * Create a {@code XMLSequence} from a {@link org.apache.axiom.om.OMNode} object.
+      *
+      * @param sequence xml sequence array
+      * @return xml sequence
+      */
+     public static BXML createXMLSequence(List<BXML> sequence) {
+         return new XMLSequence(sequence);
+     }
+
+     /**
+      * Create a {@code XMLSequence} from a {@link org.apache.axiom.om.OMNode} object.
+      *
+      * @param child xml content
+      * @return xml sequence
+      */
+     public static BXML createXMLSequence(BXML child) {
+         return new XMLSequence(child);
      }
 
      /**
@@ -346,17 +381,37 @@ import javax.xml.namespace.QName;
      }
 
      /**
-      * Create a runtime map value wwith given initial values and given type.
+      * Create a runtime map value with given initial values and given type.
       *
       * @param mapType   map type.
       * @param keyValues initial map values to be populated.
       * @return map value
       */
      public static BMap<BString, Object> createMapValue(MapType mapType,
-                                                        MappingInitialValueEntry.KeyValueEntry[] keyValues) {
-         return new MapValueImpl<>(mapType, keyValues);
+                                                        BMapInitialValueEntry[] keyValues) {
+         return new MapValueImpl<>(mapType, (MappingInitialValueEntry[]) keyValues);
      }
 
+     /**
+      * Create a key field entry in a mapping constructor expression.
+      *
+      * @param key   key.
+      * @param value value.
+      * @return key field entry
+      */
+     public static BMapInitialValueEntry createKeyFieldEntry(Object key, Object value) {
+         return new MappingInitialValueEntry.KeyValueEntry(key, value);
+     }
+
+     /**
+      * Create a spread field entry in a mapping constructor expression.
+      *
+      * @param mappingValue  mapping value.
+      * @return spread field entry
+      */
+     public static BMapInitialValueEntry createSpreadFieldEntry(BMap mappingValue) {
+         return new MappingInitialValueEntry.SpreadFieldEntry(mappingValue);
+     }
 
      /**
       * Create a record value using the given package id and record type name.
@@ -434,7 +489,7 @@ import javax.xml.namespace.QName;
          Scheduler scheduler = null;
          State prevState = State.RUNNABLE;
          boolean prevBlockedOnExtern = false;
-         ObjectValue objectValue;
+         BObject objectValue;
 
          // Adding boolean values for each arg
          for (int i = 0, j = 0; i < fieldValues.length; i++) {
@@ -459,6 +514,26 @@ import javax.xml.namespace.QName;
              }
          }
          return objectValue;
+     }
+
+     /**
+      * Create an handle value using the given value.
+      *
+      * @param value object value.
+      * @return handle value for given object value.
+      */
+     public static BHandle createHandleValue(Object value) {
+         return new HandleValue(value);
+     }
+
+     /**
+      * Create an table value using the given type.
+      *
+      * @param tableType table type.
+      * @return table value for given type.
+      */
+     public static BTable createTableValue(BTableType tableType) {
+         return new TableValueImpl(tableType);
      }
 
      private static Strand getStrand() {

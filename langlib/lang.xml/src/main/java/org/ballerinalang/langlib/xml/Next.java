@@ -21,10 +21,9 @@ package org.ballerinalang.langlib.xml;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.Types;
-import io.ballerina.jvm.values.IteratorValue;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.ObjectValue;
-import io.ballerina.jvm.values.XMLValue;
+import io.ballerina.jvm.api.values.BIterator;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BXML;
 
 /**
  * Native implementation of lang.xml.XMLIterator:next().
@@ -40,17 +39,18 @@ import io.ballerina.jvm.values.XMLValue;
 //)
 public class Next {
     //TODO: refactor hard coded values
-    public static Object next(ObjectValue m) {
-        IteratorValue xmlIterator = (IteratorValue) m.getNativeData("&iterator&");
+    public static Object next(BObject m) {
+        BIterator xmlIterator = (BIterator) m.getNativeData("&iterator&");
 
         if (xmlIterator == null) {
-            xmlIterator = ((XMLValue) m.get(BStringUtils.fromString("m"))).getIterator();
+            xmlIterator = ((BXML) m.get(BStringUtils.fromString("m"))).getIterator();
             m.addNativeData("&iterator&", xmlIterator);
         }
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            return BValueCreator.createRecordValue(new MapValueImpl<>(Types.XML_ITR_NEXT_RETURN_TYPE), xmlValue);
+            return BValueCreator.createRecordValue(BValueCreator.createMapValue(Types.XML_ITR_NEXT_RETURN_TYPE),
+                                                   xmlValue);
         }
 
         return null;

@@ -22,12 +22,12 @@ import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.api.values.BXMLQName;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
 import io.ballerina.jvm.values.TableValueImpl;
 import io.ballerina.jvm.values.XMLComment;
 import io.ballerina.jvm.values.XMLItem;
 import io.ballerina.jvm.values.XMLPi;
-import io.ballerina.jvm.values.XMLQName;
 import io.ballerina.jvm.values.XMLSequence;
 import io.ballerina.jvm.values.XMLText;
 import io.ballerina.jvm.values.XMLValue;
@@ -70,7 +70,7 @@ public class XMLFactory {
      * @param xmlStr String representation of the XML
      * @return XML sequence
      */
-    public static XMLValue parse(String xmlStr) {
+    public static BXML parse(String xmlStr) {
         try {
             if (xmlStr.isEmpty()) {
                 return new XMLSequence();
@@ -91,7 +91,7 @@ public class XMLFactory {
      * @param xmlStream XML input stream
      * @return XML Sequence
      */
-    public static XMLValue parse(InputStream xmlStream) {
+    public static BXML parse(InputStream xmlStream) {
         try {
             XMLTreeBuilder treeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream));
             return treeBuilder.parse();
@@ -109,7 +109,7 @@ public class XMLFactory {
      * @param charset Charset to be used for parsing
      * @return XML Sequence
      */
-    public static XMLValue parse(InputStream xmlStream, String charset) {
+    public static BXML parse(InputStream xmlStream, String charset) {
         try {
             XMLTreeBuilder xmlTreeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream, charset));
             return xmlTreeBuilder.parse();
@@ -126,7 +126,7 @@ public class XMLFactory {
      * @param reader XML reader
      * @return XML Sequence
      */
-    public static XMLValue parse(Reader reader) {
+    public static BXML parse(Reader reader) {
         try {
             XMLTreeBuilder xmlTreeBuilder = new XMLTreeBuilder(reader);
             return xmlTreeBuilder.parse();
@@ -198,7 +198,7 @@ public class XMLFactory {
      * @param table {@link io.ballerina.jvm.values.TableValue} to convert
      * @return converted {@link XMLValue}
      */
-    public static XMLValue tableToXML(TableValueImpl table) {
+    public static BXML tableToXML(TableValueImpl table) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             XMLStreamWriter streamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
@@ -222,7 +222,7 @@ public class XMLFactory {
      * @return XMLValue Element type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLElement(XMLQName startTagName, XMLQName endTagName, String defaultNsUri) {
+    public static XMLValue createXMLElement(BXMLQName startTagName, BXMLQName endTagName, String defaultNsUri) {
         if (!BStringUtils.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
                 !BStringUtils.isEqual(startTagName.getUri(), endTagName.getUri()) ||
                 !BStringUtils.isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
@@ -241,11 +241,11 @@ public class XMLFactory {
      * @return XMLValue Element type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLElement(XMLQName startTagName, String defaultNsUri) {
+    public static XMLValue createXMLElement(BXMLQName startTagName, String defaultNsUri) {
         return createXMLElement(startTagName, defaultNsUri, false);
     }
 
-    public static XMLValue createXMLElement(XMLQName startTagName, BString defaultNsUriVal) {
+    public static XMLValue createXMLElement(BXMLQName startTagName, BString defaultNsUriVal) {
         return createXMLElement(startTagName,
                 defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue());
     }
@@ -259,7 +259,7 @@ public class XMLFactory {
      * @return XMLValue Element type XMLValue
      */
     @Deprecated
-    public static XMLValue createXMLElement(XMLQName startTagName, String defaultNsUri, boolean readonly) {
+    public static XMLValue createXMLElement(BXMLQName startTagName, String defaultNsUri, boolean readonly) {
         // Validate whether the tag names are XML supported qualified names, according to the XML recommendation.
         XMLValidator.validateXMLQName(startTagName);
 
@@ -277,7 +277,7 @@ public class XMLFactory {
                                                    defaultNsUri);
     }
 
-    public static XMLValue createXMLElement(XMLQName startTagName, BString defaultNsUriVal, boolean readonly) {
+    public static XMLValue createXMLElement(BXMLQName startTagName, BString defaultNsUriVal, boolean readonly) {
         return createXMLElement(startTagName,
                                 defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue(),
                                 readonly);
@@ -407,7 +407,7 @@ public class XMLFactory {
      * @param xmlTwo the second XML value
      * @return true if the two are equal, false if not equal or an exception is thrown while checking equality
      */
-    public static boolean isEqual(XMLValue xmlOne, XMLValue xmlTwo) {
+    public static boolean isEqual(BXML xmlOne, BXML xmlTwo) {
         return xmlOne.equals(xmlTwo);
     }
 

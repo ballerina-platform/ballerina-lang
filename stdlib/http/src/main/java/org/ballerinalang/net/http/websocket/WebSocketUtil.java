@@ -30,7 +30,6 @@ import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.services.ErrorHandlerUtils;
-import io.ballerina.jvm.values.MapValue;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CodecException;
 import io.netty.handler.codec.TooLongFrameException;
@@ -199,7 +198,7 @@ public class WebSocketUtil {
     }
 
     public static String[] findNegotiableSubProtocols(BMap<BString, Object> configs) {
-        return configs.getArrayValue(WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS).getStringArray();
+        return configs.getBArray(WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS).getStringArray();
     }
 
     static String getErrorMessage(Throwable err) {
@@ -401,7 +400,7 @@ public class WebSocketUtil {
     private static void waitForHandshake(BObject webSocketClient, CountDownLatch countDownLatch,
                                          WebSocketService wsService) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        long timeout = WebSocketUtil.findTimeoutInSeconds((MapValue<BString, Object>) webSocketClient.getMapValue(
+        long timeout = WebSocketUtil.findTimeoutInSeconds((BMap<BString, Object>) webSocketClient.getMapValue(
                 CLIENT_ENDPOINT_CONFIG), HANDSHAKE_TIME_OUT, 300);
         try {
             if (!countDownLatch.await(timeout, TimeUnit.SECONDS)) {
@@ -460,7 +459,7 @@ public class WebSocketUtil {
         return interval;
     }
 
-    public static int getIntValue(MapValue<BString, Object> configs, BString key, int defaultValue) {
+    public static int getIntValue(BMap<BString, Object> configs, BString key, int defaultValue) {
         int value = Math.toIntExact(configs.getIntValue(key));
         if (value < 0) {
             logger.warn("The value set for `{}` needs to be great than than -1. The `{}` value is set to {}", key, key,
@@ -476,7 +475,7 @@ public class WebSocketUtil {
         clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina
         clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        MapValue<BString, Object> headerValues = (MapValue<BString, Object>) clientEndpointConfig.getMapValue(
+        BMap<BString, Object> headerValues = (BMap<BString, Object>) clientEndpointConfig.getMapValue(
                 WebSocketConstants.CLIENT_CUSTOM_HEADERS_CONFIG);
         if (headerValues != null) {
             clientConnectorConfig.addHeaders(getCustomHeaders(headerValues));
@@ -490,8 +489,8 @@ public class WebSocketUtil {
 
         clientConnectorConfig.setMaxFrameSize(findMaxFrameSize(clientEndpointConfig));
 
-        MapValue<BString, Object> secureSocket =
-                (MapValue<BString, Object>) clientEndpointConfig.getMapValue(
+        BMap<BString, Object> secureSocket =
+                (BMap<BString, Object>) clientEndpointConfig.getMapValue(
                         HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(clientConnectorConfig, secureSocket);
@@ -502,7 +501,7 @@ public class WebSocketUtil {
                 clientEndpointConfig.getBooleanValue(WebSocketConstants.COMPRESSION_ENABLED_CONFIG));
     }
 
-    private static Map<String, String> getCustomHeaders(MapValue<BString, Object> headers) {
+    private static Map<String, String> getCustomHeaders(BMap<BString, Object> headers) {
         Map<String, String> customHeaders = new HashMap<>();
         headers.entrySet().forEach(
                 entry -> customHeaders.put(entry.getKey().getValue(), headers.get(entry.getKey()).toString())

@@ -20,10 +20,10 @@ package org.ballerinalang.langlib.array;
 
 import io.ballerina.jvm.TypeChecker;
 import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.utils.GetFunction;
+import io.ballerina.jvm.api.values.BArray;
+import org.ballerinalang.langlib.array.utils.GetFunction;
 
-import static io.ballerina.jvm.values.utils.ArrayUtils.getElementAccessFunction;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessFunction;
 
 /**
  * Native implementation of lang.array:indexOf((anydata|error)[], anydata|error, int).
@@ -39,7 +39,7 @@ import static io.ballerina.jvm.values.utils.ArrayUtils.getElementAccessFunction;
 //)
 public class IndexOf {
 
-    public static Object indexOf(ArrayValue arr, Object val, long startIndex) {
+    public static Object indexOf(BArray arr, Object val, long startIndex) {
         Type arrType = arr.getType();
         int size = arr.size();
         GetFunction getFn = getElementAccessFunction(arrType, "indexOf()");

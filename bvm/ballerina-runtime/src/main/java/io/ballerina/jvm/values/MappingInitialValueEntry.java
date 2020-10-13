@@ -18,14 +18,15 @@
 
 package io.ballerina.jvm.values;
 
-import io.ballerina.jvm.api.values.BInitialValueEntry;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BMapInitialValueEntry;
 
 /**
  * Represents an initial value entry in a mapping constructor expression.
  *
  * @since 1.3.0
  */
-public abstract class MappingInitialValueEntry implements BInitialValueEntry {
+public abstract class MappingInitialValueEntry implements BMapInitialValueEntry {
 
     public boolean isKeyValueEntry() {
         return true;
@@ -54,10 +55,10 @@ public abstract class MappingInitialValueEntry implements BInitialValueEntry {
      */
     public static class SpreadFieldEntry extends MappingInitialValueEntry {
 
-        public MapValue values;
+        public BMap values;
 
-        public SpreadFieldEntry(Object mappingValue) {
-            this.values = (MapValue) mappingValue;
+        public SpreadFieldEntry(BMap mappingValue) {
+            this.values = mappingValue;
         }
 
         @Override

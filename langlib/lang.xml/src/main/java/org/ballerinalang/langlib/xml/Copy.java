@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.values.XMLValue;
 
 import java.util.HashMap;
 
@@ -37,9 +37,9 @@ public class Copy {
 
     private static final String OPERATION = "copy xml";
 
-    public static XMLValue copy(Strand strand, XMLValue xml) {
+    public static BXML copy(Strand strand, BXML xml) {
         try {
-            return (XMLValue) xml.copy(new HashMap<>());
+            return (BXML) xml.copy(new HashMap<>());
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

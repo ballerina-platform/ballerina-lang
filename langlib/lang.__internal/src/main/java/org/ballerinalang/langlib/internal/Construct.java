@@ -18,10 +18,11 @@
 
 package org.ballerinalang.langlib.internal;
 
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BStream;
+import io.ballerina.jvm.api.values.BTypedesc;
 import io.ballerina.jvm.types.BStreamType;
-import io.ballerina.jvm.values.ObjectValue;
-import io.ballerina.jvm.values.StreamValue;
-import io.ballerina.jvm.values.TypedescValue;
 
 /**
  * Native implementation of lang.internal:construct(typeDesc, iterator).
@@ -38,7 +39,7 @@ import io.ballerina.jvm.values.TypedescValue;
 //)
 public class Construct {
 
-    public static StreamValue construct(TypedescValue td, ObjectValue iteratorObj) {
-        return new StreamValue(new BStreamType(td.getDescribingType()), iteratorObj);
+    public static BStream construct(BTypedesc td, BObject iteratorObj) {
+        return BValueCreator.createStreamValue(new BStreamType(td.getDescribingType()), iteratorObj);
     }
 }

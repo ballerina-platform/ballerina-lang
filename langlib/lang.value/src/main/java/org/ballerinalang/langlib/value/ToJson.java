@@ -20,23 +20,22 @@ package org.ballerinalang.langlib.value;
 import io.ballerina.jvm.JSONUtils;
 import io.ballerina.jvm.TypeChecker;
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BRefValue;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTable;
 import io.ballerina.jvm.commons.TypeValuePair;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BMapType;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
 import io.ballerina.jvm.util.exceptions.RuntimeErrors;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.RefValue;
-import io.ballerina.jvm.values.TableValueImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +80,7 @@ public class ToJson {
         if (unresolvedValues.contains(typeValuePair)) {
             throw new BallerinaException(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR.getValue(),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE,
-                            ((RefValue) value).getType()).getValue());
+                            ((BRefValue) value).getType()).getValue());
         }
 
         unresolvedValues.add(typeValuePair);
@@ -97,18 +96,18 @@ public class ToJson {
                 break;
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
-                newValue = convertArrayToJson((ArrayValue) value, unresolvedValues);
+                newValue = convertArrayToJson((BArray) value, unresolvedValues);
                 break;
             case TypeTags.TABLE_TAG:
                 try {
-                    newValue = JSONUtils.toJSON((TableValueImpl) value);
+                    newValue = JSONUtils.toJSON((BTable) value);
                 } catch (Exception e) {
                     throw createConversionError(value, jsonType, e.getMessage());
                 }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
-                newValue = convertMapToJson((MapValue<?, ?>) value, unresolvedValues);
+                newValue = convertMapToJson((BMap<?, ?>) value, unresolvedValues);
                 break;
             case TypeTags.ERROR_TAG:
             default:
@@ -119,8 +118,8 @@ public class ToJson {
         return newValue;
     }
 
-    private static Object convertMapToJson(MapValue<?, ?> map, List<TypeValuePair> unresolvedValues) {
-        MapValueImpl<BString, Object> newMap = new MapValueImpl<>(new BMapType(Types.TYPE_JSON));
+    private static Object convertMapToJson(BMap<?, ?> map, List<TypeValuePair> unresolvedValues) {
+        BMap<BString, Object> newMap = BValueCreator.createMapValue(new BMapType(Types.TYPE_JSON));
         for (Map.Entry entry : map.entrySet()) {
             Object newValue = convert(entry.getValue(), unresolvedValues);
             newMap.put(BStringUtils.fromString(entry.getKey().toString()), newValue);
@@ -128,8 +127,8 @@ public class ToJson {
         return newMap;
     }
 
-    private static Object convertArrayToJson(ArrayValue array, List<TypeValuePair> unresolvedValues) {
-        ArrayValueImpl newArray = new ArrayValueImpl((BArrayType) Types.TYPE_JSON_ARRAY);
+    private static Object convertArrayToJson(BArray array, List<TypeValuePair> unresolvedValues) {
+        BArray newArray = BValueCreator.createArrayValue((BArrayType) Types.TYPE_JSON_ARRAY);
         for (int i = 0; i < array.size(); i++) {
             Object newValue = convert(array.get(i), unresolvedValues);
             newArray.add(i, newValue);

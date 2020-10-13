@@ -19,11 +19,11 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ErrorValue;
 import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
 import org.ballerinalang.stdlib.io.channels.BlobChannel;
 import org.ballerinalang.stdlib.io.channels.BlobIOChannel;
@@ -113,7 +113,7 @@ public class ByteChannelUtils extends AbstractNativeChannel {
         return null;
     }
 
-    public static Object write(BObject channel, ArrayValue content, long offset) {
+    public static Object write(BObject channel, BArray content, long offset) {
         Channel byteChannel = (Channel) channel.getNativeData(BYTE_CHANNEL_NAME);
         ByteBuffer writeBuffer = ByteBuffer.wrap(content.getBytes());
         writeBuffer.position((int) offset);
@@ -131,7 +131,7 @@ public class ByteChannelUtils extends AbstractNativeChannel {
             channel = createChannel(inFlow(pathUrl.getValue()));
         } catch (BallerinaIOException e) {
             channel = IOUtils.createError(e);
-        } catch (ErrorValue e) {
+        } catch (BError e) {
             return e;
         }
         return channel;
@@ -142,12 +142,12 @@ public class ByteChannelUtils extends AbstractNativeChannel {
             return createChannel(inFlow(pathUrl.getValue(), accessMode));
         } catch (BallerinaIOException | BallerinaException e) {
             return IOUtils.createError(e);
-        } catch (ErrorValue e) {
+        } catch (BError e) {
             return e;
         }
     }
 
-    public static Object createReadableChannel(ArrayValue content) {
+    public static Object createReadableChannel(BArray content) {
         try {
             Channel channel = inFlow(content);
             return createChannel(channel);
@@ -175,14 +175,14 @@ public class ByteChannelUtils extends AbstractNativeChannel {
         return new FileIOChannel(fileChannel);
     }
 
-    private static Channel inFlow(ArrayValue contentArr) {
+    private static Channel inFlow(BArray contentArr) {
         byte[] content = shrink(contentArr);
         ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
         ReadableByteChannel readableByteChannel = Channels.newChannel(contentStream);
         return new BlobIOChannel(new BlobChannel(readableByteChannel));
     }
 
-    private static byte[] shrink(ArrayValue array) {
+    private static byte[] shrink(BArray array) {
         int contentLength = array.size();
         byte[] content = new byte[contentLength];
         System.arraycopy(array.getBytes(), 0, content, 0, contentLength);

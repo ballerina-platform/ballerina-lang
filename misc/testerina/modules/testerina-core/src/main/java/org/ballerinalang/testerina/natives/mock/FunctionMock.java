@@ -4,14 +4,13 @@ import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BExecutor;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BObject;
+import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
 import io.ballerina.jvm.types.BRecordType;
-import io.ballerina.jvm.values.AbstractObjectValue;
-import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.StringValue;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -33,7 +32,7 @@ import static org.ballerinalang.testerina.natives.mock.MockConstants.MOCK_STRAND
  */
 public class FunctionMock {
 
-    public static ErrorValue thenReturn(BObject caseObj) {
+    public static BError thenReturn(BObject caseObj) {
         BObject mockFunctionObj = caseObj.getObjectValue(BStringUtils.fromString("mockFuncObj"));
         BArray args = caseObj.getArrayValue(BStringUtils.fromString("args"));
         Object returnVal = caseObj.get(BStringUtils.fromString("returnValue"));
@@ -52,7 +51,7 @@ public class FunctionMock {
         for (String caseId : caseIds) {
             if (MockRegistry.getInstance().hasCase(caseId)) {
                 returnVal = MockRegistry.getInstance().getReturnValue(caseId);
-                if (returnVal instanceof StringValue) {
+                if (returnVal instanceof BString) {
                     if (returnVal.toString().contains(MockConstants.FUNCTION_CALL_PLACEHOLDER)) {
                         return callFunction(originalFunction, originalFunctionPackage, returnVal.toString(), args);
                     } else if (returnVal.toString().equals(MockConstants.FUNCTION_CALLORIGINAL_PLACEHOLDER)) {
@@ -227,7 +226,7 @@ public class FunctionMock {
         // add case for function with ANY specified for objects and records
         for (Object arg: args) {
             caseId.append("-");
-            if (arg instanceof AbstractObjectValue || arg instanceof  BRecordType) {
+            if (arg instanceof BObject || arg instanceof  BRecordType) {
                 caseId.append(MockRegistry.ANY);
             } else {
                 caseId.append(arg);

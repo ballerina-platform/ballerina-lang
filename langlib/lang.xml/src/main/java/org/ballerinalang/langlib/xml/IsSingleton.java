@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Check whether the XML sequence contains only a single element.
@@ -37,7 +37,7 @@ public class IsSingleton {
 
     private static final String OPERATION = "check xml is singleton";
 
-    public static boolean isSingleton(Strand strand, XMLValue xml) {
+    public static boolean isSingleton(Strand strand, BXML xml) {
         try {
             return xml.isSingleton();
         } catch (Throwable e) {

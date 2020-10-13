@@ -18,15 +18,16 @@
 
 package org.ballerinalang.langlib.map;
 
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BFunctionPointer;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.runtime.AsyncUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
 import io.ballerina.jvm.types.BFunctionType;
 import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.MapValueImpl;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -50,9 +51,9 @@ public class Map {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
                                                                       MAP_VERSION, "map");
 
-    public static MapValue map(MapValue<?, ?> m, FPValue<Object, Object> func) {
+    public static BMap map(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
         BMapType newMapType = new BMapType(((BFunctionType) func.getType()).retType);
-        MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
+        BMap<BString, Object> newMap = BValueCreator.createMapValue(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
@@ -61,7 +62,7 @@ public class Map {
                                                        () -> new Object[]{parentStrand,
                                                                m.get(m.getKeys()[index.incrementAndGet()]), true},
                                                        result -> newMap
-                                                               .put(m.getKeys()[index.get()], result),
+                                                               .put((BString) m.getKeys()[index.get()], result),
                                                        () -> newMap, Scheduler.getStrand().scheduler);
         return newMap;
     }

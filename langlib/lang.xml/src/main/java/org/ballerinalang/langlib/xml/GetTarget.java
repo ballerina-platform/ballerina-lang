@@ -17,12 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.jvm.XMLValueUtil;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
 import io.ballerina.jvm.util.exceptions.RuntimeErrors;
-import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Create XML processing instruction.
@@ -39,7 +38,7 @@ import io.ballerina.jvm.values.XMLValue;
 //)
 public class GetTarget {
 
-    public static BString getTarget(XMLValue xmlValue) {
+    public static BString getTarget(BXML xmlValue) {
         if (!IsProcessingInstruction.isProcessingInstruction(xmlValue)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,
                     "getTarget", "processing instruction");

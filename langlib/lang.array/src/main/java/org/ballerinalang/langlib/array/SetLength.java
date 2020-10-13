@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.api.values.BArray;
 
 /**
  * Native implementation of lang.array:setLength((any|error)[], int).
@@ -32,7 +32,7 @@ import io.ballerina.jvm.values.ArrayValue;
 //)
 public class SetLength {
 
-    public static void setLength(ArrayValue arr, long i) {
+    public static void setLength(BArray arr, long i) {
         arr.setLength(i);
     }
 }

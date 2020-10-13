@@ -3,9 +3,8 @@ package org.ballerinalang.nativeimpl.llvm;
 import io.ballerina.jvm.BallerinaValues;
 import io.ballerina.jvm.api.runtime.Module;
 import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.MapValueImpl;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BMap;
 import org.bytedeco.javacpp.Pointer;
 
 /**
@@ -14,34 +13,34 @@ import org.bytedeco.javacpp.Pointer;
 public class FFIUtil {
     private static final String NATIVE_KEY = "native";
 
-    public static MapValue<String, Object> newRecord() {
-        return new MapValueImpl<String, Object>();
+    public static BMap<String, Object> newRecord() {
+        return new BMap<String, Object>();
     }
 
-    public static MapValue<String, Object> newRecord(Type type) {
-        return new MapValueImpl<String, Object>(type);
+    public static BMap<String, Object> newRecord(Type type) {
+        return new BMap<String, Object>(type);
     }
 
-    public static MapValue<String, Object> newRecord(Module packageObj, String structName) {
+    public static BMap<String, Object> newRecord(Module packageObj, String structName) {
         return BallerinaValues.createRecordValue(packageObj, structName);
     }
 
-    public static Object getRecodeArgumentNative(MapValue<String, Object> value) {
+    public static Object getRecodeArgumentNative(BMap<String, Object> value) {
         return value.getNativeData(NATIVE_KEY);
     }
 
-    public static Pointer[] getRecodeArrayArgumentNative(ArrayValue value) {
+    public static Pointer[] getRecodeArrayArgumentNative(BArray value) {
         Pointer[] objectArray = new Pointer[value.size()];
         for (int counter = 0; counter < value.size(); counter++) {
-            MapValue<String, Object> partition = (MapValue<String, Object>) value.getRefValue(counter);
+            BMap<String, Object> partition = (BMap<String, Object>) value.getRefValue(counter);
             Pointer object = (Pointer) partition.getNativeData(NATIVE_KEY);
             objectArray[counter] = object;
         }
         return objectArray;
     }
 
-    public static void addNativeToRecode(Object module, MapValue<String, Object> mapValue) {
-        mapValue.addNativeData(NATIVE_KEY, module);
+    public static void addNativeToRecode(Object module, BMap<String, Object> BMap) {
+        BMap.addNativeData(NATIVE_KEY, module);
     }
 
 }

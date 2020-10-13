@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.internal;
 
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
-import io.ballerina.jvm.values.XMLValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ public class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
 
-    public static XMLValue selectDescendants(XMLValue xml, BString[] qnames) {
+    public static BXML selectDescendants(BXML xml, BString[] qnames) {
         try {
             List<String> qnameList = new ArrayList<>();
             int size = qnames.length;
@@ -47,7 +47,7 @@ public class SelectDescendants {
                 }
                 qnameList.add(strQname);
             }
-            return (XMLValue) xml.descendants(qnameList);
+            return (BXML) xml.descendants(qnameList);
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

@@ -18,14 +18,13 @@
 
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BFunctionPointer;
 import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.runtime.AsyncUtils;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.XMLSequence;
-import io.ballerina.jvm.values.XMLValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,17 +52,17 @@ public class Filter {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
                                                                       XML_VERSION, "filter");
 
-    public static XMLValue filter(XMLValue x, FPValue<Object, Boolean> func) {
+    public static BXML filter(BXML x, BFunctionPointer<Object, Boolean> func) {
         if (x.isSingleton()) {
             Object[] args = new Object[]{Scheduler.getStrand(), x, true};
             func.asyncCall(args,
                       result -> {
                           if ((Boolean) result) {
-                              return new XMLSequence(x);
+                              return BValueCreator.createXMLSequence(x);
                           }
-                          return new XMLSequence();
+                          return BValueCreator.createXMLSequence();
                       }, METADATA);
-            return new XMLSequence();
+            return BValueCreator.createXMLSequence();
         }
 
         List<BXML> elements = new ArrayList<>();
@@ -78,9 +77,9 @@ public class Filter {
                                                            if ((Boolean) result) {
                                                                elements.add(x.getItem(index.get()));
                                                            }
-                                                       }, () -> new XMLSequence(elements),
+                                                       }, () -> BValueCreator.createXMLSequence(elements),
                                                        Scheduler.getStrand().scheduler);
 
-        return new XMLSequence(elements);
+        return BValueCreator.createXMLSequence(elements);
     }
 }

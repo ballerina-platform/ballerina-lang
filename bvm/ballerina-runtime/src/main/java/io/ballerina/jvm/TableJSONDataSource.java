@@ -21,7 +21,9 @@ import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BIterator;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTable;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BField;
 import io.ballerina.jvm.types.BMapType;
@@ -30,10 +32,8 @@ import io.ballerina.jvm.util.exceptions.BallerinaException;
 import io.ballerina.jvm.values.ArrayValue;
 import io.ballerina.jvm.values.ArrayValueImpl;
 import io.ballerina.jvm.values.DecimalValue;
-import io.ballerina.jvm.values.IteratorValue;
 import io.ballerina.jvm.values.MapValue;
 import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.TableValueImpl;
 import io.ballerina.jvm.values.TupleValueImpl;
 
 import java.io.IOException;
@@ -48,14 +48,14 @@ import java.util.Map;
  */
 public class TableJSONDataSource implements JSONDataSource {
 
-    private TableValueImpl tableValue;
+    private BTable tableValue;
     private JSONObjectGenerator objGen;
 
-    TableJSONDataSource(TableValueImpl tableValue) {
+    TableJSONDataSource(BTable tableValue) {
         this(tableValue, new DefaultJSONObjectGenerator());
     }
 
-    private TableJSONDataSource(TableValueImpl tableValue, JSONObjectGenerator objGen) {
+    private TableJSONDataSource(BTable tableValue, JSONObjectGenerator objGen) {
         this.tableValue = tableValue;
         this.objGen = objGen;
     }
@@ -82,7 +82,7 @@ public class TableJSONDataSource implements JSONDataSource {
     @Override
     public Object build() {
         ArrayValue values = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
-        IteratorValue itr = this.tableValue.getIterator();
+        BIterator itr = this.tableValue.getIterator();
         while (itr.hasNext()) {
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
             MapValueImpl record = ((MapValueImpl) tupleValue.get(0));

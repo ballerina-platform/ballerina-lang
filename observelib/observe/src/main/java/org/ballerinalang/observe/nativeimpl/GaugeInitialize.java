@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.observability.metrics.Gauge;
 import io.ballerina.jvm.observability.metrics.StatisticConfig;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.ObjectValue;
 
 import java.time.Duration;
 
@@ -34,19 +34,19 @@ import java.time.Duration;
 
 public class GaugeInitialize {
 
-    public static void initialize(ObjectValue guage) {
-        ArrayValue summaryConfigs = (ArrayValue) guage.get(ObserveNativeImplConstants.STATISTICS_CONFIG_FIELD);
+    public static void initialize(BObject guage) {
+        BArray summaryConfigs = (BArray) guage.get(ObserveNativeImplConstants.STATISTICS_CONFIG_FIELD);
         Gauge.Builder gaugeBuilder = Gauge.builder(guage.get(ObserveNativeImplConstants.NAME_FIELD).toString())
                 .description(guage.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).toString())
-                .tags(Utils.toStringMap((MapValue<BString, ?>) guage.get(ObserveNativeImplConstants.TAGS_FIELD)));
+                .tags(Utils.toStringMap((BMap<BString, ?>) guage.get(ObserveNativeImplConstants.TAGS_FIELD)));
         if (summaryConfigs != null && summaryConfigs.size() > 0) {
             for (int i = 0; i < summaryConfigs.size(); i++) {
-                MapValue<BString, Object> summaryConfigStruct = (MapValue<BString, Object>) summaryConfigs.get(i);
+                BMap<BString, Object> summaryConfigStruct = (BMap<BString, Object>) summaryConfigs.get(i);
                 StatisticConfig.Builder statisticBuilder = StatisticConfig.builder().expiry(
                         Duration.ofMillis(((long) summaryConfigStruct.get(ObserveNativeImplConstants.EXPIRY_FIELD))))
                         .buckets(((long) summaryConfigStruct.get(ObserveNativeImplConstants.BUCKETS_FIELD)));
-                ArrayValue bFloatArray =
-                        (ArrayValue) summaryConfigStruct.get(ObserveNativeImplConstants.PERCENTILES_FIELD);
+                BArray bFloatArray =
+                        (BArray) summaryConfigStruct.get(ObserveNativeImplConstants.PERCENTILES_FIELD);
                 double[] percentiles = new double[(int) bFloatArray.size()];
                 for (int j = 0; j < bFloatArray.size(); j++) {
                     percentiles[j] = bFloatArray.getFloat(j);

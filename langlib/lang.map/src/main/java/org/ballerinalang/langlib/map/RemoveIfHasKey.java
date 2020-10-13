@@ -20,11 +20,11 @@ package org.ballerinalang.langlib.map;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.MapValue;
 
 import static io.ballerina.jvm.MapUtils.checkIsMapOnlyOperation;
-import static io.ballerina.jvm.MapUtils.validateRequiredFieldForRecord;
+import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
 
 /**
  * Extern function to remove element from the map if key exists.
@@ -34,7 +34,7 @@ import static io.ballerina.jvm.MapUtils.validateRequiredFieldForRecord;
  */
 public class RemoveIfHasKey {
 
-    public static Object removeIfHasKey(MapValue<?, ?> m, BString k) {
+    public static Object removeIfHasKey(BMap<?, ?> m, BString k) {
         String op = "removeIfHasKey()";
 
         checkIsMapOnlyOperation(m.getType(), op);

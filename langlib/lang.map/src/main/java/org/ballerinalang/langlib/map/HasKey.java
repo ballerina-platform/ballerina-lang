@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.map;
 
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.MapValue;
 
 /**
  * Extern function to check existence of key.
@@ -34,7 +34,7 @@ import io.ballerina.jvm.values.MapValue;
 public class HasKey {
 
     @Deprecated
-    public static boolean hasKey(MapValue<?, ?> m, BString k) {
+    public static boolean hasKey(BMap<?, ?> m, BString k) {
         return m.containsKey(k);
     }
 }

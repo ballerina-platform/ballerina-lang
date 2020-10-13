@@ -19,8 +19,8 @@ package org.ballerinalang.observe.nativeimpl;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.observability.metrics.Gauge;
-import io.ballerina.jvm.values.ObjectValue;
 
 /**
  * This is the register function native implementation of the Gauge object.
@@ -30,7 +30,7 @@ import io.ballerina.jvm.values.ObjectValue;
 
 public class GaugeRegister {
 
-    public static Object register(ObjectValue guageObj) {
+    public static Object register(BObject guageObj) {
         try {
             Gauge gauge = (Gauge) guageObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
             Gauge registeredCounter = gauge.register();

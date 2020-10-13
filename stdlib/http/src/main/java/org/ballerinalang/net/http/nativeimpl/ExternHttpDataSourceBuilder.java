@@ -23,7 +23,6 @@ import io.ballerina.jvm.api.BalEnv;
 import io.ballerina.jvm.api.BalFuture;
 import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.values.ErrorValue;
 import org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder;
 import org.ballerinalang.mime.nativeimpl.MimeEntityBody;
 import org.ballerinalang.mime.util.EntityBodyChannel;
@@ -196,7 +195,7 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
     }
 
     private static void notifyError(BalFuture future, Exception exception, String type) {
-        BError error = (ErrorValue) createError(exception, type);
+        BError error = (BError) createError(exception, type);
         future.complete(error);
     }
 

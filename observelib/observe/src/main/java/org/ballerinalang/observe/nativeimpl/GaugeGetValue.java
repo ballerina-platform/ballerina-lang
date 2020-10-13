@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
+import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.observability.metrics.Gauge;
-import io.ballerina.jvm.values.ObjectValue;
 
 /**
  * This is the native getValue function implementation of the Gauge object.
@@ -28,7 +28,7 @@ import io.ballerina.jvm.values.ObjectValue;
 
 public class GaugeGetValue {
 
-    public static double getValue(ObjectValue guage) {
+    public static double getValue(BObject guage) {
         Gauge counter = (Gauge) guage.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         return counter.getValue();
     }

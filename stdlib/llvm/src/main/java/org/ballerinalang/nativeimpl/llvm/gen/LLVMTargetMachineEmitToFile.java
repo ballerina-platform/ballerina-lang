@@ -16,9 +16,9 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -53,8 +53,8 @@ import static org.bytedeco.llvm.global.LLVM.LLVMTargetMachineEmitToFile;
 )
 public class LLVMTargetMachineEmitToFile {
 
-    public static long llvmTargetMachineEmitToFile(Strand strand, MapValue<String, Object> arg0, MapValue<String,
-            Object> arg1, ArrayValue arg2, long arg3, ArrayValue arg4) {
+    public static long llvmTargetMachineEmitToFile(Strand strand, BMap<String, Object> arg0, BMap<String,
+            Object> arg1, BArray arg2, long arg3, BArray arg4) {
 
         LLVMTargetMachineRef t = (LLVMTargetMachineRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVMModuleRef m = (LLVMModuleRef) FFIUtil.getRecodeArgumentNative(arg1);

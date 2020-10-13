@@ -130,7 +130,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BINITIAL_VALUE_ENTRY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BXML_QNAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_UTILS;
@@ -154,7 +155,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTIL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -1286,7 +1287,7 @@ public class JvmInstructionGen {
         this.loadVar(variableDcl);
 
         mv.visitMethodInsn(INVOKESPECIAL, MAPPING_INITIAL_SPREAD_FIELD_ENTRY, JVM_INIT_METHOD,
-                           String.format("(L%s;)V", OBJECT), false);
+                           String.format("(L%s;)V", B_MAP), false);
     }
 
     void generateMapStoreIns(BIRNonTerminator.FieldAccess mapStoreIns) {
@@ -1361,8 +1362,8 @@ public class JvmInstructionGen {
         this.loadVar(objectLoadIns.keyOp.variableDcl);
 
         // invoke get() method, and unbox if needed
-        this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "get",
-                                    String.format("(L%s;)L%s;", JvmConstants.B_STRING_VALUE, OBJECT), true);
+        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "get",
+                                String.format("(L%s;)L%s;", JvmConstants.B_STRING_VALUE, OBJECT), true);
         BType targetType = objectLoadIns.lhsOp.variableDcl.type;
         JvmCastGen.addUnboxInsn(this.mv, targetType);
 
@@ -1392,8 +1393,8 @@ public class JvmInstructionGen {
             return;
         }
 
-        this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "set",
-                                    String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), true);
+        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "set",
+                                String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), true);
     }
 
     void generateStringLoadIns(BIRNonTerminator.FieldAccess stringLoadIns) {
@@ -1699,7 +1700,7 @@ public class JvmInstructionGen {
         }
 
         this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
-                                String.format("(L%s;L%s;Z)L%s;", XML_QNAME, JvmConstants.B_STRING_VALUE, XML_VALUE),
+                                String.format("(L%s;L%s;Z)L%s;", B_XML_QNAME, JvmConstants.B_STRING_VALUE, XML_VALUE),
                                 false);
         this.storeToVar(newXMLElement.lhsOp.variableDcl);
     }
@@ -1795,7 +1796,7 @@ public class JvmInstructionGen {
 
         // invoke getAttribute() method
         this.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttribute",
-                String.format("(L%s;)L%s;", BXML_QNAME, STRING_VALUE), false);
+                                String.format("(L%s;)L%s;", B_XML_QNAME, STRING_VALUE), false);
 
         // store in the target reg
         BType targetType = xmlAttrStoreIns.lhsOp.variableDcl.type;
@@ -1814,7 +1815,7 @@ public class JvmInstructionGen {
         this.loadVar(xmlAttrStoreIns.rhsOp.variableDcl);
 
         // invoke setAttribute() method
-        String signature = String.format("(L%s;L%s;)V", BXML_QNAME, JvmConstants.B_STRING_VALUE);
+        String signature = String.format("(L%s;L%s;)V", B_XML_QNAME, JvmConstants.B_STRING_VALUE);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "setAttribute", signature, false);
     }
 

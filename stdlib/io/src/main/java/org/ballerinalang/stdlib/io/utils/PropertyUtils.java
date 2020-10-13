@@ -22,9 +22,9 @@ import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BMapInitialValueEntry;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.values.MappingInitialValueEntry;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,14 +75,13 @@ public class PropertyUtils {
         } else {
             readableProperties = propertiesMap.get(propertiesId);
         }
-        MappingInitialValueEntry.KeyValueEntry[] keyValues = new MappingInitialValueEntry
-                .KeyValueEntry[readableProperties.stringPropertyNames().size()];
+        BMapInitialValueEntry[] keyValues = new BMapInitialValueEntry[readableProperties.stringPropertyNames().size()];
         int i = 0;
         for (Enumeration<?> e = readableProperties.propertyNames(); e.hasMoreElements(); ) {
             String key = (String) e.nextElement();
             String value = readableProperties.getProperty(key);
-            MappingInitialValueEntry.KeyValueEntry keyValue = new MappingInitialValueEntry.KeyValueEntry(
-                    BStringUtils.fromString(key), BStringUtils.fromString(value));
+            BMapInitialValueEntry keyValue = BValueCreator.createKeyFieldEntry(BStringUtils.fromString(key),
+                                                                            BStringUtils.fromString(value));
             keyValues[i] = keyValue;
             i++;
         }

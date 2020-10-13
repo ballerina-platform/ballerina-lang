@@ -38,7 +38,7 @@ public isolated function fromString(string value) returns handle = @Method {
 public isolated function toString(handle value) returns string? = @Method {
     'class: "org.ballerinalang.langlib.java.ToString",
     name: "toString",
-    paramTypes: ["io.ballerina.jvm.values.HandleValue"]
+    paramTypes: ["io.ballerina.jvm.api.values.BHandle"]
 } external;
 
 # Returns `true` if this handle refers to Java null.

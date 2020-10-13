@@ -31,8 +31,6 @@ import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
 import io.ballerina.jvm.util.exceptions.RuntimeErrors;
 import io.ballerina.jvm.values.MapValue;
 
-import java.util.Map;
-
 import static io.ballerina.jvm.util.BLangConstants.MAP_LANG_LIB;
 import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
@@ -133,39 +131,5 @@ public class MapUtils {
             default:
                 throw createOpNotSupportedError(mapType, op);
         }
-    }
-
-    public static void validateRequiredFieldForRecord(MapValue<?, ?> m, String k) {
-        Type type = m.getType();
-        if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((BRecordType) type, k)) {
-            throw createOpNotSupportedErrorForRecord(type, k);
-        }
-    }
-
-    public static void validateRecord(MapValue<?, ?> m) {
-        Type type = m.getType();
-        if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            return;
-        }
-        Map<String, BField> fields = ((BRecordType) type).getFields();
-        for (String key : fields.keySet()) {
-            if (isRequiredField((BRecordType) type, key)) {
-                throw createOpNotSupportedErrorForRecord(type, key);
-            }
-        }
-    }
-
-    private static boolean isRequiredField(BRecordType type, String k) {
-        Map<String, BField> fields = type.getFields();
-        BField field = fields.get(k);
-
-        return (field != null && Flags.isFlagOn(field.flags, Flags.REQUIRED));
-    }
-
-    private static BError createOpNotSupportedErrorForRecord(Type type, String field) {
-        return BErrorCreator.createError(getModulePrefixedReason(
-                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), BStringUtils.fromString(
-                String.format("failed to remove field: '%s' is a required field in '%s'", field,
-                              type.getQualifiedName())));
     }
 }

@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.langlib.java;
 
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BHandle;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.HandleValue;
 
 /**
  * This class contains the implementation of the "fromString" ballerina function in ballerina/java module.
@@ -27,7 +28,7 @@ import io.ballerina.jvm.values.HandleValue;
  */
 public class FromString {
 
-    public static HandleValue fromString(BString strValue) {
-        return new HandleValue(strValue == null ? null : strValue.getValue());
+    public static BHandle fromString(BString strValue) {
+        return BValueCreator.createHandleValue(strValue == null ? null : strValue.getValue());
     }
 }

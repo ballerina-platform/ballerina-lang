@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import io.ballerina.jvm.values.DecimalValue;
+import io.ballerina.jvm.api.values.BDecimal;
 
 /**
  * Native implementation of lang.decimal:max(decimal, decimal...).
@@ -33,11 +33,11 @@ import io.ballerina.jvm.values.DecimalValue;
 //)
 public class Max {
 
-    public static DecimalValue max(DecimalValue n, DecimalValue[] ns) {
-        DecimalValue max = n;
+    public static BDecimal max(BDecimal n, BDecimal[] ns) {
+        BDecimal max = n;
         int size = ns.length;
         for (int i = 0; i < size; i++) {
-            DecimalValue current = ns[i];
+            BDecimal current = ns[i];
             max = current.value().compareTo(max.value()) >= 0 ? current : max;
         }
         return max;

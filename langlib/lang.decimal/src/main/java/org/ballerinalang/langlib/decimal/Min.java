@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import io.ballerina.jvm.values.DecimalValue;
+import io.ballerina.jvm.api.values.BDecimal;
 
 /**
  * Native implementation of lang.decimal:min(decimal, decimal...).
@@ -33,11 +33,11 @@ import io.ballerina.jvm.values.DecimalValue;
 //)
 public class Min {
 
-    public static DecimalValue min(DecimalValue n, DecimalValue[] ns) {
-        DecimalValue min = n;
+    public static BDecimal min(BDecimal n, BDecimal[] ns) {
+        BDecimal min = n;
         int size = ns.length;
         for (int i = 0; i < size; i++) {
-            DecimalValue current = ns[i];
+            BDecimal current = ns[i];
             min = current.value().compareTo(min.value()) <= 0 ? current : min;
         }
         return min;

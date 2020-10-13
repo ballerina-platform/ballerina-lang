@@ -23,7 +23,6 @@ import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.types.BMapType;
-import io.ballerina.jvm.values.ArrayValueImpl;
 import org.ballerinalang.core.model.util.JsonParser;
 import org.ballerinalang.core.model.util.XMLUtils;
 import org.ballerinalang.core.model.values.BMap;
@@ -166,7 +165,7 @@ public class MimeUtilityFunctionTest {
     @Test(enabled = false)
     public void testMimeBase64EncodeBlob() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
-        Object[] args = {new ArrayValueImpl("Hello Ballerina".getBytes())};
+        Object[] args = {BValueCreator.createArrayValue("Hello Ballerina".getBytes())};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64EncodeBlob", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
@@ -176,7 +175,7 @@ public class MimeUtilityFunctionTest {
     @Test(enabled = false)
     public void testMimeBase64DecodeBlob() {
         String expectedValue = "Hello Ballerina";
-        Object[] args = {new ArrayValueImpl("SGVsbG8gQmFsbGVyaW5h".getBytes())};
+        Object[] args = {BValueCreator.createArrayValue("SGVsbG8gQmFsbGVyaW5h".getBytes())};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64DecodeBlob", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
@@ -241,7 +240,7 @@ public class MimeUtilityFunctionTest {
     @Test(description = "Set byte array data to entity and get the content back from entity as a byte array")
     public void testGetAndSetByteArray() {
         String content = "ballerina";
-        Object[] args = {new ArrayValueImpl(content.getBytes())};
+        Object[] args = {BValueCreator.createArrayValue(content.getBytes())};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetByteArray", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), content);

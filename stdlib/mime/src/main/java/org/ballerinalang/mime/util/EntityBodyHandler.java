@@ -24,13 +24,12 @@ import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BObjectType;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ObjectValue;
-import io.ballerina.jvm.values.XMLValue;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
@@ -153,10 +152,10 @@ public class EntityBodyHandler {
      * @return Data source for binary data which is kept in memory
      * @throws IOException In case an error occurred while creating blob data source
      */
-    public static ArrayValue constructBlobDataSource(BObject entityObj) throws IOException {
+    public static BArray constructBlobDataSource(BObject entityObj) throws IOException {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
-            return (ArrayValue) BValueCreator.createArrayValue(new byte[0]);
+            return (BArray) BValueCreator.createArrayValue(new byte[0]);
         }
         try {
             return constructBlobDataSource(byteChannel.getInputStream());
@@ -171,7 +170,7 @@ public class EntityBodyHandler {
      * @param inputStream Represent the input stream
      * @return Data source for binary data which is kept in memory
      */
-    public static ArrayValue constructBlobDataSource(InputStream inputStream) {
+    public static BArray constructBlobDataSource(InputStream inputStream) {
         byte[] byteData;
         try {
             byteData = MimeUtil.getByteArray(inputStream);
@@ -179,7 +178,7 @@ public class EntityBodyHandler {
             throw BErrorCreator.createError(BStringUtils.fromString(("Error occurred while reading input stream :" +
                     ex.getMessage())));
         }
-        return (ArrayValue) BValueCreator.createArrayValue(byteData);
+        return (BArray) BValueCreator.createArrayValue(byteData);
     }
 
     /**
@@ -231,7 +230,7 @@ public class EntityBodyHandler {
      * @param entityObj Represent an entity object
      * @return BXML data source which is kept in memory
      */
-    public static XMLValue constructXmlDataSource(BObject entityObj) {
+    public static BXML constructXmlDataSource(BObject entityObj) {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
             throw BErrorCreator.createError(BStringUtils.fromString(("Empty xml payload")));
@@ -252,8 +251,8 @@ public class EntityBodyHandler {
      * @param inputStream  Represent the input stream
      * @return BXML data source which is kept in memory
      */
-    public static XMLValue constructXmlDataSource(BObject entityObj, InputStream inputStream) {
-        XMLValue xmlContent;
+    public static BXML constructXmlDataSource(BObject entityObj, InputStream inputStream) {
+        BXML xmlContent;
         String contentTypeValue = EntityHeaderHandler.getHeaderValue(entityObj, CONTENT_TYPE);
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
@@ -343,8 +342,8 @@ public class EntityBodyHandler {
     static void setPartsToTopLevelEntity(BObject entity, ArrayList<BObject> bodyParts) {
         if (!bodyParts.isEmpty()) {
             BObjectType typeOfBodyPart = bodyParts.get(FIRST_BODY_PART_INDEX).getType();
-            ObjectValue[] result = bodyParts.toArray(new ObjectValue[bodyParts.size()]);
-            ArrayValue partsArray = (ArrayValue) BValueCreator.createArrayValue(result, new BArrayType(typeOfBodyPart));
+            BObject[] result = bodyParts.toArray(new BObject[bodyParts.size()]);
+            BArray partsArray = (BArray) BValueCreator.createArrayValue(result, new BArrayType(typeOfBodyPart));
             entity.addNativeData(BODY_PARTS, partsArray);
         }
     }
@@ -405,9 +404,9 @@ public class EntityBodyHandler {
      * @param entityObj Represent a ballerina entity
      * @return An array of body parts
      */
-    public static ArrayValue getBodyPartArray(BObject entityObj) {
-        return entityObj.getNativeData(BODY_PARTS) != null ? (ArrayValue) entityObj.getNativeData(BODY_PARTS)
-                : (ArrayValue) BValueCreator.createArrayValue(mimeEntityArrayType, 0);
+    public static BArray getBodyPartArray(BObject entityObj) {
+        return entityObj.getNativeData(BODY_PARTS) != null ? (BArray) entityObj.getNativeData(BODY_PARTS)
+                : (BArray) BValueCreator.createArrayValue(mimeEntityArrayType, 0);
     }
 
     public static Channel getByteChannel(BObject entityObj) {

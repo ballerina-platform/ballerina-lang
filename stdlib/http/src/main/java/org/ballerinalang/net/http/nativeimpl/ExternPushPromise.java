@@ -20,11 +20,10 @@ package org.ballerinalang.net.http.nativeimpl;
 
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
@@ -52,23 +51,23 @@ public class ExternPushPromise {
         return BStringUtils.fromString(http2PushPromise.getHeader(headerName.getValue()));
     }
 
-    public static ArrayValue getHeaderNames(BObject pushPromiseObj) {
+    public static BArray getHeaderNames(BObject pushPromiseObj) {
         Http2PushPromise http2PushPromise =
                 HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
         Set<String> httpHeaderNames = http2PushPromise.getHttpRequest().headers().names();
         if (httpHeaderNames == null || httpHeaderNames.isEmpty()) {
-            return new ArrayValueImpl(new BString[0]);
+            return BValueCreator.createArrayValue(new BString[0]);
         }
         Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         distinctNames.addAll(httpHeaderNames);
-        return new ArrayValueImpl(BStringUtils.fromStringSet(distinctNames));
+        return BValueCreator.createArrayValue(BStringUtils.fromStringSet(distinctNames));
     }
 
-    public static ArrayValue getHeaders(BObject pushPromiseObj, BString headerName) {
+    public static BArray getHeaders(BObject pushPromiseObj, BString headerName) {
         Http2PushPromise http2PushPromise =
                 HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
         String[] headers = http2PushPromise.getHeaders(headerName.getValue());
-        return new ArrayValueImpl(BStringUtils.fromStringArray(headers));
+        return BValueCreator.createArrayValue(BStringUtils.fromStringArray(headers));
     }
 
     public static boolean hasHeader(BObject pushPromiseObj, BString headerName) {

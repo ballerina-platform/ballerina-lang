@@ -21,10 +21,10 @@ package org.ballerinalang.net.http;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.scheduling.Scheduler;
-import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
 import org.ballerinalang.net.http.websocket.server.WebSocketServicesRegistry;
@@ -147,9 +147,9 @@ public class HTTPServicesRegistry {
     }
 
     private BObject getUpgradeService(HttpResource upgradeToWebSocketResource) {
-        MapValue<BString, Object> resourceConfigAnnotation =
+        BMap<BString, Object> resourceConfigAnnotation =
                 HttpResource.getResourceConfigAnnotation(upgradeToWebSocketResource.getBalResource());
-        MapValue<BString, Object> webSocketConfig = (MapValue<BString, Object>) resourceConfigAnnotation.getMapValue(
+        BMap<BString, Object> webSocketConfig = (BMap<BString, Object>) resourceConfigAnnotation.getMapValue(
                 HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
         return (BObject) webSocketConfig.get(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
     }

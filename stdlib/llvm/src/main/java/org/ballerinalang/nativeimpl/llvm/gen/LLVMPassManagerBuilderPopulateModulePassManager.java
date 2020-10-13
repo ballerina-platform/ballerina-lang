@@ -16,8 +16,8 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,8 +41,8 @@ import static org.bytedeco.llvm.global.LLVM.LLVMPassManagerBuilderPopulateModule
         })
 public class LLVMPassManagerBuilderPopulateModulePassManager {
 
-    public static void llvmPassManagerBuilderPopulateModulePassManager(Strand strand, MapValue<String, Object> arg0,
-                                                                       MapValue<String, Object> arg1) {
+    public static void llvmPassManagerBuilderPopulateModulePassManager(Strand strand, BMap<String, Object> arg0,
+                                                                       BMap<String, Object> arg1) {
 
         LLVMPassManagerBuilderRef pmb = (LLVMPassManagerBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVMPassManagerRef pm = (LLVMPassManagerRef) FFIUtil.getRecodeArgumentNative(arg1);

@@ -34,4 +34,6 @@ public interface BStream extends BRefValue {
      * @return constrained type
      */
     Type getConstraintType();
+
+    Object getIteratorObj();
 }

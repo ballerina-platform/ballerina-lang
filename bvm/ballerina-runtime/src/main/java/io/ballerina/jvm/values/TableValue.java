@@ -18,7 +18,7 @@
 package io.ballerina.jvm.values;
 
 import io.ballerina.jvm.api.types.Type;
-import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BTable;
 
 /**
  * <p>
@@ -32,7 +32,7 @@ import io.ballerina.jvm.api.values.BMap;
  * @param <V> the type of mapped values
  * @since 1.3.0
  */
-public interface TableValue<K, V> extends RefValue, CollectionValue, BMap<K, V> {
+public interface TableValue<K, V> extends RefValue, CollectionValue, BTable<K, V> {
 
     void add(V data);
 

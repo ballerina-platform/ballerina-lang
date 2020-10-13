@@ -19,9 +19,9 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
 import io.ballerina.jvm.util.exceptions.RuntimeErrors;
-import io.ballerina.jvm.values.XMLValue;
 
 /**
  * Returns the string giving the expanded name of provided xml element.
@@ -31,7 +31,7 @@ import io.ballerina.jvm.values.XMLValue;
 //@BallerinaFunction(
 //        orgName = "ballerina", packageName = "lang.xml",
 //        functionName = "getName",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
+//        args = {@Argument(name = "BXML", type = TypeKind.XML)},
 //        returnType = {@ReturnType(type = TypeKind.STRING)},
 //        isPublic = true
 //)
@@ -39,7 +39,7 @@ public class GetName {
 
     private static final String OPERATION = "get element name in xml";
 
-    public static BString getName(XMLValue xmlVal) {
+    public static BString getName(BXML xmlVal) {
         if (!IsElement.isElement(xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getName", "element");
         }

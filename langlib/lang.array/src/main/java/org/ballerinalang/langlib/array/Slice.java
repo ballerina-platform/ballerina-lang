@@ -18,20 +18,20 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BTupleType;
 import io.ballerina.jvm.types.BUnionType;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
 import io.ballerina.jvm.util.exceptions.RuntimeErrors;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.ballerina.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.array:slice((any|error)[]).
@@ -47,7 +47,7 @@ import static io.ballerina.jvm.values.utils.ArrayUtils.createOpNotSupportedError
 //)
 public class Slice {
 
-    public static ArrayValue slice(ArrayValue arr, long startIndex, long endIndex) {
+    public static BArray slice(BArray arr, long startIndex, long endIndex) {
         int size = arr.size();
 
         if (startIndex < 0) {
@@ -67,11 +67,11 @@ public class Slice {
         }
 
         Type arrType = arr.getType();
-        ArrayValue slicedArr;
+        BArray slicedArr;
 
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                slicedArr = ((ArrayValueImpl) arr).slice(startIndex, endIndex);
+                slicedArr = ((BArray) arr).slice(startIndex, endIndex);
                 break;
             case TypeTags.TUPLE_TAG:
                 BTupleType tupleType = (BTupleType) arrType;
@@ -85,7 +85,7 @@ public class Slice {
 
                 BUnionType unionType = new BUnionType(memTypes);
                 BArrayType slicedArrType = new BArrayType(unionType, (int) (endIndex - startIndex));
-                slicedArr = new ArrayValueImpl(slicedArrType);
+                slicedArr = BValueCreator.createArrayValue(slicedArrType);
 
                 for (long i = startIndex, j = 0; i < endIndex; i++, j++) {
                     slicedArr.add(j, arr.getRefValue(i));

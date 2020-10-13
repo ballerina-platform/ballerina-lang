@@ -23,24 +23,25 @@ import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.Types;
 import io.ballerina.jvm.api.runtime.Module;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
+import io.ballerina.jvm.api.values.BError;
+import io.ballerina.jvm.api.values.BFuture;
+import io.ballerina.jvm.api.values.BLink;
 import io.ballerina.jvm.api.values.BMap;
+import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.types.AttachedFunction;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BField;
 import io.ballerina.jvm.types.BObjectType;
-import io.ballerina.jvm.values.AbstractObjectValue;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
-import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.FutureValue;
-import io.ballerina.jvm.values.ObjectValue;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
+import static io.ballerina.jvm.api.values.BError.CALL_STACK_ELEMENT;
 import static io.ballerina.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG_ID;
-import static io.ballerina.jvm.values.ErrorValue.CALL_STACK_ELEMENT;
 
 /**
  * Get the stackTrace of an error value.
@@ -49,7 +50,7 @@ import static io.ballerina.jvm.values.ErrorValue.CALL_STACK_ELEMENT;
  */
 public class StackTrace {
 
-    public static ObjectValue stackTrace(ErrorValue value) {
+    public static BObject stackTrace(BError value) {
 
         BObjectType callStackObjType = new BObjectType("CallStack", new Module("ballerina", "lang.error", null), 0);
         callStackObjType.setAttachedFunctions(new AttachedFunction[]{});
@@ -62,14 +63,14 @@ public class StackTrace {
         return callStack;
     }
 
-    private static ArrayValue getCallStackArray(StackTraceElement[] stackTrace) {
+    private static BArray getCallStackArray(StackTraceElement[] stackTrace) {
         Type recordType = BValueCreator
                 .createRecordValue(BALLERINA_LANG_ERROR_PKG_ID, CALL_STACK_ELEMENT).getType();
         Object[] array = new Object[stackTrace.length];
         for (int i = 0; i < stackTrace.length; i++) {
             array[i] = getStackFrame(stackTrace[i]);
         }
-        return new ArrayValueImpl(array, new BArrayType(recordType));
+        return BValueCreator.createArrayValue(array, new BArrayType(recordType));
     }
 
     static BMap<BString, Object> getStackFrame(StackTraceElement stackTraceElement) {
@@ -85,11 +86,14 @@ public class StackTrace {
     /**
      * Represent Ballerina call stack when the error is constructed.
      */
-    public static class CallStack extends AbstractObjectValue {
-        ArrayValue callStack;
+    public static class CallStack implements BObject {
+
+        BArray callStack;
+
+        private BObjectType type;
 
         public CallStack(BObjectType type) {
-            super(type);
+            this.type = type;
         }
 
         @Override
@@ -98,8 +102,23 @@ public class StackTrace {
         }
 
         @Override
-        public FutureValue start(Strand strand, String funcName, Object... args) {
+        public BFuture start(Strand strand, String funcName, Object... args) {
             throw BErrorCreator.createError(BStringUtils.fromString("No such field or method: " + funcName));
+        }
+
+        @Override
+        public String stringValue(BLink parent) {
+            return null;
+        }
+
+        @Override
+        public String expressionStringValue(BLink parent) {
+            return null;
+        }
+
+        @Override
+        public BObjectType getType() {
+            return type;
         }
 
         @Override
@@ -111,8 +130,68 @@ public class StackTrace {
         }
 
         @Override
+        public long getIntValue(BString fieldName) {
+            return 0;
+        }
+
+        @Override
+        public double getFloatValue(BString fieldName) {
+            return 0;
+        }
+
+        @Override
+        public BString getStringValue(BString fieldName) {
+            return null;
+        }
+
+        @Override
+        public boolean getBooleanValue(BString fieldName) {
+            return false;
+        }
+
+        @Override
+        public BMap getMapValue(BString fieldName) {
+            return null;
+        }
+
+        @Override
+        public BObject getObjectValue(BString fieldName) {
+            return null;
+        }
+
+        @Override
+        public BArray getArrayValue(BString fieldName) {
+            return null;
+        }
+
+        @Override
+        public void addNativeData(String key, Object data) {
+
+        }
+
+        @Override
+        public Object getNativeData(String key) {
+            return null;
+        }
+
+        @Override
+        public HashMap<String, Object> getNativeData() {
+            return null;
+        }
+
+        @Override
         public void set(BString fieldName, Object value) {
             throw BErrorCreator.createError(BStringUtils.fromString("No such field or method: callStack"));
+        }
+
+        @Override
+        public Object copy(Map<Object, Object> refs) {
+            return null;
+        }
+
+        @Override
+        public Object frozenCopy(Map<Object, Object> refs) {
+            return null;
         }
     }
 }

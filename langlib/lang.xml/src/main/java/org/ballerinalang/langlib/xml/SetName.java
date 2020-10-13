@@ -19,10 +19,10 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.jvm.XMLNodeType;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
+import io.ballerina.jvm.api.values.BXMLItem;
 import io.ballerina.jvm.util.exceptions.BLangExceptionHelper;
 import io.ballerina.jvm.util.exceptions.RuntimeErrors;
-import io.ballerina.jvm.values.XMLItem;
-import io.ballerina.jvm.values.XMLValue;
 
 import javax.xml.namespace.QName;
 
@@ -34,7 +34,7 @@ import javax.xml.namespace.QName;
 //@BallerinaFunction(
 //        orgName = "ballerina", packageName = "lang.xml",
 //        functionName = "setName",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML),
+//        args = {@Argument(name = "BXML", type = TypeKind.XML),
 //                @Argument(name = "newName", type = TypeKind.STRING)},
 //        returnType = {@ReturnType(type = TypeKind.NIL)},
 //        isPublic = true
@@ -43,7 +43,7 @@ public class SetName {
     private static final String OPERATION = "set element name in xml";
 
 
-    public static void setName(XMLValue xmlVal, BString newNameBStr) {
+    public static void setName(BXML xmlVal, BString newNameBStr) {
         String newName = newNameBStr.getValue();
         if (!IsElement.isElement(xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "setName", "element");
@@ -61,7 +61,7 @@ public class SetName {
                     newQName = new QName(newName);
                 }
 
-                ((XMLItem) xmlVal).setQName(newQName);
+                ((BXMLItem) xmlVal).setQName(newQName);
             }
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);

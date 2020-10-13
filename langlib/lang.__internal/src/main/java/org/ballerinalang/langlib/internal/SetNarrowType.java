@@ -19,13 +19,13 @@
 package org.ballerinalang.langlib.internal;
 
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BTypedesc;
 import io.ballerina.jvm.types.BField;
 import io.ballerina.jvm.types.BRecordType;
 import io.ballerina.jvm.util.Flags;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.MapValueImpl;
-import io.ballerina.jvm.values.TypedescValue;
 
 import java.util.HashMap;
 
@@ -36,7 +36,7 @@ import java.util.HashMap;
  */
 public class SetNarrowType {
 
-    public static MapValue setNarrowType(TypedescValue td, MapValue value) {
+    public static BMap setNarrowType(BTypedesc td, BMap value) {
         BRecordType recordType = (BRecordType) value.getType();
         BRecordType newRecordType = new BRecordType("narrowType", recordType.getPackage(), recordType.flags,
                 recordType.sealed, recordType.typeFlags);
@@ -44,7 +44,7 @@ public class SetNarrowType {
             put("value", new BField(td.getDescribingType(), "value", Flags.PUBLIC + Flags.REQUIRED));
         }});
 
-        MapValueImpl<BString, Object> newRecord = new MapValueImpl<>(newRecordType);
+        BMap<BString, Object> newRecord = BValueCreator.createMapValue(newRecordType);
         newRecord.put(BStringUtils.fromString("value"), value.get(BStringUtils.fromString("value")));
         return newRecord;
     }

@@ -18,10 +18,10 @@
 package org.ballerinalang.net.http;
 
 import io.ballerina.jvm.api.BStringUtils;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.ValueCreator;
+import io.ballerina.jvm.api.values.ValueCreator;
 
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
@@ -83,7 +83,7 @@ public class ValueCreatorUtils {
      * @param recordTypeName name of the record type.
      * @return value of the record.
      */
-    public static MapValue<BString, Object> createHTTPRecordValue(String recordTypeName) {
+    public static BMap<BString, Object> createHTTPRecordValue(String recordTypeName) {
         return httpValueCreator.createRecordValue(recordTypeName);
     }
 

@@ -18,15 +18,15 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.jvm.MapUtils;
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.values.MapValue;
 
 import static io.ballerina.jvm.MapUtils.checkIsMapOnlyOperation;
 import static io.ballerina.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
 import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 
 /**
@@ -35,11 +35,11 @@ import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
  */
 public class Remove {
 
-    public static Object remove(MapValue<?, ?> m, BString k) {
+    public static Object remove(BMap<?, ?> m, BString k) {
         Type type = m.getType();
 
         checkIsMapOnlyOperation(type, REMOVE);
-        MapUtils.validateRequiredFieldForRecord(m, k.getValue());
+        validateRequiredFieldForRecord(m, k.getValue());
         if (m.containsKey(k)) {
             try {
                 return m.remove(k);

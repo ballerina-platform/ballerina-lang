@@ -20,16 +20,14 @@ package org.ballerinalang.net.http;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.types.Type;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.BXML;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.util.exceptions.BallerinaConnectorException;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ErrorValue;
-import io.ballerina.jvm.values.MapValue;
-import io.ballerina.jvm.values.XMLValue;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.langlib.value.CloneWithType;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -170,7 +168,7 @@ public class HttpDispatcher {
 
         HttpResourceArguments resourceArgumentValues =
                 (HttpResourceArguments) httpCarbonMessage.getProperty(HttpConstants.RESOURCE_ARGS);
-        MapValue pathParamOrder = HttpResource.getPathParamOrderMap(httpResource.getBalResource());
+        BMap pathParamOrder = HttpResource.getPathParamOrderMap(httpResource.getBalResource());
 
         for (Object paramName : pathParamOrder.getKeys()) {
             String argumentValue = resourceArgumentValues.getMap().get(paramName.toString());
@@ -233,12 +231,12 @@ public class HttpDispatcher {
                     EntityBodyHandler.addJsonMessageDataSource(inRequestEntity, bjson);
                     return bjson;
                 case TypeTags.XML_TAG:
-                    XMLValue bxml = EntityBodyHandler.constructXmlDataSource(inRequestEntity);
+                    BXML bxml = EntityBodyHandler.constructXmlDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, bxml);
                     return bxml;
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                        ArrayValue blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
+                        BArray blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
                         EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
                         return blobDataSource;
                     } else if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -260,8 +258,8 @@ public class HttpDispatcher {
 
     private static Object getRecordEntity(BObject inRequestEntity, Type entityBodyType) {
         Object result = getRecord(entityBodyType, getBJsonValue(inRequestEntity));
-        if (result instanceof ErrorValue) {
-            throw (ErrorValue) result;
+        if (result instanceof BError) {
+            throw (BError) result;
         }
         return result;
     }

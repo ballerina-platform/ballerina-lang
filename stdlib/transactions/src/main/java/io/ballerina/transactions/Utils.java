@@ -24,13 +24,12 @@ import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BString;
+import io.ballerina.jvm.api.values.FPValue;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.transactions.TransactionConstants;
 import io.ballerina.jvm.transactions.TransactionLocalContext;
 import io.ballerina.jvm.transactions.TransactionResourceManager;
-import io.ballerina.jvm.values.FPValue;
-import io.ballerina.jvm.values.MapValue;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -150,7 +149,7 @@ public class Utils {
         return BValueCreator.createRecordValue(trxContext, trxContextData);
     }
 
-    public static void setTransactionContext(MapValue txDataStruct, Object prevAttemptInfo) {
+    public static void setTransactionContext(BMap txDataStruct, Object prevAttemptInfo) {
         Strand strand = Scheduler.getStrand();
         String globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).toString();
         String transactionBlockId = txDataStruct.get(TransactionConstants.TRANSACTION_BLOCK_ID).toString();
@@ -238,11 +237,11 @@ public class Utils {
         return strand.isInTransaction();
     }
 
-    public static MapValue<BString, Object> info() {
+    public static BMap<BString, Object> info() {
         Strand strand = Scheduler.getStrand();
         if (isTransactional()) {
             TransactionLocalContext context = strand.currentTrxContext;
-            return (MapValue<BString, Object>) context.getInfoRecord();
+            return (BMap<BString, Object>) context.getInfoRecord();
         }
         throw BErrorCreator.createError(BStringUtils
                 .fromString("cannot call info() if the strand is not in transaction mode"));

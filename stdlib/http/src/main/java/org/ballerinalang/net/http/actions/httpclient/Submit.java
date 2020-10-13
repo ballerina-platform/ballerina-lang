@@ -17,11 +17,11 @@
 package org.ballerinalang.net.http.actions.httpclient;
 
 import io.ballerina.jvm.api.BalEnv;
+import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
-import io.ballerina.jvm.values.MapValue;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -38,7 +38,7 @@ public class Submit extends Execute {
     public static Object submit(BalEnv env, BObject httpClient, BString httpVerb, BString path, BObject requestObj) {
         Strand strand = Scheduler.getStrand();
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue();
-        MapValue<BString, Object> config = (MapValue<BString, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
+        BMap<BString, Object> config = (BMap<BString, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path.getValue(),
                                                                         requestObj);

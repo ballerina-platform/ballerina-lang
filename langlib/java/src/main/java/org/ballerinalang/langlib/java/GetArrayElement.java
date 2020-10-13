@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.langlib.java;
 
-import io.ballerina.jvm.values.HandleValue;
+import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BHandle;
 
 /**
  * This class contains the implementation of the "getArrayElement" ballerina function in ballerina/java module.
@@ -26,13 +27,13 @@ import io.ballerina.jvm.values.HandleValue;
  */
 public class GetArrayElement {
 
-    public static HandleValue getArrayElement(HandleValue arrayValue, long index) {
-        Object[] arr = (Object[]) arrayValue.getValue();
+    public static BHandle getArrayElement(BHandle bHandle, long index) {
+        Object[] arr = (Object[]) bHandle.getValue();
         if (arr == null) {
             throw JValues.getJavaNullReferenceError();
         }
 
         JValues.rangeCheck(index, arr);
-        return new HandleValue(arr[(int) index]);
+        return BValueCreator.createHandleValue(arr[(int) index]);
     }
 }

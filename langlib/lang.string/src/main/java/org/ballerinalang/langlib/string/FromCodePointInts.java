@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.string;
 
 import io.ballerina.jvm.api.BErrorCreator;
 import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.values.ArrayValue;
+import io.ballerina.jvm.api.values.BArray;
 
 /**
  * Extern function lang.string:fromCodePointInts(string).
@@ -29,7 +29,7 @@ import io.ballerina.jvm.values.ArrayValue;
  */
 public class FromCodePointInts {
 
-    public static Object fromCodePointInts(ArrayValue codePoints) {
+    public static Object fromCodePointInts(BArray codePoints) {
         int codePoint = 0;
         try {
             StringBuilder builder = new StringBuilder();

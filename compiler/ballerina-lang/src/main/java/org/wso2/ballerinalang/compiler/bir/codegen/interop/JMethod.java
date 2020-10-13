@@ -17,11 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.BalEnv;
 import io.ballerina.jvm.api.Types;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.types.BArrayType;
-import io.ballerina.jvm.values.ArrayValue;
-import io.ballerina.jvm.values.ArrayValueImpl;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.lang.reflect.Constructor;
@@ -130,7 +130,7 @@ class JMethod {
         this.receiverType = receiverType;
     }
 
-    ArrayValue getExceptionTypes(ClassLoader classLoader) {
+    BArray getExceptionTypes(ClassLoader classLoader) {
 
         List<Class> checkedExceptions = new ArrayList<>();
         try {
@@ -144,7 +144,7 @@ class JMethod {
             throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
         }
 
-        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(Types.TYPE_STRING), checkedExceptions.size());
+        BArray arrayValue = BValueCreator.createArrayValue(new BArrayType(Types.TYPE_STRING), checkedExceptions.size());
         int i = 0;
         for (Class<?> exceptionType : checkedExceptions) {
             arrayValue.add(i++, exceptionType.getName().replace(".", "/"));

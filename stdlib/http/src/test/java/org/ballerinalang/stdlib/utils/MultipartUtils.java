@@ -20,9 +20,9 @@ package org.ballerinalang.stdlib.utils;
 
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
+import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.values.ArrayValue;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -102,7 +102,7 @@ public class MultipartUtils {
      * @param bodyParts  Represent body parts that needs to be added to multipart entity
      * @return A test carbon message to be used for invoking the service with.
      */
-    public static HTTPTestRequest getCarbonMessageWithBodyParts(Map<String, Object> messageMap, ArrayValue bodyParts) {
+    public static HTTPTestRequest getCarbonMessageWithBodyParts(Map<String, Object> messageMap, BArray bodyParts) {
         HTTPTestRequest cMsg = (HTTPTestRequest) messageMap.get(CARBON_MESSAGE);
         BObject request = (BObject) messageMap.get(BALLERINA_REQUEST);
         BObject entity = (BObject) messageMap.get(MULTIPART_ENTITY);
@@ -154,8 +154,8 @@ public class MultipartUtils {
         BObject entityStruct = requestStruct.get(REQUEST_ENTITY_FIELD) != null ?
                 (BObject) requestStruct.get(REQUEST_ENTITY_FIELD) : null;
         if (entityStruct != null) {
-            ArrayValue bodyParts = entityStruct.getNativeData(BODY_PARTS) != null ?
-                    (ArrayValue) entityStruct.getNativeData(BODY_PARTS) : null;
+            BArray bodyParts = entityStruct.getNativeData(BODY_PARTS) != null ?
+                    (BArray) entityStruct.getNativeData(BODY_PARTS) : null;
             if (bodyParts != null) {
                 HttpDataFactory dataFactory = new DefaultHttpDataFactory(DefaultHttpDataFactory.MINSIZE);
                 setDataFactory(dataFactory);
