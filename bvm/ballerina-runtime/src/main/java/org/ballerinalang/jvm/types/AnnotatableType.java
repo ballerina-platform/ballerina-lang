@@ -49,4 +49,8 @@ public abstract class AnnotatableType extends BType {
     public Object getAnnotation(String pkg, String annotName) {
         return this.annotations.get(BStringUtils.fromString(pkg + ":" + annotName));
     }
+
+    public BString[] getAnnotationKeys() {
+        return this.annotations.getKeys();
+    }
 }
