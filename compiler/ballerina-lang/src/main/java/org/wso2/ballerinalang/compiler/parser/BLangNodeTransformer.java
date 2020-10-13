@@ -256,6 +256,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
+import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -587,14 +588,55 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(MethodDeclarationNode methodDeclarationNode) {
-        BLangFunction bLFunction = createFunctionNode(methodDeclarationNode.methodName(),
-                methodDeclarationNode.qualifierList(), methodDeclarationNode.methodSignature(), null);
+        BLangFunction bLFunction;
+        if (methodDeclarationNode.relativeResourcePath().isEmpty()) {
+            bLFunction = createFunctionNode(methodDeclarationNode.methodName(),
+                    methodDeclarationNode.qualifierList(), methodDeclarationNode.methodSignature(), null);
+        } else {
+            bLFunction = createResourceFunctionNode(methodDeclarationNode.methodName(),
+                    methodDeclarationNode.qualifierList(), methodDeclarationNode.relativeResourcePath(),
+                    methodDeclarationNode.methodSignature(), null);
+        }
 
         bLFunction.annAttachments = applyAll(getAnnotations(methodDeclarationNode.metadata()));
         bLFunction.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(getDocumentationString(methodDeclarationNode.metadata()));
         bLFunction.pos = getPositionWithoutMetadata(methodDeclarationNode);
         return bLFunction;
+    }
+
+    private BLangFunction createResourceFunctionNode(IdentifierToken accessorName,
+                                                     NodeList<Token> qualifierList,
+                                                     NodeList<Token> relativeResourcePath,
+                                                     FunctionSignatureNode methodSignature,
+                                                     FunctionBodyNode functionBody) {
+
+        BLangResourceFunction bLFunction = (BLangResourceFunction) TreeBuilder.createResourceFunctionNode();
+
+        String resourceFuncName = calculateResourceFunctionName(accessorName, relativeResourcePath);
+        BLangIdentifier name = createIdentifier(getPosition(accessorName), resourceFuncName);
+        populateFunctionNode(name, qualifierList, methodSignature, functionBody, bLFunction);
+        bLFunction.accessorName = createIdentifier(accessorName);
+
+        List<BLangIdentifier> relResourcePath = new ArrayList<>();
+        for (Token token : relativeResourcePath) {
+            relResourcePath.add(createIdentifier(token));
+        }
+        bLFunction.resourcePath = relResourcePath;
+
+        return bLFunction;
+    }
+
+    private String calculateResourceFunctionName(IdentifierToken accessorName, NodeList<Token> relativeResourcePath) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("$");
+        sb.append(createIdentifier(accessorName).getValue());
+        for (Token token : relativeResourcePath) {
+            sb.append("$");
+            sb.append(createIdentifier(token).getValue());
+        }
+        String resourceFuncName = sb.toString();
+        return resourceFuncName;
     }
 
     @Override
@@ -1185,8 +1227,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
 
+        BLangIdentifier name = createIdentifier(getPosition(funcName), funcName);
+        populateFunctionNode(name, qualifierList, functionSignature, functionBody, bLFunction);
+        return bLFunction;
+    }
+
+    private void populateFunctionNode(BLangIdentifier name, NodeList<Token> qualifierList,
+                                      FunctionSignatureNode functionSignature, FunctionBodyNode functionBody,
+                                      BLangFunction bLFunction) {
         // Set function name
-        bLFunction.name = createIdentifier(getPosition(funcName), funcName);
+        bLFunction.name = name;
         //Set method qualifiers
         setFunctionQualifiers(bLFunction, qualifierList);
         // Set function signature
@@ -1203,7 +1253,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLFunction.flagSet.add(Flag.NATIVE);
             }
         }
-        return bLFunction;
     }
 
     private void setFunctionQualifiers(BLangFunction bLFunction, NodeList<Token> qualifierList) {
