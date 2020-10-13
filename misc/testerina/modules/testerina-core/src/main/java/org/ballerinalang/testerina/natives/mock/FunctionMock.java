@@ -1,7 +1,6 @@
 package org.ballerinalang.testerina.natives.mock;
 
 import io.ballerina.jvm.api.BErrorCreator;
-import io.ballerina.jvm.api.BExecutor;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.values.BArray;
 import io.ballerina.jvm.api.values.BError;
@@ -11,6 +10,7 @@ import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.scheduling.StrandMetadata;
 import io.ballerina.jvm.types.BRecordType;
+import org.ballerinalang.testerina.natives.BExecutor;
 
 import java.io.IOException;
 import java.lang.reflect.Method;

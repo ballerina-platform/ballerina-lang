@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.websocket;
 
 import io.ballerina.jvm.api.BErrorCreator;
+import io.ballerina.jvm.api.BRuntime;
 import io.ballerina.jvm.api.BStringUtils;
 import io.ballerina.jvm.api.BValueCreator;
 import io.ballerina.jvm.api.BalFuture;
@@ -28,7 +29,6 @@ import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
 import io.ballerina.jvm.api.values.BString;
-import io.ballerina.jvm.scheduling.Strand;
 import io.ballerina.jvm.services.ErrorHandlerUtils;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CodecException;
@@ -543,10 +543,10 @@ public class WebSocketUtil {
      * Validate and create the webSocket service.
      *
      * @param clientEndpointConfig - a client endpoint config
-     * @param strand - a strand
+     * @param runtime - ballerina runtime
      * @return webSocketService
      */
-    public static WebSocketService validateAndCreateWebSocketService(Strand strand,
+    public static WebSocketService validateAndCreateWebSocketService(BRuntime runtime,
                                                                      BMap<BString, Object> clientEndpointConfig) {
         Object clientService = clientEndpointConfig.get(WebSocketConstants.CLIENT_SERVICE_CONFIG);
         if (clientService != null) {
@@ -556,9 +556,9 @@ public class WebSocketUtil {
                 throw WebSocketUtil.getWebSocketException("The callback service should be a WebSocket Client Service",
                         null, WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
             }
-            return new WebSocketService((BObject) clientService, strand.scheduler);
+            return new WebSocketService((BObject) clientService, runtime);
         } else {
-            return new WebSocketService(strand.scheduler);
+            return new WebSocketService(runtime);
         }
     }
 

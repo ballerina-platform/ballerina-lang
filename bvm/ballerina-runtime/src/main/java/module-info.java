@@ -12,14 +12,15 @@ module io.ballerina.jvm {
     requires io.ballerina.config;
     requires io.ballerina.logging;
 
+    requires transactions.jta;
+    requires java.transaction;
+    requires java.naming;
+
     exports io.ballerina.jvm.types;
     exports io.ballerina.jvm.util;
     exports io.ballerina.jvm.api;
     exports io.ballerina.jvm.api.connector;
     exports io.ballerina.jvm.api.values;
-    exports io.ballerina.jvm.api.types;
-    exports io.ballerina.jvm.api.runtime;
-    exports io.ballerina.jvm.api.commons;
     exports io.ballerina.jvm.internal;
     exports io.ballerina.jvm.util.exceptions;
     exports io.ballerina.jvm.launch;
@@ -36,4 +37,6 @@ module io.ballerina.jvm {
     exports io.ballerina.jvm.observability.metrics.spi;
     exports io.ballerina.jvm.services.spi;
     exports io.ballerina.jvm.annotation;
+    exports io.ballerina.jvm.api.types;
+    exports io.ballerina.jvm.api.runtime;
 }

@@ -31,7 +31,6 @@ import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.api.values.BError;
 import io.ballerina.jvm.api.values.BLink;
 import io.ballerina.jvm.api.values.BMap;
-import io.ballerina.jvm.api.values.BMapInitialValueEntry;
 import io.ballerina.jvm.api.values.BString;
 import io.ballerina.jvm.api.values.BValue;
 import io.ballerina.jvm.types.BField;

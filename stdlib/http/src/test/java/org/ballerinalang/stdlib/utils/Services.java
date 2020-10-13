@@ -18,9 +18,8 @@
 
 package org.ballerinalang.stdlib.utils;
 
-import io.ballerina.jvm.api.BExecutor;
+import io.ballerina.jvm.api.BRuntime;
 import io.ballerina.jvm.api.values.BObject;
-import io.ballerina.jvm.scheduling.Scheduler;
 import io.ballerina.jvm.util.exceptions.BallerinaConnectorException;
 import io.ballerina.jvm.util.exceptions.BallerinaException;
 import io.netty.handler.codec.http.HttpContent;
@@ -37,7 +36,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.concurrent.Executors;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -94,9 +92,9 @@ public class Services {
         callback.setRequestStruct(signatureParams[0]);
 
         BObject service = resource.getParentService().getBalService();
-        Scheduler scheduler = registryHolder.getRegistry().getScheduler();
-        BExecutor.submit(scheduler, service, resource.getName(), null, null, callback, properties, signatureParams);
-        Executors.newSingleThreadExecutor().submit(scheduler::start);
+
+        BRuntime runtime = registryHolder.getRegistry().getRuntime();
+        runtime.invokeMethodAsync(service, resource.getName(), null, null, callback, properties, signatureParams);
         callback.sync();
 
         HttpCarbonMessage originalMsg = callback.getResponseMsg();

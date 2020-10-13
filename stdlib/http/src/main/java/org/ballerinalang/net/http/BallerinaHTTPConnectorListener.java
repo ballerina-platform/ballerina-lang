@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.net.http;
 
-import io.ballerina.jvm.api.BExecutor;
+import io.ballerina.jvm.api.BRuntime;
 import io.ballerina.jvm.api.connector.CallableUnitCallback;
 import io.ballerina.jvm.api.values.BMap;
 import io.ballerina.jvm.api.values.BObject;
@@ -114,8 +114,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         }
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         BObject service = httpResource.getParentService().getBalService();
-        BExecutor.submit(httpServicesRegistry.getScheduler(), service, httpResource.getName(), null,
-                         ON_MESSAGE_METADATA, callback, properties, signatureParams);
+        BRuntime runtime = httpServicesRegistry.getRuntime();
+        runtime.invokeMethodAsync(service, httpResource.getName(), null, ON_MESSAGE_METADATA,
+                                  callback, properties, signatureParams);
     }
 
     protected boolean accessed(HttpCarbonMessage inboundMessage) {

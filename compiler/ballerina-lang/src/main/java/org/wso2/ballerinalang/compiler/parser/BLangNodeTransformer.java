@@ -1124,7 +1124,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (!isAnonServiceValue) {
             BLangSimpleVariable var = (BLangSimpleVariable) createBasicVarNodeWithoutType(identifierPos,
                     Collections.emptySet(),
-                    serviceName, identifierPos,
+                    serviceName, symTable.builtinPos,
                     serviceConstNode);
             var.flagSet.add(Flag.FINAL);
             var.flagSet.add(SERVICE);
@@ -1132,7 +1132,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
             bLUserDefinedType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
             bLUserDefinedType.typeName = classDef.name;
-            bLUserDefinedType.pos = pos;
+            bLUserDefinedType.pos = symTable.builtinPos;
 
             var.typeNode = bLUserDefinedType;
             bLService.variableNode = var;
@@ -4166,7 +4166,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLFunction.returnTypeAnnAttachments = applyAll(returnType.annotations());
         } else {
             BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
-            bLValueType.pos = getPosition(funcSignature);
+            bLValueType.pos = symTable.builtinPos;
             bLValueType.typeKind = TypeKind.NIL;
             bLFunction.setReturnTypeNode(bLValueType);
         }

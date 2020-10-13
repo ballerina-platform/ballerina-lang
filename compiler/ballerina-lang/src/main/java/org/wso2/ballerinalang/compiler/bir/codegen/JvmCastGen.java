@@ -60,7 +60,10 @@ import static org.objectweb.asm.Opcodes.L2D;
 import static org.objectweb.asm.Opcodes.L2F;
 import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.NEW;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TO_BOOLEAN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TO_BYTE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TO_DECIMAL_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TO_FLOAT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TO_INT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BHANDLE;
@@ -330,7 +333,7 @@ public class JvmCastGen {
                         String.format("()L%s;", OBJECT), false);
                 break;
             case TypeTags.FINITE:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", String.format("(L%s;)D", OBJECT),
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_FLOAT_METHOD, String.format("(L%s;)D", OBJECT),
                         false);
                 mv.visitInsn(D2F);
                 break;
@@ -359,7 +362,7 @@ public class JvmCastGen {
                         String.format("()L%s;", OBJECT), false);
                 break;
             case TypeTags.FINITE:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", String.format("(L%s;)D", OBJECT),
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_FLOAT_METHOD, String.format("(L%s;)D", OBJECT),
                         false);
                 break;
             default:
@@ -570,7 +573,8 @@ public class JvmCastGen {
         }
 
         if (sourceType.jTag == JTypeTags.JREF) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToBoolean", String.format("(L%s;)Z", OBJECT), false);
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_BOOLEAN_METHOD, String.format("(L%s;)Z", OBJECT),
+                    false);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'boolean'",
                     sourceType));
@@ -1081,7 +1085,7 @@ public class JvmCastGen {
             case TypeTags.JSON:
             case TypeTags.READONLY:
             case TypeTags.FINITE:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", String.format("(L%s;)D", OBJECT),
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_FLOAT_METHOD, String.format("(L%s;)D", OBJECT),
                         false);
                 break;
             default:
@@ -1108,7 +1112,7 @@ public class JvmCastGen {
             case TypeTags.JSON:
             case TypeTags.READONLY:
             case TypeTags.FINITE:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToDecimal",
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_DECIMAL_METHOD,
                         String.format("(L%s;)L%s;", OBJECT, DECIMAL_VALUE), false);
                 break;
             case TypeTags.FLOAT:
@@ -1214,7 +1218,8 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.JSON ||
                 sourceType.tag == TypeTags.READONLY ||
                 sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToBoolean", String.format("(L%s;)Z", OBJECT), false);
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_BOOLEAN_METHOD, String.format("(L%s;)Z", OBJECT),
+                    false);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'boolean'",
                     sourceType));
@@ -1233,12 +1238,6 @@ public class JvmCastGen {
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToByte", "(D)I", false);
                 break;
             case TypeTags.DECIMAL:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_BYTE_METHOD, String.format("(L%s;)I", OBJECT),
-                        false);
-                break;
-            case TypeTags.BYTE:
-                // do nothing
-                break;
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
@@ -1247,6 +1246,9 @@ public class JvmCastGen {
             case TypeTags.READONLY:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_BYTE_METHOD, String.format("(L%s;)I", OBJECT),
                         false);
+                break;
+            case TypeTags.BYTE:
+                // do nothing
                 break;
             default:
                 throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'byte'",
@@ -1451,7 +1453,8 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON ||
                 sourceType.tag == TypeTags.READONLY) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", String.format("(L%s;)D", OBJECT), false);
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_FLOAT_METHOD, String.format("(L%s;)D", OBJECT),
+                    false);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'float'",
                     sourceType));
@@ -1510,7 +1513,7 @@ public class JvmCastGen {
             case TypeTags.UNION:
             case TypeTags.JSON:
             case TypeTags.READONLY:
-                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToDecimal",
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_DECIMAL_METHOD,
                         String.format("(L%s;)L%s;", OBJECT, DECIMAL_VALUE), false);
                 break;
             default:

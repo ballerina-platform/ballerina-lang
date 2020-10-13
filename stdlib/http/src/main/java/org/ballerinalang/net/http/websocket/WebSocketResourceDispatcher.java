@@ -22,9 +22,7 @@ import io.ballerina.jvm.JSONParser;
 import io.ballerina.jvm.JSONUtils;
 import io.ballerina.jvm.XMLFactory;
 import io.ballerina.jvm.XMLNodeType;
-import io.ballerina.jvm.api.BExecutor;
 import io.ballerina.jvm.api.BStringUtils;
-import io.ballerina.jvm.api.TypeTags;
 import io.ballerina.jvm.api.connector.CallableUnitCallback;
 import io.ballerina.jvm.api.types.Type;
 import io.ballerina.jvm.api.values.BError;
@@ -39,6 +37,7 @@ import io.ballerina.jvm.services.ErrorHandlerUtils;
 import io.ballerina.jvm.types.AttachedFunction;
 import io.ballerina.jvm.types.BArrayType;
 import io.ballerina.jvm.types.BStructureType;
+import io.ballerina.jvm.types.TypeTags;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
 import org.ballerinalang.net.http.HttpConstants;
@@ -105,7 +104,7 @@ public class WebSocketResourceDispatcher {
         httpCaller.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
         httpCaller.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
-        BExecutor.submit(wsService.getScheduler(), onUpgradeResource.getParentService().getBalService(),
+        wsService.getRuntime().invokeMethodAsync(onUpgradeResource.getParentService().getBalService(),
                          balResource.getName(), null, ON_OPEN_METADATA,
                          new OnUpgradeResourceCallback(webSocketHandshaker, wsService, connectionManager),
                          new HashMap<>(), signatureParams);
@@ -528,10 +527,10 @@ public class WebSocketResourceDispatcher {
             Map<String, Object> properties = new HashMap<>();
             WebSocketObserverContext observerContext = new WebSocketObserverContext(connectionInfo);
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            BExecutor.submit(wsService.getScheduler(), wsService.getBalService(), resource, null, metaData, callback,
+            wsService.getRuntime().invokeMethodAsync(wsService.getBalService(), resource, null, metaData, callback,
                              properties, bValues);
         } else {
-            BExecutor.submit(wsService.getScheduler(), wsService.getBalService(), resource, null, metaData, callback,
+            wsService.getRuntime().invokeMethodAsync(wsService.getBalService(), resource, null, metaData, callback,
                              null, bValues);
         }
         WebSocketObservabilityUtil.observeResourceInvocation(connectionInfo, resource);
