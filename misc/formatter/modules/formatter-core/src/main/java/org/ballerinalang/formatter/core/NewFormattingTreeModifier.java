@@ -1880,18 +1880,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     @Override
-    public XMLAttributeNode transform(XMLAttributeNode xMLAttributeNode) {
-
-        return super.transform(xMLAttributeNode);
-    }
-
-    @Override
-    public XMLAttributeValue transform(XMLAttributeValue xMLAttributeValue) {
-
-        return super.transform(xMLAttributeValue);
-    }
-
-    @Override
     public XMLComment transform(XMLComment xMLComment) {
         Token commentStart = formatToken(xMLComment.commentStart(), 0, 0);
         NodeList<Node> content = formatNodeList(xMLComment.content(), 1, 0, 0, 0);
@@ -2866,8 +2854,9 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public XMLStartTagNode transform(XMLStartTagNode xMLStartTagNode) {
         Token ltToken = formatToken(xMLStartTagNode.ltToken(), 0, 0);
-        XMLNameNode name = formatNode(xMLStartTagNode.name(), 0, 0);
-        NodeList<XMLAttributeNode> attributes = formatNodeList(xMLStartTagNode.attributes(), 0, 0, 0, 0);
+        int nameTrailingWS = xMLStartTagNode.attributes().isEmpty() ? 0 : 1;
+        XMLNameNode name = formatNode(xMLStartTagNode.name(), nameTrailingWS, 0);
+        NodeList<XMLAttributeNode> attributes = formatNodeList(xMLStartTagNode.attributes(), 1, 0, 0, 0);
         Token getToken = formatToken(xMLStartTagNode.getToken(), 0, 0);
         return xMLStartTagNode.modify()
                 .withLtToken(ltToken)
@@ -2906,7 +2895,30 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .apply();
     }
 
+    @Override
+    public XMLAttributeNode transform(XMLAttributeNode xMLAttributeNode) {
+        XMLNameNode attributeName = formatNode(xMLAttributeNode.attributeName(), 0, 0);
+        Token equalToken = formatToken(xMLAttributeNode.equalToken(), 0, 0);
+        XMLAttributeValue value = formatNode(xMLAttributeNode.value(), this.trailingWS, 0);
+        return xMLAttributeNode.modify()
+                .withAttributeName(attributeName)
+                .withEqualToken(equalToken)
+                .withValue(value)
+                .apply();
+    }
 
+    @Override
+    public XMLAttributeValue transform(XMLAttributeValue xMLAttributeValue) {
+
+        Token startQuote = formatToken(xMLAttributeValue.startQuote(), 0,0);
+        NodeList<Node> value = formatNodeList(xMLAttributeValue.value(), 0, 0, 0, 0);
+        Token endQuote = formatToken(xMLAttributeValue.endQuote(), this.trailingWS, 0);
+        return xMLAttributeValue.modify()
+                .withStartQuote(startQuote)
+                .withValue(value)
+                .withEndQuote(endQuote)
+                .apply();
+    }
 
     @Override
     public IdentifierToken transform(IdentifierToken identifier) {
