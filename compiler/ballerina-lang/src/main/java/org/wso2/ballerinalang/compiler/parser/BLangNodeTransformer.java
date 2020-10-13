@@ -331,7 +331,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
@@ -4189,7 +4188,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return createSimpleLiteral(actionOrExpression);
         } else if (actionOrExpression.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
                    actionOrExpression.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
-                   actionOrExpression.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+                   actionOrExpression.kind() == SyntaxKind.IDENTIFIER_TOKEN || isType(actionOrExpression.kind())) {
             // Variable References
             BLangNameReference nameReference = createBLangNameReference(actionOrExpression);
             BLangSimpleVarRef bLVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
@@ -4204,11 +4203,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             group.expression = (BLangExpression) actionOrExpression.apply(this);
             group.pos = getPosition(actionOrExpression);
             return group;
-        } else if (isType(actionOrExpression.kind())) {
-            BLangTypedescExpr typeAccessExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
-            typeAccessExpr.pos = getPosition(actionOrExpression);
-            typeAccessExpr.typeNode = createTypeNode(actionOrExpression);
-            return typeAccessExpr;
         } else {
             return actionOrExpression.apply(this);
         }
@@ -4632,14 +4626,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 DiagnosticPos namePos = getPosition(identifier);
                 BLangIdentifier name = this.createIdentifier(namePos, identifier);
                 return new BLangNameReference(getPosition(node), null, pkgAlias, name);
-            case ERROR_TYPE_DESC:
-                node = ((BuiltinSimpleNameReferenceNode) node).name();
-                break;
             case NEW_KEYWORD:
             case IDENTIFIER_TOKEN:
                 break;
             case SIMPLE_NAME_REFERENCE:
             default:
+                if (isType(node.kind())) {
+                    node = ((BuiltinSimpleNameReferenceNode) node).name();
+                    break;
+                }
                 node = ((SimpleNameReferenceNode) node).name();
                 break;
         }
