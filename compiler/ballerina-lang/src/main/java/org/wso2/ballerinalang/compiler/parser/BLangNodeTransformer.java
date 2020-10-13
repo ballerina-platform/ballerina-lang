@@ -1643,11 +1643,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         annotationDecl.pos = pos;
         annotationDecl.name = createIdentifier(annotationDeclarationNode.annotationTag());
 
-        if (annotationDeclarationNode.visibilityQualifier() != null) {
+        if (annotationDeclarationNode.visibilityQualifier().isPresent()) {
             annotationDecl.addFlag(Flag.PUBLIC);
         }
 
-        if (annotationDeclarationNode.constKeyword() != null) {
+        if (annotationDeclarationNode.constKeyword().isPresent()) {
             annotationDecl.addFlag(Flag.CONSTANT);
         }
 
@@ -1656,22 +1656,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         annotationDecl.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(getDocumentationString(annotationDeclarationNode.metadata()));
 
-        Node typedesc = annotationDeclarationNode.typeDescriptor();
-        if (typedesc != null) {
-            annotationDecl.typeNode = createTypeNode(typedesc);
+        Optional<Node> typedesc = annotationDeclarationNode.typeDescriptor();
+        if (typedesc.isPresent()) {
+            annotationDecl.typeNode = createTypeNode(typedesc.get());
         }
 
         SeparatedNodeList<Node> paramList = annotationDeclarationNode.attachPoints();
 
         for (Node child : paramList) {
             AnnotationAttachPointNode attachPoint = (AnnotationAttachPointNode) child;
-            boolean source = attachPoint.sourceKeyword() != null;
+            boolean source = attachPoint.sourceKeyword().isPresent();
             AttachPoint bLAttachPoint;
             Token firstIndent =  attachPoint.firstIdent();
 
             switch (firstIndent.kind()) {
                 case OBJECT_KEYWORD:
-                    Token secondIndent = attachPoint.secondIdent();
+                    Token secondIndent = attachPoint.secondIdent().get();
                     switch (secondIndent.kind()) {
                         case FUNCTION_KEYWORD:
                             bLAttachPoint =
