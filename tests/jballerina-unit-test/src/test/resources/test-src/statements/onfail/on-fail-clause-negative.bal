@@ -11,17 +11,6 @@ function testVariableScope() returns error?{
     io:println("While is completed.");
 }
 
-// Unreachable code prints twice
-// Fix required https://github.com/ballerina-platform/ballerina-lang/issues/26201
-//function testQuery() returns error?{
-//    int i = 0;
-//    while (i > 2) {
-//        fail getError();
-//        i = i + 1;
-//    }
-//    io:println("While is completed.");
-//}
-
 function getError() returns error {
     error err = error("Custom Error");
     return err;

@@ -4,6 +4,10 @@ function testOnFailEdgeTestcases() {
     testRetryOnFailWithinWhile();
     testOnFailWithinAnonFunc();
     testRetryOnFailWithinObjectFunc();
+
+    //Need fix for https://github.com/ballerina-platform/ballerina-lang/issues/26202
+    testFailExprWithinOnFail();
+    testCheckExprWithinOnFail();
 }
 
 function testUnreachableCodeWithIf(){
@@ -133,6 +137,49 @@ function testRetryOnFailWithinObjectFunc() {
     TestClass testClass = new ();
     string str = testClass.runOnFailClause();
     assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+}
+
+function testFailExprWithinOnFail() {
+    int i = 0;
+    string str = "";
+    while (i < 2) {
+        do {
+            str += " -> Before error thrown, ";
+            i = i + 1;
+            fail getError();
+        } on fail error e {
+            str += " -> Error caught at level #1";
+            fail getError();
+        }
+    } on fail error e {
+        str += " -> Error caught at level #2";
+    }
+
+    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+}
+
+function testCheckExprWithinOnFail() {
+    int i = 0;
+    string str = "";
+    while (i < 2) {
+        do {
+            str += " -> Before error thrown, ";
+            i = i + 1;
+            fail getError();
+        } on fail error e {
+            str += " -> Error caught at level #1";
+            int val = check getCheckError();
+        }
+    } on fail error e {
+        str += " -> Error caught at level #2";
+    }
+
+    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+}
+
+function getCheckError()  returns int|error {
+    error err = error("Custom Error");
+    return err;
 }
 
 function trxError()  returns error {
