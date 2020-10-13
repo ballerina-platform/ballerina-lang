@@ -72,19 +72,19 @@ public class SymbolPositionTest {
     @DataProvider(name = "PositionProvider")
     public Object[][] getPositions() {
         return new Object[][]{
-                {17, 8, 17, 15, "aString"},
-                {20, 10, 20, 14, "test"},
-                {21, 12, 21, 17, "greet"},
-                {26, 7, 26, 12, "HELLO"},
-                {28, 6, 28, 12, "Person"},
-                {32, 6, 32, 15, "PersonObj"},
-                {33, 12, 33, 16, "name"},
-                {35, 14, 35, 21, "PersonObj.getName"},
-                {38, 7, 38, 18, "PersonClass"},
-                {41, 14, 41, 18, "PersonClass.init"},
-                {45, 14, 45, 21, "PersonClass.getName"},
-                {52, 6, 52, 12, "Colour"},
-                {55, 12, 55, 14, "w1"},
+                {16, 7, 16, 14, "aString"},
+                {19, 9, 19, 13, "test"},
+                {20, 11, 20, 16, "greet"},
+                {25, 6, 25, 11, "HELLO"},
+                {27, 5, 27, 11, "Person"},
+                {31, 5, 31, 14, "PersonObj"},
+                {32, 11, 32, 15, "name"},
+                {34, 13, 34, 20, "PersonObj.getName"},
+                {37, 6, 37, 17, "PersonClass"},
+                {40, 13, 40, 17, "PersonClass.init"},
+                {44, 13, 44, 20, "PersonClass.getName"},
+                {51, 5, 51, 11, "Colour"},
+                {54, 11, 54, 13, "w1"},
         };
     }
 
@@ -96,19 +96,19 @@ public class SymbolPositionTest {
 
         Location pos = symbol.get().location();
         assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");
-        assertEquals(pos.lineRange().startLine().line(), 61);
-        assertEquals(pos.lineRange().startLine().offset(), 22);
-        assertEquals(pos.lineRange().endLine().line(), 61);
-        assertEquals(pos.lineRange().endLine().offset(), 25);
+        assertEquals(pos.lineRange().startLine().line(), 60);
+        assertEquals(pos.lineRange().startLine().offset(), 21);
+        assertEquals(pos.lineRange().endLine().line(), 60);
+        assertEquals(pos.lineRange().endLine().offset(), 24);
     }
 
     @DataProvider(name = "PositionProvider2")
     public Object[][] getTypeNarrowedPositions() {
         return new Object[][]{
-                {65, 14},
-                {68, 22},
-                {70, 24},
-                {73, 21},
+                {64, 13},
+                {67, 21},
+                {69, 23},
+                {72, 20},
         };
     }
 }

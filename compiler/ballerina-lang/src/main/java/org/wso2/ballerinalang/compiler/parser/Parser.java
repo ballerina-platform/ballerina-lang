@@ -100,7 +100,7 @@ public class Parser {
             }
         }
 
-        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, pkgSource.getName()), 1, 1, 1, 1);
+        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, pkgSource.getName()), 0, 0, 0, 0);
         pkgNode.repos = pkgSource.getRepoHierarchy();
         return pkgNode;
     }
@@ -150,9 +150,9 @@ public class Parser {
             Location syntaxLocation = syntaxDiagnostic.location();
             LineRange lineRange = syntaxLocation.lineRange();
             LinePosition startLine = lineRange.startLine();
-            LinePosition endLine = lineRange.startLine();
-            Location location = new BLangDiagnosticLocation(diagnosticSource.cUnitName, startLine.line() + 1,
-                    endLine.line() + 1, startLine.offset() + 1, endLine.offset() + 1);
+            LinePosition endLine = lineRange.endLine();
+            Location location = new BLangDiagnosticLocation(diagnosticSource.cUnitName, startLine.line(),
+                                                            endLine.line(), startLine.offset(), endLine.offset());
             BLangDiagnostic diag =
                     new BLangDiagnostic(location, syntaxDiagnostic.message(), syntaxDiagnostic.diagnosticInfo());
             dlog.logDiagnostic(diagnosticSource.pkgID, diag);
