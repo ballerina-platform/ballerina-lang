@@ -2022,7 +2022,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .withRestMatchPattern(restMatchPattern).apply();
         }
 
-        Token closeBraceToken = getToken(mappingMatchPatternNode.closeBraceToken());
+        Token closeBraceToken =
+                formatToken(mappingMatchPatternNode.closeBraceToken(), this.trailingWS, this.trailingNL);
         return mappingMatchPatternNode.modify()
                 .withOpenBraceToken(openBraceToken)
                 .withFieldMatchPatterns(fieldMatchPatterns)
@@ -2221,33 +2222,73 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             annotationDeclarationNode = annotationDeclarationNode.modify().withMetadata(metadata).apply();
         }
 
-        Token visibilityQualifier = formatToken(annotationDeclarationNode.visibilityQualifier(), 1, 0);
-        Token constKeyword = formatToken(annotationDeclarationNode.constKeyword(), 1, 0);
+        if (annotationDeclarationNode.visibilityQualifier().isPresent()) {
+            Token visibilityQualifier = formatToken(annotationDeclarationNode.visibilityQualifier().get(), 1, 0);
+            annotationDeclarationNode =
+                    annotationDeclarationNode.modify().withVisibilityQualifier(visibilityQualifier).apply();
+        }
+
+        if (annotationDeclarationNode.constKeyword().isPresent()) {
+            Token constKeyword = formatToken(annotationDeclarationNode.visibilityQualifier().get(), 1, 0);
+            annotationDeclarationNode =
+                    annotationDeclarationNode.modify().withConstKeyword(constKeyword).apply();
+        }
+
         Token annotationKeyword = formatToken(annotationDeclarationNode.annotationKeyword(), 1, 0);
-        Node typeDescriptor = formatNode(annotationDeclarationNode.typeDescriptor(), 1, 0);
+
+        if (annotationDeclarationNode.typeDescriptor().isPresent()) {
+            Node typeDescriptor = formatNode(annotationDeclarationNode.typeDescriptor().get(), 1, 0);
+            annotationDeclarationNode =
+                    annotationDeclarationNode.modify().withTypeDescriptor(typeDescriptor).apply();
+        }
+
         Token annotationTag = formatToken(annotationDeclarationNode.annotationTag(), 1, 0);
-        Token onKeyword = formatToken(annotationDeclarationNode.onKeyword(), 1, 0);
-        SeparatedNodeList<Node> attachPoints = formatSeparatedNodeList(annotationDeclarationNode.attachPoints(),
-                1, 0, 1, 0);
+
+        if (annotationDeclarationNode.onKeyword().isPresent()) {
+            Token onKeyword = formatToken(annotationDeclarationNode.onKeyword().get(), 1, 0);
+            int currentIndentation = this.indentation;
+            setIndentation(this.lineLength);
+            SeparatedNodeList<Node> attachPoints = formatSeparatedNodeList(annotationDeclarationNode.attachPoints(),
+                    1, 0, 1, 0);
+            setIndentation(currentIndentation);
+            annotationDeclarationNode = annotationDeclarationNode.modify()
+                    .withOnKeyword(onKeyword)
+                    .withAttachPoints(attachPoints)
+                    .apply();
+        }
+
         Token semicolonToken = formatToken(annotationDeclarationNode.semicolonToken(),
                 this.trailingWS, this.trailingNL);
-
         return annotationDeclarationNode.modify()
-                .withVisibilityQualifier(visibilityQualifier)
-                .withConstKeyword(constKeyword)
                 .withAnnotationKeyword(annotationKeyword)
-                .withTypeDescriptor(typeDescriptor)
                 .withAnnotationTag(annotationTag)
-                .withOnKeyword(onKeyword)
-                .withAttachPoints(attachPoints)
                 .withSemicolonToken(semicolonToken)
                 .apply();
     }
 
     @Override
     public AnnotationAttachPointNode transform(AnnotationAttachPointNode annotationAttachPointNode) {
+        if (annotationAttachPointNode.sourceKeyword().isPresent()) {
+            Token sourceKeyword = formatToken(annotationAttachPointNode.sourceKeyword().get(), 1, 0);
+            annotationAttachPointNode = annotationAttachPointNode.modify()
+                    .withSourceKeyword(sourceKeyword)
+                    .apply();
+        }
 
-        return super.transform(annotationAttachPointNode);
+        if (annotationAttachPointNode.secondIdent().isPresent()) {
+            Token firstIdent = formatToken(annotationAttachPointNode.firstIdent(), 1, 0);
+            Token secondIdent = formatToken(annotationAttachPointNode.secondIdent().get(), this.trailingWS,
+                    this.trailingNL);
+            return annotationAttachPointNode.modify()
+                    .withFirstIdent(firstIdent)
+                    .withSecondIdent(secondIdent)
+                    .apply();
+        } else {
+            Token firstIdent = formatToken(annotationAttachPointNode.firstIdent(), this.trailingWS, this.trailingNL);
+            return annotationAttachPointNode.modify()
+                    .withFirstIdent(firstIdent)
+                    .apply();
+        }
     }
 
     @Override
@@ -2405,8 +2446,21 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public QueryConstructTypeNode transform(QueryConstructTypeNode queryConstructTypeNode) {
-
-        return super.transform(queryConstructTypeNode);
+        if (queryConstructTypeNode.keySpecifier().isPresent()) {
+            Token keyword = formatToken(queryConstructTypeNode.keyword(), 1, 0);
+            KeySpecifierNode keySpecifier = formatNode(queryConstructTypeNode.keySpecifier().get(), this.trailingWS,
+                    this.trailingNL);
+            return queryConstructTypeNode.modify()
+                    .withKeyword(keyword)
+                    .withKeySpecifier(keySpecifier)
+                    .apply();
+        } else {
+            Token keyword = formatToken(queryConstructTypeNode.keyword(), this.trailingWS,
+                    this.trailingNL);
+            return queryConstructTypeNode.modify()
+                    .withKeyword(keyword)
+                    .apply();
+        }
     }
 
     @Override
@@ -3011,6 +3065,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             case REST_ARG:
 
             case RETURN_TYPE_DESCRIPTOR:
+            case ANNOTATION_ATTACH_POINT:
                 return true;
             default:
                 // Expressions

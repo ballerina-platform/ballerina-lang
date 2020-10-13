@@ -2531,12 +2531,12 @@ public class FormattingTreeModifier extends TreeModifier {
             return annotationDeclarationNode;
         }
         MetadataNode metadata = this.modifyNode(annotationDeclarationNode.metadata().orElse(null));
-        Token visibilityQualifier = getToken(annotationDeclarationNode.visibilityQualifier());
-        Token constKeyword = getToken(annotationDeclarationNode.constKeyword());
+        Token visibilityQualifier = getToken(annotationDeclarationNode.visibilityQualifier().orElse(null));
+        Token constKeyword = getToken(annotationDeclarationNode.constKeyword().orElse(null));
         Token annotationKeyword = getToken(annotationDeclarationNode.annotationKeyword());
-        Node typeDescriptor = this.modifyNode(annotationDeclarationNode.typeDescriptor());
+        Node typeDescriptor = this.modifyNode(annotationDeclarationNode.typeDescriptor().orElse(null));
         Token annotationTag = getToken(annotationDeclarationNode.annotationTag());
-        Token onKeyword = getToken(annotationDeclarationNode.onKeyword());
+        Token onKeyword = getToken(annotationDeclarationNode.onKeyword().orElse(null));
         SeparatedNodeList<Node> attachPoints = this.modifySeparatedNodeList(annotationDeclarationNode.attachPoints());
         Token semicolonToken = getToken(annotationDeclarationNode.semicolonToken());
         if (metadata != null) {
@@ -2557,17 +2557,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public AnnotationAttachPointNode transform(AnnotationAttachPointNode annotationAttachPointNode) {
-        if (!isInLineRange(annotationAttachPointNode, lineRange)) {
-            return annotationAttachPointNode;
-        }
-        Token sourceKeyword = getToken(annotationAttachPointNode.sourceKeyword());
-        Token firstIdent = getToken(annotationAttachPointNode.firstIdent());
-        Token secondIdent = getToken(annotationAttachPointNode.secondIdent());
-        return annotationAttachPointNode.modify()
-                .withSourceKeyword(formatToken(sourceKeyword, 0, 1, 0, 0))
-                .withFirstIdent(formatToken(firstIdent, 0, 0, 0, 0))
-                .withSecondIdent(formatToken(secondIdent, 0, 0, 0, 0))
-                .apply();
+        return annotationAttachPointNode;
     }
 
     @Override
