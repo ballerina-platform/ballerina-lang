@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Class providing cli tool to convert module to package
+ * Class providing cli tool to convert module to package.
  *
  * @since 2.0.0
  */
@@ -44,7 +44,7 @@ public class ModuleToPackage {
 
     static final String BALLERINA_TOML = "Ballerina.toml";
     static final String SOURCE_DIR = "src";
-    static final String MODULES_DIR = "modules";
+
     static Path projectDir;
     static Path oldProjectPath;
 
@@ -67,7 +67,7 @@ public class ModuleToPackage {
         }
         // Use the module name as project directory name
         List<Path> modules = Files.walk(oldProjectPath.resolve(SOURCE_DIR), 1)
-                    .filter(file -> !SOURCE_DIR.equals(file.getFileName().toString()))
+                    .filter(file -> !SOURCE_DIR.equals(String.valueOf(file.getFileName())))
                     .filter(file -> Files.isDirectory(file))
                     .map(Path::getFileName)
                     .collect(Collectors.toList());
@@ -99,7 +99,7 @@ public class ModuleToPackage {
 
     private static void createNewToml(String moduleName) throws IOException {
         // Copy Ballerina.toml
-        String oldToml = new String (Files.readAllBytes(oldProjectPath.resolve(BALLERINA_TOML)));
+        String oldToml = Files.readString(oldProjectPath.resolve(BALLERINA_TOML));
         Toml toml = new Toml().read(oldToml);
 
         Path newToml = projectDir.resolve(BALLERINA_TOML);
@@ -115,7 +115,7 @@ public class ModuleToPackage {
         pkg.put("version", toml.getTable("project").getString("version"));
         map.put("package", pkg);
         String tomlString = tomlWriter.write(map);
-        Files.write(newToml, tomlString.getBytes());
+        Files.writeString(newToml, tomlString);
     }
 
 

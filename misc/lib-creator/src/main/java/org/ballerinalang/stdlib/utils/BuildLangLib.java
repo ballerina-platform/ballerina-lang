@@ -18,18 +18,17 @@
 
 package org.ballerinalang.stdlib.utils;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.Target;
 import io.ballerina.projects.writers.BaloWriter;
-import io.ballerina.projects.Package;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * Class providing utility methods to generate balo from package.
  *
@@ -38,7 +37,6 @@ import io.ballerina.projects.Package;
 public class BuildLangLib {
 
     static Path projectDir;
-    static String packageName;
 
     public static void main(String[] args) throws IOException {
         PrintStream out = System.out;
