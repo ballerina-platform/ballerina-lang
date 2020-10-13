@@ -26,7 +26,7 @@ to nexus, in order for the build/release process to work as expected,
 all repositories should be using the same local m2 repository.
 
 * Now go to Jenkins Dashboard -> Manage Jenkins -> Global Tools Configuration
-and add a JDK 8 installation and an appropriate Maven installation.
+and add a JDK 11 installation and an appropriate Maven installation.
 
 * Now, go to Jenkins Dashboard -> New Item and create a Pipeline Job. 
 Then you will be directed to configuration section of the job,
