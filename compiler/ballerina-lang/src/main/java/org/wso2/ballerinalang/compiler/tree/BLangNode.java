@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -53,6 +54,7 @@ public abstract class BLangNode implements Node {
     /**
      * The position of this node in the source file.
      */
+    public Location location;
     public DiagnosticPos pos;
     private Set<Whitespace> ws;
 
