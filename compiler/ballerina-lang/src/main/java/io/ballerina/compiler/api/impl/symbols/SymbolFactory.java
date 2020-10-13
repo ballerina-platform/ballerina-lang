@@ -92,7 +92,11 @@ public class SymbolFactory {
             return createTypeDefinition((BTypeSymbol) symbol, name);
         }
 
-        return null;
+        if (symbol == null) {
+            throw new IllegalArgumentException("Symbol is 'null'");
+        }
+
+        throw new IllegalArgumentException("Unsupported symbol type: " + symbol.getClass().getName());
     }
 
     /**
