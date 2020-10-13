@@ -68,6 +68,11 @@ public class StartActionTest {
         BRunUtil.invoke(result, funcName);
     }
 
+    @Test(description = "Test casting for lambda functions")
+    public void testStartLambdaParameterCasting() {
+        BRunUtil.invoke(result, "testCast");
+    }
+
     @DataProvider(name = "FuncList")
     public Object[][] getFunctionNames() {
         return new Object[][]{
