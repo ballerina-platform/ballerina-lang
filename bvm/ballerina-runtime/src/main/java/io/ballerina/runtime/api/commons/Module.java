@@ -15,15 +15,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.runtime.api.runtime;
+package io.ballerina.runtime.api.commons;
 
 import java.util.Objects;
 
-import static io.ballerina.jvm.util.BLangConstants.ANON_ORG;
-import static io.ballerina.jvm.util.BLangConstants.DOT;
-import static io.ballerina.jvm.util.BLangConstants.EMPTY;
-import static io.ballerina.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
-import static io.ballerina.jvm.util.BLangConstants.VERSION_SEPARATOR;
+import static io.ballerina.runtime.util.BLangConstants.ANON_ORG;
+import static io.ballerina.runtime.util.BLangConstants.DOT;
+import static io.ballerina.runtime.util.BLangConstants.EMPTY;
+import static io.ballerina.runtime.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static io.ballerina.runtime.util.BLangConstants.VERSION_SEPARATOR;
 
 /**
  * {@code Module} represents the module of defined type in Ballerina.
