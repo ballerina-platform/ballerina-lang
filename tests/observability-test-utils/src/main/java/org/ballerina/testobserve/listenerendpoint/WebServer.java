@@ -42,18 +42,16 @@ import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.ballerinalang.jvm.api.BExecutor;
+import org.ballerinalang.jvm.api.BRuntime;
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BValueCreator;
 import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.api.values.BError;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.ValueCreator;
 
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
@@ -81,15 +79,13 @@ public class WebServer {
     private final Map<String, Service> serviceMap = new ConcurrentHashMap<>();
     private final int port;
     private final EventLoopGroup loopGroup;
-    private final Scheduler scheduler;
-    private final ValueCreator valueCreator;
+    private final BRuntime runtime;
     private boolean isRunning;
 
-    public WebServer(int port, Scheduler scheduler) {
+    public WebServer(int port, BRuntime runtime) {
         this.port = port;
         this.loopGroup = new NioEventLoopGroup();
-        this.valueCreator = ValueCreator.getValueCreator(TEST_OBSERVE_PACKAGE.toString());
-        this.scheduler = scheduler;
+        this.runtime = runtime;
     }
 
     /**
@@ -137,8 +133,7 @@ public class WebServer {
                             pipeline.addLast("decoder", new HttpRequestDecoder(4096, 8192, 8192, false));
                             pipeline.addLast("aggregator", new HttpObjectAggregator(100 * 1024 * 1024));
                             pipeline.addLast("encoder", new HttpResponseEncoder());
-                            pipeline.addLast("handler", new WebServerInboundHandler(scheduler, valueCreator,
-                                    serviceMap));
+                            pipeline.addLast("handler", new WebServerInboundHandler(runtime, serviceMap));
                         }
                     })
                     .bind(this.port)
@@ -176,14 +171,11 @@ public class WebServer {
      * Inbound message handler of the Web Server.
      */
     public static class WebServerInboundHandler extends SimpleChannelInboundHandler<Object> {
-        private Scheduler scheduler;
-        private ValueCreator valueCreator;
+        private BRuntime runtime;
         private Map<String, Service> serviceMap;
 
-        public WebServerInboundHandler(Scheduler scheduler, ValueCreator valueCreator,
-                                       Map<String, Service> serviceMap) {
-            this.scheduler = scheduler;
-            this.valueCreator = valueCreator;
+        public WebServerInboundHandler(BRuntime runtime, Map<String, Service> serviceMap) {
+            this.runtime = runtime;
             this.serviceMap = serviceMap;
         }
 
@@ -202,8 +194,7 @@ public class WebServer {
             String serviceName = requestUriSplit[1];
             String resourceName = requestUriSplit[2];
 
-            ObjectValue callerObject = valueCreator.createObjectValue(CALLER_TYPE_NAME, scheduler, null,
-                    null, new Object[0]);
+            BObject callerObject = BValueCreator.createObjectValue(TEST_OBSERVE_PACKAGE, CALLER_TYPE_NAME);
             callerObject.addNativeData(NETTY_CONTEXT_NATIVE_DATA_KEY, ctx);
 
             // Preparing the arguments for dispatching the resource function
@@ -241,7 +232,7 @@ public class WebServer {
             StrandMetadata strandMetadata = new StrandMetadata(TEST_OBSERVE_PACKAGE.getOrg(),
                     TEST_OBSERVE_PACKAGE.getName(), TEST_OBSERVE_PACKAGE.getVersion(), resourceName);
             Utils.logInfo("Dispatching resource function " + serviceName + "." + resourceName);
-            BExecutor.submit(scheduler, serviceObject, resourceName, null, strandMetadata,
+            runtime.invokeMethodAsync(serviceObject, resourceName, null, strandMetadata,
                     new WebServerCallableUnitCallback(ctx, serviceName, resourceName), properties, args);
         }
 
