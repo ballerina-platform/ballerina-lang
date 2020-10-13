@@ -29,8 +29,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Represents the target directory model.
@@ -141,15 +141,6 @@ public class Target {
      */
     public Path birCachePath() {
         return this.targetPath.resolve(ProjectConstants.CACHES_DIR_NAME).resolve(ProjectConstants.BIR_CACHE_DIR_NAME);
-    }
-
-    /**
-     * Returns the balo directory path.
-     *
-     * @return balo path
-     */
-    public Path baloPath() {
-        return targetPath.resolve(ProjectConstants.BALO_DIR_NAME);
     }
 
     /**

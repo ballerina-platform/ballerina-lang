@@ -71,7 +71,6 @@ public class TestTarget {
                         .resolve("sameera").resolve("myproject").resolve("0.1.0").resolve("myproject.bir").toString());
         Assert.assertEquals(jarPath.toString(),
                 projectPath.toAbsolutePath().resolve("target").resolve("caches").resolve("jar_cache")
-                        .resolve("sameera").resolve("myproject").resolve("0.1.0")
                         .resolve("sameera-myproject-0.1.0.jar").toString());
         Assert.assertEquals(executablePath.toString(),
                 projectPath.toAbsolutePath().resolve("target").resolve("bin").resolve("myproject.jar").toString());

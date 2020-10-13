@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -48,7 +47,7 @@ import java.util.zip.ZipOutputStream;
  *
  * @since 2.0.0
  */
-class BaloWriter {
+public class BaloWriter {
     private static final String MODULES_ROOT = "modules";
     private static final String RESOURCE_DIR_NAME = "resources";
     private static final String BLANG_SOURCE_EXT = ".bal";
@@ -62,7 +61,7 @@ class BaloWriter {
      * @param pkg  Package to be written as a .balo.
      * @param baloPath Directory where the .balo should be created.
      */
-    static void write(Package pkg, Path baloPath) {
+    public static void write(Package pkg, Path baloPath) {
         // todo check if the given package is compiled properly
 
         // Create the archive over write if exists
