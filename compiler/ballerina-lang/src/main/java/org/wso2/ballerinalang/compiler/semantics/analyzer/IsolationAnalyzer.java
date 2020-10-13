@@ -379,7 +379,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangExpression expr = varNode.expr;
 
         BType fieldType = varNode.type;
-        if (isIsolatedObjectField() && isMutableField(varNode.symbol, fieldType)) {
+        if (isIsolatedClassField() && isMutableField(varNode.symbol, fieldType)) {
             if (!Symbols.isFlagOn(flags, Flags.PRIVATE)) {
                 dlog.error(varNode.pos, DiagnosticCode.INVALID_NON_PRIVATE_MUTABLE_FIELD_IN_ISOLATED_OBJECT);
             }
@@ -1570,19 +1570,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return Symbols.isFlagOn(flags, Flags.ISOLATED);
     }
 
-    private boolean isIsolatedObjectField() {
+    private boolean isIsolatedClassField() {
         BLangNode node = env.node;
-        NodeKind kind = node.getKind();
-
-        if (kind == NodeKind.OBJECT_TYPE) {
-            return ((BLangObjectTypeNode) node).flagSet.contains(Flag.ISOLATED);
-        }
-
-        if (kind == NodeKind.CLASS_DEFN) {
-            return ((BLangClassDefinition) node).flagSet.contains(Flag.ISOLATED);
-        }
-
-        return false;
+        return node.getKind() == NodeKind.CLASS_DEFN && ((BLangClassDefinition) node).flagSet.contains(Flag.ISOLATED);
     }
 
     private boolean isMutableField(BVarSymbol symbol, BType type) {
