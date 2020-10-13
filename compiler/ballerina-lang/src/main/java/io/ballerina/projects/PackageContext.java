@@ -46,6 +46,8 @@ class PackageContext {
     private DependencyGraph<ModuleId> moduleDependencyGraph;
     private CompiledJarFile compiledJarEntries;
 
+    private PackageCompilation packageCompilation;
+
     // TODO Try to reuse the unaffected compilations if possible
     private final Map<ModuleId, ModuleCompilation> moduleCompilationMap;
 
@@ -137,8 +139,10 @@ class PackageContext {
     }
 
     PackageCompilation getPackageCompilation() {
-        // TODO - cache the package compilation?
-        return new PackageCompilation(this);
+        if (packageCompilation == null) {
+            packageCompilation = new PackageCompilation(this);
+        }
+        return packageCompilation;
     }
 
     Collection<PackageDependency> packageDependencies() {
