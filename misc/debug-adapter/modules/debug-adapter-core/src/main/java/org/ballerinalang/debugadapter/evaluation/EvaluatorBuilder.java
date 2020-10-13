@@ -37,7 +37,7 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.BasicLiteralEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.BinaryExpressionEvaluator;

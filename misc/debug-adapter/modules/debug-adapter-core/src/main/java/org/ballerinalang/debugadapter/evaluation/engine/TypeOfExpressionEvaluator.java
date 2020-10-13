@@ -17,10 +17,11 @@
 package org.ballerinalang.debugadapter.evaluation.engine;
 
 import com.sun.jdi.Value;
-import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 
 import java.util.Collections;
 import java.util.List;
@@ -50,15 +51,22 @@ public class TypeOfExpressionEvaluator extends Evaluator {
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
-        BExpressionValue result = exprEvaluator.evaluate();
-        // primitive types need to be handled separately, as the jvm runtime util method accepts only the sub classes of
-        // java.lang.Object. Therefore java primitive types are converted into their wrapper implementations
-        // first.
-        Value valueAsObject = getValueAsObject(context, result.getJdiValue());
-        List<String> methodArgTypeNames = Collections.singletonList(JAVA_OBJECT_CLASS);
-        RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, GET_TYPEDESC_METHOD,
-                methodArgTypeNames);
-        method.setArgValues(Collections.singletonList(valueAsObject));
-        return new BExpressionValue(context, method.invoke());
+        try {
+            BExpressionValue result = exprEvaluator.evaluate();
+            // primitive types need to be handled separately, as the jvm runtime util method accepts only the sub
+            // classes of 'java.lang.Object'. Therefore java primitive types are converted into their wrapper
+            // implementations first.
+            Value valueAsObject = getValueAsObject(context, result.getJdiValue());
+            List<String> methodArgTypeNames = Collections.singletonList(JAVA_OBJECT_CLASS);
+            RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, GET_TYPEDESC_METHOD,
+                    methodArgTypeNames);
+            method.setArgValues(Collections.singletonList(valueAsObject));
+            return new BExpressionValue(context, method.invoke());
+        } catch (EvaluationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
+                    syntaxNode.toSourceCode().trim()));
+        }
     }
 }
