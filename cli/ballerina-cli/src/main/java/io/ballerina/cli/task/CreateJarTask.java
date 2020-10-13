@@ -21,6 +21,10 @@ package io.ballerina.cli.task;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.model.Target;
+import io.ballerina.projects.utils.ProjectUtils;
+
+import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * Task for creating jar file.
@@ -29,10 +33,15 @@ public class CreateJarTask implements Task {
 
     @Override
     public void execute(Project project) {
-        Target target = new Target(project.sourceRoot());
+        Target target;
+        try {
+            target = new Target(project.sourceRoot());
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "error occurred while creating the target directory at " + project.sourceRoot(), e);
+        }
+        String jarName = ProjectUtils.getJarName(project.currentPackage());
         project.currentPackage().getCompilation().emit(PackageCompilation.OutputType.JAR,
-                target.getJarPath(project.currentPackage()));
-
-        //TODO: model the home cache
+                target.getJarPath(project.currentPackage()).resolve(jarName));
     }
 }

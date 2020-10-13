@@ -22,6 +22,9 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.Target;
+import io.ballerina.projects.utils.ProjectUtils;
+
+import java.io.IOException;
 import java.io.PrintStream;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
@@ -44,9 +47,19 @@ public class CreateBaloTask implements Task {
         this.out.println("Creating balos");
 
         if (project instanceof BuildProject) {
-            Target target = new Target(project.sourceRoot());
+            Target target;
+            try {
+                target = new Target(project.sourceRoot());
+            } catch (IOException e) {
+                throw new RuntimeException("error occurred while writing the BALO:" + e.getMessage());
+            }
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-            packageCompilation.emit(PackageCompilation.OutputType.BALO, target.baloPath());
+            String baloName = ProjectUtils.getBaloName(
+                    project.currentPackage().packageOrg().toString(),
+                    project.currentPackage().packageName().toString(),
+                    project.currentPackage().packageVersion().toString(),
+                    null);
+            packageCompilation.emit(PackageCompilation.OutputType.BALO, target.baloPath().resolve(baloName));
         }
     }
 }

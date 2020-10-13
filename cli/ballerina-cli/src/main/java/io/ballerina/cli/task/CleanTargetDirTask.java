@@ -33,14 +33,11 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 public class CleanTargetDirTask implements Task {
     @Override
     public void execute(Project project) {
-        Target target = new Target(project.sourceRoot());
         try {
-            deleteResource(target.binPath());
-            deleteResource(target.baloPath());
-            deleteResource(target.cachesPath());
-
+            Target target = new Target(project.sourceRoot());
+            target.clean();
         } catch (IOException e) {
-            throw createLauncherException("Unable to clean target : " + target.path().toString() + "\n", e);
+            throw createLauncherException("Unable to clean target directory: ", e);
         }
     }
 

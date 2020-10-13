@@ -24,6 +24,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.model.BaloJson;
 import io.ballerina.projects.model.PackageJson;
 import io.ballerina.projects.model.Target;
+import io.ballerina.projects.utils.ProjectUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -65,13 +66,15 @@ public class TestBaloWriter {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Target target = new Target(project.sourceRoot());
         Path baloPath = target.getBaloPath(project.currentPackage());
-        packageCompilation.emit(PackageCompilation.OutputType.BALO, baloPath);
-
-//        // invoke write balo method
-//        Path balo = BaloWriter.write(project.currentPackage(), BALO_PATH);
-
-//        // balo name
-//        Assert.assertEquals(new File(String.valueOf(balo)).getName(), "foo-winery-any-0.1.0.balo");
+        String baloName = ProjectUtils.getBaloName(
+                project.currentPackage().packageOrg().toString(),
+                project.currentPackage().packageName().toString(),
+                project.currentPackage().packageVersion().toString(),
+                null);
+        // balo name
+        Assert.assertEquals(baloName, "foo-winery-any-0.1.0.balo");
+        // invoke write balo method
+        packageCompilation.emit(PackageCompilation.OutputType.BALO, baloPath.resolve(baloName));
 
         // unzip balo
         TestUtils.unzip(String.valueOf(baloPath), String.valueOf(BALO_PATH));
@@ -167,11 +170,16 @@ public class TestBaloWriter {
         Path baloPath = target.getBaloPath(project.currentPackage());
         packageCompilation.emit(PackageCompilation.OutputType.BALO, baloPath);
 
-//        // invoke write balo method
-//        Path balo = BaloWriter.write(project.currentPackage(), BALO_PATH);
-//
-//        // balo name
-//        Assert.assertEquals(new File(String.valueOf(balo)).getName(), "bar-winery-any-0.1.0.balo");
+        String baloName = ProjectUtils.getBaloName(
+                project.currentPackage().packageOrg().toString(),
+                project.currentPackage().packageName().toString(),
+                project.currentPackage().packageVersion().toString(),
+                null);
+
+        // balo name
+        Assert.assertEquals(baloName, "foo-winery-any-0.1.0.balo");
+        // invoke write balo method
+        packageCompilation.emit(PackageCompilation.OutputType.BALO, baloPath.resolve(baloName));
 
         // unzip balo
         TestUtils.unzip(String.valueOf(baloPath), String.valueOf(BALO_PATH));

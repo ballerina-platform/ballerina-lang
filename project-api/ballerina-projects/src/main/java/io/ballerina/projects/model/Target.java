@@ -20,6 +20,7 @@ package io.ballerina.projects.model;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.utils.ProjectUtils;
 import org.apache.commons.io.FileUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
@@ -29,8 +30,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
-
-import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT;
 
 /**
@@ -101,12 +100,7 @@ public class Target {
      * @return path of the executable
      */
     public Path getJarPath(Package pkg) {
-        Path jarCachePath = this.targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
-                .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME)
-                .resolve(pkg.packageOrg().toString())
-                .resolve(pkg.packageName().toString())
-                .resolve(pkg.packageVersion().toString());
-        return jarCachePath.resolve(ProjectUtils.getJarName(pkg));
+        return jarCachePath;
     }
 
     /**
@@ -119,8 +113,7 @@ public class Target {
         if (outputPath != null) {
             return outputPath;
         }
-        return this.targetPath.resolve(ProjectConstants.BIN_DIR_NAME)
-                .resolve(pkg.packageName().toString() + ProjectConstants.BLANG_COMPILED_JAR_EXT);
+        return this.targetPath.resolve(ProjectConstants.BIN_DIR_NAME).resolve(ProjectUtils.getExecutableName(pkg));
     }
 
     /**
@@ -191,7 +184,7 @@ public class Target {
             }
         } else {
             Path userDir = Paths.get(System.getProperty("user.dir"));
-            if (FileUtils.hasExtension(this.outputPath)) {
+            if (io.ballerina.projects.utils.FileUtils.hasExtension(this.outputPath)) {
                 this.outputPath = userDir.resolve(this.outputPath);
             } else {
                 this.outputPath = userDir.resolve(this.outputPath + BLANG_COMPILED_JAR_EXT);

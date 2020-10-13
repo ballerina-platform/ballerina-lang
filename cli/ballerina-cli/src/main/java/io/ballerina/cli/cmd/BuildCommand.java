@@ -93,16 +93,9 @@ public class BuildCommand implements BLauncherCmd {
         this.output = executableOutputDir.toString();
     }
 
-//    @CommandLine.Option(names = {"--sourceroot"},
-//                        description = "Path to the directory containing the source files and modules")
-//    private String sourceRoot;
-
-    @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
-                                                                   "executable(s).")
+//    @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
+//                                                                   "executable(s).")
     private boolean compile;
-
-//    @CommandLine.Option(names = {"--all", "-a"}, description = "Build or compile all the modules of the project.")
-//    private boolean buildAll;
 
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
                                                                   "output file name may or may not contain the " +
@@ -121,10 +114,6 @@ public class BuildCommand implements BLauncherCmd {
 
     @CommandLine.Parameters
     private List<String> argList;
-
-//    @CommandLine.Option(names = {"--native"}, hidden = true,
-//                        description = "Compile a Ballerina program to a native binary.")
-//    private boolean nativeBinary;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -154,211 +143,6 @@ public class BuildCommand implements BLauncherCmd {
             this.errStream.println(commandUsageInfo);
             return;
         }
-
-//        String[] args;
-//        if (this.argList == null) {
-//            args = new String[0];
-//        } else if (this.buildAll) {
-//            args = this.argList.toArray(new String[0]);
-//        } else {
-//            args = argList.subList(1, argList.size()).toArray(new String[0]);
-//        }
-//
-//        // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
-//        if (!this.skipTests && this.debugPort != null) {
-//            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
-//        }
-//
-//        String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
-//        // check if there are too many arguments.
-//        if (userArgs.length > 0) {
-//            CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
-//            CommandUtil.exitError(this.exitWhenFinish);
-//            return;
-//        }
-//
-//        // If -a or --all is not given, then it is mandatory to give a module name or a Ballerina file as the arg.
-//        if (!this.buildAll && (this.argList == null || this.argList.size() == 0)) {
-//            CommandUtil.printError(this.errStream,
-//                    "'build' command requires a module name or a Ballerina file to build/compile. Use '-a' or " +
-//                    "'--all' to build/compile all the modules of the project.",
-//                    "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
-//                    false);
-//            CommandUtil.exitError(this.exitWhenFinish);
-//            return;
-//        }
-//
-//        // Validate and decide the source root and the full path of the source.
-//        this.sourceRootPath = null != this.sourceRoot ?
-//                Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
-//        Path sourcePath = null;
-//        Path targetPath;
-//
-//        // When -a or --all is provided, check if the command is executed within a Ballerina project. Update source
-//        // root path if the command is executed inside a project.
-//        if (this.buildAll) {
-//            //// Check if the output flag is set when building all the modules.
-//            if (null != this.output) {
-//                CommandUtil.printError(this.errStream,
-//                                       "'-o' and '--output' are only supported when building a single Ballerina " +
-//                                               "file.",
-//                                       "ballerina build -o <output-file> <ballerina-file> ",
-//                                       true);
-//                CommandUtil.exitError(this.exitWhenFinish);
-//                return;
-//            }
-//
-//            //// Validate and set the path of the source root.
-//            if (!ProjectDirs.isProject(this.sourceRootPath)) {
-//                Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
-//                if (null == findRoot) {
-//                    CommandUtil.printError(this.errStream,
-//                                           "you are trying to build/compile a Ballerina project that does not have a " +
-//                                                   "Ballerina.toml file.",
-//                                           null,
-//                                           false);
-//                    CommandUtil.exitError(this.exitWhenFinish);
-//                    return;
-//                }
-//
-//                this.sourceRootPath = findRoot;
-//            }
-//
-//            targetPath = this.sourceRootPath.resolve(ProjectConstants.TARGET_DIR_NAME);
-//
-//        } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-//            // TODO: remove this once code cov is implemented to support single bal file
-//            if (coverage) {
-//                coverage = false;
-//                this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
-//                        "and continuing the test run...");
-//            }
-//            // when a single bal file is provided.
-//            if (this.compile) {
-//                CommandUtil.printError(this.errStream,
-//                                       "'-c' or '--compile' can only be used with modules.", null, false);
-//                CommandUtil.exitError(this.exitWhenFinish);
-//                return;
-//            } else {
-//                //// check if path given is an absolute path. update source root accordingly.
-//                if (Paths.get(this.argList.get(0)).isAbsolute()) {
-//                    sourcePath = Paths.get(this.argList.get(0));
-//                } else {
-//                    sourcePath = this.sourceRootPath.resolve(this.argList.get(0));
-//                }
-//                this.sourceRootPath = sourcePath.getParent();
-//                //// check if the given file exists.
-//                if (Files.notExists(sourcePath)) {
-//                    CommandUtil.printError(this.errStream,
-//                                           "'" + sourcePath + "' Ballerina file does not exist.",
-//                                           null,
-//                                           false);
-//                    CommandUtil.exitError(this.exitWhenFinish);
-//                    return;
-//                }
-//
-//                //// check if the given file is a regular file and not a symlink.
-//                if (!Files.isRegularFile(sourcePath)) {
-//                    CommandUtil.printError(this.errStream,
-//                                           "'" + sourcePath +
-//                                                   "' is not a Ballerina file. Check if it is a symlink or a shortcut.",
-//                                           null,
-//                                           false);
-//                    CommandUtil.exitError(this.exitWhenFinish);
-//                    return;
-//                }
-//
-//                try {
-//                    targetPath = Files.createTempDirectory("ballerina-build-" + System.nanoTime());
-//                } catch (IOException e) {
-//                    throw LauncherUtils.createLauncherException("Error occurred when creating the executable.");
-//                }
-//            }
-//        } else if (Files.exists(
-//                this.sourceRootPath.resolve(ProjectConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0))) &&
-//                Files.isDirectory(
-//                        this.sourceRootPath.resolve(ProjectConstants.SOURCE_DIR_NAME)
-//                                .resolve(this.argList.get(0)))) {
-//
-//            // when building a ballerina module
-//            //// the output flag cannot be set for projects
-//            if (null != this.output) {
-//                CommandUtil.printError(this.errStream,
-//                                       "'-o' and '--output' are only supported for building a single Ballerina " +
-//                                               "file.",
-//                                       null,
-//                                       false);
-//                CommandUtil.exitError(this.exitWhenFinish);
-//                return;
-//            }
-//
-//            //// check if command executed from project root.
-//            if (!RepoUtils.isBallerinaProject(this.sourceRootPath)) {
-//                CommandUtil.printError(this.errStream,
-//                        "you are trying to build/compile a module that is not inside a project.",
-//                        null,
-//                        false);
-//                CommandUtil.exitError(this.exitWhenFinish);
-//                return;
-//            }
-//
-//            //// check if module name given is not absolute.
-//            if (Paths.get(argList.get(0)).isAbsolute()) {
-//                CommandUtil.printError(this.errStream,
-//                                       "you are trying to build/compile a module giving the absolute path. You " +
-//                                               "only need to give the name of the module.",
-//                                       "ballerina build [-c] <module-name>",
-//                                       true);
-//                CommandUtil.exitError(this.exitWhenFinish);
-//                return;
-//            }
-//
-//            String moduleName = argList.get(0);
-//
-//            //// remove end forward slash
-//            if (moduleName.endsWith("/")) {
-//                moduleName = moduleName.substring(0, moduleName.length() - 1);
-//            }
-//
-//            sourcePath = Paths.get(moduleName);
-//
-//            //// check if module exists.
-//            if (Files.notExists(this.sourceRootPath.resolve(ProjectConstants.SOURCE_DIR_NAME).resolve(sourcePath))) {
-//                CommandUtil.printError(this.errStream,
-//                        "'" + sourcePath + "' module does not exist.",
-//                        "ballerina build [-c] <module-name>",
-//                        true);
-//                CommandUtil.exitError(this.exitWhenFinish);
-//                return;
-//            }
-//
-//            targetPath = this.sourceRootPath.resolve(ProjectConstants.TARGET_DIR_NAME);
-//        } else {
-//            CommandUtil.printError(this.errStream,
-//                                   "invalid Ballerina source path. It should either be a name of a module in a " +
-//                                   "Ballerina project or a file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX +
-//                                   "\' extension. Use -a or --all " +
-//                                   "to build or compile all modules.",
-//                                   "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
-//                                   true);
-//            CommandUtil.exitError(this.exitWhenFinish);
-//            return;
-//        }
-//
-//        // normalize paths
-//        this.sourceRootPath = this.sourceRootPath.normalize();
-
-        // create builder context
-//        BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
-//        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, skipCopyLibsFromDist,
-//                observabilityIncluded);
-//        buildContext.put(BuildContextField.JAR_RESOLVER, jarResolver);
-//        buildContext.setOut(outStream);
-//        buildContext.setErr(errStream);
-
-//        boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
-        // output path is the current directory if -o flag is not given.
-
 
         String[] args;
         if (this.argList == null) {
@@ -428,11 +212,9 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateJarTask())   // create the jar
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
 //                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
-//                .addTask(new RunTestsTask(testReport, coverage, args), this.skipTests || isSingleFileBuild) // run tests
-                                                                                                // (projects only)
-                .addTask(new CreateExecutableTask(outStream, outputPath), this.compile)  // create the executable.jar file
-//                .addTask(new CopyExecutableTask(outputPath), !isSingleFileBuild)    // copy executable
-//                .addTask(new PrintExecutablePathTask(), this.compile)   // print the location of the executable
+//                .addTask(new RunTestsTask(testReport, coverage, args), this.skipTests || isSingleFileBuild)
+                    // run tests (projects only)
+                .addTask(new CreateExecutableTask(outStream, outputPath), this.compile) // create the executable.jar file
 //                .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
                 .build();

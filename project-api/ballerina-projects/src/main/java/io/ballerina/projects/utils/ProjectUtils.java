@@ -144,6 +144,12 @@ public class ProjectUtils {
                 + "-" + pkg.packageVersion() + ProjectConstants.BLANG_COMPILED_JAR_EXT;
     }
 
+    public static String getExecutableName(Package pkg) {
+        // <packagename>.jar
+        return pkg.packageName().toString() + ProjectConstants.BLANG_COMPILED_JAR_EXT;
+    }
+
+
     public static Path getBirCacheFromHome() {
         return createAndGetHomeReposPath().resolve(ProjectConstants.BIR_CACHE_DIR_NAME + "-" +
                 RepoUtils.getBallerinaVersion());

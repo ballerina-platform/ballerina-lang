@@ -42,7 +42,7 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  * Task for creating the executable jar file.
  */
 public class CreateExecutableTask implements Task {
-    private transient PrintStream out;
+    private final transient PrintStream out;
     private Path outputPath;
 
     private static HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
@@ -55,8 +55,8 @@ public class CreateExecutableTask implements Task {
     @Override
     public void execute(Project project) {
         Path executablePath;
-        Target target = new Target(project.sourceRoot());
         try {
+            Target target = new Target(project.sourceRoot());
             if (outputPath != null) {
                 target.setOutputPath(project.currentPackage(), outputPath);
             }

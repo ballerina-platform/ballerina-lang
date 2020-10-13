@@ -36,19 +36,10 @@ public class CreateTargetDirTask implements Task {
     
     @Override
     public void execute(Project project) {
-        Target target = new Target(project.sourceRoot());
         try {
-            if (Files.notExists(target.path())) {
-                Files.createDirectories(target.path());
-            }
-            // We create a home repo if home repo path not exists
-            Path homeRepo = RepoUtils.createAndGetHomeReposPath();
-            Files.createDirectories(homeRepo);
-            Files.createDirectories(ProjectUtils.getBaloCacheFromHome());
-            Files.createDirectories(ProjectUtils.getBirCacheFromHome());
-            Files.createDirectories(ProjectUtils.getJarCacheFromHome());
+            new Target(project.sourceRoot());
         } catch (IOException e) {
-            throw createLauncherException("unable to create target directory: " + target.path());
+            throw createLauncherException("unable to create target directory: " + e.getMessage());
         }
     }
 }

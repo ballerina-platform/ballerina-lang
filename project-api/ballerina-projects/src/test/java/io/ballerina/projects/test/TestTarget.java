@@ -23,6 +23,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.Target;
+import io.ballerina.projects.utils.ProjectUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -61,7 +62,8 @@ public class TestTarget {
         Module defaultModule = currentPackage.getDefaultModule();
 
         Path birCachePath = projectTarget.getBirCachePath(defaultModule);
-        Path jarPath = projectTarget.getJarPath(currentPackage);
+        Path jarPath = projectTarget.getJarPath(currentPackage)
+                .resolve(ProjectUtils.getJarName(project.currentPackage()));
         Path executablePath = projectTarget.getExecutablePath(currentPackage);
 
         Assert.assertEquals(birCachePath.toString(),
