@@ -20,11 +20,9 @@ package io.ballerina.projects.model;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.utils.ProjectConstants;
-import io.ballerina.projects.utils.ProjectUtils;
 import org.apache.commons.io.FileUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -119,10 +117,10 @@ public class Target {
     }
 
     /**
-     * Clean any files that created from the build
+     * Clean any files that created from the build.
      *
      */
-    public void clean() throws IOException{
+    public void clean() throws IOException {
         // Remove from cache
         FileUtils.deleteDirectory(this.cache.toFile());
         // Remove any generated balo

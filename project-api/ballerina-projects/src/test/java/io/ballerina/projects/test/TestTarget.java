@@ -53,16 +53,15 @@ public class TestTarget {
         Package currentPackage = project.currentPackage();
 
         Target projectTarget = new Target(project.sourceRoot());
-        Path baloCachePath = projectTarget.getBaloCachePath(currentPackage);
+        Path baloCachePath = projectTarget.getBaloPath(currentPackage);
         Assert.assertEquals(baloCachePath.toString(),
-                projectPath.toAbsolutePath().resolve("target").resolve("caches").resolve("balo_cache").resolve(
-                        "sameera-myproject-any-0.1.0.balo").toString());
+                projectPath.toAbsolutePath().resolve("target").resolve("balo").toString());
 
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
 
         Path birCachePath = projectTarget.getBirCachePath(defaultModule);
-        Path executablePath = projectTarget.getExecutablePath(defaultModule);
+        Path executablePath = projectTarget.getJarPath(defaultModule);
 
         Assert.assertEquals(birCachePath.toString(),
                 projectPath.toAbsolutePath().resolve("target").resolve("caches").resolve("bir_cache")
