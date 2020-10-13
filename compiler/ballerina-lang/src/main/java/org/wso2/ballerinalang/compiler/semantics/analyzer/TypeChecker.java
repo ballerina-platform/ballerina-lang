@@ -2906,7 +2906,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     return;
                 }
 
-                if (Symbols.isFlagOn(expType.flags, Flags.ISOLATED)) {
+                if (Symbols.isFlagOn(actualType.tsymbol.flags, Flags.ANONYMOUS) &&
+                        Symbols.isFlagOn(expType.flags, Flags.ISOLATED)) {
                     actualType.flags |= Flags.ISOLATED;
                     actualType.tsymbol.flags |= Flags.ISOLATED;
                 }
