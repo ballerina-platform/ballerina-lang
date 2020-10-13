@@ -3828,30 +3828,6 @@ public class BallerinaParser extends AbstractParser {
                     isInConditionalExpr);
         }
 
-        if (isSimpleTypeNode(lhsExpr.kind)) {
-            //Only a reference to a type is allowed as expression.
-            //Simple type descriptors are considered as reference to a type
-            switch (nextTokenKind) {
-                case OPEN_PAREN_TOKEN:// int()
-                case OPEN_BRACKET_TOKEN: // int[]
-                case DOT_TOKEN:
-                case RIGHT_ARROW_TOKEN: // remote method call
-                case SYNC_SEND_TOKEN:
-                case ANNOT_CHAINING_TOKEN:
-                case OPTIONAL_CHAINING_TOKEN:
-                case QUESTION_MARK_TOKEN:
-                case DOT_LT_TOKEN:
-                case SLASH_LT_TOKEN:
-                case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
-                case SLASH_ASTERISK_TOKEN:
-                    return lhsExpr;
-                case IS_KEYWORD:
-                case RIGHT_DOUBLE_ARROW_TOKEN: // anon function
-                default:
-                    break;
-            }
-        }
-
         // Look for >> and >>> tokens as they are not sent from lexer due to ambiguity. e.g. <map<int>> a
         if (nextTokenKind == SyntaxKind.GT_TOKEN && peek(2).kind == SyntaxKind.GT_TOKEN) {
             if (peek(3).kind == SyntaxKind.GT_TOKEN) {
@@ -7817,30 +7793,6 @@ public class BallerinaParser extends AbstractParser {
             case TYPEDESC_KEYWORD: // This is for recovery logic. <code>typedesc a;</code> scenario recovered here.
             case READONLY_KEYWORD:
             case DISTINCT_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    private boolean isSimpleTypeNode(SyntaxKind typeKeyword) {
-        switch (typeKeyword) {
-            case INT_TYPE_DESC:
-            case FLOAT_TYPE_DESC:
-            case DECIMAL_TYPE_DESC:
-            case BOOLEAN_TYPE_DESC:
-            case STRING_TYPE_DESC:
-            case BYTE_TYPE_DESC:
-            case XML_TYPE_DESC:
-            case JSON_TYPE_DESC:
-            case HANDLE_TYPE_DESC:
-            case ANY_TYPE_DESC:
-            case ANYDATA_TYPE_DESC:
-            case READONLY_TYPE_DESC:
-            case NEVER_TYPE_DESC:
-            case SERVICE_TYPE_DESC:
-            case VAR_TYPE_DESC:
-            case ERROR_TYPE_DESC:
                 return true;
             default:
                 return false;
