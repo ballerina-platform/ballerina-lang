@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+
 /**
  * @since 0.94
  */
@@ -66,7 +68,12 @@ public class BSymbol implements Symbol {
         this.type = type;
         this.owner = owner;
         this.pos = pos;
-        this.origin = origin;
+
+        if (name.value.startsWith("$missingNode$")) {
+            this.origin = VIRTUAL;
+        } else {
+            this.origin = origin;
+        }
     }
 
     public MarkdownDocAttachment getMarkdownDocAttachment() {
