@@ -32,7 +32,9 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-packerina')
+    implementation project(':ballerina-projects')
     implementation project(':docerina')
+    implementation 'com.moandjiezana.toml:toml4j'
 
     dist project(':ballerina-lang')
     dist project(':ballerina-tool')
