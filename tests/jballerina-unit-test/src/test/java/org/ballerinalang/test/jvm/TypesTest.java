@@ -224,6 +224,11 @@ public class TypesTest {
     }
 
     @Test
+    public void testUnionType() {
+        BRunUtil.invoke(compileResult, "testUnionType");
+    }
+
+    @Test
     public void testInferredArrayType() {
         BRunUtil.invoke(compileResult, "testInferredArrayType");
     }

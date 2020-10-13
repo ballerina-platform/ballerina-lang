@@ -163,22 +163,22 @@ public class TypeChecker {
 
     public static double anyToFloat(Object sourceVal) {
         return TypeConverter.anyToFloatCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
-                BTypes.typeFloat));
+                                                                                            BTypes.typeFloat));
     }
 
     public static boolean anyToBoolean(Object sourceVal) {
         return TypeConverter.anyToBooleanCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
-                BTypes.typeBoolean));
+                                                                                              BTypes.typeBoolean));
     }
 
     public static int anyToByte(Object sourceVal) {
         return TypeConverter.anyToByteCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
-                BTypes.typeByte));
+                                                                                           BTypes.typeByte));
     }
 
     public static DecimalValue anyToDecimal(Object sourceVal) {
         return TypeConverter.anyToDecimal(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
-                BTypes.typeDecimal));
+                                                                                             BTypes.typeDecimal));
     }
 
     public static byte anyToJByte(Object sourceVal) {
@@ -224,7 +224,7 @@ public class TypeChecker {
     /**
      * Check whether a given value belongs to the given type.
      *
-     * @param sourceVal  value to check the type
+     * @param sourceVal value to check the type
      * @param targetType type to be test against
      * @return true if the value belongs to the given type, false otherwise
      */
@@ -235,7 +235,7 @@ public class TypeChecker {
     /**
      * Check whether a given value belongs to the given type.
      *
-     * @param sourceVal  value to check the type
+     * @param sourceVal value to check the type
      * @param sourceType type of the value
      * @param targetType type to be test against
      * @return true if the value belongs to the given type, false otherwise
@@ -263,7 +263,7 @@ public class TypeChecker {
      * Check whether a given value has the same shape as the given type.
      *
      * @param sourceValue value to check the shape
-     * @param targetType  type to check the shape against
+     * @param targetType type to check the shape against
      * @return true if the value has the same shape as the given type; false otherwise
      */
     public static boolean checkIsLikeType(Object sourceValue, BType targetType) {
@@ -273,8 +273,8 @@ public class TypeChecker {
     /**
      * Check whether a given value has the same shape as the given type.
      *
-     * @param sourceValue            value to check the shape
-     * @param targetType             type to check the shape against
+     * @param sourceValue value to check the shape
+     * @param targetType type to check the shape against
      * @param allowNumericConversion whether numeric conversion is allowed to change the shape to the target type
      * @return true if the value has the same shape as the given type; false otherwise
      */
@@ -386,7 +386,7 @@ public class TypeChecker {
      */
     public static boolean checkDecimalEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
         return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
-                lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0;
+               lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0;
     }
 
     /**
@@ -440,8 +440,8 @@ public class TypeChecker {
      */
     public static boolean checkDecimalGreaterThanOrEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
         return checkDecimalGreaterThan(lhsValue, rhsValue) ||
-                (isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
-                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0);
+               (isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
+                lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0);
     }
 
     /**
@@ -461,7 +461,7 @@ public class TypeChecker {
      * @param lhsValue The value on the left hand side
      * @param rhsValue The value on the right hand side
      * @return True if values are reference equal or in the case of simple basic types if the values are equal,
-     * else false.
+     *         else false.
      */
     public static boolean isReferenceEqual(Object lhsValue, Object rhsValue) {
         if (lhsValue == rhsValue) {
@@ -545,8 +545,8 @@ public class TypeChecker {
     /**
      * Get the annotation value if present.
      *
-     * @param typedescValue The typedesc value
-     * @param annotTag      The annot-tag-reference
+     * @param typedescValue     The typedesc value
+     * @param annotTag          The annot-tag-reference
      * @return the annotation value if present, nil else
      */
     public static Object getAnnotValue(TypedescValue typedescValue, String annotTag) {
@@ -592,8 +592,8 @@ public class TypeChecker {
 
         if (sourceTypeTag == TypeTags.INTERSECTION_TAG) {
             return checkIsType(((BIntersectionType) sourceType).getEffectiveType(),
-                    targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
-                            ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
+                               targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
+                                       ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
         }
 
         if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
@@ -645,7 +645,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsType(Object sourceVal, BType sourceType, BType targetType,
-                                       List<TypePair> unresolvedTypes) {
+                                      List<TypePair> unresolvedTypes) {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
@@ -694,8 +694,8 @@ public class TypeChecker {
                 return checkIsMapType(sourceVal, sourceType, (BMapType) targetType, unresolvedTypes);
             case TypeTags.JSON_TAG:
                 return checkIsMapType(sourceVal, sourceType,
-                        new BMapType(targetType.isReadOnly() ? BTypes.typeReadonlyJSON : BTypes.typeJSON),
-                        unresolvedTypes);
+                                      new BMapType(targetType.isReadOnly() ? BTypes.typeReadonlyJSON : BTypes.typeJSON),
+                                      unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 return checkIsRecordType(sourceVal, sourceType, (BRecordType) targetType, unresolvedTypes);
             case TypeTags.UNION_TAG:
@@ -715,7 +715,7 @@ public class TypeChecker {
     // Private methods
 
     private static boolean checkTypeDescType(BType sourceType, BTypedescType targetType,
-                                             List<TypePair> unresolvedTypes) {
+            List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() != TypeTags.TYPEDESC_TAG) {
             return false;
         }
@@ -818,10 +818,10 @@ public class TypeChecker {
         switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
                 return checkConstraints(((BMapType) sourceType).getConstrainedType(), targetConstrainedType,
-                        unresolvedTypes);
+                                        unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 return checkIsMapType((MapValue) sourceVal, (BRecordType) sourceType, unresolvedTypes,
-                        targetConstrainedType);
+                                      targetConstrainedType);
             default:
                 return false;
         }
@@ -891,7 +891,7 @@ public class TypeChecker {
             return false;
         }
         return checkConstraints(((BStreamType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
-                unresolvedTypes);
+                               unresolvedTypes);
     }
 
     private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
@@ -899,7 +899,7 @@ public class TypeChecker {
             return false;
         }
 
-        BTableType srcTableType = (BTableType) sourceType;
+        BTableType srcTableType  = (BTableType) sourceType;
 
         if (!checkConstraints(srcTableType.getConstrainedType(), targetType.getConstrainedType(),
                 unresolvedTypes)) {
@@ -923,7 +923,7 @@ public class TypeChecker {
             List<BType> fieldTypes = new ArrayList<>();
             Arrays.stream(srcTableType.getFieldNames()).forEach(field -> fieldTypes
                     .add(Objects.requireNonNull(getTableConstraintField(srcTableType.getConstrainedType(), field))
-                            .type));
+                    .type));
 
             if (fieldTypes.size() == 1) {
                 return checkConstraints(fieldTypes.get(0), targetType.getKeyType(), unresolvedTypes);
@@ -1204,7 +1204,7 @@ public class TypeChecker {
 
             if (Flags.isFlagOn(field.flags, Flags.READONLY)) {
                 if (!checkIsLikeType(sourceRecordValue.get(BStringUtils.fromString(field.name)),
-                        targetType.restFieldType)) {
+                                     targetType.restFieldType)) {
                     return false;
                 }
             } else if (!checkIsType(field.getFieldType(), targetType.restFieldType, unresolvedTypes)) {
@@ -1243,31 +1243,37 @@ public class TypeChecker {
         } else {
             BTupleType sourceTupleType = (BTupleType) sourceType;
             Set<BType> tupleTypes = new HashSet<>(sourceTupleType.getTupleTypes());
-            if (sourceTupleType.getRestType() != null) {
-                tupleTypes.add(sourceTupleType.getRestType());
+            BType sourceRestType = sourceTupleType.getRestType();
+
+            if (sourceRestType != null) {
+                tupleTypes.add(sourceRestType);
             }
+
             if (tupleTypes.isEmpty()) {
                 return targetType.getState() == ArrayState.OPEN || targetType.getSize() == 0;
             }
 
-            if (sourceTupleType.getRestType() != null && targetType.getState() == ArrayState.OPEN) {
-                boolean memberTypesMatch = true;
-                if (!tupleTypes.isEmpty()) {
-                    for (BType sourceElementType : tupleTypes) {
-                        if (!checkIsType(sourceElementType, targetElementType, unresolvedTypes)) {
-                            memberTypesMatch = false;
-                        }
+            if (targetType.getState() == ArrayState.CLOSED) {
+                if (sourceRestType != null) {
+                    return false;
+                }
+                if (tupleTypes.size() != targetType.getSize()) {
+                    return false;
+                }
+                for (BType sourceElementType : tupleTypes) {
+                    if (!checkIsType(sourceElementType, targetElementType, unresolvedTypes)) {
+                        return false;
                     }
                 }
-                if (memberTypesMatch) {
-                    BType sourceRestType = sourceTupleType.getRestType();
-                    return checkIsType(sourceRestType, targetElementType, unresolvedTypes);
-                }
-                return false;
             }
-
-            sourceArrayType =
-                    new BArrayType(new BUnionType(new ArrayList<>(tupleTypes), sourceTupleType.getTypeFlags()));
+            else {
+                for (BType sourceElementType : tupleTypes) {
+                    if (!checkIsType(sourceElementType, targetElementType, unresolvedTypes)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         BType sourceElementType = sourceArrayType.getElementType();
@@ -1293,6 +1299,7 @@ public class TypeChecker {
 
             return sourceElementType.getTag() == targetElementTypeTag;
         }
+
         return checkIsType(sourceElementType, targetElementType, unresolvedTypes);
     }
 
@@ -1315,10 +1322,7 @@ public class TypeChecker {
         List<BType> targetTypes = new ArrayList<>(targetType.getTupleTypes());
         BType targetRestType = targetType.getRestType();
 
-        BTupleType sourceTupleType = null;
-        if (sourceTypeTag == TypeTags.TUPLE_TAG) {
-            sourceTupleType = (BTupleType) sourceType;
-        } else {
+        if (sourceTypeTag == TypeTags.ARRAY_TAG) {
             BArrayType sourceArrayType = (BArrayType) sourceType;
             BType sourceElementType = sourceArrayType.getElementType();
 
@@ -1339,29 +1343,25 @@ public class TypeChecker {
                         if (targetRestType != null) {
                             return checkIsType(sourceElementType, targetRestType, unresolvedTypes);
                         }
-                        if (sourceArrayType.getSize() == 0) {
-                            return true;
-                        }
-                        return false;
+                        return sourceArrayType.getSize() == 0;
                     }
-                    boolean memberTypesMatch = true;
 
                     for (BType targetElementType : targetTypes) {
                         if (!(checkIsType(sourceElementType, targetElementType, unresolvedTypes))) {
-                            memberTypesMatch = false;
+                            return false;
                         }
                     }
                     if (sourceArrayType.getSize() == targetTypes.size()) {
-                        return memberTypesMatch;
+                        return true;
                     }
                     if (targetRestType != null) {
-                        return (memberTypesMatch &&
-                                checkIsType(sourceElementType, targetRestType, unresolvedTypes));
+                        return checkIsType(sourceElementType, targetRestType, unresolvedTypes);
                     }
                     return false;
             }
         }
 
+        BTupleType sourceTupleType = (BTupleType) sourceType;
         List<BType> sourceTypes = new ArrayList<>(sourceTupleType.getTupleTypes());
         BType sourceRestType = sourceTupleType.getRestType();
 
@@ -1375,37 +1375,31 @@ public class TypeChecker {
             return false;
         }
 
-        boolean memberTypesMatch = true;
-
-        if (sourceTypeSize >= targetTypeSize) {
-            for (int i = 0; i < targetTypeSize; i++) {
-                if (!checkIsType(sourceTypes.get(i), targetTypes.get(i), unresolvedTypes)) {
-                    memberTypesMatch = false;
-                }
-            }
-            if (sourceTypeSize == targetTypeSize) {
-                if (sourceRestType != null) {
-                    return (checkIsType(sourceRestType, targetRestType, unresolvedTypes)
-                            && memberTypesMatch);
-                }
-                return memberTypesMatch;
-            }
-
-            boolean remainingMemberTypesMatch = true;
-
-            for (int i = targetTypeSize; i < sourceTypeSize; i++) {
-                if (!checkIsType(sourceTypes.get(i), targetRestType, unresolvedTypes)) {
-                    remainingMemberTypesMatch = false;
-                }
-            }
-            if (sourceRestType != null) {
-                return (memberTypesMatch && remainingMemberTypesMatch &&
-                        checkIsType(sourceRestType, targetRestType, unresolvedTypes));
-            }
-            return (memberTypesMatch && remainingMemberTypesMatch);
-        } else {
+        if (sourceTypeSize < targetTypeSize) {
             return false;
         }
+
+        for (int i = 0; i < targetTypeSize; i++) {
+            if (!checkIsType(sourceTypes.get(i), targetTypes.get(i), unresolvedTypes)) {
+                return false;
+            }
+        }
+        if (sourceTypeSize == targetTypeSize) {
+            if (sourceRestType != null) {
+                return checkIsType(sourceRestType, targetRestType, unresolvedTypes);
+            }
+            return true;
+        }
+
+        for (int i = targetTypeSize; i < sourceTypeSize; i++) {
+            if (!checkIsType(sourceTypes.get(i), targetRestType, unresolvedTypes)) {
+                return false;
+            }
+        }
+        if (sourceRestType != null) {
+            return checkIsType(sourceRestType, targetRestType, unresolvedTypes);
+        }
+        return true;
     }
 
     private static boolean checkIsAnyType(BType sourceType) {
@@ -1482,16 +1476,16 @@ public class TypeChecker {
 
         if (sourceVal == null) {
             if (!checkObjectSubTypeForFields(targetFields, sourceFields, targetTypeModule, sourceTypeModule,
-                    unresolvedTypes)) {
+                                             unresolvedTypes)) {
                 return false;
             }
         } else if (!checkObjectSubTypeForFieldsByValue(targetFields, sourceFields, targetTypeModule, sourceTypeModule,
-                (ObjectValue) sourceVal, unresolvedTypes)) {
+                                                       (ObjectValue) sourceVal, unresolvedTypes)) {
             return false;
         }
 
         return checkObjectSubTypeForMethods(unresolvedTypes, targetFuncs, sourceFuncs, targetTypeModule,
-                sourceTypeModule, sourceObjectType, targetType);
+                                            sourceTypeModule, sourceObjectType, targetType);
     }
 
     private static boolean checkObjectSubTypeForFields(Map<String, BField> targetFields,
@@ -1804,9 +1798,9 @@ public class TypeChecker {
      * Check whether a given value confirms to a given type. First it checks if the type of the value, and
      * if fails then falls back to checking the value.
      *
-     * @param sourceValue            Value to check
-     * @param targetType             Target type
-     * @param unresolvedValues       Values that are unresolved so far
+     * @param sourceValue Value to check
+     * @param targetType Target type
+     * @param unresolvedValues Values that are unresolved so far
      * @param allowNumericConversion Flag indicating whether to perform numeric conversions
      * @return True if the value confirms to the provided type. False, otherwise.
      */
@@ -1824,10 +1818,10 @@ public class TypeChecker {
      * Check whether a given value confirms to a given type. Strictly checks the value only, and does not consider the
      * type of the value for consideration.
      *
-     * @param sourceValue            Value to check
-     * @param sourceType             Type of the value
-     * @param targetType             Target type
-     * @param unresolvedValues       Values that are unresolved so far
+     * @param sourceValue Value to check
+     * @param sourceType Type of the value
+     * @param targetType Target type
+     * @param unresolvedValues Values that are unresolved so far
      * @param allowNumericConversion Flag indicating whether to perform numeric conversions
      * @return True if the value confirms to the provided type. False, otherwise.
      */
@@ -1838,14 +1832,14 @@ public class TypeChecker {
 
         if (sourceTypeTag == TypeTags.INTERSECTION_TAG) {
             return checkIsLikeOnValue(sourceValue, ((BIntersectionType) sourceType).getEffectiveType(),
-                    targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
-                            ((BIntersectionType) targetType).getEffectiveType(),
-                    unresolvedValues, allowNumericConversion);
+                                      targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
+                                              ((BIntersectionType) targetType).getEffectiveType(),
+                                      unresolvedValues, allowNumericConversion);
         }
 
         if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
             return checkIsLikeOnValue(sourceValue, sourceType, ((BIntersectionType) targetType).getEffectiveType(),
-                    unresolvedValues, allowNumericConversion);
+                                      unresolvedValues, allowNumericConversion);
         }
 
         switch (targetTypeTag) {
@@ -1885,13 +1879,13 @@ public class TypeChecker {
                 return checkIsLikeStreamType(sourceValue, (BStreamType) targetType);
             case TypeTags.ARRAY_TAG:
                 return checkIsLikeArrayType(sourceValue, (BArrayType) targetType, unresolvedValues,
-                        allowNumericConversion);
+                                            allowNumericConversion);
             case TypeTags.TUPLE_TAG:
                 return checkIsLikeTupleType(sourceValue, (BTupleType) targetType, unresolvedValues,
-                        allowNumericConversion);
+                                            allowNumericConversion);
             case TypeTags.ERROR_TAG:
                 return checkIsLikeErrorType(sourceValue, (BErrorType) targetType, unresolvedValues,
-                        allowNumericConversion);
+                                            allowNumericConversion);
             case TypeTags.ANYDATA_TAG:
                 return checkIsLikeAnydataType(sourceValue, sourceType, unresolvedValues, allowNumericConversion);
             case TypeTags.FINITE_TYPE_TAG:
@@ -2020,11 +2014,10 @@ public class TypeChecker {
             if (memberType.getTag() == TypeTags.UNION_TAG) {
                 getXMLNodeOnUnion((BUnionType) memberType, nodeTypes);
             } else {
-                nodeTypes.add(getXmlNodeType(memberType));
+               nodeTypes.add(getXmlNodeType(memberType));
             }
         }
     }
-
     public static boolean isNumericType(BType type) {
         return type.getTag() < TypeTags.STRING_TAG;
     }
@@ -2037,7 +2030,7 @@ public class TypeChecker {
             case TypeTags.JSON_TAG:
             case TypeTags.MAP_TAG:
                 return isLikeType(((MapValueImpl) sourceValue).values().toArray(), BTypes.typeAnydata,
-                        unresolvedValues, allowNumericConversion);
+                                  unresolvedValues, allowNumericConversion);
             case TypeTags.ARRAY_TAG:
                 ArrayValue arr = (ArrayValue) sourceValue;
                 BArrayType arrayType = (BArrayType) arr.getType();
@@ -2051,11 +2044,11 @@ public class TypeChecker {
                         return true;
                     default:
                         return isLikeType(arr.getValues(), BTypes.typeAnydata, unresolvedValues,
-                                allowNumericConversion);
+                                          allowNumericConversion);
                 }
             case TypeTags.TUPLE_TAG:
                 return isLikeType(((ArrayValue) sourceValue).getValues(), BTypes.typeAnydata, unresolvedValues,
-                        allowNumericConversion);
+                                  allowNumericConversion);
             case TypeTags.ANYDATA_TAG:
                 return true;
             // TODO: 8/13/19 Check if can be removed
@@ -2306,13 +2299,13 @@ public class TypeChecker {
 
             if (targetTypeField.containsKey(fieldName)) {
                 if (!checkIsLikeType((valueEntry.getValue()), targetTypeField.get(fieldName),
-                        unresolvedValues, allowNumericConversion)) {
+                                     unresolvedValues, allowNumericConversion)) {
                     return false;
                 }
             } else {
                 if (!targetType.sealed) {
                     if (!checkIsLikeType((valueEntry.getValue()), restFieldType, unresolvedValues,
-                            allowNumericConversion)) {
+                                         allowNumericConversion)) {
                         return false;
                     }
                 } else {
@@ -2419,8 +2412,8 @@ public class TypeChecker {
     /**
      * Deep value equality check for anydata.
      *
-     * @param lhsValue      The value on the left hand side
-     * @param rhsValue      The value on the right hand side
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value on the right hand side
      * @param checkedValues Structured value pairs already compared or being compared
      * @return True if values are equal, else false.
      */
@@ -2500,8 +2493,8 @@ public class TypeChecker {
     /**
      * Deep equality check for an array/tuple.
      *
-     * @param lhsList       The array/tuple on the left hand side
-     * @param rhsList       The array/tuple on the right hand side
+     * @param lhsList The array/tuple on the left hand side
+     * @param rhsList The array/tuple on the right hand side
      * @param checkedValues Structured value pairs already compared or being compared
      * @return True if the array/tuple values are equal, else false.
      */
@@ -2527,8 +2520,8 @@ public class TypeChecker {
     /**
      * Deep equality check for a map.
      *
-     * @param lhsMap        Map on the left hand side
-     * @param rhsMap        Map on the right hand side
+     * @param lhsMap Map on the left hand side
+     * @param rhsMap Map on the right hand side
      * @param checkedValues Structured value pairs already compared or being compared
      * @return True if the map values are equal, else false.
      */
@@ -2595,8 +2588,8 @@ public class TypeChecker {
     /**
      * Deep equality check for error.
      *
-     * @param lhsError      The error on the left hand side
-     * @param rhsError      The error on the right hand side
+     * @param lhsError The error on the left hand side
+     * @param rhsError The error on the right hand side
      * @param checkedValues Errors already compared or being compared
      * @return True if the error values are equal, else false.
      */
@@ -2688,7 +2681,6 @@ public class TypeChecker {
 
     /**
      * Checks whether a given {@link BType} has an implicit initial value or not.
-     *
      * @param type {@link BType} to be analyzed.
      * @return whether there's an implicit initial value or not.
      */
@@ -2783,7 +2775,7 @@ public class TypeChecker {
 
     private static boolean checkFillerValue(BFiniteType type) {
         // Has NIL element as a member.
-        for (Object value : type.valueSpace) {
+        for (Object value: type.valueSpace) {
             if (value == null) {
                 return true;
             }

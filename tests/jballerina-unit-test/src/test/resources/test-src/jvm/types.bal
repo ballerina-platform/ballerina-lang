@@ -157,6 +157,26 @@ function tupleTest() returns int {
    return 10;
 }
 
+public function testUnionType() {
+    [int, ()] x = [1, ()];
+    any y = x;
+    assertEquality(y is (string|int?)[2], true);
+    assertEquality(y is (string|int?)[], true);
+    assertEquality(y is (int|string?)[], true);
+    assertEquality(y is (int|string?)[3], false);
+    assertEquality(y is (int|string)[], false);
+    assertEquality(y is int?[], true);
+    assertEquality(y is int?[2], true);
+
+    [int, string?] a = [1, "union"];
+    any b = a;
+    assertEquality(b is (int|string?)[], true);
+    assertEquality(b is (int|string?)[2], true);
+    assertEquality(b is (int?|string)[2], true);
+    assertEquality(b is (int|string?)[1], false);
+    assertEquality(b is int?[2], false);
+}
+
 public function testRestType() {
     [int...] x = [1, 2];
     any y = x;
