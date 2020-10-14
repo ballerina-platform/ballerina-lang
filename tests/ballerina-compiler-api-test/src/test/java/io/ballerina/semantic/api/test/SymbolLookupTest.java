@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -175,6 +176,19 @@ public class SymbolLookupTest {
                 {23, 51, getSymbolNames(moduleLevelSymbols, "b", "strTemp")},
                 {25, 54, getSymbolNames(moduleLevelSymbols, "b", "strTemp", "rawTemp")},
         };
+    }
+
+    @Test
+    public void testMissingNodeFiltering() {
+        CompilerContext context = new CompilerContext();
+        CompileResult result = compile("test-src/missing_node_filtering_test.bal", context);
+        BLangPackage pkg = (BLangPackage) result.getAST();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+        BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
+
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, "missing_node_filtering_test.bal", 20, 5,
+                                                             moduleID);
+        assertList(symbolsInFile, Arrays.asList("test", "x"));
     }
 
     private CompileResult compile(String path, CompilerContext context) {
