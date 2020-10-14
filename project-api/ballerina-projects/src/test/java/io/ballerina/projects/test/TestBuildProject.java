@@ -607,7 +607,7 @@ public class TestBuildProject {
         }
     }
 
-    @Test(description = "tests get semantic model in module compilation")
+    @Test(description = "tests get semantic model in module compilation", enabled = false)
     public void testGetSemanticModel() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
