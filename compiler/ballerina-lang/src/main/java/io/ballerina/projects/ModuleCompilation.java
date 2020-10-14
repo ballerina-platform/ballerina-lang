@@ -107,7 +107,7 @@ public class ModuleCompilation {
         for (ModuleId sortedModuleId : sortedModuleIds) {
             Package pkg = packageResolver.getPackage(sortedModuleId.packageId());
             ModuleContext moduleContext = pkg.module(sortedModuleId).moduleContext();
-            moduleContext.compile(compilerContext, pkg.packageName());
+            moduleContext.compile(compilerContext, pkg.packageDescriptor());
             diagnostics.addAll(moduleContext.diagnostics());
         }
 

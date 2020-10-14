@@ -92,7 +92,7 @@ public class PackageCompilation {
             List<ModuleId> sortedModuleIds = moduleDependencyGraph.toTopologicallySortedList();
             for (ModuleId moduleId : sortedModuleIds) {
                 ModuleContext moduleContext = pkg.module(moduleId).moduleContext();
-                moduleContext.compile(compilerContext, pkg.packageName());
+                moduleContext.compile(compilerContext, pkg.packageDescriptor());
                 diagnostics.addAll(moduleContext.diagnostics());
             }
         }
