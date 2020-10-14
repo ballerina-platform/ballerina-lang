@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -235,7 +234,7 @@ public class MappingConstructorExpressionNodeContext extends
         Optional<RecordTypeDescriptor> record = this.getRecordTypeDesc(context,
                 (MappingConstructorExpressionNode) evalNode);
 
-        if (!record.isPresent()) {
+        if (record.isEmpty()) {
             return Optional.empty();
         }
 
@@ -243,7 +242,7 @@ public class MappingConstructorExpressionNodeContext extends
         Collections.reverse(fieldNames);
         for (String fieldName : fieldNames) {
             FieldDescriptor fieldDesc = recordType.fieldDescriptors().get(fieldName);
-            if (fieldDesc.typeDescriptor().kind() == TypeDescKind.RECORD) {
+            if (fieldDesc.typeDescriptor().kind() != TypeDescKind.RECORD) {
                 return Optional.empty();
             }
             recordType = (RecordTypeDescriptor) fieldDesc.typeDescriptor();
@@ -289,7 +288,7 @@ public class MappingConstructorExpressionNodeContext extends
         List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
 
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> symbol instanceof VariableSymbol)
+                .filter(symbol -> symbol instanceof VariableSymbol || symbol.kind() == SymbolKind.FUNCTION)
                 .collect(Collectors.toList());
         List<LSCompletionItem> completionItems = this.getCompletionItemList(filteredList, context);
         completionItems.addAll(this.getModuleCompletionItems(context));
@@ -305,7 +304,7 @@ public class MappingConstructorExpressionNodeContext extends
     private List<LSCompletionItem> getExpressionsCompletionsForQNameRef(LSContext context,
                                                                         QualifiedNameReferenceNode qNameRef) {
         Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
-                && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC);
+                || symbol.kind() == SymbolKind.FUNCTION;
         List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
 
         return this.getCompletionItemList(moduleContent, context);

@@ -43,7 +43,7 @@ public class OptionalFieldAccessExpressionNodeContext extends FieldAccessContext
             throws LSCompletionException {
         ExpressionNode expression = node.expression();
         ArrayList<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        return getEntries(context, visibleSymbols, expression);
+        return getEntries(context, expression);
 //        return this.getCompletionItemList(entries, context);
     }
 

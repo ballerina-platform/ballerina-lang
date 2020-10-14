@@ -69,10 +69,17 @@ public class SymbolUtil {
      * @return {@link Boolean} whether the symbol holds the type record
      */
     public static boolean isRecord(Symbol symbol) {
-        if (symbol.kind() != SymbolKind.VARIABLE) {
-            return false;
+        Optional<BallerinaTypeDescriptor> typeDescriptor;
+        switch (symbol.kind()) {
+            case TYPE:
+                typeDescriptor = ((TypeSymbol) symbol).typeDescriptor();
+                break;
+            case VARIABLE:
+                typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
+                break;
+            default:
+                typeDescriptor = Optional.empty();
         }
-        Optional<BallerinaTypeDescriptor> typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
 
         return typeDescriptor.isPresent() && typeDescriptor.get().kind() == TypeDescKind.RECORD;
     }
@@ -127,7 +134,7 @@ public class SymbolUtil {
      */
     public static RecordTypeDescriptor getTypeDescForRecordSymbol(Symbol symbol) {
         Optional<? extends BallerinaTypeDescriptor> typeDescriptor = getTypeDescriptor(symbol);
-        if (typeDescriptor.isEmpty() || isRecord(symbol)) {
+        if (typeDescriptor.isEmpty() || !isRecord(symbol)) {
             throw new UnsupportedOperationException("Cannot find a valid type descriptor");
         }
 
