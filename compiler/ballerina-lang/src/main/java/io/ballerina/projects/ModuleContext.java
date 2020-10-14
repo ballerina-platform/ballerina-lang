@@ -23,10 +23,12 @@ import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -181,16 +183,23 @@ class ModuleContext {
         SymbolEnter symbolEnter = SymbolEnter.getInstance(compilerContext);
         CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
 
-        PackageID pkgID = new PackageID(new Name(packageDescriptor.org().toString()),
+        PackageID pkgId = new PackageID(new Name(packageDescriptor.org().toString()),
                 new Name(this.moduleName.toString()), new Name(packageDescriptor.version().toString()));
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        packageCache.put(pkgID, pkgNode);
+        packageCache.put(pkgId, pkgNode);
 
+        // Parse source files
         for (DocumentContext documentContext : srcDocContextMap.values()) {
-            pkgNode.addCompilationUnit(documentContext.compilationUnit(compilerContext, pkgID));
+            pkgNode.addCompilationUnit(documentContext.compilationUnit(compilerContext, pkgId));
         }
-        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgID, this.moduleName.toString()), 1, 1, 1, 1);
 
+        // Parse test source files
+        // TODO use the compilerOption such as --skip-tests to enable or disable tests
+        if (!testSrcDocumentIds().isEmpty()) {
+            parseTestSources(pkgNode, pkgId, compilerContext);
+        }
+
+        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, this.moduleName.toString()), 1, 1, 1, 1);
         symbolEnter.definePackage(pkgNode);
         packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
         compilerPhaseRunner.compile(pkgNode);
@@ -221,5 +230,19 @@ class ModuleContext {
 
         // TODO error handling - Module is not compiled
         throw new IllegalStateException("Compile the module first!");
+    }
+
+    private void parseTestSources(BLangPackage pkgNode, PackageID pkgId, CompilerContext compilerContext) {
+        BLangTestablePackage testablePkg = TreeBuilder.createTestablePackageNode();
+        // TODO Not sure why we need to do this. It is there in the current implementation
+        testablePkg.packageID = pkgId;
+        testablePkg.flagSet.add(Flag.TESTABLE);
+        // TODO Why we need two different diagnostic positions. This is how it is done in the current compiler.
+        //  So I kept this as is for now.
+        testablePkg.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, this.moduleName.toString()), 1, 1, 1, 1);
+        pkgNode.addTestablePkg(testablePkg);
+        for (DocumentContext documentContext : testDocContextMap.values()) {
+            testablePkg.addCompilationUnit(documentContext.compilationUnit(compilerContext, pkgId));
+        }
     }
 }
