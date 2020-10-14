@@ -199,7 +199,7 @@ public class SymbolLookupTest {
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
         BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
 
-        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, "missing_node_filtering_test.bal", 20, 5,
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, "missing_node_filtering_test.bal", 19, 4,
                                                              moduleID);
         assertList(symbolsInFile, Arrays.asList("test", "x"));
     }
