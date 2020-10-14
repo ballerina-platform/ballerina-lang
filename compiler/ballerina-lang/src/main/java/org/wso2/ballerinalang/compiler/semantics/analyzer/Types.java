@@ -3590,17 +3590,15 @@ public class Types {
     }
 
     public boolean isUnionOfSimpleBasicTypes(BType type) {
-        switch (type.tag) {
-            case TypeTags.UNION:
-                Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
-                for (BType memType : memberTypes) {
-                    if (!isSimpleBasicType(memType.tag)) {
-                        return false;
-                    }
+        if (type.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+            for (BType memType : memberTypes) {
+                if (!isSimpleBasicType(memType.tag)) {
+                    return false;
                 }
-                return true;
-            default:
-                return isSimpleBasicType(type.tag);
+            }
+            return true;
         }
+        return isSimpleBasicType(type.tag);
     }
 }

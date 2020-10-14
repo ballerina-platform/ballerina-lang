@@ -4508,11 +4508,11 @@ public class TypeChecker extends BLangNodeVisitor {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         BLangExpression exprWithCheckingKeyword = checkedExpr.expr;
         boolean firstVisit = exprWithCheckingKeyword.type == null;
-        BType exprExpType;
+        BType typeOfExprWithCheckingKeyword;
         if (expType == symTable.noType) {
-            exprExpType = symTable.noType;
+            typeOfExprWithCheckingKeyword = symTable.noType;
         } else {
-            exprExpType = BUnionType.create(null, expType, symTable.errorType);
+            typeOfExprWithCheckingKeyword = BUnionType.create(null, expType, symTable.errorType);
         }
 
         if (exprWithCheckingKeyword.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
@@ -4526,16 +4526,16 @@ public class TypeChecker extends BLangNodeVisitor {
             argExprs.add(typedescExpr);
             BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_REQUIRE_TYPE,
                     argExprs, exprWithCheckingKeyword, checkedExpr.pos);
-            BInvokableSymbol invokableSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(exprExpType,
-                    names.fromString(invocation.name.value));
+            BInvokableSymbol invokableSymbol = (BInvokableSymbol) symResolver.
+                    lookupLangLibMethod(typeOfExprWithCheckingKeyword, names.fromString(invocation.name.value));
             BInvokableType bInvokableType = (BInvokableType) invokableSymbol.type;
-            bInvokableType.retType = exprExpType;
+            bInvokableType.retType = typeOfExprWithCheckingKeyword;
             invocation.symbol = invokableSymbol;
             invocation.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
             checkedExpr.expr = invocation;
         }
 
-        BType exprType = checkExpr(checkedExpr.expr, env, exprExpType);
+        BType exprType = checkExpr(checkedExpr.expr, env, typeOfExprWithCheckingKeyword);
         if (checkedExpr.expr.getKind() == NodeKind.WORKER_RECEIVE) {
             if (firstVisit) {
                 isTypeChecked = false;

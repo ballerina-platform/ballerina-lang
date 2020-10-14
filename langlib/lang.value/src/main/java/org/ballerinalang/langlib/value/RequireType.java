@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.values.TypedescValue;
  *
  * @since 2.0.0
  */
-
 public class RequireType {
     public static Object requireType(Object value, TypedescValue type) {
         if (TypeChecker.getType(value).getTag() == TypeTags.ERROR_TAG) {
