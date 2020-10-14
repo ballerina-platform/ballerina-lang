@@ -42,8 +42,9 @@ class JarWriter {
     /**
      * Write the compiled module to a jar file.
      *
-     * @param bLangPackage The compiled module
-     * @param jarFilePath  The path to the jar file.
+     * @param bLangPackage compiled module
+     * @param jarFilePath  path to the jar file
+     * @throws IOException if jar creation fails
      */
     public static void write(BLangPackage bLangPackage, Path jarFilePath) throws IOException {
         BPackageSymbol packageSymbol = bLangPackage.symbol;
@@ -71,18 +72,26 @@ class JarWriter {
         }
     }
 
-    static void write(List<BLangPackage> bLangPackageList, Path jarFilePath) throws IOException {
+    /**
+     * Write the provided compiled modules to an executable jar file.
+     *
+     * @param entryPackage compiled module which contains the entrypoint
+     * @param bLangPackageList all compiled modules except the module containing the entrypoint
+     * @param jarFilePath  path to the jar file
+     * @throws IOException if executable jar creation fails
+     */
+    static void write(BLangPackage entryPackage, List<BLangPackage> bLangPackageList, Path jarFilePath)
+            throws IOException {
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        addMainClass(entryPackage, mainAttributes);
 
         try (JarOutputStream target = new JarOutputStream(new BufferedOutputStream(
                 new FileOutputStream(jarFilePath.toString())), manifest)) {
             for (BLangPackage bLangPackage : bLangPackageList) {
                 BPackageSymbol packageSymbol = bLangPackage.symbol;
                 CompiledJarFile compiledJarFile = packageSymbol.compiledJarFile;
-                        compiledJarFile.getMainClassName().ifPresent(mainClassName ->
-                mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClassName));
 
                 Map<String, byte[]> jarEntries = compiledJarFile.getJarEntries();
                 for (Map.Entry<String, byte[]> keyVal : jarEntries.entrySet()) {
@@ -94,5 +103,13 @@ class JarWriter {
                 }
             }
         }
+    }
+
+    private static void addMainClass(BLangPackage entryPackage, Attributes mainAttributes) {
+        CompiledJarFile compiledJarFile = entryPackage.symbol.compiledJarFile;
+        if (compiledJarFile.getMainClassName().isEmpty()) {
+            throw new RuntimeException("main class not found in:" + entryPackage.packageID.toString());
+        }
+        mainAttributes.put(Attributes.Name.MAIN_CLASS, compiledJarFile.getMainClassName().get());
     }
 }

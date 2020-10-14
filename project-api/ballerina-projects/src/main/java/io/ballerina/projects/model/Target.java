@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects.model;
 
-import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
@@ -29,7 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
@@ -71,37 +69,12 @@ public class Target {
     }
 
     /**
-     * Returns the BIR cache path.
+     * Returns the jar-cache path.
      *
-     * @param module module instance
-     * @return path of the BIR file
-     * @throws IOException if directory creation fails
-     */
-    public Path getBirCachePath(Module module) throws IOException {
-
-        Path moduleBirCacheDirPrefix = Files.createDirectories(birCachePath)
-                .resolve(module.packageInstance().packageOrg().toString())
-                .resolve(module.moduleName().packageName().toString())
-                .resolve(module.packageInstance().packageVersion().toString());
-        String moduleBirName;
-        if (!module.isDefaultModule()) {
-            moduleBirName = module.moduleName().moduleNamePart();
-            moduleBirCacheDirPrefix = moduleBirCacheDirPrefix.resolve(module.moduleName().moduleNamePart());
-        } else {
-            moduleBirName = module.moduleName().packageName().toString();
-        }
-        Files.createDirectories(moduleBirCacheDirPrefix);
-        return moduleBirCacheDirPrefix.resolve(
-                moduleBirName + BLANG_COMPILED_PKG_BIR_EXT);
-    }
-
-    /**
-     * Returns the jar path.
-     *
-     * @param pkg package instance
      * @return path of the executable
      */
-    public Path getJarPath(Package pkg) {
+    public Path getJarCachePath() throws IOException {
+        Files.createDirectories(jarCachePath);
         return jarCachePath;
     }
 
@@ -138,11 +111,11 @@ public class Target {
     }
 
     /**
-     * Returns the caches directory path.
+     * Returns the bir-cache directory path.
      *
      * @return caches path
      */
-    public Path birCachePath() throws IOException {
+    public Path getBirCachePath() throws IOException {
         Files.createDirectories(birCachePath);
         return birCachePath;
     }
