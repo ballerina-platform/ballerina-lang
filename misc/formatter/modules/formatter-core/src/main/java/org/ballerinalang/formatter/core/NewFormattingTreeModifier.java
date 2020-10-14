@@ -188,6 +188,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
+import io.ballerina.compiler.syntax.tree.TemplateMemberNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
 import io.ballerina.compiler.syntax.tree.TransactionalExpressionNode;
@@ -2057,8 +2058,16 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public XMLNamePatternChainingNode transform(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        Token startToken = formatToken(xMLNamePatternChainingNode.startToken(), 0, 0);
+        SeparatedNodeList<Node> xmlNamePattern = formatSeparatedNodeList(xMLNamePatternChainingNode.xmlNamePattern(),
+                0, 0, 0, 0, 0, 0);
+        Token gtToken = formatToken(xMLNamePatternChainingNode.gtToken(), this.trailingWS, this.trailingNL);
 
-        return super.transform(xMLNamePatternChainingNode);
+        return xMLNamePatternChainingNode.modify()
+                .withStartToken(startToken)
+                .withXmlNamePattern(xmlNamePattern)
+                .withGtToken(gtToken)
+                .apply();
     }
 
     @Override
@@ -2076,8 +2085,21 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public TemplateExpressionNode transform(TemplateExpressionNode templateExpressionNode) {
+        if (templateExpressionNode.type().isPresent()) {
+            Token type = formatToken(templateExpressionNode.type().get(), 1, 0);
+            templateExpressionNode = templateExpressionNode.modify()
+                    .withType(type).apply();
+        }
 
-        return super.transform(templateExpressionNode);
+        Token startBacktick = formatToken(templateExpressionNode.startBacktick(), 0, 0);
+        NodeList<TemplateMemberNode> content = formatNodeList(templateExpressionNode.content(), 0, 0, 0, 0);
+        Token endBacktick = formatToken(templateExpressionNode.endBacktick(), this.trailingWS, this.trailingNL);
+
+        return templateExpressionNode.modify()
+                .withStartBacktick(startBacktick)
+                .withContent(content)
+                .withEndBacktick(endBacktick)
+                .apply();
     }
 
     @Override
