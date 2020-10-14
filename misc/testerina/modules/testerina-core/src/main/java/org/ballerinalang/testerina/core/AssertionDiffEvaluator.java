@@ -45,6 +45,8 @@ public class AssertionDiffEvaluator {
                 if (valueArray[i].length() > MAX_ARG_LENGTH) {
                     String[] partitions = valueArray[i].split(PARTITION_REGEX);
                     valueList.addAll(Arrays.asList(partitions));
+                } else {
+                    valueList.add(valueArray[i]);
                 }
             }
         } else {
@@ -58,12 +60,12 @@ public class AssertionDiffEvaluator {
         return valueList;
     }
 
-    public static BString getStringDiff(BString expected, BString actual) {
-        List<String> expectedValueList = getValueList(expected.toString());
+    private static String getStringValueDiff(String actual, String expected) {
+        List<String> expectedValueList = getValueList(expected);
         List<String> difference = null;
         String output = "\n";
         try {
-            Patch<String> patch = DiffUtils.diff(expectedValueList, getValueList(actual.toString()));
+            Patch<String> patch = DiffUtils.diff(expectedValueList, getValueList(actual));
             difference = UnifiedDiffUtils.generateUnifiedDiff("expected", "actual",
                     expectedValueList, patch, MAX_ARG_LENGTH);
         } catch (DiffException e) {
@@ -84,7 +86,28 @@ public class AssertionDiffEvaluator {
                 }
             }
         }
-        return BStringUtils.fromString(output);
+        return output;
+    }
+
+    public static BString getStringDiff(BString expected, BString actual) {
+        return BStringUtils.fromString(getStringValueDiff(actual.toString(), expected.toString()));
+    }
+
+    public static BString getJsonDiff(BString actual, BString expected) {
+        String diffValue = "";
+        String diff = getStringValueDiff(actual.toString(), expected.toString());
+        String[] diffLines = diff.split("\n");
+        for (String line : diffLines) {
+            if (line.startsWith("+") || line.startsWith("-") || line.startsWith("@@ -")) {
+                if (!diffValue.endsWith("\n")) {
+                    diffValue = diffValue.concat("\n");
+                }
+                diffValue = diffValue.concat(line + "\n");
+            } else {
+                diffValue = diffValue.concat(line);
+            }
+        }
+        return BStringUtils.fromString(diffValue);
     }
 
 }

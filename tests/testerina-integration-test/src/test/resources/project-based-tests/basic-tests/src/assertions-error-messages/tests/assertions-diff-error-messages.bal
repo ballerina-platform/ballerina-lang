@@ -56,8 +56,16 @@ function testAssertJsonValues() {
     json bioData2 = {name:"John Doe New", age:25, address:{city:"Colombo", country:"Sri Lanka"}};
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(),
-    "Assertion Failed!\nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka...'\nactual\t: '{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka\"}}'");
+    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,13 +1,13 @@\n { name:\n-<string> John Doe New,\n+<string> John Doe,\n age: <int> 25, address: <map> { city: <string> Colombo, country: <string> Sri Lanka } }\n\n"));
+}
+
+@test:Config {}
+function testAssertJsonInJson() {
+      json j1 = {name: "Anne", age: "21", marks: {maths: 100, physics: 90, status: {pass:true}}};
+      json j2 = {name: "Anne", age: 21, marks: {maths: 100, physics: 90, status: {pass:false}}};
+      error? err = trap test:assertEquals(j1, j2);
+      error result = <error>err;
+      test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,18 +1,18 @@\n { name: <string> Anne, age:\n-<int> 21,\n+<string> 21,\n marks: <map> { maths: <int> 100, physics: <int> 90, status: <map> { pass:\n-<boolean> false\n+<boolean> true\n } } }\n\n"));
 }
 
 @test:Config {}
@@ -66,8 +74,7 @@ function testAssertLongJsonValues() {
     json bioData2 = {name:"John Doe New", age:25, designation: "SSE", address:{city:"Colombo", country:"Sri Lanka"}};
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '{\"name\":\"John Doe New\"," + "\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\nactual\t: '{\"name\":" + 
-    "\"John Doe Old\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'");
+    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,15 +1,15 @@\n { name:\n-<string> John Doe New,\n+<string> John Doe Old,\n age: <int> 25, designation: <string> SSE, address: <map> { city: <string> Colombo, country:\n-<string> Sri Lanka\n+<string> Sri Lankaa\n } }\n\n"));
 }
 
 @test:Config {}

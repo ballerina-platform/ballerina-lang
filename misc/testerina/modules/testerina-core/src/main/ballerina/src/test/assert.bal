@@ -133,7 +133,8 @@ public isolated function assertFail(string msg = "Test Failed!") {
 # + msg - Assertion error message
 #
 # + return - Error message constructed based on the compared values
-isolated function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "Assertion Failed!") returns string {
+isolated function getInequalityErrorMsg(any|error actual, any|error expected, string msg = "Assertion Failed!")
+ returns string {
         string expectedType = getBallerinaType(expected);
         string actualType = getBallerinaType(actual);
         string errorMsg = "";
@@ -152,11 +153,42 @@ isolated function getInequalityErrorMsg(any|error actual, any|error expected, st
             string diff = getStringDiff(<string>actual, <string>expected);
             errorMsg = string `${msg}` + "\nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
                                      + string `'${actualStr}'` + "\n\nDiff\t:\n\n" + string `${diff}` + "\n\n";
+        } else if (actual is map<anydata> && expected is map<anydata>) {
+            string diff = getJsonValueDiff(<map<anydata>>actual, <map<anydata>>expected);
+            errorMsg = string `${msg}` + "\nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
+                                     + string `'${actualStr}'` + "\n\nDiff\t:\n\n" + string `${diff}` + "\n\n";
         } else {
             errorMsg = string `${msg}` + "\nexpected: " + string `'${expectedStr}'` + "\nactual\t: "
                                                  + string `'${actualStr}'`;
         }
         return errorMsg;
+}
+
+isolated function getJsonValueDiff(map<anydata> actualMap, map<anydata> expectedMap) returns string {
+    string actual = getMapAsString(actualMap);
+    string expected = getMapAsString(expectedMap);
+    string diffValue = getJsonDiff(actual, expected);
+    return diffValue;
+}
+
+isolated function getMapAsString(map<anydata> dataMap) returns string {
+    string strValue = "{";
+    string[] keys = dataMap.keys();
+    int i = 0;
+    foreach string key in keys {
+        i = i + 1;
+        anydata value = dataMap.get(key);
+        string typeValue = getBallerinaType(value);
+        if (value is map<anydata> ) {
+            value = getMapAsString(value);
+        }
+        strValue = strValue + "\n" + key + ":\n" + "<" + typeValue + "> " + value.toString();
+        if (i != dataMap.length()) {
+            strValue = strValue + ",";
+        }
+    }
+    strValue = strValue + "\n}";
+    return strValue;
 }
 
 isolated function sprintf(string format, (any|error)... args) returns string = @java:Method {
@@ -172,4 +204,9 @@ isolated function getBallerinaType((any|error) value) returns string = @java:Met
 isolated function getStringDiff(string actual, string expected) returns string = @java:Method {
      name : "getStringDiff",
      'class : "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
- } external;
+} external;
+
+isolated function getJsonDiff(string actual, string expected) returns string = @java:Method {
+     name : "getJsonDiff",
+     'class : "org.ballerinalang.testerina.core.AssertionDiffEvaluator"
+} external;
