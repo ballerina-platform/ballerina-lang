@@ -220,7 +220,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean inferredIsolated = true;
     private boolean inLockStatement = false;
-    private Map<BSymbol, List<BLangSimpleVarRef>> references = new HashMap<>();
+    private Map<BSymbol, UniqueInitAndReferenceInfo> uniqueInitAndReferenceInfo = new HashMap<>();
     private Stack<PotentiallyInvalidExpressionInfo> copyInInLockInfoStack = new Stack<>();
 
     private IsolationAnalyzer(CompilerContext context) {
@@ -287,12 +287,40 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         pkgNode.completedPhases.add(CompilerPhase.ISOLATION_ANALYZE);
 
-        for (List<BLangSimpleVarRef> referenceList : references.values()) {
-            if (referenceList.size() == 1) {
+        for (UniqueInitAndReferenceInfo varInfo : uniqueInitAndReferenceInfo.values()) {
+            int totalRefCount = varInfo.totalRefCount;
+            List<BLangSimpleVarRef> refsOfVarExpectedToBeUnique = varInfo.refsOfVarExpectedToBeUnique;
+
+            if (totalRefCount == 0 || refsOfVarExpectedToBeUnique.isEmpty()) {
                 continue;
             }
 
-            for (BLangSimpleVarRef varRef : referenceList) {
+            if (!varInfo.uniqueInitExpr) {
+                for (BLangSimpleVarRef varRef : refsOfVarExpectedToBeUnique) {
+                    dlog.error(varRef.pos,
+                               DiagnosticCode.INVALID_NON_UNIQUE_EXPRESSION_AS_INITIAL_VALUE_IN_ISOLATED_OBJECT);
+                }
+                continue;
+            }
+
+            boolean nonUniqueInitExprDueToVarRefs = false;
+
+            if (totalRefCount == 1) {
+                for (BLangSimpleVarRef varRef : varInfo.refsUsedInInitExpr) {
+                    UniqueInitAndReferenceInfo varRefInfo = uniqueInitAndReferenceInfo.get(varRef.symbol);
+
+                    if (varRefInfo.totalRefCount > 1) {
+                        nonUniqueInitExprDueToVarRefs = true;
+                        break;
+                    }
+                }
+
+                if (!nonUniqueInitExprDueToVarRefs) {
+                    continue;
+                }
+            }
+
+            for (BLangSimpleVarRef varRef : refsOfVarExpectedToBeUnique) {
                 dlog.error(varRef.pos,
                            DiagnosticCode.INVALID_NON_UNIQUE_EXPRESSION_AS_INITIAL_VALUE_IN_ISOLATED_OBJECT);
             }
@@ -374,12 +402,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(typeNode, env);
         }
 
-        int flags = varNode.symbol.flags;
+        BVarSymbol symbol = varNode.symbol;
+        int flags = symbol.flags;
 
         BLangExpression expr = varNode.expr;
 
         BType fieldType = varNode.type;
-        if (isIsolatedClassField() && isMutableField(varNode.symbol, fieldType)) {
+        if (isIsolatedClassField() && isMutableField(symbol, fieldType)) {
             if (!Symbols.isFlagOn(flags, Flags.PRIVATE)) {
                 dlog.error(varNode.pos, DiagnosticCode.INVALID_NON_PRIVATE_MUTABLE_FIELD_IN_ISOLATED_OBJECT);
             }
@@ -394,6 +423,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeNode(expr, env);
+
+        UniqueInitAndReferenceInfo varInfo = this.uniqueInitAndReferenceInfo.get(symbol);
+
+        ArrayList<BLangSimpleVarRef> refsUsedInInitExpr = new ArrayList<>();
+        boolean uniqueInitExpr = isReferenceOrValidUniqueExpression(expr, refsUsedInInitExpr, false);
+        if (varInfo == null) {
+            uniqueInitAndReferenceInfo.put(symbol, new UniqueInitAndReferenceInfo(uniqueInitExpr, refsUsedInInitExpr));
+        } else {
+            varInfo.uniqueInitExpr = uniqueInitExpr;
+            varInfo.refsUsedInInitExpr = refsUsedInInitExpr;
+        }
 
         if (Symbols.isFlagOn(flags, Flags.WORKER)) {
             inferredIsolated = false;
@@ -847,6 +887,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         if (symbol == null) {
             return;
         }
+
+        UniqueInitAndReferenceInfo varInfo = uniqueInitAndReferenceInfo.get(symbol);
+
+        if (varInfo == null) {
+            uniqueInitAndReferenceInfo.put(symbol, new UniqueInitAndReferenceInfo());
+        } else {
+            varInfo.totalRefCount++;
+        }
+
 
         if (inLockStatement && isInIsolatedObjectMethod(env, true)) {
             if ((!varRefExpr.lhsVar || varRefExpr.parent.getKind() != NodeKind.ASSIGNMENT)  &&
@@ -1609,7 +1658,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        validateReferenceOrUniqueExpression(expression);
+        isReferenceOrValidUniqueExpression(expression);
     }
 
     private boolean isIsolatedObjectTypes(BType type) {
@@ -1631,9 +1680,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private void validateReferenceOrUniqueExpression(BLangExpression expression) {
+    private void isReferenceOrValidUniqueExpression(BLangExpression expression) {
+        isReferenceOrValidUniqueExpression(expression, null, true);
+    }
+
+    private boolean isReferenceOrValidUniqueExpression(BLangExpression expression,
+                                                       List<BLangSimpleVarRef> refList,
+                                                       boolean logErrors) {
         if (Symbols.isFlagOn(expression.type.flags, Flags.READONLY)) {
-            return;
+            return true;
         }
 
         switch (expression.getKind()) {
@@ -1641,22 +1696,34 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) expression;
                 BSymbol symbol = varRef.symbol;
 
-                List<BLangSimpleVarRef> varRefList = references.get(symbol);
-
-                if (varRefList == null) {
-                    references.put(symbol, new ArrayList<BLangSimpleVarRef>() {{ add(varRef); }});
-                    return;
+                if (!logErrors) {
+                    refList.add(varRef);
                 }
-                varRefList.add(varRef);
-                return;
+
+                UniqueInitAndReferenceInfo varInfo = this.uniqueInitAndReferenceInfo.get(symbol);
+
+                if (varInfo == null) {
+                    uniqueInitAndReferenceInfo.put(symbol, new UniqueInitAndReferenceInfo(varRef));
+                    return true;
+                }
+
+                if (logErrors) {
+                    varInfo.refsOfVarExpectedToBeUnique.add(varRef);
+                }
+
+                return true;
             case LITERAL:
             case NUMERIC_LITERAL:
-                return;
+                return true;
             case LIST_CONSTRUCTOR_EXPR:
                 for (BLangExpression expr : ((BLangListConstructorExpr) expression).exprs) {
-                    validateReferenceOrUniqueExpression(expr);
+                    if (isReferenceOrValidUniqueExpression(expr, refList, logErrors) || logErrors) {
+                        continue;
+                    }
+
+                    return false;
                 }
-                return;
+                return true;
             case RECORD_LITERAL_EXPR:
                 for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) expression).fields) {
                     if (field.isKeyValueField()) {
@@ -1665,54 +1732,84 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                         BLangRecordLiteral.BLangRecordKey key = keyValueField.key;
                         if (key.computedKey) {
-                            validateReferenceOrUniqueExpression(key.expr);
+                            if (!isReferenceOrValidUniqueExpression(key.expr, refList, logErrors) && !logErrors) {
+                                return false;
+                            }
                         }
 
-                        validateReferenceOrUniqueExpression(keyValueField.valueExpr);
-                        continue;
+                        if (isReferenceOrValidUniqueExpression(keyValueField.valueExpr, refList, logErrors) ||
+                                logErrors) {
+                            continue;
+                        }
+                        return false;
                     }
 
                     if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
-                        validateReferenceOrUniqueExpression(
-                                ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr);
-                        continue;
+                        if (isReferenceOrValidUniqueExpression(
+                                ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr, refList, logErrors) ||
+                                logErrors) {
+                            continue;
+                        }
+                        return false;
                     }
 
-                    validateReferenceOrUniqueExpression((BLangRecordLiteral.BLangRecordVarNameField) field);
+                    if (isReferenceOrValidUniqueExpression((BLangRecordLiteral.BLangRecordVarNameField) field, refList,
+                                                           logErrors) || logErrors) {
+                        continue;
+                    }
+                    return false;
                 }
-                return;
+                return true;
             case INVOCATION:
                 BLangInvocation invocation = (BLangInvocation) expression;
 
                 if (Symbols.isFlagOn(invocation.type.flags, Flags.READONLY)) {
-                    return;
+                    return true;
                 }
 
                 if (isCloneOrCloneReadOnlyInvocation(invocation)) {
-                    return;
+                    return true;
                 }
 
                 if (isIsolated(invocation.symbol.type.flags)) {
                     for (BLangExpression requiredArg : invocation.requiredArgs) {
                         if (requiredArg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
-                            validateReferenceOrUniqueExpression(((BLangNamedArgsExpression) requiredArg).expr);
-                            continue;
+                            if (isReferenceOrValidUniqueExpression(((BLangNamedArgsExpression) requiredArg).expr,
+                                                                   refList, logErrors) || logErrors) {
+                                continue;
+                            }
+                            return false;
                         }
 
-                        validateReferenceOrUniqueExpression(requiredArg);
+                        if (isReferenceOrValidUniqueExpression(requiredArg, refList, logErrors) || logErrors) {
+                            continue;
+                        }
+                        return false;
                     }
 
                     for (BLangExpression restArg : invocation.restArgs) {
                         if (restArg.getKind() == NodeKind.REST_ARGS_EXPR) {
-                            validateReferenceOrUniqueExpression(((BLangRestArgsExpression) restArg).expr);
-                            continue;
+                            if (isReferenceOrValidUniqueExpression(((BLangRestArgsExpression) restArg).expr, refList,
+                                                                   logErrors) || logErrors) {
+                                continue;
+                            }
+                            return false;
                         }
 
-                        validateReferenceOrUniqueExpression(restArg);
+                        if (isReferenceOrValidUniqueExpression(restArg, refList, logErrors) || logErrors) {
+                            continue;
+                        }
+                        return false;
                     }
                 }
         }
-        dlog.error(expression.pos, DiagnosticCode.INVALID_NON_UNIQUE_EXPRESSION_AS_INITIAL_VALUE_IN_ISOLATED_OBJECT);
+
+        if (logErrors) {
+            dlog.error(expression.pos,
+                       DiagnosticCode.INVALID_NON_UNIQUE_EXPRESSION_AS_INITIAL_VALUE_IN_ISOLATED_OBJECT);
+        }
+
+        return false;
     }
 
     private boolean isCloneOrCloneReadOnlyInvocation(BLangInvocation invocation) {
@@ -1727,6 +1824,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isInvalidCopyingOfMutableValueInIsolatedObject(BLangExpression expression, boolean copyOut) {
+        return isInvalidCopyingOfMutableValueInIsolatedObject(
+                expression, copyOut, expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                        Names.SELF.value.equals(((BLangSimpleVarRef) expression).variableName.value));
+    }
+
+    private boolean isInvalidCopyingOfMutableValueInIsolatedObject(BLangExpression expression, boolean copyOut,
+                                                                   boolean invokedOnSelf) {
         BType type = expression.type;
         if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
             return false;
@@ -1766,19 +1870,22 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         switch (kind) {
             case FIELD_BASED_ACCESS_EXPR:
             case INDEX_BASED_ACCESS_EXPR:
-                return isInvalidCopyingOfMutableValueInIsolatedObject(parentExpression, copyOut);
+                return isInvalidCopyingOfMutableValueInIsolatedObject(parentExpression, copyOut, invokedOnSelf);
             case INVOCATION:
                 BLangInvocation invocation = (BLangInvocation) parentExpression;
                 BLangExpression calledOnExpr = invocation.expr;
 
-                if (calledOnExpr == expression && !isIsolatedObjectTypes(type)) {
+                if (calledOnExpr == expression && // if this is a method-call, do additional checks
+                        !Symbols.isFlagOn(calledOnExpr.type.flags, Flags.READONLY) &&
+                        (!invokedOnSelf || invocation.type.tag != TypeTags.NIL) &&
+                        !isIsolatedObjectTypes(type)) {
                     return true;
                 }
 
                 return !isIsolated(invocation.symbol.flags) && !isCloneOrCloneReadOnlyInvocation(invocation);
             case GROUP_EXPR:
                 return isInvalidCopyingOfMutableValueInIsolatedObject(((BLangGroupExpr) parentExpression).expression,
-                                                                      copyOut);
+                                                                      copyOut, invokedOnSelf);
         }
 
         return !isIsolatedObjectTypes(type);
@@ -1882,6 +1989,34 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         return isInvalidCopyIn(varRefExpr, name, symTag, env.enclEnv);
+    }
+
+    private static class UniqueInitAndReferenceInfo {
+        boolean uniqueInitExpr;
+        List<BLangSimpleVarRef> refsUsedInInitExpr;
+        List<BLangSimpleVarRef> refsOfVarExpectedToBeUnique;
+        int totalRefCount;
+
+        private UniqueInitAndReferenceInfo(boolean uniqueInitExpr, List<BLangSimpleVarRef> refsUsedInInitExpr) {
+            this.uniqueInitExpr = uniqueInitExpr;
+            this.refsUsedInInitExpr = refsUsedInInitExpr;
+            this.refsOfVarExpectedToBeUnique = new ArrayList<>();
+            this.totalRefCount = 0;
+        }
+
+        private UniqueInitAndReferenceInfo(BLangSimpleVarRef reference) {
+            this.uniqueInitExpr = false;
+            this.refsUsedInInitExpr = new ArrayList<>();
+            this.refsOfVarExpectedToBeUnique = new ArrayList<>() {{ add(reference); }};
+            this.totalRefCount = 0;
+        }
+
+        private UniqueInitAndReferenceInfo() {
+            this.uniqueInitExpr = false;
+            this.refsUsedInInitExpr = new ArrayList<>();
+            this.refsOfVarExpectedToBeUnique = new ArrayList<>();
+            this.totalRefCount = 1;
+        }
     }
 
     /**
