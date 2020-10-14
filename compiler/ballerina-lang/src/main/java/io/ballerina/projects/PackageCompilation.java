@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -41,6 +43,7 @@ public class PackageCompilation {
 
     private final PackageContext packageContext;
     private final PackageResolver packageResolver;
+    private final CompilerContext compilerContext;
 
     private final DependencyGraph<PackageId> dependencyGraph;
     private List<Diagnostic> diagnostics;
@@ -54,8 +57,8 @@ public class PackageCompilation {
         ProjectEnvironmentContext projectEnvContext = packageContext.project().environmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.dependencyGraph = buildDependencyGraph();
-        CompilerContext compilerContext = projectEnvContext.getService(CompilerContext.class);
-        compile(compilerContext);
+        this.compilerContext = projectEnvContext.getService(CompilerContext.class);
+        compile(this.compilerContext);
     }
 
     private DependencyGraph<PackageId> buildDependencyGraph() {
@@ -105,5 +108,10 @@ public class PackageCompilation {
 
     public List<Diagnostic> diagnostics() {
         return diagnostics;
+    }
+
+    public SemanticModel getSemanticModel(ModuleId moduleId) {
+        ModuleContext moduleContext = this.packageContext.moduleContext(moduleId);
+        return new BallerinaSemanticModel(moduleContext.bLangPackage(), this.compilerContext);
     }
 }
