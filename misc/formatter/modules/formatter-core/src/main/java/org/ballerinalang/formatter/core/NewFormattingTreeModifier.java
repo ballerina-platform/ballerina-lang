@@ -2956,14 +2956,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public ArrayTypeDescriptorNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
         TypeDescriptorNode memberTypeDesc = formatNode(arrayTypeDescriptorNode.memberTypeDesc(), 0, 0);
         Token openBracket = formatToken(arrayTypeDescriptorNode.openBracket(), 0, 0);
-        Token closeBracket = formatToken(arrayTypeDescriptorNode.closeBracket(), this.trailingWS, 0);
         if (arrayTypeDescriptorNode.arrayLength().isPresent()) {
-            Node arrayLength = formatNode(arrayTypeDescriptorNode.arrayLength().orElse(null), 0, 0);
+            Node arrayLength = formatNode(arrayTypeDescriptorNode.arrayLength().get(), 0, 0);
             arrayTypeDescriptorNode = arrayTypeDescriptorNode.modify()
                     .withArrayLength(arrayLength)
                     .apply();
         }
 
+        Token closeBracket = formatToken(arrayTypeDescriptorNode.closeBracket(), this.trailingWS, 0);
         return arrayTypeDescriptorNode.modify()
                 .withOpenBracket(openBracket)
                 .withCloseBracket(closeBracket)
