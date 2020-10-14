@@ -23,6 +23,7 @@ import io.ballerina.toml.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.toml.internal.parser.tree.STToken;
 import io.ballerina.tools.text.CharReader;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,9 +38,12 @@ public abstract class AbstractLexer {
     protected List<STNode> leadingTriviaList;
     private Collection<STNodeDiagnostic> diagnostics = new ArrayList<>();
     protected CharReader reader;
+    protected ParserMode mode;
+    protected ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
 
-    public AbstractLexer(CharReader charReader) {
+    public AbstractLexer(CharReader charReader, ParserMode initialParserMode) {
         this.reader = charReader;
+        startMode(initialParserMode);
     }
 
     /**
@@ -57,6 +61,35 @@ public abstract class AbstractLexer {
      */
     public void reset(int offset) {
         reader.reset(offset);
+    }
+
+    /**
+     * Start the given operation mode of the lexer.
+     *
+     * @param mode Mode to switch on to
+     */
+    public void startMode(ParserMode mode) {
+        this.mode = mode;
+        this.modeStack.push(mode);
+    }
+
+    /**
+     * Switch from current operation mode to the given operation mode in the lexer.
+     *
+     * @param mode Mode to switch on to
+     */
+    public void switchMode(ParserMode mode) {
+        this.modeStack.pop();
+        this.mode = mode;
+        this.modeStack.push(mode);
+    }
+
+    /**
+     * End the current mode the mode of the lexer and fall back the previous mode.
+     */
+    public void endMode() {
+        this.modeStack.pop();
+        this.mode = this.modeStack.peek();
     }
 
     private void resetDiagnosticList() {

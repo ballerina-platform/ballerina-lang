@@ -28,12 +28,32 @@ public enum ParserRuleContext {
     // Productions
     EOF("eof"),
     TOP_LEVEL_NODE("top-level-node"),
-    ARG_LIST("arguments"),
-    ARG_START("argument-start"),
-    ARG_LIST_START("("),
-    ARG_LIST_END(")"),
-    ARG_START_OR_ARG_LIST_END("arg-start-or-args-list-end"),
-    ARG_END("arg-end"),
+
+    ARRAY_VALUE_LIST("values"),
+    ARRAY_VALUE_START("value-start"),
+    ARRAY_VALUE_LIST_START("["),
+    ARRAY_VALUE_LIST_END("]"),
+    ARRAY_VALUE_START_OR_VALUE_LIST_END("value-start-or-values-list-end"),
+    ARRAY_VALUE_END("value-end"),
+
+    TABLE_START("["),
+    TABLE_END("]"),
+
+    ARRAY_TABLE_FIRST_START("["),
+    ARRAY_TABLE_SECOND_START("["),
+    ARRAY_TABLE_FIRST_END("]"),
+    ARRAY_TABLE_SECOND_END("]"),
+
+//    STRING_LIST("string-list"),
+//    STRING_START("string-start"),
+//    STRING_LIST_START("("),
+//    STRING_LIST_END(")"),
+//    STRING_START_OR_STRING_LIST_END("string-start-or-string-list-end"),
+//    STRING_END("arg-end"),
+
+    KEY_ENTRY("key-entry"),
+    KEYS_END("keys-entry"),
+
 
     // Syntax tokens
     ASSIGN_OP("="),
@@ -58,6 +78,7 @@ public enum ParserRuleContext {
 
     //TOML
     KEY("key-toml"),
+    KEY_LIST("key-list"),
     VALUE("value-toml"),
     START_SQUARE_BRACES("start-square-braces"),
     END_SQUARE_BRACES("end-square-braces"),
@@ -66,7 +87,12 @@ public enum ParserRuleContext {
     TOML_TABLE_ARRAY("toml-table-array"),
     DOUBLE_OPEN_BRACKET("[["),
     DOUBLE_CLOSE_BRACKET("]]"),
-    TOML_ARRAY("toml-array-value")
+    TOML_ARRAY("toml-array-value"),
+
+    STRING_START("\""),
+    STRING_END("\""),
+
+
     ;
 
     private String value;

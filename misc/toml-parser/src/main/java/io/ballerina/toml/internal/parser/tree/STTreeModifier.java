@@ -28,22 +28,13 @@ package io.ballerina.toml.internal.parser.tree;
 public abstract class STTreeModifier extends STNodeTransformer<STNode> {
 
     @Override
-    public STModulePartNode transform(
-            STModulePartNode modulePartNode) {
-        STNode members = modifyNode(modulePartNode.members);
-        STNode eofToken = modifyNode(modulePartNode.eofToken);
-        return modulePartNode.modify(
+    public STDocumentNode transform(
+            STDocumentNode documentNode) {
+        STNode members = modifyNode(documentNode.members);
+        STNode eofToken = modifyNode(documentNode.eofToken);
+        return documentNode.modify(
                 members,
                 eofToken);
-    }
-
-    @Override
-    public STBasicValueNode transform(
-            STBasicValueNode basicValueNode) {
-        STNode value = modifyNode(basicValueNode.value);
-        return basicValueNode.modify(
-                basicValueNode.kind,
-                value);
     }
 
     @Override
@@ -79,27 +70,64 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STKeyValue transform(
-            STKeyValue keyValue) {
-        STNode identifier = modifyNode(keyValue.identifier);
-        STNode assign = modifyNode(keyValue.assign);
-        STNode value = modifyNode(keyValue.value);
-        return keyValue.modify(
+    public STKeyValueNode transform(
+            STKeyValueNode keyValueNode) {
+        STNode identifier = modifyNode(keyValueNode.identifier);
+        STNode assign = modifyNode(keyValueNode.assign);
+        STNode value = modifyNode(keyValueNode.value);
+        return keyValueNode.modify(
                 identifier,
                 assign,
                 value);
     }
 
     @Override
-    public STArray transform(
-            STArray array) {
-        STNode openBracket = modifyNode(array.openBracket);
-        STNode values = modifyNode(array.values);
-        STNode closeBracket = modifyNode(array.closeBracket);
-        return array.modify(
+    public STArrayNode transform(
+            STArrayNode arrayNode) {
+        STNode openBracket = modifyNode(arrayNode.openBracket);
+        STNode values = modifyNode(arrayNode.values);
+        STNode closeBracket = modifyNode(arrayNode.closeBracket);
+        return arrayNode.modify(
                 openBracket,
                 values,
                 closeBracket);
+    }
+
+    @Override
+    public STStringLiteralNode transform(
+            STStringLiteralNode stringLiteralNode) {
+        STNode startDoubleQuote = modifyNode(stringLiteralNode.startDoubleQuote);
+        STNode content = modifyNode(stringLiteralNode.content);
+        STNode endDoubleQuote = modifyNode(stringLiteralNode.endDoubleQuote);
+        return stringLiteralNode.modify(
+                startDoubleQuote,
+                content,
+                endDoubleQuote);
+    }
+
+    @Override
+    public STNumericLiteralNode transform(
+            STNumericLiteralNode numericLiteralNode) {
+        STNode value = modifyNode(numericLiteralNode.value);
+        return numericLiteralNode.modify(
+                numericLiteralNode.kind,
+                value);
+    }
+
+    @Override
+    public STBoolLiteralNode transform(
+            STBoolLiteralNode boolLiteralNode) {
+        STNode value = modifyNode(boolLiteralNode.value);
+        return boolLiteralNode.modify(
+                value);
+    }
+
+    @Override
+    public STIdentifierLiteralNode transform(
+            STIdentifierLiteralNode identifierLiteralNode) {
+        STNode value = modifyNode(identifierLiteralNode.value);
+        return identifierLiteralNode.modify(
+                value);
     }
 
     // Tokens

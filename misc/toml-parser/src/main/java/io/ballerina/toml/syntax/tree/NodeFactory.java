@@ -34,34 +34,23 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     private NodeFactory() {
     }
 
-    public static ModulePartNode createModulePartNode(
-            NodeList<ModuleMemberDeclarationNode> members,
+    public static DocumentNode createDocumentNode(
+            NodeList<DocumentMemberDeclarationNode> members,
             Token eofToken) {
         Objects.requireNonNull(members, "members must not be null");
         Objects.requireNonNull(eofToken, "eofToken must not be null");
 
-        STNode stModulePartNode = STNodeFactory.createModulePartNode(
+        STNode stDocumentNode = STNodeFactory.createDocumentNode(
                 members.underlyingListNode().internalNode(),
                 eofToken.internalNode());
-        return stModulePartNode.createUnlinkedFacade();
-    }
-
-    public static BasicValueNode createBasicValueNode(
-            SyntaxKind kind,
-            Token value) {
-        Objects.requireNonNull(value, "value must not be null");
-
-        STNode stBasicValueNode = STNodeFactory.createBasicValueNode(
-                kind,
-                value.internalNode());
-        return stBasicValueNode.createUnlinkedFacade();
+        return stDocumentNode.createUnlinkedFacade();
     }
 
     public static TableNode createTableNode(
             Token openBracket,
-            IdentifierToken identifier,
+            SeparatedNodeList<ValueNode> identifier,
             Token closeBracket,
-            NodeList<Node> fields) {
+            NodeList<KeyValueNode> fields) {
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(closeBracket, "closeBracket must not be null");
@@ -69,7 +58,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stTableNode = STNodeFactory.createTableNode(
                 openBracket.internalNode(),
-                identifier.internalNode(),
+                identifier.underlyingListNode().internalNode(),
                 closeBracket.internalNode(),
                 fields.underlyingListNode().internalNode());
         return stTableNode.createUnlinkedFacade();
@@ -78,10 +67,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static TableArrayNode createTableArrayNode(
             Token firstOpenBracket,
             Token secondOpenBracket,
-            IdentifierToken identifier,
+            SeparatedNodeList<ValueNode> identifier,
             Token firstCloseBracket,
             Token secondCloseBracket,
-            NodeList<Node> fields) {
+            NodeList<KeyValueNode> fields) {
         Objects.requireNonNull(firstOpenBracket, "firstOpenBracket must not be null");
         Objects.requireNonNull(secondOpenBracket, "secondOpenBracket must not be null");
         Objects.requireNonNull(identifier, "identifier must not be null");
@@ -92,29 +81,29 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stTableArrayNode = STNodeFactory.createTableArrayNode(
                 firstOpenBracket.internalNode(),
                 secondOpenBracket.internalNode(),
-                identifier.internalNode(),
+                identifier.underlyingListNode().internalNode(),
                 firstCloseBracket.internalNode(),
                 secondCloseBracket.internalNode(),
                 fields.underlyingListNode().internalNode());
         return stTableArrayNode.createUnlinkedFacade();
     }
 
-    public static KeyValue createKeyValue(
-            Token identifier,
+    public static KeyValueNode createKeyValueNode(
+            SeparatedNodeList<ValueNode> identifier,
             Token assign,
             ValueNode value) {
         Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(assign, "assign must not be null");
         Objects.requireNonNull(value, "value must not be null");
 
-        STNode stKeyValue = STNodeFactory.createKeyValue(
-                identifier.internalNode(),
+        STNode stKeyValueNode = STNodeFactory.createKeyValueNode(
+                identifier.underlyingListNode().internalNode(),
                 assign.internalNode(),
                 value.internalNode());
-        return stKeyValue.createUnlinkedFacade();
+        return stKeyValueNode.createUnlinkedFacade();
     }
 
-    public static Array createArray(
+    public static ArrayNode createArrayNode(
             Token openBracket,
             SeparatedNodeList<ValueNode> values,
             Token closeBracket) {
@@ -122,11 +111,55 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(values, "values must not be null");
         Objects.requireNonNull(closeBracket, "closeBracket must not be null");
 
-        STNode stArray = STNodeFactory.createArray(
+        STNode stArrayNode = STNodeFactory.createArrayNode(
                 openBracket.internalNode(),
                 values.underlyingListNode().internalNode(),
                 closeBracket.internalNode());
-        return stArray.createUnlinkedFacade();
+        return stArrayNode.createUnlinkedFacade();
+    }
+
+    public static StringLiteralNode createStringLiteralNode(
+            Token startDoubleQuote,
+            Token content,
+            Token endDoubleQuote) {
+        Objects.requireNonNull(startDoubleQuote, "startDoubleQuote must not be null");
+        Objects.requireNonNull(content, "content must not be null");
+        Objects.requireNonNull(endDoubleQuote, "endDoubleQuote must not be null");
+
+        STNode stStringLiteralNode = STNodeFactory.createStringLiteralNode(
+                startDoubleQuote.internalNode(),
+                content.internalNode(),
+                endDoubleQuote.internalNode());
+        return stStringLiteralNode.createUnlinkedFacade();
+    }
+
+    public static NumericLiteralNode createNumericLiteralNode(
+            SyntaxKind kind,
+            Token value) {
+        Objects.requireNonNull(value, "value must not be null");
+
+        STNode stNumericLiteralNode = STNodeFactory.createNumericLiteralNode(
+                kind,
+                value.internalNode());
+        return stNumericLiteralNode.createUnlinkedFacade();
+    }
+
+    public static BoolLiteralNode createBoolLiteralNode(
+            Token value) {
+        Objects.requireNonNull(value, "value must not be null");
+
+        STNode stBoolLiteralNode = STNodeFactory.createBoolLiteralNode(
+                value.internalNode());
+        return stBoolLiteralNode.createUnlinkedFacade();
+    }
+
+    public static IdentifierLiteralNode createIdentifierLiteralNode(
+            IdentifierToken value) {
+        Objects.requireNonNull(value, "value must not be null");
+
+        STNode stIdentifierLiteralNode = STNodeFactory.createIdentifierLiteralNode(
+                value.internalNode());
+        return stIdentifierLiteralNode.createUnlinkedFacade();
     }
 }
 

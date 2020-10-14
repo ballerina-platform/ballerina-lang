@@ -18,17 +18,16 @@
 
 package io.ballerina.toml.api;
 
-import io.ballerina.toml.ast.TomlDiagnostic;
-import io.ballerina.toml.ast.TomlKeyValueNode;
-import io.ballerina.toml.ast.TomlNodeLocation;
-import io.ballerina.toml.ast.TomlTableArrayNode;
-import io.ballerina.toml.ast.TomlTableNode;
-import io.ballerina.toml.ast.TomlTransformer;
-import io.ballerina.toml.ast.TomlValidator;
-import io.ballerina.toml.ast.TomlValueNode;
-import io.ballerina.toml.ast.TopLevelNode;
-import io.ballerina.toml.syntax.tree.ModulePartNode;
-import io.ballerina.toml.syntax.tree.SyntaxKind;
+import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
+import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.ast.TomlTransformer;
+import io.ballerina.toml.semantic.ast.TomlValueNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
@@ -48,8 +47,9 @@ import java.util.List;
 /**
  * API For Parsing Tom's Obvious, Minimal Language (TOML) file.
  *
- * @since 0.1.0
+ * @since 2.0.0
  */
+@Deprecated
 public class Toml {
 
     private TomlTableNode rootNode;
@@ -113,9 +113,7 @@ public class Toml {
         List<TomlDiagnostic> tomlDiagnostics = reportSyntaxDiagnostics(syntaxTree);
         TomlTransformer nodeTransformer = new TomlTransformer();
         TomlTableNode
-                transformedTable = (TomlTableNode) nodeTransformer.transform((ModulePartNode) syntaxTree.rootNode());
-        TomlValidator tomlValidator = new TomlValidator();
-        tomlValidator.visit(transformedTable);
+                transformedTable = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
         transformedTable.setSyntacticalDiagnostics(tomlDiagnostics);
         tomlDiagnostics.addAll(transformedTable.collectSemanticDiagnostics());
         return new Toml(transformedTable);
@@ -142,13 +140,11 @@ public class Toml {
      */
     public <T extends TomlValueNode> T get(String key) {
         TomlKeyValueNode tomlKeyValueNode = (TomlKeyValueNode) rootNode.children().get(key);
-        if (tomlKeyValueNode != null) {
-            TomlValueNode value = tomlKeyValueNode.value();
-            if (value != null) {
-                return (T) value;
-            }
+        if (tomlKeyValueNode == null || tomlKeyValueNode.value() == null) {
+            return null;
         }
-        return null;
+        TomlValueNode value = tomlKeyValueNode.value();
+        return (T) value;
     }
 
     /**
@@ -159,7 +155,7 @@ public class Toml {
      */
     public Toml getTable(String key) {
         TopLevelNode topLevelNode = rootNode.children().get(key);
-        if (topLevelNode.kind() == SyntaxKind.TABLE) {
+        if (topLevelNode.kind() == TomlType.TABLE) {
             return new Toml((TomlTableNode) topLevelNode);
         }
         return null;
@@ -173,7 +169,7 @@ public class Toml {
      */
     public List<Toml> getTables(String key) {
         TopLevelNode tableNode = rootNode.children().get(key);
-        if (tableNode.kind() == SyntaxKind.TABLE_ARRAY) {
+        if (tableNode.kind() == TomlType.TABLE_ARRAY) {
             TomlTableArrayNode tomlTableArrayNode = (TomlTableArrayNode) tableNode;
             List<TomlTableNode> childs = tomlTableArrayNode.children();
             List<Toml> tomlList = new ArrayList<>();

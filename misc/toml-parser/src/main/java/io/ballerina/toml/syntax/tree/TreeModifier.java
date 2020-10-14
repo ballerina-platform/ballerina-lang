@@ -32,25 +32,15 @@ import java.util.function.Function;
 public abstract class TreeModifier extends NodeTransformer<Node> {
 
     @Override
-    public ModulePartNode transform(
-            ModulePartNode modulePartNode) {
-        NodeList<ModuleMemberDeclarationNode> members =
-                modifyNodeList(modulePartNode.members());
+    public DocumentNode transform(
+            DocumentNode documentNode) {
+        NodeList<DocumentMemberDeclarationNode> members =
+                modifyNodeList(documentNode.members());
         Token eofToken =
-                modifyToken(modulePartNode.eofToken());
-        return modulePartNode.modify(
+                modifyToken(documentNode.eofToken());
+        return documentNode.modify(
                 members,
                 eofToken);
-    }
-
-    @Override
-    public BasicValueNode transform(
-            BasicValueNode basicValueNode) {
-        Token value =
-                modifyToken(basicValueNode.value());
-        return basicValueNode.modify(
-                basicValueNode.kind(),
-                value);
     }
 
     @Override
@@ -58,11 +48,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             TableNode tableNode) {
         Token openBracket =
                 modifyToken(tableNode.openBracket());
-        IdentifierToken identifier =
-                modifyNode(tableNode.identifier());
+        SeparatedNodeList<ValueNode> identifier =
+                modifySeparatedNodeList(tableNode.identifier());
         Token closeBracket =
                 modifyToken(tableNode.closeBracket());
-        NodeList<Node> fields =
+        NodeList<KeyValueNode> fields =
                 modifyNodeList(tableNode.fields());
         return tableNode.modify(
                 openBracket,
@@ -78,13 +68,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(tableArrayNode.firstOpenBracket());
         Token secondOpenBracket =
                 modifyToken(tableArrayNode.secondOpenBracket());
-        IdentifierToken identifier =
-                modifyNode(tableArrayNode.identifier());
+        SeparatedNodeList<ValueNode> identifier =
+                modifySeparatedNodeList(tableArrayNode.identifier());
         Token firstCloseBracket =
                 modifyToken(tableArrayNode.firstCloseBracket());
         Token secondCloseBracket =
                 modifyToken(tableArrayNode.secondCloseBracket());
-        NodeList<Node> fields =
+        NodeList<KeyValueNode> fields =
                 modifyNodeList(tableArrayNode.fields());
         return tableArrayNode.modify(
                 firstOpenBracket,
@@ -96,33 +86,76 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public KeyValue transform(
-            KeyValue keyValue) {
-        Token identifier =
-                modifyToken(keyValue.identifier());
+    public KeyValueNode transform(
+            KeyValueNode keyValueNode) {
+        SeparatedNodeList<ValueNode> identifier =
+                modifySeparatedNodeList(keyValueNode.identifier());
         Token assign =
-                modifyToken(keyValue.assign());
+                modifyToken(keyValueNode.assign());
         ValueNode value =
-                modifyNode(keyValue.value());
-        return keyValue.modify(
+                modifyNode(keyValueNode.value());
+        return keyValueNode.modify(
                 identifier,
                 assign,
                 value);
     }
 
     @Override
-    public Array transform(
-            Array array) {
+    public ArrayNode transform(
+            ArrayNode arrayNode) {
         Token openBracket =
-                modifyToken(array.openBracket());
+                modifyToken(arrayNode.openBracket());
         SeparatedNodeList<ValueNode> values =
-                modifySeparatedNodeList(array.values());
+                modifySeparatedNodeList(arrayNode.values());
         Token closeBracket =
-                modifyToken(array.closeBracket());
-        return array.modify(
+                modifyToken(arrayNode.closeBracket());
+        return arrayNode.modify(
                 openBracket,
                 values,
                 closeBracket);
+    }
+
+    @Override
+    public StringLiteralNode transform(
+            StringLiteralNode stringLiteralNode) {
+        Token startDoubleQuote =
+                modifyToken(stringLiteralNode.startDoubleQuote());
+        Token content =
+                modifyToken(stringLiteralNode.content());
+        Token endDoubleQuote =
+                modifyToken(stringLiteralNode.endDoubleQuote());
+        return stringLiteralNode.modify(
+                startDoubleQuote,
+                content,
+                endDoubleQuote);
+    }
+
+    @Override
+    public NumericLiteralNode transform(
+            NumericLiteralNode numericLiteralNode) {
+        Token value =
+                modifyToken(numericLiteralNode.value());
+        return numericLiteralNode.modify(
+                numericLiteralNode.kind(),
+                value);
+    }
+
+    @Override
+    public BoolLiteralNode transform(
+            BoolLiteralNode boolLiteralNode) {
+        Token value =
+                modifyToken(boolLiteralNode.value());
+        return boolLiteralNode.modify(
+                value);
+    }
+
+    @Override
+    public IdentifierLiteralNode transform(
+            IdentifierLiteralNode identifierLiteralNode) {
+        IdentifierToken value =
+                modifyNode(identifierLiteralNode.value());
+        return identifierLiteralNode.modify(
+                value);
     }
 
     // Tokens

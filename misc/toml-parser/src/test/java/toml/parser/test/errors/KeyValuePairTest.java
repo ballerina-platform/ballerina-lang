@@ -19,7 +19,7 @@
 package toml.parser.test.errors;
 
 import io.ballerina.toml.api.Toml;
-import io.ballerina.toml.ast.TomlDiagnostic;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.LineRange;
 import org.testng.annotations.Test;
@@ -110,11 +110,11 @@ public class KeyValuePairTest {
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
-        LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 12, 13);
+        LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 10, 11);
         TomlDiagnostic actualDiag = diagnostics.get(0);
 
         ErrorTestUtils
-                .validateDiagnostic(actualDiag, expectedLineRange, "invalid token '\"hi\"'", DiagnosticSeverity.ERROR);
+                .validateDiagnostic(actualDiag, expectedLineRange, "invalid token '2'", DiagnosticSeverity.ERROR);
     }
 
     @Test

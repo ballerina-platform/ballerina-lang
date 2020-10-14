@@ -18,14 +18,13 @@
 package io.ballerina.toml.internal.parser.tree;
 
 import io.ballerina.toml.internal.diagnostics.DiagnosticCode;
-import io.ballerina.toml.internal.diagnostics.IRDiagnostic;
 
 /**
  * Internal representation of diagnostic that is related to an internal syntax node.
  *
  * @since 2.0.0
  */
-public class STNodeDiagnostic extends IRDiagnostic {
+public class STNodeDiagnostic {
     private DiagnosticCode diagnosticCode;
     private Object[] args;
 

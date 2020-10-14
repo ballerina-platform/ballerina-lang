@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class TableNode extends ModuleMemberDeclarationNode {
+public class TableNode extends DocumentMemberDeclarationNode {
 
     public TableNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
@@ -36,15 +36,15 @@ public class TableNode extends ModuleMemberDeclarationNode {
         return childInBucket(0);
     }
 
-    public IdentifierToken identifier() {
-        return childInBucket(1);
+    public SeparatedNodeList<ValueNode> identifier() {
+        return new SeparatedNodeList<>(childInBucket(1));
     }
 
     public Token closeBracket() {
         return childInBucket(2);
     }
 
-    public NodeList<Node> fields() {
+    public NodeList<KeyValueNode> fields() {
         return new NodeList<>(childInBucket(3));
     }
 
@@ -69,12 +69,12 @@ public class TableNode extends ModuleMemberDeclarationNode {
 
     public TableNode modify(
             Token openBracket,
-            IdentifierToken identifier,
+            SeparatedNodeList<ValueNode> identifier,
             Token closeBracket,
-            NodeList<Node> fields) {
+            NodeList<KeyValueNode> fields) {
         if (checkForReferenceEquality(
                 openBracket,
-                identifier,
+                identifier.underlyingListNode(),
                 closeBracket,
                 fields.underlyingListNode())) {
             return this;
@@ -99,9 +99,9 @@ public class TableNode extends ModuleMemberDeclarationNode {
     public static class TableNodeModifier {
         private final TableNode oldNode;
         private Token openBracket;
-        private IdentifierToken identifier;
+        private SeparatedNodeList<ValueNode> identifier;
         private Token closeBracket;
-        private NodeList<Node> fields;
+        private NodeList<KeyValueNode> fields;
 
         public TableNodeModifier(TableNode oldNode) {
             this.oldNode = oldNode;
@@ -119,7 +119,7 @@ public class TableNode extends ModuleMemberDeclarationNode {
         }
 
         public TableNodeModifier withIdentifier(
-                IdentifierToken identifier) {
+                SeparatedNodeList<ValueNode> identifier) {
             Objects.requireNonNull(identifier, "identifier must not be null");
             this.identifier = identifier;
             return this;
@@ -133,7 +133,7 @@ public class TableNode extends ModuleMemberDeclarationNode {
         }
 
         public TableNodeModifier withFields(
-                NodeList<Node> fields) {
+                NodeList<KeyValueNode> fields) {
             Objects.requireNonNull(fields, "fields must not be null");
             this.fields = fields;
             return this;

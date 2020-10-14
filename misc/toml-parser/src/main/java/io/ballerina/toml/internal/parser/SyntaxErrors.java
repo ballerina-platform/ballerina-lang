@@ -120,7 +120,7 @@ public class SyntaxErrors {
             case MINUS_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_MINUS_TOKEN;
 
-            case UNQUOTED_KEY_TOKEN:
+            case IDENTIFIER_LITERAL:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case STRING_LITERAL:
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
@@ -151,12 +151,12 @@ public class SyntaxErrors {
             case PLUS_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_PLUS_TOKEN;
             case CLOSE_BRACKET:
-            case ARG_LIST_END:
+            case ARRAY_VALUE_LIST_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
             case COMMA:
                 return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
             case OPEN_BRACKET:
-            case ARG_LIST_START:
+            case ARRAY_VALUE_LIST_START:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACKET_TOKEN;
             case DOUBLE_CLOSE_BRACKET:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_DOUBLE_BRACKET;

@@ -591,7 +591,7 @@ class JvmValueGen {
             if (typeRef.tag == TypeTags.RECORD) {
                 String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
                 mv.visitInsn(DUP2);
-                mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
+                mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, JvmConstants.RECORD_INIT_WRAPPER_NAME,
                                    String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), false);
             }
         }
@@ -765,7 +765,7 @@ class JvmValueGen {
     // TODO: remove this method, logic moved to createInstantiateMethod, see #23012
     private void createRecordInitWrapper(ClassWriter cw, String className, BIRNode.BIRTypeDefinition typeDef) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init",
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, JvmConstants.RECORD_INIT_WRAPPER_NAME,
                                           String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), null, null);
         mv.visitCode();
         // load strand
@@ -783,7 +783,7 @@ class JvmValueGen {
             String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID,
                                                             toNameString(typeRef));
             mv.visitInsn(DUP2);
-            mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
+            mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, JvmConstants.RECORD_INIT_WRAPPER_NAME,
                                String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), false);
         }
 

@@ -23,11 +23,11 @@ import io.ballerina.tools.text.TextDocuments;
 
 
 /**
- * A factory for creating {@code BallerinaParser} instances.
+ * A factory for creating {@code TomlParser} instances.
  * <p>
  * Creates a regular parser or an incremental parser based on the parameters.
  *
- * @since 0.1.0
+ * @since 2.0.0
  */
 public class ParserFactory {
 
@@ -35,10 +35,10 @@ public class ParserFactory {
     }
 
     /**
-     * Creates a regular {@code BallerinaParser} instance from the given {@code String}.
+     * Creates a regular {@code TomlParser} instance from the given {@code String}.
      *
      * @param text source code
-     * @return a {@code BallerinaParser} instance
+     * @return a {@code TomlParser} instance
      */
     public static TomlParser getParser(String text) {
         TextDocument textDocument = TextDocuments.from(text);
@@ -47,10 +47,10 @@ public class ParserFactory {
     }
 
     /**
-     * Creates a regular {@code BallerinaParser} instance from the given {@code TextDocument}.
+     * Creates a regular {@code TomlParser} instance from the given {@code TextDocument}.
      *
      * @param textDocument source code
-     * @return a {@code BallerinaParser} instance
+     * @return a {@code TomlParser} instance
      */
     public static TomlParser getParser(TextDocument textDocument) {
         AbstractTokenReader tokenReader = new TokenReader(getLexer(textDocument));

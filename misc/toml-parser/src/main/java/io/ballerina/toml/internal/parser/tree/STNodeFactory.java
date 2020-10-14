@@ -36,22 +36,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
     private STNodeFactory() {
     }
 
-    public static STNode createModulePartNode(
+    public static STNode createDocumentNode(
             STNode members,
             STNode eofToken) {
 
-        return new STModulePartNode(
+        return new STDocumentNode(
                 members,
                 eofToken);
-    }
-
-    public static STNode createBasicValueNode(
-            SyntaxKind kind,
-            STNode value) {
-
-        return new STBasicValueNode(
-                kind,
-                value);
     }
 
     public static STNode createTableNode(
@@ -84,26 +75,60 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 fields);
     }
 
-    public static STNode createKeyValue(
+    public static STNode createKeyValueNode(
             STNode identifier,
             STNode assign,
             STNode value) {
 
-        return new STKeyValue(
+        return new STKeyValueNode(
                 identifier,
                 assign,
                 value);
     }
 
-    public static STNode createArray(
+    public static STNode createArrayNode(
             STNode openBracket,
             STNode values,
             STNode closeBracket) {
 
-        return new STArray(
+        return new STArrayNode(
                 openBracket,
                 values,
                 closeBracket);
+    }
+
+    public static STNode createStringLiteralNode(
+            STNode startDoubleQuote,
+            STNode content,
+            STNode endDoubleQuote) {
+
+        return new STStringLiteralNode(
+                startDoubleQuote,
+                content,
+                endDoubleQuote);
+    }
+
+    public static STNode createNumericLiteralNode(
+            SyntaxKind kind,
+            STNode value) {
+
+        return new STNumericLiteralNode(
+                kind,
+                value);
+    }
+
+    public static STNode createBoolLiteralNode(
+            STNode value) {
+
+        return new STBoolLiteralNode(
+                value);
+    }
+
+    public static STNode createIdentifierLiteralNode(
+            STNode value) {
+
+        return new STIdentifierLiteralNode(
+                value);
     }
 }
 

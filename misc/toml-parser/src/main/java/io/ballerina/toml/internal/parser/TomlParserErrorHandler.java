@@ -46,17 +46,22 @@ import java.util.ArrayDeque;
  * </li>
  * </ul>
  *
- * @since 0.1.0
+ * @since 2.0.0
  */
 public class TomlParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE = {ParserRuleContext.EOF,
             ParserRuleContext.KEY_VALUE_PAIR, ParserRuleContext.TOML_TABLE, ParserRuleContext.TOML_TABLE_ARRAY};
 
-    private static final ParserRuleContext[] ARG_END = { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA };
+    private static final ParserRuleContext[] VALUE_END = { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA };
 
-    private static final ParserRuleContext[] ARG_START =
+    private static final ParserRuleContext[] VALUE_START =
             { ParserRuleContext.VALUE, ParserRuleContext.TOML_ARRAY };
+
+    private static final ParserRuleContext[] ARRAY_VALUE_START_OR_VALUE_LIST_END =
+            { ParserRuleContext.ARRAY_VALUE_LIST_END, ParserRuleContext.ARRAY_VALUE_START };
+
+
 
     public TomlParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -101,10 +106,22 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.EQUAL_TOKEN;
                     break;
                 case OPEN_BRACKET:
+                case ARRAY_TABLE_FIRST_START:
+                case ARRAY_TABLE_SECOND_START:
+                case TABLE_START:
+                case ARRAY_VALUE_LIST_START:
                     hasMatch = nextToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN;
                     break;
                 case CLOSE_BRACKET:
+                case ARRAY_TABLE_FIRST_END:
+                case ARRAY_TABLE_SECOND_END:
+                case TABLE_END:
+                case ARRAY_VALUE_LIST_END:
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN;
+                    break;
+                case STRING_START:
+                case STRING_END:
+                    hasMatch = nextToken.kind == SyntaxKind.DOUBLE_QUOTE_TOKEN;
                     break;
                 case COMMA:
                     hasMatch = nextToken.kind == SyntaxKind.COMMA_TOKEN;
@@ -119,12 +136,16 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                     alternativeRules = TOP_LEVEL_NODE;
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
                             isEntryPoint);
-                case ARG_END:
-                    alternativeRules = ARG_END;
+                case ARRAY_VALUE_END:
+                    alternativeRules = VALUE_END;
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
                             isEntryPoint);
-                case ARG_START:
-                    alternativeRules = ARG_START;
+                case ARRAY_VALUE_START:
+                    alternativeRules = VALUE_START;
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
+                            isEntryPoint);
+                case ARRAY_VALUE_START_OR_VALUE_LIST_END:
+                    alternativeRules = ARRAY_VALUE_START_OR_VALUE_LIST_END;
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
                             isEntryPoint);
                 default:
@@ -160,6 +181,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             case TOML_TABLE:
             case KEY_VALUE_PAIR:
             case TOML_ARRAY:
+            case ARRAY_VALUE_LIST:
                 startContext(currentCtx);
                 break;
             default:
@@ -200,6 +222,16 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.DOUBLE_OPEN_BRACKET;
             case KEY:
                 return getNextRuleForKey();
+            case COMMA:
+                return ParserRuleContext.CLOSE_BRACKET;
+            case ARRAY_VALUE_LIST_START:
+                return ParserRuleContext.ARRAY_VALUE_LIST;
+            case ARRAY_VALUE_LIST:
+                return ParserRuleContext.ARRAY_VALUE_START_OR_VALUE_LIST_END;
+            case STRING_START:
+                return ParserRuleContext.STRING_LITERAL;
+            case STRING_LITERAL:
+                return ParserRuleContext.STRING_END;
             default:
                 throw new IllegalStateException("Next rule is not handled " + currentCtx); //use next token and try
 
@@ -241,14 +273,25 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             case ASSIGN_OP:
                 return SyntaxKind.EQUAL_TOKEN;
             case KEY:
-                return SyntaxKind.UNQUOTED_KEY_TOKEN;
+                return SyntaxKind.IDENTIFIER_LITERAL;
             case VALUE:
-                return SyntaxKind.BASIC_LITERAL;
+                return SyntaxKind.FALSE_KEYWORD; //Better handling
             case EOF:
                 return SyntaxKind.EOF_TOKEN;
             case OPEN_BRACKET:
                 return SyntaxKind.OPEN_BRACKET_TOKEN;
             case CLOSE_BRACKET:
+                return SyntaxKind.CLOSE_BRACKET_TOKEN;
+            case COMMA:
+                return SyntaxKind.COMMA_TOKEN;
+            case STRING_START:
+            case STRING_END:
+                return SyntaxKind.DOUBLE_QUOTE_TOKEN;
+            case STRING_LITERAL:
+                return SyntaxKind.STRING_LITERAL;
+            case ARRAY_VALUE_LIST_START:
+                return SyntaxKind.OPEN_BRACKET_TOKEN;
+            case ARRAY_VALUE_LIST_END:
                 return SyntaxKind.CLOSE_BRACKET_TOKEN;
             default:
                 return SyntaxKind.NONE;
