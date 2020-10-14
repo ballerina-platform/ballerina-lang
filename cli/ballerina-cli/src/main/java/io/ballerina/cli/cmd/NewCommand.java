@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -37,7 +37,7 @@ import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 /**
  * New command for creating a ballerina project.
  *
- * @since 0.992.0
+ * @since 2.0.0
  */
 @CommandLine.Command(name = NEW_COMMAND, description = "Create a new Ballerina project")
 public class NewCommand implements BLauncherCmd {

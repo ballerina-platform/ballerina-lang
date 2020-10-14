@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,7 +22,6 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -31,6 +30,8 @@ import java.util.List;
 
 /**
  * Task for compiling a package.
+ *
+ * @since 2.0.0
  */
 public class CompileTask implements Task {
     private transient PrintStream out;
@@ -59,7 +60,7 @@ public class CompileTask implements Task {
             }
         }
         if (hasError) {
-            throw new BLangCompilerException("compilation contains errors");
+            throw new RuntimeException("compilation contains errors");
         }
     }
 }

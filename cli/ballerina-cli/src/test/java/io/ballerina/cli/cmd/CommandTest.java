@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -35,9 +35,9 @@ import static io.ballerina.cli.utils.FileUtils.deleteDirectory;
 
 
 /**
- * Command tests supper class.
+ * Command tests super class.
  *
- * @since 1.0.0
+ * @since 2.0.0
  */
 public abstract class CommandTest {
     protected Path tmpDir;

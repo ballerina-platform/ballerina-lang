@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -20,10 +20,9 @@ package io.ballerina.cli.cmd;
 /**
  * Class containing packerina command related constants.
  *
- * @since 0.982.0
+ * @since 2.0.0
  */
 public class Constants {
-    static final String RUN_COMMAND = "run";
     static final String BUILD_COMMAND = "buildNew";
     static final String COMPILE_COMMAND = "compile";
     static final String DOC_COMMAND = "doc";
@@ -37,11 +36,4 @@ public class Constants {
     static final String SEARCH_COMMAND = "search";
     static final String CLEAN_COMMAND = "clean";
     static final String UNINSTALL_COMMAND = "uninstall";
-
-    //module name format : <org-name>/<module-name> | <org-name>/<module-name>:<version>
-    //version format : 1, 1.*, 1.*.*
-    static final String MODULE_NAME_REGEX = "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+|" +
-            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+|" +
-            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+|" +
-            "[^0-9_][_\\w]+/[^0-9_][_\\.\\w]+:[*\\d]+\\.[*\\d]+\\.[*\\d]+";
 }

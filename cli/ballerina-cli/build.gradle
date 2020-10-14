@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,31 +28,15 @@ configurations {
 
 dependencies {
 
-    bir project(path: ':ballerina-io',  configuration: 'bir')
-    bir project(path: ':testerina:testerina-core',  configuration: 'bir')
-
-    testCompile project(':ballerina-io')
-
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-config')
-    implementation project(':ballerina-logging')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-tools-api')
-    implementation project(':testerina:testerina-core')
-    implementation project(':testerina:testerina-runtime')
-    implementation project(':docerina')
-    implementation project(':ballerina-cli-module')
-    implementation project(':maven-resolver')
     implementation project(':ballerina-projects')
-    implementation 'com.moandjiezana.toml:toml4j'
     implementation 'info.picocli:picocli'
     implementation 'org.apache.commons:commons-compress:1.18'
 
     testCompile 'org.testng:testng'
-    testCompile 'com.moandjiezana.toml:toml4j'
-
-
 }
 
 task createBirCache {
@@ -84,9 +68,6 @@ test {
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     useTestNG() {
         suites 'src/test/resources/testng.xml'
-    }
-    doFirst {
-//        systemProperty "ballerina.bootstrap.home", files(configurations.birJarCompile).singleFile
     }
 }
 

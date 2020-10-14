@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.utils;
 
 import io.ballerina.projects.BaloWriter;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.Target;

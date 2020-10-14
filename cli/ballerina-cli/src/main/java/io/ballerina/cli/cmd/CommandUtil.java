@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -50,7 +50,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 /**
  * Packerina command util.
  *
- * @since 1.0.0
+ * @since 2.0.0
  */
 public class CommandUtil {
     public static final String ORG_NAME = "ORG_NAME";

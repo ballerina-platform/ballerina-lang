@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -232,10 +232,8 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Build a Ballerina module(s)/file and produce an executable JAR file(s). \n");
-        out.append("\n");
-        out.append("Build a Ballerina project or a specific module in a project. The \n");
-        out.append("executable \".jar\" files will be created in the <PROJECT-ROOT>/target/bin directory. \n");
+        out.append("Build a Ballerina project and produce an executable JAR file. The \n");
+        out.append("executable \".jar\" file will be created in the <PROJECT-ROOT>/target/bin directory. \n");
         out.append("\n");
         out.append("Build a single Ballerina file. This creates an executable .jar file in the \n");
         out.append("current directory. The name of the executable file will be \n");
