@@ -16,46 +16,33 @@
  *  under the License.
  */
 
-package io.ballerina.projects.importresolver;
+package io.ballerina.projects.internal.balo;
 
 /**
- * The {@code SyntaxTree} represents a model for import in a ballerina source.
+ * {@code Dependency} Model for Dependency.
  *
  * @since 2.0.0
  */
-public class Import {
+public class Dependency {
+    String org;
+    String name;
+    String version;
 
-    private String orgName;
-    private String moduleName;
-    private String version;
-
-    Import(String orgName, String moduleName, String version) {
-        this.orgName = orgName;
-        this.moduleName = moduleName;
+    public Dependency(String org, String name, String version) {
+        this.org = org;
+        this.name = name;
         this.version = version;
     }
 
-    public String getOrgName() {
-        return orgName;
+    public String getOrg() {
+        return org;
     }
 
-    public void setOrgName(String orgName) {
-        this.orgName = orgName;
-    }
-
-    public String getModuleName() {
-        return moduleName;
-    }
-
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
+    public String getName() {
+        return name;
     }
 
     public String getVersion() {
         return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 }

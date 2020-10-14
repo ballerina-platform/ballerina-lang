@@ -29,27 +29,30 @@ import java.nio.file.StandardOpenOption;
 /**
  * Write a bir to a provided path.
  */
-public class BirWriter {
+class BirWriter {
 
-    /**
-     * Write the compiled module to a bir file.
-     *
-     * @param module      module to create the BIR for
-     * @param birFilePath The path to the bir file.
-     */
-    public static void write(Module module, Path birFilePath) {
-        write(module, birFilePath, false);
+    private BirWriter() {
+
     }
 
     /**
      * Write the compiled module to a bir file.
      *
-     * @param module      module to create the BIR for
+     * @param bLangPackage      module to create the BIR for
+     * @param birFilePath The path to the bir file.
+     */
+    public static void write(BLangPackage bLangPackage, Path birFilePath) {
+        write(bLangPackage, birFilePath, false);
+    }
+
+    /**
+     * Write the compiled module to a bir file.
+     *
+     * @param bLangPackage      compiled module
      * @param birFilePath The path to the bir file.
      * @param forceOverwrite whether the file should be overwritten
      */
-    public static void write(Module module, Path birFilePath, boolean forceOverwrite) {
-        BLangPackage bLangPackage = module.getCompilation().bLangPackage();
+     static void write(BLangPackage bLangPackage, Path birFilePath, boolean forceOverwrite) {
         try {
             //TODO: write our own utility for writePackage
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(bLangPackage.symbol.birPackageFile);

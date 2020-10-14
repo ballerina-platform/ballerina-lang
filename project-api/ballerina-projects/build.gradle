@@ -24,6 +24,7 @@ dependencies {
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'com.google.code.findbugs:jsr305'
     implementation 'org.apache.commons:commons-compress:1.18'
+    implementation 'commons-io:commons-io'
 
     testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
     testImplementation 'org.testng:testng'

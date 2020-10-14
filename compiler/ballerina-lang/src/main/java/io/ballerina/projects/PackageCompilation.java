@@ -17,11 +17,17 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,6 +47,7 @@ public class PackageCompilation {
 
     private final PackageContext packageContext;
     private final PackageResolver packageResolver;
+    private final CompilerContext compilerContext;
 
     private final DependencyGraph<PackageId> dependencyGraph;
     private List<Diagnostic> diagnostics;
@@ -54,8 +61,8 @@ public class PackageCompilation {
         ProjectEnvironmentContext projectEnvContext = packageContext.project().environmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.dependencyGraph = buildDependencyGraph();
-        CompilerContext compilerContext = projectEnvContext.getService(CompilerContext.class);
-        compile(compilerContext);
+        this.compilerContext = projectEnvContext.getService(CompilerContext.class);
+        compile(this.compilerContext);
     }
 
     private DependencyGraph<PackageId> buildDependencyGraph() {
@@ -92,7 +99,7 @@ public class PackageCompilation {
             List<ModuleId> sortedModuleIds = moduleDependencyGraph.toTopologicallySortedList();
             for (ModuleId moduleId : sortedModuleIds) {
                 ModuleContext moduleContext = pkg.module(moduleId).moduleContext();
-                moduleContext.compile(compilerContext, pkg.packageName());
+                moduleContext.compile(compilerContext, pkg.packageDescriptor());
                 diagnostics.addAll(moduleContext.diagnostics());
             }
         }
@@ -105,5 +112,76 @@ public class PackageCompilation {
 
     public List<Diagnostic> diagnostics() {
         return diagnostics;
+    }
+
+    public void emit(OutputType outputType, Path filePath) {
+        if (OutputType.EXEC.equals(outputType)) {
+            if (this.packageContext.defaultModuleContext().bLangPackage().symbol.entryPointExists) {
+                List<PackageId> sortedPackageIds = dependencyGraph.toTopologicallySortedList();
+                List<BLangPackage> bLangPackageList = new ArrayList<>();
+                sortedPackageIds.stream().map(packageResolver::getPackage).forEach(pkg -> {
+                    pkg.moduleIds().stream().map(moduleId ->
+                            pkg.module(moduleId).getCompilation().bLangPackage()).forEach(bLangPackageList::add);
+                });
+                try {
+                    JarWriter.write(bLangPackageList, filePath);
+                    // copy the rt jar to the executable
+                    ProjectUtils.copyRuntimeJar(filePath);
+                } catch (IOException e) {
+                    throw new RuntimeException("error while creating the executable jar file for package: " +
+                            this.packageContext.packageName(), e);
+                }
+            } else {
+                throw new UnsupportedOperationException("no entrypoint found in package: "
+                        + this.packageContext.packageName());
+            }
+        } else if (OutputType.JAR.equals(outputType)) {
+            List<BLangPackage> bLangPackageList = packageContext.moduleIds().stream()
+                    .map(moduleId -> this.packageContext.moduleContext(moduleId).bLangPackage())
+                    .collect(Collectors.toList());
+            try {
+                JarWriter.write(bLangPackageList, filePath);
+            } catch (IOException e) {
+                throw new RuntimeException("error while creating the jar file for package: " +
+                        this.packageContext.packageName(), e);
+            }
+        } else if (OutputType.BIR.equals(outputType)) {
+            for (ModuleId moduleId : packageContext.moduleIds()) {
+                BLangPackage bLangPackage = packageContext.moduleContext(moduleId).bLangPackage();
+                if (bLangPackage != null) {
+                    String birName;
+                    if (packageContext.moduleContext(moduleId).moduleName().isDefaultModuleName()) {
+                        birName = packageContext.moduleContext(moduleId).moduleName().packageName().toString();
+                    } else {
+                        birName = packageContext.moduleContext(moduleId).moduleName().moduleNamePart();
+                    }
+                    BirWriter.write(bLangPackage, filePath.resolve(birName + ".bir"));
+                }
+            }
+        } else if (OutputType.BALO.equals(outputType)) {
+            BaloWriter.write(packageResolver.getPackage(packageContext.packageId()), filePath);
+        }
+    }
+
+    /**
+     * Enum to represent test statuses.
+     */
+    public enum OutputType {
+
+        BIR("bir"),
+        EXEC("exec"),
+        BALO("balo"),
+        JAR("jar");
+
+        private String value;
+
+        OutputType(String value) {
+            this.value = value;
+        }
+    }
+
+    public SemanticModel getSemanticModel(ModuleId moduleId) {
+        ModuleContext moduleContext = this.packageContext.moduleContext(moduleId);
+        return new BallerinaSemanticModel(moduleContext.bLangPackage(), this.compilerContext);
     }
 }

@@ -21,14 +21,16 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
+import org.apache.commons.io.FileUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Represents the target directory model.
@@ -36,11 +38,22 @@ import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_PKG_BI
  * @since 2.0.0
  */
 public class Target {
-
     private final Path targetPath;
+    private Path outputPath = null;
+    private Path cache;
+    private Path jarCachePath;
+    private Path baloCachePath;
+    private Path birCachePath;
+    private Path binPath;
 
-    public Target(Path sourceRoot) {
+    public Target(Path sourceRoot) throws IOException {
         this.targetPath = sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
+        this.cache = this.targetPath.resolve(ProjectConstants.CACHES_DIR_NAME);
+        this.baloCachePath = this.targetPath.resolve(ProjectConstants.TARGET_BALO_DIR_NAME);
+        this.jarCachePath = this.cache.resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+        this.birCachePath = this.cache.resolve(ProjectConstants.BIR_CACHE_DIR_NAME);
+        this.binPath = this.targetPath.resolve(ProjectConstants.BIN_DIR_NAME);
+        Files.createDirectories(this.targetPath);
     }
 
     /**
@@ -49,13 +62,12 @@ public class Target {
      * @param pkg Package instance
      * @return path of the balo file
      */
-    public Path getBaloCachePath(Package pkg) {
-        Path baloCachePath = this.targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
-                        .resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
-        String baloFileName = ProjectUtils.getBaloName(pkg.packageOrg().toString(), pkg.packageName().toString(),
-                pkg.packageVersion().toString(), null);
-
-        return baloCachePath.resolve(baloFileName);
+    public Path getBaloPath(Package pkg) throws IOException {
+        // todo move balo name to a util
+        /* String baloFileName = ProjectUtils.getBaloName(pkg.packageOrg().toString(), pkg.packageName().toString(),
+                pkg.packageVersion().toString(), null);*/
+        Files.createDirectories(baloCachePath);
+        return baloCachePath;
     }
 
     /**
@@ -66,8 +78,7 @@ public class Target {
      * @throws IOException if directory creation fails
      */
     public Path getBirCachePath(Module module) throws IOException {
-        Path birCachePath = this.targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
-                .resolve(ProjectConstants.BIR_CACHE_DIR_NAME);
+
         Path moduleBirCacheDirPrefix = Files.createDirectories(birCachePath)
                 .resolve(module.packageInstance().packageOrg().toString())
                 .resolve(module.moduleName().packageName().toString())
@@ -79,36 +90,112 @@ public class Target {
         } else {
             moduleBirName = module.moduleName().packageName().toString();
         }
-
+        Files.createDirectories(moduleBirCacheDirPrefix);
         return moduleBirCacheDirPrefix.resolve(
                 moduleBirName + BLANG_COMPILED_PKG_BIR_EXT);
     }
 
     /**
-     * Returns the executable path.
+     * Returns the jar path.
      *
-     * @param module module instance
+     * @param pkg package instance
      * @return path of the executable
-     * @throws IOException if directory creation fails
      */
-    public Path getExecutablePath(Module module) throws IOException {
-        //TODO: check if there will be only one executable per package
-        Path jarCachePath = this.targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
-                .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
-        Path moduleJarCacheDirPrefix = Files.createDirectories(jarCachePath)
-                .resolve(module.packageInstance().packageOrg().toString())
-                .resolve(module.moduleName().packageName().toString())
-                .resolve(module.packageInstance().packageVersion().toString());
-        String moduleJarName;
-        if (!module.isDefaultModule()) {
-            moduleJarName = module.moduleName().moduleNamePart();
-            moduleJarCacheDirPrefix =
-                    moduleJarCacheDirPrefix.resolve(module.moduleName().moduleNamePart());
-        } else {
-            moduleJarName = module.moduleName().packageName().toString();
-        }
-
-        return moduleJarCacheDirPrefix.resolve(moduleJarName + BLANG_COMPILED_JAR_EXT);
+    public Path getJarPath(Package pkg) {
+        return jarCachePath;
     }
 
+    /**
+     * Returns the path of the executable jar.
+     *
+     * @param pkg Package instance
+     * @return the path of the executable
+     */
+    public Path getExecutablePath(Package pkg) {
+        if (outputPath != null) {
+            return outputPath;
+        }
+        return this.binPath.resolve(ProjectUtils.getExecutableName(pkg));
+    }
+
+    /**
+     * Returns the bin directory path.
+     *
+     * @return bin path
+     */
+    public Path getBinPath() throws IOException {
+        Files.createDirectories(binPath);
+        return binPath;
+    }
+
+    /**
+     * Returns the caches directory path.
+     *
+     * @return caches path
+     */
+    public Path cachesPath() {
+        return this.targetPath.resolve(ProjectConstants.CACHES_DIR_NAME);
+    }
+
+    /**
+     * Returns the caches directory path.
+     *
+     * @return caches path
+     */
+    public Path birCachePath() throws IOException {
+        Files.createDirectories(birCachePath);
+        return birCachePath;
+    }
+
+    /**
+     * Returns the path of the target directory.
+     *
+     * @return target path
+     */
+    public Path path() {
+        return this.targetPath;
+    }
+
+    /**
+     * Sets a custom path as the executable jar path.
+     *
+     * @param pkg Package instance
+     * @param outputPath path to set for the executable jar
+     * @throws IOException if directory creation fails
+     */
+    public void setOutputPath(Package pkg, Path outputPath) throws IOException {
+        if (this.outputPath.isAbsolute()) {
+            if (Files.isDirectory(this.outputPath)) {
+                if (Files.notExists(this.outputPath)) {
+                    Files.createDirectories(this.outputPath);
+                }
+
+                String outputFileName = ProjectUtils.getJarName(pkg);
+                this.outputPath = this.outputPath.resolve(outputFileName);
+            } else {
+                if (!this.outputPath.toString().endsWith(BLANG_COMPILED_JAR_EXT)) {
+                    this.outputPath = Paths.get(this.outputPath.toString() + BLANG_COMPILED_JAR_EXT);
+                }
+            }
+        } else {
+            Path userDir = Paths.get(System.getProperty("user.dir"));
+            if (io.ballerina.projects.utils.FileUtils.hasExtension(this.outputPath)) {
+                this.outputPath = userDir.resolve(this.outputPath);
+            } else {
+                this.outputPath = userDir.resolve(this.outputPath + BLANG_COMPILED_JAR_EXT);
+            }
+        }
+        this.outputPath = outputPath;
+    }
+    /**
+     * Clean any files that created from the build.
+     *
+     */
+    public void clean() throws IOException {
+        // Remove from cache
+        FileUtils.deleteDirectory(this.cache.toFile());
+        // Remove any generated balo
+        FileUtils.deleteDirectory(this.baloCachePath.toFile());
+        FileUtils.deleteDirectory(this.binPath.toFile());
+    }
 }

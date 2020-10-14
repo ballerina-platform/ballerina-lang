@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
@@ -107,7 +109,7 @@ public class ModuleCompilation {
         for (ModuleId sortedModuleId : sortedModuleIds) {
             Package pkg = packageResolver.getPackage(sortedModuleId.packageId());
             ModuleContext moduleContext = pkg.module(sortedModuleId).moduleContext();
-            moduleContext.compile(compilerContext, pkg.packageName());
+            moduleContext.compile(compilerContext, pkg.packageDescriptor());
             diagnostics.addAll(moduleContext.diagnostics());
         }
 
@@ -115,8 +117,8 @@ public class ModuleCompilation {
         diagnostics = Collections.unmodifiableList(diagnostics);
     }
 
-    public void getSemanticModel() {
-        throw new UnsupportedOperationException();
+    public SemanticModel getSemanticModel() {
+        return new BallerinaSemanticModel(this.moduleContext.bLangPackage(), this.compilerContext);
     }
 
     BLangPackage bLangPackage() {
@@ -125,6 +127,10 @@ public class ModuleCompilation {
 
     public List<Diagnostic> diagnostics() {
         return diagnostics;
+    }
+
+    public boolean entryPointExists() {
+        return this.moduleContext.bLangPackage().symbol.entryPointExists;
     }
 }
 

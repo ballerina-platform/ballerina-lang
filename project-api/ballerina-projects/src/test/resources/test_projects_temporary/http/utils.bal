@@ -1,4 +1,4 @@
-import http/http.auth;
+import sameera/http.auth;
 
 
 public function foo() {
