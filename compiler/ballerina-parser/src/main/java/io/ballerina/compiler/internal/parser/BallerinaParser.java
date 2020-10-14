@@ -14115,7 +14115,15 @@ public class BallerinaParser extends AbstractParser {
             case CLOSE_BRACE_TOKEN: // T[a]}
             case COMMA_TOKEN:// T[a],
                 if (context == ParserRuleContext.AMBIGUOUS_STMT) {
-                    keyExpr = STNodeFactory.createNodeList(member);
+                    if (member == null) {
+                        STNode missingVarRef = STNodeFactory.createSimpleNameReferenceNode(
+                                SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
+                        keyExpr = STNodeFactory.createNodeList(missingVarRef);
+                        closeBracket = SyntaxErrors.addDiagnostic(closeBracket,
+                                DiagnosticErrorCode.ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
+                    } else {
+                        keyExpr = STNodeFactory.createNodeList(member);
+                    }
                     return STNodeFactory.createIndexedExpressionNode(typeDescOrExpr, openBracket, keyExpr,
                             closeBracket);
                 }
