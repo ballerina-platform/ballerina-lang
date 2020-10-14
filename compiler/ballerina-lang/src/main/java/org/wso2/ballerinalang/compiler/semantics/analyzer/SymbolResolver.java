@@ -870,13 +870,13 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA,
                     PackageID.ANNOTATIONS, symTable.anydataType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
 
-            symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
-            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
-            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
-
-            symTable.initializeType(symTable.mapAnydataType, TypeKind.MAP.typeName(), BUILTIN);
-            symTable.initializeType(symTable.streamType, TypeKind.STREAM.typeName(), BUILTIN);
-            symTable.initializeType(symTable.tableType, TypeKind.TABLE.typeName(), BUILTIN);
+//            symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
+//            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
+//            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
+//
+//            symTable.initializeType(symTable.mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
+//            symTable.initializeType(symTable.streamType, TypeKind.STREAM.typeName(), BUILTIN);
+//            symTable.initializeType(symTable.tableType, TypeKind.TABLE.typeName(), BUILTIN);
 
             return;
         }
@@ -914,7 +914,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
             symTable.cloneableType.tsymbol =
                     new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
-                            symTable.cloneableType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
+                            symTable.cloneableType, symTable.rootPkgSymbol, symTable.builtinPos, VIRTUAL);
             entry.symbol.type = symTable.cloneableType;
             symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
             symTable.errorType = new BErrorType(null, symTable.detailType);
@@ -932,7 +932,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
             symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
 
-            symTable.initializeType(symTable.mapAnydataType, TypeKind.MAP.typeName(), BUILTIN);
+            symTable.initializeType(symTable.mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
             symTable.initializeType(symTable.streamType, TypeKind.STREAM.typeName(), BUILTIN);
             symTable.initializeType(symTable.tableType, TypeKind.TABLE.typeName(), BUILTIN);
 

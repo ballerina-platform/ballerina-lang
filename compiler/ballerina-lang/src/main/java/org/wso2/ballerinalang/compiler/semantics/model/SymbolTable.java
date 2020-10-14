@@ -728,9 +728,9 @@ public class SymbolTable {
     }
 
     private void defineCyclicUnionBasedInternalTypes() {
-        defineCloneableCyclicTypeAndDependentTypes();
         defineAnydataCyclicTypeAndDependentTypes();
         defineJsonCyclicTypeAndDependentTypes();
+        defineCloneableCyclicTypeAndDependentTypes();
     }
 
     private void defineCloneableCyclicTypeAndDependentTypes() {
@@ -742,7 +742,7 @@ public class SymbolTable {
         cloneableType.add(mapCloneableType);
         cloneableType.add(tableMapCloneableType);
         cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
-                cloneableType, langValueModuleSymbol, builtinPos, BUILTIN);
+                cloneableType, langValueModuleSymbol, builtinPos, VIRTUAL);
         cloneableReadonlyType = BUnionType.create(null, readonlyType, cloneableType);
 
         detailType = new BMapType(TypeTags.MAP, cloneableType, null);
@@ -755,6 +755,14 @@ public class SymbolTable {
         arrayAllType = new BArrayType(anyOrErrorType);
         typeDesc.constraint = anyOrErrorType;
         futureType.constraint = anyOrErrorType;
+
+        pureType = BUnionType.create(null, anydataType, errorType);
+        streamType = new BStreamType(TypeTags.STREAM, pureType, null, null);
+        tableType = new BTableType(TypeTags.TABLE, pureType, null);
+
+        initializeType(mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
+        initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
+        initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
     }
 
     private void defineJsonCyclicTypeAndDependentTypes() {
@@ -787,12 +795,5 @@ public class SymbolTable {
         arrayAnydataType = new BArrayType(anydataType);
         mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
         anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
-        pureType = BUnionType.create(null, anydataType, errorType);
-        streamType = new BStreamType(TypeTags.STREAM, pureType, null, null);
-        tableType = new BTableType(TypeTags.TABLE, pureType, null);
-
-        initializeType(mapAnydataType, TypeKind.MAP.typeName(), BUILTIN);
-        initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
-        initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
     }
 }
