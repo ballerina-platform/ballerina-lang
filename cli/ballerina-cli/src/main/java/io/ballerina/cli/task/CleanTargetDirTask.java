@@ -22,10 +22,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.model.Target;
 
 import java.io.IOException;
-import java.nio.file.Path;
-
-import static io.ballerina.cli.utils.FileUtils.deleteDirectory;
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Cleans up the target directory.
@@ -37,13 +33,7 @@ public class CleanTargetDirTask implements Task {
             Target target = new Target(project.sourceRoot());
             target.clean();
         } catch (IOException e) {
-            throw createLauncherException("Unable to clean target directory: ", e);
-        }
-    }
-
-    private void deleteResource(Path path) throws IOException {
-        if (path != null && path.toFile().exists()) {
-            deleteDirectory(path);
+            throw new RuntimeException("Unable to clean target directory: ", e);
         }
     }
 }

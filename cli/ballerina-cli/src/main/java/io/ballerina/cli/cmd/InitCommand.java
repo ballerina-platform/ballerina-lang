@@ -30,6 +30,7 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.INIT_COMMAND;
 
@@ -113,7 +114,7 @@ public class InitCommand implements BLauncherCmd {
             return;
         }
 
-        String packageName = this.userDir.getFileName().toString();
+        String packageName = Optional.of(this.userDir.getFileName()).get().toString();
         if (argList != null && argList.size() > 0) {
             packageName = argList.get(0);
             if (!ProjectUtils.validatePkgName(packageName)) {

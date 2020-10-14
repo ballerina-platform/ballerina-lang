@@ -21,24 +21,19 @@ package io.ballerina.cli.task;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.model.Target;
-import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.HashSet;
+import java.util.Optional;
 
 /**
  * Task for creating the executable jar file.
  */
 public class CreateExecutableTask implements Task {
     private final transient PrintStream out;
-    private Path outputPath;
-
-    private static HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
+    private final Path outputPath;
 
     public CreateExecutableTask(PrintStream out, Path outputPath) {
         this.out = out;
@@ -48,17 +43,16 @@ public class CreateExecutableTask implements Task {
     @Override
     public void execute(Project project) {
         Path executablePath;
+        Target target;
         try {
-            Target target = new Target(project.sourceRoot());
+            target = new Target(project.sourceRoot());
             if (outputPath != null) {
                 target.setOutputPath(project.currentPackage(), outputPath);
             }
-            executablePath = target.getExecutablePath(project.currentPackage());
-            Files.copy(executablePath, this.outputPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException("unable to set executable path: " + e.getMessage());
         }
-
+        executablePath = Optional.of(target.getExecutablePath(project.currentPackage())).get();
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         packageCompilation.emit(PackageCompilation.OutputType.EXEC, executablePath);
 
