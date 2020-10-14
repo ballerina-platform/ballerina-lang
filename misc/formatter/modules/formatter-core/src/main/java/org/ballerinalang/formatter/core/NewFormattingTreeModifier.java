@@ -2936,7 +2936,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token workerKeyword = formatToken(namedWorkerDeclarationNode.workerKeyword(), 1, 0);
         IdentifierToken workerName = formatToken(namedWorkerDeclarationNode.workerName(), 1, 0);
         if (namedWorkerDeclarationNode.returnTypeDesc().isPresent()) {
-            Node returnTypeDesc = formatNode(namedWorkerDeclarationNode.returnTypeDesc().get(), 0, 0);
+            Node returnTypeDesc = formatNode(namedWorkerDeclarationNode.returnTypeDesc().get(), 1, 0);
             namedWorkerDeclarationNode = namedWorkerDeclarationNode.modify()
                     .withReturnTypeDesc(returnTypeDesc)
                     .apply();
