@@ -1990,50 +1990,21 @@ public class TypeChecker {
         if (targetRestType == null && sourceTypeSize != targetTypeSize) {
             return false;
         }
-        if (targetRestType != null && sourceTypeSize <= targetTypeSize) {
+        if (targetRestType != null && sourceTypeSize < targetTypeSize) {
             return false;
         }
 
         for (int i = 0; i < targetTypeSize; i++) {
-            if (!checkTupleElementType(getArrayElementType(source, i), targetTypes.get(i), source.getRefValue(i),
-                    unresolvedValues, allowNumericConversion)) {
+            if (!checkIsLikeType(source.getRefValue(i), targetTypes.get(i), unresolvedValues, allowNumericConversion)) {
                 return false;
             }
         }
-
         for (int i = targetTypeSize; i < sourceTypeSize; i++) {
-            if (!checkTupleElementType(getArrayElementType(source, i), targetRestType, source.getRefValue(i),
-                    unresolvedValues, allowNumericConversion)) {
+            if (!checkIsLikeType(source.getRefValue(i), targetRestType, unresolvedValues, allowNumericConversion)) {
                 return false;
             }
         }
         return true;
-    }
-
-    private static boolean checkTupleElementType(BType sourceElementType, BType targetElementType,
-                                                 Object sourceRefValue, List<TypeValuePair> unresolvedValues,
-                                                 boolean allowNumericConversion) {
-        if (BTypes.isValueType(sourceElementType)) {
-            return checkIsType(sourceElementType, targetElementType, new ArrayList<>());
-        } else {
-            return checkIsLikeType(sourceRefValue, targetElementType, unresolvedValues,
-                    allowNumericConversion);
-        }
-    }
-
-    private static BType getArrayElementType(ArrayValue source, int elementIndex) {
-        BType type = source.getType();
-        switch (type.getTag()) {
-            case TypeTags.TUPLE_TAG:
-                BTupleType tupleType = (BTupleType) type;
-                int fixedLen = tupleType.getTupleTypes().size();
-                return (elementIndex < fixedLen) ? tupleType.getTupleTypes().get(elementIndex)
-                        : tupleType.getRestType();
-            case TypeTags.ARRAY_TAG:
-                return ((BArrayType) source.getType()).getElementType();
-            default:
-                throw new IllegalStateException();
-        }
     }
 
     static boolean isByteLiteral(long longValue) {
