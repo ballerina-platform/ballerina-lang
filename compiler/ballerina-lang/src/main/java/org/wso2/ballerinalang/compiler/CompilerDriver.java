@@ -104,7 +104,6 @@ public class CompilerDriver {
     private final IsolationAnalyzer isolationAnalyzer;
     private boolean isToolingCompilation;
 
-
     public static CompilerDriver getInstance(CompilerContext context) {
         CompilerDriver compilerDriver = context.get(COMPILER_DRIVER_KEY);
         if (compilerDriver == null) {
@@ -149,11 +148,11 @@ public class CompilerDriver {
         // This logic interested in loading lang modules from source. For others we can load from balo.
         if (!LOAD_BUILTIN_FROM_SOURCE) {
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
-            symResolver.loadCloneableType();
             symbolTable.langJavaModuleSymbol = pkgLoader.loadPackageSymbol(JAVA, null, null);
             symResolver.reloadErrorAndDependentTypes();
             symResolver.loadAnydataAndDependentTypes();
             symResolver.loadJSONAndDependentTypes();
+            symResolver.loadCloneableType();
             symResolver.defineOperators();
             symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
             symResolver.reloadIntRangeType();
@@ -400,7 +399,7 @@ public class CompilerDriver {
 
         BLangPackage pkg = taintAnalyze(
                 documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID)))));
-        if (dlog.getErrorCount() > 0) {
+        if (dlog.errorCount() > 0) {
             return null;
         }
         return codeGen(birGen(desugar(pkg))).symbol;

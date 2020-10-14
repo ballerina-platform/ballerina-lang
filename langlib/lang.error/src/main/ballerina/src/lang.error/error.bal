@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/java;
+import ballerina/lang.'value as value;
 
 # The type to which error detail records must belong.
 public type Detail record {|
