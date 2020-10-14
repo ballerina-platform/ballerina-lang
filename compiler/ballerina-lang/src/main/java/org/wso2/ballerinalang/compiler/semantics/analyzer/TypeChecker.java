@@ -2585,7 +2585,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
         // First analyze the variable reference expression.
         BLangExpression containerExpression = indexBasedAccessExpr.expr;
-        if (containerExpression.getKind() ==  NodeKind.TYPEDESC_EXPRESSION ) {
+        if (containerExpression.getKind() ==  NodeKind.TYPEDESC_EXPRESSION) {
             dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
                     ((BLangTypedescExpr) containerExpression).typeNode);
             resultType = symTable.semanticError;
