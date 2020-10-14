@@ -24,7 +24,6 @@ import io.ballerina.projects.model.Target;
 import io.ballerina.projects.utils.ProjectUtils;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 /**
  * Task for creating jar file.

@@ -18,12 +18,8 @@
 
 package io.ballerina.cli.task;
 
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleDependency;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.model.Target;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -33,10 +29,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Collection;
 import java.util.HashSet;
-
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for creating the executable jar file.
@@ -63,12 +56,13 @@ public class CreateExecutableTask implements Task {
             executablePath = target.getExecutablePath(project.currentPackage());
             Files.copy(executablePath, this.outputPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            throw createLauncherException("unable to set executable path: " + e.getMessage());
+            throw new RuntimeException("unable to set executable path: " + e.getMessage());
         }
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         packageCompilation.emit(PackageCompilation.OutputType.EXEC, executablePath);
 
+        // Print the path of the executable
         Path relativePathToExecutable = project.sourceRoot().relativize(executablePath);
         if (relativePathToExecutable.toString().contains("..") ||
                 relativePathToExecutable.toString().contains("." + File.separator)) {

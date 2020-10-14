@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
-
 /**
  * Task for creating balo file. Balo file writer is meant for modules only and not for single files.
  *

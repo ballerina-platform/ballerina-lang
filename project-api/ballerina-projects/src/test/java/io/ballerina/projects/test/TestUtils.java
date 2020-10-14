@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.projects.test.writers;
+package io.ballerina.projects.test;
 
 import java.io.File;
 import java.io.FileInputStream;

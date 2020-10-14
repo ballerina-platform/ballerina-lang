@@ -44,6 +44,7 @@ public class Target {
     private Path jarCachePath;
     private Path baloCachePath;
     private Path birCachePath;
+    private Path binPath;
 
     public Target(Path sourceRoot) throws IOException {
         this.targetPath = sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
@@ -51,6 +52,7 @@ public class Target {
         this.baloCachePath = this.targetPath.resolve(ProjectConstants.TARGET_BALO_DIR_NAME);
         this.jarCachePath = this.cache.resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
         this.birCachePath = this.cache.resolve(ProjectConstants.BIR_CACHE_DIR_NAME);
+        this.binPath = this.targetPath.resolve(ProjectConstants.BIN_DIR_NAME);
         Files.createDirectories(this.targetPath);
     }
 
@@ -113,7 +115,7 @@ public class Target {
         if (outputPath != null) {
             return outputPath;
         }
-        return this.targetPath.resolve(ProjectConstants.BIN_DIR_NAME).resolve(ProjectUtils.getExecutableName(pkg));
+        return this.binPath.resolve(ProjectUtils.getExecutableName(pkg));
     }
 
     /**
@@ -121,8 +123,9 @@ public class Target {
      *
      * @return bin path
      */
-    public Path binPath() {
-        return this.targetPath.resolve(ProjectConstants.BIN_DIR_NAME);
+    public Path getBinPath() throws IOException {
+        Files.createDirectories(binPath);
+        return binPath;
     }
 
     /**
@@ -139,8 +142,9 @@ public class Target {
      *
      * @return caches path
      */
-    public Path birCachePath() {
-        return this.targetPath.resolve(ProjectConstants.CACHES_DIR_NAME).resolve(ProjectConstants.BIR_CACHE_DIR_NAME);
+    public Path birCachePath() throws IOException {
+        Files.createDirectories(birCachePath);
+        return birCachePath;
     }
 
     /**
@@ -192,5 +196,6 @@ public class Target {
         FileUtils.deleteDirectory(this.cache.toFile());
         // Remove any generated balo
         FileUtils.deleteDirectory(this.baloCachePath.toFile());
+        FileUtils.deleteDirectory(this.binPath.toFile());
     }
 }

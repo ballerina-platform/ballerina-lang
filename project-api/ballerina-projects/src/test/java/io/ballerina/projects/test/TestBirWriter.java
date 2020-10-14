@@ -21,13 +21,11 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.Target;
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -39,7 +37,7 @@ import java.nio.file.Paths;
 public class TestBirWriter {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
-    @Test (enabled = false, description = "tests writing of the BIR")
+    @Test (description = "tests writing of the BIR")
     public void testBirWriter() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
@@ -53,35 +51,26 @@ public class TestBirWriter {
         // 2) Load the package
         Package currentPackage = project.currentPackage();
         Target target = new Target(project.sourceRoot());
-        currentPackage.getCompilation().emit(PackageCompilation.OutputType.BIR, target.cachesPath());
 
-        // 3) Load the default module
-//        Module defaultModule = currentPackage.getDefaultModule();
+        Path defaultModuleBirPath = target.birCachePath().resolve("myproject.bir");
+        Path storageModuleBirPath = target.birCachePath().resolve("storage.bir");
+        Path servicesModuleBirPath = target.birCachePath().resolve("services.bir");
+        Assert.assertFalse(defaultModuleBirPath.toFile().exists());
+        Assert.assertFalse(storageModuleBirPath.toFile().exists());
+        Assert.assertFalse(servicesModuleBirPath.toFile().exists());
 
-        Path tempDirectory = Files.createTempDirectory("ballerina-test-" + System.nanoTime());
-        Path tempFile = tempDirectory.resolve("test.bir");
-        Assert.assertFalse(tempFile.toFile().exists());
+        currentPackage.getCompilation().emit(PackageCompilation.OutputType.BIR, target.birCachePath());
 
-        long lastModifiedTime = Files.getLastModifiedTime(tempFile).toMillis();
-        Assert.assertTrue(tempFile.toFile().exists());
-        Assert.assertTrue(tempFile.toFile().length() > 0);
+        Assert.assertTrue(defaultModuleBirPath.toFile().exists()
+                && defaultModuleBirPath.toFile().length() > 0);
+        Assert.assertTrue(storageModuleBirPath.toFile().exists()
+                && servicesModuleBirPath.toFile().length() > 0);
+        Assert.assertTrue(servicesModuleBirPath.toFile().exists()
+                && servicesModuleBirPath.toFile().length() > 0);
+    }
 
-        // Test writing to an existing file
-        try {
-            currentPackage.getCompilation().emit(PackageCompilation.OutputType.BIR, target.cachesPath());
-        } catch (BLangCompilerException e) {
-            Assert.assertTrue(e.getCause() instanceof FileAlreadyExistsException);
-        }
-
-        // Test force write to an existing file
-        try {
-            Thread.sleep(1000); // Added to ensure the document is updated
-        } catch (InterruptedException e) {
-            // ignore exception
-        }
-        currentPackage.getCompilation().emit(PackageCompilation.OutputType.BIR, target.cachesPath());
-        Assert.assertTrue(tempFile.toFile().length() > 0);
-        long newLastModifiedTime = Files.getLastModifiedTime(tempFile).toMillis();
-        Assert.assertTrue(newLastModifiedTime > lastModifiedTime);
+    @AfterMethod
+    public void cleanUp() {
+        TestUtils.deleteDirectory(RESOURCE_DIRECTORY.resolve("myproject").resolve("target").toFile());
     }
 }

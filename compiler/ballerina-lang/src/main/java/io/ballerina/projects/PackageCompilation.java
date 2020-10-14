@@ -21,13 +21,13 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -116,7 +116,6 @@ public class PackageCompilation {
 
     public void emit(OutputType outputType, Path filePath) {
         if (OutputType.EXEC.equals(outputType)) {
-            //TODO: add the rt jar - platformLibs?
             if (this.packageContext.defaultModuleContext().bLangPackage().symbol.entryPointExists) {
                 List<PackageId> sortedPackageIds = dependencyGraph.toTopologicallySortedList();
                 List<BLangPackage> bLangPackageList = new ArrayList<>();
@@ -126,7 +125,8 @@ public class PackageCompilation {
                 });
                 try {
                     JarWriter.write(bLangPackageList, filePath);
-
+                    // copy the rt jar to the executable
+                    ProjectUtils.copyRuntimeJar(filePath);
                 } catch (IOException e) {
                     throw new RuntimeException("error while creating the executable jar file for package: " +
                             this.packageContext.packageName(), e);
@@ -155,7 +155,7 @@ public class PackageCompilation {
                     } else {
                         birName = packageContext.moduleContext(moduleId).moduleName().moduleNamePart();
                     }
-                    BirWriter.write(bLangPackage, Paths.get(birName + ".bir"));
+                    BirWriter.write(bLangPackage, filePath.resolve(birName + ".bir"));
                 }
             }
         } else if (OutputType.BALO.equals(outputType)) {

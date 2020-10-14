@@ -17,9 +17,11 @@
  */
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateBaloTask;
+import io.ballerina.cli.task.CreateBirTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.CreateJarTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
@@ -28,8 +30,6 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import org.ballerinalang.compiler.CompilerPhase;
-import io.ballerina.cli.TaskExecutor;
-import io.ballerina.cli.task.CreateBirTask;
 import org.ballerinalang.jvm.launch.LaunchUtils;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -42,6 +42,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 
+import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
@@ -49,7 +50,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
-import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 
 /**
  * This class represents the "ballerina build" command.
@@ -214,7 +214,7 @@ public class BuildCommand implements BLauncherCmd {
 //                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
 //                .addTask(new RunTestsTask(testReport, coverage, args), this.skipTests || isSingleFileBuild)
                     // run tests (projects only)
-                .addTask(new CreateExecutableTask(outStream, outputPath), this.compile) // create the executable.jar file
+                .addTask(new CreateExecutableTask(outStream, outputPath), this.compile) //create the executable.jar file
 //                .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
                 .build();

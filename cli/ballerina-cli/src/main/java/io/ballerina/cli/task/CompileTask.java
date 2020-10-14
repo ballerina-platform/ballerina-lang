@@ -18,28 +18,16 @@
 
 package io.ballerina.cli.task;
 
-import io.ballerina.projects.ModuleCompilation;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageId;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.PrintStream;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for compiling a package.

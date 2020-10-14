@@ -20,12 +20,8 @@ package io.ballerina.cli.task;
 
 import io.ballerina.projects.Project;
 import io.ballerina.projects.model.Target;
-import io.ballerina.projects.utils.ProjectUtils;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
