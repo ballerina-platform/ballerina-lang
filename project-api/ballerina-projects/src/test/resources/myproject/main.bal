@@ -1,5 +1,5 @@
 import myproject.services;
-import myproject/myproject.storage;
+import sameera/myproject.storage;
 
 public function main() {
 services:runServices();
