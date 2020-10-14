@@ -132,6 +132,29 @@ public class TestBuildProject {
         Assert.assertEquals(diagnostics.size(), 4);
     }
 
+    @Test(description = "tests package compilation with errors in test source files")
+    public void testPackageCompilationWithTests() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("project_with_tests");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the current package
+        PackageCompilation compilation = currentPackage.getCompilation();
+        List<Diagnostic> diagnostics = compilation.diagnostics();
+
+        // The current package has e test modules and each module has one semantic or syntactic error.
+        // This shows that all 3 modules has been compiled
+        Assert.assertEquals(diagnostics.size(), 3);
+    }
+
     @Test(description = "tests loading a valid build project using project compilation")
     public void testBuildProjectAPIWithPackageCompilation() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
