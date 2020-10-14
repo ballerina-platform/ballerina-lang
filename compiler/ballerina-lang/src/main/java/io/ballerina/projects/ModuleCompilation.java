@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
@@ -115,8 +117,8 @@ public class ModuleCompilation {
         diagnostics = Collections.unmodifiableList(diagnostics);
     }
 
-    public void getSemanticModel() {
-        throw new UnsupportedOperationException();
+    public SemanticModel getSemanticModel() {
+        return new BallerinaSemanticModel(this.moduleContext.bLangPackage(), this.compilerContext);
     }
 
     BLangPackage bLangPackage() {
