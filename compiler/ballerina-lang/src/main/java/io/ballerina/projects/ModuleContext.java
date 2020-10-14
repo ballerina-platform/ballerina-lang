@@ -63,6 +63,8 @@ class ModuleContext {
     private BLangPackage bLangPackage;
     private List<Diagnostic> diagnostics;
 
+    private PackageResolver packageResolver;
+
     // TODO How about introducing a ModuleState concept. ModuleState.DEPENDENCIES_RESOLVED
     private boolean dependenciesResolved;
 
@@ -79,6 +81,7 @@ class ModuleContext {
         this.testDocContextMap = testDocContextMap;
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
+        this.packageResolver = project.environmentContext().getService(PackageResolver.class);
     }
 
     private ModuleContext(Project project, ModuleId moduleId, ModuleName moduleName, boolean isDefaultModule,
@@ -185,6 +188,14 @@ class ModuleContext {
 
         PackageID pkgId = new PackageID(new Name(packageDescriptor.org().toString()),
                 new Name(this.moduleName.toString()), new Name(packageDescriptor.version().toString()));
+
+        Bootstrap.getInstance().loadLangLib(compilerContext, packageResolver, pkgID);
+
+        // if this is already loaded from BALO, then skip rest of the compilation
+        if (packageCache.get(pkgID) != null) {
+            return;
+        }
+
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         packageCache.put(pkgId, pkgNode);
 
