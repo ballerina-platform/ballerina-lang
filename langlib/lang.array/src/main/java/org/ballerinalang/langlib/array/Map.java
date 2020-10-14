@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.scheduling.AsyncUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.types.BFunctionType;
 import org.ballerinalang.langlib.array.utils.GetFunction;

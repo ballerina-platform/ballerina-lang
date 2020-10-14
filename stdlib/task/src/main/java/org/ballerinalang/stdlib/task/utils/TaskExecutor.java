@@ -18,7 +18,7 @@
 package org.ballerinalang.stdlib.task.utils;
 
 import io.ballerina.runtime.api.BRuntime;
-import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.types.AttachedFunction;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 

@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.util.ArgumentParser;
 import io.ballerina.runtime.util.RuntimeUtils;

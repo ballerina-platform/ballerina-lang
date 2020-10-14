@@ -18,6 +18,7 @@ package io.ballerina.runtime.scheduling;
 
 import io.ballerina.runtime.api.BErrorCreator;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.api.connector.CallableUnitCallback;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;

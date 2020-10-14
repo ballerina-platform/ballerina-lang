@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.BValueCreator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.types.AttachedFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

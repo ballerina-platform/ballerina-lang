@@ -15,7 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.scheduling;
+package io.ballerina.runtime.api.commons;
+
+import io.ballerina.runtime.scheduling.Strand;
 
 /**
  * Holds metadata of the @{@link Strand}.

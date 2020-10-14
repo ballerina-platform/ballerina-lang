@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.BErrorCreator;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.BValueCreator;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;

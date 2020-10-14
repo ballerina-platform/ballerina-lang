@@ -21,7 +21,7 @@ package org.ballerinalang.net.http;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.runtime.Module;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.api.commons;
 
 import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;

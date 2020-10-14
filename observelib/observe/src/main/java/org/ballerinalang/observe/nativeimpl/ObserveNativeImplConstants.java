@@ -18,6 +18,7 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;

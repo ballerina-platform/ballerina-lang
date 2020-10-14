@@ -18,6 +18,8 @@
 
 package org.ballerinalang.stdlib.io.utils;
 
+import io.ballerina.runtime.api.commons.Module;
+
 import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**

@@ -123,7 +123,7 @@ public class JvmConstants {
     public static final String ATTACHED_FUNCTION_IMPL = "io/ballerina/runtime/types/AttachedFunction";
     public static final String FINITE_TYPE_IMPL = "io/ballerina/runtime/types/BFiniteType";
     public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/types/BFutureType";
-    public static final String MODULE = "io/ballerina/runtime/api/runtime/Module";
+    public static final String MODULE = "io/ballerina/runtime/api/commons/Module";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/types/BTypeIdSet";
     public static final String TYPE_ID = "io/ballerina/runtime/types/BTypeIdSet$TypeId";
 
@@ -132,7 +132,7 @@ public class JvmConstants {
     public static final String SCHEDULER = "io/ballerina/runtime/scheduling/Scheduler";
     public static final String JSON_UTILS = "io/ballerina/runtime/JSONUtils";
     public static final String STRAND_CLASS = "io/ballerina/runtime/scheduling/Strand";
-    public static final String STRAND_METADATA = "io/ballerina/runtime/scheduling/StrandMetadata";
+    public static final String STRAND_METADATA = "io/ballerina/runtime/api/commons/StrandMetadata";
     public static final String BAL_ENV = "io/ballerina/runtime/api/BalEnv";
     public static final String BAL_FUTURE = "io/ballerina/runtime/api/BalFuture";
     public static final String TYPE_CONVERTER = "io/ballerina/runtime/TypeConverter";

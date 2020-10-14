@@ -155,23 +155,23 @@ function getMetadata(handle strand) returns handle = @java:Method {
 } external;
 
 function getModuleOrg(handle strandMetadata) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.scheduling.StrandMetadata"
+    'class: "io.ballerina.runtime.api.commons"
 } external;
 
 function getModuleName(handle strandMetadata) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.scheduling.StrandMetadata"
+    'class: "io.ballerina.runtime.api.commons"
 } external;
 
 function getModuleVersion(handle strandMetadata) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.scheduling.StrandMetadata"
+    'class: "io.ballerina.runtime.api.commons"
 } external;
 
 function getParentFunctionName(handle strandMetadata) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.scheduling.StrandMetadata"
+    'class: "io.ballerina.runtime.api.commons"
 } external;
 
 function getTypeName(handle strandMetadata) returns handle = @java:Method {
-    'class: "io.ballerina.runtime.scheduling.StrandMetadata"
+    'class: "io.ballerina.runtime.api.commons"
 } external;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

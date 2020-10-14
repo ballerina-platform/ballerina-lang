@@ -33,7 +33,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.types.BIntersectionType;
 import io.ballerina.runtime.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.values.AbstractObjectValue;

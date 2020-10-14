@@ -32,7 +32,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.observability.ObservabilityConstants;
 import io.ballerina.runtime.observability.ObserveUtils;
-import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.api.commons;
 import io.ballerina.runtime.services.ErrorHandlerUtils;
 import io.ballerina.runtime.types.AttachedFunction;
 import io.ballerina.runtime.types.BArrayType;

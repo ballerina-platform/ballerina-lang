@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.scheduling.AsyncUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.util.BLangConstants;
 
 import java.util.Map;

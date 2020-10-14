@@ -27,7 +27,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.AsyncUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.types.BRecordType;
 import org.ballerinalang.langlib.map.util.MapLibUtils;

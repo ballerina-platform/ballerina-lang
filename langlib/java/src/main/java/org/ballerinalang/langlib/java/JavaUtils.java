@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.java;
 import io.ballerina.runtime.api.BErrorCreator;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.commons.Module;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.util.BLangConstants;
 import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;

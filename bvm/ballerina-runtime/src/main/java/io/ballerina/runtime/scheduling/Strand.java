@@ -20,6 +20,7 @@ package io.ballerina.runtime.scheduling;
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.api.transactions.TransactionLocalContext;

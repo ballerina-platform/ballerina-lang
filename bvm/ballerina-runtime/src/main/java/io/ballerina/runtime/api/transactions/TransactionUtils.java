@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.connector.CallableUnitCallback;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.scheduling.StrandMetadata;
+import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.ballerina.runtime.values.FutureValue;
 import io.ballerina.runtime.values.MapValue;

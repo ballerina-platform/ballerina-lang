@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.scheduling;
 
+import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.types.BFunctionType;
