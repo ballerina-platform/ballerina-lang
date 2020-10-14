@@ -223,6 +223,7 @@ import io.ballerina.compiler.syntax.tree.XMLElementNode;
 import io.ballerina.compiler.syntax.tree.XMLEmptyElementNode;
 import io.ballerina.compiler.syntax.tree.XMLEndTagNode;
 import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLItemNode;
 import io.ballerina.compiler.syntax.tree.XMLNameNode;
 import io.ballerina.compiler.syntax.tree.XMLNamePatternChainingNode;
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
@@ -388,6 +389,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token openBrace = formatToken(functionBodyBlockNode.openBraceToken(), 0, 1);
         indent(); // increase indentation for the statements to follow.
         NodeList<StatementNode> statements = formatNodeList(functionBodyBlockNode.statements(), 0, 1, 0, 1, true);
+        if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
+            NamedWorkerDeclarator namedWorkerDeclarator =
+                    formatNode(functionBodyBlockNode.namedWorkerDeclarator().get(), 0, 1);
+            functionBodyBlockNode = functionBodyBlockNode.modify()
+                    .withNamedWorkerDeclarator(namedWorkerDeclarator)
+                    .apply();
+        }
+
         unindent(); // reset the indentation
         Token closeBrace = formatToken(functionBodyBlockNode.closeBraceToken(), this.trailingWS, this.trailingNL);
 
@@ -1818,12 +1827,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     @Override
-    public ArrayTypeDescriptorNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
-
-        return super.transform(arrayTypeDescriptorNode);
-    }
-
-    @Override
     public MethodCallExpressionNode transform(MethodCallExpressionNode methodCallExpressionNode) {
         ExpressionNode expression = formatNode(methodCallExpressionNode.expression(), 0, 0);
         Token dotToken = formatToken(methodCallExpressionNode.dotToken(), 0, 0);
@@ -1904,42 +1907,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     @Override
-    public XmlTypeDescriptorNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        Token xmlKeywordToken;
-
-        if (xmlTypeDescriptorNode.xmlTypeParamsNode().isPresent()) {
-            xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), 0, 0);
-            TypeParameterNode xmlTypeParamsNode = formatNode(xmlTypeDescriptorNode.xmlTypeParamsNode().get(),
-                    this.trailingWS, this.trailingNL);
-            xmlTypeDescriptorNode = xmlTypeDescriptorNode.modify().withXmlTypeParamsNode(xmlTypeParamsNode).apply();
-        } else {
-            xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), this.trailingWS, this.trailingNL);
-        }
-
-        return xmlTypeDescriptorNode.modify()
-                .withXmlKeywordToken(xmlKeywordToken)
-                .apply();
-    }
-
-    @Override
-    public XMLElementNode transform(XMLElementNode xMLElementNode) {
-
-        return super.transform(xMLElementNode);
-    }
-
-    @Override
-    public XMLStartTagNode transform(XMLStartTagNode xMLStartTagNode) {
-
-        return super.transform(xMLStartTagNode);
-    }
-
-    @Override
-    public XMLEndTagNode transform(XMLEndTagNode xMLEndTagNode) {
-
-        return super.transform(xMLEndTagNode);
-    }
-
-    @Override
     public XMLSimpleNameNode transform(XMLSimpleNameNode xMLSimpleNameNode) {
         Token name = formatToken(xMLSimpleNameNode.name(), this.trailingWS, this.trailingNL);
 
@@ -1991,18 +1958,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         return xMLTextNode.modify()
                 .withContent(content)
                 .apply();
-    }
-
-    @Override
-    public XMLAttributeNode transform(XMLAttributeNode xMLAttributeNode) {
-
-        return super.transform(xMLAttributeNode);
-    }
-
-    @Override
-    public XMLAttributeValue transform(XMLAttributeValue xMLAttributeValue) {
-
-        return super.transform(xMLAttributeValue);
     }
 
     @Override
@@ -2178,11 +2133,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .apply();
     }
 
-    @Override
-    public NamedWorkerDeclarationNode transform(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
-
-        return super.transform(namedWorkerDeclarationNode);
-    }
 
     @Override
     public FailStatementNode transform(FailStatementNode failStatementNode) {
@@ -3475,6 +3425,138 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         return breakStatementNode.modify()
                 .withBreakToken(breakToken)
                 .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public NamedWorkerDeclarationNode transform(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(namedWorkerDeclarationNode.annotations(), 0, 1, 0, 1);
+        Token workerKeyword = formatToken(namedWorkerDeclarationNode.workerKeyword(), 1, 0);
+        IdentifierToken workerName = formatToken(namedWorkerDeclarationNode.workerName(), 1, 0);
+        if (namedWorkerDeclarationNode.returnTypeDesc().isPresent()) {
+            Node returnTypeDesc = formatNode(namedWorkerDeclarationNode.returnTypeDesc().get(), 1, 0);
+            namedWorkerDeclarationNode = namedWorkerDeclarationNode.modify()
+                    .withReturnTypeDesc(returnTypeDesc)
+                    .apply();
+        }
+
+        BlockStatementNode workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), this.trailingWS,
+                this.trailingNL);
+
+        return namedWorkerDeclarationNode.modify()
+                .withAnnotations(annotations)
+                .withWorkerKeyword(workerKeyword)
+                .withWorkerName(workerName)
+                .withWorkerBody(workerBody)
+                .apply();
+    }
+
+    @Override
+    public ArrayTypeDescriptorNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        TypeDescriptorNode memberTypeDesc = formatNode(arrayTypeDescriptorNode.memberTypeDesc(), 0, 0);
+        Token openBracket = formatToken(arrayTypeDescriptorNode.openBracket(), 0, 0);
+        if (arrayTypeDescriptorNode.arrayLength().isPresent()) {
+            Node arrayLength = formatNode(arrayTypeDescriptorNode.arrayLength().get(), 0, 0);
+            arrayTypeDescriptorNode = arrayTypeDescriptorNode.modify()
+                    .withArrayLength(arrayLength)
+                    .apply();
+        }
+
+        Token closeBracket = formatToken(arrayTypeDescriptorNode.closeBracket(), this.trailingWS, this.trailingNL);
+        return arrayTypeDescriptorNode.modify()
+                .withOpenBracket(openBracket)
+                .withCloseBracket(closeBracket)
+                .withMemberTypeDesc(memberTypeDesc)
+                .apply();
+
+    }
+
+    @Override
+    public XMLElementNode transform(XMLElementNode xMLElementNode) {
+        XMLStartTagNode startTagNode = formatNode(xMLElementNode.startTag(), 0, 0);
+        NodeList<XMLItemNode> content = formatNodeList(xMLElementNode.content(), 0, 0, 0, 0);
+        XMLEndTagNode endTagNode = formatNode(xMLElementNode.endTag(), this.trailingWS, this.trailingNL);
+
+        return xMLElementNode.modify()
+                .withStartTag(startTagNode)
+                .withContent(content)
+                .withEndTag(endTagNode)
+                .apply();
+    }
+
+    @Override
+    public XMLStartTagNode transform(XMLStartTagNode xMLStartTagNode) {
+        Token ltToken = formatToken(xMLStartTagNode.ltToken(), 0, 0);
+        int nameTrailingWS = xMLStartTagNode.attributes().isEmpty() ? 0 : 1;
+        XMLNameNode name = formatNode(xMLStartTagNode.name(), nameTrailingWS, 0);
+        NodeList<XMLAttributeNode> attributes = formatNodeList(xMLStartTagNode.attributes(), 1, 0, 0, 0);
+        Token getToken = formatToken(xMLStartTagNode.getToken(), this.trailingWS, this.trailingNL);
+
+        return xMLStartTagNode.modify()
+                .withLtToken(ltToken)
+                .withName(name)
+                .withAttributes(attributes)
+                .withGetToken(getToken)
+                .apply();
+    }
+
+    @Override
+    public XMLEndTagNode transform(XMLEndTagNode xMLEndTagNode) {
+        Token ltToken = formatToken(xMLEndTagNode.ltToken(), 0, 0);
+        Token slashToken = formatToken(xMLEndTagNode.slashToken(), 0, 0);
+        XMLNameNode name = formatNode(xMLEndTagNode.name(), 0, 0);
+        Token getToken = formatToken(xMLEndTagNode.getToken(), this.trailingWS, this.trailingNL);
+
+        return xMLEndTagNode.modify()
+                .withLtToken(ltToken)
+                .withSlashToken(slashToken)
+                .withName(name)
+                .withGetToken(getToken)
+                .apply();
+    }
+
+    @Override
+    public XmlTypeDescriptorNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        Token xmlKeywordToken;
+        if (xmlTypeDescriptorNode.xmlTypeParamsNode().isPresent()) {
+            xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), 0, 0);
+            TypeParameterNode xmlTypeParamsNode = formatNode(xmlTypeDescriptorNode.xmlTypeParamsNode().get(),
+                    this.trailingWS, this.trailingNL);
+            xmlTypeDescriptorNode = xmlTypeDescriptorNode.modify()
+                    .withXmlTypeParamsNode(xmlTypeParamsNode)
+                    .apply();
+        } else {
+            xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), this.trailingWS, this.trailingNL);
+        }
+
+        return xmlTypeDescriptorNode.modify()
+                .withXmlKeywordToken(xmlKeywordToken)
+                .apply();
+    }
+
+    @Override
+    public XMLAttributeNode transform(XMLAttributeNode xMLAttributeNode) {
+        XMLNameNode attributeName = formatNode(xMLAttributeNode.attributeName(), 0, 0);
+        Token equalToken = formatToken(xMLAttributeNode.equalToken(), 0, 0);
+        XMLAttributeValue value = formatNode(xMLAttributeNode.value(), this.trailingWS, this.trailingNL);
+
+        return xMLAttributeNode.modify()
+                .withAttributeName(attributeName)
+                .withEqualToken(equalToken)
+                .withValue(value)
+                .apply();
+    }
+
+    @Override
+    public XMLAttributeValue transform(XMLAttributeValue xMLAttributeValue) {
+        Token startQuote = formatToken(xMLAttributeValue.startQuote(), 0, 0);
+        NodeList<Node> value = formatNodeList(xMLAttributeValue.value(), 0, 0, 0, 0);
+        Token endQuote = formatToken(xMLAttributeValue.endQuote(), this.trailingWS, this.trailingNL);
+
+        return xMLAttributeValue.modify()
+                .withStartQuote(startQuote)
+                .withValue(value)
+                .withEndQuote(endQuote)
                 .apply();
     }
 
