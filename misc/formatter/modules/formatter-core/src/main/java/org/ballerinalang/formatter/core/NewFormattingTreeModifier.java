@@ -391,11 +391,12 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         NodeList<StatementNode> statements = formatNodeList(functionBodyBlockNode.statements(), 0, 1, 0, 1, true);
         if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
             NamedWorkerDeclarator namedWorkerDeclarator = formatNode(functionBodyBlockNode.namedWorkerDeclarator().get(),
-                    0, 0);
+                    0, 2);
             functionBodyBlockNode = functionBodyBlockNode.modify()
                     .withNamedWorkerDeclarator(namedWorkerDeclarator)
                     .apply();
         }
+
         unindent(); // reset the indentation
         Token closeBrace = formatToken(functionBodyBlockNode.closeBraceToken(), this.trailingWS, this.trailingNL);
 
@@ -2941,8 +2942,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .apply();
         }
 
-        BlockStatementNode workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), 0, 1);
-        
+        BlockStatementNode workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), 0, this.trailingNL);
+
         return namedWorkerDeclarationNode.modify()
                 .withAnnotations(annotations)
                 .withWorkerKeyword(workerKeyword)
