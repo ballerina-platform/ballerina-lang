@@ -6,8 +6,8 @@ public function foo() {
         return 0;
     }
     @anotherAnnotate {
-        a : "worker",
-        b : "2"
+        a: "worker",
+        b: "2"
     }
     worker w2 returns string {
         int lw;

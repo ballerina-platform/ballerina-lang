@@ -1907,42 +1907,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     @Override
-    public XmlTypeDescriptorNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        Token xmlKeywordToken;
-
-        if (xmlTypeDescriptorNode.xmlTypeParamsNode().isPresent()) {
-            xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), 0, 0);
-            TypeParameterNode xmlTypeParamsNode = formatNode(xmlTypeDescriptorNode.xmlTypeParamsNode().get(),
-                    this.trailingWS, this.trailingNL);
-            xmlTypeDescriptorNode = xmlTypeDescriptorNode.modify().withXmlTypeParamsNode(xmlTypeParamsNode).apply();
-        } else {
-            xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), this.trailingWS, this.trailingNL);
-        }
-
-        return xmlTypeDescriptorNode.modify()
-                .withXmlKeywordToken(xmlKeywordToken)
-                .apply();
-    }
-
-    @Override
-    public XMLElementNode transform(XMLElementNode xMLElementNode) {
-
-        return super.transform(xMLElementNode);
-    }
-
-    @Override
-    public XMLStartTagNode transform(XMLStartTagNode xMLStartTagNode) {
-
-        return super.transform(xMLStartTagNode);
-    }
-
-    @Override
-    public XMLEndTagNode transform(XMLEndTagNode xMLEndTagNode) {
-
-        return super.transform(xMLEndTagNode);
-    }
-
-    @Override
     public XMLSimpleNameNode transform(XMLSimpleNameNode xMLSimpleNameNode) {
         Token name = formatToken(xMLSimpleNameNode.name(), this.trailingWS, this.trailingNL);
 
