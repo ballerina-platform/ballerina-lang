@@ -31,7 +31,12 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_DECIMAL_VALUE_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_TYPE_CHECKER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_GT;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_GT_EQUALS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_LT;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_LT_EQUALS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.JAVA_OBJECT_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.REF_EQUAL_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.VALUE_EQUAL_METHOD;
@@ -310,14 +315,44 @@ public class BinaryExpressionEvaluator extends Evaluator {
                     result = Double.parseDouble(lVar.computeValue()) >= Double.parseDouble(rVar.computeValue());
                     return EvaluationUtils.make(context, result);
             }
+        } else if (lVar.getBType() == BVariableType.DECIMAL && rVar.getBType() == BVariableType.DECIMAL) {
+            List<Value> argList = new ArrayList<>();
+            argList.add(getValueAsObject(context, lVar));
+            argList.add(getValueAsObject(context, rVar));
+            List<String> argTypeNames = new ArrayList<>();
+            argTypeNames.add(B_DECIMAL_VALUE_CLASS);
+            argTypeNames.add(B_DECIMAL_VALUE_CLASS);
+
+            RuntimeStaticMethod runtimeMethod;
+            switch (operator) {
+                case LT_TOKEN:
+                    runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, DECIMAL_LT, argTypeNames);
+                    break;
+                case GT_TOKEN:
+                    runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, DECIMAL_GT, argTypeNames);
+                    break;
+                case LT_EQUAL_TOKEN:
+                    runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, DECIMAL_LT_EQUALS, argTypeNames);
+                    break;
+                case GT_EQUAL_TOKEN:
+                    runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, DECIMAL_GT_EQUALS, argTypeNames);
+                    break;
+                default:
+                    throw createUnsupportedOperationException(lVar, rVar, operator);
+            }
+            runtimeMethod.setArgValues(argList);
+            Value result = runtimeMethod.invoke();
+            BVariable variable = VariableFactory.getVariable(context, result);
+            boolean booleanValue = Boolean.parseBoolean(variable.getDapVariable().getValue());
+            return EvaluationUtils.make(context, booleanValue);
         } else if (lVar.getBType() == BVariableType.DECIMAL || rVar.getBType() == BVariableType.DECIMAL) {
             // Todo - Add support for
             // decimal <=> decimal
             // decimal <=>  int or int <=> decimal
             // decimal <=> float or float <=> decimal
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+            throw createUnsupportedOperationException(lVar, rVar, operator);
         }
-        throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PERCENT_TOKEN);
+        throw createUnsupportedOperationException(lVar, rVar, operator);
     }
 
     /**
