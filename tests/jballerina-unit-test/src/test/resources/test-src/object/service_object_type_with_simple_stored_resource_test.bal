@@ -16,11 +16,13 @@
 
 public type ServiceOne service object {
     resource string message;
-    resource function get detail/name/otherBit() returns string;
+    resource function get resMethod() returns string;
+    resource function post resMethod() returns string;
 };
 
 public type ServiceTwo service object {
     resource string message;
+    resource function get resMethod() returns string;
 };
 
 public type Obj object {
