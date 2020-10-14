@@ -42,14 +42,4 @@ public class CustomFunctionTest {
         // Checking duplicate parameter definition in a function starting at 35st column
         BAssertUtil.validateError(compile, 0, "redeclared symbol 'param'", 1, 35);
     }
-
-    @Test(description = "Test defining ballerina function with invalid parameters")
-    public void testExtraParameters() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/functions/invalid_parameters.bal");
-        int index = 0;
-        BAssertUtil.validateError(compileResult, index++, "invalid operation: type 'byte' does not support indexing", 20, 13);
-        BAssertUtil.validateError(compileResult, index++, "missing key expr in member access expr", 20, 18);
-        Assert.assertEquals(compileResult.getErrorCount(), index);
-    }
-
 }

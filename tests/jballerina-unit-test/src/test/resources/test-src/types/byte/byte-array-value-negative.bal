@@ -16,4 +16,5 @@ function base64InvalidLiteralTest() {
     byte[] e = base64 "afcd34abcdef123aGc234bcd1a4bdfABbadaBCd892s3as==";
     byte[] f = base64 `afcd341a4bdfaaabmcfccadabcd89 12df ss==`;
     byte[] g = base64 `afcd34abcdef123aGc2?>><*&*^&34bcd1a4bdfABbadaBCd892s3as==`;
+    typedesc h = byte[];
 }
