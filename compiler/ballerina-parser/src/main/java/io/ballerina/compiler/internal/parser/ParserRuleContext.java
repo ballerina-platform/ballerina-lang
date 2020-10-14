@@ -456,6 +456,12 @@ public enum ParserRuleContext {
     DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN("/**/<"),
     SLASH_ASTERISK_TOKEN("/*"),
     RIGHT_DOUBLE_ARROW("=>"),
+    DOUBLE_LT("<<"),
+    DOUBLE_EQUAL("=="),
+    BITWISE_XOR("^"),
+    LOGICAL_AND("&&"),
+    LOGICAL_OR("||"),
+    ELVIS("?:"),
 
     // Other terminals
     FUNC_NAME("function-name"),
