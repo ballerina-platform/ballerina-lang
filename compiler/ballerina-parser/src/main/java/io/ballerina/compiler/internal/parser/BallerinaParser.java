@@ -1162,9 +1162,8 @@ public class BallerinaParser extends AbstractParser {
                 case REQUIRED_PARAM:
                     STRequiredParameterNode requiredParam = (STRequiredParameterNode) param;
                     if (isEmpty(requiredParam.paramName)) {
-                        param = STNodeFactory
-                                .createRequiredParameterNode(requiredParam.annotations, requiredParam.typeName,
-                                        paramName);
+                        param = STNodeFactory.createRequiredParameterNode(SyntaxKind.REQUIRED_PARAM,
+                                requiredParam.annotations, null, requiredParam.typeName, paramName);
                     }
                     break;
                 case DEFAULTABLE_PARAM:
@@ -1388,15 +1387,23 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseParameter(SyntaxKind prevParamKind, boolean isParamNameOptional) {
         STNode annots;
+        STNode inclusionSymbol;
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case AT_TOKEN:
+                inclusionSymbol = STNodeFactory.createEmptyNode();
                 annots = parseOptionalAnnotations();
                 break;
+            case ASTERISK_TOKEN:
+                inclusionSymbol = parseAsteriskToken();
+                annots = STNodeFactory.createEmptyNodeList();
+                break;
             case IDENTIFIER_TOKEN:
+                inclusionSymbol = STNodeFactory.createEmptyNode();
                 annots = STNodeFactory.createEmptyNodeList();
                 break;
             default:
+                inclusionSymbol = STNodeFactory.createEmptyNode();
                 if (isTypeStartingToken(nextToken.kind)) {
                     annots = STNodeFactory.createEmptyNodeList();
                     break;
@@ -1417,11 +1424,10 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
-        STNode param = parseAfterParamType(prevParamKind, annots, type, isParamNameOptional);
-        return param;
+        return parseAfterParamType(prevParamKind, annots, inclusionSymbol, type, isParamNameOptional);
     }
 
-    private STNode parseAfterParamType(SyntaxKind prevParamKind, STNode annots, STNode type,
+    private STNode parseAfterParamType(SyntaxKind prevParamKind, STNode annots, STNode inclusionSymbol, STNode type,
                                        boolean isParamNameOptional) {
         STNode paramName;
         STToken token = peek();
@@ -1437,26 +1443,26 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createRestParameterNode(annots, type, ellipsis, paramName);
             case IDENTIFIER_TOKEN:
                 paramName = parseVariableName();
-                return parseParameterRhs(prevParamKind, annots, type, paramName);
+                return parseParameterRhs(prevParamKind, annots, inclusionSymbol, type, paramName);
             case EQUAL_TOKEN:
                 if (!isParamNameOptional) {
                     break;
                 }
                 // If this is a function-type-desc, then param name is optional, and may not exist
                 paramName = STNodeFactory.createEmptyNode();
-                return parseParameterRhs(prevParamKind, annots, type, paramName);
+                return parseParameterRhs(prevParamKind, annots, inclusionSymbol, type, paramName);
             default:
                 if (!isParamNameOptional) {
                     break;
                 }
                 // If this is a function-type-desc, then param name is optional, and may not exist
                 paramName = STNodeFactory.createEmptyNode();
-                return parseParameterRhs(prevParamKind, annots, type, paramName);
+                return parseParameterRhs(prevParamKind, annots, inclusionSymbol, type, paramName);
         }
 
         recover(token, ParserRuleContext.AFTER_PARAMETER_TYPE, prevParamKind, annots, type,
                 isParamNameOptional);
-        return parseAfterParamType(prevParamKind, annots, type, isParamNameOptional);
+        return parseAfterParamType(prevParamKind, annots, type, inclusionSymbol, isParamNameOptional);
     }
 
     /**
@@ -1486,12 +1492,18 @@ public class BallerinaParser extends AbstractParser {
      * @param paramName     Name of the parameter
      * @return Parsed parameter node
      */
-    private STNode parseParameterRhs(SyntaxKind prevParamKind, STNode annots, STNode type,
+    private STNode parseParameterRhs(SyntaxKind prevParamKind, STNode annots, STNode inclusionSymbol, STNode type,
                                      STNode paramName) {
         STToken nextToken = peek();
         // Required parameters
         if (isEndOfParameter(nextToken.kind)) {
-            return STNodeFactory.createRequiredParameterNode(annots, type, paramName);
+            if (inclusionSymbol == null) {
+                return STNodeFactory.createRequiredParameterNode(SyntaxKind.REQUIRED_PARAM,
+                                                                annots, null, type, paramName);
+            } else {
+                return STNodeFactory.createRequiredParameterNode(SyntaxKind.INCLUDED_RECORD_PARAM,
+                                                                annots, inclusionSymbol, type, paramName);
+            }
         } else if (nextToken.kind == SyntaxKind.EQUAL_TOKEN) {
             // If we were processing required params so far and found a defualtable
             // parameter, then switch the context to defaultable params.
@@ -1502,10 +1514,14 @@ public class BallerinaParser extends AbstractParser {
             // Defaultable parameters
             STNode equal = parseAssignOp();
             STNode expr = parseExpression();
+            if (inclusionSymbol != null) {
+                type = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(type, inclusionSymbol,
+                                DiagnosticErrorCode.ERROR_DEFAULTABLE_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER);
+            }
             return STNodeFactory.createDefaultableParameterNode(annots, type, paramName, equal, expr);
         } else {
             recover(nextToken, ParserRuleContext.PARAMETER_NAME_RHS, prevParamKind, annots, type, paramName);
-            return parseParameterRhs(prevParamKind, annots, type, paramName);
+            return parseParameterRhs(prevParamKind, annots, inclusionSymbol, type, paramName);
         }
     }
 
@@ -6623,6 +6639,21 @@ public class BallerinaParser extends AbstractParser {
         } else {
             recover(nextToken, ParserRuleContext.AT);
             return parseAtToken();
+        }
+    }
+
+    /**
+     * Parse '*' token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseAsteriskToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
+            return consume();
+        } else {
+            recover(nextToken, ParserRuleContext.ASTERISK);
+            return parseAsteriskToken();
         }
     }
 
