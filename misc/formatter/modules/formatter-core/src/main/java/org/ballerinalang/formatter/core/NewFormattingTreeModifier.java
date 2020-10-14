@@ -238,7 +238,6 @@ import io.ballerina.tools.text.TextRange;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.formatter.core.FormatterUtils.getToken;
 import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
 
 /**
@@ -1269,7 +1268,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public ErrorTypeDescriptorNode transform(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
         if (errorTypeDescriptorNode.errorTypeParamsNode().isPresent()) {
-            Token errorKeywordToken = formatToken(errorTypeDescriptorNode.errorKeywordToken(), 1, 0);
+            Token errorKeywordToken = formatToken(errorTypeDescriptorNode.errorKeywordToken(), 0, 0);
             ErrorTypeParamsNode errorTypeParamsNode = formatNode(errorTypeDescriptorNode.errorTypeParamsNode().get(),
                     this.trailingWS, this.trailingNL);
 
@@ -2367,8 +2366,15 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public ErrorTypeParamsNode transform(ErrorTypeParamsNode errorTypeParamsNode) {
+        Token ltToken = formatToken(errorTypeParamsNode.ltToken(), 0, 0);
+        Node parameter = formatNode(errorTypeParamsNode.parameter(), 0, 0);
+        Token gtToken = formatToken(errorTypeParamsNode.gtToken(), this.trailingWS, this.trailingNL);
 
-        return super.transform(errorTypeParamsNode);
+        return errorTypeParamsNode.modify()
+                .withLtToken(ltToken)
+                .withParameter(parameter)
+                .withGtToken(gtToken)
+                .apply();
     }
 
     @Override
@@ -2469,8 +2475,23 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public ExplicitAnonymousFunctionExpressionNode transform(
             ExplicitAnonymousFunctionExpressionNode explicitAnonymousFunctionExpressionNode) {
+        NodeList<AnnotationNode> annotations =
+                formatNodeList(explicitAnonymousFunctionExpressionNode.annotations(), 0, 1, 0, 1);
+        NodeList<Token> qualifierList = formatNodeList(explicitAnonymousFunctionExpressionNode.qualifierList(),
+                1, 0, 1, 0);
+        Token functionKeyword = formatToken(explicitAnonymousFunctionExpressionNode.functionKeyword(), 1, 0);
+        FunctionSignatureNode functionSignature =
+                formatNode(explicitAnonymousFunctionExpressionNode.functionSignature(), 1, 0);
+        FunctionBodyNode functionBody = formatNode(explicitAnonymousFunctionExpressionNode.functionBody(),
+                this.trailingWS, this.trailingNL);
 
-        return super.transform(explicitAnonymousFunctionExpressionNode);
+        return explicitAnonymousFunctionExpressionNode.modify()
+                .withQualifierList(qualifierList)
+                .withAnnotations(annotations)
+                .withFunctionKeyword(functionKeyword)
+                .withFunctionSignature(functionSignature)
+                .withFunctionBody(functionBody)
+                .apply();
     }
 
     @Override
@@ -2592,15 +2613,32 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public ImplicitAnonymousFunctionParameters transform(
             ImplicitAnonymousFunctionParameters implicitAnonymousFunctionParameters) {
+        Token openParenToken = formatToken(implicitAnonymousFunctionParameters.openParenToken(), 0, 0);
+        SeparatedNodeList<SimpleNameReferenceNode> parameters =
+                formatSeparatedNodeList(implicitAnonymousFunctionParameters.parameters(), 0, 0, 0, 0);
+        Token closeParenToken = formatToken(implicitAnonymousFunctionParameters.closeParenToken(),
+                this.trailingWS, this.trailingNL);
 
-        return super.transform(implicitAnonymousFunctionParameters);
+        return implicitAnonymousFunctionParameters.modify()
+                .withOpenParenToken(openParenToken)
+                .withParameters(parameters)
+                .withCloseParenToken(closeParenToken)
+                .apply();
     }
 
     @Override
     public ImplicitAnonymousFunctionExpressionNode transform(
             ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
+        Node params = formatNode(implicitAnonymousFunctionExpressionNode.params(), 1, 0);
+        Token rightDoubleArrow = formatToken(implicitAnonymousFunctionExpressionNode.rightDoubleArrow(), 1, 0);
+        ExpressionNode expression = formatNode(implicitAnonymousFunctionExpressionNode.expression(),
+                this.trailingWS, this.trailingNL);
 
-        return super.transform(implicitAnonymousFunctionExpressionNode);
+        return implicitAnonymousFunctionExpressionNode.modify()
+                .withParams(params)
+                .withRightDoubleArrow(rightDoubleArrow)
+                .withExpression(expression)
+                .apply();
     }
 
     @Override
@@ -2818,8 +2856,16 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public OptionalFieldAccessExpressionNode transform(
             OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        ExpressionNode expression = formatNode(optionalFieldAccessExpressionNode.expression(), 0, 0);
+        Token optionalChainingToken = formatToken(optionalFieldAccessExpressionNode.optionalChainingToken(), 0, 0);
+        NameReferenceNode fieldName = formatNode(optionalFieldAccessExpressionNode.fieldName(),
+                this.trailingWS, this.trailingNL);
 
-        return super.transform(optionalFieldAccessExpressionNode);
+        return optionalFieldAccessExpressionNode.modify()
+                .withExpression(expression)
+                .withOptionalChainingToken(optionalChainingToken)
+                .withFieldName(fieldName)
+                .apply();
     }
 
     @Override
@@ -2914,8 +2960,12 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public TransactionalExpressionNode transform(TransactionalExpressionNode transactionalExpressionNode) {
+        Token transactionalKeyword = formatToken(transactionalExpressionNode.transactionalKeyword(),
+                this.trailingWS, this.trailingNL);
 
-        return super.transform(transactionalExpressionNode);
+        return transactionalExpressionNode.modify()
+                .withTransactionalKeyword(transactionalKeyword)
+                .apply();
     }
 
     @Override
@@ -2941,8 +2991,15 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public OnConflictClauseNode transform(OnConflictClauseNode onConflictClauseNode) {
+        Token onKeyword = formatToken(onConflictClauseNode.onKeyword(), 1, 0);
+        Token conflictKeyword = formatToken(onConflictClauseNode.conflictKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(onConflictClauseNode.expression(), this.trailingWS, this.trailingNL);
 
-        return super.transform(onConflictClauseNode);
+        return onConflictClauseNode.modify()
+                .withOnKeyword(onKeyword)
+                .withConflictKeyword(conflictKeyword)
+                .withExpression(expression)
+                .apply();
     }
 
     @Override
@@ -2981,8 +3038,17 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public OnClauseNode transform(OnClauseNode onClauseNode) {
+        Token onKeyword = formatToken(onClauseNode.onKeyword(), 1, 0);
+        ExpressionNode lhsExpr = formatNode(onClauseNode.lhsExpression(), 1, 0);
+        Token equalsKeyword = formatToken(onClauseNode.equalsKeyword(), 1, 0);
+        ExpressionNode rhsExpr = formatNode(onClauseNode.rhsExpression(), this.trailingWS, this.trailingNL);
 
-        return super.transform(onClauseNode);
+        return onClauseNode.modify()
+                .withOnKeyword(onKeyword)
+                .withLhsExpression(lhsExpr)
+                .withEqualsKeyword(equalsKeyword)
+                .withRhsExpression(rhsExpr)
+                .apply();
     }
 
     @Override
@@ -3009,19 +3075,56 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public RestMatchPatternNode transform(RestMatchPatternNode restMatchPatternNode) {
+        Token ellipsisToken = formatToken(restMatchPatternNode.ellipsisToken(), 0, 0);
+        Token varKeywordToken = formatToken(restMatchPatternNode.varKeywordToken(), 1, 0);
+        SimpleNameReferenceNode variableName = formatNode(restMatchPatternNode.variableName(),
+                this.trailingWS, this.trailingNL);
 
-        return super.transform(restMatchPatternNode);
+        return restMatchPatternNode.modify()
+                .withEllipsisToken(ellipsisToken)
+                .withVarKeywordToken(varKeywordToken)
+                .withVariableName(variableName)
+                .apply();
     }
 
     @Override
     public FieldMatchPatternNode transform(FieldMatchPatternNode fieldMatchPatternNode) {
+        SimpleNameReferenceNode fieldNameNode = formatNode(fieldMatchPatternNode.fieldNameNode(), 0, 0);
+        Token colonToken = formatToken(fieldMatchPatternNode.colonToken(), 0, 0);
+        Node matchPattern = formatNode(fieldMatchPatternNode.matchPattern(), this.trailingWS, this.trailingNL);
 
-        return super.transform(fieldMatchPatternNode);
+        return fieldMatchPatternNode.modify()
+                .withFieldNameNode(fieldNameNode)
+                .withColonToken(colonToken)
+                .withMatchPattern(matchPattern)
+                .apply();
     }
 
     @Override
     public ErrorMatchPatternNode transform(ErrorMatchPatternNode errorMatchPatternNode) {
-        return super.transform(errorMatchPatternNode);
+        Token errorKeywordToken;
+
+        if (errorMatchPatternNode.typeReference().isPresent()) {
+            errorKeywordToken = formatToken(errorMatchPatternNode.errorKeyword(), 1, 0);
+            NameReferenceNode typeRef = formatNode(errorMatchPatternNode.typeReference().get(), 0, 0);
+            errorMatchPatternNode = errorMatchPatternNode.modify()
+                    .withTypeReference(typeRef).apply();
+        } else {
+            errorKeywordToken = formatToken(errorMatchPatternNode.errorKeyword(), 0, 0);
+        }
+
+        Token openParenthesisToken = formatToken(errorMatchPatternNode.openParenthesisToken(), 0, 0);
+        SeparatedNodeList<Node> argListMatchPatternNode =
+                formatSeparatedNodeList(errorMatchPatternNode.argListMatchPatternNode(), 1, 0, 0, 0);
+        Token closeParenthesisToken = formatToken(errorMatchPatternNode.closeParenthesisToken(),
+                this.trailingWS, this.trailingNL);
+
+        return errorMatchPatternNode.modify()
+                .withErrorKeyword(errorKeywordToken)
+                .withOpenParenthesisToken(openParenthesisToken)
+                .withArgListMatchPatternNode(argListMatchPatternNode)
+                .withCloseParenthesisToken(closeParenthesisToken)
+                .apply();
     }
 
     @Override
