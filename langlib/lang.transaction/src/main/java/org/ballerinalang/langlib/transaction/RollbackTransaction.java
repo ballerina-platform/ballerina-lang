@@ -21,7 +21,7 @@ package org.ballerinalang.langlib.transaction;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.api.transactions.TransactionLocalContext;
+import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 /**
  * Extern function transaction:rollbackTransaction.

@@ -20,8 +20,8 @@ package org.ballerinalang.langlib.transaction;
 
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.api.transactions.TransactionLocalContext;
-import io.ballerina.runtime.api.transactions.TransactionResourceManager;
+import io.ballerina.runtime.transactions.TransactionLocalContext;
+import io.ballerina.runtime.transactions.TransactionResourceManager;
 
 /**
  * Extern function transaction:onRollback.

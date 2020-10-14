@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.transaction;
 
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.transactions.TransactionResourceManager;
+import io.ballerina.runtime.transactions.TransactionResourceManager;
 
 /**
  * Extern function transaction:getInfo.

@@ -16,11 +16,13 @@ module io.ballerina.runtime {
     requires java.transaction;
     requires java.naming;
 
-    exports io.ballerina.runtime.types;
-    exports io.ballerina.runtime.util;
     exports io.ballerina.runtime.api;
     exports io.ballerina.runtime.api.connector;
     exports io.ballerina.runtime.api.values;
+    exports io.ballerina.runtime.api.types;
+    exports io.ballerina.runtime.api.commons;
+
+    exports io.ballerina.runtime.util;
     exports io.ballerina.runtime.internal;
     exports io.ballerina.runtime.util.exceptions;
     exports io.ballerina.runtime.launch;
@@ -28,7 +30,7 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.values.connector;
     exports io.ballerina.runtime.scheduling;
     exports io.ballerina.runtime.observability;
-    exports io.ballerina.runtime.api.transactions;
+    exports io.ballerina.runtime.transactions;
     exports io.ballerina.runtime.services;
     exports io.ballerina.runtime.observability.metrics;
     exports io.ballerina.runtime.commons;
@@ -36,6 +38,4 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.observability.metrics.spi;
     exports io.ballerina.runtime.services.spi;
     exports io.ballerina.runtime.annotation;
-    exports io.ballerina.runtime.api.types;
-    exports io.ballerina.runtime.api.commons;
 }

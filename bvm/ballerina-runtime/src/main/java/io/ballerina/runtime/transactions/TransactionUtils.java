@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package io.ballerina.runtime.api.transactions;
+package io.ballerina.runtime.transactions;
 
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.connector.CallableUnitCallback;
@@ -34,11 +34,11 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.api.transactions.TransactionConstants.COORDINATOR_ABORT_TRANSACTION;
-import static io.ballerina.runtime.api.transactions.TransactionConstants.TRANSACTION_BLOCK_CLASS_NAME;
-import static io.ballerina.runtime.api.transactions.TransactionConstants.TRANSACTION_PACKAGE_FQN;
-import static io.ballerina.runtime.api.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
-import static io.ballerina.runtime.api.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
+import static io.ballerina.runtime.transactions.TransactionConstants.COORDINATOR_ABORT_TRANSACTION;
+import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_BLOCK_CLASS_NAME;
+import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_FQN;
+import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
+import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
 import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**

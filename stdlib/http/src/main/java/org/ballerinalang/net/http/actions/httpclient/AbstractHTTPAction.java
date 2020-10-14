@@ -27,7 +27,7 @@ import io.ballerina.runtime.observability.ObservabilityConstants;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.api.transactions.TransactionLocalContext;
+import io.ballerina.runtime.transactions.TransactionLocalContext;
 import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.netty.handler.codec.EncoderException;

@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.runtime.api.transactions;
+package io.ballerina.runtime.transactions;
 
 import com.atomikos.icatch.jta.UserTransactionManager;
 import io.ballerina.runtime.api.values.BArray;
@@ -41,8 +41,8 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
-import static io.ballerina.runtime.api.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
-import static io.ballerina.runtime.api.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
+import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
+import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
 import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
 

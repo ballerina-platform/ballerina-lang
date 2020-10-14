@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.observability.ObserverContext;
-import io.ballerina.runtime.api.transactions.TransactionLocalContext;
+import io.ballerina.runtime.transactions.TransactionLocalContext;
 import io.ballerina.runtime.values.ChannelDetails;
 import io.ballerina.runtime.values.ErrorValue;
 import io.ballerina.runtime.values.FutureValue;

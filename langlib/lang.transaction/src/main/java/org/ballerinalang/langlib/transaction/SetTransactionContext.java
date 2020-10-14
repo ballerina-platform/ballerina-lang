@@ -23,13 +23,13 @@ import io.ballerina.runtime.api.BValueCreator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.api.transactions.TransactionConstants;
-import io.ballerina.runtime.api.transactions.TransactionLocalContext;
+import io.ballerina.runtime.transactions.TransactionConstants;
+import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
+import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 
 /**
  * Extern function transaction:setTransactionContext.

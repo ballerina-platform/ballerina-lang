@@ -35,7 +35,7 @@ import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.services.ErrorHandlerUtils;
-import io.ballerina.runtime.api.transactions.TransactionConstants;
+import io.ballerina.runtime.transactions.TransactionConstants;
 import io.ballerina.runtime.types.AttachedFunction;
 import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
 import io.netty.buffer.Unpooled;

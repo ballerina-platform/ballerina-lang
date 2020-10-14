@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.transactions.TransactionConstants;
+import io.ballerina.runtime.transactions.TransactionConstants;
 import io.ballerina.runtime.types.AttachedFunction;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.slf4j.Logger;
