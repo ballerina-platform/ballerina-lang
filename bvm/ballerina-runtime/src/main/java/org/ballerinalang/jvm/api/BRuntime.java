@@ -38,15 +38,17 @@ public class BRuntime {
 
     private Scheduler scheduler;
 
-    private BRuntime(Scheduler scheduler) {
+    BRuntime(Scheduler scheduler) {
         this.scheduler = scheduler;
     }
 
     /**
      * Gets the instance of ballerina runtime.
      *
+     * @deprecated use {@link BalEnv#getRuntime()} instead.
      * @return Ballerina runtime instance.
      */
+    @Deprecated
     public static BRuntime getCurrentRuntime() {
         Strand strand = Scheduler.getStrand();
         return new BRuntime(strand.scheduler);

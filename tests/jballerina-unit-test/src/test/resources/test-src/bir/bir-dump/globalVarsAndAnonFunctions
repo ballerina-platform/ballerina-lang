@@ -19,7 +19,7 @@ public globalVarsAndAnonFunctions function() -> () {
         %4 = <any | error> %7;
         %7 = ConstLoad l;
         %1[%7] = %4;
-        %12 = fp $anon/.:0.0.0::$lambda$0(%1);
+        %12 = fp $anon/.:0.0.0::$lambda$_0(%1);
         %0 = ConstLoad 0;
         GOTO bb2;
     }

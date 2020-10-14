@@ -22,7 +22,6 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ConcreteMethodImpl;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.JvmStaticMethod;
 
@@ -54,7 +53,7 @@ public class EvaluationUtils {
             Method forNameMethod = null;
             List<Method> methods = classType.methodsByName(FOR_NAME_METHOD);
             for (Method method : methods) {
-                if (((ConcreteMethodImpl) method).argumentSignatures().size() == 3) {
+                if (method.argumentTypeNames().size() == 3) {
                     forNameMethod = method;
                 }
             }
