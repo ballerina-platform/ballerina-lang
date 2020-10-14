@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
@@ -27,18 +28,23 @@ import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,7 +102,7 @@ public final class FunctionCompletionItemBuilder {
     }
 
     public static CompletionItem build(ObjectTypeDescriptor typeDesc, InitializerBuildMode mode, LSContext ctx) {
-        MethodSymbol initMethod = !typeDesc.initMethod().isPresent() ? null : typeDesc.initMethod().get();
+        MethodSymbol initMethod = typeDesc.initMethod().isEmpty() ? null : typeDesc.initMethod().get();
         CompletionItem item = new CompletionItem();
         setMeta(item, initMethod, ctx);
         String functionName;

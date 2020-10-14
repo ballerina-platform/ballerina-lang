@@ -73,8 +73,7 @@ public class ObjectConstructorExpressionNodeContext
         NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            Predicate<Symbol> predicate = symbol -> SymbolUtil.isObject(symbol)
-                    && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC);
+            Predicate<Symbol> predicate = SymbolUtil::isObject;
             return this.getCompletionItemList(QNameReferenceUtil.getModuleContent(ctx, qNameRef, predicate), ctx);
         }
         List<Symbol> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
