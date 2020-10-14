@@ -24,12 +24,12 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 
 /**
- * Extern function lang.values:requireType.
+ * Extern function lang.values:ensureType.
  *
  * @since 2.0.0
  */
-public class RequireType {
-    public static Object requireType(Object value, TypedescValue type) {
+public class EnsureType {
+    public static Object ensureType(Object value, TypedescValue type) {
         if (TypeChecker.getType(value).getTag() == TypeTags.ERROR_TAG) {
             return value;
         }

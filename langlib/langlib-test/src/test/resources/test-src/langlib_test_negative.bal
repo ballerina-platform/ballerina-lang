@@ -30,11 +30,11 @@ json j = {
     quality: true
 };
 
-function testRequiredTypeWithArray() returns error? {
+function testEnsureTypeWithArray() returns error? {
     float[] age = check j.price;
 }
 
-function testRequiredTypeWithUnion1() returns error? {
+function testEnsureTypeWithUnion1() returns error? {
     int|string|float[] name = check j.name;
 }
 

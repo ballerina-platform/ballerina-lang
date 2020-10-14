@@ -358,12 +358,12 @@ public class LangLibValueTest {
     }
 
     @Test
-    public void testRequireType() {
-        BRunUtil.invokeFunction(compileResult, "testRequireType");
+    public void testEnsureType() {
+        BRunUtil.invokeFunction(compileResult, "testEnsureType");
     }
 
     @Test
-    public void testRequireTypeNegative() {
-        BRunUtil.invokeFunction(compileResult, "testRequireTypeNegative");
+    public void testEnsureTypeNegative() {
+        BRunUtil.invokeFunction(compileResult, "testEnsureTypeNegative");
     }
 }

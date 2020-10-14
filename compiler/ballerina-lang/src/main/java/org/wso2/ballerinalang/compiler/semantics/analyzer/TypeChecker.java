@@ -231,7 +231,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private static final String FUNCTION_NAME_POP = "pop";
     private static final String FUNCTION_NAME_SHIFT = "shift";
     private static final String FUNCTION_NAME_UNSHIFT = "unshift";
-    private static final String FUNCTION_NAME_REQUIRE_TYPE = "requireType";
+    private static final String FUNCTION_NAME_ENSURE_TYPE = "ensureType";
 
     private Names names;
     private SymbolTable symTable;
@@ -4524,7 +4524,7 @@ public class TypeChecker extends BLangNodeVisitor {
             typedescExpr.type = typedescType;
             argExprs.add(exprWithCheckingKeyword);
             argExprs.add(typedescExpr);
-            BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_REQUIRE_TYPE,
+            BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_ENSURE_TYPE,
                     argExprs, exprWithCheckingKeyword, checkedExpr.pos);
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) symResolver.
                     lookupLangLibMethod(typeOfExprWithCheckingKeyword, names.fromString(invocation.name.value));

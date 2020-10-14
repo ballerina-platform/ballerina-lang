@@ -1051,7 +1051,7 @@ function assert(anydata actual, anydata expected) {
     }
 }
 
-///////////////////////// Tests for `requireType()` ///////////////////////////
+///////////////////////// Tests for `ensureType()` ///////////////////////////
 
 json  p = {
     name: "Chiran",
@@ -1073,102 +1073,102 @@ json  p = {
     }
 };
 
-function testRequireTypeWithInt() returns int|error {
+function testEnsureTypeWithInt() returns int|error {
     int age = check p.age;
     return age;
 }
 
-function testRequireTypeWithInt2() returns int|error {
+function testEnsureTypeWithInt2() returns int|error {
     int height = check p.height;
     return height;
 }
 
-function testRequireTypeWithInt3() returns int|error {
+function testEnsureTypeWithInt3() returns int|error {
     int married = check p.married;
     return married;
 }
 
-function testRequireTypeWithDecimal() returns decimal|error {
+function testEnsureTypeWithDecimal() returns decimal|error {
     decimal height = check p.height;
     return height;
 }
 
-function testRequireTypeWithDecimal2() returns decimal|error {
+function testEnsureTypeWithDecimal2() returns decimal|error {
     decimal age = check p.age;
     return age;
 }
 
-function testRequireTypeWithNil() returns ()|error {
+function testEnsureTypeWithNil() returns ()|error {
     () property = check p.property;
     return property;
 }
 
-function testRequireTypeWithString() returns string|error {
+function testEnsureTypeWithString() returns string|error {
     string name = check p.name;
     return name;
 }
 
-function testRequireTypeWithFloat() returns float|error {
+function testEnsureTypeWithFloat() returns float|error {
     float weight = check p.weight;
     return weight;
 }
 
-function testRequireTypeWithUnion1() returns float|int|error {
+function testEnsureTypeWithUnion1() returns float|int|error {
     float|int weight = check p.weight;
     return weight;
 }
 
-function testRequireTypeWithUnion2() returns float|string|error {
+function testEnsureTypeWithUnion2() returns float|string|error {
     float|string name = check p.name;
     return name;
 }
 
-function testRequireTypeWithJson1() returns json|error {
+function testEnsureTypeWithJson1() returns json|error {
     json age = check p.age;
     return age;
 }
 
-function testRequireTypeWithJson2() returns json|error {
+function testEnsureTypeWithJson2() returns json|error {
     json height = check p.height;
     return height;
 }
 
-function testRequireTypeWithJson3() returns json|error {
+function testEnsureTypeWithJson3() returns json|error {
     json bloodType = check p.bloodType;
     return bloodType;
 }
 
-function testRequireTypeWithJson4() returns json|error {
+function testEnsureTypeWithJson4() returns json|error {
     json address = check p.address;
     return address;
 }
 
-function testRequireTypeWithJson5() returns json|error {
+function testEnsureTypeWithJson5() returns json|error {
     json weight = check p.weight;
     return weight;
 }
 
-function testRequireTypeWithJson6() returns json|error {
+function testEnsureTypeWithJson6() returns json|error {
     json isMarried = check p.married;
     return isMarried;
 }
 
-function testRequireTypeWithCast1() returns boolean|error {
+function testEnsureTypeWithCast1() returns boolean|error {
     boolean isMarried = <boolean> check p.married;
     return isMarried;
 }
 
-function testRequireTypeWithCast2() returns json[]|error {
+function testEnsureTypeWithCast2() returns json[]|error {
     json[] address = <json[]> check p.address;
     return address;
 }
 
-function testRequireTypeWithCast3() returns map<json>|error {
+function testEnsureTypeWithCast3() returns map<json>|error {
     map<json> bloodType = <map<json>> check p.bloodType;
     return bloodType;
 }
 
-function testRequireType() {
+function testEnsureType() {
     decimal h = 178.5;
     float h1 = 178.5;
     decimal w = 72.5;
@@ -1176,27 +1176,27 @@ function testRequireType() {
     json w1 = 72.5;
     float|int w2 = 72.5;
     float|string name2 = "Chiran";
-    assert(<int>testRequireTypeWithInt(), 24);
-    assert(<int>testRequireTypeWithInt2(), 178);
-    assert(<int>testRequireTypeWithInt3(), 0);
-    assert(<decimal>testRequireTypeWithDecimal(), h);
-    assert(<decimal>testRequireTypeWithDecimal2(), 24);
-    assert(<()>testRequireTypeWithNil(), ());
-    assert( <string>testRequireTypeWithString(), "Chiran");
-    assert(<float>testRequireTypeWithFloat(), w1);
-    assert(<float|int>testRequireTypeWithUnion1(), w2);
-    assert(<float|string>testRequireTypeWithUnion2(), name2);
-    assert(<json>testRequireTypeWithJson1(), 24);
-    assert(<json>testRequireTypeWithJson2(),h1);
-    assert(<json>testRequireTypeWithJson3(), {group: "O", RHD: "+"});
-    assert(<json>testRequireTypeWithJson4(), [125.0/3, "xyz street",
+    assert(<int>testEnsureTypeWithInt(), 24);
+    assert(<int>testEnsureTypeWithInt2(), 178);
+    assert(<int>testEnsureTypeWithInt3(), 0);
+    assert(<decimal>testEnsureTypeWithDecimal(), h);
+    assert(<decimal>testEnsureTypeWithDecimal2(), 24);
+    assert(<()>testEnsureTypeWithNil(), ());
+    assert( <string>testEnsureTypeWithString(), "Chiran");
+    assert(<float>testEnsureTypeWithFloat(), w1);
+    assert(<float|int>testEnsureTypeWithUnion1(), w2);
+    assert(<float|string>testEnsureTypeWithUnion2(), name2);
+    assert(<json>testEnsureTypeWithJson1(), 24);
+    assert(<json>testEnsureTypeWithJson2(),h1);
+    assert(<json>testEnsureTypeWithJson3(), {group: "O", RHD: "+"});
+    assert(<json>testEnsureTypeWithJson4(), [125.0/3, "xyz street",
     {province: "southern", Country: "Sri Lanka"}, 81000]);
-    assert(<json>testRequireTypeWithJson5(), 72.5);
-    assert(<json>testRequireTypeWithJson6(), false);
-    assert(<boolean>testRequireTypeWithCast1(), false);
-    assert(<json[]>testRequireTypeWithCast2(), [125.0/3, "xyz street",
+    assert(<json>testEnsureTypeWithJson5(), 72.5);
+    assert(<json>testEnsureTypeWithJson6(), false);
+    assert(<boolean>testEnsureTypeWithCast1(), false);
+    assert(<json[]>testEnsureTypeWithCast2(), [125.0/3, "xyz street",
     {province: "southern", Country: "Sri Lanka"}, 81000]);
-    assert(<map<json>>testRequireTypeWithJson3(), {group: "O", RHD: "+"});
+    assert(<map<json>>testEnsureTypeWithJson3(), {group: "O", RHD: "+"});
 }
 
 function testRequiredTypeWithInvalidCast1() returns error? {
@@ -1223,7 +1223,7 @@ function testRequiredTypeWithInvalidCast6() returns error? {
     int property = check p.children;
 }
 
-function testRequireTypeNegative() {
+function testEnsureTypeNegative() {
     error? err1 = testRequiredTypeWithInvalidCast1();
     error? err2 = testRequiredTypeWithInvalidCast2();
     error? err3 = testRequiredTypeWithInvalidCast3();
