@@ -323,8 +323,13 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token functionKeyword = formatToken(functionDefinitionNode.functionKeyword(), 1, 0);
         IdentifierToken functionName = formatToken(functionDefinitionNode.functionName(), 0, 0);
         FunctionSignatureNode functionSignatureNode = formatNode(functionDefinitionNode.functionSignature(), 1, 0);
-        FunctionBodyNode functionBodyNode = formatNode(functionDefinitionNode.functionBody(),
-                this.trailingWS, this.trailingNL);
+        FunctionBodyNode functionBodyNode;
+        if (functionDefinitionNode.parent().kind() == SyntaxKind.CLASS_DEFINITION) {
+            functionBodyNode = formatNode(functionDefinitionNode.functionBody(),
+                    this.trailingWS, 2);
+        } else {
+            functionBodyNode = formatNode(functionDefinitionNode.functionBody(), this.trailingWS, this.trailingNL);
+        }
 
         return functionDefinitionNode.modify()
                 .withFunctionKeyword(functionKeyword)
@@ -386,7 +391,13 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public FunctionBodyBlockNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
-        Token openBrace = formatToken(functionBodyBlockNode.openBraceToken(), 0, 1);
+        Token openBrace;
+        if (functionBodyBlockNode.statements().isEmpty() && functionBodyBlockNode.namedWorkerDeclarator().isEmpty()) {
+            openBrace = formatToken(functionBodyBlockNode.openBraceToken(), 0, 2);
+        } else {
+            openBrace = formatToken(functionBodyBlockNode.openBraceToken(), 0, 1);
+        }
+
         indent(); // increase indentation for the statements to follow.
         NodeList<StatementNode> statements = formatNodeList(functionBodyBlockNode.statements(), 0, 1, 0, 1, true);
         if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
@@ -3413,8 +3424,39 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public ClassDefinitionNode transform(ClassDefinitionNode classDefinitionNode) {
+        if (classDefinitionNode.metadata().isPresent()) {
+            MetadataNode metadata = formatNode(classDefinitionNode.metadata().get(), 1, 0);
+            classDefinitionNode = classDefinitionNode.modify().withMetadata(metadata).apply();
+        }
 
-        return super.transform(classDefinitionNode);
+        if (classDefinitionNode.visibilityQualifier().isPresent()) {
+            Token visibilityQualifier = formatToken(classDefinitionNode.visibilityQualifier().get(), 1, 0);
+            classDefinitionNode = classDefinitionNode.modify().withVisibilityQualifier(visibilityQualifier).apply();
+        }
+
+        NodeList<Token> classTypeQualifiers = formatNodeList(classDefinitionNode.classTypeQualifiers(), 1, 0, 1, 0);
+        Token classKeyword = formatToken(classDefinitionNode.classKeyword(), 1, 0);
+        Token className = formatToken(classDefinitionNode.className(), 1, 0);
+        Token openBrace;
+        if (classDefinitionNode.members().isEmpty()) {
+            openBrace = formatToken(classDefinitionNode.openBrace(), 0, 2);
+        } else {
+            openBrace = formatToken(classDefinitionNode.openBrace(), 0, 1);
+        }
+
+        indent();
+        NodeList<Node> members = formatNodeList(classDefinitionNode.members(), 0, 1, 0, 1);
+        unindent();
+        Token closeBrace = formatToken(classDefinitionNode.closeBrace(), this.trailingWS, this.trailingNL);
+
+        return classDefinitionNode.modify()
+                .withClassTypeQualifiers(classTypeQualifiers)
+                .withClassKeyword(classKeyword)
+                .withClassName(className)
+                .withOpenBrace(openBrace)
+                .withMembers(members)
+                .withCloseBrace(closeBrace)
+                .apply();
     }
 
     @Override

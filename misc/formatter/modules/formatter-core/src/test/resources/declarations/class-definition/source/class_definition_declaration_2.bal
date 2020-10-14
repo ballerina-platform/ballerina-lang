@@ -2,6 +2,8 @@ class
     Person
 
        {
+
+
                   *A
     ;
     public        int
@@ -32,7 +34,10 @@ class
         = 50          ;       function
         bar()
               returns
-                        string    {          string    b     =    "bar"
+                        string    {
+
+
+                                      string    b     =    "bar"
                         ;
 return
 b
