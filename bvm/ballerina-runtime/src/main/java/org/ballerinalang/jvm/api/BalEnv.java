@@ -49,4 +49,8 @@ public class BalEnv {
         strand.setState(State.BLOCK_AND_YIELD);
         return new BalFuture(this.strand);
     }
+
+    public BRuntime getRuntime() {
+        return new BRuntime(strand.scheduler);
+    }
 }

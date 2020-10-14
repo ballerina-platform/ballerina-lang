@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.jvm.util.BLangConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.util.Names.CLEAN_UP_TRANSACTION;
 import static org.wso2.ballerinalang.compiler.util.Names.CURRENT_TRANSACTION_INFO;
@@ -83,6 +84,7 @@ import static org.wso2.ballerinalang.compiler.util.Names.TRANSACTION_INFO_RECORD
 public class TransactionDesugar extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<TransactionDesugar> TRANSACTION_DESUGAR_KEY = new CompilerContext.Key<>();
+    private static final String SHOULD_CLEANUP_SYMBOL = "$shouldCleanUp$";
     private final Desugar desugar;
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
@@ -177,11 +179,11 @@ public class TransactionDesugar extends BLangNodeVisitor {
         transactionBlockStmt.stmts.add(transactionBlockIDVariableDef);
 
         //boolean $shouldCleanUp$ = false;
-        BVarSymbol shouldCleanUpSymbol = new BVarSymbol(0, new Name("$shouldCleanUp$" + uniqueId),
+        BVarSymbol shouldCleanUpSymbol = new BVarSymbol(0, new Name(SHOULD_CLEANUP_SYMBOL + UNDERSCORE + uniqueId),
                 env.scope.owner.pkgID, symTable.booleanType, env.scope.owner, pos, VIRTUAL);
-        BLangSimpleVariable shouldCleanUpVariable = ASTBuilderUtil.createVariable(pos, "$shouldCleanUp$"
-                        + uniqueId, symTable.booleanType,
-                ASTBuilderUtil.createLiteral(pos, symTable.booleanType, false), shouldCleanUpSymbol);
+        BLangSimpleVariable shouldCleanUpVariable =
+                ASTBuilderUtil.createVariable(pos, SHOULD_CLEANUP_SYMBOL + UNDERSCORE + uniqueId, symTable.booleanType,
+                        ASTBuilderUtil.createLiteral(pos, symTable.booleanType, false), shouldCleanUpSymbol);
         shouldCleanUpVariable.symbol.closure = true;
         BLangSimpleVariableDef shouldCleanUpVariableDef = ASTBuilderUtil.createVariableDef(pos,
                 shouldCleanUpVariable);
