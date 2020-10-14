@@ -1,5 +1,5 @@
-import http/http.utils;
-import http/http.auth;
+import sameera/http.utils;
+import sameera/http.auth;
 
 public function main() {
    auth:runServices();

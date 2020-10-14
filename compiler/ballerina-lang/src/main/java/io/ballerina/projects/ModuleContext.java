@@ -171,7 +171,7 @@ class ModuleContext {
         return moduleDependencies;
     }
 
-    void compile(CompilerContext compilerContext, PackageName packageName) {
+    void compile(CompilerContext compilerContext, PackageDescriptor packageDescriptor) {
         // TODO use ModuleState enum
         if (bLangPackage != null) {
             return;
@@ -181,8 +181,8 @@ class ModuleContext {
         SymbolEnter symbolEnter = SymbolEnter.getInstance(compilerContext);
         CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
 
-        PackageID pkgID = new PackageID(new Name(packageName.toString()),
-                new Name(this.moduleName.toString()), new Name("0.1.0"));
+        PackageID pkgID = new PackageID(new Name(packageDescriptor.org().toString()),
+                new Name(this.moduleName.toString()), new Name(packageDescriptor.version().toString()));
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         packageCache.put(pkgID, pkgNode);
 

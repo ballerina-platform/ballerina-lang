@@ -49,8 +49,11 @@ public class ProjectUtils {
      * @return True if valid package name, else false.
      */
     public static boolean validatePkgName(String packageName) {
+        String validLanglib = "^[lang.a-z0-9_]*$";
         String validRegex = "^[a-z0-9_]*$";
-        return Pattern.matches(validRegex, packageName);
+        // We have special case for lang. packages
+        // todo consider orgname when checking is it is a lang lib
+        return Pattern.matches(validRegex, packageName) || Pattern.matches(validLanglib, packageName);
     }
 
     /**
