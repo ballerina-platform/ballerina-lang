@@ -17,12 +17,15 @@
  */
 package io.ballerina.projects.utils;
 
+import io.ballerina.projects.Package;
+import org.wso2.ballerinalang.util.RepoUtils;
+
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.regex.Pattern;
-
-import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 
 /**
  * Project related util methods.
@@ -30,6 +33,7 @@ import static io.ballerina.projects.utils.ProjectConstants.BLANG_COMPILED_PKG_BI
  * @since 2.0.0
  */
 public class ProjectUtils {
+    private static final String USER_HOME = "user.home";
 
     /**
      * Validates the org-name.
@@ -49,8 +53,11 @@ public class ProjectUtils {
      * @return True if valid package name, else false.
      */
     public static boolean validatePkgName(String packageName) {
+        String validLanglib = "^[lang.a-z0-9_]*$";
         String validRegex = "^[a-z0-9_]*$";
-        return Pattern.matches(validRegex, packageName);
+        // We have special case for lang. packages
+        // todo consider orgname when checking is it is a lang lib
+        return Pattern.matches(validRegex, packageName) || Pattern.matches(validLanglib, packageName);
     }
 
     /**
@@ -128,7 +135,59 @@ public class ProjectUtils {
         if (platform == null || "".equals(platform)) {
             platform = "any";
         }
-        return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
+        return org + "-" + pkgName + "-" + platform + "-" + version + ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+    }
+
+    public static String getJarName(Package pkg) {
+        // <orgname>-<packagename>-<version>.jar
+        return pkg.packageOrg().toString() + "-" + pkg.packageName().toString()
+                + "-" + pkg.packageVersion() + ProjectConstants.BLANG_COMPILED_JAR_EXT;
+    }
+
+    public static String getExecutableName(Package pkg) {
+        // <packagename>.jar
+        return pkg.packageName().toString() + ProjectConstants.BLANG_COMPILED_JAR_EXT;
+    }
+
+
+    public static Path getBirCacheFromHome() {
+        return createAndGetHomeReposPath().resolve(ProjectConstants.BIR_CACHE_DIR_NAME + "-" +
+                RepoUtils.getBallerinaVersion());
+    }
+
+    public static Path getJarCacheFromHome() {
+        return createAndGetHomeReposPath().resolve(ProjectConstants.JAR_CACHE_DIR_NAME + "-" +
+                RepoUtils.getBallerinaVersion());
+    }
+
+    public static Path getBaloCacheFromHome() {
+        return createAndGetHomeReposPath().resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
+    }
+
+    /**
+     * Create and get the home repository path.
+     *
+     * @return home repository path
+     */
+    public static Path createAndGetHomeReposPath() {
+        Path homeRepoPath;
+        String homeRepoDir = System.getenv(ProjectConstants.HOME_REPO_ENV_KEY);
+        if (homeRepoDir == null || homeRepoDir.isEmpty()) {
+            String userHomeDir = System.getProperty(USER_HOME);
+            if (userHomeDir == null || userHomeDir.isEmpty()) {
+                throw new RuntimeException("Error creating home repository: unable to get user home directory");
+            }
+            homeRepoPath = Paths.get(userHomeDir, ProjectConstants.HOME_REPO_DEFAULT_DIRNAME);
+        } else {
+            // User has specified the home repo path with env variable.
+            homeRepoPath = Paths.get(homeRepoDir);
+        }
+
+        homeRepoPath = homeRepoPath.toAbsolutePath();
+        if (Files.exists(homeRepoPath) && !Files.isDirectory(homeRepoPath, LinkOption.NOFOLLOW_LINKS)) {
+            throw new RuntimeException("Home repository is not a directory: " + homeRepoPath.toString());
+        }
+        return homeRepoPath;
     }
 
     public static String getOrgFromBaloName(String baloName) {
@@ -142,7 +201,7 @@ public class ProjectUtils {
     public static String getVersionFromBaloName(String baloName) {
         // TODO validate this method of getting the version of the balo
         String versionAndExtension = baloName.split("-")[3];
-        int extensionIndex = versionAndExtension.indexOf(BLANG_COMPILED_PKG_BINARY_EXT);
+        int extensionIndex = versionAndExtension.indexOf(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT);
         return versionAndExtension.substring(0, extensionIndex);
     }
 }

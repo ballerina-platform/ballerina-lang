@@ -1,5 +1,5 @@
-import myproject/myproject.storage;
-import http/http.utils;
+import sameera/myproject.storage;
+import sameera/http.utils;
 
 
 public function runServices() {

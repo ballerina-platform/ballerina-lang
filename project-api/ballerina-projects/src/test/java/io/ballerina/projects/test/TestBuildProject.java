@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
@@ -34,6 +36,7 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.utils.ProjectConstants;
 import io.ballerina.projects.utils.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.text.LinePosition;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -45,6 +48,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import static org.testng.Assert.assertEquals;
 
 /**
  * Contains cases to test the basic package structure.
@@ -600,5 +605,42 @@ public class TestBuildProject {
         } catch (RuntimeException e) {
             Assert.assertTrue(e.getMessage().contains("module directory path does not exist"));
         }
+    }
+
+    @Test(description = "tests get semantic model in module compilation")
+    public void testGetSemanticModel() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+        // 3) Load the default module
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.documentIds().size(), 2);
+
+        // 4) Resolve the dependencies of the current package and its modules
+        currentPackage.resolveDependencies();
+        DependencyGraph<ModuleId> moduleDependencyGraph = currentPackage.moduleDependencyGraph();
+        Assert.assertEquals(moduleDependencyGraph.getDirectDependencies(defaultModule.moduleId()).size(), 2);
+
+        // 5) Compile the module
+        ModuleCompilation compilation = defaultModule.getCompilation();
+
+        // 6) Get semantic model
+        SemanticModel semanticModel = compilation.getSemanticModel();
+
+        // Test module level symbols
+        List<Symbol> symbols = semanticModel.moduleLevelSymbols();
+        Assert.assertEquals(symbols.size(), 5);
+
+        // Test symbol
+        Optional<Symbol> symbol = semanticModel.symbol("main.bal", LinePosition.from(5, 10));
+        symbol.ifPresent(value -> assertEquals(value.name(), "runServices"));
     }
 }

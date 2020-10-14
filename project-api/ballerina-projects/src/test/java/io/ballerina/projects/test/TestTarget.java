@@ -23,6 +23,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.Target;
+import io.ballerina.projects.utils.ProjectUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -53,23 +54,26 @@ public class TestTarget {
         Package currentPackage = project.currentPackage();
 
         Target projectTarget = new Target(project.sourceRoot());
-        Path baloCachePath = projectTarget.getBaloCachePath(currentPackage);
+        Path baloCachePath = projectTarget.getBaloPath(currentPackage);
         Assert.assertEquals(baloCachePath.toString(),
-                projectPath.toAbsolutePath().resolve("target").resolve("caches").resolve("balo_cache").resolve(
-                        "sameera-myproject-any-0.1.0.balo").toString());
+                projectPath.toAbsolutePath().resolve("target").resolve("balo").toString());
 
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
 
         Path birCachePath = projectTarget.getBirCachePath(defaultModule);
-        Path executablePath = projectTarget.getExecutablePath(defaultModule);
+        Path jarPath = projectTarget.getJarPath(currentPackage)
+                .resolve(ProjectUtils.getJarName(project.currentPackage()));
+        Path executablePath = projectTarget.getExecutablePath(currentPackage);
 
         Assert.assertEquals(birCachePath.toString(),
                 projectPath.toAbsolutePath().resolve("target").resolve("caches").resolve("bir_cache")
                         .resolve("sameera").resolve("myproject").resolve("0.1.0").resolve("myproject.bir").toString());
-        Assert.assertEquals(executablePath.toString(),
+        Assert.assertEquals(jarPath.toString(),
                 projectPath.toAbsolutePath().resolve("target").resolve("caches").resolve("jar_cache")
-                        .resolve("sameera").resolve("myproject").resolve("0.1.0").resolve("myproject.jar").toString());
+                        .resolve("sameera-myproject-0.1.0.jar").toString());
+        Assert.assertEquals(executablePath.toString(),
+                projectPath.toAbsolutePath().resolve("target").resolve("bin").resolve("myproject.jar").toString());
 
         Module storageModule = null;
         for (ModuleId moduleId : currentPackage.moduleIds()) {

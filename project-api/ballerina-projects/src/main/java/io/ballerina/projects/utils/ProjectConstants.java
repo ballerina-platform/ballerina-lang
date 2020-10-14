@@ -37,6 +37,9 @@ public class ProjectConstants {
 
     public static final String CACHES_DIR_NAME = "caches";
 
+    public static final String HOME_REPO_ENV_KEY = "BALLERINA_HOME_DIR";
+    public static final String HOME_REPO_DEFAULT_DIRNAME = ".ballerina";
+
     public static final String USER_DIR = "user.dir";
     public static final String USER_NAME = "user.name";
 
@@ -44,6 +47,7 @@ public class ProjectConstants {
     public static final String MODULES_ROOT = "modules";
     public static final String LIB_DIR = "lib";
 
+    public static final String BALO_DIR_NAME = "balo";
     public static final String BALO_CACHE_DIR_NAME = "balo_cache";
     public static final String BIR_CACHE_DIR_NAME = "bir_cache";
     public static final String JAR_CACHE_DIR_NAME = "jar_cache";
@@ -57,4 +61,6 @@ public class ProjectConstants {
 
     public static final String BALLERINA_VERSION = "ballerina.version";
     public static final String PROPERTIES_FILE = "/META-INF/tool.properties";
+
+    public static final String TARGET_BALO_DIR_NAME = "balo";
 }

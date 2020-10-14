@@ -1,0 +1,3 @@
+io.ballerina.cli.cmd.BuildCommand
+io.ballerina.cli.cmd.InitCommand
+io.ballerina.cli.cmd.NewCommand
