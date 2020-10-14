@@ -310,8 +310,9 @@ public class BIRGen extends BLangNodeVisitor {
             String builtinFuncName = funcName.substring(funcName.indexOf("<") + 1, funcName.indexOf(">"));
             String modifiedFuncName = funcName.replace(builtinFuncName, "test" + builtinFuncName);
             function.name.setValue(modifiedFuncName);
-            function.originalFuncSymbol.name.value = modifiedFuncName;
-            function.symbol.name.value = modifiedFuncName;
+            Name functionName = names.fromString(modifiedFuncName);
+            function.originalFuncSymbol.name = functionName;
+            function.symbol.name = functionName;
         }
     }
 

@@ -585,7 +585,7 @@ public class JvmPackageGen {
             }
         }
 
-        globalVarClassMap.put(pkgName + "LOCK_STORE", initClass);
+        globalVarClassMap.put(pkgName + LOCK_STORE_VAR_NAME, initClass);
     }
 
     private void linkTypeDefinitions(BIRPackage module, String pkgName,

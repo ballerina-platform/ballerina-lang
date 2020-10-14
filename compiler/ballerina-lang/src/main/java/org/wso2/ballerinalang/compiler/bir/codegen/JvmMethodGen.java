@@ -194,6 +194,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  */
 public class JvmMethodGen {
 
+    private static final String INIT_FUNCTION_SUFFIX = "<init>";
     private static final String START_FUNCTION_SUFFIX = "<start>";
     private static final String STOP_FUNCTION_SUFFIX = "<stop>";
 
@@ -1000,7 +1001,7 @@ public class JvmMethodGen {
     }
 
     private String calculateModuleInitFuncName(PackageID id) {
-        return calculateModuleSpecialFuncName(id, JVM_INIT_METHOD);
+        return calculateModuleSpecialFuncName(id, INIT_FUNCTION_SUFFIX);
     }
 
     private String calculateModuleSpecialFuncName(PackageID id, String funcSuffix) {
@@ -1628,7 +1629,7 @@ public class JvmMethodGen {
 
         if (hasInitFunction(pkg)) {
             generateMethodCall(initClass, asyncDataCollector, mv, indexMap, schedulerVarIndex, MODULE_INIT,
-                               "<init>", "initdummy");
+                               INIT_FUNCTION_SUFFIX, "initdummy");
         }
 
         if (userMainFunc != null) {
@@ -1907,7 +1908,7 @@ public class JvmMethodGen {
                                    BIRPackage pkg, List<PackageID> moduleImports) {
 
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
-        BIRFunction initFunc = generateDepModInit(moduleImports, pkg, MODULE_INIT, JVM_INIT_METHOD);
+        BIRFunction initFunc = generateDepModInit(moduleImports, pkg, MODULE_INIT, INIT_FUNCTION_SUFFIX);
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
 
