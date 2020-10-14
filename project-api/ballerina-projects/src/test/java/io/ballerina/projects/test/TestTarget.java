@@ -17,13 +17,10 @@
  */
 package io.ballerina.projects.test;
 
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.Target;
-import io.ballerina.projects.utils.ProjectUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -55,40 +52,17 @@ public class TestTarget {
 
         Target projectTarget = new Target(project.sourceRoot());
         Path baloCachePath = projectTarget.getBaloPath(currentPackage);
-        Assert.assertEquals(baloCachePath.toString(),
-                projectPath.toAbsolutePath().resolve("target").resolve("balo").toString());
-
-        // 3) Load the default module
-        Module defaultModule = currentPackage.getDefaultModule();
-
-        Path birCachePath = projectTarget.getBirCachePath(defaultModule);
-        Path jarPath = projectTarget.getJarPath(currentPackage)
-                .resolve(ProjectUtils.getJarName(project.currentPackage()));
+        Path birCachePath = projectTarget.getBirCachePath();
+        Path jarCachePath = projectTarget.getJarCachePath();
         Path executablePath = projectTarget.getExecutablePath(currentPackage);
 
+        Assert.assertEquals(baloCachePath.toString(),
+                projectPath.toAbsolutePath().resolve("target").resolve("balo").toString());
         Assert.assertEquals(birCachePath.toString(),
-                projectPath.toAbsolutePath().resolve("target").resolve("caches").resolve("bir_cache")
-                        .resolve("sameera").resolve("myproject").resolve("0.1.0").resolve("myproject.bir").toString());
-        Assert.assertEquals(jarPath.toString(),
-                projectPath.toAbsolutePath().resolve("target").resolve("caches").resolve("jar_cache")
-                        .resolve("sameera-myproject-0.1.0.jar").toString());
+                projectPath.toAbsolutePath().resolve("target").resolve("caches").resolve("bir_cache").toString());
+        Assert.assertEquals(jarCachePath.toString(),
+                projectPath.toAbsolutePath().resolve("target").resolve("caches").resolve("jar_cache").toString());
         Assert.assertEquals(executablePath.toString(),
                 projectPath.toAbsolutePath().resolve("target").resolve("bin").resolve("myproject.jar").toString());
-
-        Module storageModule = null;
-        for (ModuleId moduleId : currentPackage.moduleIds()) {
-            if (moduleId != defaultModule.moduleId()
-                    && currentPackage.module(moduleId).moduleName().moduleNamePart().equals("storage")) {
-                storageModule = currentPackage.module(moduleId);
-                break;
-            }
-        }
-        Assert.assertNotNull(storageModule);
-        Path otherBirCachePath = projectTarget.getBirCachePath(storageModule);
-
-        Assert.assertEquals(otherBirCachePath.toString(),
-                projectPath.toAbsolutePath().resolve("target").resolve("caches").resolve("bir_cache")
-                        .resolve("sameera").resolve("myproject").resolve("0.1.0").resolve("storage").resolve(
-                                "storage.bir").toString());
     }
 }

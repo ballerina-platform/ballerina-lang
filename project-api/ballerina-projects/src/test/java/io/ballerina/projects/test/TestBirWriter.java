@@ -52,14 +52,14 @@ public class TestBirWriter {
         Package currentPackage = project.currentPackage();
         Target target = new Target(project.sourceRoot());
 
-        Path defaultModuleBirPath = target.birCachePath().resolve("myproject.bir");
-        Path storageModuleBirPath = target.birCachePath().resolve("storage.bir");
-        Path servicesModuleBirPath = target.birCachePath().resolve("services.bir");
+        Path defaultModuleBirPath = target.getBirCachePath().resolve("myproject.bir");
+        Path storageModuleBirPath = target.getBirCachePath().resolve("storage.bir");
+        Path servicesModuleBirPath = target.getBirCachePath().resolve("services.bir");
         Assert.assertFalse(defaultModuleBirPath.toFile().exists());
         Assert.assertFalse(storageModuleBirPath.toFile().exists());
         Assert.assertFalse(servicesModuleBirPath.toFile().exists());
 
-        currentPackage.getCompilation().emit(PackageCompilation.OutputType.BIR, target.birCachePath());
+        currentPackage.getCompilation().emit(PackageCompilation.OutputType.BIR, target.getBirCachePath());
 
         Assert.assertTrue(defaultModuleBirPath.toFile().exists()
                 && defaultModuleBirPath.toFile().length() > 0);

@@ -36,7 +36,7 @@ public class CreateBirTask implements Task {
         try {
             target = new Target(project.sourceRoot());
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-            packageCompilation.emit(PackageCompilation.OutputType.BIR, target.birCachePath());
+            packageCompilation.emit(PackageCompilation.OutputType.BIR, target.getBirCachePath());
         } catch (IOException e) {
             throw new RuntimeException("error occurred while writing the module BIRs: " + e.getMessage());
         }

@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -115,56 +116,89 @@ public class PackageCompilation {
     }
 
     public void emit(OutputType outputType, Path filePath) {
-        if (OutputType.EXEC.equals(outputType)) {
-            if (this.packageContext.defaultModuleContext().bLangPackage().symbol.entryPointExists) {
-                List<PackageId> sortedPackageIds = dependencyGraph.toTopologicallySortedList();
-                List<BLangPackage> bLangPackageList = new ArrayList<>();
-                sortedPackageIds.stream().map(packageResolver::getPackage).forEach(pkg -> {
-                    pkg.moduleIds().stream().map(moduleId ->
-                            pkg.module(moduleId).getCompilation().bLangPackage()).forEach(bLangPackageList::add);
-                });
-                try {
-                    JarWriter.write(bLangPackageList, filePath);
-                    // copy the rt jar to the executable
-                    ProjectUtils.copyRuntimeJar(filePath);
-                } catch (IOException e) {
-                    throw new RuntimeException("error while creating the executable jar file for package: " +
-                            this.packageContext.packageName(), e);
+        switch (outputType) {
+            case EXEC:
+                emitExecutable(filePath);
+                break;
+            case JAR:
+                emitJar(filePath);
+                break;
+            case BIR:
+                emitBirs(filePath);
+                break;
+            case BALO:
+                emitBalo(filePath);
+                break;
+            default:
+                throw new RuntimeException("Unexpected output type: " + outputType);
+        }
+    }
+
+    private void emitBalo(Path filePath) {
+        BaloWriter.write(packageResolver.getPackage(packageContext.packageId()), filePath);
+    }
+
+    private void emitBirs(Path filePath) {
+        for (ModuleId moduleId : packageContext.moduleIds()) {
+            BLangPackage bLangPackage = packageContext.moduleContext(moduleId).bLangPackage();
+            if (bLangPackage != null) {
+                String birName;
+                if (packageContext.moduleContext(moduleId).moduleName().isDefaultModuleName()) {
+                    birName = packageContext.moduleContext(moduleId).moduleName().packageName().toString();
+                } else {
+                    birName = packageContext.moduleContext(moduleId).moduleName().moduleNamePart();
                 }
-            } else {
-                throw new UnsupportedOperationException("no entrypoint found in package: "
-                        + this.packageContext.packageName());
+                BirWriter.write(bLangPackage,
+                        filePath.resolve(birName + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT));
             }
-        } else if (OutputType.JAR.equals(outputType)) {
-            List<BLangPackage> bLangPackageList = packageContext.moduleIds().stream()
-                    .map(moduleId -> this.packageContext.moduleContext(moduleId).bLangPackage())
-                    .collect(Collectors.toList());
+        }
+    }
+
+    private void emitJar(Path filePath) {
+        for (ModuleId moduleId : packageContext.moduleIds()) {
+            BLangPackage bLangPackage = this.packageContext.moduleContext(moduleId).bLangPackage();
+            String jarName;
+            if (packageContext.moduleContext(moduleId).moduleName().isDefaultModuleName()) {
+                jarName = packageContext.moduleContext(moduleId).moduleName().packageName().toString();
+            } else {
+                jarName = packageContext.moduleContext(moduleId).moduleName().moduleNamePart();
+            }
             try {
-                JarWriter.write(bLangPackageList, filePath);
+                JarWriter.write(bLangPackage, filePath.resolve(jarName + ProjectConstants.BLANG_COMPILED_JAR_EXT));
             } catch (IOException e) {
                 throw new RuntimeException("error while creating the jar file for package: " +
                         this.packageContext.packageName(), e);
             }
-        } else if (OutputType.BIR.equals(outputType)) {
-            for (ModuleId moduleId : packageContext.moduleIds()) {
-                BLangPackage bLangPackage = packageContext.moduleContext(moduleId).bLangPackage();
-                if (bLangPackage != null) {
-                    String birName;
-                    if (packageContext.moduleContext(moduleId).moduleName().isDefaultModuleName()) {
-                        birName = packageContext.moduleContext(moduleId).moduleName().packageName().toString();
-                    } else {
-                        birName = packageContext.moduleContext(moduleId).moduleName().moduleNamePart();
-                    }
-                    BirWriter.write(bLangPackage, filePath.resolve(birName + ".bir"));
-                }
+        }
+    }
+
+    private void emitExecutable(Path filePath) {
+        if (this.packageContext.defaultModuleContext().bLangPackage().symbol.entryPointExists) {
+            List<PackageId> sortedPackageIds = dependencyGraph.toTopologicallySortedList();
+            List<BLangPackage> bLangPackageList = new ArrayList<>();
+            BLangPackage entryBLangPackage = this.packageContext.defaultModuleContext().bLangPackage();
+            sortedPackageIds.stream().map(packageResolver::getPackage).forEach(pkg -> {
+                pkg.moduleIds().stream()
+                        .filter(moduleId -> moduleId != this.packageContext.defaultModuleContext().moduleId())
+                        .map(moduleId -> pkg.module(moduleId).getCompilation().bLangPackage())
+                        .forEach(bLangPackageList::add);
+            });
+            try {
+                JarWriter.write(entryBLangPackage, bLangPackageList, filePath);
+                // copy the rt jar to the executable
+                ProjectUtils.copyRuntimeJar(filePath);
+            } catch (IOException e) {
+                throw new RuntimeException("error while creating the executable jar file for package: " +
+                        this.packageContext.packageName(), e);
             }
-        } else if (OutputType.BALO.equals(outputType)) {
-            BaloWriter.write(packageResolver.getPackage(packageContext.packageId()), filePath);
+        } else {
+            throw new UnsupportedOperationException("no entrypoint found in package: "
+                    + this.packageContext.packageName());
         }
     }
 
     /**
-     * Enum to represent test statuses.
+     * Enum to represent output types.
      */
     public enum OutputType {
 
