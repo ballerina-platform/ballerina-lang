@@ -27,6 +27,7 @@ configurations {
 
 class BallerinaLangLibBuildTask extends JavaExec {
     def projectDir = ''
+    def distCache = ''
     def moduleName = project.name
 
     BallerinaLangLibBuildTask() {
@@ -38,6 +39,7 @@ class BallerinaLangLibBuildTask extends JavaExec {
     void exec() {
         def args = []
         args << projectDir
+        args << distCache
 
         super.setArgs(args)
         super.exec()
@@ -63,6 +65,7 @@ task createDistributionCache(type: Copy) {
 
 task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     projectDir = project.buildDir.toString() + "/new-project/" + project.projectDir.name
+    distCache = project.buildDir.toString()
     classpath = project.configurations.baloCreat
     dependsOn moduleTopackage
     dependsOn createDistributionCache

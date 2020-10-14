@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.util.ProjectConstants;
@@ -60,10 +61,16 @@ public class PackageCompilation {
         packageContext.resolveDependencies();
 
         ProjectEnvironmentContext projectEnvContext = packageContext.project().environmentContext();
+        EnvironmentContext environmentContext = projectEnvContext.getService(EnvironmentContext.class);
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.dependencyGraph = buildDependencyGraph();
+<<<<<<< HEAD
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         compile(this.compilerContext);
+=======
+        CompilerContext compilerContext = environmentContext.compilerContext();
+        compile(compilerContext);
+>>>>>>> Add new langlib bootstrap
     }
 
     private DependencyGraph<PackageId> buildDependencyGraph() {
@@ -84,6 +91,7 @@ public class PackageCompilation {
     }
 
     private void compile(CompilerContext compilerContext) {
+        Bootstrap.getInstance().loadLangLib(compilerContext, packageResolver);
         diagnostics = new ArrayList<>();
         // Topologically sort packages in the package dependency graph.
         // Iterate through the sorted package list

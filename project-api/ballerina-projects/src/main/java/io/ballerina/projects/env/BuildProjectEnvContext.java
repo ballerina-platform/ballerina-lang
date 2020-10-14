@@ -18,18 +18,14 @@
 package io.ballerina.projects.env;
 
 import io.ballerina.projects.Project;
+import io.ballerina.projects.environment.EnvironmentContext;
+import io.ballerina.projects.environment.GlobalPackageCache;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
-import org.ballerinalang.compiler.CompilerPhase;
-import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import io.ballerina.projects.repos.DistributionPackageCache;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Represents the per build project environment context.
@@ -40,27 +36,15 @@ public class BuildProjectEnvContext extends ProjectEnvironmentContext {
 
     private Map<Class<?>, Object> services = new HashMap<>();
 
-    public static BuildProjectEnvContext from(Project project) {
-        return new BuildProjectEnvContext(project);
+    public static BuildProjectEnvContext from(Project project, BuildEnvContext buildEnvContext) {
+        return new BuildProjectEnvContext(project, buildEnvContext);
     }
 
-    private BuildProjectEnvContext(Project project) {
-        services.put(PackageResolver.class, new CustomPackageResolver(project));
-        populateCompilerContext();
-    }
-
-    private void populateCompilerContext() {
-        CompilerContext compilerContext = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(PROJECT_DIR, "../../langlib/lang.annotations/src/main/ballerina");
-        options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
-
-        // TODO This is a temporary property to compile lang lib modules from source
-        System.setProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", "true");
-
-        // This is a temporary workaround. This can be removed once we migrate all the old projects to the new model
-        SourceDirectoryManager.getInstance(compilerContext);
-        services.put(CompilerContext.class, compilerContext);
+    private BuildProjectEnvContext(Project project, BuildEnvContext buildEnvContext) {
+        services.put(EnvironmentContext.class, buildEnvContext);
+        GlobalPackageCache globalPackageCache = buildEnvContext.getService(GlobalPackageCache.class);
+        DistributionPackageCache distCache = buildEnvContext.getService(DistributionPackageCache.class);
+        services.put(PackageResolver.class, new DefaultPackageResolver(project, distCache, globalPackageCache));
     }
 
     @SuppressWarnings("unchecked")

@@ -61,9 +61,6 @@ public class Target {
      * @return path of the balo file
      */
     public Path getBaloPath(Package pkg) throws IOException {
-        // todo move balo name to a util
-        /* String baloFileName = ProjectUtils.getBaloName(pkg.packageOrg().toString(), pkg.packageName().toString(),
-                pkg.packageVersion().toString(), null);*/
         Files.createDirectories(baloCachePath);
         return baloCachePath;
     }
