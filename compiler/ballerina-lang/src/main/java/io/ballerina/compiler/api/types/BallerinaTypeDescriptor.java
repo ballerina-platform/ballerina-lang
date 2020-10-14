@@ -55,5 +55,5 @@ public interface BallerinaTypeDescriptor {
      * 
      * @return {@link List} of visible member symbols
      */
-    List<MethodSymbol> builtinMethods();
+    List<MethodSymbol> langlibMethods();
 }

@@ -56,7 +56,7 @@ public abstract class AbstractTypeDescriptor implements BallerinaTypeDescriptor 
     public abstract String signature();
 
     @Override
-    public List<MethodSymbol> builtinMethods() {
+    public List<MethodSymbol> langlibMethods() {
         return new ArrayList<>();
     }
 
