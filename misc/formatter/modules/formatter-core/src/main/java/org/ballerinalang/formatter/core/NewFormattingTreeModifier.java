@@ -2942,7 +2942,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .apply();
         }
 
-        BlockStatementNode workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), 0, this.trailingNL);
+        BlockStatementNode workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), this.trailingWS, this.trailingNL);
 
         return namedWorkerDeclarationNode.modify()
                 .withAnnotations(annotations)
@@ -2963,7 +2963,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .apply();
         }
 
-        Token closeBracket = formatToken(arrayTypeDescriptorNode.closeBracket(), this.trailingWS, 0);
+        Token closeBracket = formatToken(arrayTypeDescriptorNode.closeBracket(), this.trailingWS, this.trailingNL);
         return arrayTypeDescriptorNode.modify()
                 .withOpenBracket(openBracket)
                 .withCloseBracket(closeBracket)
@@ -2976,7 +2976,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public XMLElementNode transform(XMLElementNode xMLElementNode) {
         XMLStartTagNode startTagNode = formatNode(xMLElementNode.startTag(), 0, 0);
         NodeList<XMLItemNode> content = formatNodeList(xMLElementNode.content(), 0, 0, 0, 0);
-        XMLEndTagNode endTagNode = formatNode(xMLElementNode.endTag(), 0, 0);
+        XMLEndTagNode endTagNode = formatNode(xMLElementNode.endTag(), this.trailingWS, this.trailingNL);
 
         return xMLElementNode.modify()
                 .withStartTag(startTagNode)
@@ -2991,7 +2991,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         int nameTrailingWS = xMLStartTagNode.attributes().isEmpty() ? 0 : 1;
         XMLNameNode name = formatNode(xMLStartTagNode.name(), nameTrailingWS, 0);
         NodeList<XMLAttributeNode> attributes = formatNodeList(xMLStartTagNode.attributes(), 1, 0, 0, 0);
-        Token getToken = formatToken(xMLStartTagNode.getToken(), 0, 0);
+        Token getToken = formatToken(xMLStartTagNode.getToken(), this.trailingWS, this.trailingNL);
 
         return xMLStartTagNode.modify()
                 .withLtToken(ltToken)
@@ -3006,7 +3006,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token ltToken = formatToken(xMLEndTagNode.ltToken(), 0, 0);
         Token slashToken = formatToken(xMLEndTagNode.slashToken(), 0, 0);
         XMLNameNode name = formatNode(xMLEndTagNode.name(), 0,0);
-        Token getToken = formatToken(xMLEndTagNode.getToken(), 0,0);
+        Token getToken = formatToken(xMLEndTagNode.getToken(), this.trailingWS,this.trailingNL);
 
         return xMLEndTagNode.modify()
                 .withLtToken(ltToken)
@@ -3018,10 +3018,12 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public XmlTypeDescriptorNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        Token xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), 1, 0);
+        int trailingWS = xmlTypeDescriptorNode.xmlTypeParamsNode().isEmpty() ? this.trailingWS : 0;
+        int trailingNL = xmlTypeDescriptorNode.xmlTypeParamsNode().isEmpty() ? this.trailingNL : 0;
+        Token xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), trailingWS, trailingNL);
         if (xmlTypeDescriptorNode.xmlTypeParamsNode().isPresent()) {
-            TypeParameterNode xmlTypeParamsNode = formatNode(xmlTypeDescriptorNode.xmlTypeParamsNode().orElse(null),
-                    0, 0);
+            TypeParameterNode xmlTypeParamsNode = formatNode(xmlTypeDescriptorNode.xmlTypeParamsNode().get(),
+                    this.trailingWS, this.trailingNL);
             xmlTypeDescriptorNode = xmlTypeDescriptorNode.modify()
                     .withXmlTypeParamsNode(xmlTypeParamsNode)
                     .apply();
@@ -3036,7 +3038,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public XMLAttributeNode transform(XMLAttributeNode xMLAttributeNode) {
         XMLNameNode attributeName = formatNode(xMLAttributeNode.attributeName(), 0, 0);
         Token equalToken = formatToken(xMLAttributeNode.equalToken(), 0, 0);
-        XMLAttributeValue value = formatNode(xMLAttributeNode.value(), this.trailingWS, 0);
+        XMLAttributeValue value = formatNode(xMLAttributeNode.value(), this.trailingWS, this.trailingNL);
 
         return xMLAttributeNode.modify()
                 .withAttributeName(attributeName)
@@ -3049,7 +3051,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public XMLAttributeValue transform(XMLAttributeValue xMLAttributeValue) {
         Token startQuote = formatToken(xMLAttributeValue.startQuote(), 0,0);
         NodeList<Node> value = formatNodeList(xMLAttributeValue.value(), 0, 0, 0, 0);
-        Token endQuote = formatToken(xMLAttributeValue.endQuote(), this.trailingWS, 0);
+        Token endQuote = formatToken(xMLAttributeValue.endQuote(), this.trailingWS, this.trailingNL);
 
         return xMLAttributeValue.modify()
                 .withStartQuote(startQuote)
