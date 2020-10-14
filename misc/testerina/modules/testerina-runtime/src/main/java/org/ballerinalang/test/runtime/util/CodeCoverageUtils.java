@@ -153,7 +153,7 @@ public class CodeCoverageUtils {
     }
 
     private static boolean isRequiredFile(String path, String orgName, String moduleName, String version) {
-        if (path.contains("$_init") || path.contains("META-INF") || path.contains("tests/")) {
+        if (path.contains("$_init") || path.contains("META-INF") || path.contains("/tests/")) {
             return false;
         } else if (path.contains("Frame") && path.contains("module")) {
             return false;

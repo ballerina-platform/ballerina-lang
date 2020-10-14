@@ -167,6 +167,7 @@ public class TestReportTest extends BaseTestCase {
         // Verify module level coverage
         for (JsonElement element : resultObj.get("moduleCoverage").getAsJsonArray()) {
             JsonObject moduleObj = ((JsonObject) element);
+
             if ("math".equals(moduleObj.get("name").getAsString())) {
                 // Verify coverage of individual source file
                 for (JsonElement element1 :  moduleObj.get("sourceFiles").getAsJsonArray()) {

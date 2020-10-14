@@ -75,7 +75,7 @@ public class ModuleCoverage {
         Path jsonTmpSummaryPath = Paths.get(jsonCachePath, TesterinaConstants.COVERAGE_FILE);
 
         // Calculate the coverage percentage
-        float coverageVal = (float) this.coveredLines / (this.coveredLines + this.missedLines) * 100;
+        float coverageVal = (float) coveredLines.size() / (coveredLines.size() + missedLines.size()) * 100;
         float coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);
 
         if (jsonTmpSummaryPath.toFile().exists()) {
@@ -88,7 +88,7 @@ public class ModuleCoverage {
                 // Look for the source in the existing JSON
                 for (SourceFile sourceFile : moduleCoverage.sourceFiles) {
                     if (sourceFile.name.equals(fileName)) {
-                        if (sourceFile.coveragePercentage < coveragePercentage) {
+                        if (sourceFile.coveragePercentage <= coveragePercentage) {
                             // Since the percentages are different we need to update the source file
                             newCoverage.addSourceFileCoverage(moduleName, fileName, coveredLines, missedLines);
                             isUpdated = true;
