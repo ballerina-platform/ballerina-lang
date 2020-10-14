@@ -43,12 +43,13 @@ public class CustomFunctionTest {
         BAssertUtil.validateError(compile, 0, "redeclared symbol 'param'", 1, 35);
     }
 
-    @Test(description = "Test defining ballerina function with extra parameters with missing comma")
+    @Test(description = "Test defining ballerina function with invalid parameters")
     public void testExtraParameters() {
-        CompileResult compile = BCompileUtil.compile("test-src/functions/extra-parameters.bal");
-        Assert.assertEquals(compile.getErrorCount(), 2);
-        BAssertUtil.validateError(compile, 0, "invalid operation: type 'byte' does not support indexing", 20, 13);
-        BAssertUtil.validateError(compile, 1, "missing key expr in member access expr", 20, 18);
+        CompileResult compileResult = BCompileUtil.compile("test-src/functions/invalid_parameters.bal");
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "invalid operation: type 'byte' does not support indexing", 20, 13);
+        BAssertUtil.validateError(compileResult, index++, "missing key expr in member access expr", 20, 18);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
 }
