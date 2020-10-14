@@ -128,6 +128,10 @@ public class ModuleCompilation {
     public List<Diagnostic> diagnostics() {
         return diagnostics;
     }
+
+    public boolean entryPointExists() {
+        return this.moduleContext.bLangPackage().symbol.entryPointExists;
+    }
 }
 
 

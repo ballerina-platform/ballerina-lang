@@ -18,11 +18,12 @@
 
 package org.ballerinalang.stdlib.utils;
 
+import io.ballerina.projects.BaloWriter;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.Target;
-import io.ballerina.projects.writers.BaloWriter;
+import io.ballerina.projects.utils.ProjectUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -52,7 +53,15 @@ public class BuildLangLib {
             packageCompilation.diagnostics().forEach(d -> out.println(d.toString()));
             System.exit(1);
         }*/
-        BaloWriter.write(pkg, target.getBaloPath(pkg));
+        String baloName = ProjectUtils.getBaloName(
+                pkg.packageOrg().toString(),
+                pkg.packageName().toString(),
+                pkg.packageVersion().toString(),
+                null);
+        // TODO: check why package compilation throws a null pointer
+//        PackageCompilation packageCompilation = pkg.getCompilation();
+//        packageCompilation.emit(PackageCompilation.OutputType.BALO, target.baloPath().resolve(baloName));
+        BaloWriter.write(pkg, target.getBaloPath(project.currentPackage()).resolve(baloName));
     }
 
 }

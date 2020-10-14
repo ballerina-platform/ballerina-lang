@@ -16,20 +16,14 @@
  *  under the License.
  */
 
-package io.ballerina.projects.writers;
+package io.ballerina.projects;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.ballerina.projects.Document;
-import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.Package;
-import io.ballerina.projects.model.BaloJson;
-import io.ballerina.projects.model.PackageJson;
-import io.ballerina.projects.model.adaptors.JsonCollectionsAdaptor;
-import io.ballerina.projects.model.adaptors.JsonStringsAdaptor;
-import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.internal.balo.BaloJson;
+import io.ballerina.projects.internal.balo.PackageJson;
+import io.ballerina.projects.internal.balo.adaptors.JsonCollectionsAdaptor;
+import io.ballerina.projects.internal.balo.adaptors.JsonStringsAdaptor;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 
@@ -41,7 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -49,16 +42,15 @@ import java.util.Collection;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static io.ballerina.projects.utils.ProjectConstants.MODULES_ROOT;
-import static io.ballerina.projects.utils.ProjectConstants.RESOURCE_DIR_NAME;
-import static io.ballerina.projects.utils.ProjectUtils.getBaloName;
-
 /**
  * {@code BaloWriter} writes a package to balo format.
  *
  * @since 2.0.0
  */
 public class BaloWriter {
+    private static final String MODULES_ROOT = "modules";
+    private static final String RESOURCE_DIR_NAME = "resources";
+    private static final String BLANG_SOURCE_EXT = ".bal";
 
     private BaloWriter() {
     }
@@ -67,28 +59,13 @@ public class BaloWriter {
      * Write a package to a .balo and return the created .balo path.
      *
      * @param pkg  Package to be written as a .balo.
-     * @param path Directory where the .balo should be created.
-     * @return Newly created balo path
-     * @throws AccessDeniedException when write access to create balo.
+     * @param baloPath Directory where the .balo should be created.
      */
-    public static Path write(Package pkg, Path path) throws AccessDeniedException {
+    public static void write(Package pkg, Path baloPath) {
         // todo check if the given package is compiled properly
 
-        // Check if the path is a directory
-        if (!path.toFile().isDirectory()) {
-            throw new RuntimeException("Given path is not a directory: " + path);
-        }
-
-        if (!path.toFile().canWrite()) {
-            throw new AccessDeniedException("No write access to create balo:" + path);
-        }
-
-        Path balo = path.resolve(
-                getBaloName(pkg.packageOrg().toString(), pkg.packageName().toString(), pkg.packageVersion().toString(),
-                        null));
-
         // Create the archive over write if exists
-        try (ZipOutputStream baloOutputStream = new ZipOutputStream(new FileOutputStream(String.valueOf(balo)))) {
+        try (ZipOutputStream baloOutputStream = new ZipOutputStream(new FileOutputStream(String.valueOf(baloPath)))) {
             // Now lets put stuff in
             populateBaloArchive(baloOutputStream, pkg);
         } catch (IOException e) {
@@ -96,16 +73,16 @@ public class BaloWriter {
         } catch (BLangCompilerException be) {
             // clean up if an error occur
             try {
-                Files.delete(balo);
+                Files.delete(baloPath);
             } catch (IOException e) {
                 // We ignore this error and throw out the original blang compiler error to the user
             }
             throw be;
         }
-        return balo;
     }
 
-    private static void populateBaloArchive(ZipOutputStream baloOutputStream, Package pkg) throws IOException {
+    private static void populateBaloArchive(ZipOutputStream baloOutputStream, Package pkg)
+            throws IOException {
 
         addBaloJson(baloOutputStream);
         addPackageJson(baloOutputStream, pkg);
@@ -242,7 +219,7 @@ public class BaloWriter {
             // only add .bal files of module
             for (DocumentId docId : module.documentIds()) {
                 Document document = module.document(docId);
-                if (document.name().endsWith(ProjectConstants.BLANG_SOURCE_EXT)) {
+                if (document.name().endsWith(BLANG_SOURCE_EXT)) {
                     Path documentPath = Paths.get(MODULES_ROOT, module.moduleName().toString(), document.name());
                     char[] documentContent = document.textDocument().toCharArray();
 

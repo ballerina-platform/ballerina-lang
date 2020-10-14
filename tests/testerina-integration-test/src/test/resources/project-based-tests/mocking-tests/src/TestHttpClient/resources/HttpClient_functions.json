@@ -1,0 +1,1 @@
+{"mocking-tests/TestHttpClient:0.0.0:HttpClient" : [{"function":{"name":"get","requiredParams":[{"path":"string"}],"returnType":"string"}}]}

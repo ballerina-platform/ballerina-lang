@@ -6,6 +6,7 @@ module io.ballerina.projects {
     requires io.ballerina.parser;
     requires gson;
     requires io.ballerina.lang;
+    requires org.apache.commons.io;
     exports io.ballerina.projects.directory;
     exports io.ballerina.projects.utils;
 }
