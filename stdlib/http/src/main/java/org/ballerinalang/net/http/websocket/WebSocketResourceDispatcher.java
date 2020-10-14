@@ -24,7 +24,6 @@ import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.BExecutor;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.api.values.BError;
@@ -106,7 +105,7 @@ public class WebSocketResourceDispatcher {
         httpCaller.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
         httpCaller.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
-        BExecutor.submit(wsService.getScheduler(), onUpgradeResource.getParentService().getBalService(),
+        wsService.getRuntime().invokeMethodAsync(onUpgradeResource.getParentService().getBalService(),
                          balResource.getName(), null, ON_OPEN_METADATA,
                          new OnUpgradeResourceCallback(webSocketHandshaker, wsService, connectionManager),
                          new HashMap<>(), signatureParams);
@@ -529,10 +528,10 @@ public class WebSocketResourceDispatcher {
             Map<String, Object> properties = new HashMap<>();
             WebSocketObserverContext observerContext = new WebSocketObserverContext(connectionInfo);
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            BExecutor.submit(wsService.getScheduler(), wsService.getBalService(), resource, null, metaData, callback,
+            wsService.getRuntime().invokeMethodAsync(wsService.getBalService(), resource, null, metaData, callback,
                              properties, bValues);
         } else {
-            BExecutor.submit(wsService.getScheduler(), wsService.getBalService(), resource, null, metaData, callback,
+            wsService.getRuntime().invokeMethodAsync(wsService.getBalService(), resource, null, metaData, callback,
                              null, bValues);
         }
         WebSocketObservabilityUtil.observeResourceInvocation(connectionInfo, resource);

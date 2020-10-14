@@ -17,6 +17,7 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import org.ballerinalang.jvm.api.BRuntime;
+import org.ballerinalang.jvm.api.BalEnv;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 /**
@@ -28,8 +29,8 @@ import org.ballerinalang.jvm.values.ObjectValue;
  */
 public class Timer {
 
-    public static void startTimer(int interval, int count, ObjectValue object) {
-        BRuntime runtime = BRuntime.getCurrentRuntime();
+    public static void startTimer(BalEnv env, int interval, int count, ObjectValue object) {
+        BRuntime runtime = env.getRuntime();
 
         new Thread(() -> {
             for (int i = 0; i < count; i++) {

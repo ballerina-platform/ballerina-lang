@@ -1,5 +1,20 @@
-import ballerina/io;
+import ballerina/java;
+
+function system_out() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java.lang.System"
+} external;
+
+function println(handle receiver, handle arg0) = @java:Method {
+    name: "println",
+    'class: "java.io.PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;
+
+function print(string str) {
+    println(system_out(), java:fromString(str));
+}
 
 public function main() {
-    io:println("Hello, World!");
+    print("Hello, World!");
 }

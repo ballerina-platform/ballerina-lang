@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http.websocket;
 
+import org.ballerinalang.jvm.api.BRuntime;
 import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 
 import java.util.Map;
@@ -31,16 +31,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketService {
 
     protected final BObject service;
-    protected Scheduler scheduler;
+    protected BRuntime runtime;
     private final Map<String, AttachedFunction> resourcesMap = new ConcurrentHashMap<>();
 
-    public WebSocketService(Scheduler scheduler) {
-        this.scheduler = scheduler;
+    public WebSocketService(BRuntime runtime) {
+        this.runtime = runtime;
         service = null;
     }
 
-    public WebSocketService(BObject service, Scheduler scheduler) {
-        this.scheduler = scheduler;
+    public WebSocketService(BObject service, BRuntime runtime) {
+        this.runtime = runtime;
         this.service = service;
         populateResourcesMap(service);
     }
@@ -59,7 +59,7 @@ public class WebSocketService {
         return service;
     }
 
-    public Scheduler getScheduler() {
-        return scheduler;
+    public BRuntime getRuntime() {
+        return runtime;
     }
 }
