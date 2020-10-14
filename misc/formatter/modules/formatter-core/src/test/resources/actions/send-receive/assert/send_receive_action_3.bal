@@ -5,7 +5,6 @@ public function foo() {
         () send = i ->> w2;
         return 0;
     }
-
     @anotherAnnotate {
         a : "worker",
         b : "2"
@@ -15,5 +14,4 @@ public function foo() {
         lw = <- w1;
         return "abc";
     }
-
 }

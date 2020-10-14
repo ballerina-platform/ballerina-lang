@@ -389,8 +389,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         indent(); // increase indentation for the statements to follow.
         NodeList<StatementNode> statements = formatNodeList(functionBodyBlockNode.statements(), 0, 1, 0, 1, true);
         if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
-            NamedWorkerDeclarator namedWorkerDeclarator = formatNode(functionBodyBlockNode.namedWorkerDeclarator().get(),
-                    0, 2);
+            NamedWorkerDeclarator namedWorkerDeclarator =
+                    formatNode(functionBodyBlockNode.namedWorkerDeclarator().get(), 0, 1);
             functionBodyBlockNode = functionBodyBlockNode.modify()
                     .withNamedWorkerDeclarator(namedWorkerDeclarator)
                     .apply();
@@ -3289,7 +3289,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .apply();
         }
 
-        BlockStatementNode workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), this.trailingWS, this.trailingNL);
+        BlockStatementNode workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), this.trailingWS,
+                this.trailingNL);
 
         return namedWorkerDeclarationNode.modify()
                 .withAnnotations(annotations)
@@ -3352,8 +3353,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public XMLEndTagNode transform(XMLEndTagNode xMLEndTagNode) {
         Token ltToken = formatToken(xMLEndTagNode.ltToken(), 0, 0);
         Token slashToken = formatToken(xMLEndTagNode.slashToken(), 0, 0);
-        XMLNameNode name = formatNode(xMLEndTagNode.name(), 0,0);
-        Token getToken = formatToken(xMLEndTagNode.getToken(), this.trailingWS,this.trailingNL);
+        XMLNameNode name = formatNode(xMLEndTagNode.name(), 0, 0);
+        Token getToken = formatToken(xMLEndTagNode.getToken(), this.trailingWS, this.trailingNL);
 
         return xMLEndTagNode.modify()
                 .withLtToken(ltToken)
@@ -3365,15 +3366,16 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public XmlTypeDescriptorNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        int trailingWS = xmlTypeDescriptorNode.xmlTypeParamsNode().isEmpty() ? this.trailingWS : 0;
-        int trailingNL = xmlTypeDescriptorNode.xmlTypeParamsNode().isEmpty() ? this.trailingNL : 0;
-        Token xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), trailingWS, trailingNL);
+        Token xmlKeywordToken;
         if (xmlTypeDescriptorNode.xmlTypeParamsNode().isPresent()) {
+            xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), 0, 0);
             TypeParameterNode xmlTypeParamsNode = formatNode(xmlTypeDescriptorNode.xmlTypeParamsNode().get(),
                     this.trailingWS, this.trailingNL);
             xmlTypeDescriptorNode = xmlTypeDescriptorNode.modify()
                     .withXmlTypeParamsNode(xmlTypeParamsNode)
                     .apply();
+        } else {
+            xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), this.trailingWS, this.trailingNL);
         }
 
         return xmlTypeDescriptorNode.modify()
@@ -3396,7 +3398,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public XMLAttributeValue transform(XMLAttributeValue xMLAttributeValue) {
-        Token startQuote = formatToken(xMLAttributeValue.startQuote(), 0,0);
+        Token startQuote = formatToken(xMLAttributeValue.startQuote(), 0, 0);
         NodeList<Node> value = formatNodeList(xMLAttributeValue.value(), 0, 0, 0, 0);
         Token endQuote = formatToken(xMLAttributeValue.endQuote(), this.trailingWS, this.trailingNL);
 

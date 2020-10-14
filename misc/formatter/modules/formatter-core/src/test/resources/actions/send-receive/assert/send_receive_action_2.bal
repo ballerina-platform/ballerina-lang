@@ -4,7 +4,6 @@ public function foo() {
         int i = 100;
         () send = i ->> w2;
     }
-
     @anotherAnnotate {
         a : "worker",
         b : "2"
@@ -13,5 +12,4 @@ public function foo() {
         int lw;
         lw = <- w1;
     }
-
 }
