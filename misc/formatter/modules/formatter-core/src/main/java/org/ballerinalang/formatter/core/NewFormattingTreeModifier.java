@@ -1232,7 +1232,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         if (specificFieldNode.colon().isPresent()) {
-            fieldName = formatToken(fieldName, 1, 0);
+            fieldName = formatToken(fieldName, 0, 0);
             Token colon = formatToken(specificFieldNode.colon().get(), 1, 0);
             ExpressionNode expressionNode = formatNode(specificFieldNode.valueExpr().get(),
                     this.trailingWS, this.trailingNL);
@@ -2034,14 +2034,25 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public XMLFilterExpressionNode transform(XMLFilterExpressionNode xMLFilterExpressionNode) {
+        ExpressionNode expression = formatNode(xMLFilterExpressionNode.expression(), 0, 0);
+        XMLNamePatternChainingNode xmlPatternChain = formatNode(xMLFilterExpressionNode.xmlPatternChain(),
+                this.trailingWS, this.trailingNL);
 
-        return super.transform(xMLFilterExpressionNode);
+        return xMLFilterExpressionNode.modify()
+                .withExpression(expression)
+                .withXmlPatternChain(xmlPatternChain)
+                .apply();
     }
 
     @Override
     public XMLStepExpressionNode transform(XMLStepExpressionNode xMLStepExpressionNode) {
+        ExpressionNode expression = formatNode(xMLStepExpressionNode.expression(), 0, 0);
+        Node xmlStepStart = formatNode(xMLStepExpressionNode.xmlStepStart(), this.trailingWS, this.trailingNL);
 
-        return super.transform(xMLStepExpressionNode);
+        return xMLStepExpressionNode.modify()
+                .withExpression(expression)
+                .withXmlStepStart(xmlStepStart)
+                .apply();
     }
 
     @Override
@@ -2332,8 +2343,33 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public ObjectConstructorExpressionNode transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(objectConstructorExpressionNode.annotations(),
+                0, 1, 0, 1);
+        NodeList<Token> objectTypeQualifiers = formatNodeList(objectConstructorExpressionNode.objectTypeQualifiers(),
+                1, 0, 1, 0);
+        Token objectKeyword = formatToken(objectConstructorExpressionNode.objectKeyword(), 1, 0);
 
-        return super.transform(objectConstructorExpressionNode);
+        if (objectConstructorExpressionNode.typeReference().isPresent()) {
+            TypeDescriptorNode typeReference = formatNode(objectConstructorExpressionNode.typeReference().get(), 1, 0);
+            objectConstructorExpressionNode = objectConstructorExpressionNode.modify()
+                    .withTypeReference(typeReference).apply();
+        }
+
+        Token openBraceToken = formatToken(objectConstructorExpressionNode.openBraceToken(), 0, 1);
+        indent();
+        NodeList<Node> members = formatNodeList(objectConstructorExpressionNode.members(), 0, 1, 0, 1);
+        unindent();
+        Token closeBraceToken = formatToken(objectConstructorExpressionNode.closeBraceToken(),
+                this.trailingWS, this.trailingNL);
+
+        return objectConstructorExpressionNode.modify()
+                .withAnnotations(annotations)
+                .withObjectTypeQualifiers(objectTypeQualifiers)
+                .withObjectKeyword(objectKeyword)
+                .withOpenBraceToken(openBraceToken)
+                .withMembers(members)
+                .withCloseBraceToken(closeBraceToken)
+                .apply();
     }
 
     @Override
@@ -3040,8 +3076,18 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public QueryActionNode transform(QueryActionNode queryActionNode) {
+        QueryPipelineNode queryPipeline = formatNode(queryActionNode.queryPipeline(), 0, 1);
+        indent();
+        Token doKeyword = formatToken(queryActionNode.doKeyword(), 1, 0);
+        BlockStatementNode blockStatement = formatNode(queryActionNode.blockStatement(),
+                this.trailingWS, this.trailingNL);
+        unindent();
 
-        return super.transform(queryActionNode);
+        return queryActionNode.modify()
+                .withQueryPipeline(queryPipeline)
+                .withDoKeyword(doKeyword)
+                .withBlockStatement(blockStatement)
+                .apply();
     }
 
     @Override
