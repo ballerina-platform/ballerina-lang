@@ -71,7 +71,7 @@ public class BuildEnvContext extends EnvironmentContext {
         compilerContext = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, "../../langlib/lang.annotations/src/main/ballerina");
-        options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
 
         // TODO This is a temporary property to compile lang lib modules from source
         System.setProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", "true");
