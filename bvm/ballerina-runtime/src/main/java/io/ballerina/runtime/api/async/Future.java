@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.api;
+package io.ballerina.runtime.api.async;
 
 import io.ballerina.runtime.scheduling.Strand;
 
@@ -24,10 +24,10 @@ import io.ballerina.runtime.scheduling.Strand;
  *
  * @since 2.0.0
  */
-public class BalFuture {
+public class Future {
     private final Strand strand;
 
-    public BalFuture(Strand strand) {
+    public Future(Strand strand) {
         this.strand = strand;
     }
 

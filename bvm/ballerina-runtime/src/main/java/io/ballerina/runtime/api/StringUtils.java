@@ -53,7 +53,7 @@ import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModu
  * 
  * @since 0.95.3
  */
-public class BStringUtils {
+public class StringUtils {
 
     private static final String STR_CYCLE = "...";
 
@@ -98,7 +98,7 @@ public class BStringUtils {
             } catch (IOException ignored) {
             }
         }
-        return BStringUtils.fromString(result);
+        return StringUtils.fromString(result);
     }
 
     public static BString getStringFromInputStream(InputStream inputStream, String charset) {
@@ -111,7 +111,7 @@ public class BStringUtils {
         } catch (IOException e) {
             throw new BallerinaException("Error occurred when reading input stream with the charset" + charset, e);
         }
-        return BStringUtils.fromString(textBuilder.toString());
+        return StringUtils.fromString(textBuilder.toString());
     }
 
     public static String getStringAt(String s, long index) {
@@ -133,7 +133,7 @@ public class BStringUtils {
                                                                s.length()));
         }
 
-        return BStringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));
+        return StringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));
     }
 
     public static BString fromString(String s) {
@@ -166,7 +166,7 @@ public class BStringUtils {
     public static BString[] fromStringArray(String[] s) {
         BString[] bStringArray = new BString[s.length];
         for (int i = 0; i < s.length; i++) {
-            bStringArray[i] = BStringUtils.fromString(s[i]);
+            bStringArray[i] = StringUtils.fromString(s[i]);
         }
         return bStringArray;
     }
@@ -175,7 +175,7 @@ public class BStringUtils {
         BString[] bStringArray = new BString[set.size()];
         int i = 0;
         for (String s : set) {
-            bStringArray[i] = BStringUtils.fromString(s);
+            bStringArray[i] = StringUtils.fromString(s);
             i++;
         }
         return bStringArray;

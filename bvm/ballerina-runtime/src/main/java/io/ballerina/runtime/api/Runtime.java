@@ -44,7 +44,7 @@ public class BRuntime {
     /**
      * Gets the instance of ballerina runtime.
      *
-     * @deprecated use {@link BalEnv#getRuntime()} instead.
+     * @deprecated use {@link Env#getRuntime()} instead.
      * @return Ballerina runtime instance.
      */
     @Deprecated
