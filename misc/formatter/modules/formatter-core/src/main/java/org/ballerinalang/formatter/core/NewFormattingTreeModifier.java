@@ -2484,12 +2484,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     @Override
-    public NamedWorkerDeclarator transform(NamedWorkerDeclarator namedWorkerDeclarator) {
-
-        return super.transform(namedWorkerDeclarator);
-    }
-
-    @Override
     public TrapExpressionNode transform(TrapExpressionNode trapExpressionNode) {
         Token trapKeyword = formatToken(trapExpressionNode.trapKeyword(), 1, 0);
         ExpressionNode expression = formatNode(trapExpressionNode.expression(), this.trailingWS, this.trailingNL);
@@ -3490,6 +3484,18 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .withWorkerKeyword(workerKeyword)
                 .withWorkerName(workerName)
                 .withWorkerBody(workerBody)
+                .apply();
+    }
+
+    @Override
+    public NamedWorkerDeclarator transform(NamedWorkerDeclarator namedWorkerDeclarator) {
+        NodeList<StatementNode> workerInitStatements = formatNodeList(namedWorkerDeclarator.workerInitStatements(), 1
+                , 0, 1, 0);
+        NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations =
+                formatNodeList(namedWorkerDeclarator.namedWorkerDeclarations(), 0, 2, 0, 1);
+        return namedWorkerDeclarator.modify()
+                .withWorkerInitStatements(workerInitStatements)
+                .withNamedWorkerDeclarations(namedWorkerDeclarations)
                 .apply();
     }
 
