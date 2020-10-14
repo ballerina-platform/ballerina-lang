@@ -513,7 +513,13 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public BlockStatementNode transform(BlockStatementNode blockStatementNode) {
-        Token openBrace = formatToken(blockStatementNode.openBraceToken(), 0, 1);
+        Token openBrace;
+        if (blockStatementNode.statements().isEmpty()) {
+            openBrace = formatToken(blockStatementNode.openBraceToken(), 0, 2);
+        } else {
+            openBrace = formatToken(blockStatementNode.openBraceToken(), 0, 1);
+        }
+
         indent(); // start an indentation
         NodeList<StatementNode> statements = formatNodeList(blockStatementNode.statements(), 0, 1, 0, 1, true);
         unindent(); // end the indentation

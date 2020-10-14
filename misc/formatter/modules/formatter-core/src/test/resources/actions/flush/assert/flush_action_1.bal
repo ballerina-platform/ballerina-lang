@@ -4,6 +4,7 @@ public function foo() {
         k -> w2;
         error? flushResult = flush w2;
     }
+
     worker w2 {
         float mw;
         mw = <- w1;
