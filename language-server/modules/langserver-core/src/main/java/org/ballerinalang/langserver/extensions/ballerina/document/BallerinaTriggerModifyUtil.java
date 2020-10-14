@@ -59,6 +59,8 @@ public class BallerinaTriggerModifyUtil {
 
     private static final String MAIN = "main";
     private static final String SERVICE = "service";
+    private static final String SCHEDULE = "SCHEDULE";
+    private static final String CURRENT_TRIGGER = "CURRENT_TRIGGER";
     public static final String EMPTY_STRING = "";
 
     private BallerinaTriggerModifyUtil() {
@@ -127,6 +129,10 @@ public class BallerinaTriggerModifyUtil {
                                                      String type, JsonObject config) {
         List<TextEdit> edits = new ArrayList<>();
         Gson gson = new Gson();
+        String currentTrigger = EMPTY_STRING;
+        if (config != null && config.has(CURRENT_TRIGGER)) {
+            currentTrigger = config.get(CURRENT_TRIGGER).getAsString();
+        }
         if (oldTree.getFunctions().isEmpty() && oldTree.getServices().isEmpty()) {
             //insert new
             if (MAIN.equalsIgnoreCase(type)) {
@@ -150,11 +156,19 @@ public class BallerinaTriggerModifyUtil {
             if (mainFunction.isPresent()) {
                 //replace main
                 if (MAIN.equalsIgnoreCase(type)) {
-                    edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START_MODIFY",
-                            mainFunction.get().getPosition().getStartLine() - 1,
-                            mainFunction.get().getPosition().getStartColumn(),
-                            mainFunction.get().getBody().getPosition().getStartLine(),
-                            mainFunction.get().getBody().getPosition().getStartColumn() + 1));
+                    if (mainFunction.get().getPosition().getStartLine() > 1) {
+                        edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START_MODIFY",
+                                mainFunction.get().getPosition().getStartLine() - 1,
+                                mainFunction.get().getPosition().getStartColumn(),
+                                mainFunction.get().getBody().getPosition().getStartLine(),
+                                mainFunction.get().getBody().getPosition().getStartColumn() + 1));
+                    } else {
+                        edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START_MODIFY",
+                                mainFunction.get().getPosition().getStartLine(),
+                                mainFunction.get().getPosition().getStartColumn(),
+                                mainFunction.get().getBody().getPosition().getStartLine(),
+                                mainFunction.get().getBody().getPosition().getStartColumn() + 1));
+                    }
                 } else if (SERVICE.equalsIgnoreCase(type)) {
                     Optional<BLangImportPackage> httpImport = oldTree.getImports().stream().
                             filter(aImport -> aImport.getOrgName().getValue().equalsIgnoreCase("ballerina")
@@ -167,8 +181,12 @@ public class BallerinaTriggerModifyUtil {
                                         JsonObject.class), "IMPORT",
                                 1, 1, 1, 1));
                     }
+                    int startLine =  mainFunction.get().getPosition().getStartLine();
+                    if (SCHEDULE.equalsIgnoreCase(currentTrigger)) {
+                        --startLine;
+                    }
                     edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "SERVICE_START",
-                            mainFunction.get().getPosition().getStartLine(),
+                            startLine,
                             mainFunction.get().getPosition().getStartColumn(),
                             mainFunction.get().getBody().getPosition().getStartLine(),
                             mainFunction.get().getBody().getPosition().getStartColumn() + 1));
