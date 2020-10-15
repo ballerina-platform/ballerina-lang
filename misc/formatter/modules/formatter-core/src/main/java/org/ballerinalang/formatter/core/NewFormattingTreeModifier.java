@@ -3618,7 +3618,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      */
     @SuppressWarnings("unchecked")
     private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL) {
-        if (node == null) {
+        if (node == null || node.isMissing()) {
             return node;
         }
 
@@ -3659,7 +3659,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      * @return Formatted token
      */
     private <T extends Token> T formatToken(T token, int trailingWS, int trailingNL) {
-        if (token == null) {
+        if (token == null || token.isMissing()) {
             return token;
         }
 

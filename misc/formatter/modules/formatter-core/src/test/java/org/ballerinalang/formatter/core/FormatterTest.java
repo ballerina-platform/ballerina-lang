@@ -60,7 +60,6 @@ public abstract class FormatterTest {
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
         SyntaxTree newSyntaxTree = Formatter.format(syntaxTree);
-        Assert.assertFalse(newSyntaxTree.hasDiagnostics());
         Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
     }
 
