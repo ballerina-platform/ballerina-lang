@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.impl.types.BallerinaParameter;
 import io.ballerina.compiler.api.impl.TypeBuilder;
+import io.ballerina.compiler.api.impl.types.TypeBuilder;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
