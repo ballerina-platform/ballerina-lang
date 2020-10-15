@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.stdlib.system.utils;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -71,7 +71,7 @@ public class SystemUtils {
      * @return Ballerina error object.
      */
     public static BError getBallerinaError(String typeId, String message) {
-        return BErrorCreator.createDistinctError(typeId, SYSTEM_PACKAGE_ID, BStringUtils.fromString(message));
+        return ErrorCreator.createDistinctError(typeId, SYSTEM_PACKAGE_ID, StringUtils.fromString(message));
     }
 
     public static BObject getFileInfo(File inputFile) throws IOException {
@@ -79,15 +79,15 @@ public class SystemUtils {
         FileTime lastModified = Files.getLastModifiedTime(inputFile.toPath());
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
-                                                lastModified.toMillis(), BStringUtils
+                                                lastModified.toMillis(), StringUtils
                                                         .fromString(zonedDateTime.getZone().toString()));
-        return BValueCreator.createObjectValue(SYSTEM_PACKAGE_ID, FILE_INFO_TYPE,
-                                               BStringUtils.fromString(inputFile.getName()), inputFile.length(),
-                                               lastModifiedInstance, inputFile.isDirectory());
+        return ValueCreator.createObjectValue(SYSTEM_PACKAGE_ID, FILE_INFO_TYPE,
+                                              StringUtils.fromString(inputFile.getName()), inputFile.length(),
+                                              lastModifiedInstance, inputFile.isDirectory());
     }
 
     public static BObject getProcessObject(Process process) throws IOException {
-        BObject obj = BValueCreator.createObjectValue(SYSTEM_PACKAGE_ID, PROCESS_TYPE);
+        BObject obj = ValueCreator.createObjectValue(SYSTEM_PACKAGE_ID, PROCESS_TYPE);
         obj.addNativeData(PROCESS_FIELD, process);
         return obj;
     }

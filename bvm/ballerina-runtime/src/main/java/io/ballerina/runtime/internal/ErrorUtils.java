@@ -18,7 +18,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
@@ -30,7 +30,7 @@ import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.values.ErrorValue;
 import io.ballerina.runtime.values.MapValueImpl;
 
-import static io.ballerina.runtime.api.BErrorCreator.createError;
+import static io.ballerina.runtime.api.ErrorCreator.createError;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR;
 import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
@@ -42,9 +42,9 @@ import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INCOMPATIBLE_CO
 
 public class ErrorUtils {
 
-    private static final BString ERROR_MESSAGE_FIELD = BStringUtils.fromString("message");
-    private static final BString ERROR_CAUSE_FIELD = BStringUtils.fromString("cause");
-    private static final BString NULL_REF_EXCEPTION = BStringUtils.fromString("NullReferenceException");
+    private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
+    private static final BString ERROR_CAUSE_FIELD = StringUtils.fromString("cause");
+    private static final BString NULL_REF_EXCEPTION = StringUtils.fromString("NullReferenceException");
 
 
     /**
@@ -56,14 +56,14 @@ public class ErrorUtils {
     public static ErrorValue createInteropError(Throwable e) {
         BMap<BString, Object> detailMap = new MapValueImpl<>(Types.TYPE_ERROR_DETAIL);
         if (e.getMessage() != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, BStringUtils.fromString(e.getMessage()));
+            detailMap.put(ERROR_MESSAGE_FIELD, StringUtils.fromString(e.getMessage()));
         }
         if (e.getCause() != null) {
-            detailMap.put(ERROR_CAUSE_FIELD, createError(BStringUtils.fromString(e.getCause().getClass().getName()),
-                                                         BStringUtils.fromString(e.getCause().getMessage())));
+            detailMap.put(ERROR_CAUSE_FIELD, createError(StringUtils.fromString(e.getCause().getClass().getName()),
+                                                         StringUtils.fromString(e.getCause().getMessage())));
         }
 
-        return (ErrorValue) createError(BStringUtils.fromString(e.getClass().getName()), detailMap);
+        return (ErrorValue) createError(StringUtils.fromString(e.getClass().getName()), detailMap);
     }
 
     public static Object handleResourceError(Object returnValue) {

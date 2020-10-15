@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.java;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BString;
 
@@ -36,6 +36,6 @@ public class ToString {
         if (value instanceof BString) {
             return value;
         }
-        return BStringUtils.fromString(referredValue.toString());
+        return StringUtils.fromString(referredValue.toString());
     }
 }

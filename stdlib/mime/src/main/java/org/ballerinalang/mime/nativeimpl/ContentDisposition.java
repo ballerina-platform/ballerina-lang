@@ -18,8 +18,8 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -36,8 +36,8 @@ import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 public class ContentDisposition {
 
     public static BObject getContentDispositionObject(BString contentDisposition) {
-        BObject contentDispositionObj = BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID,
-                                                                        CONTENT_DISPOSITION_STRUCT);
+        BObject contentDispositionObj = ValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID,
+                                                                       CONTENT_DISPOSITION_STRUCT);
         MimeUtil.populateContentDispositionObject(contentDispositionObj, contentDisposition.getValue());
         return contentDispositionObj;
     }
@@ -51,6 +51,6 @@ public class ContentDisposition {
                 MimeUtil.convertDispositionObjectToString(dispositionBuilder, contentDispositionObj);
             }
         }
-        return BStringUtils.fromString(dispositionBuilder.toString());
+        return StringUtils.fromString(dispositionBuilder.toString());
     }
 }

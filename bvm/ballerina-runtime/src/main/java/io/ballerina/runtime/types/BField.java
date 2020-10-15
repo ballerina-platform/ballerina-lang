@@ -44,4 +44,8 @@ public class BField implements Field {
     public String getFieldName() {
         return name;
     }
+
+    public int getFlags() {
+        return flags;
+    }
 }

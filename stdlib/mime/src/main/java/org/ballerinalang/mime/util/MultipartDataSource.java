@@ -18,9 +18,10 @@
 
 package org.ballerinalang.mime.util;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BLink;
@@ -130,10 +131,10 @@ public class MultipartDataSource implements BRefValue {
             if (mediaType.get(PARAMETER_MAP_FIELD) != null) {
                 paramMap = (BMap<BString, Object>) mediaType.get(PARAMETER_MAP_FIELD);
             } else {
-                paramMap = BValueCreator.createMapValue(new io.ballerina.runtime.types.BMapType(Types.TYPE_STRING));
+                paramMap = ValueCreator.createMapValue(TypeCreator.createMapType(Types.TYPE_STRING));
             }
 
-            paramMap.put(BStringUtils.fromString(BOUNDARY), BStringUtils.fromString(childBoundaryString));
+            paramMap.put(StringUtils.fromString(BOUNDARY), StringUtils.fromString(childBoundaryString));
             mediaType.set(PARAMETER_MAP_FIELD, paramMap);
         }
         writeBodyPartHeaders(writer, childPart);

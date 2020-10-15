@@ -19,8 +19,8 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
 
 /**
@@ -37,7 +37,7 @@ public class FinishSpan {
             return null;
         }
 
-        return BErrorCreator.createError(BStringUtils.fromString(("Can not finish span with id " + spanId + ". Span " +
+        return ErrorCreator.createError(StringUtils.fromString(("Can not finish span with id " + spanId + ". Span " +
                 "already finished")));
     }
 }

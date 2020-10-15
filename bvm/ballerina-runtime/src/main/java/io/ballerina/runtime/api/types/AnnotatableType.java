@@ -17,13 +17,20 @@
  */
 package io.ballerina.runtime.api.types;
 
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.values.MapValue;
+
 /**
  * {@code AnnotatableType} represents a type description which contains annotations.
  *
  * @since 2.0.0
  */
-public interface AnnotatableType extends Type  {
+public interface AnnotatableType extends Type {
 
     String getAnnotationKey();
+
+    void setAnnotations(MapValue<BString, Object> annotations);
+
+    Object getAnnotation(BString fromString);
 
 }

@@ -18,9 +18,10 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -33,8 +34,6 @@ import io.ballerina.runtime.observability.metrics.MetricConstants;
 import io.ballerina.runtime.observability.metrics.MetricId;
 import io.ballerina.runtime.observability.metrics.PolledGauge;
 import io.ballerina.runtime.observability.metrics.Tag;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BMapType;
 
 import java.util.Set;
 
@@ -47,14 +46,14 @@ import java.util.Set;
 
 public class GetAllMetrics {
 
-    private static final Type METRIC_TYPE = BValueCreator
+    private static final Type METRIC_TYPE = ValueCreator
             .createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.METRIC)
             .getType();
 
     public static BArray getAllMetrics() {
         Metric[] metrics = DefaultMetricRegistry.getInstance().getAllMetrics();
 
-        BArray bMetrics = BValueCreator.createArrayValue(new BArrayType(METRIC_TYPE));
+        BArray bMetrics = ValueCreator.createArrayValue(TypeCreator.createArrayType(METRIC_TYPE));
         int metricIndex = 0;
         for (Metric metric : metrics) {
             MetricId metricId = metric.getId();
@@ -75,14 +74,14 @@ public class GetAllMetrics {
                 metricType = MetricConstants.GAUGE;
             }
             if (metricValue != null) {
-                BMap<BString, Object> metricStruct = BValueCreator.createRecordValue(
+                BMap<BString, Object> metricStruct = ValueCreator.createRecordValue(
                         ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.METRIC);
-                metricStruct.put(BStringUtils.fromString("name"), BStringUtils.fromString(metricId.getName()));
-                metricStruct.put(BStringUtils.fromString("desc"), BStringUtils.fromString(metricId.getDescription()));
-                metricStruct.put(BStringUtils.fromString("tags"), getTags(metricId));
-                metricStruct.put(BStringUtils.fromString("metricType"), BStringUtils.fromString(metricType));
-                metricStruct.put(BStringUtils.fromString("value"), metricValue);
-                metricStruct.put(BStringUtils.fromString("summary"), summary);
+                metricStruct.put(StringUtils.fromString("name"), StringUtils.fromString(metricId.getName()));
+                metricStruct.put(StringUtils.fromString("desc"), StringUtils.fromString(metricId.getDescription()));
+                metricStruct.put(StringUtils.fromString("tags"), getTags(metricId));
+                metricStruct.put(StringUtils.fromString("metricType"), StringUtils.fromString(metricType));
+                metricStruct.put(StringUtils.fromString("value"), metricValue);
+                metricStruct.put(StringUtils.fromString("summary"), summary);
                 bMetrics.add(metricIndex, metricStruct);
                 metricIndex++;
             }
@@ -92,10 +91,10 @@ public class GetAllMetrics {
     }
 
     private static BMap<BString, Object> getTags(MetricId metricId) {
-        BMap<BString, Object> bTags = BValueCreator.createMapValue(new BMapType(Types.TYPE_STRING));
+        BMap<BString, Object> bTags = ValueCreator.createMapValue(TypeCreator.createMapType(Types.TYPE_STRING));
         Set<Tag> tags = metricId.getTags();
         for (Tag tag : tags) {
-            bTags.put(BStringUtils.fromString(tag.getKey()), BStringUtils.fromString(tag.getValue()));
+            bTags.put(StringUtils.fromString(tag.getKey()), StringUtils.fromString(tag.getValue()));
         }
         return bTags;
     }

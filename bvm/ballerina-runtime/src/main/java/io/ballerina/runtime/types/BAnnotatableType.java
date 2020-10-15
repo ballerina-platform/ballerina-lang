@@ -17,9 +17,9 @@
  */
 package io.ballerina.runtime.types;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -32,7 +32,7 @@ import io.ballerina.runtime.values.MapValue;
  */
 public abstract class BAnnotatableType extends BType implements AnnotatableType {
 
-    protected BMap<BString, Object> annotations = BValueCreator.createMapValue();
+    protected BMap<BString, Object> annotations = ValueCreator.createMapValue();
 
     BAnnotatableType(String typeName, Module pkg, Class<?> valueClass) {
         super(typeName, pkg, valueClass);
@@ -47,7 +47,7 @@ public abstract class BAnnotatableType extends BType implements AnnotatableType 
     }
 
     public Object getAnnotation(String pkg, String annotName) {
-        return this.annotations.get(BStringUtils.fromString(pkg + ":" + annotName));
+        return this.annotations.get(StringUtils.fromString(pkg + ":" + annotName));
     }
 
     public BString[] getAnnotationKeys() {

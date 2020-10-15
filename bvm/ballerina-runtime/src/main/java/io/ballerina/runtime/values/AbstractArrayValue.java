@@ -19,7 +19,7 @@ package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.IteratorUtils;
 import io.ballerina.runtime.JSONGenerator;
-import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
@@ -361,8 +361,8 @@ public abstract class AbstractArrayValue implements ArrayValue {
             return;
         }
 
-        throw BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                        BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
+        throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
+                                       BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
     }
 
     /**

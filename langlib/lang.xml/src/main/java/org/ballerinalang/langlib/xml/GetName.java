@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
@@ -44,7 +44,7 @@ public class GetName {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getName", "element");
         }
         try {
-            return BStringUtils.fromString(xmlVal.getElementName());
+            return StringUtils.fromString(xmlVal.getElementName());
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

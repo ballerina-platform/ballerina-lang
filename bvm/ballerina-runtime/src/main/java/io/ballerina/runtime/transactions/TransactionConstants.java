@@ -17,8 +17,8 @@
 */
 package io.ballerina.runtime.transactions;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.util.BLangConstants;
 
@@ -57,10 +57,10 @@ public class TransactionConstants {
 
     // TransactionContext struct field names
     public static final String CONTEXT_VERSION = "contextVersion";
-    public static final BString TRANSACTION_BLOCK_ID = BStringUtils.fromString("transactionBlockId");
-    public static final BString TRANSACTION_ID = BStringUtils.fromString("transactionId");
-    public static final BString CORDINATION_TYPE = BStringUtils.fromString("coordinationType");
-    public static final BString REGISTER_AT_URL = BStringUtils.fromString("registerAtURL");
+    public static final BString TRANSACTION_BLOCK_ID = StringUtils.fromString("transactionBlockId");
+    public static final BString TRANSACTION_ID = StringUtils.fromString("transactionId");
+    public static final BString CORDINATION_TYPE = StringUtils.fromString("coordinationType");
+    public static final BString REGISTER_AT_URL = StringUtils.fromString("registerAtURL");
 
     public static final String ANN_NAME_TRX_PARTICIPANT_CONFIG = "Participant";
 }

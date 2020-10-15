@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 import java.net.InetAddress;
@@ -34,7 +34,7 @@ import java.util.Enumeration;
 public class GetHostAddress {
 
     public static BString getHostAddress() {
-        return BStringUtils.fromString(getLocalHostLANAddress().getHostAddress());
+        return StringUtils.fromString(getLocalHostLANAddress().getHostAddress());
     }
 
     private static InetAddress getLocalHostLANAddress() throws RuntimeException {

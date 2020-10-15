@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
@@ -61,6 +61,6 @@ public class Elements {
         while (bIterator.hasNext()) {
             list.add((BXML) bIterator.next());
         }
-        return BValueCreator.createXMLSequence(list);
+        return ValueCreator.createXMLSequence(list);
     }
 }

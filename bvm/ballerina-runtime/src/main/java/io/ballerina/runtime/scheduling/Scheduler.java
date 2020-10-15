@@ -16,10 +16,10 @@
  */
 package io.ballerina.runtime.scheduling;
 
-import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.commons.StrandMetadata;
-import io.ballerina.runtime.api.connector.CallableUnitCallback;
+import io.ballerina.runtime.api.async.CallableUnitCallback;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -334,7 +334,7 @@ public class Scheduler {
                 // TODO clean, better move it to future value itself
                 if (item.future.callback != null) {
                     if (item.future.panic != null) {
-                        item.future.callback.notifyFailure(BErrorCreator.createError(panic));
+                        item.future.callback.notifyFailure(ErrorCreator.createError(panic));
                         if (item.future.strand.currentTrxContext != null) {
                             item.future.strand.currentTrxContext.notifyLocalRemoteParticipantFailure();
                         }
@@ -385,7 +385,7 @@ public class Scheduler {
 
     private Throwable createError(Throwable t) {
         if (t instanceof StackOverflowError) {
-            BError error = BErrorCreator.createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
+            BError error = ErrorCreator.createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
             error.setStackTrace(t.getStackTrace());
             return error;
         }

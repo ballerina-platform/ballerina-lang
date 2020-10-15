@@ -18,8 +18,7 @@
 
 package org.ballerinalang.langlib.test;
 
-
-import org.ballerinalang.core.model.types.BMapType;
+import io.ballerina.runtime.api.types.MapType;
 import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BFloat;
@@ -83,7 +82,7 @@ public class LangLibRecordTest {
         assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
 
         BMap map = (BMap) returns[0];
-        assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.TUPLE_TAG);
+        assertEquals(((MapType) map.getType()).getConstrainedType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(map.size(), 2);
         assertEquals(map.get("name").stringValue(), "[\"name\", \"John Doe\"]");
         assertEquals(map.get("age").stringValue(), "[\"age\", 25]");
@@ -136,7 +135,7 @@ public class LangLibRecordTest {
         assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
 
         BMap map = (BMap) returns[0];
-        assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
+        assertEquals(((MapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
         assertEquals(map.size(), 2);
         assertEquals(((BInteger) map.get("name")).intValue(), 8);
         assertEquals(((BInteger) map.get("age")).intValue(), 25);
@@ -154,7 +153,7 @@ public class LangLibRecordTest {
         assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
 
         BMap map = (BMap) returns[0];
-        assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
+        assertEquals(((MapType) map.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
         assertEquals(map.size(), 2);
         assertEquals(((BInteger) map.get("physics")).intValue(), 75);
         assertEquals(((BInteger) map.get("ict")).intValue(), 85);

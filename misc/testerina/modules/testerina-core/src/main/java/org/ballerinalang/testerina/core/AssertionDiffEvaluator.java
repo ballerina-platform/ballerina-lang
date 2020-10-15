@@ -22,7 +22,7 @@ import com.github.difflib.DiffUtils;
 import com.github.difflib.UnifiedDiffUtils;
 import com.github.difflib.algorithm.DiffException;
 import com.github.difflib.patch.Patch;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 import java.util.ArrayList;
@@ -84,7 +84,7 @@ public class AssertionDiffEvaluator {
                 }
             }
         }
-        return BStringUtils.fromString(output);
+        return StringUtils.fromString(output);
     }
 
 }

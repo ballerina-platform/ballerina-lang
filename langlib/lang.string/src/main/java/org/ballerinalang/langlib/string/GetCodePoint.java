@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.string;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.util.BLangConstants.STRING_LANG_LIB;
@@ -37,9 +37,9 @@ public class GetCodePoint {
         try {
             return str.getCodePoint((int) i);
         } catch (IndexOutOfBoundsException e) {
-            throw BErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
-                                                                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                                            BStringUtils.fromString("String codepoint index out of range: " + i));
+            throw ErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
+                                                                   INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                                           StringUtils.fromString("String codepoint index out of range: " + i));
         }
     }
 }

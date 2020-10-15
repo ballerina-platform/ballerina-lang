@@ -18,7 +18,7 @@
 package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.api.values.BXMLSequence;
@@ -63,7 +63,7 @@ public class GetElements {
             if (matchFilters(elemNames, nsList, localNameList, xmlVal.getElementName())) {
                 return xmlVal;
             }
-            return BValueCreator.createXMLSequence();
+            return ValueCreator.createXMLSequence();
         }
 
         ArrayList<BXML> selectedElements = new ArrayList<>();
@@ -79,7 +79,7 @@ public class GetElements {
             }
         }
 
-        return BValueCreator.createXMLSequence(selectedElements);
+        return ValueCreator.createXMLSequence(selectedElements);
     }
 
     public static void destructureFilters(BString[] elemNames,

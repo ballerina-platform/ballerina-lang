@@ -19,12 +19,12 @@
 package org.ballerinalang.testerina.natives.io;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
@@ -83,7 +83,7 @@ public class Sprintf {
                         case 's':
                             if (ref != null) {
                                 result.append(String.format("%" + padding + "s",
-                                                            BStringUtils.getStringValue(ref, null)));
+                                                            StringUtils.getStringValue(ref, null)));
                             }
                             break;
                         case '%':
@@ -111,13 +111,13 @@ public class Sprintf {
             // no match, copy and continue
             result.append(format.getValue().charAt(i));
         }
-        return BStringUtils.fromString(result.toString());
+        return StringUtils.fromString(result.toString());
     }
 
     private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {
         final Object argsValues = args[k];
         final Type type = TypeChecker.getType(argsValues);
-        if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((BArrayType) type).getElementType().getTag()) {
+        if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((ArrayType) type).getElementType().getTag()) {
             BArray byteArray = ((BArray) argsValues);
             for (int i = 0; i < byteArray.size(); i++) {
                 result.append(String.format("%" + padding + x, byteArray.getByte(i)));

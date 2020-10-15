@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.Env;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
@@ -646,7 +646,7 @@ class JMethodResolver {
     private Executable tryResolveExactWithBalEnv(Class<?>[] paramTypes, Class<?> clazz, String name) {
         Class<?>[] paramTypesWithBalEnv = new Class<?>[paramTypes.length + 1];
         System.arraycopy(paramTypes, 0, paramTypesWithBalEnv, 1, paramTypes.length);
-        paramTypesWithBalEnv[0] = BalEnv.class;
+        paramTypesWithBalEnv[0] = Env.class;
         return resolveMethod(clazz, name, paramTypesWithBalEnv);
     }
 

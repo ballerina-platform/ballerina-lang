@@ -19,8 +19,8 @@
 package org.ballerinalang.net.http;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.types.BArrayType;
 
 import java.util.List;
 
@@ -87,8 +87,8 @@ public class SignatureParams {
      * @return a boolean indicating the validity of the array type
      */
     private boolean validArrayType(Type entityBodyParamType) {
-        return ((BArrayType) entityBodyParamType).getElementType().getTag() == TypeTags.BYTE_TAG ||
-                ((BArrayType) entityBodyParamType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG;
+        return ((ArrayType) entityBodyParamType).getElementType().getTag() == TypeTags.BYTE_TAG ||
+                ((ArrayType) entityBodyParamType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG;
     }
 
     Type getEntityBody() {

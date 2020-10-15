@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 
 /**
@@ -30,6 +30,6 @@ import io.ballerina.runtime.api.values.BArray;
 public class GetCallStack {
 
     public static BArray getCallStack() {
-        return BErrorCreator.createError(BStringUtils.fromString("")).getCallStack();
+        return ErrorCreator.createError(StringUtils.fromString("")).getCallStack();
     }
 }

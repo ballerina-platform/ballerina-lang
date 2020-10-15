@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeFlags;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.AnyType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;

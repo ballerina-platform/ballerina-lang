@@ -15,14 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.api;
+package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
-import io.ballerina.runtime.values.MapValue;
 
 import java.util.HashMap;
 import java.util.Map;

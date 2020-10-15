@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BString;
 
 import java.math.BigDecimal;
@@ -40,10 +40,10 @@ public class FromString {
 
     public static Object fromString(BString s) {
         try {
-            return BValueCreator.createDecimalValue(new BigDecimal(s.getValue()));
+            return ValueCreator.createDecimalValue(new BigDecimal(s.getValue()));
         } catch (NumberFormatException e) {
             // TODO: 6/21/19 Improve this error value
-            return BErrorCreator.createError(BStringUtils.fromString(e.getMessage()), e);
+            return ErrorCreator.createError(StringUtils.fromString(e.getMessage()), e);
         }
     }
 }

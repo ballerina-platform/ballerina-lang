@@ -24,4 +24,7 @@ package io.ballerina.runtime.api.types;
  */
 public interface TableType extends Type {
 
+    Type getConstrainedType();
+
+    String[] getFieldNames();
 }

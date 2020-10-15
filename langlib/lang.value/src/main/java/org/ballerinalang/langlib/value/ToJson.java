@@ -19,10 +19,12 @@ package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.JSONUtils;
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -31,8 +33,6 @@ import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.commons.TypeValuePair;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.ballerina.runtime.util.exceptions.RuntimeErrors;
@@ -41,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.BErrorCreator.createError;
+import static io.ballerina.runtime.api.ErrorCreator.createError;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
 import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
@@ -119,16 +119,16 @@ public class ToJson {
     }
 
     private static Object convertMapToJson(BMap<?, ?> map, List<TypeValuePair> unresolvedValues) {
-        BMap<BString, Object> newMap = BValueCreator.createMapValue(new BMapType(Types.TYPE_JSON));
+        BMap<BString, Object> newMap = ValueCreator.createMapValue(TypeCreator.createMapType(Types.TYPE_JSON));
         for (Map.Entry entry : map.entrySet()) {
             Object newValue = convert(entry.getValue(), unresolvedValues);
-            newMap.put(BStringUtils.fromString(entry.getKey().toString()), newValue);
+            newMap.put(StringUtils.fromString(entry.getKey().toString()), newValue);
         }
         return newMap;
     }
 
     private static Object convertArrayToJson(BArray array, List<TypeValuePair> unresolvedValues) {
-        BArray newArray = BValueCreator.createArrayValue((BArrayType) Types.TYPE_JSON_ARRAY);
+        BArray newArray = ValueCreator.createArrayValue((ArrayType) Types.TYPE_JSON_ARRAY);
         for (int i = 0; i < array.size(); i++) {
             Object newValue = convert(array.get(i), unresolvedValues);
             newArray.add(i, newValue);
@@ -145,6 +145,6 @@ public class ToJson {
     private static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
-                .concat(BStringUtils.fromString(": ".concat(detailMessage))));
+                .concat(StringUtils.fromString(": ".concat(detailMessage))));
     }
 }

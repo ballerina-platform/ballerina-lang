@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.java;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BHandle;
 
 /**
@@ -28,6 +28,6 @@ import io.ballerina.runtime.api.values.BHandle;
 public class CreateNull {
 
     public static BHandle createNull() {
-        return BValueCreator.createHandleValue(null);
+        return ValueCreator.createHandleValue(null);
     }
 }

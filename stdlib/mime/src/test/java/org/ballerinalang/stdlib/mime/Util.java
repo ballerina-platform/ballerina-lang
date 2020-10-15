@@ -19,8 +19,9 @@
 package org.ballerinalang.stdlib.mime;
 
 import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
@@ -78,7 +79,7 @@ public class Util {
     public static BArray getArrayOfBodyParts(ArrayList<BObject> bodyParts) {
         Type typeOfBodyPart = bodyParts.get(0).getType();
         BObject[] result = bodyParts.toArray(new BObject[bodyParts.size()]);
-        return BValueCreator.createArrayValue(result, new io.ballerina.runtime.types.BArrayType(typeOfBodyPart));
+        return ValueCreator.createArrayValue(result, TypeCreator.createArrayType(typeOfBodyPart));
     }
 
     /**
@@ -297,16 +298,16 @@ public class Util {
     }
 
     public static BObject createEntityObject() {
-        return BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
+        return ValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
     }
 
 
     public static BObject createMediaTypeObject() {
-        return BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
+        return ValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
     }
 
     public static BObject getContentDispositionStruct() {
-        return BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, CONTENT_DISPOSITION_STRUCT);
+        return ValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, CONTENT_DISPOSITION_STRUCT);
     }
 
     //@NotNull
@@ -331,7 +332,7 @@ public class Util {
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(0));
         Object jsonData = EntityBodyHandler.constructJsonDataSource(bodyPart);
         Assert.assertNotNull(jsonData);
-        Assert.assertEquals(BStringUtils.getJsonString(jsonData), "{\"" + "bodyPart" + "\":\"" + "jsonPart" + "\"}");
+        Assert.assertEquals(StringUtils.getJsonString(jsonData), "{\"" + "bodyPart" + "\":\"" + "jsonPart" + "\"}");
 
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(1));
         BXML xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);

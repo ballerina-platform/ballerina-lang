@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.javainterop;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.values.BError;
@@ -317,7 +317,7 @@ public class RefTypeWithBValueAPITests {
             case 1:
                 return 25;
             case 2:
-                return BStringUtils.fromString("sample value return");
+                return StringUtils.fromString("sample value return");
             case 3:
                 return 54.88;
             default:
@@ -327,14 +327,14 @@ public class RefTypeWithBValueAPITests {
 
     public static io.ballerina.runtime.api.values.BObject
     acceptObjectAndObjectReturn(io.ballerina.runtime.api.values.BObject p, int newVal) {
-        p.set(BStringUtils.fromString("age"), newVal);
+        p.set(StringUtils.fromString("age"), newVal);
         return p;
     }
 
     public static io.ballerina.runtime.api.values.BMap
     acceptRecordAndRecordReturn(io.ballerina.runtime.api.values.BMap e,
                                 io.ballerina.runtime.api.values.BString newVal) {
-        e.put(BStringUtils.fromString("name"), newVal);
+        e.put(StringUtils.fromString("name"), newVal);
         return e;
     }
 
@@ -383,7 +383,7 @@ public class RefTypeWithBValueAPITests {
     public static BError acceptStringErrorReturnWhichThrowsCheckedException(
             io.ballerina.runtime.api.values.BString msg)
             throws JavaInteropTestCheckedException {
-        return BErrorCreator.createError(msg, new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
+        return ErrorCreator.createError(msg, new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
     }
 
     public static io.ballerina.runtime.api.values.BArray
@@ -402,13 +402,13 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static BError acceptStringErrorReturn(io.ballerina.runtime.api.values.BString msg) {
-        return BErrorCreator.createError(msg);
+        return ErrorCreator.createError(msg);
     }
 
     public static Object getJson() {
         MapValueImpl<io.ballerina.runtime.api.values.BString, io.ballerina.runtime.api.values.BString> map =
                 new MapValueImpl<>(Types.TYPE_JSON);
-        map.put(BStringUtils.fromString("name"), BStringUtils.fromString("John"));
+        map.put(StringUtils.fromString("name"), StringUtils.fromString("John"));
         return map;
     }
 
@@ -417,7 +417,7 @@ public class RefTypeWithBValueAPITests {
         io.ballerina.runtime.api.values.BMap<io.ballerina.runtime.api.values.BString,
                 io.ballerina.runtime.api.values.BString>
                 map = new MapValueImpl<>(Types.TYPE_JSON);
-        map.put(BStringUtils.fromString("name"), BStringUtils.fromString("Doe"));
+        map.put(StringUtils.fromString("name"), StringUtils.fromString("Doe"));
         return map;
     }
 
@@ -448,7 +448,7 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static io.ballerina.runtime.api.values.BString getStringFromXML(io.ballerina.runtime.api.values.BXML x) {
-        return BStringUtils.fromString(x.toString());
+        return StringUtils.fromString(x.toString());
     }
 
     public static int getAllInts() {
@@ -489,7 +489,7 @@ public class RefTypeWithBValueAPITests {
 
     public static io.ballerina.runtime.api.values.BString useTypeDesc(
             io.ballerina.runtime.api.values.BTypedesc type) {
-        return BStringUtils.fromString(type.stringValue(null));
+        return StringUtils.fromString(type.stringValue(null));
     }
 
     public static io.ballerina.runtime.api.values.BTypedesc getTypeDesc() {

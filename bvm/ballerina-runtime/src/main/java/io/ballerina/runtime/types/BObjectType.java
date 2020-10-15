@@ -17,9 +17,11 @@
  */
 package io.ballerina.runtime.types;
 
-import io.ballerina.runtime.api.BValueCreator;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.Module;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
@@ -35,9 +37,9 @@ import java.util.StringJoiner;
  */
 public class BObjectType extends BStructureType implements ObjectType {
 
-    private AttachedFunction[] attachedFunctions;
-    public AttachedFunction initializer;
-    public AttachedFunction generatedInitializer;
+    private AttachedFunctionType[] attachedFunctions;
+    public AttachedFunctionType initializer;
+    public AttachedFunctionType generatedInitializer;
 
     private final boolean readonly;
     private IntersectionType immutableType;
@@ -57,7 +59,7 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) BValueCreator.createObjectValue(this.pkg, this.typeName);
+        return (V) ValueCreator.createObjectValue(this.pkg, this.typeName);
     }
 
     @Override
@@ -75,11 +77,11 @@ public class BObjectType extends BStructureType implements ObjectType {
         return TypeTags.OBJECT_TYPE_TAG;
     }
 
-    public AttachedFunction[] getAttachedFunctions() {
+    public AttachedFunctionType[] getAttachedFunctions() {
         return attachedFunctions;
     }
 
-    public void setAttachedFunctions(AttachedFunction[] attachedFunctions) {
+    public void setAttachedFunctions(AttachedFunctionType[] attachedFunctions) {
         this.attachedFunctions = attachedFunctions;
     }
 
@@ -101,11 +103,11 @@ public class BObjectType extends BStructureType implements ObjectType {
 
         StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");
 
-        for (Entry<String, BField> field : getFields().entrySet()) {
-            sj.add(field.getKey() + " : " + field.getValue().type);
+        for (Entry<String, Field> field : getFields().entrySet()) {
+            sj.add(field.getKey() + " : " + field.getValue().getFieldType());
         }
 
-        for (AttachedFunction func : attachedFunctions) {
+        for (AttachedFunctionType func : attachedFunctions) {
             sj.add(func.toString());
         }
 

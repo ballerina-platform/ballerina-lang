@@ -18,9 +18,9 @@
 package io.ballerina.runtime.scheduling;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.commons.StrandMetadata;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.transactions.TransactionLocalContext;
@@ -215,7 +215,7 @@ public class Strand {
                     throw future.panic;
                 }
                 ctx.waitCount.decrementAndGet();
-                target.put(BStringUtils.fromString(entry.getKey()), future.result);
+                target.put(StringUtils.fromString(entry.getKey()), future.result);
             } else {
                 this.setState(BLOCK_ON_AND_YIELD);
                 entry.getValue().strand.waitingContexts.add(ctx);

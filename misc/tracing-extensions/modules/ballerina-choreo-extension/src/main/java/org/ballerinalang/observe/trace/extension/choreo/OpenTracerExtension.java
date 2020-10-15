@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.observe.trace.extension.choreo;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.observability.tracer.OpenTracer;
 import io.jaegertracing.internal.JaegerTracer;
 import io.jaegertracing.internal.samplers.RateLimitingSampler;
@@ -44,14 +44,14 @@ public class OpenTracerExtension implements OpenTracer {
         try {
             choreoClient = ChoreoClientHolder.getChoreoClient();
         } catch (ChoreoClientException e) {
-            throw BErrorCreator.createError(
-                    BStringUtils
+            throw ErrorCreator.createError(
+                    StringUtils
                             .fromString("Choreo client is not initialized. Please check Ballerina configurations."),
-                    BStringUtils.fromString(e.getMessage()));
+                    StringUtils.fromString(e.getMessage()));
         }
 
         if (Objects.isNull(choreoClient)) {
-            throw BErrorCreator.createError(BStringUtils.fromString(
+            throw ErrorCreator.createError(StringUtils.fromString(
                     "Choreo client is not initialized. Please check Ballerina configurations."));
         }
     }
@@ -59,8 +59,8 @@ public class OpenTracerExtension implements OpenTracer {
     @Override
     public Tracer getTracer(String serviceName) {
         if (Objects.isNull(choreoClient)) {
-            throw BErrorCreator.createError(
-                    BStringUtils
+            throw ErrorCreator.createError(
+                    StringUtils
                             .fromString("Choreo client is not initialized. Please check Ballerina configurations."));
         }
 

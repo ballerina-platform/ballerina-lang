@@ -28,4 +28,6 @@ public interface TupleType extends Type {
     List<Type> getTupleTypes();
 
     Type getRestType();
+
+    int getTypeFlags();
 }

@@ -18,14 +18,15 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BTupleType;
-import io.ballerina.runtime.types.BUnionType;
 import org.ballerinalang.langlib.array.utils.GetFunction;
 
 import java.util.Arrays;
@@ -48,30 +49,31 @@ public class Enumerate {
     public static BArray enumerate(BArray arr) {
         Type arrType = arr.getType();
         int size = arr.size();
-        BTupleType elemType;
+        TupleType elemType;
         GetFunction getFn;
 
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                elemType = new BTupleType(Arrays.asList(Types.TYPE_INT, arr.getElementType()));
+                elemType = TypeCreator.createTupleType(Arrays.asList(Types.TYPE_INT, arr.getElementType()));
                 getFn = BArray::get;
                 break;
             case TypeTags.TUPLE_TAG:
-                BTupleType tupleType = (BTupleType) arrType;
-                BUnionType tupElemType = new BUnionType(tupleType.getTupleTypes(), tupleType.getTypeFlags());
-                elemType = new BTupleType(Arrays.asList(Types.TYPE_INT, tupElemType));
+                TupleType tupleType = (TupleType) arrType;
+                UnionType tupElemType = TypeCreator.createUnionType(tupleType.getTupleTypes(),
+                                                                    tupleType.getTypeFlags());
+                elemType = TypeCreator.createTupleType(Arrays.asList(Types.TYPE_INT, tupElemType));
                 getFn = BArray::getRefValue;
                 break;
             default:
                 throw createOpNotSupportedError(arrType, "enumerate()");
         }
 
-        BArrayType newArrType = new BArrayType(elemType);
-        BArray newArr = BValueCreator.createArrayValue(newArrType); // TODO: 7/8/19 Verify whether this needs to be
+        ArrayType newArrType = TypeCreator.createArrayType(elemType);
+        BArray newArr = ValueCreator.createArrayValue(newArrType); // TODO: 7/8/19 Verify whether this needs to be
         // sealed
 
         for (int i = 0; i < size; i++) {
-            BArray entry = BValueCreator.createTupleValue(elemType);
+            BArray entry = ValueCreator.createTupleValue(elemType);
             entry.add(0, Long.valueOf(i));
             entry.add(1, getFn.get(arr, i));
             newArr.add(i, entry);

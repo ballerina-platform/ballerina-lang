@@ -17,7 +17,7 @@
   */
 package io.ballerina.runtime.values;
 
- import io.ballerina.runtime.api.connector.CallableUnitCallback;
+ import io.ballerina.runtime.api.async.CallableUnitCallback;
  import io.ballerina.runtime.api.types.Type;
  import io.ballerina.runtime.api.values.BFuture;
  import io.ballerina.runtime.api.values.BLink;

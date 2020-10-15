@@ -21,7 +21,7 @@ package io.ballerina.runtime.types;
 import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.values.TypedescValue;

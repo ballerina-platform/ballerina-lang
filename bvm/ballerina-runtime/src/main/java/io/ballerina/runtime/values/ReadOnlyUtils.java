@@ -22,7 +22,8 @@ import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeFlags;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.async.Module;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.types.BField;
@@ -157,8 +158,8 @@ public class ReadOnlyUtils {
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType origRecordType = (BRecordType) type;
 
-                Map<String, BField> originalFields = origRecordType.getFields();
-                Map<String, BField> fields = new HashMap<>(originalFields.size());
+                Map<String, Field> originalFields = origRecordType.getFields();
+                Map<String, Field> fields = new HashMap<>(originalFields.size());
                 BRecordType immutableRecordType = new BRecordType(origRecordType.getName().concat(" & readonly"),
                                                                   origRecordType.getPackage(),
                                                                   origRecordType.flags |= Flags.READONLY, fields,
@@ -167,10 +168,11 @@ public class ReadOnlyUtils {
                 BIntersectionType intersectionType = createAndSetImmutableIntersectionType(origRecordType,
                                                                                            immutableRecordType);
 
-                for (Map.Entry<String, BField> entry : originalFields.entrySet()) {
-                    BField originalField = entry.getValue();
-                    fields.put(entry.getKey(), new BField(getImmutableType(originalField.type, unresolvedTypes),
-                                                          originalField.name, originalField.flags));
+                for (Map.Entry<String, Field> entry : originalFields.entrySet()) {
+                    Field originalField = entry.getValue();
+                    fields.put(entry.getKey(),
+                               new BField(getImmutableType(originalField.getFieldType(), unresolvedTypes),
+                                                          originalField.getFieldName(), originalField.getFlags()));
                 }
 
                 Type origRecordRestFieldType = origRecordType.restFieldType;
@@ -199,8 +201,8 @@ public class ReadOnlyUtils {
             case TypeTags.OBJECT_TYPE_TAG:
                 BObjectType origObjectType = (BObjectType) type;
 
-                Map<String, BField> originalObjectFields = origObjectType.getFields();
-                Map<String, BField> immutableObjectFields = new HashMap<>(originalObjectFields.size());
+                Map<String, Field> originalObjectFields = origObjectType.getFields();
+                Map<String, Field> immutableObjectFields = new HashMap<>(originalObjectFields.size());
                 BObjectType immutableObjectType = new BObjectType(origObjectType.getName().concat(" & readonly"),
                                                                   origObjectType.getPackage(),
                                                                   origObjectType.flags |= Flags.READONLY);
@@ -212,11 +214,11 @@ public class ReadOnlyUtils {
                 BIntersectionType objectIntersectionType = createAndSetImmutableIntersectionType(origObjectType,
                                                                                                  immutableObjectType);
 
-                for (Map.Entry<String, BField> entry : originalObjectFields.entrySet()) {
-                    BField originalField = entry.getValue();
-                    immutableObjectFields.put(entry.getKey(), new BField(getImmutableType(originalField.type,
+                for (Map.Entry<String, Field> entry : originalObjectFields.entrySet()) {
+                    Field originalField = entry.getValue();
+                    immutableObjectFields.put(entry.getKey(), new BField(getImmutableType(originalField.getFieldType(),
                                                                                           unresolvedTypes),
-                                                          originalField.name, originalField.flags));
+                                                          originalField.getFieldName(), originalField.getFlags()));
                 }
                 return objectIntersectionType;
             case TypeTags.ANY_TAG:

@@ -17,6 +17,8 @@
 */
 package io.ballerina.runtime.api.types;
 
+import java.util.List;
+
 /**
  * {@code BUnionType} represents a union type in Ballerina.
  *
@@ -24,4 +26,5 @@ package io.ballerina.runtime.api.types;
  */
 public interface UnionType extends Type {
 
+    List<Type> getMemberTypes();
 }

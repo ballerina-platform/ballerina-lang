@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.api.BValueCreator;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.StreamType;
+import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BStreamType;
-import io.ballerina.runtime.types.BTableType;
 
 /**
  * Native implementation of lang.internal:getElementType(typedesc).
@@ -38,13 +38,13 @@ public class GetElementType {
         BTypedesc bTypedesc = (BTypedesc) td;
         Type type = bTypedesc.getDescribingType();
         if (type.getTag() == TypeTags.ARRAY_TAG) {
-            return (BTypedesc) BValueCreator.createTypedescValue(((BArrayType) type).getElementType());
+            return ValueCreator.createTypedescValue(((ArrayType) type).getElementType());
         } else if (type.getTag() == TypeTags.STREAM_TAG) {
-            return (BTypedesc) BValueCreator.createTypedescValue(((BStreamType) type).getConstrainedType());
+            return ValueCreator.createTypedescValue(((StreamType) type).getConstrainedType());
         } else if (type.getTag() == TypeTags.TABLE_TAG) {
-            return (BTypedesc) BValueCreator.createTypedescValue(((BTableType) type).getConstrainedType());
+            return ValueCreator.createTypedescValue(((TableType) type).getConstrainedType());
         }
 
-        return (BTypedesc) BValueCreator.createTypedescValue(Types.TYPE_NULL);
+        return ValueCreator.createTypedescValue(Types.TYPE_NULL);
     }
 }

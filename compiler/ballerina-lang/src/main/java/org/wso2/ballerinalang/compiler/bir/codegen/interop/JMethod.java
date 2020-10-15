@@ -17,11 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import io.ballerina.runtime.api.BValueCreator;
-import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.Env;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.lang.reflect.Constructor;
@@ -42,7 +42,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 class JMethod {
 
     static final JMethod NO_SUCH_METHOD = new JMethod(null, null, null);
-    public static final String BAL_ENV_CANONICAL_NAME = BalEnv.class.getCanonicalName();
+    public static final String BAL_ENV_CANONICAL_NAME = Env.class.getCanonicalName();
 
     JMethodKind kind;
     private Executable method;
@@ -144,7 +144,8 @@ class JMethod {
             throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
         }
 
-        BArray arrayValue = BValueCreator.createArrayValue(new BArrayType(Types.TYPE_STRING), checkedExceptions.size());
+        BArray arrayValue = ValueCreator
+                .createArrayValue(TypeCreator.createArrayType(Types.TYPE_STRING), checkedExceptions.size());
         int i = 0;
         for (Class<?> exceptionType : checkedExceptions) {
             arrayValue.add(i++, exceptionType.getName().replace(".", "/"));

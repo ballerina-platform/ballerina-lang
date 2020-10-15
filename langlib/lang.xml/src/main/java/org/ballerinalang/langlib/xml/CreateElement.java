@@ -18,7 +18,7 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.api.values.BXMLQName;
@@ -40,7 +40,7 @@ import io.ballerina.runtime.api.values.BXMLQName;
 public class CreateElement {
 
     public static BXML createElement(BString name, BXML children) {
-        BXMLQName xmlqName = BValueCreator.createXMLQName(name);
+        BXMLQName xmlqName = ValueCreator.createXMLQName(name);
         String temp = null;
         BXML xmlElement = XMLFactory.createXMLElement(xmlqName, temp);
         xmlElement.setChildren(getChildren(children));
@@ -49,7 +49,7 @@ public class CreateElement {
 
     private static BXML getChildren(BXML children) {
         if (children == null) {
-            return BValueCreator.createXMLSequence();
+            return ValueCreator.createXMLSequence();
         }
         return children;
     }

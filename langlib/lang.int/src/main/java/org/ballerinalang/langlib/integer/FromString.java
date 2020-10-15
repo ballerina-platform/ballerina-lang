@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.integer;
 
-import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
@@ -45,8 +45,8 @@ public class FromString {
         try {
             return Long.parseLong(s.getValue());
         } catch (NumberFormatException e) {
-            return BErrorCreator.createError(getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
-                                             BLangExceptionHelper.getErrorMessage(
+            return ErrorCreator.createError(getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
+                                            BLangExceptionHelper.getErrorMessage(
                                                      RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                      Types.TYPE_STRING, s, Types.TYPE_INT));
         }

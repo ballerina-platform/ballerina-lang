@@ -17,10 +17,11 @@
  */
 package io.ballerina.runtime.api;
 
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.JSONType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -34,6 +35,7 @@ import io.ballerina.runtime.api.types.XMLType;
 import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.types.BErrorType;
 import io.ballerina.runtime.types.BField;
+import io.ballerina.runtime.types.BFiniteType;
 import io.ballerina.runtime.types.BJSONType;
 import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.types.BObjectType;
@@ -46,6 +48,7 @@ import io.ballerina.runtime.types.BXMLType;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class @{@link TypeCreator} provides apis to create ballerina type instances.
@@ -83,7 +86,7 @@ public class TypeCreator {
      * @param readonly    array type is read only or not
      * @return the new array type
      */
-    public ArrayType createArrayType(Type elementType, int size, boolean readonly) {
+    public static ArrayType createArrayType(Type elementType, int size, boolean readonly) {
         return new BArrayType(elementType, size, readonly);
     }
 
@@ -93,7 +96,7 @@ public class TypeCreator {
      * @param typeList of the tuple type
      * @return the new tuple type
      */
-    public TupleType createTupleType(List<Type> typeList) {
+    public static TupleType createTupleType(List<Type> typeList) {
         return new BTupleType(typeList);
     }
 
@@ -104,7 +107,7 @@ public class TypeCreator {
      * @param typeFlags flags associated with the type
      * @return the new tuple type
      */
-    public TupleType createTupleType(List<Type> typeList, int typeFlags) {
+    public static TupleType createTupleType(List<Type> typeList, int typeFlags) {
         return new BTupleType(typeList, typeFlags);
     }
 
@@ -117,7 +120,7 @@ public class TypeCreator {
      * @param readonly  whether immutable
      * @return the new tuple type
      */
-    public TupleType createTupleType(List<Type> typeList, Type restType, int typeFlags, boolean readonly) {
+    public static TupleType createTupleType(List<Type> typeList, Type restType, int typeFlags, boolean readonly) {
         return new BTupleType(typeList, restType, typeFlags, readonly);
     }
 
@@ -127,7 +130,7 @@ public class TypeCreator {
      * @param constraint constraint type which particular map is bound to.
      * @return the new map type
      */
-    public MapType createMapType(Type constraint) {
+    public static MapType createMapType(Type constraint) {
         return new BMapType(constraint);
     }
 
@@ -138,7 +141,7 @@ public class TypeCreator {
      * @param readonly   whether immutable
      * @return the new map type
      */
-    public MapType createMapType(Type constraint, boolean readonly) {
+    public static MapType createMapType(Type constraint, boolean readonly) {
         return new BMapType(constraint, readonly);
     }
 
@@ -147,10 +150,10 @@ public class TypeCreator {
      *
      * @param typeName   string name of the type.
      * @param constraint constraint type which particular map is bound to.
-     * @param module        package for the type.
+     * @param module     package for the type.
      * @return the new map type
      */
-    public MapType createMapType(String typeName, Type constraint, Module module) {
+    public static MapType createMapType(String typeName, Type constraint, Module module) {
         return new BMapType(typeName, constraint, module);
     }
 
@@ -159,11 +162,11 @@ public class TypeCreator {
      *
      * @param typeName   string name of the type.
      * @param constraint constraint type which particular map is bound to.
-     * @param module        package for the type.
+     * @param module     package for the type.
      * @param readonly   whether immutable
      * @return the new map type
      */
-    public MapType createMapType(String typeName, Type constraint, Module module, boolean readonly) {
+    public static MapType createMapType(String typeName, Type constraint, Module module, boolean readonly) {
         return new BMapType(typeName, constraint, module, readonly);
     }
 
@@ -171,13 +174,14 @@ public class TypeCreator {
      * Create a {@code BRecordType} which represents the user defined record type.
      *
      * @param typeName  string name of the record type
-     * @param module       package of the record type
+     * @param module    package of the record type
      * @param flags     of the record type
      * @param sealed    flag indicating the sealed status
      * @param typeFlags flags associated with the type
      * @return the new record type
      */
-    public RecordType createRecordType(String typeName, Module module, int flags, boolean sealed, int typeFlags) {
+    public static RecordType createRecordType(String typeName, Module module, int flags, boolean sealed,
+                                              int typeFlags) {
         return new BRecordType(typeName, module, flags, sealed, typeFlags);
     }
 
@@ -185,7 +189,7 @@ public class TypeCreator {
      * Create a {@code BRecordType} which represents the user defined record type.
      *
      * @param typeName      string name of the record type
-     * @param module           package of the record type
+     * @param module        package of the record type
      * @param flags         of the record type
      * @param fields        record fields
      * @param restFieldType type of the rest field
@@ -193,9 +197,9 @@ public class TypeCreator {
      * @param typeFlags     flags associated with the type
      * @return the new record type
      */
-    public RecordType createRecordType(String typeName, Module module, int flags, Map<String, BField> fields,
-                                       Type restFieldType,
-                                       boolean sealed, int typeFlags) {
+    public static RecordType createRecordType(String typeName, Module module, int flags, Map<String, Field> fields,
+                                              Type restFieldType,
+                                              boolean sealed, int typeFlags) {
         return new BRecordType(typeName, module, flags, fields, restFieldType, sealed, typeFlags);
     }
 
@@ -207,7 +211,7 @@ public class TypeCreator {
      * @param flags    object type flags
      * @return the new object type
      */
-    public ObjectType createObjectType(String typeName, Module module, int flags) {
+    public static ObjectType createObjectType(String typeName, Module module, int flags) {
         return new BObjectType(typeName, module, flags);
     }
 
@@ -217,7 +221,7 @@ public class TypeCreator {
      * @param constraint the type by which this stream is constrained
      * @return the new stream type
      */
-    public StreamType createStreamType(Type constraint) {
+    public static StreamType createStreamType(Type constraint) {
         return new BStreamType(constraint);
     }
 
@@ -226,11 +230,21 @@ public class TypeCreator {
      *
      * @param typeName   string name of the type
      * @param constraint the type by which this stream is constrained
-     * @param modulePath    package path
+     * @param modulePath package path
      * @return the new stream type
      */
-    public StreamType createStreamType(String typeName, Type constraint, Module modulePath) {
+    public static StreamType createStreamType(String typeName, Type constraint, Module modulePath) {
         return new BStreamType(typeName, constraint, modulePath);
+    }
+
+    /**
+     * Create a {@code BUnionType} which represents the union type.
+     *
+     * @param memberTypes of the union type
+     * @return the new union type
+     */
+    public static UnionType createUnionType(List<Type> memberTypes) {
+        return new BUnionType(memberTypes);
     }
 
     /**
@@ -240,7 +254,7 @@ public class TypeCreator {
      * @param typeFlags   flags associated with the type
      * @return the new union type
      */
-    public UnionType createUnionType(List<Type> memberTypes, int typeFlags) {
+    public static UnionType createUnionType(List<Type> memberTypes, int typeFlags) {
         return new BUnionType(memberTypes, typeFlags, false);
     }
 
@@ -251,7 +265,7 @@ public class TypeCreator {
      * @param readonly    whether immutable
      * @return the new union type
      */
-    public UnionType createUnionType(List<Type> memberTypes, boolean readonly) {
+    public static UnionType createUnionType(List<Type> memberTypes, boolean readonly) {
         return new BUnionType(memberTypes, readonly);
     }
 
@@ -263,7 +277,7 @@ public class TypeCreator {
      * @param readonly    whether immutable
      * @return the new union type
      */
-    public UnionType createUnionType(List<Type> memberTypes, int typeFlags, boolean readonly) {
+    public static UnionType createUnionType(List<Type> memberTypes, int typeFlags, boolean readonly) {
         return new BUnionType(memberTypes, typeFlags, readonly);
     }
 
@@ -271,10 +285,10 @@ public class TypeCreator {
      * Create a {@code ErrorType} which represents the error type.
      *
      * @param typeName type name
-     * @param module      module
+     * @param module   module
      * @return the new error type
      */
-    public ErrorType createErrorType(String typeName, Module module) {
+    public static ErrorType createErrorType(String typeName, Module module) {
         return new BErrorType(typeName, module);
     }
 
@@ -282,11 +296,11 @@ public class TypeCreator {
      * Create a {@code ErrorType} which represents the error type.
      *
      * @param typeName   type name
-     * @param module        module
+     * @param module     module
      * @param detailType detail type
      * @return the new error type
      */
-    public ErrorType createErrorType(String typeName, Module module, Type detailType) {
+    public static ErrorType createErrorType(String typeName, Module module, Type detailType) {
         return new BErrorType(typeName, module, detailType);
     }
 
@@ -298,7 +312,7 @@ public class TypeCreator {
      * @param flags     flags
      * @return new field
      */
-    public Field createField(Type fieldType, String fieldName, int flags) {
+    public static Field createField(Type fieldType, String fieldName, int flags) {
         return new BField(fieldType, fieldName, flags);
     }
 
@@ -310,7 +324,7 @@ public class TypeCreator {
      * @param readonly   whether immutable
      * @return new table type
      */
-    public TableType createTableType(Type constraint, String[] fieldNames, boolean readonly) {
+    public static TableType createTableType(Type constraint, String[] fieldNames, boolean readonly) {
         return new BTableType(constraint, fieldNames, readonly);
     }
 
@@ -322,7 +336,7 @@ public class TypeCreator {
      * @param readonly   whether immutable
      * @return new table type
      */
-    public TableType createTableType(Type constraint, Type keyType, boolean readonly) {
+    public static TableType createTableType(Type constraint, Type keyType, boolean readonly) {
         return new BTableType(constraint, keyType, readonly);
     }
 
@@ -333,7 +347,7 @@ public class TypeCreator {
      * @param readonly   whether immutable
      * @return new table type
      */
-    public TableType createTableType(Type constraint, boolean readonly) {
+    public static TableType createTableType(Type constraint, boolean readonly) {
         return new BTableType(constraint, readonly);
     }
 
@@ -342,9 +356,10 @@ public class TypeCreator {
      *
      * @param typeName   string name of the type
      * @param constraint constraint of the xml sequence
-     * @param module        module
+     * @param module     module
+     * @return new xml type
      */
-    public XMLType createXMLType(String typeName, Type constraint, Module module) {
+    public static XMLType createXMLType(String typeName, Type constraint, Module module) {
         return new BXMLType(typeName, constraint, module);
     }
 
@@ -352,11 +367,12 @@ public class TypeCreator {
      * Create a {@code BXMLType} which represents the boolean type.
      *
      * @param typeName string name of the type
-     * @param module      module
+     * @param module   module
      * @param tag      tag
      * @param readonly whether immutable
+     * @return new xml type
      */
-    public XMLType createXMLType(String typeName, Module module, int tag, boolean readonly) {
+    public static XMLType createXMLType(String typeName, Module module, int tag, boolean readonly) {
         return new BXMLType(typeName, module, tag, readonly);
     }
 
@@ -365,8 +381,9 @@ public class TypeCreator {
      *
      * @param constraint constraint of the xml sequence
      * @param readonly   whether immutable
+     * @return new xml type
      */
-    public XMLType createXMLType(Type constraint, boolean readonly) {
+    public static XMLType createXMLType(Type constraint, boolean readonly) {
         return new BXMLType(constraint, readonly);
     }
 
@@ -374,10 +391,34 @@ public class TypeCreator {
      * Create a {@code JSONType} which represents the JSON type.
      *
      * @param typeName string name of the type
-     * @param module      of the type
+     * @param module   of the type
      * @param readonly whether immutable
+     * @return new xml type
      */
-    public JSONType createJSONType(String typeName, Module module, boolean readonly) {
+    public static JSONType createJSONType(String typeName, Module module, boolean readonly) {
         return new BJSONType(typeName, module, readonly);
     }
+
+    /**
+     * Create a {@code FiniteType} which represents the finite type.
+     *
+     * @param typeName string name of the type
+     * @return new finite type
+     */
+    public static FiniteType createFiniteType(String typeName) {
+        return new BFiniteType(typeName);
+    }
+
+    /**
+     * Create a {@code FiniteType} which represents the finite type.
+     *
+     * @param typeName  string name of the type
+     * @param values    values for type
+     * @param typeFlags type flags
+     * @return new finite type
+     */
+    public static FiniteType createFiniteType(String typeName, Set<Object> values, int typeFlags) {
+        return new BFiniteType(typeName, values, typeFlags);
+    }
+
 }

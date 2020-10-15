@@ -18,13 +18,13 @@
 package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.async.Module;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.BField;
 import io.ballerina.runtime.types.BObjectType;
 import io.ballerina.runtime.util.Flags;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
@@ -103,9 +103,9 @@ public abstract class AbstractObjectValue implements ObjectValue {
     @Override
     public String expressionStringValue(BLink parent) {
         Module pkg = type.getPackage();
-        String moduleLocalName = pkg.org != null && pkg.org.equals("$anon") ||
-                pkg.name == null ? type.getName() :
-                String.valueOf(BallerinaErrorReasons.getModulePrefixedReason(pkg.name, type.getName()));
+        String moduleLocalName = pkg.getOrg() != null && pkg.getOrg().equals("$anon") ||
+                pkg.getName() == null ? type.getName() :
+                String.valueOf(BallerinaErrorReasons.getModulePrefixedReason(pkg.getName(), type.getName()));
         return "object " + moduleLocalName + " " + this.hashCode();
     }
 
@@ -152,12 +152,12 @@ public abstract class AbstractObjectValue implements ObjectValue {
     @Override
     public String toString() {
         StringJoiner sj = new StringJoiner(", ", "{", "}");
-        for (Map.Entry<String, BField> field : this.type.getFields().entrySet()) {
-            if (!Flags.isFlagOn(field.getValue().flags, Flags.PUBLIC)) {
+        for (Map.Entry<String, Field> field : this.type.getFields().entrySet()) {
+            if (!Flags.isFlagOn(field.getValue().getFlags(), Flags.PUBLIC)) {
                 continue;
             }
             String fieldName = field.getKey();
-            sj.add(fieldName + ":" + getStringValue(get(BStringUtils.fromString(fieldName))));
+            sj.add(fieldName + ":" + getStringValue(get(StringUtils.fromString(fieldName))));
         }
 
         return sj.toString();
@@ -179,15 +179,15 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     protected void checkFieldUpdate(String fieldName, Object value) {
         if (type.isReadOnly()) {
-            throw BErrorCreator.createError(
+            throw ErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_READONLY_VALUE_UPDATE));
         }
 
-        BField field = type.getFields().get(fieldName);
+        Field field = type.getFields().get(fieldName);
 
-        if (Flags.isFlagOn(field.flags, Flags.FINAL)) {
-            throw BErrorCreator.createError(
+        if (Flags.isFlagOn(field.getFlags(), Flags.FINAL)) {
+            throw ErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.OBJECT_INVALID_FINAL_FIELD_UPDATE,
                                                          fieldName, type));
@@ -196,14 +196,14 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     private void checkFieldUpdateType(String fieldName, Object value) {
-        Type fieldType = type.getFields().get(fieldName).type;
+        Type fieldType = type.getFields().get(fieldName).getFieldType();
         if (TypeChecker.checkIsType(value, fieldType)) {
             return;
         }
 
-        throw BErrorCreator.createError(getModulePrefixedReason(OBJECT_LANG_LIB,
-                                                                INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                        BStringUtils.fromString("invalid value for object field '" + fieldName +
+        throw ErrorCreator.createError(getModulePrefixedReason(OBJECT_LANG_LIB,
+                                                               INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                                       StringUtils.fromString("invalid value for object field '" + fieldName +
                                                                        "': expected value of type '" + fieldType +
                                                                        "', found '" + TypeChecker.getType(value) +
                                                                        "'"));

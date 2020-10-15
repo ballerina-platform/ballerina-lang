@@ -24,7 +24,11 @@ import io.ballerina.runtime.XMLFactory;
 import io.ballerina.runtime.XMLNodeType;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.connector.CallableUnitCallback;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.StructureType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -32,12 +36,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.observability.ObservabilityConstants;
 import io.ballerina.runtime.observability.ObserveUtils;
-import io.ballerina.runtime.api.commons;
 import io.ballerina.runtime.services.ErrorHandlerUtils;
-import io.ballerina.runtime.types.AttachedFunction;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BStructureType;
-import io.ballerina.runtime.types.TypeTags;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
 import org.ballerinalang.net.http.HttpConstants;
@@ -95,7 +94,7 @@ public class WebSocketResourceDispatcher {
         HttpResource onUpgradeResource = wsService.getUpgradeResource();
         webSocketHandshaker.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,
                                                                onUpgradeResource.getCorsHeaders());
-        AttachedFunction balResource = onUpgradeResource.getBalResource();
+        AttachedFunctionType balResource = onUpgradeResource.getBalResource();
         Object[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketHandshaker
                 .getHttpCarbonRequest(), httpEndpointConfig);
 
@@ -112,7 +111,7 @@ public class WebSocketResourceDispatcher {
 
     public static void dispatchOnOpen(WebSocketConnection webSocketConnection, BObject webSocketCaller,
                                        WebSocketServerService wsService) {
-        AttachedFunction onOpenResource = wsService.getResourceByName(RESOURCE_NAME_ON_OPEN);
+        AttachedFunctionType onOpenResource = wsService.getResourceByName(RESOURCE_NAME_ON_OPEN);
         if (onOpenResource != null) {
             executeOnOpenResource(wsService, onOpenResource, webSocketCaller, webSocketConnection);
         } else {
@@ -120,7 +119,7 @@ public class WebSocketResourceDispatcher {
         }
     }
 
-    private static void executeOnOpenResource(WebSocketService wsService, AttachedFunction onOpenResource,
+    private static void executeOnOpenResource(WebSocketService wsService, AttachedFunctionType onOpenResource,
                                               BObject webSocketEndpoint, WebSocketConnection webSocketConnection) {
         Type[] parameterTypes = onOpenResource.getParameterType();
         Object[] bValues = new Object[parameterTypes.length * 2];
@@ -151,7 +150,7 @@ public class WebSocketResourceDispatcher {
         try {
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
-            AttachedFunction onTextMessageResource = wsService.getResourceByName(RESOURCE_NAME_ON_TEXT);
+            AttachedFunctionType onTextMessageResource = wsService.getResourceByName(RESOURCE_NAME_ON_TEXT);
             if (onTextMessageResource == null) {
                 webSocketConnection.readNextFrame();
                 return;
@@ -224,9 +223,9 @@ public class WebSocketResourceDispatcher {
                     return bxml;
                 case TypeTags.RECORD_TYPE_TAG:
                     return JSONUtils.convertJSONToRecord(JSONParser.parse(aggregateString),
-                                                         (BStructureType) dataType);
+                                                         (StructureType) dataType);
                 case TypeTags.ARRAY_TAG:
-                    if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                    if (((ArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
                         return BValueCreator.createArrayValue(
                                 aggregateString.getBytes(StandardCharsets.UTF_8));
                     }
@@ -265,7 +264,7 @@ public class WebSocketResourceDispatcher {
         try {
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
-            AttachedFunction onBinaryMessageResource = wsService.getResourceByName(
+            AttachedFunctionType onBinaryMessageResource = wsService.getResourceByName(
                     RESOURCE_NAME_ON_BINARY);
             if (onBinaryMessageResource == null) {
                 webSocketConnection.readNextFrame();
@@ -306,7 +305,7 @@ public class WebSocketResourceDispatcher {
                                                     connectionInfo);
         try {
             WebSocketService wsService = connectionInfo.getService();
-            AttachedFunction onPingMessageResource = wsService.getResourceByName(
+            AttachedFunctionType onPingMessageResource = wsService.getResourceByName(
                     WebSocketConstants.RESOURCE_NAME_ON_PING);
             if (onPingMessageResource == null) {
                 pongAutomatically(controlMessage);
@@ -336,7 +335,7 @@ public class WebSocketResourceDispatcher {
         try {
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
-            AttachedFunction onPongMessageResource = wsService.getResourceByName(
+            AttachedFunctionType onPongMessageResource = wsService.getResourceByName(
                     WebSocketConstants.RESOURCE_NAME_ON_PONG);
             if (onPongMessageResource == null) {
                 webSocketConnection.readNextFrame();
@@ -366,7 +365,7 @@ public class WebSocketResourceDispatcher {
             WebSocketUtil.setListenerOpenField(connectionInfo);
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
-            AttachedFunction onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
+            AttachedFunctionType onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
             int closeCode = closeMessage.getCloseCode();
             String closeReason = closeMessage.getCloseReason();
 
@@ -430,7 +429,7 @@ public class WebSocketResourceDispatcher {
             connectionInfo.getWebSocketEndpoint().set(WebSocketConstants.LISTENER_IS_OPEN_FIELD, false);
         }
         WebSocketService webSocketService = connectionInfo.getService();
-        AttachedFunction onErrorResource = webSocketService.getResourceByName(
+        AttachedFunctionType onErrorResource = webSocketService.getResourceByName(
                 WebSocketConstants.RESOURCE_NAME_ON_ERROR);
         if (isUnexpectedError(throwable)) {
             log.error("Unexpected error", throwable);
@@ -475,7 +474,7 @@ public class WebSocketResourceDispatcher {
         try {
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
-            AttachedFunction onIdleTimeoutResource = wsService.getResourceByName(
+            AttachedFunctionType onIdleTimeoutResource = wsService.getResourceByName(
                     WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
             if (onIdleTimeoutResource == null) {
                 return;

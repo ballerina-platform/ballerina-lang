@@ -17,8 +17,6 @@
  */
 package io.ballerina.runtime.api.types;
 
-import io.ballerina.runtime.types.BObjectType;
-
 /**
  * {@code {@link AttachedFunctionType }} represents a function type in ballerina.
  *
@@ -26,5 +24,7 @@ import io.ballerina.runtime.types.BObjectType;
  */
 public interface AttachedFunctionType extends FunctionType {
 
-    BObjectType getParentObjectType();
+    ObjectType getParentObjectType();
+
+    FunctionType getType();
 }

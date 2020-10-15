@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.api.commons.StrandMetadata;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.values.FutureValue;
 
 import java.util.function.Function;

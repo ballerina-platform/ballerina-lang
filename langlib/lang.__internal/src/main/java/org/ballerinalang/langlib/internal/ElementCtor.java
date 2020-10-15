@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
@@ -42,7 +42,7 @@ public class ElementCtor {
 
     public static BXML elementCtor(BString name, BMap<BString, BString> attributeMap,
                                        BXML children) {
-        BXML xmlElement =  XMLFactory.createXMLElement(BValueCreator.createXMLQName(name), (BString) null);
+        BXML xmlElement =  XMLFactory.createXMLElement(ValueCreator.createXMLQName(name), (BString) null);
         xmlElement.setChildren(children);
         xmlElement.setAttributes(attributeMap);
         return xmlElement;

@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.scheduling.AsyncUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.api.commons.StrandMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,11 +58,11 @@ public class Filter {
             func.asyncCall(args,
                       result -> {
                           if ((Boolean) result) {
-                              return BValueCreator.createXMLSequence(x);
+                              return ValueCreator.createXMLSequence(x);
                           }
-                          return BValueCreator.createXMLSequence();
+                          return ValueCreator.createXMLSequence();
                       }, METADATA);
-            return BValueCreator.createXMLSequence();
+            return ValueCreator.createXMLSequence();
         }
 
         List<BXML> elements = new ArrayList<>();
@@ -77,9 +77,9 @@ public class Filter {
                                                            if ((Boolean) result) {
                                                                elements.add(x.getItem(index.get()));
                                                            }
-                                                       }, () -> BValueCreator.createXMLSequence(elements),
+                                                       }, () -> ValueCreator.createXMLSequence(elements),
                                                        Scheduler.getStrand().scheduler);
 
-        return BValueCreator.createXMLSequence(elements);
+        return ValueCreator.createXMLSequence(elements);
     }
 }

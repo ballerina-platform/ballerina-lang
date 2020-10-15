@@ -19,8 +19,8 @@ package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.CycleUtils;
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
@@ -396,7 +396,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     public String stringValue(BLink parent) {
         StringJoiner sj = new StringJoiner(" ");
         for (int i = 0; i < this.size; i++) {
-            sj.add(BStringUtils.getStringValue(this.refValues[i], new CycleUtils.Node(this, parent)));
+            sj.add(StringUtils.getStringValue(this.refValues[i], new CycleUtils.Node(this, parent)));
         }
         return sj.toString();
     }
@@ -405,7 +405,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     public String expressionStringValue(BLink parent) {
         StringJoiner sj = new StringJoiner(" ");
         for (int i = 0; i < this.size; i++) {
-            sj.add(BStringUtils.getExpressionStringValue(this.refValues[i], new CycleUtils.Node(this, parent)));
+            sj.add(StringUtils.getExpressionStringValue(this.refValues[i], new CycleUtils.Node(this, parent)));
         }
         return sj.toString();
     }
@@ -673,7 +673,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         if (!TypeChecker.checkIsType(value, elemType)) {
-            throw BErrorCreator.createError(
+            throw ErrorCreator.createError(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, elemType,
                                                          TypeChecker.getType(value)));

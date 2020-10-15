@@ -18,7 +18,7 @@
 package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.api.values.BXMLItem;
@@ -39,7 +39,7 @@ public class GetFilteredChildrenFlat {
     public static BXML getFilteredChildrenFlat(BXML xmlVal, long index, BString[] elemNames) {
         if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
             BXMLItem element = (BXMLItem) xmlVal;
-            return BValueCreator.createXMLSequence(filterElementChildren(index, elemNames, element));
+            return ValueCreator.createXMLSequence(filterElementChildren(index, elemNames, element));
         } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
             BXMLSequence sequence = (BXMLSequence) xmlVal;
             ArrayList<BXML> liftedFilteredChildren = new ArrayList<>();
@@ -48,10 +48,10 @@ public class GetFilteredChildrenFlat {
                     liftedFilteredChildren.addAll(filterElementChildren(index, elemNames, (BXMLItem) child));
                 }
             }
-            return BValueCreator.createXMLSequence(liftedFilteredChildren);
+            return ValueCreator.createXMLSequence(liftedFilteredChildren);
 
         }
-        return BValueCreator.createXMLSequence();
+        return ValueCreator.createXMLSequence();
     }
 
     private static List<BXML> filterElementChildren(long index, BString[] elemNames, BXMLItem element) {

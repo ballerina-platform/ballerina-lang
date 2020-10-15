@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.string;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 /**
@@ -36,6 +36,6 @@ public class Concat {
             stringBuilder.append(str[i]);
         }
 
-        return BStringUtils.fromString(stringBuilder.toString());
+        return StringUtils.fromString(stringBuilder.toString());
     }
 }

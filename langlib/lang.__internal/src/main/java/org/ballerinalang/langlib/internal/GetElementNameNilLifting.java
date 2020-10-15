@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BXML;
 
-import static io.ballerina.runtime.api.BErrorCreator.createError;
+import static io.ballerina.runtime.api.ErrorCreator.createError;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
 
 /**
@@ -40,6 +40,6 @@ public class GetElementNameNilLifting {
         }
         String nodeTypeName = xmlVal.getNodeType().value();
         return createError(XML_OPERATION_ERROR,
-                           BStringUtils.fromString("XML " + nodeTypeName + " does not contain element name"));
+                           StringUtils.fromString("XML " + nodeTypeName + " does not contain element name"));
     }
 }

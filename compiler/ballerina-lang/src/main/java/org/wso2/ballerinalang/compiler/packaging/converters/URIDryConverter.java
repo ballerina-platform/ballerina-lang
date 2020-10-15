@@ -19,7 +19,7 @@
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
 import io.ballerina.runtime.JSONParser;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
@@ -129,8 +129,8 @@ public class URIDryConverter extends URIConverter {
                         }
                         Object payload = JSONParser.parse(result.toString());
                         if (payload instanceof BMap) {
-                            BMap moduleInfo = ((BMap) payload).getMapValue(BStringUtils.fromString("module"));
-                            String version = moduleInfo.getStringValue(BStringUtils.fromString("version")).getValue();
+                            BMap moduleInfo = ((BMap) payload).getMapValue(StringUtils.fromString("module"));
+                            String version = moduleInfo.getStringValue(StringUtils.fromString("version")).getValue();
                             moduleID.version = new Name(version);
                         }
                     }

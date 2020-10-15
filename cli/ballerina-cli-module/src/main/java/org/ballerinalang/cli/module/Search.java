@@ -17,7 +17,7 @@
 package org.ballerinalang.cli.module;
 
 import io.ballerina.runtime.JSONParser;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.cli.module.util.ErrorUtil;
@@ -98,8 +98,8 @@ public class Search {
                     throw ErrorUtil.createCommandException(e.getMessage());
                 }
 
-                if (payload.getIntValue(BStringUtils.fromString("count")) > 0) {
-                    BArray modules = payload.getArrayValue(BStringUtils.fromString("modules"));
+                if (payload.getIntValue(StringUtils.fromString("count")) > 0) {
+                    BArray modules = payload.getArrayValue(StringUtils.fromString("modules"));
                     printModules(modules, terminalWidth);
                 } else {
                     outStream.println("no modules found");
@@ -118,7 +118,7 @@ public class Search {
 
                 payload = (BMap) JSONParser.parse(result.toString());
                 throw ErrorUtil.createCommandException(
-                        payload.getStringValue(BStringUtils.fromString("message")).getValue());
+                        payload.getStringValue(StringUtils.fromString("message")).getValue());
             }
         } finally {
             conn.disconnect();
@@ -172,16 +172,16 @@ public class Search {
      */
     private static void printModule(BMap module, int dateColWidth, int versionColWidth, int authorsColWidth,
             int nameColWidth, int descColWidth, int minDescColWidth) {
-        String orgName = module.getStringValue(BStringUtils.fromString("orgName")).getValue();
-        String packageName = module.getStringValue(BStringUtils.fromString("name")).getValue();
+        String orgName = module.getStringValue(StringUtils.fromString("orgName")).getValue();
+        String packageName = module.getStringValue(StringUtils.fromString("name")).getValue();
         printInCLI("|" + orgName + "/" + packageName, nameColWidth);
 
-        String summary = module.getStringValue(BStringUtils.fromString("summary")).getValue();
+        String summary = module.getStringValue(StringUtils.fromString("summary")).getValue();
 
         if (descColWidth >= minDescColWidth) {
             printInCLI(summary, descColWidth - authorsColWidth);
             String authors = "";
-            BArray authorsArr = module.getArrayValue(BStringUtils.fromString("authors"));
+            BArray authorsArr = module.getArrayValue(StringUtils.fromString("authors"));
 
             if (authorsArr.size() > 0) {
                 for (int j = 0; j < authorsArr.size(); j++) {
@@ -199,10 +199,10 @@ public class Search {
             printInCLI(summary, descColWidth);
         }
 
-        long createTimeJson = module.getIntValue(BStringUtils.fromString("createdDate"));
+        long createTimeJson = module.getIntValue(StringUtils.fromString("createdDate"));
         printInCLI(getDateCreated(createTimeJson), dateColWidth);
 
-        String packageVersion = module.getStringValue(BStringUtils.fromString("version")).getValue();
+        String packageVersion = module.getStringValue(StringUtils.fromString("version")).getValue();
         printInCLI(packageVersion, versionColWidth);
     }
 

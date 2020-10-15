@@ -18,6 +18,8 @@
 package io.ballerina.runtime.types;
 
 import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 
 import java.util.StringJoiner;
@@ -50,7 +52,7 @@ public class AttachedFunction extends BFunctionType implements AttachedFunctionT
     }
 
     @Override
-    public Type[] getParameterType() {
+    public Type[] getParameterTypes() {
         return type.paramTypes;
     }
 
@@ -65,7 +67,11 @@ public class AttachedFunction extends BFunctionType implements AttachedFunctionT
     }
 
     @Override
-    public BObjectType getParentObjectType() {
+    public ObjectType getParentObjectType() {
         return parentObjectType;
+    }
+
+    public FunctionType getType() {
+        return type;
     }
 }

@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.string;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 
@@ -39,7 +39,7 @@ public class Next {
     public static Object next(BObject m) {
         StringCharacterIterator stringCharacterIterator = (StringCharacterIterator) m.getNativeData("&iterator&");
         if (stringCharacterIterator == null) {
-            String s = ((BString) m.get(BStringUtils.fromString("m"))).getValue();
+            String s = ((BString) m.get(StringUtils.fromString("m"))).getValue();
             stringCharacterIterator = new StringCharacterIterator(s);
             m.addNativeData("&iterator&", stringCharacterIterator);
         }
@@ -47,9 +47,9 @@ public class Next {
         if (stringCharacterIterator.current() != CharacterIterator.DONE) {
             char character = stringCharacterIterator.current();
             stringCharacterIterator.next();
-            Object charAsStr = BStringUtils.fromString(String.valueOf(character));
-            return BValueCreator.createRecordValue(BValueCreator.createMapValue(Types.STRING_ITR_NEXT_RETURN_TYPE),
-                                                   charAsStr);
+            Object charAsStr = StringUtils.fromString(String.valueOf(character));
+            return ValueCreator.createRecordValue(ValueCreator.createMapValue(Types.STRING_ITR_NEXT_RETURN_TYPE),
+                                                  charAsStr);
         }
 
         return null;

@@ -17,8 +17,8 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 
@@ -29,24 +29,24 @@ import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
  */
 public class MathUtils {
 
-    private static final BString DIVIDE_BY_ZERO_ERROR = BStringUtils.fromString(" / by zero");
+    private static final BString DIVIDE_BY_ZERO_ERROR = StringUtils.fromString(" / by zero");
 
-    private static final BString INT_RANGE_OVERFLOW_ERROR = BStringUtils.fromString(" int range overflow");
+    private static final BString INT_RANGE_OVERFLOW_ERROR = StringUtils.fromString(" int range overflow");
 
     public static long divide(long numerator, long denominator) {
         try {
             if (numerator == Long.MIN_VALUE && denominator == -1) {
                 // a panic will occur on division by zero or overflow,
                 // which happens if the first operand is -2^63 and the second operand is -1
-                throw BErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
+                throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
             }
             return numerator / denominator;
         } catch (ArithmeticException e) {
             if (denominator == 0) {
-                throw BErrorCreator.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
+                throw ErrorCreator.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
             } else {
-                throw BErrorCreator.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR,
-                                                BStringUtils.fromString(e.getMessage()));
+                throw ErrorCreator.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR,
+                                               StringUtils.fromString(e.getMessage()));
             }
         }
     }
@@ -56,10 +56,10 @@ public class MathUtils {
             return numerator % denominator;
         } catch (ArithmeticException e) {
             if (denominator == 0) {
-                throw BErrorCreator.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
+                throw ErrorCreator.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, DIVIDE_BY_ZERO_ERROR);
             } else {
-                throw BErrorCreator.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR,
-                                                BStringUtils.fromString(e.getMessage()));
+                throw ErrorCreator.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR,
+                                               StringUtils.fromString(e.getMessage()));
             }
         }
     }

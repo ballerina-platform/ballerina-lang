@@ -127,4 +127,12 @@ public class BFiniteType extends BType implements FiniteType {
     public boolean isReadOnly() {
         return true;
     }
+
+    public Set<Object> getValueSpace() {
+        return valueSpace;
+    }
+
+    public int getTypeFlags() {
+        return typeFlags;
+    }
 }

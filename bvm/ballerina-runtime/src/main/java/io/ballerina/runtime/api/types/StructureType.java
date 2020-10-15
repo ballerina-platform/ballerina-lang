@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.api.types;
 
+import java.util.Map;
+
 /**
  * {@code BStructureType} represents a user defined structure type in Ballerina.
  *
@@ -24,4 +26,9 @@ package io.ballerina.runtime.api.types;
  */
 public interface StructureType extends AnnotatableType {
 
+    void setFields(Map<String, Field> fields);
+
+    Map<String, Field> getFields();
+
+    int getFlags();
 }

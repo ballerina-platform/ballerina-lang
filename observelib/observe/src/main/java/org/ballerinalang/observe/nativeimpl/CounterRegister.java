@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.observability.metrics.Counter;
 
@@ -36,7 +36,7 @@ public class CounterRegister {
             Counter registeredCounter = counter.register();
             counterObj.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, registeredCounter);
         } catch (Exception e) {
-            return BErrorCreator.createError(BStringUtils.fromString((e.getMessage())));
+            return ErrorCreator.createError(StringUtils.fromString((e.getMessage())));
         }
 
         return null;

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
@@ -73,7 +73,7 @@ public class ByteChannelUtils extends AbstractNativeChannel {
         } else {
             try {
                 byteChannel.read(content);
-                return BValueCreator.createArrayValue(getContentData(content));
+                return ValueCreator.createArrayValue(getContentData(content));
             } catch (Exception e) {
                 String msg = "error occurred while reading bytes from the channel. " + e.getMessage();
                 log.error(msg, e);

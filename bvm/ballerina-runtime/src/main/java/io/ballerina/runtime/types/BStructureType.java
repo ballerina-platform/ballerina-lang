@@ -17,7 +17,8 @@
  */
 package io.ballerina.runtime.types;
 
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.async.Module;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.StructureType;
 
 import java.util.HashMap;
@@ -30,7 +31,7 @@ import java.util.Map;
  */
 public abstract class BStructureType extends BAnnotatableType implements StructureType {
 
-    protected Map<String, BField> fields;
+    protected Map<String, Field> fields;
     public int flags;
 
     /**
@@ -57,17 +58,21 @@ public abstract class BStructureType extends BAnnotatableType implements Structu
      * @param fields structure fields
      */
     public BStructureType(String typeName, Module pkg, int flags, Class<? extends Object> valueClass,
-                          Map<String, BField> fields) {
+                          Map<String, Field> fields) {
         super(typeName, pkg, valueClass);
         this.flags = flags;
         this.fields = fields;
     }
 
-    public Map<String, BField> getFields() {
+    public Map<String, Field> getFields() {
         return fields;
     }
 
-    public void setFields(Map<String, BField> fields) {
+    public void setFields(Map<String, Field> fields) {
         this.fields = fields;
+    }
+
+    public int getFlags() {
+        return flags;
     }
 }

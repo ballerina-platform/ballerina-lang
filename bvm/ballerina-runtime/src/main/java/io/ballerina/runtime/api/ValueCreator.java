@@ -20,11 +20,13 @@ package io.ballerina.runtime.api;
 import io.ballerina.runtime.DecimalValueKind;
 import io.ballerina.runtime.JSONDataSource;
 import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.StreamType;
+import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
@@ -45,9 +47,7 @@ import io.ballerina.runtime.api.values.BXMLSequence;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.State;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.types.BField;
 import io.ballerina.runtime.types.BRecordType;
-import io.ballerina.runtime.types.BTableType;
 import io.ballerina.runtime.util.Flags;
 import io.ballerina.runtime.values.ArrayValueImpl;
 import io.ballerina.runtime.values.DecimalValue;
@@ -441,9 +441,9 @@ import javax.xml.namespace.QName;
          for (Map.Entry<String, Object> fieldEntry : valueMap.entrySet()) {
              Object val = fieldEntry.getValue();
              if (val instanceof String) {
-                 val = BStringUtils.fromString((String) val);
+                 val = StringUtils.fromString((String) val);
              }
-             record.put(BStringUtils.fromString(fieldEntry.getKey()), val);
+             record.put(StringUtils.fromString(fieldEntry.getKey()), val);
          }
 
          return record;
@@ -460,14 +460,14 @@ import javax.xml.namespace.QName;
          BRecordType recordType = (BRecordType) record.getType();
          MapValue<BString, Object> mapValue = new MapValueImpl<>(recordType);
          int i = 0;
-         for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
+         for (Map.Entry<String, Field> fieldEntry : recordType.getFields().entrySet()) {
              Object value = values[i++];
-             if (Flags.isFlagOn(fieldEntry.getValue().flags, Flags.OPTIONAL) && value == null) {
+             if (Flags.isFlagOn(fieldEntry.getValue().getFlags(), Flags.OPTIONAL) && value == null) {
                  continue;
              }
 
-             mapValue.put(BStringUtils.fromString(fieldEntry.getKey()), value instanceof String ?
-                     BStringUtils.fromString((String) value) : value);
+             mapValue.put(StringUtils.fromString(fieldEntry.getKey()), value instanceof String ?
+                     StringUtils.fromString((String) value) : value);
          }
          return mapValue;
      }
@@ -534,7 +534,7 @@ import javax.xml.namespace.QName;
       * @param tableType table type.
       * @return table value for given type.
       */
-     public static BTable createTableValue(BTableType tableType) {
+     public static BTable createTableValue(TableType tableType) {
          return new TableValueImpl(tableType);
      }
 

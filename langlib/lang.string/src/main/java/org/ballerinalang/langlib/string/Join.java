@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.string;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 import java.util.StringJoiner;
@@ -44,6 +44,6 @@ public class Join {
             String str = ((BString) strs[i]).getValue();
             stringJoiner.add(str);
         }
-        return BStringUtils.fromString(stringJoiner.toString());
+        return StringUtils.fromString(stringJoiner.toString());
     }
 }

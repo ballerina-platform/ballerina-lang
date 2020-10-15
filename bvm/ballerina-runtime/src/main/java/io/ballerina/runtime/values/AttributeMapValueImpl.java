@@ -18,8 +18,8 @@
 package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.XMLValidator;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.types.BMapType;
@@ -55,8 +55,8 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
     @Override
     public BString put(BString keyBStr, BString value) {
         if (isFrozen()) {
-            throw BErrorCreator.createError(getModulePrefixedReason(XML_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                            BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
+            throw ErrorCreator.createError(getModulePrefixedReason(XML_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
+                                           BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
         }
 
         return insertValue(keyBStr, value, false);
@@ -71,7 +71,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
         PutAttributeFunction func = onInitialization ? super::populateInitialValue : super:: put;
 
         if (localName == null || localName.isEmpty()) {
-            throw BErrorCreator.createError(BStringUtils.fromString(("localname of the attribute cannot be empty")));
+            throw ErrorCreator.createError(StringUtils.fromString(("localname of the attribute cannot be empty")));
         }
 
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
@@ -85,29 +85,29 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
         if ((namespaceUri == null && prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE))
                 || localName.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             String nsNameDecl = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + localName;
-            func.put(BStringUtils.fromString(nsNameDecl), BStringUtils.fromString(value));
+            func.put(StringUtils.fromString(nsNameDecl), StringUtils.fromString(value));
             return;
         }
 
-        BString nsOfPrefix = get(BStringUtils.fromString(XMLNS_URL_PREFIX + prefix));
+        BString nsOfPrefix = get(StringUtils.fromString(XMLNS_URL_PREFIX + prefix));
         if (namespaceUri != null && nsOfPrefix != null && !namespaceUri.equals(nsOfPrefix.getValue())) {
             String errorMsg = String.format(
                     "failed to add attribute '%s:%s'. prefix '%s' is already bound to namespace '%s'",
                     prefix, localName, prefix, nsOfPrefix.getValue());
-            throw BErrorCreator.createError(BStringUtils.fromString((errorMsg)));
+            throw ErrorCreator.createError(StringUtils.fromString((errorMsg)));
         }
 
         if ((namespaceUri == null || namespaceUri.isEmpty())) {
-            func.put(BStringUtils.fromString(localName), BStringUtils.fromString(value));
+            func.put(StringUtils.fromString(localName), StringUtils.fromString(value));
         } else {
             // If the attribute already exists, update the value.
-            func.put(BStringUtils.fromString("{" + namespaceUri + "}" + localName), BStringUtils.fromString(value));
+            func.put(StringUtils.fromString("{" + namespaceUri + "}" + localName), StringUtils.fromString(value));
         }
 
         // If the prefix is 'xmlns' then this is a namespace addition
         if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             String xmlnsPrefix = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + prefix;
-            func.put(BStringUtils.fromString(xmlnsPrefix), BStringUtils.fromString(namespaceUri));
+            func.put(StringUtils.fromString(xmlnsPrefix), StringUtils.fromString(namespaceUri));
         }
     }
 
@@ -124,13 +124,13 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
         }
 
         if (localName.isEmpty()) {
-            throw BErrorCreator.createError(BStringUtils.fromString(("localname of the attribute cannot be empty")));
+            throw ErrorCreator.createError(StringUtils.fromString(("localname of the attribute cannot be empty")));
         }
 
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
         XMLValidator.validateXMLName(localName);
 
-        BString keyToInsert = namespaceUri.isEmpty() ? BStringUtils.fromString(localName) : keyBStr;
+        BString keyToInsert = namespaceUri.isEmpty() ? StringUtils.fromString(localName) : keyBStr;
 
         if (!onInitialization) {
             return super.put(keyToInsert, value);

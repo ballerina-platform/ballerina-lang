@@ -20,7 +20,7 @@ package io.ballerina.runtime.types;
 import io.ballerina.runtime.IdentifierUtils;
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
@@ -114,8 +114,9 @@ public abstract class BType implements Type {
                 return false;
             }
 
-            if (thisModule.version == null || otherModule.version == null) {
-                return thisModule.org.equals(otherModule.org) && thisModule.name.equals(otherModule.name);
+            if (thisModule.getVersion() == null || otherModule.getVersion() == null) {
+                return thisModule.getOrg().equals(otherModule.getOrg()) &&
+                        thisModule.getName().equals(otherModule.getName());
             }
 
             return thisModule.equals(otherModule);
@@ -179,5 +180,9 @@ public abstract class BType implements Type {
 
     private boolean hasAllNullConstituents(Module module) {
         return module.getOrg() == null && module.getName() == null && module.getVersion() == null;
+    }
+
+    public Module getPkg() {
+        return pkg;
     }
 }

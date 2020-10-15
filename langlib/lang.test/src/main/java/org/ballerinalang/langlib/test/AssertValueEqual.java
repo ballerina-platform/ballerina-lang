@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.test;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 /**
@@ -31,10 +31,10 @@ import io.ballerina.runtime.api.values.BString;
 public class AssertValueEqual {
     public static void assertValueEqual(Object expected, Object actual) {
         if (!TypeChecker.isEqual(expected, actual)) {
-            BString reason = BStringUtils.fromString("{ballerina/lang.test}AssertionError");
-            BString msg = BStringUtils
+            BString reason = StringUtils.fromString("{ballerina/lang.test}AssertionError");
+            BString msg = StringUtils
                     .fromString("expected " + expected.toString() + " but found " + actual.toString());
-            throw BErrorCreator.createError(reason, msg);
+            throw ErrorCreator.createError(reason, msg);
         }
     }
 }

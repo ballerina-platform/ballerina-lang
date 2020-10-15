@@ -19,16 +19,17 @@
 package org.ballerinalang.langlib.array;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BFunctionType;
-import io.ballerina.runtime.types.BUnionType;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -49,7 +50,7 @@ public class Sort {
     public static BArray sort(BArray arr, Object direction, Object func) {
         checkIsArrayOnlyOperation(arr.getType(), "sort()");
         BFunctionPointer<Object, Object> function = (BFunctionPointer<Object, Object>) func;
-        Type elemType = ((BArrayType) arr.getType()).getElementType();
+        Type elemType = ((ArrayType) arr.getType()).getElementType();
         boolean isAscending = true;
         if (direction.toString().equals("descending")) {
             isAscending = false;
@@ -59,12 +60,12 @@ public class Sort {
         Object[][] sortArrClone = new Object[arr.size()][2];
         if (function != null) {
             boolean elementTypeIdentified = false;
-            elemType = ((BFunctionType) function.getType()).retType;
+            elemType = ((FunctionType) function.getType()).getReturnType();
             for (int i = 0; i < arr.size(); i++) {
                 sortArr[i][0] = function.call(new Object[]{Scheduler.getStrand(), arr.get(i), true});
                 // Get the type of the sortArr elements when there is an arrow expression as the key function
                 if (!elementTypeIdentified && elemType.getTag() == TypeTags.UNION_TAG &&
-                        ((BUnionType) elemType).getMemberTypes().size() > 2) {
+                        ((UnionType) elemType).getMemberTypes().size() > 2) {
                     Type sortArrElemType = TypeChecker.getType(sortArr[i][0]);
                     if (sortArrElemType.getTag() != TypeTags.NULL_TAG) {
                         elemType = sortArrElemType;
@@ -80,13 +81,13 @@ public class Sort {
         }
 
         if (elemType.getTag() == TypeTags.UNION_TAG) {
-            elemType = getMemberType((BUnionType) elemType);
+            elemType = getMemberType((UnionType) elemType);
         }
         if (elemType.getTag() == TypeTags.ARRAY_TAG) {
-            Type type = ((BArrayType) elemType).getElementType();
+            Type type = ((ArrayType) elemType).getElementType();
             if (type.getTag() == TypeTags.UNION_TAG) {
-                Type memberType = getMemberType((BUnionType) type);
-                elemType = new BArrayType(memberType);
+                Type memberType = getMemberType((UnionType) type);
+                elemType = TypeCreator.createArrayType(memberType);
             }
         }
 
@@ -99,7 +100,7 @@ public class Sort {
         return arr;
     }
 
-    private static Type getMemberType(BUnionType unionType) {
+    private static Type getMemberType(UnionType unionType) {
         List<Type> memberTypes = unionType.getMemberTypes();
         for (Type type : memberTypes) {
             if (type.getTag() != TypeTags.NULL_TAG) {
@@ -211,7 +212,7 @@ public class Sort {
             int c = 0;
             for (int i = 0; i < len; i++) {
                 c = sortFunc(((BArray) value1).get(i), ((BArray) value2).get(i),
-                        ((BArrayType) type).getElementType(), isAscending);
+                        ((ArrayType) type).getElementType(), isAscending);
                 if (c != 0) {
                     break;
                 } else {
@@ -222,8 +223,8 @@ public class Sort {
             }
             return c;
         }
-        throw BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
-                                        BStringUtils.fromString("expected an ordered type, but found '" +
+        throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
+                                       StringUtils.fromString("expected an ordered type, but found '" +
                                                                        type.toString() + "'"));
     }
 

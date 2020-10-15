@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.value;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 /**
@@ -28,6 +28,6 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class ToString {
     public static BString toString(Object value) {
-        return BStringUtils.fromString(BStringUtils.getStringValue(value, null));
+        return StringUtils.fromString(StringUtils.getStringValue(value, null));
     }
 }

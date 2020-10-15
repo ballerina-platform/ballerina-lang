@@ -16,8 +16,8 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BXMLQName;
 import io.ballerina.runtime.values.XMLQName;
 
@@ -285,7 +285,7 @@ public class XMLValidator {
      */
     public static void validateXMLName(String name) {
         if (name != null && !isValid(name)) {
-            throw BErrorCreator.createError(BStringUtils.fromString(("invalid xml qualified name: unsupported " +
+            throw ErrorCreator.createError(StringUtils.fromString(("invalid xml qualified name: unsupported " +
                     "characters in '" + name + "'")));
         }
     }

@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.stdlib.task.utils;
 
-import io.ballerina.runtime.api.BRuntime;
-import io.ballerina.runtime.api.commons.StrandMetadata;
-import io.ballerina.runtime.types.AttachedFunction;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 
 import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
@@ -37,17 +37,17 @@ public class TaskExecutor {
             new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, PACKAGE_VERSION, RESOURCE_ON_TRIGGER);
 
     public static void executeFunction(ServiceInformation serviceInformation) {
-        AttachedFunction onTriggerFunction = serviceInformation.getOnTriggerFunction();
+        AttachedFunctionType onTriggerFunction = serviceInformation.getOnTriggerFunction();
         Object[] onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceInformation);
 
-        BRuntime runtime = serviceInformation.getRuntime();
+        Runtime runtime = serviceInformation.getRuntime();
         runtime.invokeMethodAsync(serviceInformation.getService(), RESOURCE_ON_TRIGGER, null, TASK_METADATA, null,
                                   onTriggerFunctionArgs);
     }
 
-    private static Object[] getParameterList(AttachedFunction function, ServiceInformation serviceInformation) {
+    private static Object[] getParameterList(AttachedFunctionType function, ServiceInformation serviceInformation) {
         Object[] attachments = serviceInformation.getAttachment();
-        int numberOfParameters = function.type.paramTypes.length;
+        int numberOfParameters = function.getType().getParameterTypes().length;
         Object[] parameters = null;
         if (numberOfParameters == attachments.length) {
             int i = 0;

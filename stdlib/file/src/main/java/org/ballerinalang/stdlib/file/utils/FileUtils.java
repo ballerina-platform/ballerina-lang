@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.stdlib.file.utils;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -43,7 +43,7 @@ import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeZoneRecord;
  */
 public class FileUtils {
 
-    private static final BString UNKNOWN_MESSAGE = BStringUtils.fromString("Unknown Error");
+    private static final BString UNKNOWN_MESSAGE = StringUtils.fromString("Unknown Error");
 
     /**
      * Returns error object for input reason.
@@ -56,7 +56,7 @@ public class FileUtils {
      * @return Ballerina error object.
      */
     public static BError getBallerinaError(String error, Throwable ex) {
-        BString errorMsg = error != null && ex.getMessage() != null ? BStringUtils.fromString(ex.getMessage()) :
+        BString errorMsg = error != null && ex.getMessage() != null ? StringUtils.fromString(ex.getMessage()) :
                 UNKNOWN_MESSAGE;
         return getBallerinaError(error, errorMsg);
     }
@@ -70,7 +70,7 @@ public class FileUtils {
      * @return Ballerina error object.
      */
     public static BError getBallerinaError(String error, BString message) {
-        return BErrorCreator.createDistinctError(error, FILE_PACKAGE_ID, message != null ?
+        return ErrorCreator.createDistinctError(error, FILE_PACKAGE_ID, message != null ?
                 message : UNKNOWN_MESSAGE);
     }
 
@@ -79,12 +79,12 @@ public class FileUtils {
         FileTime lastModified = Files.getLastModifiedTime(inputFile.toPath());
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
-                                                lastModified.toMillis(), BStringUtils
+                                                lastModified.toMillis(), StringUtils
                                                         .fromString(zonedDateTime.getZone().toString()));
-        return BValueCreator.createObjectValue(FILE_PACKAGE_ID, FILE_INFO_TYPE,
-                                               BStringUtils.fromString(inputFile.getName()), inputFile.length(),
-                                               lastModifiedInstance,
-                                               inputFile.isDirectory(), BStringUtils
+        return ValueCreator.createObjectValue(FILE_PACKAGE_ID, FILE_INFO_TYPE,
+                                              StringUtils.fromString(inputFile.getName()), inputFile.length(),
+                                              lastModifiedInstance,
+                                              inputFile.isDirectory(), StringUtils
                                                        .fromString(inputFile.getAbsolutePath()));
     }
 

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.taintchecking;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -47,7 +47,7 @@ public class FunctionCallTest {
 
     @Test
     public void testFuncCall() {
-        BRunUtil.invoke(result, "main", new Object[]{1L, BStringUtils.fromString("str"), true, false});
+        BRunUtil.invoke(result, "main", new Object[]{1L, StringUtils.fromString("str"), true, false});
     }
 
     @Test(groups = "disableOnOldParser")

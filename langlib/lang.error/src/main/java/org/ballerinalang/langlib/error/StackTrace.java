@@ -17,11 +17,14 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.Module;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -31,10 +34,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.types.AttachedFunction;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BField;
-import io.ballerina.runtime.types.BObjectType;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,10 +51,13 @@ public class StackTrace {
 
     public static BObject stackTrace(BError value) {
 
-        BObjectType callStackObjType = new BObjectType("CallStack", new Module("ballerina", "lang.error", null), 0);
-        callStackObjType.setAttachedFunctions(new AttachedFunction[]{});
-        callStackObjType.setFields(
-                Collections.singletonMap("callStack", new BField(new BArrayType(Types.TYPE_ANY), null, 0)));
+        ObjectType callStackObjType = TypeCreator
+                .createObjectType("CallStack", new Module("ballerina", "lang.error", null), 0);
+        callStackObjType.setAttachedFunctions(new AttachedFunctionType[]{});
+        callStackObjType
+                .setFields(Collections.singletonMap("callStack",
+                                                    TypeCreator.createField(TypeCreator.createArrayType(Types.TYPE_ANY),
+                                                                            null, 0)));
 
         CallStack callStack = new CallStack(callStackObjType);
         callStack.callStack = getCallStackArray(value.getStackTrace());
@@ -64,13 +66,13 @@ public class StackTrace {
     }
 
     private static BArray getCallStackArray(StackTraceElement[] stackTrace) {
-        Type recordType = BValueCreator
+        Type recordType = ValueCreator
                 .createRecordValue(BALLERINA_LANG_ERROR_PKG_ID, CALL_STACK_ELEMENT).getType();
         Object[] array = new Object[stackTrace.length];
         for (int i = 0; i < stackTrace.length; i++) {
             array[i] = getStackFrame(stackTrace[i]);
         }
-        return BValueCreator.createArrayValue(array, new BArrayType(recordType));
+        return ValueCreator.createArrayValue(array, TypeCreator.createArrayType(recordType));
     }
 
     static BMap<BString, Object> getStackFrame(StackTraceElement stackTraceElement) {
@@ -79,8 +81,8 @@ public class StackTrace {
         values[1] = stackTraceElement.getClassName();
         values[2] = stackTraceElement.getFileName();
         values[3] = stackTraceElement.getLineNumber();
-        return BValueCreator.createRecordValue(
-                BValueCreator.createRecordValue(BALLERINA_LANG_ERROR_PKG_ID, CALL_STACK_ELEMENT), values);
+        return ValueCreator.createRecordValue(
+                ValueCreator.createRecordValue(BALLERINA_LANG_ERROR_PKG_ID, CALL_STACK_ELEMENT), values);
     }
 
     /**
@@ -90,20 +92,20 @@ public class StackTrace {
 
         BArray callStack;
 
-        private BObjectType type;
+        private ObjectType type;
 
-        public CallStack(BObjectType type) {
+        public CallStack(ObjectType type) {
             this.type = type;
         }
 
         @Override
         public Object call(Strand strand, String funcName, Object... args) {
-            throw BErrorCreator.createError(BStringUtils.fromString("No such field or method: " + funcName));
+            throw ErrorCreator.createError(StringUtils.fromString("No such field or method: " + funcName));
         }
 
         @Override
         public BFuture start(Strand strand, String funcName, Object... args) {
-            throw BErrorCreator.createError(BStringUtils.fromString("No such field or method: " + funcName));
+            throw ErrorCreator.createError(StringUtils.fromString("No such field or method: " + funcName));
         }
 
         @Override
@@ -117,7 +119,7 @@ public class StackTrace {
         }
 
         @Override
-        public BObjectType getType() {
+        public ObjectType getType() {
             return type;
         }
 
@@ -126,7 +128,7 @@ public class StackTrace {
             if (fieldName.getValue().equals("callStack")) {
                 return callStack;
             }
-            throw BErrorCreator.createError(BStringUtils.fromString("No such field or method: callStack"));
+            throw ErrorCreator.createError(StringUtils.fromString("No such field or method: callStack"));
         }
 
         @Override
@@ -181,7 +183,7 @@ public class StackTrace {
 
         @Override
         public void set(BString fieldName, Object value) {
-            throw BErrorCreator.createError(BStringUtils.fromString("No such field or method: callStack"));
+            throw ErrorCreator.createError(StringUtils.fromString("No such field or method: callStack"));
         }
 
         @Override

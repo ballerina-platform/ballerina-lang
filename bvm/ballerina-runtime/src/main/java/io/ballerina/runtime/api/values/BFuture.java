@@ -17,7 +17,7 @@
   */
  package io.ballerina.runtime.api.values;
 
- import io.ballerina.runtime.api.connector.CallableUnitCallback;
+ import io.ballerina.runtime.api.async.CallableUnitCallback;
  import io.ballerina.runtime.scheduling.Strand;
 
  /**

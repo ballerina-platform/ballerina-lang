@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BString;
@@ -92,7 +92,7 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
                               BField[] structFields) throws XMLStreamException {
         boolean isArray = false;
         xmlStreamWriter.writeStartElement("", name, "");
-        BString key = BStringUtils.fromString(name);
+        BString key = StringUtils.fromString(name);
         String value = null;
         switch (type) {
             case TypeTags.BOOLEAN_TAG:
@@ -162,7 +162,7 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
                     .values().toArray(new BField[0]);
             if (internalStructFields != null) {
                 for (int i = 0; i < internalStructFields.length; i++) {
-                    BString internalKeyName = BStringUtils.fromString(internalStructFields[i].name);
+                    BString internalKeyName = StringUtils.fromString(internalStructFields[i].name);
                     Object val = structData.get(internalKeyName);
                     xmlStreamWriter.writeStartElement("", internalStructFields[i].getFieldName(), "");
                     if (val instanceof MapValueImpl) {

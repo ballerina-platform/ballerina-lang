@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.langlib.java;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.util.BLangConstants;
 import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
@@ -52,15 +52,15 @@ public class JavaUtils {
         String name = namebStr.getValue();
         Class<?> clazz = getPrimitiveTypeClass(name);
         if (clazz != null) {
-            return BValueCreator.createHandleValue(clazz);
+            return ValueCreator.createHandleValue(clazz);
         }
 
         try {
             clazz = Class.forName(name);
-            return BValueCreator.createHandleValue(clazz);
+            return ValueCreator.createHandleValue(clazz);
         } catch (ClassNotFoundException e) {
-            return BErrorCreator.createDistinctError(BallerinaErrorReasons.JAVA_CLASS_NOT_FOUND_ERROR,
-                                                     JAVA_PACKAGE_ID, BStringUtils.fromString(name));
+            return ErrorCreator.createDistinctError(BallerinaErrorReasons.JAVA_CLASS_NOT_FOUND_ERROR,
+                                                    JAVA_PACKAGE_ID, StringUtils.fromString(name));
         }
     }
 

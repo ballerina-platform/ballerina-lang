@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.scheduling.AsyncUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.api.commons.StrandMetadata;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.JSONParser;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 
@@ -40,8 +40,8 @@ public class FromJsonString {
         try {
             return JSONParser.parse(str);
         } catch (BallerinaException e) {
-            return BErrorCreator.createError(BStringUtils.fromString("{ballerina/lang.value}FromJsonStringError"),
-                                             BStringUtils.fromString(e.getMessage()));
+            return ErrorCreator.createError(StringUtils.fromString("{ballerina/lang.value}FromJsonStringError"),
+                                            StringUtils.fromString(e.getMessage()));
         }
     }
 }

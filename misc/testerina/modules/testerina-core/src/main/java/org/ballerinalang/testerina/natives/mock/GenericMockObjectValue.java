@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BLink;
@@ -24,8 +26,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.types.BObjectType;
-import io.ballerina.runtime.types.BRecordType;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
@@ -41,9 +41,9 @@ public class GenericMockObjectValue implements BObject {
 
     private BObject mockObj;
 
-    private BObjectType type;
+    private ObjectType type;
 
-    public GenericMockObjectValue(BObjectType type, BObject mockObj) {
+    public GenericMockObjectValue(ObjectType type, BObject mockObj) {
         this.type = type;
         this.mockObj = mockObj;
     }
@@ -158,7 +158,7 @@ public class GenericMockObjectValue implements BObject {
     }
 
     @Override
-    public BObjectType getType() {
+    public ObjectType getType() {
         return type;
     }
 
@@ -184,7 +184,7 @@ public class GenericMockObjectValue implements BObject {
         // 2) add case for function with ANY specified for objects and records
         for (Object arg : args) {
             caseId.append("-");
-            if (arg instanceof BObject || arg instanceof BRecordType) {
+            if (arg instanceof BObject || arg instanceof RecordType) {
                 caseId.append(MockRegistry.ANY);
             } else {
                 caseId.append(arg);

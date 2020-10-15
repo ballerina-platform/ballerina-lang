@@ -18,11 +18,11 @@
 package org.ballerinalang.stdlib.io.utils;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
@@ -54,7 +54,7 @@ public class Utils {
 
     private static BError createBase64Error(String errorType, String msg, boolean isMimeSpecific) {
         if (isMimeSpecific) {
-            return BErrorCreator.createDistinctError(errorType, PACKAGE_ID_MIME, BStringUtils.fromString(msg));
+            return ErrorCreator.createDistinctError(errorType, PACKAGE_ID_MIME, StringUtils.fromString(msg));
         }
         return IOUtils.createError(IOConstants.ErrorCode.GenericError, msg);
     }
@@ -191,7 +191,7 @@ public class Utils {
             }
             InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
             Base64ByteChannel decodedByteChannel = new Base64ByteChannel(encodedStream);
-            byteChannelObj = BValueCreator.createObjectValue(IOConstants.IO_PACKAGE_ID, STRUCT_TYPE);
+            byteChannelObj = ValueCreator.createObjectValue(IOConstants.IO_PACKAGE_ID, STRUCT_TYPE);
             byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(decodedByteChannel));
             return byteChannelObj;
         } catch (IOException e) {
@@ -218,7 +218,7 @@ public class Utils {
             }
             InputStream decodedStream = new ByteArrayInputStream(decodedByteArray);
             Base64ByteChannel decodedByteChannel = new Base64ByteChannel(decodedStream);
-            byteChannelObj = BValueCreator.createObjectValue(IOConstants.IO_PACKAGE_ID, STRUCT_TYPE);
+            byteChannelObj = ValueCreator.createObjectValue(IOConstants.IO_PACKAGE_ID, STRUCT_TYPE);
             byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(decodedByteChannel));
             return byteChannelObj;
         } catch (IOException e) {
@@ -240,7 +240,7 @@ public class Utils {
         } else {
             encodedContent = Base64.getEncoder().encode(bytes);
         }
-        return BValueCreator.createArrayValue(encodedContent);
+        return ValueCreator.createArrayValue(encodedContent);
     }
 
     /**
@@ -257,6 +257,6 @@ public class Utils {
         } else {
             decodedContent = Base64.getDecoder().decode(encodedContent);
         }
-        return BValueCreator.createArrayValue(decodedContent);
+        return ValueCreator.createArrayValue(decodedContent);
     }
 }

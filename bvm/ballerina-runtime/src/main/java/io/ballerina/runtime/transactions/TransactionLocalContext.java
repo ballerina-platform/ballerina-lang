@@ -17,7 +17,7 @@
 */
 package io.ballerina.runtime.transactions;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.scheduling.Strand;
 
@@ -62,7 +62,7 @@ public class TransactionLocalContext {
         this.transactionFailure = new Stack<>();
         this.rollbackOnlyError = null;
         this.isTransactional = true;
-        this.transactionId = BValueCreator.createArrayValue(globalTransactionId.getBytes());
+        this.transactionId = ValueCreator.createArrayValue(globalTransactionId.getBytes());
         transactionResourceManager.transactionInfoMap.put(transactionId, infoRecord);
     }
 

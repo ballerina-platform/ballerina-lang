@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 
 import static io.ballerina.runtime.MapUtils.checkIsMapOnlyOperation;
@@ -38,8 +38,8 @@ public class RemoveAll {
         try {
             m.clear();
         } catch (io.ballerina.runtime.util.exceptions.BLangFreezeException e) {
-            throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
-                                            BStringUtils.fromString("Failed to clear map: " + e.getDetail()));
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
+                                           StringUtils.fromString("Failed to clear map: " + e.getDetail()));
         }
     }
 }

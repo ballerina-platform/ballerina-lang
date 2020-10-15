@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.string;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 
 /**
@@ -37,9 +37,9 @@ public class FromCodePointInts {
                 codePoint = (int) codePoints.getInt(i);
                 builder.appendCodePoint(codePoint);
             }
-            return BStringUtils.fromString(builder.toString());
+            return StringUtils.fromString(builder.toString());
         } catch (IllegalArgumentException e) {
-            return BErrorCreator.createError(BStringUtils.fromString("Invalid codepoint: " + codePoint));
+            return ErrorCreator.createError(StringUtils.fromString("Invalid codepoint: " + codePoint));
         }
     }
 }

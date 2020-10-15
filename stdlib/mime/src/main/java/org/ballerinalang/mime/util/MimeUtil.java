@@ -19,11 +19,12 @@
 package org.ballerinalang.mime.util;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
@@ -191,17 +192,17 @@ public class MimeUtil {
     public static BObject parseMediaType(BObject mediaType, String contentType) {
         try {
             BMap<BString, Object> parameterMap =
-                   BValueCreator.createMapValue(new io.ballerina.runtime.types.BMapType(Types.TYPE_STRING));
+                   ValueCreator.createMapValue(TypeCreator.createMapType(Types.TYPE_STRING));
             BString suffix, primaryType, subType;
 
             if (contentType != null) {
                 MimeType mimeType = new MimeType(contentType);
-                primaryType = BStringUtils.fromString(mimeType.getPrimaryType());
+                primaryType = StringUtils.fromString(mimeType.getPrimaryType());
 
                 String subTypeStr = mimeType.getSubType();
-                subType = BStringUtils.fromString(subTypeStr);
+                subType = StringUtils.fromString(subTypeStr);
                 if (subTypeStr != null && subTypeStr.contains(SUFFIX_ATTACHMENT)) {
-                    suffix = BStringUtils.fromString(
+                    suffix = StringUtils.fromString(
                             subTypeStr.substring(subTypeStr.lastIndexOf(SUFFIX_ATTACHMENT) + 1));
                 } else {
                     suffix = Types.TYPE_STRING.getZeroValue();
@@ -212,8 +213,8 @@ public class MimeUtil {
 
                 while (keys.hasMoreElements()) {
                     String key = (String) keys.nextElement();
-                    BString value = BStringUtils.fromString(parameterList.get(key));
-                    parameterMap.put(BStringUtils.fromString(key), value);
+                    BString value = StringUtils.fromString(parameterList.get(key));
+                    parameterMap.put(StringUtils.fromString(key), value);
                 }
             } else {
                 primaryType = suffix = subType = Types.TYPE_STRING.getZeroValue();
@@ -230,7 +231,7 @@ public class MimeUtil {
     }
 
     public static void setMediaTypeToEntity(BObject entityStruct, String contentType) {
-        BObject mediaType = BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
+        BObject mediaType = ValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
         MimeUtil.setContentType(mediaType, entityStruct, contentType);
         HeaderUtil.setHeaderToEntity(entityStruct, CONTENT_TYPE, contentType);
     }
@@ -257,7 +258,7 @@ public class MimeUtil {
             } else {
                 dispositionValue = contentDispositionHeaderWithParams;
             }
-            contentDisposition.set(DISPOSITION_FIELD, BStringUtils
+            contentDisposition.set(DISPOSITION_FIELD, StringUtils
                     .fromString(dispositionValue));
             BMap<BString, Object> paramMap = HeaderUtil.getParamMap(contentDispositionHeaderWithParams);
             for (BString key : paramMap.getKeys()) {
@@ -272,8 +273,8 @@ public class MimeUtil {
                     default:
                 }
             }
-            paramMap.remove(BStringUtils.fromString(CONTENT_DISPOSITION_FILE_NAME));
-            paramMap.remove(BStringUtils.fromString(CONTENT_DISPOSITION_NAME));
+            paramMap.remove(StringUtils.fromString(CONTENT_DISPOSITION_FILE_NAME));
+            paramMap.remove(StringUtils.fromString(CONTENT_DISPOSITION_NAME));
             contentDisposition.set(CONTENT_DISPOSITION_PARA_MAP_FIELD, paramMap);
         }
     }
@@ -457,7 +458,7 @@ public class MimeUtil {
      * @return Ballerina error value
      */
     public static BError createError(String errorTypeName, String errMsg) {
-        return BErrorCreator.createDistinctError(errorTypeName, PROTOCOL_MIME_PKG_ID, BStringUtils
+        return ErrorCreator.createDistinctError(errorTypeName, PROTOCOL_MIME_PKG_ID, StringUtils
                 .fromString(errMsg));
     }
 
@@ -470,7 +471,7 @@ public class MimeUtil {
      * @return Ballerina error value
      */
     public static BError createError(String errorTypeName, String errMsg, BError bError) {
-        return BErrorCreator.createDistinctError(errorTypeName, PROTOCOL_MIME_PKG_ID, BStringUtils
+        return ErrorCreator.createDistinctError(errorTypeName, PROTOCOL_MIME_PKG_ID, StringUtils
                 .fromString(errMsg), bError);
     }
 
@@ -500,11 +501,11 @@ public class MimeUtil {
             }
             return (String) dataSource;
         } else if (type.getTag() == TypeTags.ARRAY_TAG &&
-                ((io.ballerina.runtime.types.BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                ((io.ballerina.runtime.api.types.ArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
             return new String(((BArray) dataSource).getBytes(), StandardCharsets.UTF_8);
         }
 
-        return BStringUtils.getJsonString(dataSource);
+        return StringUtils.getJsonString(dataSource);
     }
 
     /**

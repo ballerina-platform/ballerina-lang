@@ -20,16 +20,17 @@ package org.ballerinalang.mime.util;
 
 import io.ballerina.runtime.JSONParser;
 import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BObjectType;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
@@ -73,8 +74,8 @@ public class EntityBodyHandler {
 
     private static final Logger log = LoggerFactory.getLogger(EntityBodyHandler.class);
     private static final Type MIME_ENTITY_TYPE =
-            BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY).getType();
-    private static final BArrayType mimeEntityArrayType = new BArrayType(MIME_ENTITY_TYPE);
+            ValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY).getType();
+    private static final ArrayType mimeEntityArrayType = TypeCreator.createArrayType(MIME_ENTITY_TYPE);
 
     /**
      * Get a byte channel for a given text data.
@@ -155,7 +156,7 @@ public class EntityBodyHandler {
     public static BArray constructBlobDataSource(BObject entityObj) throws IOException {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
-            return (BArray) BValueCreator.createArrayValue(new byte[0]);
+            return (BArray) ValueCreator.createArrayValue(new byte[0]);
         }
         try {
             return constructBlobDataSource(byteChannel.getInputStream());
@@ -175,10 +176,10 @@ public class EntityBodyHandler {
         try {
             byteData = MimeUtil.getByteArray(inputStream);
         } catch (IOException ex) {
-            throw BErrorCreator.createError(BStringUtils.fromString(("Error occurred while reading input stream :" +
+            throw ErrorCreator.createError(StringUtils.fromString(("Error occurred while reading input stream :" +
                     ex.getMessage())));
         }
-        return (BArray) BValueCreator.createArrayValue(byteData);
+        return (BArray) ValueCreator.createArrayValue(byteData);
     }
 
     /**
@@ -195,7 +196,7 @@ public class EntityBodyHandler {
         try {
             return constructJsonDataSource(entityObj, byteChannel.getInputStream());
         } catch (IOException e) {
-            throw BErrorCreator.createError(BStringUtils.fromString((e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString((e.getMessage())));
         } finally {
             closeByteChannel(byteChannel);
         }
@@ -233,12 +234,12 @@ public class EntityBodyHandler {
     public static BXML constructXmlDataSource(BObject entityObj) {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
-            throw BErrorCreator.createError(BStringUtils.fromString(("Empty xml payload")));
+            throw ErrorCreator.createError(StringUtils.fromString(("Empty xml payload")));
         }
         try {
             return constructXmlDataSource(entityObj, byteChannel.getInputStream());
         } catch (IOException e) {
-            throw BErrorCreator.createError(BStringUtils.fromString((e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString((e.getMessage())));
         } finally {
             closeByteChannel(byteChannel);
         }
@@ -276,12 +277,12 @@ public class EntityBodyHandler {
     public static BString constructStringDataSource(BObject entityObj) {
         Channel byteChannel = getByteChannel(entityObj);
         if (byteChannel == null) {
-            throw BErrorCreator.createError(BStringUtils.fromString(("String payload is null")));
+            throw ErrorCreator.createError(StringUtils.fromString(("String payload is null")));
         }
         try {
             return constructStringDataSource(entityObj, byteChannel.getInputStream());
         } catch (IOException e) {
-            throw BErrorCreator.createError(BStringUtils.fromString((e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString((e.getMessage())));
         } finally {
             closeByteChannel(byteChannel);
         }
@@ -300,12 +301,12 @@ public class EntityBodyHandler {
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
-                textContent = BStringUtils.getStringFromInputStream(inputStream, charsetValue);
+                textContent = StringUtils.getStringFromInputStream(inputStream, charsetValue);
             } else {
-                textContent = BStringUtils.getStringFromInputStream(inputStream);
+                textContent = StringUtils.getStringFromInputStream(inputStream);
             }
         } else {
-            textContent = BStringUtils.getStringFromInputStream(inputStream);
+            textContent = StringUtils.getStringFromInputStream(inputStream);
         }
         return textContent;
     }
@@ -341,9 +342,10 @@ public class EntityBodyHandler {
      */
     static void setPartsToTopLevelEntity(BObject entity, ArrayList<BObject> bodyParts) {
         if (!bodyParts.isEmpty()) {
-            BObjectType typeOfBodyPart = bodyParts.get(FIRST_BODY_PART_INDEX).getType();
+            ObjectType typeOfBodyPart = bodyParts.get(FIRST_BODY_PART_INDEX).getType();
             BObject[] result = bodyParts.toArray(new BObject[bodyParts.size()]);
-            BArray partsArray = (BArray) BValueCreator.createArrayValue(result, new BArrayType(typeOfBodyPart));
+            BArray partsArray = (BArray) ValueCreator
+                    .createArrayValue(result, TypeCreator.createArrayType(typeOfBodyPart));
             entity.addNativeData(BODY_PARTS, partsArray);
         }
     }
@@ -406,7 +408,7 @@ public class EntityBodyHandler {
      */
     public static BArray getBodyPartArray(BObject entityObj) {
         return entityObj.getNativeData(BODY_PARTS) != null ? (BArray) entityObj.getNativeData(BODY_PARTS)
-                : (BArray) BValueCreator.createArrayValue(mimeEntityArrayType, 0);
+                : (BArray) ValueCreator.createArrayValue(mimeEntityArrayType, 0);
     }
 
     public static Channel getByteChannel(BObject entityObj) {

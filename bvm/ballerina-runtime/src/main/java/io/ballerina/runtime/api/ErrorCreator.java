@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -28,11 +28,11 @@ import io.ballerina.runtime.values.ErrorValue;
 import io.ballerina.runtime.values.MapValueImpl;
 
 /**
- * Class @{@link BErrorCreator} provides apis to create ballerina error instances.
+ * Class @{@link ErrorCreator} provides apis to create ballerina error instances.
  *
  * @since 2.0.0
  */
-public class BErrorCreator {
+public class ErrorCreator {
 
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
 

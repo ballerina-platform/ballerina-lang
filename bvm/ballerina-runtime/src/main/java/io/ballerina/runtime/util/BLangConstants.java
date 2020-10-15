@@ -17,8 +17,8 @@
 */
 package io.ballerina.runtime.util;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.values.BString;
 
 import java.math.BigDecimal;
@@ -123,7 +123,7 @@ public class BLangConstants {
     public static final BString BSTRING_NULL_VALUE = null;
 
     // Empty value for string
-    public static final BString STRING_EMPTY_VALUE = BStringUtils.fromString("");
+    public static final BString STRING_EMPTY_VALUE = StringUtils.fromString("");
 
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;

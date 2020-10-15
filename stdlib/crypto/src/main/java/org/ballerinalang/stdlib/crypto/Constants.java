@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.crypto;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
@@ -55,10 +55,10 @@ public class Constants {
     public static final String NATIVE_DATA_PUBLIC_KEY_CERTIFICATE = "NATIVE_DATA_PUBLIC_KEY_CERTIFICATE";
 
     // Path field in KEY_STORE_RECORD record.
-    public static final BString KEY_STORE_RECORD_PATH_FIELD = BStringUtils.fromString("path");
+    public static final BString KEY_STORE_RECORD_PATH_FIELD = StringUtils.fromString("path");
 
     // Password field in KEY_STORE_RECORD record.
-    public static final BString KEY_STORE_RECORD_PASSWORD_FIELD = BStringUtils.fromString("password");
+    public static final BString KEY_STORE_RECORD_PASSWORD_FIELD = StringUtils.fromString("password");
 
     // Algorithm field in PRIVATE_KEY_RECORD.
     public static final String PRIVATE_KEY_RECORD_ALGORITHM_FIELD = "algorithm";

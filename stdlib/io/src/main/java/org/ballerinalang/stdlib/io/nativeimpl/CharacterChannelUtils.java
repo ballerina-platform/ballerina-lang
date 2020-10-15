@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import io.ballerina.runtime.JSONParser;
 import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -72,7 +72,7 @@ public class CharacterChannelUtils {
             return IOUtils.createEoFError();
         } else {
             try {
-                return BStringUtils
+                return StringUtils
                         .fromString(characterChannel.read((int) numberOfCharacters));
             } catch (BallerinaIOException e) {
                 log.error("error occurred while reading characters.", e);
@@ -88,7 +88,7 @@ public class CharacterChannelUtils {
             Object returnValue = JSONParser.parse(reader, JSONParser.NonStringValueProcessingMode.FROM_JSON_STRING);
             if (returnValue instanceof String) {
 
-                return BStringUtils.fromString((String) returnValue);
+                return StringUtils.fromString((String) returnValue);
             }
             return returnValue;
         } catch (BallerinaException e) {
@@ -152,7 +152,7 @@ public class CharacterChannelUtils {
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj
                     .getNativeData(CHARACTER_CHANNEL_NAME);
-            IOUtils.writeFull(characterChannel, BStringUtils.getJsonString(content));
+            IOUtils.writeFull(characterChannel, StringUtils.getJsonString(content));
         } catch (BallerinaIOException e) {
             return IOUtils.createError(e);
         }

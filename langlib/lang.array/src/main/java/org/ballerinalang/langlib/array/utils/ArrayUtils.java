@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.array.utils;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
@@ -78,9 +78,9 @@ public class ArrayUtils {
     }
 
     public static BError createOpNotSupportedError(Type type, String op) {
-        return BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
-                                                                 OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                                         BStringUtils.fromString(format("%s not supported on type '%s'", op,
-                                                                        type.getQualifiedName())));
+        return ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                                                OPERATION_NOT_SUPPORTED_IDENTIFIER),
+                                        StringUtils.fromString(format("%s not supported on type '%s'", op,
+                                                                       type.getQualifiedName())));
     }
 }

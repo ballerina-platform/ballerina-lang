@@ -18,8 +18,7 @@
 
 package org.ballerinalang.langlib.test;
 
-
-import org.ballerinalang.core.model.types.BMapType;
+import io.ballerina.runtime.api.types.MapType;
 import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BDecimal;
@@ -83,7 +82,7 @@ public class LangLibMapTest {
         assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
 
         BMap map = (BMap) returns[0];
-        assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.TUPLE_TAG);
+        assertEquals(((MapType) map.getType()).getConstrainedType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(map.size(), 3);
         assertEquals(map.get("lk").stringValue(), "[\"lk\", \"Sri Lanka\"]");
         assertEquals(map.get("us").stringValue(), "[\"us\", \"USA\"]");
@@ -149,7 +148,7 @@ public class LangLibMapTest {
         assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
 
         BMap map = (BMap) returns[0];
-        assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.FLOAT_TAG);
+        assertEquals(((MapType) map.getType()).getConstrainedType().getTag(), TypeTags.FLOAT_TAG);
         assertEquals(map.size(), 3);
         assertEquals(((BFloat) map.get("1")).floatValue(), 5.5);
         assertEquals(((BFloat) map.get("2")).floatValue(), 11.0);
@@ -168,7 +167,7 @@ public class LangLibMapTest {
         assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
 
         BMap map = (BMap) returns[0];
-        assertEquals(((BMapType) map.getType()).getConstrainedType().getTag(), TypeTags.DECIMAL_TAG);
+        assertEquals(((MapType) map.getType()).getConstrainedType().getTag(), TypeTags.DECIMAL_TAG);
         assertEquals(map.size(), 2);
         assertEquals(((BDecimal) map.get("1")).decimalValue(), new BigDecimal("12.34"));
         assertEquals(((BDecimal) map.get("4")).decimalValue(), new BigDecimal("21.2"));

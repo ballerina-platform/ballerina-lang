@@ -18,14 +18,14 @@
 package org.ballerinalang.stdlib.task.utils;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.AttachedFunction;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Appointment;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
@@ -66,7 +66,7 @@ public class Utils {
     }
 
     public static BError createTaskError(String reason, String message) {
-        return BErrorCreator.createDistinctError(reason, TASK_PACKAGE_ID, BStringUtils.fromString(message));
+        return ErrorCreator.createDistinctError(reason, TASK_PACKAGE_ID, StringUtils.fromString(message));
     }
 
     @SuppressWarnings("unchecked")
@@ -114,13 +114,13 @@ public class Utils {
      *       Issue: https://github.com/ballerina-platform/ballerina-lang/issues/14148
      */
     public static void validateService(ServiceInformation serviceInformation) throws SchedulingException {
-        AttachedFunction[] resources = serviceInformation.getService().getType().getAttachedFunctions();
+        AttachedFunctionType[] resources = serviceInformation.getService().getType().getAttachedFunctions();
         if (resources.length != VALID_RESOURCE_COUNT) {
             throw new SchedulingException(
                     "Invalid number of resources found in service \'" + serviceInformation.getServiceName()
                             + "\'. Task service should include only one resource.");
         }
-        AttachedFunction resource = resources[0];
+        AttachedFunctionType resource = resources[0];
 
         if (RESOURCE_ON_TRIGGER.equals(resource.getName())) {
             validateOnTriggerResource(resource.getReturnParameterType());

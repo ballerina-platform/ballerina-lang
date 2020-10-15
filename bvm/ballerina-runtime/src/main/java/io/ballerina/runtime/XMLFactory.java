@@ -17,8 +17,8 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
@@ -81,7 +81,7 @@ public class XMLFactory {
         } catch (BError e) {
             throw e;
         } catch (Throwable e) {
-            throw BErrorCreator.createError(BStringUtils.fromString(("failed to parse xml: " + e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString(("failed to parse xml: " + e.getMessage())));
         }
     }
 
@@ -96,9 +96,9 @@ public class XMLFactory {
             XMLTreeBuilder treeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream));
             return treeBuilder.parse();
         } catch (DeferredParsingException e) {
-            throw BErrorCreator.createError(BStringUtils.fromString((e.getCause().getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString((e.getCause().getMessage())));
         } catch (Throwable e) {
-            throw BErrorCreator.createError(BStringUtils.fromString(("failed to create xml: " + e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString(("failed to create xml: " + e.getMessage())));
         }
     }
 
@@ -114,9 +114,9 @@ public class XMLFactory {
             XMLTreeBuilder xmlTreeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream, charset));
             return xmlTreeBuilder.parse();
         } catch (DeferredParsingException e) {
-            throw BErrorCreator.createError(BStringUtils.fromString((e.getCause().getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString((e.getCause().getMessage())));
         } catch (Throwable e) {
-            throw BErrorCreator.createError(BStringUtils.fromString(("failed to create xml: " + e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString(("failed to create xml: " + e.getMessage())));
         }
     }
 
@@ -131,9 +131,9 @@ public class XMLFactory {
             XMLTreeBuilder xmlTreeBuilder = new XMLTreeBuilder(reader);
             return xmlTreeBuilder.parse();
         } catch (DeferredParsingException e) {
-            throw BErrorCreator.createError(BStringUtils.fromString(e.getCause().getMessage()));
+            throw ErrorCreator.createError(StringUtils.fromString(e.getCause().getMessage()));
         } catch (Throwable e) {
-            throw BErrorCreator.createError(BStringUtils.fromString("failed to create xml: " + e.getMessage()));
+            throw ErrorCreator.createError(StringUtils.fromString("failed to create xml: " + e.getMessage()));
         }
     }
 
@@ -223,11 +223,11 @@ public class XMLFactory {
      */
     @Deprecated
     public static XMLValue createXMLElement(BXMLQName startTagName, BXMLQName endTagName, String defaultNsUri) {
-        if (!BStringUtils.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
-                !BStringUtils.isEqual(startTagName.getUri(), endTagName.getUri()) ||
-                !BStringUtils.isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
-            throw BErrorCreator
-                    .createError(BStringUtils.fromString(("start and end tag names mismatch: '" + startTagName + "' " +
+        if (!StringUtils.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
+                !StringUtils.isEqual(startTagName.getUri(), endTagName.getUri()) ||
+                !StringUtils.isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
+            throw ErrorCreator
+                    .createError(StringUtils.fromString(("start and end tag names mismatch: '" + startTagName + "' " +
                             "and '" + endTagName + "'")));
         }
         return createXMLElement(startTagName, defaultNsUri);

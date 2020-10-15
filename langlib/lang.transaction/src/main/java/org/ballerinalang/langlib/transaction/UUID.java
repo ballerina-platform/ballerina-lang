@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 /**
@@ -29,6 +29,6 @@ import io.ballerina.runtime.api.values.BString;
 public class UUID {
 
     public static BString uuid() {
-        return BStringUtils.fromString(java.util.UUID.randomUUID().toString());
+        return StringUtils.fromString(java.util.UUID.randomUUID().toString());
     }
 }

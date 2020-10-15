@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.util.exceptions.BLangFreezeException;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 
@@ -89,7 +89,7 @@ public interface BRefValue extends BValue {
      */
     default void serialize(OutputStream outputStream) {
         try {
-            outputStream.write(BStringUtils.getJsonString(this).getBytes(Charset.defaultCharset()));
+            outputStream.write(StringUtils.getJsonString(this).getBytes(Charset.defaultCharset()));
         } catch (IOException e) {
             throw new BallerinaException("error occurred while serializing data", e);
         }

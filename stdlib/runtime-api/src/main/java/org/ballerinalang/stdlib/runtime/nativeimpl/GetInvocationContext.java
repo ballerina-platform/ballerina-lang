@@ -18,8 +18,7 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -45,7 +44,6 @@ public class GetInvocationContext {
     private static final String STRUCT_TYPE_INVOCATION_CONTEXT = "InvocationContext";
     private static final String INVOCATION_ID_KEY = "id";
     private static final String INVOCATION_ATTRIBUTES = "attributes";
-    private static final ValueCreator valueCreator = ValueCreator.getValueCreator(BALLERINA_RUNTIME_PKG_ID.toString());
 
     private static BMap<BString, Object> getInvocationContextRecord(Strand strand) {
         BMap<BString, Object> invocationContext =
@@ -59,11 +57,11 @@ public class GetInvocationContext {
 
     private static BMap<BString, Object> initInvocationContext() {
         BMap<BString, Object> invocationContextInfo =
-                valueCreator.createRecordValue(STRUCT_TYPE_INVOCATION_CONTEXT);
+                ValueCreator.createRecordValue(BALLERINA_RUNTIME_PKG_ID, STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
-        invocationContextInfo.put(BStringUtils.fromString(INVOCATION_ID_KEY),
-                                  BStringUtils.fromString(invocationId.toString()));
-        invocationContextInfo.put(BStringUtils.fromString(INVOCATION_ATTRIBUTES), BValueCreator.createMapValue());
+        invocationContextInfo.put(StringUtils.fromString(INVOCATION_ID_KEY),
+                                  StringUtils.fromString(invocationId.toString()));
+        invocationContextInfo.put(StringUtils.fromString(INVOCATION_ATTRIBUTES), ValueCreator.createMapValue());
         return invocationContextInfo;
     }
 }

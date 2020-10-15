@@ -20,10 +20,16 @@ package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.TypeConverter;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.values.BArray;
@@ -36,11 +42,6 @@ import io.ballerina.runtime.commons.TypeValuePair;
 import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BField;
-import io.ballerina.runtime.types.BMapType;
-import io.ballerina.runtime.types.BRecordType;
-import io.ballerina.runtime.types.BTupleType;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.ballerina.runtime.util.exceptions.RuntimeErrors;
@@ -50,7 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.BErrorCreator.createError;
+import static io.ballerina.runtime.api.ErrorCreator.createError;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
 import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
@@ -84,7 +85,7 @@ public class CloneWithType {
         } catch (BError e) {
             return e;
         } catch (BallerinaException e) {
-            return createError(CONSTRUCT_FROM_CONVERSION_ERROR, BStringUtils.fromString(e.getDetail()));
+            return createError(CONSTRUCT_FROM_CONVERSION_ERROR, StringUtils.fromString(e.getDetail()));
         }
     }
 
@@ -206,25 +207,25 @@ public class CloneWithType {
                                      BTypedesc t, Strand strand) {
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
-                BMap<BString, Object> newMap = BValueCreator.createMapValue(targetType);
+                BMap<BString, Object> newMap = ValueCreator.createMapValue(targetType);
                 for (Map.Entry entry : map.entrySet()) {
-                    Type constraintType = ((BMapType) targetType).getConstrainedType();
+                    Type constraintType = ((MapType) targetType).getConstrainedType();
                     putToMap(newMap, entry, constraintType, unresolvedValues, t, strand);
                 }
                 return newMap;
             case TypeTags.RECORD_TYPE_TAG:
-                BRecordType recordType = (BRecordType) targetType;
+                RecordType  recordType = (RecordType) targetType;
                 BMap<BString, Object> newRecord;
                 if (t != null && t.getDescribingType() == targetType) {
                     newRecord = (BMap<BString, Object>) t.instantiate(strand);
                 } else {
-                    newRecord = BValueCreator
+                    newRecord = ValueCreator
                             .createRecordValue(recordType.getPackage(), recordType.getName());
                 }
 
-                Type restFieldType = recordType.restFieldType;
+                Type restFieldType = recordType.getRestFieldType();
                 Map<String, Type> targetTypeField = new HashMap<>();
-                for (BField field : recordType.getFields().values()) {
+                for (Field field : recordType.getFields().values()) {
                     targetTypeField.put(field.getFieldName(), field.getFieldType());
                 }
 
@@ -248,16 +249,16 @@ public class CloneWithType {
                                        BTypedesc t, Strand strand) {
         switch (targetType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                BArrayType arrayType = (BArrayType) targetType;
-                BArray newArray = BValueCreator.createArrayValue(arrayType);
+                ArrayType arrayType = (ArrayType) targetType;
+                BArray newArray = ValueCreator.createArrayValue(arrayType);
                 for (int i = 0; i < array.size(); i++) {
                     Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues, t, strand);
                     newArray.add(i, newValue);
                 }
                 return newArray;
             case TypeTags.TUPLE_TAG:
-                BTupleType tupleType = (BTupleType) targetType;
-                BArray newTuple = BValueCreator.createTupleValue(tupleType);
+                TupleType tupleType = (TupleType) targetType;
+                BArray newTuple = ValueCreator.createTupleValue(tupleType);
                 int minLen = tupleType.getTupleTypes().size();
                 for (int i = 0; i < array.size(); i++) {
                     Type elementType = (i < minLen) ? tupleType.getTupleTypes().get(i) : tupleType.getRestType();
@@ -266,7 +267,7 @@ public class CloneWithType {
                 }
                 return newTuple;
             case TypeTags.JSON_TAG:
-                newArray = BValueCreator.createArrayValue(new BArrayType(Types.TYPE_JSON));
+                newArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(Types.TYPE_JSON));
                 for (int i = 0; i < array.size(); i++) {
                     Object newValue = convert(array.get(i), Types.TYPE_JSON, unresolvedValues, t, strand);
                     newArray.add(i, newValue);
@@ -282,7 +283,7 @@ public class CloneWithType {
     private static void putToMap(BMap<BString, Object> map, Map.Entry entry, Type fieldType,
                                  List<TypeValuePair> unresolvedValues, BTypedesc t, Strand strand) {
         Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, true, t, strand);
-        map.put(BStringUtils.fromString(entry.getKey().toString()), newValue);
+        map.put(StringUtils.fromString(entry.getKey().toString()), newValue);
     }
 
     private static BError createConversionError(Object inputValue, Type targetType) {
@@ -295,7 +296,7 @@ public class CloneWithType {
         return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
                            BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
                                                                 TypeChecker.getType(inputValue), targetType)
-                                   .concat(BStringUtils.fromString(": ".concat(detailMessage))));
+                                   .concat(StringUtils.fromString(": ".concat(detailMessage))));
     }
 
 }

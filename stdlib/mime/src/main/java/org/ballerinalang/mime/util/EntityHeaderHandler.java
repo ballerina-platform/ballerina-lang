@@ -18,15 +18,15 @@
 
 package org.ballerinalang.mime.util;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BMapType;
 import org.jvnet.mimepull.Header;
 
 import java.util.List;
@@ -42,7 +42,7 @@ import static org.ballerinalang.mime.util.MimeConstants.HEADER_NAMES_ARRAY_FIELD
  */
 public class EntityHeaderHandler {
 
-    private static BMapType mapType = new BMapType(new BArrayType(Types.TYPE_STRING));
+    private static MapType mapType = TypeCreator.createMapType(TypeCreator.createArrayType(Types.TYPE_STRING));
 
     /**
      * Get the entity header map. If not exist, creates new one.
@@ -75,9 +75,9 @@ public class EntityHeaderHandler {
 
         int index = 0;
         for (final Header header : bodyPartHeaders) {
-            httpHeaders.put(BStringUtils.fromString(header.getName().toLowerCase(Locale.getDefault())),
-                            BValueCreator.createArrayValue(new BString[]{BStringUtils.fromString(header.getValue())}));
-            headerNames.add(index++, BStringUtils.fromString(header.getName()));
+            httpHeaders.put(StringUtils.fromString(header.getName().toLowerCase(Locale.getDefault())),
+                            ValueCreator.createArrayValue(new BString[]{StringUtils.fromString(header.getValue())}));
+            headerNames.add(index++, StringUtils.fromString(header.getName()));
         }
         partStruct.set(MimeConstants.HEADERS_MAP_FIELD, httpHeaders);
         partStruct.set(MimeConstants.HEADER_NAMES_ARRAY_FIELD, headerNames);
@@ -96,7 +96,7 @@ public class EntityHeaderHandler {
         if (headerMap == null) {
             return null;
         }
-        BArray headerValues = (BArray) headerMap.get(BStringUtils.fromString(headerName));
+        BArray headerValues = (BArray) headerMap.get(StringUtils.fromString(headerName));
         if (headerValues == null || headerValues.size() < 1) {
             return null;
         }
@@ -113,12 +113,12 @@ public class EntityHeaderHandler {
      */
     public static void addHeader(BObject entity, BMap<BString, Object> headers, String key,
                                  String value) {
-        headers.put(BStringUtils.fromString(key.toLowerCase(Locale.getDefault())),
-                    BValueCreator.createArrayValue(new BString[]{BStringUtils.fromString(value)}));
+        headers.put(StringUtils.fromString(key.toLowerCase(Locale.getDefault())),
+                    ValueCreator.createArrayValue(new BString[]{StringUtils.fromString(value)}));
 
         // update header name array
         BArray headerNames = getEntityHeaderNameArray(entity);
-        headerNames.add(headerNames.size(), BStringUtils.fromString(key));
+        headerNames.add(headerNames.size(), StringUtils.fromString(key));
     }
 
     /**
@@ -127,10 +127,10 @@ public class EntityHeaderHandler {
      * @return a header header map
      */
     public static BMap<BString, Object> getNewHeaderMap() {
-        return BValueCreator.createMapValue(mapType);
+        return ValueCreator.createMapValue(mapType);
     }
 
     private static BArray getNewHeaderNamesArray() {
-        return (BArray) BValueCreator.createArrayValue(new BString[0]);
+        return (BArray) ValueCreator.createArrayValue(new BString[0]);
     }
 }

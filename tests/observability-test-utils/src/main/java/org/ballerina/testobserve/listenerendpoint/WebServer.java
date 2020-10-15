@@ -18,16 +18,16 @@
 
 package org.ballerina.testobserve.listenerendpoint;
 
-import io.ballerina.runtime.api.BRuntime;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
-import io.ballerina.runtime.api.connector.CallableUnitCallback;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.CallableUnitCallback;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.observability.ObservabilityConstants;
 import io.ballerina.runtime.observability.ObserverContext;
-import io.ballerina.runtime.api.commons.StrandMetadata;
-import io.ballerina.runtime.types.AttachedFunction;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -79,10 +79,10 @@ public class WebServer {
     private final Map<String, Service> serviceMap = new ConcurrentHashMap<>();
     private final int port;
     private final EventLoopGroup loopGroup;
-    private final BRuntime runtime;
+    private final Runtime runtime;
     private boolean isRunning;
 
-    public WebServer(int port, BRuntime runtime) {
+    public WebServer(int port, Runtime runtime) {
         this.port = port;
         this.loopGroup = new NioEventLoopGroup();
         this.runtime = runtime;
@@ -171,10 +171,10 @@ public class WebServer {
      * Inbound message handler of the Web Server.
      */
     public static class WebServerInboundHandler extends SimpleChannelInboundHandler<Object> {
-        private BRuntime runtime;
+        private Runtime runtime;
         private Map<String, Service> serviceMap;
 
-        public WebServerInboundHandler(BRuntime runtime, Map<String, Service> serviceMap) {
+        public WebServerInboundHandler(Runtime runtime, Map<String, Service> serviceMap) {
             this.runtime = runtime;
             this.serviceMap = serviceMap;
         }
@@ -194,15 +194,15 @@ public class WebServer {
             String serviceName = requestUriSplit[1];
             String resourceName = requestUriSplit[2];
 
-            BObject callerObject = BValueCreator.createObjectValue(TEST_OBSERVE_PACKAGE, CALLER_TYPE_NAME);
+            BObject callerObject = ValueCreator.createObjectValue(TEST_OBSERVE_PACKAGE, CALLER_TYPE_NAME);
             callerObject.addNativeData(NETTY_CONTEXT_NATIVE_DATA_KEY, ctx);
 
             // Preparing the arguments for dispatching the resource function
             BObject serviceObject = serviceMap.get(serviceName).getServiceObject();
             int paramCount = 0;
-            for (AttachedFunction attachedFunction : serviceObject.getType().getAttachedFunctions()) {
+            for (AttachedFunctionType attachedFunction : serviceObject.getType().getAttachedFunctions()) {
                 if (Objects.equals(attachedFunction.getName(), resourceName)) {
-                    paramCount = attachedFunction.getParameterType().length;
+                    paramCount = attachedFunction.getParameterTypes().length;
                     break;
                 }
             }
@@ -213,7 +213,7 @@ public class WebServer {
             }
             if (paramCount >= 2 && request.method() == HttpMethod.POST) {
                 String bodyContent = request.content().toString(StandardCharsets.UTF_8);
-                args[2] = BStringUtils.fromString(bodyContent);
+                args[2] = StringUtils.fromString(bodyContent);
                 args[3] = true;
             }
 

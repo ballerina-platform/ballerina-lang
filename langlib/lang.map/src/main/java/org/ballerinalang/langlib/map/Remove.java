@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -44,13 +44,13 @@ public class Remove {
             try {
                 return m.remove(k);
             } catch (io.ballerina.runtime.util.exceptions.BLangFreezeException e) {
-                throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
-                                                BStringUtils.fromString(
+                throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
+                                               StringUtils.fromString(
                                                         "Failed to remove element from map: " + e.getDetail()));
             }
         }
 
-        throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
+        throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
                 .fromString("cannot find key '" + k + "'"));
     }
 }

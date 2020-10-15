@@ -18,9 +18,9 @@
 
 package org.ballerina.testobserve.listenerendpoint;
 
+import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.types.AttachedFunction;
 
 import java.util.Objects;
 
@@ -38,15 +38,15 @@ public class Service {
     public Service(BObject serviceObject) {
         this.serviceObject = serviceObject;
         this.serviceName = Utils.getServiceName(serviceObject);
-        for (AttachedFunction attachedFunction : serviceObject.getType().getAttachedFunctions()) {
-            int paramCount = attachedFunction.getParameterType().length;
+        for (AttachedFunctionType attachedFunction : serviceObject.getType().getAttachedFunctions()) {
+            int paramCount = attachedFunction.getParameterTypes().length;
             if (paramCount > 2) {
                 throw new IllegalArgumentException("Invalid number of arguments in resource function "
                         + serviceName + "." + attachedFunction.getName()
                         + ". Expected a maximum of 2 arguments, but found " + paramCount);
             }
             if (paramCount >= 1) {
-                Type paramOneType = attachedFunction.getParameterType()[0];
+                Type paramOneType = attachedFunction.getParameterTypes()[0];
                 if (!Objects.equals(paramOneType.getPackage(), TEST_OBSERVE_PACKAGE)
                         || !Objects.equals(paramOneType.getName(), CALLER_TYPE_NAME)) {
                     throw new IllegalArgumentException("Invalid first parameter in the resource function "
@@ -56,7 +56,7 @@ public class Service {
                 }
             }
             if (paramCount >= 2) {
-                Type paramTwoType = attachedFunction.getParameterType()[1];
+                Type paramTwoType = attachedFunction.getParameterTypes()[1];
                 if (!Objects.equals(paramTwoType.getPackage().toString(), "null")
                         || !Objects.equals(paramTwoType.getName(), STRING_TNAME)) {
                     throw new IllegalArgumentException("Invalid second parameter in the resource function "

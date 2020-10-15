@@ -17,11 +17,12 @@
  */
 package io.ballerina.runtime.types;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeFlags;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.Module;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
@@ -72,7 +73,7 @@ public class BRecordType extends BStructureType implements RecordType {
      * @param sealed flag to indicate whether the record is sealed
      * @param typeFlags flags associated with the type
      */
-    public BRecordType(String typeName, Module pkg, int flags, Map<String, BField> fields, Type restFieldType,
+    public BRecordType(String typeName, Module pkg, int flags, Map<String, Field> fields, Type restFieldType,
                        boolean sealed, int typeFlags) {
         super(typeName, pkg, flags, MapValueImpl.class, fields);
         this.restFieldType = restFieldType;
@@ -83,7 +84,7 @@ public class BRecordType extends BStructureType implements RecordType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) BValueCreator.createRecordValue(this.pkg, this.typeName);
+        return (V) ValueCreator.createRecordValue(this.pkg, this.typeName);
     }
 
     @SuppressWarnings("unchecked")
@@ -91,10 +92,10 @@ public class BRecordType extends BStructureType implements RecordType {
     public <V extends Object> V getEmptyValue() {
         MapValue<BString, Object> implicitInitValue = new MapValueImpl<>(this);
         this.fields.entrySet().stream()
-                .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
+                .filter(entry -> !Flags.isFlagOn(entry.getValue().getFlags(), Flags.OPTIONAL))
                 .forEach(entry -> {
                     Object value = entry.getValue().getFieldType().getEmptyValue();
-                    implicitInitValue.put(BStringUtils.fromString(entry.getKey()), value);
+                    implicitInitValue.put(StringUtils.fromString(entry.getKey()), value);
                 });
         return (V) implicitInitValue;
     }
@@ -132,5 +133,17 @@ public class BRecordType extends BStructureType implements RecordType {
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    public boolean isSealed() {
+        return sealed;
+    }
+
+    public Type getRestFieldType() {
+        return restFieldType;
+    }
+
+    public int getTypeFlags() {
+        return typeFlags;
     }
 }

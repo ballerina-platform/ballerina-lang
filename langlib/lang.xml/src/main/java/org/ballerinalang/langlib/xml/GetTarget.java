@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
@@ -44,6 +44,6 @@ public class GetTarget {
                     "getTarget", "processing instruction");
         }
 
-        return BStringUtils.fromString(XMLValueUtil.getTarget(xmlValue));
+        return StringUtils.fromString(XMLValueUtil.getTarget(xmlValue));
     }
 }

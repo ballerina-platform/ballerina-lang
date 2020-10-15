@@ -18,16 +18,17 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.scheduling.AsyncUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.api.commons.StrandMetadata;
-import io.ballerina.runtime.types.BFunctionType;
-import io.ballerina.runtime.types.BTableType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -46,11 +47,12 @@ public class Map {
                                                                       TABLE_VERSION, "map");
 
     public static BTable map(BTable tbl, BFunctionPointer<Object, Object> func) {
-        Type newConstraintType = ((BFunctionType) func.getType()).retType;
-        BTableType tblType = (BTableType) tbl.getType();
-        BTableType newTableType = new BTableType(newConstraintType, tblType.getFieldNames(), tblType.isReadOnly());
+        Type newConstraintType = ((FunctionType) func.getType()).getReturnType();
+        TableType tblType = (TableType) tbl.getType();
+        TableType newTableType =
+                TypeCreator.createTableType(newConstraintType, tblType.getFieldNames(), tblType.isReadOnly());
 
-        BTable newTable = BValueCreator.createTableValue(newTableType);
+        BTable newTable = ValueCreator.createTableValue(newTableType);
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();

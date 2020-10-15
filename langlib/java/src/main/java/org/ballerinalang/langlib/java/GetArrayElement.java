@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.java;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BHandle;
 
 /**
@@ -34,6 +34,6 @@ public class GetArrayElement {
         }
 
         JValues.rangeCheck(index, arr);
-        return BValueCreator.createHandleValue(arr[(int) index]);
+        return ValueCreator.createHandleValue(arr[(int) index]);
     }
 }

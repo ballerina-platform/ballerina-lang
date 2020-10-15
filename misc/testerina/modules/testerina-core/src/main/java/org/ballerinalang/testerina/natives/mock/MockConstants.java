@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.async.Module;
 
 import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 

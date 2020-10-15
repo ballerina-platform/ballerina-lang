@@ -23,10 +23,11 @@ import io.ballerina.runtime.JSONGenerator;
 import io.ballerina.runtime.JSONUtils;
 import io.ballerina.runtime.MapUtils;
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
@@ -153,7 +154,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
-            throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
+            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
                     .fromString("cannot find key '" + key + "'"));
         }
         return this.get(key);
@@ -183,7 +184,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             } else {
                 if (recordType.sealed) {
                     // Panic if this record type does not contain a key by the specified name.
-                    throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
+                    throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
                             .fromString("cannot find key '" + key + "'"));
                 }
                 expectedType = recordType.restFieldType;
@@ -194,7 +195,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
-            throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
+            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
                     .fromString("cannot find key '" + key + "'"));
         }
 
@@ -235,8 +236,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 errMessage = "Invalid map insertion: ";
                 break;
         }
-        throw BErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                        BStringUtils
+        throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
+                                       StringUtils
                                                 .fromString(errMessage).concat(BLangExceptionHelper.getErrorMessage(
                                                   INVALID_READONLY_VALUE_UPDATE)));
     }
@@ -438,7 +439,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                         sj.add("\"" + key + "\":" + ((BValue) value).informalStringValue(mapParent));
                         break;
                     default:
-                        sj.add("\"" + key + "\":" + BStringUtils.getStringValue(value, mapParent));
+                        sj.add("\"" + key + "\":" + StringUtils.getStringValue(value, mapParent));
                         break;
                 }
             }
@@ -453,7 +454,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             K key = kvEntry.getKey();
             V value = kvEntry.getValue();
             CycleUtils.Node mapParent = new CycleUtils.Node(this, parent);
-            sj.add("\"" + key + "\":" + BStringUtils.getExpressionStringValue(value, mapParent));
+            sj.add("\"" + key + "\":" + StringUtils.getExpressionStringValue(value, mapParent));
         }
         return "{" + sj.toString() + "}";
     }
@@ -573,7 +574,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             type = mapType.getConstrainedType();
         } else {
             BRecordType recordType = (BRecordType) this.type;
-            LinkedHashSet<Type> types = recordType.getFields().values().stream().map(bField -> bField.type)
+            LinkedHashSet<Type> types = recordType.getFields().values().stream().map(Field::getFieldType)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
             if (recordType.restFieldType != null) {
                 types.add(recordType.restFieldType);

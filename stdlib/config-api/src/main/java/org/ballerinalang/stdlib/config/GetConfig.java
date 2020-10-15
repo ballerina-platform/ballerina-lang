@@ -18,16 +18,17 @@
 
 package org.ballerinalang.stdlib.config;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BMapType;
 import org.ballerinalang.config.ConfigRegistry;
 
 import java.util.List;
@@ -40,14 +41,14 @@ import java.util.Map;
  */
 public class GetConfig {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    private static final BMapType mapType = new BMapType(Types.TYPE_ANYDATA, true);
-    private static final BArrayType arrayType = new BArrayType(Types.TYPE_ANYDATA, -1, true);
+    private static final MapType mapType = TypeCreator.createMapType(Types.TYPE_ANYDATA, true);
+    private static final ArrayType arrayType = TypeCreator.createArrayType(Types.TYPE_ANYDATA, -1, true);
 
     public static Object get(BString configKey, BString type) {
         try {
             switch (type.getValue()) {
                 case "STRING":
-                    return BStringUtils.fromString(configRegistry.getAsString(configKey.getValue()));
+                    return StringUtils.fromString(configRegistry.getAsString(configKey.getValue()));
                 case "INT":
                     return configRegistry.getAsInt(configKey.getValue());
                 case "FLOAT":
@@ -62,7 +63,7 @@ public class GetConfig {
                     throw new IllegalStateException("invalid value type: " + type);
             }
         } catch (IllegalArgumentException e) {
-            throw BErrorCreator.createError(BStringUtils.fromString(
+            throw ErrorCreator.createError(StringUtils.fromString(
                     "error occurred while trying to retrieve the value; " + e.getMessage()));
         }
     }
@@ -72,12 +73,12 @@ public class GetConfig {
         BMapInitialValueEntry[] keyValues = new BMapInitialValueEntry[section.size()];
         int i = 0;
         for (Map.Entry<String, Object> entry : section.entrySet()) {
-            BMapInitialValueEntry keyValue = BValueCreator
-                    .createKeyFieldEntry(BStringUtils.fromString(entry.getKey()), getConvertedValue(entry.getValue()));
+            BMapInitialValueEntry keyValue = ValueCreator
+                    .createKeyFieldEntry(StringUtils.fromString(entry.getKey()), getConvertedValue(entry.getValue()));
             keyValues[i] = keyValue;
             i++;
         }
-        return BValueCreator.createMapValue(mapType, keyValues);
+        return ValueCreator.createMapValue(mapType, keyValues);
     }
 
     private static BArray buildBArray(List value) {
@@ -85,7 +86,7 @@ public class GetConfig {
         for (Object entry : value) {
             convertedValues[value.indexOf(entry)] = getConvertedValue(entry);
         }
-        return BValueCreator.createArrayValue(convertedValues, arrayType);
+        return ValueCreator.createArrayValue(convertedValues, arrayType);
     }
 
     @SuppressWarnings("unchecked")
@@ -97,6 +98,6 @@ public class GetConfig {
         } else if (obj instanceof List) {
             return buildBArray((List) obj);
         }
-        return BStringUtils.fromString(String.valueOf(obj));
+        return StringUtils.fromString(String.valueOf(obj));
     }
 }

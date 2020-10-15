@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.file.service;
 
-import io.ballerina.runtime.api.connector.CallableUnitCallback;
+import io.ballerina.runtime.api.async.CallableUnitCallback;
 import io.ballerina.runtime.api.values.BError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -20,12 +20,12 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeFlags;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.types.BUnionType;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
@@ -58,8 +58,9 @@ public class SetChildren {
             children = xmlText;
         } else if (TypeTags.isXMLTypeTag(childrenType.getTag())) {
             BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                    new BUnionType(Arrays.asList(Types.TYPE_XML, Types.TYPE_STRING),
-                                   TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE)),
+                                                     TypeCreator.createUnionType(
+                                                             Arrays.asList(Types.TYPE_XML, Types.TYPE_STRING),
+                                                             TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE)),
                                                      childrenType);
         }
 

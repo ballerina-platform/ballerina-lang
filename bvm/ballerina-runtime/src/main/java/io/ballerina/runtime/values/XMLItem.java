@@ -20,8 +20,8 @@ import io.ballerina.runtime.BallerinaXMLSerializer;
 import io.ballerina.runtime.XMLFactory;
 import io.ballerina.runtime.XMLNodeType;
 import io.ballerina.runtime.XMLValidator;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
@@ -120,8 +120,8 @@ public final class XMLItem extends XMLValue implements BXMLItem {
             prefix = XMLNS;
         }
 
-        attributes.populateInitialValue(BStringUtils.fromString(XMLNS_URL_PREFIX + prefix),
-                                        BStringUtils.fromString(namespace));
+        attributes.populateInitialValue(StringUtils.fromString(XMLNS_URL_PREFIX + prefix),
+                                        StringUtils.fromString(namespace));
     }
 
     /**
@@ -194,16 +194,16 @@ public final class XMLItem extends XMLValue implements BXMLItem {
     @Override
     public BString getAttribute(String localName, String namespace, String prefix) {
         if (prefix != null && !prefix.isEmpty()) {
-            String ns = attributes.get(BStringUtils.fromString(XMLNS_URL_PREFIX + prefix)).getValue();
-            BString attrVal = attributes.get(BStringUtils.fromString("{" + ns + "}" + localName));
+            String ns = attributes.get(StringUtils.fromString(XMLNS_URL_PREFIX + prefix)).getValue();
+            BString attrVal = attributes.get(StringUtils.fromString("{" + ns + "}" + localName));
             if (attrVal != null) {
                 return attrVal;
             }
         }
         if (namespace != null && !namespace.isEmpty()) {
-            return attributes.get(BStringUtils.fromString("{" + namespace + "}" + localName));
+            return attributes.get(StringUtils.fromString("{" + namespace + "}" + localName));
         }
-        return attributes.get(BStringUtils.fromString(localName));
+        return attributes.get(StringUtils.fromString(localName));
     }
 
     /**
@@ -427,9 +427,9 @@ public final class XMLItem extends XMLValue implements BXMLItem {
             throw e;
         } catch (OMException | XMLStreamException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();
-            throw BErrorCreator.createError(BStringUtils.fromString((cause.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString((cause.getMessage())));
         } catch (Throwable e) {
-            throw BErrorCreator.createError(BStringUtils.fromString(("failed to parse xml: " + e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString(("failed to parse xml: " + e.getMessage())));
         }
     }
 

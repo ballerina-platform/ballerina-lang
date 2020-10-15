@@ -19,15 +19,15 @@
 package org.ballerinalang.langlib.table;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.types.BArrayType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,14 +42,14 @@ import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.ITERATO
  */
 public class Next {
 
-    private static final BString MUTATED_TABLE_ERROR_DETAIL =  BStringUtils.fromString("Table was mutated after the " +
+    private static final BString MUTATED_TABLE_ERROR_DETAIL =  StringUtils.fromString("Table was mutated after the " +
                                                                                                "iterator was created");
     //TODO: refactor hard coded values
     public static Object next(BObject t) {
         BIterator tableIterator = (BIterator) t.getNativeData("&iterator&");
-        BTable table = (BTable) t.get(BStringUtils.fromString("t"));
-        BArray keys = (BArray) t.get(BStringUtils.fromString("keys"));
-        long initialSize = (long) t.get(BStringUtils.fromString("size"));
+        BTable table = (BTable) t.get(StringUtils.fromString("t"));
+        BArray keys = (BArray) t.get(StringUtils.fromString("keys"));
+        long initialSize = (long) t.get(StringUtils.fromString("size"));
         if (tableIterator == null) {
             tableIterator = table.getIterator();
             t.addNativeData("&iterator&", tableIterator);
@@ -63,8 +63,8 @@ public class Next {
         if (tableIterator.hasNext()) {
             BArray keyValueTuple = (BArray) tableIterator.next();
             returnedKeys.add(keyValueTuple.get(0));
-            return BValueCreator.createRecordValue(BValueCreator.createMapValue(table.getIteratorNextReturnType()),
-                                                   keyValueTuple.get(1));
+            return ValueCreator.createRecordValue(ValueCreator.createMapValue(table.getIteratorNextReturnType()),
+                                                  keyValueTuple.get(1));
         }
 
         return null;
@@ -75,7 +75,7 @@ public class Next {
         if (initialSize < table.size() ||
                 // Key-less situation, mutation can occur only by calling add() or removeAll()
                 (initialSize > 0 && table.size() == 0)) {
-            throw BErrorCreator.createError(ITERATOR_MUTABILITY_ERROR, MUTATED_TABLE_ERROR_DETAIL);
+            throw ErrorCreator.createError(ITERATOR_MUTABILITY_ERROR, MUTATED_TABLE_ERROR_DETAIL);
         }
 
         if (keys.isEmpty()) {
@@ -89,15 +89,15 @@ public class Next {
             }
         }
 
-        BArray currentKeyArray = (BArray) BValueCreator.createArrayValue((BArrayType) keys.getType(),
-                                                                         currentKeys.size());
+        BArray currentKeyArray = (BArray) ValueCreator.createArrayValue((ArrayType) keys.getType(),
+                                                                        currentKeys.size());
         for (int i = 0; i < currentKeys.size(); i++) {
             Object key = currentKeys.get(i);
             currentKeyArray.add(i, key);
         }
 
         if (!TypeChecker.isEqual(currentKeyArray, keys)) {
-            throw BErrorCreator.createError(ITERATOR_MUTABILITY_ERROR, MUTATED_TABLE_ERROR_DETAIL);
+            throw ErrorCreator.createError(ITERATOR_MUTABILITY_ERROR, MUTATED_TABLE_ERROR_DETAIL);
         }
 
         keys.shift();

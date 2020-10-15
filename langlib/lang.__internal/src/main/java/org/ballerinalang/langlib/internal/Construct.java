@@ -18,11 +18,11 @@
 
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.types.BStreamType;
 
 /**
  * Native implementation of lang.internal:construct(typeDesc, iterator).
@@ -40,6 +40,6 @@ import io.ballerina.runtime.types.BStreamType;
 public class Construct {
 
     public static BStream construct(BTypedesc td, BObject iteratorObj) {
-        return BValueCreator.createStreamValue(new BStreamType(td.getDescribingType()), iteratorObj);
+        return ValueCreator.createStreamValue(TypeCreator.createStreamType(td.getDescribingType()), iteratorObj);
     }
 }

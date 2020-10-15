@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.scheduling;
 
-import io.ballerina.runtime.api.connector.CallableUnitCallback;
+import io.ballerina.runtime.api.async.CallableUnitCallback;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.values.FutureValue;
 

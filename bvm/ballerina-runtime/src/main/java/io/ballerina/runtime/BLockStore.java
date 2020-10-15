@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime;
 
-import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.util.exceptions.BallerinaErrorReasons;
 
@@ -56,7 +56,7 @@ public class BLockStore {
                 continue;
             }
             if (lock.lockedBySameContext(strand)) {
-                throw BErrorCreator.createError(BallerinaErrorReasons.ASYNC_CALL_INSIDE_LOCK);
+                throw ErrorCreator.createError(BallerinaErrorReasons.ASYNC_CALL_INSIDE_LOCK);
             }
         }
     }

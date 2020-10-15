@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Scheduler;
@@ -39,7 +39,7 @@ public class Info {
             TransactionLocalContext context = strand.currentTrxContext;
             return (BMap<BString, Object>) context.getInfoRecord();
         }
-        throw BErrorCreator.createError(BStringUtils
+        throw ErrorCreator.createError(StringUtils
                 .fromString("cannot call info() if the strand is not in transaction mode"));
     }
 }

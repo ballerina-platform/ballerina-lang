@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.test;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 
 /**
@@ -31,8 +31,8 @@ import io.ballerina.runtime.api.TypeTags;
 public class AssertError {
     public static void assertError(Object value) {
         if (TypeChecker.getType(value).getTag() != TypeTags.ERROR_TAG) {
-            throw BErrorCreator.createError(BStringUtils.fromString("{ballerina/lang.test}AssertionError"),
-                                            BStringUtils.fromString("expected an error type"));
+            throw ErrorCreator.createError(StringUtils.fromString("{ballerina/lang.test}AssertionError"),
+                                           StringUtils.fromString("expected an error type"));
         }
     }
 }

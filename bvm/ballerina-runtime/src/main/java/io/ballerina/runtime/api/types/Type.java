@@ -17,7 +17,7 @@
 */
 package io.ballerina.runtime.api.types;
 
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.async.Module;
 
 /**
  * {@code BType} represents a type in Ballerina.
@@ -80,4 +80,6 @@ public interface Type {
     Type getImmutableType();
 
     void setImmutableType(IntersectionType immutableType);
+
+    Module getPkg();
 }

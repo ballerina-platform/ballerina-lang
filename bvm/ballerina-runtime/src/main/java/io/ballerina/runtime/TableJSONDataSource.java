@@ -17,9 +17,10 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BString;
@@ -109,11 +110,11 @@ public class TableJSONDataSource implements JSONDataSource {
             if (structType != null) {
                 structFields = structType.getFields().values().toArray(new BField[0]);
             }
-            Map<String, BField> internalStructFields = structType.getFields();
+            Map<String, Field> internalStructFields = structType.getFields();
             if (structFields.length > 0) {
-                Iterator<Map.Entry<String, BField>> itr = internalStructFields.entrySet().iterator();
+                Iterator<Map.Entry<String, Field>> itr = internalStructFields.entrySet().iterator();
                 for (int i = 0; i < internalStructFields.size(); i++) {
-                    BField internalStructField = itr.next().getValue();
+                    Field internalStructField = itr.next().getValue();
                     int type = internalStructField.getFieldType().getTag();
                     String fieldName = internalStructField.getFieldName();
                     constructJsonData(record, objNode, fieldName, type, structFields, i);
@@ -126,45 +127,45 @@ public class TableJSONDataSource implements JSONDataSource {
 
     private static void constructJsonData(MapValueImpl record, MapValue<BString, Object> jsonObject, String name,
                                           int typeTag, BField[] structFields, int index) {
-        BString key = BStringUtils.fromString(name);
+        BString key = StringUtils.fromString(name);
         switch (typeTag) {
             case TypeTags.STRING_TAG:
-                jsonObject.put(BStringUtils.fromString(name), record.getStringValue(key));
+                jsonObject.put(StringUtils.fromString(name), record.getStringValue(key));
                 break;
             case TypeTags.INT_TAG:
                 Long intVal = record.getIntValue(key);
-                jsonObject.put(BStringUtils.fromString(name), intVal);
+                jsonObject.put(StringUtils.fromString(name), intVal);
                 break;
             case TypeTags.FLOAT_TAG:
                 Double floatVal = record.getFloatValue(key);
-                jsonObject.put(BStringUtils.fromString(name), floatVal);
+                jsonObject.put(StringUtils.fromString(name), floatVal);
                 break;
             case TypeTags.DECIMAL_TAG:
                 DecimalValue decimalVal = (DecimalValue) record.get(key);
-                jsonObject.put(BStringUtils.fromString(name), decimalVal);
+                jsonObject.put(StringUtils.fromString(name), decimalVal);
                 break;
             case TypeTags.BOOLEAN_TAG:
                 Boolean boolVal = record.getBooleanValue(key);
-                jsonObject.put(BStringUtils.fromString(name), boolVal);
+                jsonObject.put(StringUtils.fromString(name), boolVal);
                 break;
             case TypeTags.ARRAY_TAG:
-                jsonObject.put(BStringUtils.fromString(name), getDataArray(record, key));
+                jsonObject.put(StringUtils.fromString(name), getDataArray(record, key));
                 break;
             case TypeTags.JSON_TAG:
-                jsonObject.put(BStringUtils.fromString(name), record.getStringValue(key) == null ? null :
+                jsonObject.put(StringUtils.fromString(name), record.getStringValue(key) == null ? null :
                         JSONParser.parse(record.getStringValue(key).toString()));
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                jsonObject.put(BStringUtils.fromString(name),
+                jsonObject.put(StringUtils.fromString(name),
                                getStructData(record.getMapValue(key), structFields, index, key));
                 break;
             case TypeTags.XML_TAG:
-                BString strVal = BStringUtils.fromString(BStringUtils.getStringValue(record.get(key), null));
-                jsonObject.put(BStringUtils.fromString(name), strVal);
+                BString strVal = StringUtils.fromString(StringUtils.getStringValue(record.get(key), null));
+                jsonObject.put(StringUtils.fromString(name), strVal);
                 break;
             default:
-                jsonObject.put(BStringUtils.fromString(name), record.getStringValue(key));
+                jsonObject.put(StringUtils.fromString(name), record.getStringValue(key));
                 break;
         }
     }
@@ -204,16 +205,16 @@ public class TableJSONDataSource implements JSONDataSource {
                     BField[] internalStructFields =
                             ((BStructureType) internalType).getFields().values().toArray(new BField[0]);
                     for (int i = 0; i < internalStructFields.length; i++) {
-                        BString internalKeyName = BStringUtils.fromString(internalStructFields[i].name);
+                        BString internalKeyName = StringUtils.fromString(internalStructFields[i].name);
                         Object value = data.get(internalKeyName);
                         if (value instanceof BigDecimal) {
-                            jsonData.put(BStringUtils.fromString(internalStructFields[i].name),
+                            jsonData.put(StringUtils.fromString(internalStructFields[i].name),
                                          ((BigDecimal) value).doubleValue());
                         } else if (value instanceof MapValueImpl) {
-                            jsonData.put(BStringUtils.fromString(internalStructFields[i].name),
+                            jsonData.put(StringUtils.fromString(internalStructFields[i].name),
                                          getStructData((MapValueImpl) value, internalStructFields, i, internalKeyName));
                         } else {
-                            jsonData.put(BStringUtils.fromString(internalStructFields[i].name), value);
+                            jsonData.put(StringUtils.fromString(internalStructFields[i].name), value);
                         }
                         structError = false;
                     }

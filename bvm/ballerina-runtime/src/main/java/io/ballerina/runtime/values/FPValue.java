@@ -17,12 +17,12 @@
  */
 package io.ballerina.runtime.values;
 
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.scheduling.AsyncUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.util.BLangConstants;
 
 import java.util.Map;

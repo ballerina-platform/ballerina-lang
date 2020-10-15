@@ -19,9 +19,9 @@ package io.ballerina.runtime.services;
 
 import io.ballerina.runtime.annotation.JavaSPIService;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.services.spi.EmbeddedExecutor;
 import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.util.ArgumentParser;

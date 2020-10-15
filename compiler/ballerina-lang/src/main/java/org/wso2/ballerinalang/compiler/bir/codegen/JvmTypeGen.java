@@ -106,6 +106,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ATTACHED_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ATTACHED_FUNCTION_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BFIELD_IMPL;
@@ -952,7 +953,7 @@ class JvmTypeGen {
 
         // Set the fields of the object
         mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setAttachedFunctions",
-                           String.format("([L%s;)V", ATTACHED_FUNCTION_IMPL), false);
+                           String.format("([L%s;)V", ATTACHED_FUNCTION), false);
     }
 
     private static void addObjectInitFunction(MethodVisitor mv, BAttachedFunction initFunction,

@@ -18,10 +18,10 @@
 package org.ballerinalang.observe.metrics.prometheus;
 
 import io.ballerina.runtime.annotation.JavaSPIService;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.observability.ObservabilityConstants;
 import io.ballerina.runtime.observability.metrics.spi.MetricReporter;
 import io.ballerina.runtime.observability.tracer.InvalidConfigurationException;
-import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.services.EmbeddedExecutorProvider;
 import io.ballerina.runtime.services.spi.EmbeddedExecutor;
 import org.ballerinalang.config.ConfigRegistry;

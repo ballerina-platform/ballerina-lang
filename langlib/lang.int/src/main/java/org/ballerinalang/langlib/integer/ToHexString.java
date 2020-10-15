@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.integer;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 /**
@@ -29,6 +29,6 @@ import io.ballerina.runtime.api.values.BString;
 public class ToHexString {
 
     public static BString toHexString(long n) {
-        return BStringUtils.fromString(Long.toHexString(n));
+        return StringUtils.fromString(Long.toHexString(n));
     }
 }

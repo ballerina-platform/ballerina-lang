@@ -17,17 +17,17 @@
  */
 package io.ballerina.runtime;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.commons.TypeValuePair;
 import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BField;
 import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.types.BRecordType;
 import io.ballerina.runtime.types.BTableType;
@@ -91,7 +91,7 @@ public class TypeConverter {
                 return anyToFloat(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, Types.TYPE_FLOAT));
             case TypeTags.STRING_TAG:
-                return BStringUtils.fromString(anyToString(inputValue));
+                return StringUtils.fromString(anyToString(inputValue));
             case TypeTags.BOOLEAN_TAG:
                 return anyToBoolean(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, Types.TYPE_BOOLEAN));
@@ -99,8 +99,8 @@ public class TypeConverter {
                 return anyToByte(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, Types.TYPE_BYTE));
             default:
-                throw BErrorCreator.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                                BLangExceptionHelper.getErrorMessage(
+                throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                               BLangExceptionHelper.getErrorMessage(
                                                           RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                           inputType, inputValue, targetType));
         }
@@ -317,19 +317,19 @@ public class TypeConverter {
         Map<String, Type> targetFieldTypes = new HashMap<>();
         Type restFieldType = targetType.restFieldType;
 
-        for (BField field : targetType.getFields().values()) {
-            targetFieldTypes.put(field.getFieldName(), field.type);
+        for (Field field : targetType.getFields().values()) {
+            targetFieldTypes.put(field.getFieldName(), field.getFieldType());
         }
 
         MapValueImpl sourceMapValueImpl = (MapValueImpl) sourceValue;
         for (Map.Entry targetTypeEntry : targetFieldTypes.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
-            if (sourceMapValueImpl.containsKey(BStringUtils.fromString(fieldName))) {
+            if (sourceMapValueImpl.containsKey(StringUtils.fromString(fieldName))) {
                 continue;
             }
-            BField targetField = targetType.getFields().get(fieldName);
-            if (Flags.isFlagOn(targetField.flags, Flags.REQUIRED)) {
+            Field targetField = targetType.getFields().get(fieldName);
+            if (Flags.isFlagOn(targetField.getFlags(), Flags.REQUIRED)) {
                 return false;
             }
         }
@@ -571,7 +571,7 @@ public class TypeConverter {
         if (!isCharLiteralValue(sourceVal)) {
             throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_STRING_CHAR);
         }
-        return BStringUtils.fromString(Objects.toString(sourceVal));
+        return StringUtils.fromString(Objects.toString(sourceVal));
     }
 
     public static BString anyToChar(Object sourceVal) {

@@ -17,7 +17,7 @@
 
 package io.ballerina.runtime;
 
-import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
@@ -60,7 +60,7 @@ public class TableUtils {
             Node node = new Node(obj, parent);
 
             if (node.hasCyclesSoFar()) {
-                throw BErrorCreator.createError(TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper
+                throw ErrorCreator.createError(TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper
                         .getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, TypeChecker.getType(obj)));
             }
 

@@ -18,13 +18,14 @@
 
 package org.ballerinalang.stdlib.io.utils;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.BMapType;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ import java.util.Set;
  */
 public class PropertyUtils {
     private static final Logger log = LoggerFactory.getLogger(PropertyUtils.class);
-    private static final BMapType mapType = new BMapType(Types.TYPE_STRING);
+    private static final MapType mapType = TypeCreator.createMapType(Types.TYPE_STRING);
     private static Map<String, Properties> propertiesMap = new HashMap<>();
 
     // Read a property related to a given key and return the BString value.
@@ -59,7 +60,7 @@ public class PropertyUtils {
         }
         String value = readableProperties.getProperty(key.getValue(), defaultValue.getValue());
         if (value != null) {
-            return BStringUtils.fromString(value);
+            return StringUtils.fromString(value);
         }
 
         return null;
@@ -80,12 +81,12 @@ public class PropertyUtils {
         for (Enumeration<?> e = readableProperties.propertyNames(); e.hasMoreElements(); ) {
             String key = (String) e.nextElement();
             String value = readableProperties.getProperty(key);
-            BMapInitialValueEntry keyValue = BValueCreator.createKeyFieldEntry(BStringUtils.fromString(key),
-                                                                            BStringUtils.fromString(value));
+            BMapInitialValueEntry keyValue = ValueCreator.createKeyFieldEntry(StringUtils.fromString(key),
+                                                                              StringUtils.fromString(value));
             keyValues[i] = keyValue;
             i++;
         }
-        return BValueCreator.createMapValue(mapType, keyValues);
+        return ValueCreator.createMapValue(mapType, keyValues);
     }
 
 

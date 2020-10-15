@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
@@ -33,11 +33,11 @@ public class GetContent {
     public static BString getContent(Object xmlVal) {
         BXML value = (BXML) xmlVal;
         if (IsText.isText(value)) {
-            return BStringUtils.fromString(value.getTextValue());
+            return StringUtils.fromString(value.getTextValue());
         } else if (IsProcessingInstruction.isProcessingInstruction(value)) {
-            return BStringUtils.fromString(XMLValueUtil.getPIContent(value));
+            return StringUtils.fromString(XMLValueUtil.getPIContent(value));
         } else if (IsComment.isComment(value)) {
-            return BStringUtils.fromString(XMLValueUtil.getCommentContent(value));
+            return StringUtils.fromString(XMLValueUtil.getCommentContent(value));
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getContent",
                                                        "text|processing instruction|comment");

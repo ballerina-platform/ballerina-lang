@@ -19,6 +19,7 @@ package org.ballerinalang.net.http;
 
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -26,7 +27,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
-import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.langlib.value.CloneWithType;
@@ -235,15 +235,15 @@ public class HttpDispatcher {
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, bxml);
                     return bxml;
                 case TypeTags.ARRAY_TAG:
-                    if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                    if (((ArrayType) entityBodyType).getElementType().getTag() == TypeTags.BYTE_TAG) {
                         BArray blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
                         EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
                         return blobDataSource;
-                    } else if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+                    } else if (((ArrayType) entityBodyType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG) {
                         return getRecordEntity(inRequestEntity, entityBodyType);
                     } else {
                         throw new BallerinaConnectorException("Incompatible Element type found inside an array " +
-                                ((BArrayType) entityBodyType).getElementType().getName());
+                                ((ArrayType) entityBodyType).getElementType().getName());
                     }
                 case TypeTags.RECORD_TYPE_TAG:
                     return getRecordEntity(inRequestEntity, entityBodyType);

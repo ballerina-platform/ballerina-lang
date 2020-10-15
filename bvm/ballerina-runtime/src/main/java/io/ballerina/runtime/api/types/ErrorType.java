@@ -24,4 +24,5 @@ package io.ballerina.runtime.api.types;
  */
 public interface ErrorType extends AnnotatableType {
 
+    Type getDetailType();
 }

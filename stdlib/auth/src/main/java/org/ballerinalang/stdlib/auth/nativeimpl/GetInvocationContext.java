@@ -38,13 +38,12 @@ public class GetInvocationContext {
 
     private static final String AUTH_INVOCATION_CONTEXT_PROPERTY = "AuthInvocationContext";
     private static final String RECORD_TYPE_INVOCATION_CONTEXT = "InvocationContext";
-    private static final ValueCreator valueCreator = ValueCreator.getValueCreator(BALLERINA_AUTH_PKG_ID.toString());
 
     private static BMap<BString, Object> getInvocationContextRecord(Strand strand) {
         BMap<BString, Object> invocationContext =
                 (BMap<BString, Object>) strand.getProperty(AUTH_INVOCATION_CONTEXT_PROPERTY);
         if (invocationContext == null) {
-            invocationContext = valueCreator.createRecordValue(RECORD_TYPE_INVOCATION_CONTEXT);
+            invocationContext = ValueCreator.createRecordValue(BALLERINA_AUTH_PKG_ID, RECORD_TYPE_INVOCATION_CONTEXT);
             strand.setProperty(AUTH_INVOCATION_CONTEXT_PROPERTY, invocationContext);
         }
         return invocationContext;

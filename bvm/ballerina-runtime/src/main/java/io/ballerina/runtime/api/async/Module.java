@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.runtime.api.commons;
+package io.ballerina.runtime.api.async;
 
 import java.util.Objects;
 
@@ -32,9 +32,9 @@ import static io.ballerina.runtime.util.BLangConstants.VERSION_SEPARATOR;
  */
 public class Module {
 
-    public String org;
-    public String name;
-    public String version;
+    private String org;
+    private String name;
+    private String version;
     private int hashCode;
 
     public Module(String org, String name, String version) {

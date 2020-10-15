@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Scheduler;
@@ -44,13 +44,13 @@ public class SetTransactionContext {
         String url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).toString();
         String protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).toString();
         long retryNmbr = getRetryNumber(prevAttemptInfo);
-        BMap<BString, Object> trxContext = BValueCreator.createRecordValue(TRANSACTION_PACKAGE_ID,
-                                                                           "Info");
+        BMap<BString, Object> trxContext = ValueCreator.createRecordValue(TRANSACTION_PACKAGE_ID,
+                                                                          "Info");
         Object[] trxContextData = new Object[]{
-                BValueCreator.createArrayValue(globalTransactionId.getBytes(Charset.defaultCharset())), retryNmbr,
+                ValueCreator.createArrayValue(globalTransactionId.getBytes(Charset.defaultCharset())), retryNmbr,
                 System.currentTimeMillis(), prevAttemptInfo
         };
-        BMap<BString, Object> infoRecord = BValueCreator.createRecordValue(trxContext, trxContextData);
+        BMap<BString, Object> infoRecord = ValueCreator.createRecordValue(trxContext, trxContextData);
         TransactionLocalContext trxCtx = TransactionLocalContext
                 .createTransactionParticipantLocalCtx(globalTransactionId, url, protocol, infoRecord);
         trxCtx.beginTransactionBlock(transactionBlockId);
@@ -62,7 +62,7 @@ public class SetTransactionContext {
             return 0;
         } else {
             Map<BString, Object> infoRecord = (Map<BString, Object>) prevAttemptInfo;
-            Long retryNumber = (Long) infoRecord.get(BStringUtils.fromString("retryNumber"));
+            Long retryNumber = (Long) infoRecord.get(StringUtils.fromString("retryNumber"));
             return retryNumber + 1;
         }
     }

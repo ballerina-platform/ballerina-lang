@@ -18,11 +18,11 @@ package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.CycleUtils;
 import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.types.AttachedFunction;
 import io.ballerina.runtime.types.BObjectType;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.ballerina.runtime.values.AbstractObjectValue;
@@ -116,9 +116,9 @@ public class StringUtils {
 
     public static String getStringAt(String s, long index) {
         if (index < 0 || index >= s.length()) {
-            throw BErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
-                                                                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                                            fromString("string index out of range: index: " + index + ", size: " +
+            throw ErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
+                                                                   INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                                           fromString("string index out of range: index: " + index + ", size: " +
                                                                s.length()));
         }
 
@@ -127,9 +127,9 @@ public class StringUtils {
 
     public static BString getStringAt(BString s, long index) {
         if (index < 0 || index >= s.length()) {
-            throw BErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
-                                                                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                                            fromString("string index out of range: index: " + index + ", size: " +
+            throw ErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
+                                                                   INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                                           fromString("string index out of range: index: " + index + ", size: " +
                                                                s.length()));
         }
 
@@ -227,9 +227,9 @@ public class StringUtils {
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
             BObjectType objectType = objectValue.getType();
-            for (AttachedFunction func : objectType.getAttachedFunctions()) {
-                if (func.funcName.equals("toString") && func.paramTypes.length == 0 &&
-                        func.type.retType.getTag() == TypeTags.STRING_TAG) {
+            for (AttachedFunctionType func : objectType.getAttachedFunctions()) {
+                if (func.getName().equals("toString") && func.getParameterTypes().length == 0 &&
+                        func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
                     return objectValue.call(Scheduler.getStrand(), "toString").toString();
                 }
             }
@@ -304,9 +304,9 @@ public class StringUtils {
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
             BObjectType objectType = objectValue.getType();
-            for (AttachedFunction func : objectType.getAttachedFunctions()) {
-                if (func.funcName.equals("toString") && func.paramTypes.length == 0 &&
-                        func.type.retType.getTag() == TypeTags.STRING_TAG) {
+            for (AttachedFunctionType func : objectType.getAttachedFunctions()) {
+                if (func.getName().equals("toString") && func.getParameterTypes().length == 0 &&
+                        func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
                     return "object " + objectValue.call(Scheduler.getStrand(), "toString").toString();
                 }
             }

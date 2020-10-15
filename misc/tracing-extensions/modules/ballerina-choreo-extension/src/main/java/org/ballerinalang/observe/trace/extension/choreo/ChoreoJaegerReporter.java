@@ -16,8 +16,8 @@
 
 package org.ballerinalang.observe.trace.extension.choreo;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.jaegertracing.internal.JaegerSpan;
 import io.jaegertracing.internal.JaegerSpanContext;
 import io.jaegertracing.internal.Reference;
@@ -58,10 +58,10 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
         try {
             choreoClient = ChoreoClientHolder.getChoreoClient(this);
         } catch (ChoreoClientException e) {
-            throw BErrorCreator.createError(
-                    BStringUtils
+            throw ErrorCreator.createError(
+                    StringUtils
                             .fromString("Choreo client is not initialized. Please check Ballerina configurations."),
-                    BStringUtils.fromString(e.getMessage()));
+                    StringUtils.fromString(e.getMessage()));
         }
         if (Objects.isNull(choreoClient)) {
             throw new IllegalStateException("Choreo client is not initialized");

@@ -19,8 +19,8 @@ package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.CycleUtils;
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.commons.ArrayState;
@@ -116,7 +116,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this.size = values.length;
         bStringValues = new BString[size];
         for (int i = 0; i < size; i++) {
-            bStringValues[i] = BStringUtils.fromString(values[i]);
+            bStringValues[i] = StringUtils.fromString(values[i]);
         }
         setArrayType(Types.TYPE_STRING);
     }
@@ -503,7 +503,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Deprecated
     private void addString(long index, String value) {
-        addBString(index, BStringUtils.fromString(value));
+        addBString(index, StringUtils.fromString(value));
     }
 
     private void addBString(long index, BString value) {
@@ -601,7 +601,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                                         .Node(this, parent)));
                                 break;
                             default:
-                                sj.add(BStringUtils.getStringValue(refValues[i], new CycleUtils.Node(this, parent)));
+                                sj.add(StringUtils.getStringValue(refValues[i], new CycleUtils.Node(this, parent)));
                                 break;
                         }
                     }
@@ -623,39 +623,39 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(BStringUtils.getExpressionStringValue(intValues[i],
-                            new CycleUtils.Node(this, parent)));
+                    sj.add(StringUtils.getExpressionStringValue(intValues[i],
+                                                                new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.BOOLEAN_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(BStringUtils.getExpressionStringValue(booleanValues[i],
-                            new CycleUtils.Node(this, parent)));
+                    sj.add(StringUtils.getExpressionStringValue(booleanValues[i],
+                                                                new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.BYTE_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(BStringUtils.getExpressionStringValue(byteValues[i],
-                            new CycleUtils.Node(this, parent)));
+                    sj.add(StringUtils.getExpressionStringValue(byteValues[i],
+                                                                new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.FLOAT_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(BStringUtils.getExpressionStringValue(floatValues[i],
-                            new CycleUtils.Node(this, parent)));
+                    sj.add(StringUtils.getExpressionStringValue(floatValues[i],
+                                                                new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(BStringUtils.getExpressionStringValue(bStringValues[i],
-                            new CycleUtils.Node(this, parent)));
+                    sj.add(StringUtils.getExpressionStringValue(bStringValues[i],
+                                                                new CycleUtils.Node(this, parent)));
                 }
                 break;
             default:
                 for (int i = 0; i < size; i++) {
-                    sj.add(BStringUtils.getExpressionStringValue(refValues[i],
-                            new CycleUtils.Node(this, parent)));
+                    sj.add(StringUtils.getExpressionStringValue(refValues[i],
+                                                                new CycleUtils.Node(this, parent)));
                 }
                 break;
         }
@@ -1049,7 +1049,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             BString reason = getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
             BString detail = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType,
                     sourceType);
-            throw BErrorCreator.createError(reason, detail);
+            throw ErrorCreator.createError(reason, detail);
         }
 
         int intIndex = (int) index;

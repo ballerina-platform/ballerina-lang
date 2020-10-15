@@ -18,8 +18,11 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
@@ -27,9 +30,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.AsyncUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.api.commons.StrandMetadata;
-import io.ballerina.runtime.types.BMapType;
-import io.ballerina.runtime.types.BRecordType;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -57,13 +57,13 @@ public class Filter {
                 newMapType = mapType;
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                Type newConstraint = MapLibUtils.getCommonTypeForRecordField((BRecordType) mapType);
-                newMapType = new BMapType(newConstraint);
+                Type newConstraint = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
+                newMapType = TypeCreator.createMapType(newConstraint);
                 break;
             default:
                 throw createOpNotSupportedError(mapType, "filter()");
         }
-        BMap<BString, Object> newMap = BValueCreator.createMapValue(newMapType);
+        BMap<BString, Object> newMap = ValueCreator.createMapValue(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();

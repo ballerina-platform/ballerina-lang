@@ -18,7 +18,7 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -110,8 +110,8 @@ public class MimeEntityBody {
                 EntityBodyChannel entityBodyChannel = new EntityBodyChannel(new ByteArrayInputStream(
                         outputStream.toByteArray()));
                 MimeUtil.closeOutputStream(outputStream);
-                BObject byteChannelObj = BValueCreator.createObjectValue(IOConstants.IO_PACKAGE_ID,
-                                                                         READABLE_BYTE_CHANNEL_STRUCT);
+                BObject byteChannelObj = ValueCreator.createObjectValue(IOConstants.IO_PACKAGE_ID,
+                                                                        READABLE_BYTE_CHANNEL_STRUCT);
                 byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new EntityWrapper(entityBodyChannel));
                 return byteChannelObj;
             } else {
@@ -127,7 +127,7 @@ public class MimeEntityBody {
     public static Object getByteChannel(BObject entityObj) {
         BObject byteChannelObj;
         try {
-            byteChannelObj = BValueCreator.createObjectValue(PROTOCOL_IO_PKG_ID, READABLE_BYTE_CHANNEL_STRUCT);
+            byteChannelObj = ValueCreator.createObjectValue(PROTOCOL_IO_PKG_ID, READABLE_BYTE_CHANNEL_STRUCT);
             Channel byteChannel = EntityBodyHandler.getByteChannel(entityObj);
             if (byteChannel != null) {
                 byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, byteChannel);
@@ -155,7 +155,7 @@ public class MimeEntityBody {
 
     public static Object getMediaType(BString contentType) {
         try {
-            BObject mediaType = BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
+            BObject mediaType = ValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
             return MimeUtil.parseMediaType(mediaType, contentType.getValue());
         } catch (Throwable err) {
             return MimeUtil.createError(INVALID_CONTENT_TYPE_ERROR, getErrorMsg(err));

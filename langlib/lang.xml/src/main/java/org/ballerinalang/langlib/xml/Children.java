@@ -18,7 +18,7 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.api.values.BXMLItem;
 import io.ballerina.runtime.api.values.BXMLSequence;
@@ -48,8 +48,8 @@ public class Children {
             for (BXML bxml : sequence.getChildrenList()) {
                 liftedChildren.addAll(((BXMLItem) bxml).getChildrenSeq().getChildrenList());
             }
-            return BValueCreator.createXMLSequence(liftedChildren);
+            return ValueCreator.createXMLSequence(liftedChildren);
         }
-        return BValueCreator.createXMLSequence();
+        return ValueCreator.createXMLSequence();
     }
 }

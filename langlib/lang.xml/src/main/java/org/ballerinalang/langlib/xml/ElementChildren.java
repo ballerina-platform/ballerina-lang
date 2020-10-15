@@ -18,7 +18,7 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.api.values.BXMLItem;
@@ -68,8 +68,8 @@ public class ElementChildren {
                     items.add(childElement);
                 }
             }
-            return BValueCreator.createXMLSequence(items);
+            return ValueCreator.createXMLSequence(items);
         }
-        return BValueCreator.createXMLSequence();
+        return ValueCreator.createXMLSequence();
     }
 }

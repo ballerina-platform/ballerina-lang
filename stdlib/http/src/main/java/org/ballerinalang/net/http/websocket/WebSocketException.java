@@ -23,10 +23,10 @@ import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.BValueCreator;
 import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.types.BErrorType;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.BErrorType;
 
 /**
  * Exceptions that could occur in WebSocket.

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
@@ -41,27 +41,27 @@ public class Hash {
 
         checksum.update(bytes, 0, bytes.length);
         checksumVal = checksum.getValue();
-        return BStringUtils.fromString(Long.toHexString(checksumVal));
+        return StringUtils.fromString(Long.toHexString(checksumVal));
     }
 
     public static BArray hashMd5(BArray inputValue) {
-        return BValueCreator.createArrayValue(CryptoUtils.hash("MD5", inputValue.getBytes()));
+        return ValueCreator.createArrayValue(CryptoUtils.hash("MD5", inputValue.getBytes()));
     }
 
     public static BArray hashSha1(BArray inputValue) {
-        return BValueCreator.createArrayValue(CryptoUtils.hash("SHA-1", inputValue.getBytes()));
+        return ValueCreator.createArrayValue(CryptoUtils.hash("SHA-1", inputValue.getBytes()));
     }
 
     public static BArray hashSha256(BArray inputValue) {
-        return BValueCreator.createArrayValue(CryptoUtils.hash("SHA-256", inputValue.getBytes()));
+        return ValueCreator.createArrayValue(CryptoUtils.hash("SHA-256", inputValue.getBytes()));
     }
 
     public static BArray hashSha384(BArray inputValue) {
-        return BValueCreator.createArrayValue(CryptoUtils.hash("SHA-384", inputValue.getBytes()));
+        return ValueCreator.createArrayValue(CryptoUtils.hash("SHA-384", inputValue.getBytes()));
     }
 
     public static BArray hashSha512(BArray inputValue) {
-        return BValueCreator.createArrayValue(CryptoUtils.hash("SHA-512", inputValue.getBytes()));
+        return ValueCreator.createArrayValue(CryptoUtils.hash("SHA-512", inputValue.getBytes()));
     }
 
 }

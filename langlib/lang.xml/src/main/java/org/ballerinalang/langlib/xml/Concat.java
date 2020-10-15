@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.XMLFactory;
 import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
 
@@ -55,6 +55,6 @@ public class Concat {
                 lastItem = (BXML) refValue;
             }
         }
-        return BValueCreator.createXMLSequence(backingArray);
+        return ValueCreator.createXMLSequence(backingArray);
     }
 }

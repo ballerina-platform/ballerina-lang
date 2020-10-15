@@ -22,6 +22,7 @@ import io.ballerina.runtime.JSONGenerator;
 import io.ballerina.runtime.api.BErrorCreator;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -36,7 +37,6 @@ import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.services.ErrorHandlerUtils;
 import io.ballerina.runtime.transactions.TransactionConstants;
-import io.ballerina.runtime.types.AttachedFunction;
 import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpRequest;
@@ -1113,7 +1113,7 @@ public class HttpUtil {
                 reqMsg.getHeader(HttpHeaderNames.EXPECT.toString())) || statusCode == 100;
     }
 
-    public static BMap getTransactionConfigAnnotation(AttachedFunction resource, String transactionPackagePath) {
+    public static BMap getTransactionConfigAnnotation(AttachedFunctionType resource, String transactionPackagePath) {
         return (BMap) resource.getAnnotation(transactionPackagePath,
                                                  TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
     }

@@ -21,8 +21,8 @@ package org.ballerinalang.mime.nativeimpl;
 import io.ballerina.runtime.JSONParser;
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -74,13 +74,13 @@ public abstract class MimeDataSourceBuilder {
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
-                return BValueCreator.createArrayValue(
-                        BStringUtils.getJsonString(messageDataSource).getBytes(charsetValue));
+                return ValueCreator.createArrayValue(
+                        StringUtils.getJsonString(messageDataSource).getBytes(charsetValue));
             }
-            return BValueCreator.createArrayValue(
-                    BStringUtils.getJsonString(messageDataSource).getBytes(Charset.defaultCharset()));
+            return ValueCreator.createArrayValue(
+                    StringUtils.getJsonString(messageDataSource).getBytes(Charset.defaultCharset()));
         }
-        return BValueCreator.createArrayValue(new byte[0]);
+        return ValueCreator.createArrayValue(new byte[0]);
     }
 
     public static Object getJson(BObject entityObj) {
@@ -123,7 +123,7 @@ public abstract class MimeDataSourceBuilder {
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
-                return BStringUtils.fromString(MimeUtil.getMessageAsString(dataSource));
+                return StringUtils.fromString(MimeUtil.getMessageAsString(dataSource));
             }
             result = EntityBodyHandler.constructStringDataSource(entityObj);
             updateDataSource(entityObj, result);

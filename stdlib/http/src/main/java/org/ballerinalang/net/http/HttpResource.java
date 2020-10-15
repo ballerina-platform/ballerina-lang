@@ -18,11 +18,11 @@
 package org.ballerinalang.net.http;
 
 import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.transactions.TransactionConstants;
-import io.ballerina.runtime.types.AttachedFunction;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,7 @@ public class HttpResource {
     private static final BString CORS_FIELD = BStringUtils.fromString("cors");
     private static final BString TRANSACTION_INFECTABLE_FIELD = BStringUtils.fromString("transactionInfectable");
 
-    private AttachedFunction balResource;
+    private AttachedFunctionType balResource;
     private List<String> methods;
     private String path;
     private String entityBodyAttribute;
@@ -73,7 +73,7 @@ public class HttpResource {
 
     private boolean transactionAnnotated = false;
 
-    protected HttpResource(AttachedFunction resource, HttpService parentService) {
+    protected HttpResource(AttachedFunctionType resource, HttpService parentService) {
         this.balResource = resource;
         this.parentService = parentService;
         this.producesSubTypes = new ArrayList<>();
@@ -99,7 +99,7 @@ public class HttpResource {
         return parentService;
     }
 
-    public AttachedFunction getBalResource() {
+    public AttachedFunctionType getBalResource() {
         return balResource;
     }
 
@@ -188,7 +188,7 @@ public class HttpResource {
         this.entityBodyAttribute = entityBodyAttribute;
     }
 
-    public static HttpResource buildHttpResource(AttachedFunction resource, HttpService httpService) {
+    public static HttpResource buildHttpResource(AttachedFunctionType resource, HttpService httpService) {
         HttpResource httpResource = new HttpResource(resource, httpService);
         BMap resourceConfigAnnotation = getResourceConfigAnnotation(resource);
         httpResource.setInterruptible(httpService.isInterruptible() || hasInterruptibleAnnotation(resource));
@@ -221,7 +221,7 @@ public class HttpResource {
         return httpResource;
     }
 
-    private static void setupTransactionAnnotations(AttachedFunction resource, HttpResource httpResource) {
+    private static void setupTransactionAnnotations(AttachedFunctionType resource, HttpResource httpResource) {
         BMap transactionConfigAnnotation = HttpUtil.getTransactionConfigAnnotation(resource,
                         TransactionConstants.TRANSACTION_PACKAGE_PATH);
         if (transactionConfigAnnotation != null) {
@@ -235,17 +235,17 @@ public class HttpResource {
      * @param resource The resource
      * @return the resource configuration of the given resource
      */
-    public static BMap getResourceConfigAnnotation(AttachedFunction resource) {
+    public static BMap getResourceConfigAnnotation(AttachedFunctionType resource) {
         return (BMap) resource.getAnnotation(PROTOCOL_PACKAGE_HTTP, ANN_NAME_RESOURCE_CONFIG);
     }
 
-    protected static BMap getPathParamOrderMap(AttachedFunction resource) {
+    protected static BMap getPathParamOrderMap(AttachedFunctionType resource) {
         Object annotation = resource.getAnnotation(PROTOCOL_PACKAGE_HTTP, ANN_NAME_PARAM_ORDER_CONFIG);
         return annotation == null ? new BMap<BString, Object>() :
                 (BMap<BString, Object>) ((BMap<BString, Object>) annotation).get(ANN_FIELD_PATH_PARAM_ORDER);
     }
 
-    private static boolean hasInterruptibleAnnotation(AttachedFunction resource) {
+    private static boolean hasInterruptibleAnnotation(AttachedFunctionType resource) {
         return resource.getAnnotation(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE) != null;
     }
 

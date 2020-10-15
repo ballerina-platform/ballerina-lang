@@ -24,5 +24,9 @@ package io.ballerina.runtime.api.types;
  */
 public interface RecordType extends StructureType {
 
+    boolean isSealed();
 
+    Type getRestFieldType();
+
+    int getTypeFlags();
 }

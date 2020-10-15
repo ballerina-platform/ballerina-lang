@@ -52,7 +52,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.flags = flags;
     }
 
-    public Type[] getParameterType() {
+    public Type[] getParameterTypes() {
         return paramTypes;
     }
 
@@ -138,5 +138,21 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     @Override
     public boolean isReadOnly() {
         return true;
+    }
+
+    public Type[] getParamTypes() {
+        return paramTypes;
+    }
+
+    public Type getRestType() {
+        return restType;
+    }
+
+    public Type getReturnType() {
+        return retType;
+    }
+
+    public int getFlags() {
+        return flags;
     }
 }

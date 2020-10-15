@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BDecimal;
 
 import java.math.RoundingMode;
@@ -37,6 +37,6 @@ import java.math.RoundingMode;
 public class Ceiling {
 
     public static BDecimal ceiling(BDecimal x) {
-        return BValueCreator.createDecimalValue(x.value().setScale(0, RoundingMode.CEILING));
+        return ValueCreator.createDecimalValue(x.value().setScale(0, RoundingMode.CEILING));
     }
 }

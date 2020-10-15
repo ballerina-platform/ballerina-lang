@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
-import io.ballerina.runtime.api.BalEnv;
-import io.ballerina.runtime.api.BalFuture;
+import io.ballerina.runtime.api.Env;
+import io.ballerina.runtime.api.async.Future;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,8 +35,8 @@ public class Sleep {
 
     private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
 
-    public static void sleep(BalEnv env, long delayMillis) {
-        BalFuture balFuture = env.markAsync();
+    public static void sleep(Env env, long delayMillis) {
+        Future balFuture = env.markAsync();
         executor.schedule(() -> balFuture.complete(null), delayMillis, TimeUnit.MILLISECONDS);
     }
 }

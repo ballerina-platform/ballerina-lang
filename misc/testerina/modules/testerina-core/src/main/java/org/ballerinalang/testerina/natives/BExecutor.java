@@ -18,7 +18,8 @@
 package org.ballerinalang.testerina.natives;
 
 import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.connector.CallableUnitCallback;
+import io.ballerina.runtime.api.async.CallableUnitCallback;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
@@ -27,7 +28,6 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.api.commons.StrandMetadata;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 import java.lang.reflect.InvocationTargetException;

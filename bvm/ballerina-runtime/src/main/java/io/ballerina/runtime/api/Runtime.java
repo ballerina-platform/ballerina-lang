@@ -16,14 +16,14 @@
  */
 package io.ballerina.runtime.api;
 
-import io.ballerina.runtime.api.connector.CallableUnitCallback;
+import io.ballerina.runtime.api.async.CallableUnitCallback;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.observability.ObservabilityConstants;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.api.commons.StrandMetadata;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -33,11 +33,11 @@ import java.util.function.Function;
  *
  * @since 1.0.0
  */
-public class BRuntime {
+public class Runtime {
 
     private Scheduler scheduler;
 
-    BRuntime(Scheduler scheduler) {
+    Runtime(Scheduler scheduler) {
         this.scheduler = scheduler;
     }
 
@@ -48,9 +48,9 @@ public class BRuntime {
      * @return Ballerina runtime instance.
      */
     @Deprecated
-    public static BRuntime getCurrentRuntime() {
+    public static Runtime getCurrentRuntime() {
         Strand strand = Scheduler.getStrand();
-        return new BRuntime(strand.scheduler);
+        return new Runtime(strand.scheduler);
     }
 
 

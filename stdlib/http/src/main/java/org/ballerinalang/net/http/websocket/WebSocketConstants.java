@@ -21,7 +21,6 @@ package org.ballerinalang.net.http.websocket;
 import io.ballerina.runtime.api.BStringUtils;
 import io.ballerina.runtime.api.runtime.Module;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.commons;
 import io.ballerina.runtime.util.BLangConstants;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MODULE_VERSION;

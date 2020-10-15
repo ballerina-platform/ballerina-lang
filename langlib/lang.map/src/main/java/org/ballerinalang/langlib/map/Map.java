@@ -18,16 +18,17 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.AsyncUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.api.commons.StrandMetadata;
-import io.ballerina.runtime.types.BFunctionType;
-import io.ballerina.runtime.types.BMapType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -52,8 +53,8 @@ public class Map {
                                                                       MAP_VERSION, "map");
 
     public static BMap map(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
-        BMapType newMapType = new BMapType(((BFunctionType) func.getType()).retType);
-        BMap<BString, Object> newMap = BValueCreator.createMapValue(newMapType);
+        MapType newMapType = TypeCreator.createMapType(((FunctionType) func.getType()).getReturnType());
+        BMap<BString, Object> newMap = ValueCreator.createMapValue(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();

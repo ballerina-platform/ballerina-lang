@@ -24,4 +24,5 @@ package io.ballerina.runtime.api.types;
  */
 public interface IntersectionType extends Type {
 
+    Type getEffectiveType();
 }

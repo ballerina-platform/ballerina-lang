@@ -18,14 +18,14 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
-import io.ballerina.runtime.api.BalEnv;
-import io.ballerina.runtime.api.BalFuture;
+import io.ballerina.runtime.api.Env;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.Future;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
@@ -107,7 +107,7 @@ public class StaticMethods {
 
     // This scenario is for map value to be passed to interop and return array value.
     public static ArrayValue getArrayValueFromMap(BString key, MapValue mapValue) {
-        ArrayValue arrayValue = (ArrayValue) BValueCreator.createArrayValue(intArrayType);
+        ArrayValue arrayValue = (ArrayValue) ValueCreator.createArrayValue(intArrayType);
         arrayValue.add(0, 1);
         long fromMap = (long) mapValue.get(key);
         arrayValue.add(1, fromMap);
@@ -116,14 +116,14 @@ public class StaticMethods {
 
     public static BMap<BString, Object> acceptRefTypesAndReturnMap(ObjectValue a, ArrayValue b, Object c,
                                                                    ErrorValue d, Object e, Object f, MapValue g) {
-        BMap<BString, Object> mapValue = BValueCreator.createMapValue();
-        mapValue.put(BStringUtils.fromString("a"), a);
-        mapValue.put(BStringUtils.fromString("b"), b);
-        mapValue.put(BStringUtils.fromString("c"), c);
+        BMap<BString, Object> mapValue = ValueCreator.createMapValue();
+        mapValue.put(StringUtils.fromString("a"), a);
+        mapValue.put(StringUtils.fromString("b"), b);
+        mapValue.put(StringUtils.fromString("c"), c);
 //        mapValue.put("d", d);
-        mapValue.put(BStringUtils.fromString("e"), e);
-        mapValue.put(BStringUtils.fromString("f"), f);
-        mapValue.put(BStringUtils.fromString("g"), g);
+        mapValue.put(StringUtils.fromString("e"), e);
+        mapValue.put(StringUtils.fromString("f"), f);
+        mapValue.put(StringUtils.fromString("g"), g);
         return mapValue;
     }
 
@@ -132,7 +132,7 @@ public class StaticMethods {
     }
 
     public static BError acceptStringErrorReturn(BString msg) {
-        return BErrorCreator.createError(msg, new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
+        return ErrorCreator.createError(msg, new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
     }
 
     public static Object acceptIntUnionReturn(int flag) {
@@ -149,16 +149,16 @@ public class StaticMethods {
     }
 
     public static ObjectValue acceptObjectAndObjectReturn(ObjectValue p, int newVal) {
-        p.set(BStringUtils.fromString("age"), newVal);
+        p.set(StringUtils.fromString("age"), newVal);
         return p;
     }
 
     public static int acceptObjectAndReturnField(ObjectValue p) {
-        return ((Long) p.get(BStringUtils.fromString("age"))).intValue();
+        return ((Long) p.get(StringUtils.fromString("age"))).intValue();
     }
 
     public static MapValue acceptRecordAndRecordReturn(MapValue e, BString newVal) {
-        e.put(BStringUtils.fromString("name"), newVal);
+        e.put(StringUtils.fromString("name"), newVal);
         return e;
     }
 
@@ -229,7 +229,7 @@ public class StaticMethods {
 
     public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(BString key, MapValue mapValue)
             throws JavaInteropTestCheckedException {
-        ArrayValue arrayValue = (ArrayValue) BValueCreator.createArrayValue(intArrayType);
+        ArrayValue arrayValue = (ArrayValue) ValueCreator.createArrayValue(intArrayType);
         arrayValue.add(0, 1);
         long fromMap = mapValue.getIntValue(key);
         arrayValue.add(1, fromMap);
@@ -242,19 +242,19 @@ public class StaticMethods {
                                                                                               Object f,
                                                                                               MapValue g)
             throws JavaInteropTestCheckedException {
-        BMap<BString, Object> mapValue = BValueCreator.createMapValue();
-        mapValue.put(BStringUtils.fromString("a"), a);
-        mapValue.put(BStringUtils.fromString("b"), b);
-        mapValue.put(BStringUtils.fromString("c"), c);
-        mapValue.put(BStringUtils.fromString("e"), e);
-        mapValue.put(BStringUtils.fromString("f"), f);
-        mapValue.put(BStringUtils.fromString("g"), g);
+        BMap<BString, Object> mapValue = ValueCreator.createMapValue();
+        mapValue.put(StringUtils.fromString("a"), a);
+        mapValue.put(StringUtils.fromString("b"), b);
+        mapValue.put(StringUtils.fromString("c"), c);
+        mapValue.put(StringUtils.fromString("e"), e);
+        mapValue.put(StringUtils.fromString("f"), f);
+        mapValue.put(StringUtils.fromString("g"), g);
         return mapValue;
     }
 
     public static BError acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
             throws JavaInteropTestCheckedException {
-        return BErrorCreator.createError(msg, new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
+        return ErrorCreator.createError(msg, new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
     }
 
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
@@ -273,30 +273,30 @@ public class StaticMethods {
 
     public static ObjectValue acceptObjectAndObjectReturnWhichThrowsCheckedException(ObjectValue p, int newVal)
             throws JavaInteropTestCheckedException {
-        p.set(BStringUtils.fromString("age"), newVal);
+        p.set(StringUtils.fromString("age"), newVal);
         return p;
     }
 
     public static MapValue acceptRecordAndRecordReturnWhichThrowsCheckedException(
             MapValue<BString, Object> e, BString newVal) throws JavaInteropTestCheckedException {
-        e.put(BStringUtils.fromString("name"), newVal);
+        e.put(StringUtils.fromString("name"), newVal);
         return e;
     }
 
     public static BMap getMapOrError(BString swaggerFilePath, MapValue apiDef)
             throws JavaInteropTestCheckedException {
-        BString finalBasePath = BStringUtils.fromString("basePath");
+        BString finalBasePath = StringUtils.fromString("basePath");
         AtomicLong runCount = new AtomicLong(0L);
-        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BValueCreator.createRecordValue(new Module(
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(ValueCreator.createRecordValue(new Module(
                 "", "."), "ResourceDefinition").getType()));
-        BMap apiDefinitions = BValueCreator.createRecordValue(new Module("",
-                                                                         "."), "ApiDefinition");
-        BMap resource = BValueCreator.createRecordValue(new Module("",
-                                                                   "."), "ResourceDefinition");
-        resource.put(BStringUtils.fromString("path"), finalBasePath);
-        resource.put(BStringUtils.fromString("method"), BStringUtils.fromString("Method string"));
+        BMap apiDefinitions = ValueCreator.createRecordValue(new Module("",
+                                                                        "."), "ApiDefinition");
+        BMap resource = ValueCreator.createRecordValue(new Module("",
+                                                                  "."), "ResourceDefinition");
+        resource.put(StringUtils.fromString("path"), finalBasePath);
+        resource.put(StringUtils.fromString("method"), StringUtils.fromString("Method string"));
         arrayValue.add(runCount.getAndIncrement(), resource);
-        apiDefinitions.put(BStringUtils.fromString("resources"), arrayValue);
+        apiDefinitions.put(StringUtils.fromString("resources"), arrayValue);
         return apiDefinitions;
     }
 
@@ -347,7 +347,7 @@ public class StaticMethods {
 
     public static TupleValueImpl mockedNativeFuncWithOptionalParams(long a, double b, String c,
                                                                     long d, String e) {
-        TupleValueImpl tuple = (TupleValueImpl) BValueCreator.createTupleValue(tupleType);
+        TupleValueImpl tuple = (TupleValueImpl) ValueCreator.createTupleValue(tupleType);
         tuple.add(0, Long.valueOf(a));
         tuple.add(1, Double.valueOf(b));
         tuple.add(2, (Object) c);
@@ -363,18 +363,18 @@ public class StaticMethods {
 
     public static Object getJson() {
         MapValueImpl<BString, Object> map = new MapValueImpl<>(Types.TYPE_JSON);
-        map.put(BStringUtils.fromString("name"), BStringUtils.fromString("John"));
+        map.put(StringUtils.fromString("name"), StringUtils.fromString("John"));
         return map;
     }
 
     public static MapValueImpl<BString, Object> getJsonObject() {
         MapValueImpl<BString, Object> map = new MapValueImpl<>(Types.TYPE_JSON);
-        map.put(BStringUtils.fromString("name"), BStringUtils.fromString("Doe"));
+        map.put(StringUtils.fromString("name"), StringUtils.fromString("Doe"));
         return map;
     }
 
     public static ArrayValue getJsonArray() {
-        ArrayValue array = (ArrayValue) BValueCreator.createArrayValue(jsonArrayType);
+        ArrayValue array = (ArrayValue) ValueCreator.createArrayValue(jsonArrayType);
         array.add(0, (Object) "John");
         return array;
     }
@@ -443,22 +443,22 @@ public class StaticMethods {
         return value.getBooleanValue(key);
     }
 
-    public static void addTwoNumbersSlowAsyncVoidSig(BalEnv env, long a, long b) {
-        BalFuture balFuture = env.markAsync();
+    public static void addTwoNumbersSlowAsyncVoidSig(Env env, long a, long b) {
+        Future balFuture = env.markAsync();
         new Thread(() -> {
             sleep();
             balFuture.complete(a + b);
         }).start();
     }
 
-    public static void addTwoNumbersFastAsyncVoidSig(BalEnv env, long a, long b) {
-        BalFuture balFuture = env.markAsync();
+    public static void addTwoNumbersFastAsyncVoidSig(Env env, long a, long b) {
+        Future balFuture = env.markAsync();
         balFuture.complete(a + b);
     }
 
 
-    public static long addTwoNumbersSlowAsync(BalEnv env, long a, long b) {
-        BalFuture balFuture = env.markAsync();
+    public static long addTwoNumbersSlowAsync(Env env, long a, long b) {
+        Future balFuture = env.markAsync();
         new Thread(() -> {
             sleep();
             balFuture.complete(a + b);
@@ -467,14 +467,14 @@ public class StaticMethods {
         return -38263;
     }
 
-    public static long addTwoNumbersFastAsync(BalEnv env, long a, long b) {
-        BalFuture balFuture = env.markAsync();
+    public static long addTwoNumbersFastAsync(Env env, long a, long b) {
+        Future balFuture = env.markAsync();
         balFuture.complete(a + b);
 
         return -282619;
     }
 
-    public static void addTwoNumbersBuggy(BalEnv env, long a, long b) {
+    public static void addTwoNumbersBuggy(Env env, long a, long b) {
         // Buggy because env.markAsync() is not called
         // TODO: see if we can verify this
     }
@@ -498,9 +498,9 @@ public class StaticMethods {
                 return value;
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
-                return ((MapValue) value).get(BStringUtils.fromString("first"));
+                return ((MapValue) value).get(StringUtils.fromString("first"));
         }
-        return BStringUtils.fromString("other");
+        return StringUtils.fromString("other");
     }
 
     public static void getNilAsReadOnly() {

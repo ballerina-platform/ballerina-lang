@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BXML;
@@ -43,14 +43,14 @@ public class Next {
         BIterator xmlIterator = (BIterator) m.getNativeData("&iterator&");
 
         if (xmlIterator == null) {
-            xmlIterator = ((BXML) m.get(BStringUtils.fromString("m"))).getIterator();
+            xmlIterator = ((BXML) m.get(StringUtils.fromString("m"))).getIterator();
             m.addNativeData("&iterator&", xmlIterator);
         }
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            return BValueCreator.createRecordValue(BValueCreator.createMapValue(Types.XML_ITR_NEXT_RETURN_TYPE),
-                                                   xmlValue);
+            return ValueCreator.createRecordValue(ValueCreator.createMapValue(Types.XML_ITR_NEXT_RETURN_TYPE),
+                                                  xmlValue);
         }
 
         return null;

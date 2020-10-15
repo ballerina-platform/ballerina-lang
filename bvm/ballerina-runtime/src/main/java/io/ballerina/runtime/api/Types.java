@@ -19,7 +19,7 @@ package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.IteratorUtils;
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;

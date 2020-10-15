@@ -18,11 +18,12 @@
 
 package org.ballerinalang.langlib.internal;
 
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.types.BFunctionType;
-import io.ballerina.runtime.types.BUnionType;
+
+import java.util.List;
 
 /**
  * Native implementation of lang.internal:getFilterFunc(func).
@@ -38,8 +39,8 @@ public class GetFilterFunc {
 
     public static BFunctionPointer getFilterFunc(Object obj) {
         BFunctionPointer bFunctionPointer = (BFunctionPointer) obj;
-        BFunctionType functionType = (BFunctionType) bFunctionPointer.getType();
-        functionType.paramTypes[0] = new BUnionType(new Type[]{Types.TYPE_ANY, Types.TYPE_ERROR}, 0);
+        FunctionType functionType = (FunctionType) bFunctionPointer.getType();
+        functionType.getParameterTypes()[0] = TypeCreator.createUnionType(List.of(Types.TYPE_ANY, Types.TYPE_ERROR), 0);
         return bFunctionPointer;
     }
 }

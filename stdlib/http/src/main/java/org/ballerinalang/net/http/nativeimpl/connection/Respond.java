@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.Env;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.observability.ObserveUtils;
@@ -57,7 +57,7 @@ public class Respond extends ConnectionAction {
 
     private static final Logger log = LoggerFactory.getLogger(Respond.class);
 
-    public static Object nativeRespond(BalEnv env, BObject connectionObj, BObject outboundResponseObj) {
+    public static Object nativeRespond(Env env, BObject connectionObj, BObject outboundResponseObj) {
 
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
         Strand strand = Scheduler.getStrand();

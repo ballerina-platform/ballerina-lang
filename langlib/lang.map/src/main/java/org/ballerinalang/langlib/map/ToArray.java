@@ -18,15 +18,15 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BMapType;
-import io.ballerina.runtime.types.BRecordType;
 import org.ballerinalang.langlib.map.util.MapLibUtils;
 
 import java.util.Collection;
@@ -52,10 +52,10 @@ public class ToArray {
         Type arrElemType;
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
-                arrElemType = ((BMapType) mapType).getConstrainedType();
+                arrElemType = ((MapType) mapType).getConstrainedType();
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                arrElemType = MapLibUtils.getCommonTypeForRecordField((BRecordType) mapType);
+                arrElemType = MapLibUtils.getCommonTypeForRecordField((RecordType) mapType);
                 break;
             default:
                 throw createOpNotSupportedError(mapType, "toArray()");
@@ -70,33 +70,33 @@ public class ToArray {
                 for (Object val : values) {
                     intArr[i++] = (Long) val;
                 }
-                return BValueCreator.createArrayValue(intArr);
+                return ValueCreator.createArrayValue(intArr);
             case TypeTags.FLOAT_TAG:
                 double[] floatArr = new double[size];
                 for (Object val : values) {
                     floatArr[i++] = (Double) val;
                 }
-                return BValueCreator.createArrayValue(floatArr);
+                return ValueCreator.createArrayValue(floatArr);
             case TypeTags.BYTE_TAG:
                 byte[] byteArr = new byte[size];
                 for (Object val : values) {
                     byteArr[i++] = ((Integer) val).byteValue();
                 }
-                return BValueCreator.createArrayValue(byteArr);
+                return ValueCreator.createArrayValue(byteArr);
             case TypeTags.BOOLEAN_TAG:
                 boolean[] booleanArr = new boolean[size];
                 for (Object val : values) {
                     booleanArr[i++] = (Boolean) val;
                 }
-                return BValueCreator.createArrayValue(booleanArr);
+                return ValueCreator.createArrayValue(booleanArr);
             case TypeTags.STRING_TAG:
                 BString[] stringArr = new BString[size];
                 for (Object val : values) {
                     stringArr[i++] = (BString) val;
                 }
-                return BValueCreator.createArrayValue(stringArr);
+                return ValueCreator.createArrayValue(stringArr);
             default:
-                return BValueCreator.createArrayValue(values.toArray(), new BArrayType(arrElemType));
+                return ValueCreator.createArrayValue(values.toArray(), TypeCreator.createArrayType(arrElemType));
 
         }
     }

@@ -18,14 +18,14 @@
 
 package org.ballerinalang.cli.utils;
 
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.api.commons.StrandMetadata;
-import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.util.ArgumentParser;
 import io.ballerina.runtime.util.RuntimeUtils;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -152,12 +152,11 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             Class<?> mainClass = Class.forName("ballerina." + moduleName + "." +
                                                        moduleVersion.replace(".", "_") + "." + moduleName);
             final Method mainMethod = mainClass.getDeclaredMethod("main", Strand.class, BArray.class,
-                    boolean.class);
+                                                                  boolean.class);
             Object[] entryFuncArgs =
                     ArgumentParser.extractEntryFuncArgs(new RuntimeUtils.ParamInfo[]{
-                            new RuntimeUtils.ParamInfo(false,
-                                    "%1",
-                                    new BArrayType(Types.TYPE_STRING, stringArgs.length))
+                            new RuntimeUtils.ParamInfo(false, "%1", TypeCreator
+                                                               .createArrayType(Types.TYPE_STRING, stringArgs.length))
                     }, stringArgs, true);
 
             //TODO fix following method invoke to scheduler.schedule()

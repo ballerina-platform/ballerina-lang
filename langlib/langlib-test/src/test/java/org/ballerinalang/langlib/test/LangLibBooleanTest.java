@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.test;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
@@ -52,7 +52,7 @@ public class LangLibBooleanTest {
 
     @Test(dataProvider = "InputList")
     public void testFromString(String val, Object expectedVal) {
-        BRunUtil.invoke(compileResult, "testFromString", new Object[]{BStringUtils.fromString(val), expectedVal});
+        BRunUtil.invoke(compileResult, "testFromString", new Object[]{StringUtils.fromString(val), expectedVal});
     }
 
     @DataProvider(name = "InputList")
@@ -77,6 +77,6 @@ public class LangLibBooleanTest {
         BString reason = getModulePrefixedReason(BOOLEAN_LANG_LIB, BOOLEAN_PARSING_ERROR_IDENTIFIER);
         BString msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                            Types.TYPE_STRING, value, Types.TYPE_BOOLEAN);
-        return BErrorCreator.createError(reason, msg);
+        return ErrorCreator.createError(reason, msg);
     }
 }

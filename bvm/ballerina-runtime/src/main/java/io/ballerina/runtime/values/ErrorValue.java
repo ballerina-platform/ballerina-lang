@@ -19,12 +19,12 @@ package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.CycleUtils;
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.commons.Module;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
@@ -149,7 +149,7 @@ public class ErrorValue extends BError implements RefValue {
                         sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
                         break;
                     default:
-                        sj.add(key + "=" + BStringUtils.getStringValue(value, parent));
+                        sj.add(key + "=" + StringUtils.getStringValue(value, parent));
                         break;
                 }
             }
@@ -158,14 +158,14 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String getModuleNameToString() {
-        return type.getPackage().name == null ? "" : " " + type.getName() + " ";
+        return type.getPackage().getName() == null ? "" : " " + type.getName() + " ";
     }
 
     private String getDetailsToBalString(BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         for (Object key : ((MapValue) details).getKeys()) {
             Object value = ((MapValue) details).get(key);
-            sj.add(key + "=" + BStringUtils.getExpressionStringValue(value, parent));
+            sj.add(key + "=" + StringUtils.getExpressionStringValue(value, parent));
         }
         return "," + sj.toString();
     }
@@ -178,9 +178,10 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String getModuleNameToBalString() {
-        return (type.getPackage().org != null && type.getPackage().org.equals("$anon")) ||
-                type.getPackage().name == null ? " " + type.getName() + " " :
-                String.valueOf(BallerinaErrorReasons.getModulePrefixedReason(type.getPackage().name, type.getName()));
+        return (type.getPackage().getOrg() != null && type.getPackage().getOrg().equals("$anon")) ||
+                type.getPackage().getName() == null ? " " + type.getName() + " " :
+                String.valueOf(
+                        BallerinaErrorReasons.getModulePrefixedReason(type.getPackage().getName(), type.getName()));
     }
 
     @Override
@@ -296,7 +297,7 @@ public class ErrorValue extends BError implements RefValue {
             Optional<StackTraceElement> stackTraceElement = filterStackTraceElement(stackFrame, index++);
             stackTraceElement.ifPresent(filteredStack::add);
         }
-        Type recordType = BValueCreator.createRecordValue(BALLERINA_RUNTIME_PKG_ID, CALL_STACK_ELEMENT).getType();
+        Type recordType = ValueCreator.createRecordValue(BALLERINA_RUNTIME_PKG_ID, CALL_STACK_ELEMENT).getType();
         ArrayValue callStack = new ArrayValueImpl(new BArrayType(recordType));
         for (int i = 0; i < filteredStack.size(); i++) {
             callStack.add(i, getStackFrame(filteredStack.get(i)));
@@ -392,8 +393,8 @@ public class ErrorValue extends BError implements RefValue {
         values[1] = stackTraceElement.getClassName();
         values[2] = stackTraceElement.getFileName();
         values[3] = stackTraceElement.getLineNumber();
-        return BValueCreator.
-                createRecordValue(BValueCreator.createRecordValue(BALLERINA_RUNTIME_PKG_ID, CALL_STACK_ELEMENT),
+        return ValueCreator.
+                createRecordValue(ValueCreator.createRecordValue(BALLERINA_RUNTIME_PKG_ID, CALL_STACK_ELEMENT),
                                   values);
     }
 

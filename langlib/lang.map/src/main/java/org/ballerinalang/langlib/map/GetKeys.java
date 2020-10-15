@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -37,6 +37,6 @@ import io.ballerina.runtime.api.values.BString;
 public class GetKeys {
 
     public static BArray keys(BMap<?, ?> m) {
-        return BValueCreator.createArrayValue((BString[]) m.getKeys());
+        return ValueCreator.createArrayValue((BString[]) m.getKeys());
     }
 }

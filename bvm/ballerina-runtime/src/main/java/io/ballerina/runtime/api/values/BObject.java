@@ -17,8 +17,8 @@
  */
 package io.ballerina.runtime.api.values;
 
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.types.BObjectType;
 
 import java.util.HashMap;
 
@@ -35,7 +35,7 @@ public interface BObject extends BRefValue {
 
     BFuture start(Strand strand, String funcName, Object... args);
 
-    BObjectType getType();
+    ObjectType getType();
 
     Object get(BString fieldName);
 

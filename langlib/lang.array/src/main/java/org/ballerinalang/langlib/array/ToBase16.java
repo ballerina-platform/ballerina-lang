@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.BArrayType;
 
 import static io.ballerina.runtime.util.BLangConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
@@ -38,15 +38,15 @@ import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModu
 public class ToBase16 {
 
     private static final char[] chars = "0123456789abcdef".toCharArray();
-    private static final BString NOT_SUPPORTED_ERROR_DETAIL = BStringUtils.fromString("toBase16() is only supported " +
+    private static final BString NOT_SUPPORTED_ERROR_DETAIL = StringUtils.fromString("toBase16() is only supported " +
                                                                                                "on 'byte[]'");
     public static BString toBase16(BArray arr) {
         Type arrType = arr.getType();
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
-                ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
-            throw BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
-                                                                    OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                                            NOT_SUPPORTED_ERROR_DETAIL);
+                ((ArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
+            throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                                                   OPERATION_NOT_SUPPORTED_IDENTIFIER),
+                                           NOT_SUPPORTED_ERROR_DETAIL);
         }
 
         // Implementation borrowed from https://stackoverflow.com/a/9855338
@@ -59,6 +59,6 @@ public class ToBase16 {
             base16Chars[i * 2 + 1] = chars[v & 0xF];
         }
 
-        return BStringUtils.fromString(new String(base16Chars));
+        return StringUtils.fromString(new String(base16Chars));
     }
 }

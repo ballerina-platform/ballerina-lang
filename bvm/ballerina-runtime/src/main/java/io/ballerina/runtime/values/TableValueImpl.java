@@ -21,15 +21,16 @@ import io.ballerina.runtime.CycleUtils;
 import io.ballerina.runtime.IteratorUtils;
 import io.ballerina.runtime.TableUtils;
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.types.BField;
 import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.types.BRecordType;
 import io.ballerina.runtime.types.BTableType;
@@ -68,7 +69,7 @@ import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModu
  */
 public class TableValueImpl<K, V> implements TableValue<K, V> {
 
-    private BTableType type;
+    private TableType type;
     private Type iteratorNextReturnType;
     private ConcurrentHashMap<Long, Map.Entry<K, V>> entries;
     private LinkedHashMap<Long, V> values;
@@ -86,7 +87,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     private final Map<String, Object> nativeData = new HashMap<>();
 
-    public TableValueImpl(BTableType type) {
+    public TableValueImpl(TableType type) {
         this.type = type;
 
         this.entries = new ConcurrentHashMap<>();
@@ -166,8 +167,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                     ReadOnlyUtils.handleInvalidUpdate(TABLE_LANG_LIB);
                 }
             } catch (BLangFreezeException e) {
-                throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
-                                                BStringUtils.fromString(e.getDetail()));
+                throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
+                                               StringUtils.fromString(e.getDetail()));
             }
         }
     }
@@ -230,8 +231,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     @Override
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
-            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringUtils.fromString("cannot find key '" + key + "'"));
+            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                                           StringUtils.fromString("cannot find key '" + key + "'"));
         }
         return this.get(key);
     }
@@ -239,16 +240,16 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     public V removeOrThrow(Object key) {
         handleFrozenTableValue();
         if (!containsKey(key)) {
-            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringUtils.fromString("cannot find key '" + key + "'"));
+            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                                           StringUtils.fromString("cannot find key '" + key + "'"));
         }
         return this.remove(key);
     }
 
     public long getNextKey() {
         if (!nextKeySupported) {
-            throw BErrorCreator.createError(OPERATION_NOT_SUPPORTED_ERROR,
-                                            BStringUtils
+            throw ErrorCreator.createError(OPERATION_NOT_SUPPORTED_ERROR,
+                                           StringUtils
                                                     .fromString("Defined key sequence is not supported with nextKey(). "
                                                                         + "The key sequence should only have an " +
                                                                            "Integer field."));
@@ -270,8 +271,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
-            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringUtils.fromString("cannot find key '" + key + "'"));
+            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                                           StringUtils.fromString("cannot find key '" + key + "'"));
         }
 
         Object value = expectedType.getZeroValue();
@@ -335,8 +336,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         StringJoiner sj = new StringJoiner(",");
         while (itr.hasNext()) {
             Map.Entry<Long, V> struct = itr.next();
-            sj.add(BStringUtils.getStringValue(struct.getValue(),
-                    new CycleUtils.Node(this, parent)));
+            sj.add(StringUtils.getStringValue(struct.getValue(),
+                                              new CycleUtils.Node(this, parent)));
         }
         return "[" + sj.toString() + "]";
     }
@@ -352,15 +353,15 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
         while (itr.hasNext()) {
             Map.Entry<Long, V> struct = itr.next();
-            sj.add(BStringUtils.getExpressionStringValue(struct.getValue(),
-                    new CycleUtils.Node(this, parent)));
+            sj.add(StringUtils.getExpressionStringValue(struct.getValue(),
+                                                        new CycleUtils.Node(this, parent)));
         }
         return "table key(" + keyJoiner.toString() + ") [" + sj.toString() + "]";
     }
 
     private Type getTableConstraintField(Type constraintType, String fieldName) {
         if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            Map<String, BField> fieldList = ((BRecordType) constraintType).getFields();
+            Map<String, Field> fieldList = ((BRecordType) constraintType).getFields();
             return fieldList.get(fieldName).getFieldType();
         } else if (constraintType.getTag() == TypeTags.MAP_TAG) {
             return ((BMapType) constraintType).getConstrainedType();
@@ -425,13 +426,13 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V getData(K key) {
-            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringUtils.fromString("cannot find key '" + key + "'"));
+            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                                           StringUtils.fromString("cannot find key '" + key + "'"));
         }
 
         public V putData(K key, V data) {
-            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringUtils.fromString("cannot find key '" + key + "'"));
+            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                                           StringUtils.fromString("cannot find key '" + key + "'"));
         }
 
         public V putData(V data) {
@@ -444,8 +445,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V remove(K key) {
-            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringUtils.fromString("cannot find key '" + key + "'"));
+            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                                           StringUtils.fromString("cannot find key '" + key + "'"));
         }
 
         public boolean containsKey(K key) {
@@ -453,8 +454,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public Type getKeyType() {
-            throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                            BStringUtils.fromString("keys are not defined"));
+            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
+                                           StringUtils.fromString("keys are not defined"));
         }
     }
 
@@ -477,8 +478,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             K key = this.keyWrapper.wrapKey(dataMap);
 
             if (containsKey((K) key)) {
-                throw BErrorCreator.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR,
-                                                BStringUtils.fromString("A value " + "found for key '" + key + "'"));
+                throw ErrorCreator.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR,
+                                               StringUtils.fromString("A value " + "found for key '" + key + "'"));
             }
 
             if (nextKeySupported && (keys.size() == 0 || maxIntKey < TypeChecker.anyToInt(key))) {
@@ -501,7 +502,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Long hash = TableUtils.hash(key, null);
 
             if (!hash.equals(actualHash)) {
-                throw BErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR, BStringUtils.fromString("The key '" +
+                throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR, StringUtils.fromString("The key '" +
                         key + "' not found in value " + data.toString()));
             }
 
@@ -556,7 +557,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             }
 
             public K wrapKey(MapValue data) {
-                return (K) data.get(BStringUtils.fromString(fieldNames[0]));
+                return (K) data.get(StringUtils.fromString(fieldNames[0]));
             }
         }
 
@@ -568,7 +569,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 Type constraintType = type.getConstrainedType();
                 if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                     BRecordType recordType = (BRecordType) constraintType;
-                    Arrays.stream(fieldNames).forEach(field -> keyTypes.add(recordType.getFields().get(field).type));
+                    Arrays.stream(fieldNames)
+                            .forEach(field -> keyTypes.add(recordType.getFields().get(field).getFieldType()));
                 } else if (constraintType.getTag() == TypeTags.MAP_TAG) {
                     BMapType mapType = (BMapType) constraintType;
                     Arrays.stream(fieldNames).forEach(field -> keyTypes.add(mapType.getConstrainedType()));
@@ -577,10 +579,10 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             }
 
             public K wrapKey(MapValue data) {
-                TupleValueImpl arr = (TupleValueImpl) BValueCreator
+                TupleValueImpl arr = (TupleValueImpl) ValueCreator
                         .createTupleValue((BTupleType) keyType);
                 for (int i = 0; i < fieldNames.length; i++) {
-                    arr.add(i, data.get(BStringUtils.fromString(fieldNames[i])));
+                    arr.add(i, data.get(StringUtils.fromString(fieldNames[i])));
                 }
                 return (K) arr;
             }
@@ -597,12 +599,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     // This method checks for inherent table type violation
-    private void checkInherentTypeViolation(MapValue dataMap, BTableType type) {
+    private void checkInherentTypeViolation(MapValue dataMap, TableType type) {
         if (!TypeChecker.checkIsType(dataMap.getType(), type.getConstrainedType())) {
             BString reason = getModulePrefixedReason(TABLE_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
-            BString detail = BStringUtils.fromString("value type '" + dataMap.getType() + "' inconsistent with the " +
+            BString detail = StringUtils.fromString("value type '" + dataMap.getType() + "' inconsistent with the " +
                                                             "inherent table type '" + type + "'");
-            throw BErrorCreator.createError(reason, detail);
+            throw ErrorCreator.createError(reason, detail);
         }
     }
 

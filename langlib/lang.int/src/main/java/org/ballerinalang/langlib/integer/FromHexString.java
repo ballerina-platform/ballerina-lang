@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.integer;
 
-import io.ballerina.runtime.api.BErrorCreator;
-import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.util.BLangConstants.INT_LANG_LIB;
@@ -37,8 +37,8 @@ public class FromHexString {
         try {
             return Long.parseLong(s.getValue(), 16);
         } catch (NumberFormatException e) {
-            return BErrorCreator.createError(getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
-                                             BStringUtils.fromString(e.getMessage()));
+            return ErrorCreator.createError(getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
+                                            StringUtils.fromString(e.getMessage()));
         }
     }
 }

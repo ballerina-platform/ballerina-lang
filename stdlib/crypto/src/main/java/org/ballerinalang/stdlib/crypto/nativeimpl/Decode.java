@@ -18,8 +18,8 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import io.ballerina.runtime.api.BStringUtils;
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import org.apache.commons.codec.binary.Base64;
@@ -75,11 +75,11 @@ public class Decode {
             }
             //TODO: Add support for DSA/ECDSA keys and associated crypto operations
             if (privateKey.getAlgorithm().equals("RSA")) {
-                BMap<BString, Object> privateKeyRecord = BValueCreator.
+                BMap<BString, Object> privateKeyRecord = ValueCreator.
                         createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PRIVATE_KEY_RECORD);
                 privateKeyRecord.addNativeData(Constants.NATIVE_DATA_PRIVATE_KEY, privateKey);
-                privateKeyRecord.put(BStringUtils.fromString(Constants.PRIVATE_KEY_RECORD_ALGORITHM_FIELD),
-                                     BStringUtils.fromString(privateKey.getAlgorithm()));
+                privateKeyRecord.put(StringUtils.fromString(Constants.PRIVATE_KEY_RECORD_ALGORITHM_FIELD),
+                                     StringUtils.fromString(privateKey.getAlgorithm()));
                 return privateKeyRecord;
             } else {
                 return CryptoUtils.createError("Not a valid RSA key");
@@ -114,44 +114,44 @@ public class Decode {
             if (certificate == null) {
                 return CryptoUtils.createError("Certificate cannot be recovered by using given key alias: " + keyAlias);
             }
-            BMap<BString, Object> certificateBMap = BValueCreator.
+            BMap<BString, Object> certificateBMap = ValueCreator.
                     createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.CERTIFICATE_RECORD);
             if (certificate instanceof X509Certificate) {
                 X509Certificate x509Certificate = (X509Certificate) certificate;
-                certificateBMap.put(BStringUtils.fromString(Constants.CERTIFICATE_RECORD_ISSUER_FIELD),
-                                    BStringUtils.fromString(x509Certificate.getIssuerX500Principal().getName()));
-                certificateBMap.put(BStringUtils.fromString(Constants.CERTIFICATE_RECORD_SUBJECT_FIELD),
-                                    BStringUtils.fromString(x509Certificate.getSubjectX500Principal().getName()));
-                certificateBMap.put(BStringUtils.fromString(Constants.CERTIFICATE_RECORD_VERSION_FIELD),
+                certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_ISSUER_FIELD),
+                                    StringUtils.fromString(x509Certificate.getIssuerX500Principal().getName()));
+                certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_SUBJECT_FIELD),
+                                    StringUtils.fromString(x509Certificate.getSubjectX500Principal().getName()));
+                certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_VERSION_FIELD),
                                     x509Certificate.getVersion());
-                certificateBMap.put(BStringUtils.fromString(Constants.CERTIFICATE_RECORD_SERIAL_FIELD),
+                certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_SERIAL_FIELD),
                                     x509Certificate.getSerialNumber().longValue());
 
-                certificateBMap.put(BStringUtils.fromString(Constants.CERTIFICATE_RECORD_NOT_BEFORE_FIELD),
+                certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_NOT_BEFORE_FIELD),
                                     TimeUtils.createTimeRecord(TimeUtils.getTimeZoneRecord(), TimeUtils.getTimeRecord(),
                                                                x509Certificate.getNotBefore().getTime(),
-                                                               BStringUtils.fromString(Constants.TIMEZONE_GMT)));
-                certificateBMap.put(BStringUtils.fromString(Constants.CERTIFICATE_RECORD_NOT_AFTER_FIELD),
+                                                               StringUtils.fromString(Constants.TIMEZONE_GMT)));
+                certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_NOT_AFTER_FIELD),
                                     TimeUtils.createTimeRecord(TimeUtils.getTimeZoneRecord(), TimeUtils.getTimeRecord(),
                                                                x509Certificate.getNotAfter().getTime(),
-                                                               BStringUtils.fromString(Constants.TIMEZONE_GMT)));
+                                                               StringUtils.fromString(Constants.TIMEZONE_GMT)));
 
-                certificateBMap.put(BStringUtils.fromString(Constants.CERTIFICATE_RECORD_SIGNATURE_FIELD),
-                                    BValueCreator.createArrayValue(x509Certificate.getSignature()));
-                certificateBMap.put(BStringUtils.fromString(Constants.CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD),
-                                    BStringUtils.fromString(x509Certificate.getSigAlgName()));
+                certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_SIGNATURE_FIELD),
+                                    ValueCreator.createArrayValue(x509Certificate.getSignature()));
+                certificateBMap.put(StringUtils.fromString(Constants.CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD),
+                                    StringUtils.fromString(x509Certificate.getSigAlgName()));
             }
             PublicKey publicKey = certificate.getPublicKey();
             //TODO: Add support for DSA/ECDSA keys and associated crypto operations
             if (publicKey.getAlgorithm().equals("RSA")) {
-                BMap<BString, Object> publicKeyMap = BValueCreator.
+                BMap<BString, Object> publicKeyMap = ValueCreator.
                         createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PUBLIC_KEY_RECORD);
                 publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
                 publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY_CERTIFICATE, certificate);
-                publicKeyMap.put(BStringUtils.fromString(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD),
-                                 BStringUtils.fromString(publicKey.getAlgorithm()));
+                publicKeyMap.put(StringUtils.fromString(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD),
+                                 StringUtils.fromString(publicKey.getAlgorithm()));
                 if (certificateBMap.size() > 0) {
-                    publicKeyMap.put(BStringUtils.fromString(Constants.PUBLIC_KEY_RECORD_CERTIFICATE_FIELD),
+                    publicKeyMap.put(StringUtils.fromString(Constants.PUBLIC_KEY_RECORD_CERTIFICATE_FIELD),
                                      certificateBMap);
                 }
                 return publicKeyMap;
@@ -173,11 +173,11 @@ public class Decode {
                                                          new BigInteger(1, decodedExponent));
             RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
 
-            BMap<BString, Object> publicKeyMap = BValueCreator.
+            BMap<BString, Object> publicKeyMap = ValueCreator.
                     createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PUBLIC_KEY_RECORD);
             publicKeyMap.addNativeData(Constants.NATIVE_DATA_PUBLIC_KEY, publicKey);
-            publicKeyMap.put(BStringUtils.fromString(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD),
-                             BStringUtils.fromString(publicKey.getAlgorithm()));
+            publicKeyMap.put(StringUtils.fromString(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD),
+                             StringUtils.fromString(publicKey.getAlgorithm()));
             return publicKeyMap;
         } catch (InvalidKeySpecException e) {
             return CryptoUtils.createError("Invalid modulus or exponent: " + e.getMessage());

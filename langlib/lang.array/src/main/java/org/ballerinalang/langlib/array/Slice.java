@@ -18,13 +18,14 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BTupleType;
-import io.ballerina.runtime.types.BUnionType;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
@@ -74,7 +75,7 @@ public class Slice {
                 slicedArr = ((BArray) arr).slice(startIndex, endIndex);
                 break;
             case TypeTags.TUPLE_TAG:
-                BTupleType tupleType = (BTupleType) arrType;
+                TupleType tupleType = (TupleType) arrType;
 
                 List<Type> memTypes = new ArrayList<>(tupleType.getTupleTypes());
 
@@ -83,9 +84,9 @@ public class Slice {
                     memTypes.add(restType);
                 }
 
-                BUnionType unionType = new BUnionType(memTypes);
-                BArrayType slicedArrType = new BArrayType(unionType, (int) (endIndex - startIndex));
-                slicedArr = BValueCreator.createArrayValue(slicedArrType);
+                UnionType unionType = TypeCreator.createUnionType(memTypes);
+                ArrayType slicedArrType = TypeCreator.createArrayType(unionType, (int) (endIndex - startIndex));
+                slicedArr = ValueCreator.createArrayValue(slicedArrType);
 
                 for (long i = startIndex, j = 0; i < endIndex; i++, j++) {
                     slicedArr.add(j, arr.getRefValue(i));

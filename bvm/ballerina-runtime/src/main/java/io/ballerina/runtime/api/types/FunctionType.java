@@ -25,5 +25,13 @@ package io.ballerina.runtime.api.types;
 public interface FunctionType extends AnnotatableType {
 
 
-    Type[] getParameterType();
+    Type[] getParameterTypes();
+
+    Type getReturnType();
+
+    int getFlags();
+
+    Type getReturnParameterType();
+
+    Type getRestType();
 }

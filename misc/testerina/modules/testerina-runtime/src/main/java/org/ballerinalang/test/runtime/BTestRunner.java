@@ -41,7 +41,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -643,7 +642,7 @@ public class BTestRunner {
 
         if (valueSets instanceof BArray) {
             BArray bArray = (BArray) valueSets;
-            if (bArray.getElementType() instanceof BArrayType) {
+            if (bArray.getElementType() instanceof ArrayType) {
                 // Ok we have an array of an array
                 for (int i = 0; i < bArray.size(); i++) {
                     // Iterate array elements and set parameters
@@ -667,7 +666,7 @@ public class BTestRunner {
         typeList.add(Strand.class);
         if (valueSets instanceof BArray) {
             BArray bArray = (BArray) valueSets;
-            if (bArray.getElementType() instanceof BArrayType) {
+            if (bArray.getElementType() instanceof ArrayType) {
                 // Ok we have an array of an array
                 // Get the first entry
                 // Iterate elements and get class types.

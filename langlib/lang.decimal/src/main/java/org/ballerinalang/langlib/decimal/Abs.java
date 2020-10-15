@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BDecimal;
 
 /**
@@ -35,6 +35,6 @@ import io.ballerina.runtime.api.values.BDecimal;
 public class Abs {
 
     public static BDecimal abs(BDecimal n) {
-        return BValueCreator.createDecimalValue(n.value().abs());
+        return ValueCreator.createDecimalValue(n.value().abs());
     }
 }

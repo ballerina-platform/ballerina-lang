@@ -20,6 +20,7 @@ package io.ballerina.runtime;
 
 import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeFlags;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.types.BField;
 import io.ballerina.runtime.types.BRecordType;
@@ -53,7 +54,7 @@ public class IteratorUtils {
     }
 
     public static BRecordType createIteratorNextReturnType(Type type) {
-        Map<String, BField> fields = new HashMap<>();
+        Map<String, Field> fields = new HashMap<>();
         fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
         return new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE, null, 0, fields, null, true,
                 getTypeFlags(type));

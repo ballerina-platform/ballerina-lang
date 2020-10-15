@@ -17,7 +17,7 @@
   */
  package io.ballerina.runtime.values;
 
- import io.ballerina.runtime.api.BStringUtils;
+ import io.ballerina.runtime.api.StringUtils;
  import io.ballerina.runtime.api.values.BLink;
  import io.ballerina.runtime.api.values.BString;
 
@@ -158,7 +158,7 @@
      public BString substring(int beginIndex, int endIndex) {
          int beginOffset = getOffset(beginIndex);
          int endOffset = getOffset(endIndex);
-         return BStringUtils.fromString(value.substring(beginOffset, endOffset));
+         return StringUtils.fromString(value.substring(beginOffset, endOffset));
      }
 
      private int getOffset(int fromIndex) {

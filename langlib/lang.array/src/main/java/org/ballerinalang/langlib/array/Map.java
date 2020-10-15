@@ -18,17 +18,18 @@
 
 package org.ballerinalang.langlib.array;
 
-import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.scheduling.AsyncUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import io.ballerina.runtime.api.commons.StrandMetadata;
-import io.ballerina.runtime.types.BArrayType;
-import io.ballerina.runtime.types.BFunctionType;
 import org.ballerinalang.langlib.array.utils.GetFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,9 +56,9 @@ public class Map {
                                                                       ARRAY_VERSION, "map");
 
     public static BArray map(BArray arr, BFunctionPointer<Object, Object> func) {
-        Type elemType = ((BFunctionType) func.getType()).retType;
-        Type retArrType = new BArrayType(elemType);
-        BArray retArr = BValueCreator.createArrayValue((BArrayType) retArrType);
+        Type elemType = ((FunctionType) func.getType()).getReturnType();
+        Type retArrType = TypeCreator.createArrayType(elemType);
+        BArray retArr = ValueCreator.createArrayValue((ArrayType) retArrType);
         int size = arr.size();
         GetFunction getFn;
 
