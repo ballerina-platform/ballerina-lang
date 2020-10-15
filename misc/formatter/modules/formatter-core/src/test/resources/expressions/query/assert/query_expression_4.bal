@@ -1,15 +1,3 @@
-import ballerina/io;
-
-type Report record {
-    readonly id;
-    string name;
-    string degree;
-    int graduationYear;
-};
-
-// This is a `table` type with `Report` members uniquely identified by their `id` field.
-type ReportTable table<Report> key(id);
-
 public function main() {
     Student s1 = {
         id: 1,
@@ -50,19 +38,21 @@ public function main() {
     // Defines an `error` to handle a key conflict.
     error onConflictError = error("Key Conflict", message = "cannot insert report");
 
-    ReportTable|error result = table key(id) from var student in duplicateStdList
-                                             select {
-                                                 id: student.id,
-                                                 name: student.firstName + " " + student.lastName,
-                                                 degree: "Bachelor of Medicine",
-                                                 graduationYear: calGraduationYear(student.intakeYear)
-                                             }
-                                             // The `on conflict` clause gets executed when `select` emits a row
-                                             // that has the same key as a row that it emitted earlier.
-                                             // It gives an `onConflictError` error if there is a key conflict.
-                                             on conflict onConflictError;
+    stream<Report> reportStream = stream from var student in duplicateStdList
+                                         select {
+                                             id: student.id,
+                                             name: student.firstName + " " + student.lastName,
+                                             degree: "Bachelor of Medicine",
+                                             graduationYear: calGraduationYear(student.intakeYear)
+                                         }
+                                         // The `on conflict` clause gets executed when `select` emits a row
+                                         // that has the same key as a row that it emitted earlier.
+                                         // It gives an `onConflictError` error if there is a key conflict.
+                                         on conflict onConflictError;
 
-    io:println(result);
+    foreach var report in reportStream {
+        io:println(report);
+    }
 }
 
 function calGraduationYear(int year) returns int {
