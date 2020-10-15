@@ -75,7 +75,7 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         assertVariable(globalVariables, "gv07_decimalValue", "100.0", "decimal");
         assertVariable(globalVariables, "gv08_byteValue", "2", "int");
         assertVariable(globalVariables, "gv09_floatValue", "2.0", "float");
-        assertVariable(globalVariables, "gv10_jsonVar", "object", "json");
+        assertVariable(globalVariables, "gv10_jsonVar", "map<json>", "json");
         assertVariable(globalVariables, "gv11_ /:@[`{~⌤_IL", "IL with global var", "string");
     }
 
@@ -153,7 +153,7 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         assertVariable(localVariables, "v23_byteVar", "128", "int");
 
         // json variable visibility test
-        assertVariable(localVariables, "v24_jsonVar", "object", "json");
+        assertVariable(localVariables, "v24_jsonVar", "map<json>", "json");
 
         // table variable visibility test
         assertVariable(localVariables, "v25_tableVar", "table<Employee>", "table");
@@ -167,7 +167,7 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         // variables with quoted identifiers visibility test
         assertVariable(localVariables, "v28_ /:@[`{~⌤_var", "IL with special characters in var", "string");
         assertVariable(localVariables, "v29_üňĩćőđę_var", "IL with unicode characters in var", "string");
-        assertVariable(localVariables, "v30_ĠĿŐΒȂɭ_ /:@[`{~⌤_json", "object", "json");
+        assertVariable(localVariables, "v30_ĠĿŐΒȂɭ_ /:@[`{~⌤_json", "map<json>", "json");
     }
 
     @Test
