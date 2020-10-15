@@ -106,4 +106,13 @@ public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implem
 
         return joiner.toString();
     }
+
+    // Setters. Only to be used by the TypeBuilder
+    void setFieldDescriptors(List<FieldDescriptor> fields) {
+        this.fieldDescriptors = fields;
+    }
+
+    void setRestTypeDescriptor(BallerinaTypeDescriptor restType) {
+        this.restTypeDesc = restType;
+    }
 }

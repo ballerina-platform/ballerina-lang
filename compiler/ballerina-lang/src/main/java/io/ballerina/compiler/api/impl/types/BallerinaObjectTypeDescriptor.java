@@ -130,4 +130,13 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
                 .append("}")
                 .toString();
     }
+
+    // Setters. Only to be used by the type builder.
+    void setFieldDescriptors(List<FieldDescriptor> fields) {
+        this.objectFields = fields;
+    }
+
+    void setMethods(List<MethodDeclaration> methods) {
+        this.methods = methods;
+    }
 }

@@ -16,24 +16,10 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl;
+package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.types.BallerinaArrayTypeDescriptor;
-import io.ballerina.compiler.api.impl.types.BallerinaErrorTypeDescriptor;
-import io.ballerina.compiler.api.impl.types.BallerinaFieldDescriptor;
-import io.ballerina.compiler.api.impl.types.BallerinaFunctionTypeDescriptor;
-import io.ballerina.compiler.api.impl.types.BallerinaFutureTypeDescriptor;
-import io.ballerina.compiler.api.impl.types.BallerinaMapTypeDescriptor;
-import io.ballerina.compiler.api.impl.types.BallerinaObjectTypeDescriptor;
-import io.ballerina.compiler.api.impl.types.BallerinaParameter;
-import io.ballerina.compiler.api.impl.types.BallerinaRecordTypeDescriptor;
-import io.ballerina.compiler.api.impl.types.BallerinaSimpleTypeDescriptor;
-import io.ballerina.compiler.api.impl.types.BallerinaStreamTypeDescriptor;
-import io.ballerina.compiler.api.impl.types.BallerinaTupleTypeDescriptor;
-import io.ballerina.compiler.api.impl.types.BallerinaTypeDescTypeDescriptor;
-import io.ballerina.compiler.api.impl.types.BallerinaTypeReferenceTypeDescriptor;
-import io.ballerina.compiler.api.impl.types.BallerinaUnionTypeDescriptor;
+import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.impl.types.util.BallerinaMethodDeclaration;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
@@ -65,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -77,6 +64,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -99,9 +87,11 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
 
     private ModuleID moduleID;
     private final Types types;
+    private final Map<BType, BallerinaTypeDescriptor> typeCache;
 
     public TypeBuilder(Types types) {
         this.types = types;
+        this.typeCache = new HashMap<>();
     }
 
     public BallerinaTypeDescriptor build(BType internalType) {
@@ -109,14 +99,22 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
             return null;
         }
 
+        if (typeCache.containsKey(internalType)) {
+            return typeCache.get(internalType);
+        }
+
         moduleID = internalType.tsymbol == null ? null : new BallerinaModuleID(internalType.tsymbol.pkgID);
         BallerinaTypeDescriptor publicType = internalType.accept(this, null);
 
         if (isTypeReference(internalType)) {
-            return new BallerinaTypeReferenceTypeDescriptor(moduleID, publicType, internalType,
-                                                            internalType.tsymbol.getName().getValue());
+            BallerinaTypeDescriptor refType =
+                    new BallerinaTypeReferenceTypeDescriptor(moduleID, publicType, internalType,
+                                                             internalType.tsymbol.getName().getValue());
+            typeCache.putIfAbsent(internalType, refType);
+            return refType;
         }
 
+        typeCache.putIfAbsent(internalType, publicType);
         return publicType;
     }
 
@@ -168,18 +166,14 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
 
     @Override
     public BallerinaTypeDescriptor visit(BObjectType internalType, BType s) {
-        List<FieldDescriptor> fields = new ArrayList<>();
+        BallerinaObjectTypeDescriptor publicType = new BallerinaObjectTypeDescriptor(moduleID, null, null,
+                                                                                     internalType);
+        addToTypeCache(internalType, publicType);
 
-        for (Map.Entry<String, BField> entry : internalType.fields.entrySet()) {
-            BField bField = entry.getValue();
-            BallerinaTypeDescriptor fieldType = build(bField.type);
-            BallerinaFieldDescriptor field = new BallerinaFieldDescriptor(fieldType, bField);
-            fields.add(field);
-        }
-
+        List<FieldDescriptor> fields = createFields(internalType);
         BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) internalType.tsymbol;
-        List<MethodDeclaration> methods = new ArrayList<>();
 
+        List<MethodDeclaration> methods = new ArrayList<>();
         for (BAttachedFunction func : typeSymbol.attachedFuncs) {
             BallerinaFunctionTypeDescriptor methodType = (BallerinaFunctionTypeDescriptor) build(func.type);
             BallerinaMethodDeclaration methodDecl = new BallerinaMethodDeclaration(func.funcName.value, new HashSet<>(),
@@ -187,25 +181,24 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
             methods.add(methodDecl);
         }
 
-        return new BallerinaObjectTypeDescriptor(moduleID, unmodifiableList(fields), unmodifiableList(methods),
-                                                 internalType);
+        publicType.setFieldDescriptors(unmodifiableList(fields));
+        publicType.setMethods(unmodifiableList(methods));
+        return publicType;
     }
 
     @Override
     public BallerinaTypeDescriptor visit(BRecordType internalType, BType s) {
-        List<FieldDescriptor> fields = new ArrayList<>();
+        BallerinaRecordTypeDescriptor publicType = new BallerinaRecordTypeDescriptor(moduleID, null, null,
+                                                                                     internalType);
+        addToTypeCache(internalType, publicType);
 
-        for (Map.Entry<String, BField> entry : internalType.fields.entrySet()) {
-            BField bField = entry.getValue();
-            BallerinaTypeDescriptor fieldType = build(bField.type);
-            BallerinaFieldDescriptor field = new BallerinaFieldDescriptor(fieldType, bField);
-            fields.add(field);
-        }
-
+        List<FieldDescriptor> fields = createFields(internalType);
         BallerinaTypeDescriptor restType =
                 internalType.restFieldType.tag == TypeTags.NONE ? null : build(internalType.restFieldType);
 
-        return new BallerinaRecordTypeDescriptor(moduleID, unmodifiableList(fields), restType, internalType);
+        publicType.setFieldDescriptors(unmodifiableList(fields));
+        publicType.setRestTypeDescriptor(restType);
+        return publicType;
     }
 
     @Override
@@ -304,6 +297,29 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
         return null;
     }
 
+    // Private Methods
+
+    private List<FieldDescriptor> createFields(BStructureType internalType) {
+        List<FieldDescriptor> fields = new ArrayList<>();
+        for (Map.Entry<String, BField> entry : internalType.fields.entrySet()) {
+            BField bField = entry.getValue();
+            BallerinaTypeDescriptor fieldType = build(bField.type);
+            BallerinaFieldDescriptor field = new BallerinaFieldDescriptor(fieldType, bField);
+            fields.add(field);
+        }
+        return fields;
+    }
+
+    private void addToTypeCache(BType internalType, BallerinaTypeDescriptor publicType) {
+        if (isTypeReference(internalType)) {
+            typeCache.putIfAbsent(internalType,
+                                  new BallerinaTypeReferenceTypeDescriptor(moduleID, publicType, internalType,
+                                                                           internalType.tsymbol.name.value));
+        } else {
+            typeCache.putIfAbsent(internalType, publicType);
+        }
+    }
+
     private Parameter createBallerinaParameter(BVarSymbol symbol, ParameterKind kind) {
         if (symbol == null) {
             return null;
@@ -313,7 +329,7 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
         BallerinaTypeDescriptor typeDescriptor = build(symbol.type);
 
         List<Qualifier> qualifiers = new ArrayList<>();
-        if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+        if (Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
             qualifiers.add(Qualifier.PUBLIC);
         }
 
