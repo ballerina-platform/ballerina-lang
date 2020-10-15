@@ -543,6 +543,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "numberList",
+      "kind": "Variable",
+      "detail": "int[]",
+      "insertText": "numberList",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "getInt()(int)",
       "kind": "Function",
       "detail": "Function",

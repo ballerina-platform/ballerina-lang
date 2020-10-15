@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -23,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -75,12 +78,13 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
             return this.getAnnotationsInModule(context, qNameRef.modulePrefix().text(), attachedNode, pkgAliasMap);
         }
 
-//        LSAnnotationCache.getInstance().getAnnotationMapForType(attachedNode, context)
-//                .forEach((key, value) -> value.forEach(annotation -> {
-//                    boolean withAlias = this.withAlias(context, node, annotation.pkgID);
-//                    completionItems.add(CommonUtil.getAnnotationCompletionItem(key, annotation, context, withAlias,
-//                            pkgAliasMap));
-//                }));
+        LSAnnotationCache.getInstance().getAnnotationMapForType(attachedNode, context)
+                .forEach((key, value) -> value.forEach(annotation -> {
+                    boolean withAlias = this.withAlias(context, node, annotation.pkgID);
+                    AnnotationSymbol annotationSymbol = SymbolFactory.createAnnotationSymbol(annotation);
+                    completionItems.add(CommonUtil.getAnnotationCompletionItem(key, annotationSymbol, context,
+                            withAlias, pkgAliasMap));
+                }));
         completionItems.addAll(this.getCurrentModuleAnnotations(context, attachedNode, pkgAliasMap));
         return completionItems;
     }

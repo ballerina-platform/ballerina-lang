@@ -571,6 +571,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "obj2",
+      "kind": "Variable",
+      "detail": " object {int field1;int field2; object {finite $missingNode$_4;finite $missingNode$_5} $missingNode$_3}",
+      "insertText": "obj2",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testNewFunction()",
       "kind": "Function",
       "detail": "Function",

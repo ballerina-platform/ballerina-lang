@@ -973,10 +973,9 @@ public class CommonUtil {
     }
 
     private static List<FieldDescriptor> getRecordRequiredFields(RecordTypeDescriptor recordType) {
-//        return recordType.fieldDescriptors().stream()
-//                .filter(field -> !field.isOptional())
-//                .collect(Collectors.toList());
-        return new ArrayList<>();
+        return recordType.fieldDescriptors().values().stream()
+                .filter(field -> !field.isOptional())
+                .collect(Collectors.toList());
     }
 
     /**

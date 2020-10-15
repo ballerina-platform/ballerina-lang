@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -15,9 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.api.impl.symbols;
+package io.ballerina.compiler.api.impl;
 
-import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
+import io.ballerina.compiler.api.impl.symbols.BallerinaServiceSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.impl.types.BallerinaParameter;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -36,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.util.Flags;
@@ -92,6 +103,10 @@ public class SymbolFactory {
             return createTypeDefinition((BTypeSymbol) symbol, name);
         }
 
+        if (symbol.kind == SymbolKind.XMLNS) {
+            return createXMLNamespaceSymbol((BXMLNSSymbol) symbol);
+        }
+        
         if (symbol == null) {
             throw new IllegalArgumentException("Symbol is 'null'");
         }
@@ -266,6 +281,19 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
         symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.attachedType.getType()));
+
+        return symbolBuilder.build();
+    }
+
+    /**
+     * Creates an annotation Symbol.
+     *
+     * @param symbol Annotation symbol to convert
+     * @return {@link BallerinaAnnotationSymbol}
+     */
+    public static BallerinaXMLNSSymbol createXMLNamespaceSymbol(BXMLNSSymbol symbol) {
+        BallerinaXMLNSSymbol.XmlNSSymbolBuilder symbolBuilder =
+                new BallerinaXMLNSSymbol.XmlNSSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol);
 
         return symbolBuilder.build();
     }

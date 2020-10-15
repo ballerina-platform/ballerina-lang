@@ -473,6 +473,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "$anonType$_0",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "$anonType$_0",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "decimal",
       "kind": "Unit",
       "detail": "Decimal",
@@ -571,13 +578,6 @@
       "kind": "Unit",
       "detail": "Typedesc",
       "insertText": "typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "$anonType$0",
-      "kind": "Interface",
-      "detail": "Object",
-      "insertText": "$anonType$0",
       "insertTextFormat": "Snippet"
     },
     {
