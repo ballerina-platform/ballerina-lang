@@ -41,6 +41,13 @@ public class BallerinaTypeReferenceTypeDescriptor extends AbstractTypeDescriptor
         this.definitionName = definitionName;
     }
 
+    public BallerinaTypeReferenceTypeDescriptor(ModuleID moduleID, BallerinaTypeDescriptor type, BType bType,
+                                                String definitionName) {
+        super(TypeDescKind.TYPE_REFERENCE, moduleID, bType);
+        this.definitionName = definitionName;
+        this.typeDescriptorImpl = type;
+    }
+
     @Override
     public BallerinaTypeDescriptor typeDescriptor() {
         if (this.typeDescriptorImpl == null) {
