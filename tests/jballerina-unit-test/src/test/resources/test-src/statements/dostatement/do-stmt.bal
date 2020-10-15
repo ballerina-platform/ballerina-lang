@@ -56,9 +56,13 @@ function testOnFailStatement() {
     assertEquality("custom error", (<error>failWithinOnFail2Res).message());
 
     string failWithinOnFail3Res = testFailWithinOnFail3();
-        assertEquality("-> Within 1st do statement-> Error caught in 1st on-fail-> Within 2nd do statement"
-        + "-> Error caught in 2nd on-fail-> Error caught in outer on-fail-> Execution completed.",
-        failWithinOnFail3Res);
+    assertEquality("-> Within 1st do statement-> Error caught in 1st on-fail-> Within 2nd do statement"
+    + "-> Error caught in 2nd on-fail-> Error caught in outer on-fail-> Execution completed.",
+    failWithinOnFail3Res);
+
+    string failWithinOnFail4Res = testFailWithinOnFail4();
+    assertEquality("-> Within do statement-> Error caught in inner on fail-> Error caught in outer on fail" +
+    "-> Execution completed.", failWithinOnFail4Res);
 }
 
 function testOnFail () returns string {
@@ -107,7 +111,6 @@ function getError()  returns int|error {
     error err = error("Custom Error");
     return err;
 }
-
 
 function testNestedDoWithOnFail () returns string {
    string str = "";
@@ -294,6 +297,26 @@ function testFailWithinOnFail3() returns string {
       str += "-> After do statement";
     } on fail error e3 {
         str += "-> Error caught in outer on-fail";
+    }
+    str += "-> Execution completed.";
+    return str;
+}
+
+function testFailWithinOnFail4() returns string {
+    int i = 0;
+    string str = "";
+    while (i < 2) {
+      do {
+          str += "-> Within do statement";
+          i = i + 1;
+          int val1 = check getError();
+      } on fail error e {
+         str += "-> Error caught in inner on fail";
+         int val2 = check getError();
+      }
+      str += "-> After do statement";
+    } on fail error ee {
+       str += "-> Error caught in outer on fail";
     }
     str += "-> Execution completed.";
     return str;

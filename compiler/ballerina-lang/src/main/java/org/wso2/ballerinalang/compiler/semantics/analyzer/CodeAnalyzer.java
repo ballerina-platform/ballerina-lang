@@ -2908,6 +2908,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        this.failVisited = true;
         analyzeExpr(checkedExpr.expr);
 
         if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
