@@ -215,6 +215,26 @@ public abstract class AbstractParser {
     }
 
     /**
+     * Clones the first node in list with the invalid node as minutiae and update the list.
+     *
+     * @param nodeList       node list to be updated
+     * @param invalidParam   the invalid node to be attached to the first node in list as minutiae
+     * @param diagnosticCode diagnostic code related to the invalid node
+     * @param args           additional arguments used in diagnostic message
+     */
+    protected void updateFirstNodeInListWithInvalidNode(List<STNode> nodeList,
+                                                        STNode invalidParam,
+                                                        DiagnosticCode diagnosticCode,
+                                                        Object... args) {
+        STNode firstNode = nodeList.remove(0);
+        STNode newNode = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(firstNode, invalidParam);
+        if (diagnosticCode != null) {
+            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
+        }
+        nodeList.add(0, newNode);
+    }
+
+    /**
      * Adds the invalid node as minutiae to the next consumed token.
      * <p>
      * This method pushes this invalid node into a stack and attach it
