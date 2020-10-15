@@ -2280,9 +2280,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         int prevIndentation = env.currentIndentation;
 
         // Set indentation for braces.
-        // For records inside module-level typ-defs, braces should have the same indentation as the type-keyword.
-        // For records in other places, braces should have the same indentation as the record-keyword.
-        // TODO: check whether we can do this without looking at the parent.
         if (objectTypeDescriptorNode.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
             int fieldIndentation = env.lineLength - objectKeyword.text().length() - 1;
             setIndentation(fieldIndentation);
@@ -2323,9 +2320,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         int prevIndentation = env.currentIndentation;
 
         // Set indentation for braces.
-        // For records inside module-level typ-defs, braces should have the same indentation as the type-keyword.
-        // For records in other places, braces should have the same indentation as the record-keyword.
-        // TODO: check whether we can do this without looking at the parent.
         if (objectConstructorExpressionNode.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
             int fieldIndentation = env.lineLength - objectKeyword.text().length() - 1;
             setIndentation(fieldIndentation);
