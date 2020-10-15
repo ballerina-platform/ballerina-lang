@@ -156,19 +156,26 @@ public class BallerinaTriggerModifyUtil {
             if (mainFunction.isPresent()) {
                 //replace main
                 if (MAIN.equalsIgnoreCase(type)) {
-                    if (mainFunction.get().getPosition().getStartLine() > 1) {
-                        edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START_MODIFY",
-                                mainFunction.get().getPosition().getStartLine() - 1,
-                                mainFunction.get().getPosition().getStartColumn(),
-                                mainFunction.get().getBody().getPosition().getStartLine(),
-                                mainFunction.get().getBody().getPosition().getStartColumn() + 1));
-                    } else {
-                        edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START_MODIFY",
-                                mainFunction.get().getPosition().getStartLine(),
-                                mainFunction.get().getPosition().getStartColumn(),
-                                mainFunction.get().getBody().getPosition().getStartLine(),
-                                mainFunction.get().getBody().getPosition().getStartColumn() + 1));
+                    Optional<BLangImportPackage> httpImport = oldTree.getImports().stream().
+                            filter(aImport -> aImport.getOrgName().getValue().equalsIgnoreCase("ballerina")
+                                    && aImport.getPackageName().size() == 1 &&
+                                    aImport.getPackageName().get(0).getValue().equalsIgnoreCase("http")).
+                            findFirst();
+                    if (!httpImport.isPresent()) {
+                        edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument,
+                                gson.fromJson("{\"TYPE\":\"ballerina/http\"}",
+                                        JsonObject.class), "IMPORT",
+                                1, 1, 1, 1));
                     }
+                    int startLine = mainFunction.get().getPosition().getStartLine();
+                    if (SCHEDULE.equalsIgnoreCase(currentTrigger)) {
+                        --startLine;
+                    }
+                    edits.add(BallerinaTreeModifyUtil.createTextEdit(oldTextDocument, config, "MAIN_START_MODIFY",
+                            startLine,
+                            mainFunction.get().getPosition().getStartColumn(),
+                            mainFunction.get().getBody().getPosition().getStartLine(),
+                            mainFunction.get().getBody().getPosition().getStartColumn() + 1));
                 } else if (SERVICE.equalsIgnoreCase(type)) {
                     Optional<BLangImportPackage> httpImport = oldTree.getImports().stream().
                             filter(aImport -> aImport.getOrgName().getValue().equalsIgnoreCase("ballerina")
