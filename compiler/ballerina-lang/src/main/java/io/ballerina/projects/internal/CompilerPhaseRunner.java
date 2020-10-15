@@ -59,7 +59,7 @@ public class CompilerPhaseRunner {
 
     private final CompilerOptions options;
     private final BLangDiagnosticLog dlog;
-    private final PackageLoader pkgLoader;
+//    private final PackageLoader pkgLoader;
     private final PackageCache pkgCache;
     private final SymbolTable symbolTable;
     private final SymbolEnter symbolEnter;
@@ -92,7 +92,7 @@ public class CompilerPhaseRunner {
 
         this.options = CompilerOptions.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.pkgLoader = PackageLoader.getInstance(context);
+//        this.pkgLoader = PackageLoader.getInstance(context);
         this.pkgCache = PackageCache.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
@@ -113,10 +113,8 @@ public class CompilerPhaseRunner {
                 && Boolean.parseBoolean(this.options.get(TOOLING_COMPILATION));
     }
 
-    public BPackageSymbol getLangModuleFromSource(PackageID modID) {
-
-        BLangPackage pkg = taintAnalyze(
-                documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID)))));
+    private BPackageSymbol getLangModuleFromSource(BLangPackage pkgNode) {
+        BLangPackage pkg = taintAnalyze(documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgNode))));
         if (dlog.errorCount() > 0) {
             return null;
         }
@@ -164,7 +162,7 @@ public class CompilerPhaseRunner {
             return;
         }
 
-        generateObservabilityData(pkgNode);
+//        generateObservabilityData(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.DESUGAR)) {
             return;
         }

@@ -33,7 +33,18 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
+import static org.ballerinalang.model.elements.PackageID.ARRAY;
+import static org.ballerinalang.model.elements.PackageID.ERROR;
+import static org.ballerinalang.model.elements.PackageID.INTERNAL;
 import static org.ballerinalang.model.elements.PackageID.JAVA;
+import static org.ballerinalang.model.elements.PackageID.MAP;
+import static org.ballerinalang.model.elements.PackageID.QUERY;
+import static org.ballerinalang.model.elements.PackageID.STREAM;
+import static org.ballerinalang.model.elements.PackageID.STRING;
+import static org.ballerinalang.model.elements.PackageID.TABLE;
+import static org.ballerinalang.model.elements.PackageID.TRANSACTION;
+import static org.ballerinalang.model.elements.PackageID.VALUE;
+import static org.ballerinalang.model.elements.PackageID.XML;
 
 /**
  * Load lang libs and define their symbols.
@@ -41,11 +52,6 @@ import static org.ballerinalang.model.elements.PackageID.JAVA;
  * @since 2.0.0
  */
 class Bootstrap {
-
-    private static final Bootstrap instance = new Bootstrap();
-    public static Bootstrap getInstance() {
-        return instance;
-    }
 
     private boolean langLibLoaded = false;
 
@@ -57,35 +63,68 @@ class Bootstrap {
         langLibLoaded = true;
         // we will load any lang.lib found in cache directory
 
-        if (!PackageID.isLangLibPackageID(langLib)) {
-            return;
-        }
+//        if (!PackageID.isLangLibPackageID(langLib)) {
+//            return;
+//        }
 
         SymbolResolver symResolver = SymbolResolver.getInstance(compilerContext);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
 
         // load annotation
-        ModuleLoadRequest annotation = toModuleRequest(ANNOTATIONS);
-        loadLib(annotation, packageResolver);
-        if (getSymbolFromCache(compilerContext, ANNOTATIONS) != null) {
-            symbolTable.langAnnotationModuleSymbol = getSymbolFromCache(compilerContext, ANNOTATIONS);
-        }
+        symbolTable.langAnnotationModuleSymbol = loadLib(ANNOTATIONS, packageResolver, compilerContext);
 
         if (langLib.equals(ANNOTATIONS)) {
-            return;
+            return; // Nothing else to load.
         }
 
         symResolver.reloadErrorAndDependentTypes();
 
         // load java
-        ModuleLoadRequest java = toModuleRequest(JAVA);
-        loadLib(java, packageResolver);
+        symbolTable.langJavaModuleSymbol = loadLib(JAVA, packageResolver, compilerContext);
 
-        if (getSymbolFromCache(compilerContext, JAVA) != null) {
-            symbolTable.langJavaModuleSymbol = getSymbolFromCache(compilerContext, JAVA);
+        if (langLib.equals(JAVA)) {
+            return; // Nothing else to load.
         }
 
-        // TODO add the rest of the langlibs to load
+        symbolTable.langInternalModuleSymbol = loadLib(INTERNAL, packageResolver, compilerContext);
+
+        if (langLib.equals(INTERNAL)) {
+            return; // Nothing else to load.
+        }
+
+        symbolTable.langArrayModuleSymbol = loadLib(ARRAY, packageResolver, compilerContext);
+
+        if (langLib.equals(QUERY)) {
+            // Query module requires stream, array, map, string, table, xml & value modules. Hence loading them.
+            symbolTable.langArrayModuleSymbol = loadLib(ARRAY, packageResolver, compilerContext);
+            symbolTable.langMapModuleSymbol = loadLib(MAP, packageResolver, compilerContext);
+            symbolTable.langStringModuleSymbol = loadLib(STRING, packageResolver, compilerContext);
+            symbolTable.langValueModuleSymbol = loadLib(VALUE, packageResolver, compilerContext);
+            symbolTable.langXmlModuleSymbol = loadLib(XML, packageResolver, compilerContext);
+            symbolTable.langTableModuleSymbol = loadLib(TABLE, packageResolver, compilerContext);
+            symbolTable.langStreamModuleSymbol = loadLib(STREAM, packageResolver, compilerContext);
+        }
+
+        if (langLib.equals(TRANSACTION)) {
+            // Transaction module requires array, map, string, value modules. Hence loading them.
+            symbolTable.langArrayModuleSymbol = loadLib(ARRAY, packageResolver, compilerContext);
+            symbolTable.langMapModuleSymbol = loadLib(MAP, packageResolver, compilerContext);
+            symbolTable.langStringModuleSymbol = loadLib(STRING, packageResolver, compilerContext);
+            symbolTable.langValueModuleSymbol = loadLib(VALUE, packageResolver, compilerContext);
+            symbolTable.langErrorModuleSymbol = loadLib(ERROR, packageResolver, compilerContext);
+        }
+
+        symResolver.reloadIntRangeType();
+
+        loadLib(langLib, packageResolver, compilerContext);
+    }
+
+    private BPackageSymbol loadLib(PackageID langLib, PackageResolver packageResolver,
+                                   CompilerContext compilerContext) {
+        ModuleLoadRequest langLibLoadRequest = toModuleRequest(langLib);
+        loadLib(langLibLoadRequest, packageResolver);
+
+        return getSymbolFromCache(compilerContext, langLib);
     }
 
     private void loadLib(ModuleLoadRequest lib, PackageResolver packageResolver) {
@@ -94,7 +133,7 @@ class Bootstrap {
             Package pkg = packageResolver.getPackage(module.packageId());
             PackageCompilation compilation = pkg.getCompilation();
             if (compilation.diagnostics().size() > 0) {
-                throw new RuntimeException("Error while bootstraping :" + pkg.packageId().toString());
+                throw new RuntimeException("Error while bootstrapping :" + pkg.packageId().toString());
             }
         });
     }

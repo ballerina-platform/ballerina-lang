@@ -71,6 +71,7 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     dependsOn createDistributionCache
     outputs.files("$buildDir/new-project/" + project.projectDir.name + "/target/balo/")
 
+    classpath += files(jar.archivePath)
 }
 
 artifacts {

@@ -33,6 +33,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -185,13 +186,13 @@ public class SymbolEnter extends BLangNodeVisitor {
     private static final CompilerContext.Key<SymbolEnter> SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
-    private final PackageLoader pkgLoader;
+//    private final PackageLoader pkgLoader;
     private final SymbolTable symTable;
     private final Names names;
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
     private final Types types;
-    private final SourceDirectory sourceDirectory;
+//    private final SourceDirectory sourceDirectory;
     private List<BLangNode> unresolvedTypes;
     private List<BLangClassDefinition> unresolvedClasses;
     private HashSet<LocationData> unknownTypeRefs;
@@ -200,6 +201,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final TypeParamAnalyzer typeParamAnalyzer;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
+    private PackageCache packageCache;
 
     private SymbolEnv env;
 
@@ -217,7 +219,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public SymbolEnter(CompilerContext context) {
         context.put(SYMBOL_ENTER_KEY, this);
 
-        this.pkgLoader = PackageLoader.getInstance(context);
+//        this.pkgLoader = PackageLoader.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
@@ -225,10 +227,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-        this.sourceDirectory = context.get(SourceDirectory.class);
+//        this.sourceDirectory = context.get(SourceDirectory.class);
         this.importedPackages = new ArrayList<>();
         this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -717,12 +720,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                 String pkgName = importPkgNode.getPackageName().stream()
                         .map(id -> id.value)
                         .collect(Collectors.joining("."));
-                if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
-                        && orgName.value.equals(enclPackageID.orgName.value)) {
-                    version = enclPackageID.version;
-                } else {
+//                if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
+//                        && orgName.value.equals(enclPackageID.orgName.value)) {
+//                    version = enclPackageID.version;
+//                } else {
                     version = Names.EMPTY;
-                }
+//                }
             }
         } else {
             orgName = enclPackageID.orgName;
@@ -788,7 +791,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, this.env.enclPkg.repos);
+//        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, this.env.enclPkg.repos);
+        BPackageSymbol pkgSymbol = packageCache.getSymbol(pkgId);
         if (pkgSymbol == null) {
             dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());

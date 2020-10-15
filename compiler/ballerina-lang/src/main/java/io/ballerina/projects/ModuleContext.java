@@ -65,6 +65,8 @@ class ModuleContext {
 
     private PackageResolver packageResolver;
 
+    private final Bootstrap bootstrap = new Bootstrap();
+
     // TODO How about introducing a ModuleState concept. ModuleState.DEPENDENCIES_RESOLVED
     private boolean dependenciesResolved;
 
@@ -189,7 +191,7 @@ class ModuleContext {
         PackageID pkgId = new PackageID(new Name(packageDescriptor.org().toString()),
                 new Name(this.moduleName.toString()), new Name(packageDescriptor.version().toString()));
 
-        Bootstrap.getInstance().loadLangLib(compilerContext, packageResolver, pkgID);
+        bootstrap.loadLangLib(compilerContext, packageResolver, pkgID);
 
         // if this is already loaded from BALO, then skip rest of the compilation
         if (packageCache.get(pkgID) != null) {

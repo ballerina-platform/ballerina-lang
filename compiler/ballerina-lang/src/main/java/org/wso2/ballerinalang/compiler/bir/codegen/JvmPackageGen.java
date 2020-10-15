@@ -163,37 +163,37 @@ public class JvmPackageGen {
 
         dependentModuleArray.add(PackageID.ANNOTATIONS);
 
-        if (isSameModule(currentModule, PackageID.JAVA)) {
-            return;
-        }
+//        if (isSameModule(currentModule, PackageID.JAVA)) {
+//            return;
+//        }
+//
+//        dependentModuleArray.add(PackageID.JAVA);
+//
+//        if (isLangModule(currentModule)) {
+//            return;
+//        }
 
-        dependentModuleArray.add(PackageID.JAVA);
-
-        if (isLangModule(currentModule)) {
-            return;
-        }
-
-        if (isSameModule(currentModule, PackageID.INTERNAL)) {
-            return;
-        }
-        dependentModuleArray.add(PackageID.INTERNAL);
-        dependentModuleArray.add(PackageID.ARRAY);
-        dependentModuleArray.add(PackageID.DECIMAL);
-        dependentModuleArray.add(PackageID.ERROR);
-        dependentModuleArray.add(PackageID.FLOAT);
-        dependentModuleArray.add(PackageID.FUTURE);
-        dependentModuleArray.add(PackageID.INT);
-        dependentModuleArray.add(PackageID.MAP);
-        dependentModuleArray.add(PackageID.OBJECT);
-        dependentModuleArray.add(PackageID.STREAM);
-        dependentModuleArray.add(PackageID.STRING);
-        dependentModuleArray.add(PackageID.TABLE);
-        dependentModuleArray.add(PackageID.VALUE);
-        dependentModuleArray.add(PackageID.XML);
-        dependentModuleArray.add(PackageID.TYPEDESC);
-        dependentModuleArray.add(PackageID.BOOLEAN);
-        dependentModuleArray.add(PackageID.QUERY);
-        dependentModuleArray.add(PackageID.TRANSACTION);
+//        if (isSameModule(currentModule, PackageID.INTERNAL)) {
+//            return;
+//        }
+//        dependentModuleArray.add(PackageID.INTERNAL);
+//        dependentModuleArray.add(PackageID.ARRAY);
+//        dependentModuleArray.add(PackageID.DECIMAL);
+//        dependentModuleArray.add(PackageID.ERROR);
+//        dependentModuleArray.add(PackageID.FLOAT);
+//        dependentModuleArray.add(PackageID.FUTURE);
+//        dependentModuleArray.add(PackageID.INT);
+//        dependentModuleArray.add(PackageID.MAP);
+//        dependentModuleArray.add(PackageID.OBJECT);
+//        dependentModuleArray.add(PackageID.STREAM);
+//        dependentModuleArray.add(PackageID.STRING);
+//        dependentModuleArray.add(PackageID.TABLE);
+//        dependentModuleArray.add(PackageID.VALUE);
+//        dependentModuleArray.add(PackageID.XML);
+//        dependentModuleArray.add(PackageID.TYPEDESC);
+//        dependentModuleArray.add(PackageID.BOOLEAN);
+//        dependentModuleArray.add(PackageID.QUERY);
+//        dependentModuleArray.add(PackageID.TRANSACTION);
     }
 
     private static boolean isSameModule(BIRPackage moduleId, PackageID importModule) {

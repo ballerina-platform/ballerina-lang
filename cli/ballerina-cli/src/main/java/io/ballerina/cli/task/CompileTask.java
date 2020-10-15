@@ -44,10 +44,10 @@ public class CompileTask implements Task {
 
     @Override
     public void execute(Project project) {
-        CompilerContext context = project.environmentContext().getService(CompilerContext.class);
-        Compiler compiler = Compiler.getInstance(context);
-        compiler.setOutStream(this.out);
-        compiler.setErrorStream(this.err);
+//        CompilerContext context = project.environmentContext().getService(CompilerContext.class);
+//        Compiler compiler = Compiler.getInstance(context);
+//        compiler.setOutStream(this.out);
+//        compiler.setErrorStream(this.err);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         List<Diagnostic> diagnostics = packageCompilation.diagnostics();

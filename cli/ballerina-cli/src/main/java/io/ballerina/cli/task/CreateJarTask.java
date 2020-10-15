@@ -39,7 +39,7 @@ public class CreateJarTask implements Task {
             target = new Target(project.sourceRoot());
             String jarName = ProjectUtils.getJarName(project.currentPackage());
             project.currentPackage().getCompilation().emit(PackageCompilation.OutputType.JAR,
-                    target.getJarCachePath().resolve(jarName));
+                    target.getJarCachePath());
         } catch (IOException e) {
             throw new RuntimeException(
                     "error occurred while creating the target directory at " + project.sourceRoot(), e);

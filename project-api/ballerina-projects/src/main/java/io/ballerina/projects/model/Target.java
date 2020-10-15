@@ -95,7 +95,12 @@ public class Target {
         if (outputPath != null) {
             return outputPath;
         }
-        return this.binPath.resolve(ProjectUtils.getExecutableName(pkg));
+        try {
+            Files.createDirectories(binPath);
+            return this.binPath.resolve(ProjectUtils.getExecutableName(pkg));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

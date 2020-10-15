@@ -50,7 +50,7 @@ public class CreateBaloTask implements Task {
             Path baloPath;
             try {
                 target = new Target(project.sourceRoot());
-                baloPath = target.getBaloPath(project.currentPackage());
+                baloPath = target.getBaloPath();
             } catch (IOException e) {
                 throw new RuntimeException("error occurred while writing the BALO:" + e.getMessage());
             }

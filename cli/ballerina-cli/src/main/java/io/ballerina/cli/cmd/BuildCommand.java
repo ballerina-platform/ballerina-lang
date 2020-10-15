@@ -28,6 +28,7 @@ import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.launch.LaunchUtils;
@@ -189,8 +190,10 @@ public class BuildCommand implements BLauncherCmd {
 
         Path outputPath = null == this.output ? Paths.get(System.getProperty("user.dir")) : Paths.get(this.output);
 
-        ProjectEnvironmentContext environmentContext = project.environmentContext();
-        CompilerContext compilerContext = environmentContext.getService(CompilerContext.class);
+        BuildEnvContext buildEnvContext = BuildEnvContext.getInstance();
+
+//        ProjectEnvironmentContext environmentContext = project.environmentContext();
+        CompilerContext compilerContext = buildEnvContext.compilerContext();
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(OFFLINE, Boolean.toString(this.offline));
@@ -214,7 +217,7 @@ public class BuildCommand implements BLauncherCmd {
 //                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
 //                .addTask(new RunTestsTask(testReport, coverage, args), this.skipTests || isSingleFileBuild)
                     // run tests (projects only)
-                .addTask(new CreateExecutableTask(outStream, outputPath), this.compile) //create the executable.jar file
+                .addTask(new CreateExecutableTask(outStream, null), this.compile) //create the executable.jar file
 //                .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
                 .build();
