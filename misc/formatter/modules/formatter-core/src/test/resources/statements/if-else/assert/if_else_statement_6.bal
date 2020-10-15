@@ -10,5 +10,5 @@ public function foo() {
 
 function bar() {
     int a = 9;
-    // hello
+// hello
 }
