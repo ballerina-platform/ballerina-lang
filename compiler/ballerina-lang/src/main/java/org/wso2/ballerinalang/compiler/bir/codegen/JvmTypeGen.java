@@ -109,11 +109,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ATTACHED_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ATTACHED_FUNCTION_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BFIELD_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BXML_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
@@ -125,6 +123,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FINITE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_IMPL;
@@ -169,6 +168,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NAME_HASH_COMPARATOR;
@@ -602,11 +602,11 @@ class JvmTypeGen {
             int tempResultIndex = indexMap.addToMapIfNotFoundAndGetIndex(tempResult);
             mv.visitVarInsn(ASTORE, tempResultIndex);
             mv.visitVarInsn(ALOAD, tempResultIndex);
-            mv.visitTypeInsn(INSTANCEOF, B_ERROR);
+            mv.visitTypeInsn(INSTANCEOF, BERROR);
             Label noErrorLabel = new Label();
             mv.visitJumpInsn(IFEQ, noErrorLabel);
             mv.visitVarInsn(ALOAD, tempResultIndex);
-            mv.visitTypeInsn(CHECKCAST, B_ERROR);
+            mv.visitTypeInsn(CHECKCAST, BERROR);
             mv.visitInsn(ATHROW);
             mv.visitLabel(noErrorLabel);
             mv.visitVarInsn(ALOAD, tempVarIndex);
@@ -710,7 +710,7 @@ class JvmTypeGen {
      */
     private static void createRecordField(MethodVisitor mv, BField field) {
 
-        mv.visitTypeInsn(NEW, BFIELD_IMPL);
+        mv.visitTypeInsn(NEW, FIELD_IMPL);
         mv.visitInsn(DUP);
 
         // Load the field type
@@ -722,8 +722,8 @@ class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, BFIELD_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;I)V", TYPE,
-                                                                                      STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, FIELD_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;I)V", TYPE,
+                                                                                     STRING_VALUE), false);
     }
 
     private static int typeFlag(BType type) {
@@ -896,7 +896,7 @@ class JvmTypeGen {
      */
     private static void createObjectField(MethodVisitor mv, BField field) {
 
-        mv.visitTypeInsn(NEW, BFIELD_IMPL);
+        mv.visitTypeInsn(NEW, FIELD_IMPL);
         mv.visitInsn(DUP);
 
         // Load the field type
@@ -908,8 +908,8 @@ class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, BFIELD_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;I)V", TYPE,
-                                                                                      STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, FIELD_IMPL, JVM_INIT_METHOD, String.format("(L%s;L%s;I)V", TYPE,
+                                                                                     STRING_VALUE), false);
     }
 
     /**
@@ -1281,7 +1281,7 @@ class JvmTypeGen {
      */
     private static void loadXmlType(MethodVisitor mv, BXMLType bType) {
         // Create an new xml type
-        mv.visitTypeInsn(NEW, BXML_TYPE_IMPL);
+        mv.visitTypeInsn(NEW, XML_TYPE_IMPL);
         mv.visitInsn(DUP);
 
         // Load the constraint type
@@ -1290,7 +1290,7 @@ class JvmTypeGen {
         loadReadonlyFlag(mv, bType);
 
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, BXML_TYPE_IMPL, JVM_INIT_METHOD, String.format("(L%s;Z)V", TYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE_IMPL, JVM_INIT_METHOD, String.format("(L%s;Z)V", TYPE), false);
     }
 
     /**

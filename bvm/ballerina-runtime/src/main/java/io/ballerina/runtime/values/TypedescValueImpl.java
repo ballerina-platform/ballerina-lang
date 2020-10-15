@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BInitialValueEntry;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.types.BTypedescType;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
@@ -82,7 +83,7 @@ public class TypedescValueImpl implements  TypedescValue {
     @Override
     public Object instantiate(Strand s, BInitialValueEntry[] initialValues) {
         if (describingType.getTag() == TypeTags.MAP_TAG) {
-            return new MapValueImpl<>(describingType, (MappingInitialValueEntry[]) initialValues);
+            return new MapValueImpl(describingType, (BMapInitialValueEntry[]) initialValues);
         }
         // This method will be overridden for user-defined types, therefor this line shouldn't be reached.
         throw new BallerinaException("Given type can't be instantiated at runtime : " + describingType);

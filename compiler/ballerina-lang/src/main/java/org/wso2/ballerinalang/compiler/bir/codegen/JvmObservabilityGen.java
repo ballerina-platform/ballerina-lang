@@ -579,7 +579,7 @@ class JvmObservabilityGen {
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
         observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;L%s;)V", B_STRING_VALUE, B_STRING_VALUE,
-                B_STRING_VALUE, B_STRING_VALUE);
+                                                                B_STRING_VALUE, B_STRING_VALUE);
         observeStartCallTerminator.name = START_RESOURCE_OBSERVATION_METHOD;
         observeStartCallTerminator.args = Arrays.asList(serviceNameOperand, resourceOperand, pkgOperand,
                 originalInsPosOperand);

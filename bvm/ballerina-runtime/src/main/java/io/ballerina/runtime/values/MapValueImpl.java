@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.types.BField;
@@ -99,7 +100,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         this.type = type;
     }
 
-    public MapValueImpl(Type type, MappingInitialValueEntry[] initialValues) {
+    public MapValueImpl(Type type, BMapInitialValueEntry[] initialValues) {
         super();
         this.type = type;
         populateInitialValues(initialValues);
@@ -242,8 +243,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                                                   INVALID_READONLY_VALUE_UPDATE)));
     }
 
-    protected void populateInitialValues(MappingInitialValueEntry[] initialValues) {
-        for (MappingInitialValueEntry initialValue : initialValues) {
+    protected void populateInitialValues(BMapInitialValueEntry[] initialValues) {
+        for (BMapInitialValueEntry initialValue : initialValues) {
             if (initialValue.isKeyValueEntry()) {
                 MappingInitialValueEntry.KeyValueEntry keyValueEntry =
                         (MappingInitialValueEntry.KeyValueEntry) initialValue;

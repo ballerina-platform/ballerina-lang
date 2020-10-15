@@ -389,7 +389,7 @@ import javax.xml.namespace.QName;
       */
      public static BMap<BString, Object> createMapValue(MapType mapType,
                                                         BMapInitialValueEntry[] keyValues) {
-         return new MapValueImpl<>(mapType, (MappingInitialValueEntry[]) keyValues);
+         return new MapValueImpl<>(mapType, keyValues);
      }
 
      /**

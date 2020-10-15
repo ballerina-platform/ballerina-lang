@@ -40,7 +40,7 @@ public class JvmConstants {
     public static final String ABSTRACT_OBJECT_VALUE = "io/ballerina/runtime/values/AbstractObjectValue";
     public static final String REF_VALUE = "io/ballerina/runtime/values/RefValue";
     public static final String ERROR_VALUE = "io/ballerina/runtime/values/ErrorValue";
-    public static final String B_ERROR = "io/ballerina/runtime/api/values/BError";
+    public static final String BERROR = "io/ballerina/runtime/api/values/BError";
     public static final String STRING_VALUE = "java/lang/String";
     public static final String B_STRING_VALUE = "io/ballerina/runtime/api/values/BString";
     public static final String NON_BMP_STRING_VALUE = "io/ballerina/runtime/values/NonBmpStringValue";
@@ -67,10 +67,10 @@ public class JvmConstants {
     public static final String TABLE_VALUE_IMPL = "io/ballerina/runtime/values/TableValueImpl";
     public static final String SIMPLE_VALUE = "io/ballerina/runtime/values/SimpleValue";
 
-    public static final String BHANDLE = "io/ballerina/runtime/api/values/BHandle";
+    public static final String B_HANDLE = "io/ballerina/runtime/api/values/BHandle";
 
-    public static final String BINITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BInitialValueEntry";
-    public static final String BMAPPING_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BMapInitialValueEntry";
+    public static final String B_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BInitialValueEntry";
+    public static final String B_MAPPING_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BMapInitialValueEntry";
     public static final String MAPPING_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/values/MappingInitialValueEntry";
     public static final String MAPPING_INITIAL_KEY_VALUE_ENTRY =
             "io/ballerina/runtime/values/MappingInitialValueEntry$KeyValueEntry";
@@ -86,7 +86,7 @@ public class JvmConstants {
 
     public static final String ARRAY_TYPE = "io/ballerina/runtime/api/types/ArrayType";
     public static final String MAP_TYPE = "io/ballerina/runtime/api/types/MapType";
-    public static final String BXML_TYPE = "io/ballerina/runtime/api/types/XMLType";
+    public static final String B_XML_TYPE = "io/ballerina/runtime/api/types/XMLType";
     public static final String STREAM_TYPE = "io/ballerina/runtime/api/types/StreamType";
     public static final String TABLE_TYPE = "io/ballerina/runtime/api/types/TableType";
     public static final String UNION_TYPE = "io/ballerina/runtime/api/types/UnionType";
@@ -107,7 +107,7 @@ public class JvmConstants {
     public static final String TYPE_IMPL = "io/ballerina/runtime/types/BType";
     public static final String ARRAY_TYPE_IMPL = "io/ballerina/runtime/types/BArrayType";
     public static final String MAP_TYPE_IMPL = "io/ballerina/runtime/types/BMapType";
-    public static final String BXML_TYPE_IMPL = "io/ballerina/runtime/types/BXMLType";
+    public static final String XML_TYPE_IMPL = "io/ballerina/runtime/types/BXMLType";
     public static final String STREAM_TYPE_IMPL = "io/ballerina/runtime/types/BStreamType";
     public static final String TABLE_TYPE_IMPL = "io/ballerina/runtime/types/BTableType";
     public static final String UNION_TYPE_IMPL = "io/ballerina/runtime/types/BUnionType";
@@ -119,7 +119,7 @@ public class JvmConstants {
     public static final String TUPLE_TYPE_IMPL = "io/ballerina/runtime/types/BTupleType";
     public static final String FUNCTION_TYPE_IMPL = "io/ballerina/runtime/types/BFunctionType";
     public static final String TYPEDESC_TYPE_IMPL = "io/ballerina/runtime/types/BTypedescType";
-    public static final String BFIELD_IMPL = "io/ballerina/runtime/types/BField";
+    public static final String FIELD_IMPL = "io/ballerina/runtime/types/BField";
     public static final String ATTACHED_FUNCTION_IMPL = "io/ballerina/runtime/types/AttachedFunction";
     public static final String FINITE_TYPE_IMPL = "io/ballerina/runtime/types/BFiniteType";
     public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/types/BFutureType";
@@ -145,9 +145,9 @@ public class JvmConstants {
     public static final String WORKER_UTILS = "io/ballerina/runtime/scheduling/WorkerUtils";
     public static final String MAP_UTILS = "io/ballerina/runtime/MapUtils";
     public static final String TABLE_UTILS = "io/ballerina/runtime/TableUtils";
-    public static final String B_STRING_UTILS = "io/ballerina/runtime/api/StringUtils";
+    public static final String STRING_UTILS = "io/ballerina/runtime/api/StringUtils";
     public static final String ERROR_UTILS = "io/ballerina/runtime/internal/ErrorUtils";
-    public static final String B_ERROR_CREATOR = "io/ballerina/runtime/api/ErrorCreator";
+    public static final String ERROR_CREATOR = "io/ballerina/runtime/api/ErrorCreator";
     public static final String RUNTIME_UTILS = "io/ballerina/runtime/util/RuntimeUtils";
     public static final String ARGUMENT_PARSER = "io/ballerina/runtime/util/ArgumentParser";
     public static final String LAUNCH_UTILS = "io/ballerina/runtime/launch/LaunchUtils";
