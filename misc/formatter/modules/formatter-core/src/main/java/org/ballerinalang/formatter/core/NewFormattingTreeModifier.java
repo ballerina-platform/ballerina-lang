@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses env file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use env file except
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -287,8 +287,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token functionKeyword = formatToken(functionDefinitionNode.functionKeyword(), 1, 0);
         IdentifierToken functionName = formatToken(functionDefinitionNode.functionName(), 0, 0);
         FunctionSignatureNode functionSignatureNode = formatNode(functionDefinitionNode.functionSignature(), 1, 0);
-        FunctionBodyNode functionBodyNode = formatNode(functionDefinitionNode.functionBody(),
-                env.trailingWS, env.trailingNL);
+
+        //TODO: Fix formatting issue when the function is within a class definition declaration.
+        FunctionBodyNode functionBodyNode =
+                formatNode(functionDefinitionNode.functionBody(), env.trailingWS, env.trailingNL);
 
         return functionDefinitionNode.modify()
                 .withFunctionKeyword(functionKeyword)
@@ -467,6 +469,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public BlockStatementNode transform(BlockStatementNode blockStatementNode) {
         Token openBrace = formatToken(blockStatementNode.openBraceToken(), 0, 1);
+        env.preserveNewlines = true;
         indent(); // start an indentation
         NodeList<StatementNode> statements = formatNodeList(blockStatementNode.statements(), 0, 1, 0, 1, true);
         unindent(); // end the indentation
@@ -2441,12 +2444,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     @Override
-    public NamedWorkerDeclarator transform(NamedWorkerDeclarator namedWorkerDeclarator) {
-
-        return super.transform(namedWorkerDeclarator);
-    }
-
-    @Override
     public TrapExpressionNode transform(TrapExpressionNode trapExpressionNode) {
         Token trapKeyword = formatToken(trapExpressionNode.trapKeyword(), 1, 0);
         ExpressionNode expression = formatNode(trapExpressionNode.expression(), env.trailingWS, env.trailingNL);
@@ -3381,8 +3378,35 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public ClassDefinitionNode transform(ClassDefinitionNode classDefinitionNode) {
+        if (classDefinitionNode.metadata().isPresent()) {
+            MetadataNode metadata = formatNode(classDefinitionNode.metadata().get(), 1, 0);
+            classDefinitionNode = classDefinitionNode.modify().withMetadata(metadata).apply();
+        }
 
-        return super.transform(classDefinitionNode);
+        if (classDefinitionNode.visibilityQualifier().isPresent()) {
+            Token visibilityQualifier = formatToken(classDefinitionNode.visibilityQualifier().get(), 1, 0);
+            classDefinitionNode = classDefinitionNode.modify().withVisibilityQualifier(visibilityQualifier).apply();
+        }
+
+        NodeList<Token> classTypeQualifiers = formatNodeList(classDefinitionNode.classTypeQualifiers(), 1, 0, 1, 0);
+        Token classKeyword = formatToken(classDefinitionNode.classKeyword(), 1, 0);
+        Token className = formatToken(classDefinitionNode.className(), 1, 0);
+        Token openBrace = formatToken(classDefinitionNode.openBrace(), 0, 1);
+        env.preserveNewlines = true;
+
+        indent();
+        NodeList<Node> members = formatNodeList(classDefinitionNode.members(), 0, 1, 0, 1, true);
+        unindent();
+        Token closeBrace = formatToken(classDefinitionNode.closeBrace(), env.trailingWS, env.trailingNL);
+
+        return classDefinitionNode.modify()
+                .withClassTypeQualifiers(classTypeQualifiers)
+                .withClassKeyword(classKeyword)
+                .withClassName(className)
+                .withOpenBrace(openBrace)
+                .withMembers(members)
+                .withCloseBrace(closeBrace)
+                .apply();
     }
 
     @Override
@@ -3416,6 +3440,18 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .withWorkerKeyword(workerKeyword)
                 .withWorkerName(workerName)
                 .withWorkerBody(workerBody)
+                .apply();
+    }
+
+    @Override
+    public NamedWorkerDeclarator transform(NamedWorkerDeclarator namedWorkerDeclarator) {
+        NodeList<StatementNode> workerInitStatements = formatNodeList(namedWorkerDeclarator.workerInitStatements(), 0,
+                1, 0, 1, true);
+        NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations =
+                formatNodeList(namedWorkerDeclarator.namedWorkerDeclarations(), 0, 1, 0, 1);
+        return namedWorkerDeclarator.modify()
+                .withWorkerInitStatements(workerInitStatements)
+                .withNamedWorkerDeclarations(namedWorkerDeclarations)
                 .apply();
     }
 
@@ -3551,7 +3587,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      */
     @SuppressWarnings("unchecked")
     private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL) {
-        if (node == null) {
+        if (node == null || node.isMissing()) {
             return node;
         }
 
@@ -3592,7 +3628,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      * @return Formatted token
      */
     private <T extends Token> T formatToken(T token, int trailingWS, int trailingNL) {
-        if (token == null) {
+        if (token == null || token.isMissing()) {
             return token;
         }
 
@@ -3613,7 +3649,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         // Set the leading newlines for the next token
         env.leadingNL = trailingNL > 0 ? trailingNL - 1 : 0;
 
-        // If env node has a trailing new line, then the next immediate token
+        // If this node has a trailing new line, then the next immediate token
         // will become the first token the the next line
         env.hasNewline = trailingNL > 0;
         env.trailingNL = prevTrailingNL;
@@ -3672,7 +3708,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             boolean prevPreserveNL = env.preserveNewlines;
             env.preserveNewlines = preserveNL;
             if (index == size - 1) {
-                // env is the last item of the list. Trailing WS and NL for the last item on the list
+                // This is the last item of the list. Trailing WS and NL for the last item on the list
                 // should be the WS and NL of the entire list
                 newNode = formatNode(oldNode, listTrailingWS, listTrailingNL);
             } else {
@@ -3694,8 +3730,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     /**
-     * Format a delimited list of nodes. env method assumes the delimiters are followed by a single whitespace character
-     * only.
+     * Format a delimited list of nodes. This method assumes the delimiters are followed by a single whitespace
+     * character only.
      *
      * @param <T> Type of the list item
      * @param nodeList Node list to be formatted
@@ -3746,7 +3782,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             T oldNode = nodeList.get(index);
             T newNode;
             if (index == size - 1) {
-                // env is the last item of the list. Trailing WS and NL for the last item on the list
+                // This is the last item of the list. Trailing WS and NL for the last item on the list
                 // should be the WS and NL of the entire list
                 newNode = formatNode(oldNode, listTrailingWS, listTrailingNL);
             } else {
@@ -3865,7 +3901,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     /**
-     * Wrap the node. env is equivalent to adding a newline before the node and re-formatting the node. Wrapped content
+     * Wrap the node. This is equivalent to adding a newline before the node and re-formatting the node. Wrapped content
      * will start from the current level of indentation.
      *
      * @param <T> Node type
@@ -3936,7 +3972,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     break;
                 case COMMENT_MINUTIAE:
                     if (consecutiveNewlines > 0) {
-                        // If there's a newline before env, then add padding to
+                        // If there's a newline before this, then add padding to
                         // match the current indentation level
                         addWhitespace(env.currentIndentation, leadingMinutiae);
                     } else {

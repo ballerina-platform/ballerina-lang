@@ -31,7 +31,7 @@ public class FormattingOptions {
     FormattingOptions() {
         this.tabSize = 4;
         this.wsCharacter = " ";
-        this.columnLimit = 80;
+        this.columnLimit = 120;
     }
 
     FormattingOptions(int tabSize, String wsCharacter) {
