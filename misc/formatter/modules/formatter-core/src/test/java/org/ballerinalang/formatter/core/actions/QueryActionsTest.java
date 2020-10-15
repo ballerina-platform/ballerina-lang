@@ -21,8 +21,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Test the formatting of query actions.
@@ -34,11 +32,6 @@ public class QueryActionsTest extends FormatterTest {
     @Test(dataProvider = "test-file-provider")
     public void test(String source, String sourcePath) throws IOException {
         super.test(source, sourcePath);
-    }
-
-    @Override
-    public List<String> skipList() {
-        return Arrays.asList("query_action_3.bal");
     }
 
     @DataProvider(name = "test-file-provider")
