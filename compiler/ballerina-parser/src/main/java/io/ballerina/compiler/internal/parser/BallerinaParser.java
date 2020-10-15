@@ -14117,7 +14117,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 // T[a] could be member-access or array-type-desc.
-                STNode keyExpr = STNodeFactory.createNodeList(member);
+                STNode keyExpr = getKeyExpr(member);
                 STNode expr =
                         STNodeFactory.createIndexedExpressionNode(typeDescOrExpr, openBracket, keyExpr, closeBracket);
                 return parseTypedBindingPatternOrMemberAccess(expr, false, allowAssignment, context);
@@ -14151,7 +14151,7 @@ public class BallerinaParser extends AbstractParser {
                     return createTypedBindingPattern(typeDescOrExpr, openBracket, member, closeBracket);
                 }
 
-                keyExpr = STNodeFactory.createNodeList(member);
+                keyExpr = getKeyExpr(member);
                 typeDescOrExpr = getExpression(typeDescOrExpr);
                 return STNodeFactory.createIndexedExpressionNode(typeDescOrExpr, openBracket, keyExpr, closeBracket);
             case SEMICOLON_TOKEN: // T[a];
@@ -14165,7 +14165,7 @@ public class BallerinaParser extends AbstractParser {
             case CLOSE_BRACE_TOKEN: // T[a]}
             case COMMA_TOKEN:// T[a],
                 if (context == ParserRuleContext.AMBIGUOUS_STMT) {
-                    keyExpr = STNodeFactory.createNodeList(member);
+                    keyExpr = getKeyExpr(member);
                     return STNodeFactory.createIndexedExpressionNode(typeDescOrExpr, openBracket, keyExpr,
                             closeBracket);
                 }
@@ -14173,7 +14173,7 @@ public class BallerinaParser extends AbstractParser {
             default:
                 if (isValidExprRhsStart(nextToken.kind, closeBracket.kind)) {
                     // We come here if T[a] is in some expression context.
-                    keyExpr = STNodeFactory.createNodeList(member);
+                    keyExpr = getKeyExpr(member);
                     typeDescOrExpr = getExpression(typeDescOrExpr);
                     return STNodeFactory.createIndexedExpressionNode(typeDescOrExpr, openBracket, keyExpr,
                             closeBracket);
@@ -14186,6 +14186,17 @@ public class BallerinaParser extends AbstractParser {
                 isTypedBindingPattern, allowAssignment, context);
         return parseTypedBindingPatternOrMemberAccessRhs(typeDescOrExpr, openBracket, member, closeBracket,
                 isTypedBindingPattern, allowAssignment, context);
+    }
+
+    private STNode getKeyExpr(STNode member) {
+        if (member == null) {
+            STToken keyIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                    DiagnosticErrorCode.ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
+            STNode missingVarRef = STNodeFactory.createSimpleNameReferenceNode(keyIdentifier);
+
+            return STNodeFactory.createNodeList(missingVarRef);
+        }
+        return STNodeFactory.createNodeList(member);
     }
 
     private STNode createTypedBindingPattern(STNode typeDescOrExpr, STNode openBracket, STNode member,

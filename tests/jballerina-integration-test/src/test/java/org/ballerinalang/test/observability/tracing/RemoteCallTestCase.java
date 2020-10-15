@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * Test cases for remove function calls.
  */
 @Test(groups = "tracing-test")
-public class RemoteCallTestCase extends BaseTestCase {
+public class RemoteCallTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "03_remote_call.bal";
     private static final String SERVICE_NAME = "testServiceTwo";
     private static final String BASE_URL = "http://localhost:9092";
