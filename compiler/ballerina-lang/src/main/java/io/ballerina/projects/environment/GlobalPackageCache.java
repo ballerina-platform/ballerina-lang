@@ -8,6 +8,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Global Package instance cache.
+ *
+ * @since 2.0.0
+ */
 public class GlobalPackageCache {
     private final Map<PackageId, Package> packages = new HashMap<>();
 

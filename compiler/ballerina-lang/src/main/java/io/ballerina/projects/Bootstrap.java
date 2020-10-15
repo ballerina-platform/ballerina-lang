@@ -109,7 +109,7 @@ class Bootstrap {
     private BPackageSymbol getSymbolFromCache(CompilerContext context, PackageID packageID) {
         PackageCache pkgCache = PackageCache.getInstance(context);
         BLangPackage bLangPackage = pkgCache.get(packageID);
-        if (bLangPackage != null){
+        if (bLangPackage != null) {
             return bLangPackage.symbol;
         }
         return null;
