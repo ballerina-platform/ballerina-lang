@@ -2320,10 +2320,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         int prevIndentation = env.currentIndentation;
 
         // Set indentation for braces.
-        if (objectConstructorExpressionNode.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
-            int fieldIndentation = env.lineLength - objectKeyword.text().length() - 1;
-            setIndentation(fieldIndentation);
-        }
+        int fieldIndentation = env.lineLength - objectKeyword.text().length() - 1;
+        setIndentation(fieldIndentation);
 
         if (objectConstructorExpressionNode.typeReference().isPresent()) {
             TypeDescriptorNode typeReference = formatNode(objectConstructorExpressionNode.typeReference().get(),
