@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 /**
  * The interface with the APIs to implement the rest-match-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public interface RestMatchPattern {
     IdentifierNode getIdentifier();

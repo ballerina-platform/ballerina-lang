@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Represent list-match-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public class BLangListMatchPattern extends BLangMatchPattern implements ListMatchPatternNode {
     public List<BLangMatchPattern> matchPatterns = new ArrayList<>();

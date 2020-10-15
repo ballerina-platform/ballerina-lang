@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * Represent rest-match-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public class BLangRestMatchPattern extends BLangMatchPattern implements RestMatchPattern {
     public BLangIdentifier variableName;

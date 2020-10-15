@@ -21,7 +21,7 @@ import org.ballerinalang.model.tree.bindingpattern.BindingPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 /**
- * @since Swan Lake
+ * @since 2.0.0
  */
 public abstract class BLangBindingPattern extends BLangNode implements BindingPatternNode {
 

@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * The interface with the APIs to implement the list-match-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public interface ListMatchPatternNode {
     List<? extends MatchPatternNode> getMatchPatterns();

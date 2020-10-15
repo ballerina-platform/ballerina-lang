@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * Represent wildcard-match-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public class BLangWildCardMatchPattern extends BLangMatchPattern implements WildCardMatchPatternNode {
 

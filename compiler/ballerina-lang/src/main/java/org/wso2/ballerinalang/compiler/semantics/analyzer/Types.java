@@ -68,7 +68,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -286,7 +285,11 @@ public class Types {
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BType listMatchPatternType) {
+    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BType listMatchPatternType) {
+        if (matchExpr == null) {
+            return listMatchPatternType;
+        }
+        BType matchExprType = matchExpr.type;
         BType intersectionType = getTypeIntersection(matchExprType, listMatchPatternType);
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
@@ -294,8 +297,16 @@ public class Types {
         return symTable.noType;
     }
 
-    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BLangConstPattern constMatchPattern) {
-        BLangExpression constPatternExpr = constMatchPattern.expr;
+    public BType resolvePatternTypeFromMatchExpr(BLangExpression matchExpr, BLangExpression constPatternExpr) {
+        if (matchExpr == null) {
+            if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                return ((BLangSimpleVarRef) constPatternExpr).symbol.type;
+            } else {
+                return constPatternExpr.type;
+            }
+        }
+
+        BType matchExprType = matchExpr.type;
         BType constMatchPatternExprType = constPatternExpr.type;
 
         if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {

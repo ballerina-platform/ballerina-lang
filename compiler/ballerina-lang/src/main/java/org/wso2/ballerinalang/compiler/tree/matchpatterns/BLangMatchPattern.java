@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * Represent match-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public abstract class BLangMatchPattern extends BLangNode implements MatchPatternNode {
 

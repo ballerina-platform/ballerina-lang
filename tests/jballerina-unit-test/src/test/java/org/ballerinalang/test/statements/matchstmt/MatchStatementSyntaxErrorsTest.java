@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases to verify the behaviour of the const-pattern.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 @Test(groups = { "disableOnOldParser" })
 public class MatchStatementSyntaxErrorsTest {
