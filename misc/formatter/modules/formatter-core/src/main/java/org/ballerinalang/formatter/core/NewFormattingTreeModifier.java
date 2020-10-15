@@ -3444,7 +3444,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token classKeyword = formatToken(classDefinitionNode.classKeyword(), 1, 0);
         Token className = formatToken(classDefinitionNode.className(), 1, 0);
         Token openBrace = formatToken(classDefinitionNode.openBrace(), 0, 1);
-        env.preserveNewlines = true;
 
         indent();
         NodeList<Node> members = formatNodeList(classDefinitionNode.members(), 0, 1, 0, 1, true);
