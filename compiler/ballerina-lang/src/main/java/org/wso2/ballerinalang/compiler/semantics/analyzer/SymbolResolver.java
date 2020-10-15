@@ -861,23 +861,13 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
             BUnionType type = (BUnionType) entry.symbol.type;
             symTable.anydataType = new BAnydataType(type);
-            symTable.arrayAnydataType = new BArrayType(symTable.anydataType);
-            symTable.mapAnydataType = new BMapType(TypeTags.MAP, symTable.anydataType, null);
+            symTable.anydataType.flags |= Flags.ANONYMOUS;
             symTable.anydataOrReadonly = BUnionType.create(null, symTable.anydataType, symTable.readonlyType);
             entry.symbol.type = symTable.anydataType;
             entry.symbol.origin = BUILTIN;
 
             symTable.anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA,
                     PackageID.ANNOTATIONS, symTable.anydataType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
-
-//            symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
-//            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
-//            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
-//
-//            symTable.initializeType(symTable.mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
-//            symTable.initializeType(symTable.streamType, TypeKind.STREAM.typeName(), BUILTIN);
-//            symTable.initializeType(symTable.tableType, TypeKind.TABLE.typeName(), BUILTIN);
-
             return;
         }
         throw new IllegalStateException("built-in 'anydata' type not found");
@@ -892,8 +882,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
             BUnionType type = (BUnionType) entry.symbol.type;
             symTable.jsonType = new BJSONType(type);
-            symTable.mapJsonType = new BMapType(TypeTags.MAP, symTable.jsonType, null);
-            symTable.arrayJsonType = new BArrayType(symTable.jsonType);
+            symTable.jsonType.flags |= Flags.ANONYMOUS;
             symTable.jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, PackageID.ANNOTATIONS,
                     symTable.jsonType, symTable.langAnnotationModuleSymbol, symTable.builtinPos, BUILTIN);
             entry.symbol.type = symTable.jsonType;
@@ -911,11 +900,11 @@ public class SymbolResolver extends BLangNodeVisitor {
                 continue;
             }
             symTable.cloneableType = (BUnionType) entry.symbol.type;
-            symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
+            symTable.cloneableType.flags |= Flags.ANONYMOUS;
             symTable.cloneableType.tsymbol =
                     new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
-                            symTable.cloneableType, symTable.rootPkgSymbol, symTable.builtinPos, VIRTUAL);
-            entry.symbol.type = symTable.cloneableType;
+                            symTable.cloneableType, symTable.langValueModuleSymbol, symTable.builtinPos, BUILTIN);
+
             symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
             symTable.errorType = new BErrorType(null, symTable.detailType);
             symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
@@ -929,13 +918,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.futureType.constraint = symTable.anyOrErrorType;
 
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
-            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
-            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
-
-            symTable.initializeType(symTable.mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
-            symTable.initializeType(symTable.streamType, TypeKind.STREAM.typeName(), BUILTIN);
-            symTable.initializeType(symTable.tableType, TypeKind.TABLE.typeName(), BUILTIN);
-
             return;
         }
         throw new IllegalStateException("built-in 'lang.value:Cloneable' type not found");

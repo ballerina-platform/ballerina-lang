@@ -397,7 +397,6 @@ public class SymbolTable {
     }
 
     public void defineOperators() {
-
         // Binary arithmetic operators
         defineIntegerArithmeticOperations();
 
@@ -734,15 +733,23 @@ public class SymbolTable {
     }
 
     private void defineCloneableCyclicTypeAndDependentTypes() {
-        cloneableType = BUnionType.create(null, readonlyType, xmlType);
-        BArrayType arrayCloneableType = new BArrayType(cloneableType);
-        BMapType mapCloneableType = new BMapType(TypeTags.MAP, cloneableType, null);
+        BUnionType tmpCloneableType = BUnionType.create(null, readonlyType, xmlType);
+        tmpCloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
+                cloneableType, langValueModuleSymbol, builtinPos, BUILTIN);
+        BArrayType arrayCloneableType = new BArrayType(tmpCloneableType);
+
+        BMapType mapCloneableType = new BMapType(TypeTags.MAP, tmpCloneableType, null);
         BType tableMapCloneableType = new BTableType(TypeTags.TABLE, mapCloneableType, null);
-        cloneableType.add(arrayCloneableType);
-        cloneableType.add(mapCloneableType);
-        cloneableType.add(tableMapCloneableType);
+
+        tmpCloneableType.add(arrayCloneableType);
+        tmpCloneableType.add(mapCloneableType);
+        tmpCloneableType.add(tableMapCloneableType);
+
+        cloneableType =  tmpCloneableType;
+        cloneableType.flags |= Flags.ANONYMOUS;
         cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
-                cloneableType, langValueModuleSymbol, builtinPos, VIRTUAL);
+                cloneableType, langValueModuleSymbol, builtinPos, BUILTIN);
+
         cloneableReadonlyType = BUnionType.create(null, readonlyType, cloneableType);
 
         detailType = new BMapType(TypeTags.MAP, cloneableType, null);
@@ -773,6 +780,7 @@ public class SymbolTable {
         jsonInternal.add(arrayJsonTypeInternal);
         jsonInternal.add(mapJsonTypeInternal);
         jsonType = new BJSONType(jsonInternal);
+        jsonType.flags |= Flags.ANONYMOUS;
         jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, PackageID.ANNOTATIONS, jsonType,
                 langAnnotationModuleSymbol, this.builtinPos, BUILTIN);
 
@@ -789,7 +797,10 @@ public class SymbolTable {
         anyDataInternal.add(arrayAnydataTypeInternal);
         anyDataInternal.add(mapAnydataTypeInternal);
         anyDataInternal.add(tableMapAnydataType);
+
         anydataType = new BAnydataType(anyDataInternal);
+        anydataType.flags |= Flags.ANONYMOUS;
+
         anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, PackageID.ANNOTATIONS,
                 anydataType, rootPkgSymbol, this.builtinPos, BUILTIN);
         arrayAnydataType = new BArrayType(anydataType);
