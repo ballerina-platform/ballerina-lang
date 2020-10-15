@@ -486,8 +486,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         LineRange lineRange = node.lineRange();
         LinePosition startPos = lineRange.startLine();
         LinePosition endPos = lineRange.endLine();
-        return new DiagnosticPos(diagnosticSource, startPos.line() + 1, endPos.line() + 1, startPos.offset() + 1,
-                endPos.offset() + 1);
+        return new DiagnosticPos(diagnosticSource, startPos.line(), endPos.line(), startPos.offset(),
+                                 endPos.offset());
     }
 
     private DiagnosticPos getPositionWithoutMetadata(Node node) {
@@ -506,8 +506,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             startPos = nodeLineRange.startLine();
         }
         LinePosition endPos = nodeLineRange.endLine();
-        return new DiagnosticPos(diagnosticSource, startPos.line() + 1, endPos.line() + 1, startPos.offset() + 1,
-                endPos.offset() + 1);
+        return new DiagnosticPos(diagnosticSource, startPos.line(), endPos.line(), startPos.offset(),
+                                 endPos.offset());
     }
 
     @Override
@@ -528,10 +528,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (ModuleMemberDeclarationNode member : modulePart.members()) {
             compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
         }
-        pos.sLine = 1;
-        pos.sCol = 1;
-        pos.eLine = 1;
-        pos.eCol = 1;
+        pos.sLine = 0;
+        pos.sCol = 0;
+        pos.eLine = 0;
+        pos.eCol = 0;
 
         compilationUnit.pos = pos;
         this.currentCompilationUnit = null;

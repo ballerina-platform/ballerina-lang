@@ -565,7 +565,8 @@ public class JvmCodeGenUtil {
     private static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv, Label label) {
         if (pos != null && pos.sLine != 0x80000000) {
             mv.visitLabel(label);
-            mv.visitLineNumber(pos.sLine, label);
+            // Adding +1 since 'pos' is 0-based and we want 1-based positions at run time
+            mv.visitLineNumber(pos.sLine + 1, label);
         }
     }
 
