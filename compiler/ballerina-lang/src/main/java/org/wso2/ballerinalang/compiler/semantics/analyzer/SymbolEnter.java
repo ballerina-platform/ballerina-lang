@@ -325,8 +325,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 unresolvedPkg.symbol = pkgSymbol;
                 // and define it in the current package scope
-                BPackageSymbol symbol = duplicatePackagSymbol(pkgSymbol);
-                symbol.compUnit = names.fromIdNode(unresolvedPkg.compUnit);
+                BPackageSymbol symbol = dupPackageSymbolAndSetCompUnit(pkgSymbol,
+                        names.fromIdNode(unresolvedPkg.compUnit));
                 symbol.scope = pkgSymbol.scope;
                 unresolvedPkg.symbol = symbol;
                 pkgEnv.scope.define(unresolvedPkgAlias, symbol);
@@ -800,8 +800,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // get a copy of the package symbol, add compilation unit info to it,
         // and define it in the current package scope
-        BPackageSymbol symbol = duplicatePackagSymbol(pkgSymbol);
-        symbol.compUnit = names.fromIdNode(importPkgNode.compUnit);
+        BPackageSymbol symbol = dupPackageSymbolAndSetCompUnit(pkgSymbol, names.fromIdNode(importPkgNode.compUnit));
         symbol.scope = pkgSymbol.scope;
         importPkgNode.symbol = symbol;
         this.env.scope.define(pkgAlias, symbol);
@@ -813,11 +812,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.env = env;
         for (BLangCompilationUnit compUnit : compUnits) {
             for (Name alias : predeclaredModules.keySet()) {
-                BPackageSymbol symbol = duplicatePackagSymbol(predeclaredModules.get(alias));
-                symbol.compUnit = new Name(compUnit.name);
                 ScopeEntry entry = this.env.scope.lookup(alias);
                 if (entry == NOT_FOUND_ENTRY) {
-                    this.env.scope.define(alias, symbol);
+                    this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                            new Name(compUnit.name)));
                 } else {
                     boolean isUndefinedModule = true;
                     if (((BPackageSymbol) entry.symbol).compUnit.value.equals(compUnit.name)) {
@@ -831,7 +829,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                         entry = entry.next;
                     }
                     if (isUndefinedModule) {
-                        entry.next = new ScopeEntry(symbol, NOT_FOUND_ENTRY);
+                        entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                                new Name(compUnit.name)), NOT_FOUND_ENTRY);
                     }
                 }
             }
@@ -2860,7 +2859,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return signatureBuilder.toString();
     }
 
-    private BPackageSymbol duplicatePackagSymbol(BPackageSymbol originalSymbol) {
+    private BPackageSymbol dupPackageSymbolAndSetCompUnit(BPackageSymbol originalSymbol, Name compUnit) {
         BPackageSymbol copy = new BPackageSymbol(originalSymbol.pkgID, originalSymbol.owner, originalSymbol.flags,
                                                  originalSymbol.pos, originalSymbol.origin);
         copy.initFunctionSymbol = originalSymbol.initFunctionSymbol;
@@ -2874,6 +2873,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         copy.entryPointExists = originalSymbol.entryPointExists;
         copy.scope = originalSymbol.scope;
         copy.owner = originalSymbol.owner;
+        copy.compUnit = compUnit;
         return copy;
     }
 
