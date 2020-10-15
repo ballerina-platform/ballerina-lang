@@ -1,6 +1,10 @@
-type Person record { string name; };
+type Person record {
+    string name;
+};
 
-type Employee record { string name; };
+type Employee record {
+    string name;
+};
 
 public function foo() {
     Employee employee = { name: "Jane Doe" };

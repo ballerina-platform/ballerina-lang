@@ -3,6 +3,11 @@ type Student record {
     Grades grades;
 };
 
-type Address record {| string city; |};
+type Address record {|
+    string city;
+|};
 
-type Grades record {| int maths; int...; |};
+type Grades record {|
+    int maths;
+    int...;
+|};
