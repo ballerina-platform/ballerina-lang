@@ -5,7 +5,6 @@ public function foo() {
         () send = i ->> w2;
         return 0;
     }
-
     @anotherAnnotate {
         a: "worker",
         b: "2"

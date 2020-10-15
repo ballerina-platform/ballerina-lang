@@ -3479,7 +3479,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         NodeList<StatementNode> workerInitStatements = formatNodeList(namedWorkerDeclarator.workerInitStatements(), 0,
                 1, 0, 1, true);
         NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations =
-                formatNodeList(namedWorkerDeclarator.namedWorkerDeclarations(), 0, 2, 0, 1);
+                formatNodeList(namedWorkerDeclarator.namedWorkerDeclarations(), 0, 1, 0, 1);
         return namedWorkerDeclarator.modify()
                 .withWorkerInitStatements(workerInitStatements)
                 .withNamedWorkerDeclarations(namedWorkerDeclarations)
