@@ -22,4 +22,4 @@ type CloneableErrorDetail readonly|xml|CloneableErrorDetail[]|map<CloneableError
 public type 'error error<map<CloneableErrorDetail>>;
 
 # Represents a `JavaError` with the message and the cause.
-public type JavaClassNotFoundError distinct error;
+public type JavaClassNotFoundError distinct error<map<CloneableErrorDetail>>;

@@ -750,8 +750,6 @@ public class SymbolTable {
         cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
                 cloneableType, langValueModuleSymbol, builtinPos, BUILTIN);
 
-        initializeType(cloneableType, Names.CLONEABLE.getValue(), BUILTIN);
-
         cloneableReadonlyType = BUnionType.create(null, readonlyType, cloneableType);
 
         detailType = new BMapType(TypeTags.MAP, cloneableType, null);
