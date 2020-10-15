@@ -2290,7 +2290,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         Token openBrace = formatToken(objectTypeDescriptorNode.openBrace(), fieldTrailingWS, fieldTrailingNL);
         indent();
-        NodeList<Node> members = formatNodeList(objectTypeDescriptorNode.members(), fieldTrailingWS, fieldTrailingNL, fieldTrailingWS, fieldTrailingNL, true);
+        NodeList<Node> members = formatNodeList(objectTypeDescriptorNode.members(), fieldTrailingWS, fieldTrailingNL,
+                fieldTrailingWS, fieldTrailingNL, true);
         unindent();
         Token closeBrace = formatToken(objectTypeDescriptorNode.closeBrace(), env.trailingWS, env.trailingNL);
         setIndentation(prevIndentation);  // Revert indentation for braces
@@ -2331,14 +2332,17 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         if (objectConstructorExpressionNode.typeReference().isPresent()) {
-            TypeDescriptorNode typeReference = formatNode(objectConstructorExpressionNode.typeReference().get(), fieldTrailingWS, fieldTrailingNL);
+            TypeDescriptorNode typeReference = formatNode(objectConstructorExpressionNode.typeReference().get(),
+                    fieldTrailingWS, fieldTrailingNL);
             objectConstructorExpressionNode = objectConstructorExpressionNode.modify()
                     .withTypeReference(typeReference).apply();
         }
 
-        Token openBraceToken = formatToken(objectConstructorExpressionNode.openBraceToken(), fieldTrailingWS, fieldTrailingNL);
+        Token openBraceToken = formatToken(objectConstructorExpressionNode.openBraceToken(),
+                fieldTrailingWS, fieldTrailingNL);
         indent();
-        NodeList<Node> members = formatNodeList(objectConstructorExpressionNode.members(), fieldTrailingWS, fieldTrailingNL, fieldTrailingWS, fieldTrailingNL, true);
+        NodeList<Node> members = formatNodeList(objectConstructorExpressionNode.members(),
+                fieldTrailingWS, fieldTrailingNL, fieldTrailingWS, fieldTrailingNL, true);
         unindent();
         Token closeBraceToken = formatToken(objectConstructorExpressionNode.closeBraceToken(),
                 env.trailingWS, env.trailingNL);
