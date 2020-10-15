@@ -324,7 +324,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         IdentifierToken functionName = formatToken(functionDefinitionNode.functionName(), 0, 0);
         FunctionSignatureNode functionSignatureNode = formatNode(functionDefinitionNode.functionSignature(), 1, 0);
         //TODO: Fix formatting issue when the function is within a class definition declaration.
-        FunctionBodyNode functionBodyNode = formatNode(functionDefinitionNode.functionBody(), this.trailingWS, this.trailingNL);
+        FunctionBodyNode functionBodyNode = formatNode(functionDefinitionNode.functionBody(), this.trailingWS,
+                this.trailingNL);
 
         return functionDefinitionNode.modify()
                 .withFunctionKeyword(functionKeyword)
@@ -387,7 +388,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public FunctionBodyBlockNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
         Token openBrace = formatToken(functionBodyBlockNode.openBraceToken(), 0, 1);
-//        this.preserveNewlines = true;
         indent(); // increase indentation for the statements to follow.
         NodeList<StatementNode> statements = formatNodeList(functionBodyBlockNode.statements(), 0, 1, 0, 1, true);
         if (functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
@@ -3426,7 +3426,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         this.preserveNewlines = true;
 
         indent();
-        NodeList<Node> members = formatNodeList(classDefinitionNode.members(), 0, 1, 0, 1);
+        NodeList<Node> members = formatNodeList(classDefinitionNode.members(), 0, 1, 0, 1, true);
         unindent();
         Token closeBrace = formatToken(classDefinitionNode.closeBrace(), this.trailingWS, this.trailingNL);
 
