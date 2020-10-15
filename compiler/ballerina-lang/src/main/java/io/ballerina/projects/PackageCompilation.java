@@ -64,13 +64,8 @@ public class PackageCompilation {
         EnvironmentContext environmentContext = projectEnvContext.getService(EnvironmentContext.class);
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.dependencyGraph = buildDependencyGraph();
-<<<<<<< HEAD
-        this.compilerContext = projectEnvContext.getService(CompilerContext.class);
-        compile(this.compilerContext);
-=======
-        CompilerContext compilerContext = environmentContext.compilerContext();
+        this.compilerContext = environmentContext.compilerContext();
         compile(compilerContext);
->>>>>>> Add new langlib bootstrap
     }
 
     private DependencyGraph<PackageId> buildDependencyGraph() {

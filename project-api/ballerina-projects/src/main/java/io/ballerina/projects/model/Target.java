@@ -57,10 +57,9 @@ public class Target {
     /**
      * Returns the balo cache path.
      *
-     * @param pkg Package instance
      * @return path of the balo file
      */
-    public Path getBaloPath(Package pkg) throws IOException {
+    public Path getBaloPath() throws IOException {
         Files.createDirectories(baloCachePath);
         return baloCachePath;
     }

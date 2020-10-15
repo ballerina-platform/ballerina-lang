@@ -18,18 +18,13 @@
 
 package org.ballerinalang.stdlib.utils;
 
-import io.ballerina.projects.BaloWriter;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.Target;
-<<<<<<< HEAD
 import io.ballerina.projects.utils.ProjectUtils;
-=======
 import io.ballerina.projects.utils.ProjectConstants;
-import io.ballerina.projects.writers.BaloWriter;
->>>>>>> Add new langlib bootstrap
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -61,14 +56,14 @@ public class BuildLangLib {
             out.println("Error building module");
             packageCompilation.diagnostics().forEach(d -> out.println(d.toString()));
             System.exit(1);
+        }
 
-            String baloName = ProjectUtils.getBaloName(
+        String baloName = ProjectUtils.getBaloName(
                 pkg.packageOrg().toString(),
                 pkg.packageName().toString(),
                 pkg.packageVersion().toString(),
                 null);
-            packageCompilation.emit(PackageCompilation.OutputType.BALO, target.getBaloPath().resolve(baloName));
-        }
+        packageCompilation.emit(PackageCompilation.OutputType.BALO, target.getBaloPath().resolve(baloName));
     }
 
 }
