@@ -249,7 +249,7 @@ import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
  *
  * @since 2.0.0
  */
-public class FormattingTreeModifier extends TreeModifier {
+public class NewFormattingTreeModifier extends TreeModifier {
 
     // Formatting configurations of the current session. These configurations
     // are fixed for the given session.
@@ -262,7 +262,7 @@ public class FormattingTreeModifier extends TreeModifier {
     // Range of the file to be formatted.
     private final LineRange lineRange;
 
-    public FormattingTreeModifier(FormattingOptions options, LineRange lineRange) {
+    public NewFormattingTreeModifier(FormattingOptions options, LineRange lineRange) {
         this.options = options;
         this.lineRange = lineRange;
         this.env = new FormattingEnv();
