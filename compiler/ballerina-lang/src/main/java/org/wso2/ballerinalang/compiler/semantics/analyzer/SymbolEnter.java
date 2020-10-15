@@ -810,28 +810,29 @@ public class SymbolEnter extends BLangNodeVisitor {
                                        List<BLangCompilationUnit> compUnits, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
         this.env = env;
-        for (BLangCompilationUnit compUnit : compUnits) {
-            for (Name alias : predeclaredModules.keySet()) {
-                ScopeEntry entry = this.env.scope.lookup(alias);
-                if (entry == NOT_FOUND_ENTRY) {
-                    this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
-                            new Name(compUnit.name)));
-                } else {
-                    boolean isUndefinedModule = true;
-                    if (((BPackageSymbol) entry.symbol).compUnit.value.equals(compUnit.name)) {
+        for (Name alias : predeclaredModules.keySet()) {
+            int index = 0;
+            ScopeEntry entry = this.env.scope.lookup(alias);
+            if (entry == NOT_FOUND_ENTRY) {
+                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                        new Name(compUnits.get(index++).name)));
+                entry = this.env.scope.lookup(alias);
+            }
+            for (int i = index; i < compUnits.size(); i++) {
+                boolean isUndefinedModule = true;
+                if (((BPackageSymbol) entry.symbol).compUnit.value.equals(compUnits.get(i).name)) {
+                    isUndefinedModule = false;
+                }
+                while (entry.next != NOT_FOUND_ENTRY) {
+                    if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnits.get(i).name)) {
                         isUndefinedModule = false;
+                        break;
                     }
-                    while (entry.next != NOT_FOUND_ENTRY) {
-                        if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnit.name)) {
-                            isUndefinedModule = false;
-                            break;
-                        }
-                        entry = entry.next;
-                    }
-                    if (isUndefinedModule) {
-                        entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
-                                new Name(compUnit.name)), NOT_FOUND_ENTRY);
-                    }
+                    entry = entry.next;
+                }
+                if (isUndefinedModule) {
+                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                            new Name(compUnits.get(i).name)), NOT_FOUND_ENTRY);
                 }
             }
         }
