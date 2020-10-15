@@ -39,6 +39,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
@@ -102,7 +103,7 @@ public class ImportModuleCodeAction implements DiagBasedCodeAction {
         if (!nodes.isEmpty()) {
             lowestLine = nodes.get(0).getPosition().getStartLine();
             for (TopLevelNode node : nodes) {
-                org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition position = node.getPosition();
+                BLangDiagnosticLocation position = node.getPosition();
                 if (lowestLine > position.getStartLine()) {
                     lowestLine = position.getStartLine();
                 }

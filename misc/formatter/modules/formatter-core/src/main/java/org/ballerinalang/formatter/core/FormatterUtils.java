@@ -30,7 +30,7 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +56,7 @@ class FormatterUtils {
      * @param node node
      * @return node position
      */
-    static DiagnosticPos getPosition(Node node) {
+    static BLangDiagnosticLocation getPosition(Node node) {
         if (node == null) {
             return null;
         }
@@ -70,7 +70,7 @@ class FormatterUtils {
                 node.kind() == SyntaxKind.IF_ELSE_STATEMENT || node.kind() == SyntaxKind.ELSE_BLOCK) {
             startOffset = (startOffset / 4) * 4;
         }
-        return new DiagnosticPos(null, null, startPos.line() + 1, endPos.line() + 1,
+        return new BLangDiagnosticLocation(null, null, startPos.line() + 1, endPos.line() + 1,
                 startOffset, endPos.offset());
     }
 

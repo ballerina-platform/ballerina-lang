@@ -53,7 +53,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -104,47 +104,47 @@ public class CodeActionUtil {
             }
 
             for (TopLevelNode topLevelNode : filteredCUnit.get().getTopLevelNodes()) {
-                DiagnosticPos diagnosticPos = CommonUtil.toZeroBasedPosition(((BLangNode) topLevelNode).pos);
+                BLangDiagnosticLocation diagnosticLocation = CommonUtil.toZeroBasedPosition(((BLangNode) topLevelNode).pos);
                 if (topLevelNode instanceof BLangService) {
-                    if (diagnosticPos.getStartLine() == cursorLine) {
+                    if (diagnosticLocation.getStartLine() == cursorLine) {
                         return CodeActionNodeType.SERVICE;
                     }
-                    if (cursorLine > diagnosticPos.getStartLine() && cursorLine < diagnosticPos.getEndLine()) {
+                    if (cursorLine > diagnosticLocation.getStartLine() && cursorLine < diagnosticLocation.getEndLine()) {
                         // Cursor within the service
                         for (BLangFunction resourceFunction : ((BLangService) topLevelNode).resourceFunctions) {
-                            diagnosticPos = CommonUtil.toZeroBasedPosition(resourceFunction.getName().pos);
-                            if (diagnosticPos.getStartLine() == cursorLine) {
+                            diagnosticLocation = CommonUtil.toZeroBasedPosition(resourceFunction.getName().pos);
+                            if (diagnosticLocation.getStartLine() == cursorLine) {
                                 return CodeActionNodeType.RESOURCE;
                             }
                         }
                     }
                 }
 
-                if (topLevelNode instanceof BLangImportPackage && cursorLine == diagnosticPos.getStartLine()) {
+                if (topLevelNode instanceof BLangImportPackage && cursorLine == diagnosticLocation.getStartLine()) {
                     return CodeActionNodeType.IMPORTS;
                 }
 
                 if (topLevelNode instanceof BLangFunction
                         && !((BLangFunction) topLevelNode).flagSet.contains(Flag.ANONYMOUS)
-                        && cursorLine == diagnosticPos.getStartLine()) {
+                        && cursorLine == diagnosticLocation.getStartLine()) {
                     return CodeActionNodeType.FUNCTION;
                 }
 
                 if (topLevelNode instanceof BLangTypeDefinition
                         && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangRecordTypeNode
-                        && cursorLine == diagnosticPos.getStartLine()) {
+                        && cursorLine == diagnosticLocation.getStartLine()) {
                     return CodeActionNodeType.RECORD;
                 }
 
                 if (topLevelNode instanceof BLangClassDefinition) {
-                    if (diagnosticPos.getStartLine() == cursorLine) {
+                    if (diagnosticLocation.getStartLine() == cursorLine) {
                         return CodeActionNodeType.CLASS;
                     }
-                    if (cursorLine > diagnosticPos.getStartLine() && cursorLine < diagnosticPos.getEndLine()) {
+                    if (cursorLine > diagnosticLocation.getStartLine() && cursorLine < diagnosticLocation.getEndLine()) {
                         // Cursor within the class
                         for (BLangFunction function : ((BLangClassDefinition) topLevelNode).functions) {
-                            diagnosticPos = CommonUtil.toZeroBasedPosition(function.getName().pos);
-                            if (diagnosticPos.getStartLine() == cursorLine) {
+                            diagnosticLocation = CommonUtil.toZeroBasedPosition(function.getName().pos);
+                            if (diagnosticLocation.getStartLine() == cursorLine) {
                                 return CodeActionNodeType.CLASS_FUNCTION;
                             }
                         }
@@ -153,15 +153,15 @@ public class CodeActionUtil {
 
                 if (topLevelNode instanceof BLangTypeDefinition
                         && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangObjectTypeNode) {
-                    if (diagnosticPos.getStartLine() == cursorLine) {
+                    if (diagnosticLocation.getStartLine() == cursorLine) {
                         return CodeActionNodeType.OBJECT;
                     }
-                    if (cursorLine > diagnosticPos.getStartLine() && cursorLine < diagnosticPos.getEndLine()) {
+                    if (cursorLine > diagnosticLocation.getStartLine() && cursorLine < diagnosticLocation.getEndLine()) {
                         // Cursor within the object
                         for (BLangFunction resourceFunction
                                 : ((BLangObjectTypeNode) ((BLangTypeDefinition) topLevelNode).typeNode).functions) {
-                            diagnosticPos = CommonUtil.toZeroBasedPosition(resourceFunction.getName().pos);
-                            if (diagnosticPos.getStartLine() == cursorLine) {
+                            diagnosticLocation = CommonUtil.toZeroBasedPosition(resourceFunction.getName().pos);
+                            if (diagnosticLocation.getStartLine() == cursorLine) {
                                 return CodeActionNodeType.OBJECT_FUNCTION;
                             }
                         }

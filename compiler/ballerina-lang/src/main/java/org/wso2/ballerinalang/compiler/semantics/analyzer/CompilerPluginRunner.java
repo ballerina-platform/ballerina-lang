@@ -54,7 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,7 +88,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private final Types types;
     private BLangDiagnosticLog dlog;
 
-    private DiagnosticPos defaultPos;
+    private BLangDiagnosticLocation defaultPos;
     private CompilerContext context;
     private List<CompilerPlugin> pluginList;
     private Map<DefinitionID, Set<CompilerPlugin>> processorMap;
@@ -325,7 +325,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             try {
                 notifier.accept(processor, Collections.unmodifiableList(list));
             } catch (Throwable e) {
-                dlog.warning((DiagnosticPos) list.get(0).getPosition(), DiagnosticCode.COMPILER_PLUGIN_ERROR);
+                dlog.warning((BLangDiagnosticLocation) list.get(0).getPosition(), DiagnosticCode.COMPILER_PLUGIN_ERROR);
                 printErrorLog(e);
                 failedPlugins.add(processor);
             }

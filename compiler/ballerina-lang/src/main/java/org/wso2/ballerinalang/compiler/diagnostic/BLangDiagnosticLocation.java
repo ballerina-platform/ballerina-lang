@@ -22,6 +22,7 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 
 /**
  * Represent the location of a diagnostic in a {@code TextDocument}.
@@ -30,7 +31,7 @@ import org.ballerinalang.model.elements.PackageID;
  *
  * @since 2.0.0
  */
-public class BLangDiagnosticLocation implements Location {
+public class BLangDiagnosticLocation implements Diagnostic.DiagnosticPosition, Location {
 
     private LineRange lineRange;
     private TextRange textRange;
@@ -64,6 +65,26 @@ public class BLangDiagnosticLocation implements Location {
         return packageID;
     }
 
+    @Override
+    public int getStartLine() {
+        return lineRange.startLine().line();
+    }
+
+    @Override
+    public int getEndLine() {
+        return lineRange.endLine().line();
+    }
+
+    @Override
+    public int getStartColumn() {
+        return lineRange.startLine().offset();
+    }
+
+    @Override
+    public int getEndColumn() {
+        return lineRange.endLine().offset();
+    }
+
     public void setPackageID(PackageID packageID) {
         this.packageID = packageID;
     }
@@ -71,5 +92,10 @@ public class BLangDiagnosticLocation implements Location {
     @Override
     public String toString() {
         return lineRange.toString() + textRange.toString();
+    }
+
+    @Override
+    public int compareTo(Diagnostic.DiagnosticPosition o) {
+        return 0;
     }
 }

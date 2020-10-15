@@ -95,7 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.File;
@@ -171,23 +171,23 @@ public class CommonUtil {
     /**
      * Convert the diagnostic position to a zero based positioning diagnostic position.
      *
-     * @param diagnosticPos - diagnostic position to be cloned
-     * @return {@link DiagnosticPos} converted diagnostic position
+     * @param diagnosticLocation - diagnostic position to be cloned
+     * @return {@link BLangDiagnosticLocation} converted diagnostic position
      */
-    public static DiagnosticPos toZeroBasedPosition(DiagnosticPos diagnosticPos) {
-        int startLine = diagnosticPos.getStartLine() - 1;
-        int endLine = diagnosticPos.getEndLine() - 1;
-        int startColumn = diagnosticPos.getStartColumn() - 1;
-        int endColumn = diagnosticPos.getEndColumn() - 1;
-        return new DiagnosticPos(diagnosticPos.lineRange().filePath(),
-                diagnosticPos.getPackageID(), startLine, endLine, startColumn, endColumn);
+    public static BLangDiagnosticLocation toZeroBasedPosition(BLangDiagnosticLocation diagnosticLocation) {
+        int startLine = diagnosticLocation.getStartLine() - 1;
+        int endLine = diagnosticLocation.getEndLine() - 1;
+        int startColumn = diagnosticLocation.getStartColumn() - 1;
+        int endColumn = diagnosticLocation.getEndColumn() - 1;
+        return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
+                diagnosticLocation.getPackageID(), startLine, endLine, startColumn, endColumn);
     }
 
     /**
      * Convert the diagnostic position to a zero based positioning diagnostic position.
      *
      * @param linePosition - diagnostic position to be cloned
-     * @return {@link DiagnosticPos} converted diagnostic position
+     * @return {@link BLangDiagnosticLocation} converted diagnostic position
      */
     public static Range toRange(LineRange linePosition) {
         int startLine = linePosition.startLine().line();
@@ -200,15 +200,15 @@ public class CommonUtil {
     /**
      * Clone the diagnostic position given.
      *
-     * @param diagnosticPos - diagnostic position to be cloned
-     * @return {@link DiagnosticPos} cloned diagnostic position
+     * @param diagnosticLocation - diagnostic position to be cloned
+     * @return {@link BLangDiagnosticLocation} cloned diagnostic position
      */
-    public static DiagnosticPos clonePosition(DiagnosticPos diagnosticPos) {
-        int startLine = diagnosticPos.getStartLine();
-        int endLine = diagnosticPos.getEndLine();
-        int startColumn = diagnosticPos.getStartColumn();
-        int endColumn = diagnosticPos.getEndColumn();
-        return new DiagnosticPos(diagnosticPos.lineRange().filePath(), diagnosticPos.getPackageID(),
+    public static BLangDiagnosticLocation clonePosition(BLangDiagnosticLocation diagnosticLocation) {
+        int startLine = diagnosticLocation.getStartLine();
+        int endLine = diagnosticLocation.getEndLine();
+        int startColumn = diagnosticLocation.getStartColumn();
+        int endColumn = diagnosticLocation.getEndColumn();
+        return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(), diagnosticLocation.getPackageID(),
                                  startLine, endLine, startColumn, endColumn);
     }
 

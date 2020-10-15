@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -87,7 +86,7 @@ public class Parser {
                 if (!pkgNode.containsTestablePkg()) {
                     BLangTestablePackage testablePkg = TreeBuilder.createTestablePackageNode();
                     testablePkg.flagSet.add(Flag.TESTABLE);
-                    testablePkg.pos = new DiagnosticPos(pkgSource.getName(), pkgId, 1, 1, 1, 1);
+                    testablePkg.pos = new BLangDiagnosticLocation(pkgSource.getName(), pkgId, 1, 1, 1, 1);
                     pkgNode.addTestablePkg(testablePkg);
                 }
                 pkgNode.getTestablePkg().addCompilationUnit(
@@ -98,7 +97,7 @@ public class Parser {
             }
         }
 
-        pkgNode.pos = new DiagnosticPos(pkgSource.getName(), pkgId,0, 0, 0, 0);
+        pkgNode.pos = new BLangDiagnosticLocation(pkgSource.getName(), pkgId, 0, 0, 0, 0);
         pkgNode.repos = pkgSource.getRepoHierarchy();
         return pkgNode;
     }

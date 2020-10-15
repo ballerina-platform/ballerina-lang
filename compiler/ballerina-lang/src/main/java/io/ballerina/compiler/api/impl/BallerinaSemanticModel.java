@@ -24,6 +24,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -34,7 +35,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -76,7 +76,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
                 symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(compilationUnit, linePosition));
 
-        DiagnosticPos cursorPos = new DiagnosticPos(compilationUnit.name, bLangPackage.packageID,
+        BLangDiagnosticLocation cursorPos = new BLangDiagnosticLocation(compilationUnit.name, bLangPackage.packageID,
                                                     linePosition.line(), linePosition.line(),
                                                     linePosition.offset(), linePosition.offset());
 
@@ -160,7 +160,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     // Private helper methods for the public APIs above.
 
-    private boolean isSymbolInUserProject(BSymbol symbol, DiagnosticPos cursorPos) {
+    private boolean isSymbolInUserProject(BSymbol symbol, BLangDiagnosticLocation cursorPos) {
         return symbol.origin == SOURCE &&
                 (cursorPos.compareTo(symbol.pos) > 0
                         || symbol.owner.getKind() == SymbolKind.PACKAGE

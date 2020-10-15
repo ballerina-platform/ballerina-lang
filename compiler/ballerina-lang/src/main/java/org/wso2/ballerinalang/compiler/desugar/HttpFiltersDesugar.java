@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -77,7 +78,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -533,7 +533,7 @@ public class HttpFiltersDesugar {
         if (!checkForPathParam(resourceNode.getParameters(), value)) {
             return;
         }
-        DiagnosticPos pos = resourceNode.pos;
+        BLangDiagnosticLocation location = resourceNode.pos;
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         resourceNode.addAnnotationAttachment(annoAttachment);
         BSymbol annSymbol = lookupAnnotationSpaceSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
@@ -547,14 +547,14 @@ public class HttpFiltersDesugar {
         }
         annoAttachment.annotationName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         annoAttachment.annotationName.value = ANN_RESOURCE_PARAM_ORDER_CONFIG;
-        annoAttachment.pos = pos;
+        annoAttachment.pos = location;
         BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         annoAttachment.expr = literalNode;
         BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         pkgAlias.setValue(PACKAGE_NAME);
         annoAttachment.pkgAlias = pkgAlias;
         annoAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
-        literalNode.pos = pos;
+        literalNode.pos = location;
         BStructureTypeSymbol bStructSymbol;
         BSymbol annTypeSymbol = lookupMainSpaceSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
                 (PACKAGE_NAME), names.fromString(ANN_RECORD_PARAM_ORDER_CONFIG));
@@ -622,8 +622,10 @@ public class HttpFiltersDesugar {
         return mapper;
     }
 
-    private BSymbol lookupMainSpaceSymbolInPackage(SymbolResolver symResolver, DiagnosticPos pos, SymbolEnv env,
-                                                   Name pkgAlias, Name name) {
+    private BSymbol lookupMainSpaceSymbolInPackage(SymbolResolver symResolver, BLangDiagnosticLocation pos,
+                                                   SymbolEnv env,
+                                                   Name pkgAlias,
+                                                   Name name) {
         // 1) Look up the current package if the package alias is empty.
         if (pkgAlias == Names.EMPTY) {
             return symResolver.lookupSymbolInMainSpace(env, name);
@@ -646,15 +648,17 @@ public class HttpFiltersDesugar {
         return symTable.notFoundSymbol;
     }
 
-    private BSymbol lookupAnnotationSpaceSymbolInPackage(SymbolResolver symResolver, DiagnosticPos pos, SymbolEnv env,
-                                                   Name pkgAlias, Name name) {
+    private BSymbol lookupAnnotationSpaceSymbolInPackage(SymbolResolver symResolver, BLangDiagnosticLocation location,
+                                                         SymbolEnv env,
+                                                         Name pkgAlias,
+                                                         Name name) {
         // 1) Look up the current package if the package alias is empty.
         if (pkgAlias == Names.EMPTY) {
             return symResolver.lookupSymbolInAnnotationSpace(env, name);
         }
 
         // 2) Retrieve the package symbol first
-        BSymbol pkgSymbol = symResolver.resolvePkgSymbol(pos, env, pkgAlias);
+        BSymbol pkgSymbol = symResolver.resolvePkgSymbol(location, env, pkgAlias);
         if (pkgSymbol == symTable.notFoundSymbol) {
             return pkgSymbol;
         }

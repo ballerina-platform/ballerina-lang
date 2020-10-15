@@ -21,7 +21,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class JIMethodCall extends BIRTerminator {
     public String name;
     public int invocationType;
 
-    public JIMethodCall(DiagnosticPos pos) {
+    public JIMethodCall(BLangDiagnosticLocation pos) {
 
         super(pos, InstructionKind.PLATFORM);
     }

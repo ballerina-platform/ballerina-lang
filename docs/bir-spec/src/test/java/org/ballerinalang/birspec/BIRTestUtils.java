@@ -34,13 +34,13 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 
 import java.io.IOException;
@@ -461,7 +461,7 @@ class BIRTestUtils {
         }
     }
 
-    private static void assertPosition(Bir.Position actualPosition, DiagnosticPos expectedPosition) {
+    private static void assertPosition(Bir.Position actualPosition, BLangDiagnosticLocation expectedPosition) {
         Assert.assertEquals(actualPosition.sLine(), expectedPosition.getStartLine());
         Assert.assertEquals(actualPosition.eLine(), expectedPosition.getEndLine());
         Assert.assertEquals(actualPosition.sCol(), expectedPosition.getStartColumn());

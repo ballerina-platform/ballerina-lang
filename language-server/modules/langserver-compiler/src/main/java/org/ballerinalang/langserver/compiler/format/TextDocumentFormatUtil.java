@@ -43,6 +43,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -168,7 +169,7 @@ public class TextDocumentFormatUtil {
             }
             nodeJson.add("ws", wsJsonArray);
         }
-        Diagnostic.DiagnosticPosition position = node.getPosition();
+        BLangDiagnosticLocation position = node.getPosition();
         if (position != null) {
             JsonObject positionJson = new JsonObject();
             positionJson.addProperty("startColumn", position.getStartColumn());

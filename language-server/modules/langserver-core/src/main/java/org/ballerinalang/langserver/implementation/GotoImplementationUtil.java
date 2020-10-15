@@ -24,11 +24,11 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -87,7 +87,7 @@ public class GotoImplementationUtil {
     private static Location getLocation(String sourceRoot, String pkgName, BLangFunction bLangFunction) {
         String cUnitName = bLangFunction.getPosition().lineRange().filePath();
         Location location = new Location();
-        DiagnosticPos implPosition = CommonUtil.toZeroBasedPosition(bLangFunction.getPosition());
+        BLangDiagnosticLocation implPosition = CommonUtil.toZeroBasedPosition(bLangFunction.getPosition());
         Range range = new Range(new Position(implPosition.getStartLine(), implPosition.getStartColumn()),
                 new Position(implPosition.getEndLine(), implPosition.getEndColumn()));
         location.setRange(range);
@@ -108,8 +108,8 @@ public class GotoImplementationUtil {
     private static Optional<BLangObjectTypeNode> getObjectTypeNode(List<TopLevelNode> topLevelNodes, int line) {
         return topLevelNodes.stream()
                 .filter(node -> {
-                    DiagnosticPos nodePosition = (DiagnosticPos) node.getPosition();
-                    DiagnosticPos zeroBasedPosition = CommonUtil.toZeroBasedPosition(nodePosition);
+                    BLangDiagnosticLocation nodePosition = (BLangDiagnosticLocation) node.getPosition();
+                    BLangDiagnosticLocation zeroBasedPosition = CommonUtil.toZeroBasedPosition(nodePosition);
                     return NodeKind.TYPE_DEFINITION.equals(node.getKind())
                             && NodeKind.OBJECT_TYPE.equals(((BLangTypeDefinition) node).typeNode.getKind())
                             && zeroBasedPosition.getStartLine() <= line && zeroBasedPosition.getEndLine() >= line;

@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 /**
  * Java cast instruction.
@@ -31,7 +31,7 @@ public class JCast extends JInstruction {
     public BIROperand rhsOp;
     public BType targetType;
 
-    JCast(DiagnosticPos pos) {
+    JCast(BLangDiagnosticLocation pos) {
 
         super(pos);
         jKind = JInsKind.JCAST;

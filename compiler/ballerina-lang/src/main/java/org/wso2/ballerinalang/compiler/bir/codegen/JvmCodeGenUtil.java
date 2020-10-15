@@ -39,11 +39,11 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
@@ -557,12 +557,12 @@ public class JvmCodeGenUtil {
         return lastScope;
     }
 
-    public static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv) {
+    public static void generateDiagnosticPos(BLangDiagnosticLocation pos, MethodVisitor mv) {
         Label label = new Label();
         generateDiagnosticPos(pos, mv, label);
     }
 
-    private static void generateDiagnosticPos(DiagnosticPos pos, MethodVisitor mv, Label label) {
+    private static void generateDiagnosticPos(BLangDiagnosticLocation pos, MethodVisitor mv, Label label) {
         if (pos != null && pos.getStartLine() != 0x80000000) {
             mv.visitLabel(label);
             // Adding +1 since 'pos' is 0-based and we want 1-based positions at run time

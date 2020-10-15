@@ -18,7 +18,7 @@
 package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.Whitespace;
-import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.util.Set;
 
@@ -45,5 +45,5 @@ public interface Node {
      *
      * @return the position of this node.
      */
-    DiagnosticPosition getPosition();
+    BLangDiagnosticLocation getPosition();
 }

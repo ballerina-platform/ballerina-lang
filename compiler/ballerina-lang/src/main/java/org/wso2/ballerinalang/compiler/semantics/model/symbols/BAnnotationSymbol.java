@@ -24,7 +24,7 @@ import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.util.AttachPoints;
 
 import java.util.EnumSet;
@@ -43,7 +43,7 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public int maskedPoints;
 
     public BAnnotationSymbol(Name name, int flags, Set<AttachPoint> points, PackageID pkgID,
-                             BType type, BSymbol owner, DiagnosticPos pos, SymbolOrigin origin) {
+                             BType type, BSymbol owner, BLangDiagnosticLocation pos, SymbolOrigin origin) {
         super(ANNOTATION, flags, name, pkgID, type, owner, pos, origin);
         this.points = points;
         this.maskedPoints = getMaskedPoints(points);

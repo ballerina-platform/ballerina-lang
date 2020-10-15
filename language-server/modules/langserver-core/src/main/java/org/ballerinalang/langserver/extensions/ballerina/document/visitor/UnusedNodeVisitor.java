@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.extensions.ballerina.document.visitor;
 
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
-import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -164,13 +164,13 @@ import java.util.Set;
 public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     private String unitName;
-    private Map<Diagnostic.DiagnosticPosition, ASTModification> deleteRanges;
-    private Map<Diagnostic.DiagnosticPosition, ASTModification> toBeDeletedRanges = new HashMap<>();
+    private Map<BLangDiagnosticLocation, ASTModification> deleteRanges;
+    private Map<BLangDiagnosticLocation, ASTModification> toBeDeletedRanges = new HashMap<>();
     private Map<String, BLangImportPackage> unusedImports = new HashMap<>();
     private Set<String> usedImports = new HashSet<>();
-    private Map<String, Diagnostic.DiagnosticPosition> variables = new HashMap<>();
+    private Map<String, BLangDiagnosticLocation> variables = new HashMap<>();
 
-    public UnusedNodeVisitor(String unitName, Map<Diagnostic.DiagnosticPosition, ASTModification> deleteRanges) {
+    public UnusedNodeVisitor(String unitName, Map<BLangDiagnosticLocation, ASTModification> deleteRanges) {
         this.unitName = unitName;
         this.deleteRanges = deleteRanges;
         this.toBeDeletedRanges.putAll(deleteRanges);
@@ -193,7 +193,7 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     }
 
     private void removeImportNode(BLangIdentifier identifierNode) {
-        Diagnostic.DiagnosticPosition range = getDeleteRange(identifierNode.getPosition());
+        BLangDiagnosticLocation range = getDeleteRange(identifierNode.getPosition());
         if (range == null) {
             BLangImportPackage bLangImportPackage = unusedImports.remove(identifierNode.getValue());
             if (bLangImportPackage != null) {
@@ -204,7 +204,7 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     //Monitor only the variables that are in deleted range
     private void addVariableNode(BLangSimpleVariable varNode) {
-        Diagnostic.DiagnosticPosition range = getDeleteRange(varNode.getPosition());
+        BLangDiagnosticLocation range = getDeleteRange(varNode.getPosition());
         if (range != null) {
             variables.put(varNode.getName().getValue(), range);
         }
@@ -212,18 +212,18 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     //Remove the delete range when the reference is not from any given delete ranges
     private void removeVariableNode(BLangIdentifier identifierNode) {
-        Diagnostic.DiagnosticPosition range = getDeleteRange(identifierNode.getPosition());
+        BLangDiagnosticLocation range = getDeleteRange(identifierNode.getPosition());
         if (range == null) {
-            Diagnostic.DiagnosticPosition variableDeleteRange = variables.remove(identifierNode.getValue());
+            BLangDiagnosticLocation variableDeleteRange = variables.remove(identifierNode.getValue());
             if (variableDeleteRange != null) {
                 toBeDeletedRanges.remove(variableDeleteRange);
             }
         }
     }
 
-    private Diagnostic.DiagnosticPosition getDeleteRange(Diagnostic.DiagnosticPosition position) {
+    private BLangDiagnosticLocation getDeleteRange(BLangDiagnosticLocation position) {
         if (position != null) {
-            for (Diagnostic.DiagnosticPosition aPosition : deleteRanges.keySet()) {
+            for (BLangDiagnosticLocation aPosition : deleteRanges.keySet()) {
                 if (aPosition.getStartLine() <= position.getStartLine() &&
                         aPosition.getEndLine() >= position.getEndLine() &&
                         aPosition.getStartColumn() <= position.getStartColumn() &&

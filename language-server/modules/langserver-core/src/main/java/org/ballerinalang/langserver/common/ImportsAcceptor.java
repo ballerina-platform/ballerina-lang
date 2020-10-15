@@ -21,7 +21,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -97,7 +97,7 @@ public class ImportsAcceptor {
     }
 
     private TextEdit createImportTextEdit(String pkgName) {
-        DiagnosticPos pos = null;
+        BLangDiagnosticLocation pos = null;
 
         if (!currentModuleImports.isEmpty()) {
             BLangImportPackage lastImport = CommonUtil.getLastItem(currentModuleImports);

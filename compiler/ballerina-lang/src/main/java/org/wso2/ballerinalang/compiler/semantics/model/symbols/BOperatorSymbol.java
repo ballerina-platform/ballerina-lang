@@ -19,9 +19,9 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BOperatorSymbol extends BInvokableSymbol {
 
-    public BOperatorSymbol(Name name, PackageID pkgID, BType type, BSymbol owner, DiagnosticPos pos,
+    public BOperatorSymbol(Name name, PackageID pkgID, BType type, BSymbol owner, BLangDiagnosticLocation pos,
                            SymbolOrigin origin) {
         super(SymTag.INVOKABLE, Flags.PUBLIC, name, pkgID, type, owner, pos, origin);
     }

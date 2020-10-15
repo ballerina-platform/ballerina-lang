@@ -39,7 +39,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -503,7 +503,7 @@ public class BIRBinaryWriter {
         }
     }
 
-    private void writePosition(ByteBuf buf, DiagnosticPos pos) {
+    private void writePosition(ByteBuf buf, BLangDiagnosticLocation pos) {
         BIRWriterUtils.writePosition(pos, buf, this.cp);
     }
 }

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -42,7 +43,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -106,7 +106,7 @@ public class ServiceDesugar {
         //  _ = [check] var.__start/__stop();
         //
 
-        final DiagnosticPos pos = variable.pos;
+        final BLangDiagnosticLocation pos = variable.pos;
 
         // Find correct symbol.
         final Name functionName = names
@@ -138,7 +138,7 @@ public class ServiceDesugar {
         if (service.isAnonymousService()) {
             return;
         }
-        final DiagnosticPos pos = service.pos;
+        final BLangDiagnosticLocation pos = service.pos;
 
         int count = 0;
         for (BLangExpression attachExpr : service.attachedExprs) {
@@ -178,7 +178,7 @@ public class ServiceDesugar {
         }
     }
 
-    private void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
+    private void addMethodInvocation(BLangDiagnosticLocation pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
                                      List<BLangExpression> args, List<BLangNamedArgsExpression> namedArgs,
                                      BlockNode body) {
         // Create method invocation

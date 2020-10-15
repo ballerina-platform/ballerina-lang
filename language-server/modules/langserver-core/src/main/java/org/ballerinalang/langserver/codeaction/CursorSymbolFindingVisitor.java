@@ -24,8 +24,8 @@ import org.ballerinalang.langserver.util.references.SymbolReferenceFindingVisito
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -59,7 +58,7 @@ import java.util.stream.Collectors;
  */
 public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
 
-    private Predicate<DiagnosticPos> isWithinNode;
+    private Predicate<BLangDiagnosticLocation> isWithinNode;
 
     public CursorSymbolFindingVisitor(Token tokenAtCursor,
                                       LSContext lsContext, String pkgName, boolean currentCUnitMode) {
@@ -91,7 +90,7 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
     }
 
     @Override
-    protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
+    protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition, BLangDiagnosticLocation position) {
         SymbolReferencesModel.Reference symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
@@ -101,7 +100,7 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
         if (symbolAtCursor != null) {
             return;
         }
-        DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(position);
+        BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(position);
         bSymbol = (bSymbol instanceof BVarSymbol && ((BVarSymbol) bSymbol).originalSymbol != null)
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;
@@ -126,9 +125,9 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
 
 
         List<TopLevelNode> filteredNodes = topLevelNodes.stream().filter(topLevelNode -> {
-            Diagnostic.DiagnosticPosition position = topLevelNode.getPosition();
-            DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(
-                    new DiagnosticPos(null, null, position.getStartLine(),
+            BLangDiagnosticLocation position = topLevelNode.getPosition();
+            BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(
+                    new BLangDiagnosticLocation(null, null, position.getStartLine(),
                                                         position.getEndLine(),
                                                         position.getStartColumn(),
                                                         position.getEndColumn()));

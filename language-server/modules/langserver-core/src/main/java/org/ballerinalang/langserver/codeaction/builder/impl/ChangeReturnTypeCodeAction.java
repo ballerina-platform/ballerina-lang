@@ -39,6 +39,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -175,7 +176,7 @@ public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
         Iterator<TopLevelNode> nodeIterator = compilationUnit.getTopLevelNodes().iterator();
         BLangFunction result = null;
         TopLevelNode next = (nodeIterator.hasNext()) ? nodeIterator.next() : null;
-        Function<org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition, Boolean> isWithinPosition =
+        Function<BLangDiagnosticLocation, Boolean> isWithinPosition =
                 diagnosticPosition -> {
                     int sLine = diagnosticPosition.getStartLine();
                     int eLine = diagnosticPosition.getEndLine();

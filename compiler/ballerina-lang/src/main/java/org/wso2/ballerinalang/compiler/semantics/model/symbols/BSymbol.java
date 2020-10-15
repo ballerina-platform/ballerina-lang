@@ -23,11 +23,10 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
-import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -49,7 +48,7 @@ public class BSymbol implements Symbol {
     public boolean tainted;
     public boolean closure;
     public MarkdownDocAttachment markdownDocumentation;
-    public DiagnosticPos pos;
+    public BLangDiagnosticLocation pos;
     public SymbolOrigin origin;
 
     /**
@@ -57,7 +56,7 @@ public class BSymbol implements Symbol {
      */
     public Scope scope;
 
-    public BSymbol(int tag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner, DiagnosticPos pos,
+    public BSymbol(int tag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner, BLangDiagnosticLocation pos,
                    SymbolOrigin origin) {
         this.tag = tag;
         this.flags = flags;
@@ -104,7 +103,7 @@ public class BSymbol implements Symbol {
     }
 
     @Override
-    public DiagnosticPosition getPosition() {
+    public BLangDiagnosticLocation getPosition() {
         return this.pos;
     }
 

@@ -21,8 +21,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLElementAccess;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 import java.util.Set;
@@ -33,7 +33,7 @@ import java.util.Set;
 public class BLangXMLElementAccess extends BLangAccessExpression implements XMLElementAccess {
     public List<BLangXMLElementFilter> filters;
 
-    public BLangXMLElementAccess(DiagnosticPos pos, Set<Whitespace> ws, BLangExpression expr,
+    public BLangXMLElementAccess(BLangDiagnosticLocation pos, Set<Whitespace> ws, BLangExpression expr,
                                  List<BLangXMLElementFilter> filters) {
         this.expr = expr;
         this.filters = filters;

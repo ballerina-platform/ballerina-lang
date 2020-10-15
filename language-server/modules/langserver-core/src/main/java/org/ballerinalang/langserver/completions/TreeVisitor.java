@@ -121,7 +121,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.util.Flags;
 
 import javax.annotation.Nonnull;
@@ -241,7 +241,7 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.symbolEnv);
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver);
-        DiagnosticPos functionPos = CommonUtil.clonePosition(funcNode.getPosition());
+        BLangDiagnosticLocation functionPos = CommonUtil.clonePosition(funcNode.getPosition());
 
         if (!funcNode.flagSet.contains(Flag.WORKER)) {
             // Set the current symbol environment instead of the function environment since the annotation is not
@@ -392,7 +392,7 @@ public class TreeVisitor extends LSNodeVisitor {
                 .collect(Collectors.toList());
 
         if (statements.isEmpty() && CompletionVisitorUtil
-                .isCursorWithinBlock((DiagnosticPos) (this.blockOwnerStack.peek()).getPosition(), blockEnv,
+                .isCursorWithinBlock((BLangDiagnosticLocation) (this.blockOwnerStack.peek()).getPosition(), blockEnv,
                         this.lsContext, this)) {
             return;
         }
@@ -419,7 +419,7 @@ public class TreeVisitor extends LSNodeVisitor {
                 .collect(Collectors.toList());
 
         if (statements.isEmpty() && CompletionVisitorUtil
-                .isCursorWithinBlock((DiagnosticPos) (this.blockOwnerStack.peek()).getPosition(), blockEnv,
+                .isCursorWithinBlock((BLangDiagnosticLocation) (this.blockOwnerStack.peek()).getPosition(), blockEnv,
                         this.lsContext, this)) {
             return;
         }
@@ -872,7 +872,7 @@ public class TreeVisitor extends LSNodeVisitor {
         if (literalExpr.getPosition() == null) {
             return;
         }
-        DiagnosticPos pos = CommonUtil.toZeroBasedPosition(literalExpr.getPosition());
+        BLangDiagnosticLocation pos = CommonUtil.toZeroBasedPosition(literalExpr.getPosition());
         Position position = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int cLine = position.getLine();
         int cCol = position.getCharacter();

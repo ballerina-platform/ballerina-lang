@@ -21,14 +21,12 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
 import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -65,18 +63,18 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         return dLogger;
     }
 
-    /**
-     * Log an error.
-     * 
-     * @param pos Position of the error in the source code.
-     * @param code Error code
-     * @param args Parameters associated with the error
-     */
-    @Deprecated
-    public void error(DiagnosticPos pos, DiagnosticCode code, Object... args) {
-        String msg = formatMessage(ERROR_PREFIX, code, args);
-        reportDiagnostic(code, pos, msg, DiagnosticSeverity.ERROR);
-    }
+//    /**
+//     * Log an error.
+//     *
+//     * @param pos Position of the error in the source code.
+//     * @param code Error code
+//     * @param args Parameters associated with the error
+//     */
+//    @Deprecated
+//    public void error(BLangDiagnosticLocation pos, DiagnosticCode code, Object... args) {
+//        String msg = formatMessage(ERROR_PREFIX, code, args);
+//        reportDiagnostic(code, pos, msg, DiagnosticSeverity.ERROR);
+//    }
 
     /**
      * Log an error.
@@ -90,18 +88,18 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         reportDiagnostic(code, location, msg, DiagnosticSeverity.ERROR);
     }
 
-    /**
-     * Log a warning.
-     * 
-     * @param pos Position of the warning in the source code.
-     * @param code Error code
-     * @param args Parameters associated with the error
-     */
-    @Deprecated
-    public void warning(DiagnosticPos pos, DiagnosticCode code, Object... args) {
-        String msg = formatMessage(WARNING_PREFIX, code, args);
-        reportDiagnostic(code, pos, msg, DiagnosticSeverity.WARNING);
-    }
+//    /**
+//     * Log a warning.
+//     *
+//     * @param pos Position of the warning in the source code.
+//     * @param code Error code
+//     * @param args Parameters associated with the error
+//     */
+//    @Deprecated
+//    public void warning(BLangDiagnosticLocation pos, DiagnosticCode code, Object... args) {
+//        String msg = formatMessage(WARNING_PREFIX, code, args);
+//        reportDiagnostic(code, pos, msg, DiagnosticSeverity.WARNING);
+//    }
 
     /**
      * Log a warning.
@@ -115,17 +113,17 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         reportDiagnostic(code, location, msg, DiagnosticSeverity.WARNING);
     }
 
-    /**
-     * Log an info.
-     * 
-     * @param pos Position of the info in the source code.
-     * @param code Error code
-     * @param args Parameters associated with the info
-     */
-    public void note(DiagnosticPos pos, DiagnosticCode code, Object... args) {
-        String msg = formatMessage(NOTE_PREFIX, code, args);
-        reportDiagnostic(code, pos, msg, DiagnosticSeverity.INFO);
-    }
+//    /**
+//     * Log an info.
+//     *
+//     * @param pos Position of the info in the source code.
+//     * @param code Error code
+//     * @param args Parameters associated with the info
+//     */
+//    public void note(BLangDiagnosticLocation pos, DiagnosticCode code, Object... args) {
+//        String msg = formatMessage(NOTE_PREFIX, code, args);
+//        reportDiagnostic(code, pos, msg, DiagnosticSeverity.INFO);
+//    }
 
     /**
      * Log an info.
@@ -180,7 +178,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     }
 
     @Override
-    public void logDiagnostic(Kind kind, DiagnosticPosition pos, CharSequence message) {
+    public void logDiagnostic(Kind kind, BLangDiagnosticLocation pos, CharSequence message) {
         DiagnosticSeverity severity;
         switch (kind) {
             case ERROR:
@@ -195,7 +193,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
                 break;
         }
 
-        reportDiagnostic(null, (DiagnosticPos) pos, message.toString(), severity);
+        reportDiagnostic(null, (BLangDiagnosticLocation) pos, message.toString(), severity);
     }
 
     /**
@@ -219,26 +217,26 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         return MessageFormat.format(msgKey, args);
     }
 
-    @Deprecated
-    private void reportDiagnostic(DiagnosticCode diagnosticCode, DiagnosticPos pos, String msg,
-                                  DiagnosticSeverity severity) {
-        if (severity == DiagnosticSeverity.ERROR) {
-            this.errorCount++;
-        }
-
-        if (this.isMute) {
-            return;
-        }
-
-        // TODO: Add 'code' and 'messageTemplate' to the DiagnosticInfo
-        DiagnosticInfo diagInfo = new DiagnosticInfo(null, msg, severity);
-
-        BLangDiagnosticLocation diagnosticLocation =
-                new BLangDiagnosticLocation(pos.lineRange().filePath(), pos.getStartLine(), pos.getEndLine(), pos.getStartColumn(), pos.getEndColumn());
-        BLangDiagnostic diagnostic = new BLangDiagnostic(diagnosticLocation, msg, diagInfo, diagnosticCode);
-        storeDiagnosticInPackage(pos.getPackageID(), diagnostic);
-
-    }
+//    @Deprecated
+//    private void reportDiagnostic(DiagnosticCode diagnosticCode, BLangDiagnosticLocation pos, String msg,
+//                                  DiagnosticSeverity severity) {
+//        if (severity == DiagnosticSeverity.ERROR) {
+//            this.errorCount++;
+//        }
+//
+//        if (this.isMute) {
+//            return;
+//        }
+//
+//        // TODO: Add 'code' and 'messageTemplate' to the DiagnosticInfo
+//        DiagnosticInfo diagInfo = new DiagnosticInfo(null, msg, severity);
+//
+//        BLangDiagnosticLocation diagnosticLocation =
+//                new BLangDiagnosticLocation(pos.lineRange().filePath(), pos.getStartLine(), pos.getEndLine(), pos.getStartColumn(), pos.getEndColumn());
+//        BLangDiagnostic diagnostic = new BLangDiagnostic(diagnosticLocation, msg, diagInfo, diagnosticCode);
+//        storeDiagnosticInPackage(pos.getPackageID(), diagnostic);
+//
+//    }
 
     private void reportDiagnostic(DiagnosticCode diagnosticCode, BLangDiagnosticLocation location, String msg,
                                   DiagnosticSeverity severity) {

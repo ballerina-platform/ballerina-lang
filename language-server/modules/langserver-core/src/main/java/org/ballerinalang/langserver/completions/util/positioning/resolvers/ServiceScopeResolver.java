@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.Position;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
@@ -28,7 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,10 +43,10 @@ public class ServiceScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
                                       BLangNode node, BSymbol bSymbol) {
         Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        DiagnosticPos zeroBasedPo = CommonUtil.toZeroBasedPosition(nodePosition);
+        BLangDiagnosticLocation zeroBasedPo = CommonUtil.toZeroBasedPosition(nodePosition);
         int line = position.getLine();
         int col = position.getCharacter();
         int nodeSLine = zeroBasedPo.getStartLine();
@@ -81,8 +81,8 @@ public class ServiceScopeResolver extends CursorPositionResolver {
             return false;
         }
         BLangClassDefinition classDefinition = enclosingClassDef.get();
-        DiagnosticPos classNodePos = CommonUtil.toZeroBasedPosition(classDefinition.getPosition());
-        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition((DiagnosticPos) node.getPosition());
+        BLangDiagnosticLocation classNodePos = CommonUtil.toZeroBasedPosition(classDefinition.getPosition());
+        BLangDiagnosticLocation nodePos = CommonUtil.toZeroBasedPosition((BLangDiagnosticLocation) node.getPosition());
         List<BLangFunction> serviceFunctions = classDefinition.getFunctions();
         List<BLangNode> serviceContent = new ArrayList<>(serviceFunctions);
         serviceContent.sort(new CommonUtil.BLangNodeComparator());

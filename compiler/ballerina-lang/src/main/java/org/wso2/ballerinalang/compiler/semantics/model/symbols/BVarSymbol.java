@@ -22,7 +22,7 @@ import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VARIABLE;
 
@@ -42,7 +42,7 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
      */
     public TaintabilityAllowance taintabilityAllowance = TaintabilityAllowance.IGNORED;
 
-    public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, DiagnosticPos pos,
+    public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, BLangDiagnosticLocation pos,
                       SymbolOrigin origin) {
         super(VARIABLE, flags, name, pkgID, type, owner, pos, origin);
     }

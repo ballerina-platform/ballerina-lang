@@ -47,6 +47,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -54,7 +55,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -169,7 +169,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         if (functionNode.expr != null) {
             padding = StringUtils.repeat(' ', 4);
             BTypeSymbol tSymbol = functionNode.expr.type.tsymbol;
-            Pair<DiagnosticPos, Boolean> nodeLocation = getNodeLocationAndHasFunctions(tSymbol.name.value, context);
+            Pair<BLangDiagnosticLocation, Boolean> nodeLocation = getNodeLocationAndHasFunctions(tSymbol.name.value, context);
             if (!nodeLocation.getRight()) {
                 prependLineFeed = false;
             }
@@ -210,9 +210,9 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         return currentCUnit.get();
     }
 
-    private Pair<DiagnosticPos, Boolean> getNodeLocationAndHasFunctions(String name, LSContext context) {
+    private Pair<BLangDiagnosticLocation, Boolean> getNodeLocationAndHasFunctions(String name, LSContext context) {
         List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
-        DiagnosticPos pos;
+        BLangDiagnosticLocation pos;
         boolean hasFunctions = false;
         for (BLangPackage bLangPackage : bLangPackages) {
             for (BLangCompilationUnit cUnit : bLangPackage.getCompilationUnits()) {

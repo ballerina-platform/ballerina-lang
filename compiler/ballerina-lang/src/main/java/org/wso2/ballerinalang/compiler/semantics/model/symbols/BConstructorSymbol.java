@@ -23,7 +23,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 /**
  * @since 0.995
@@ -35,7 +35,7 @@ public class BConstructorSymbol extends BInvokableSymbol implements ConstructorS
                               PackageID pkgID,
                               BType type,
                               BSymbol owner,
-                              DiagnosticPos pos,
+                              BLangDiagnosticLocation pos,
                               SymbolOrigin origin) {
         super(SymTag.CONSTRUCTOR, flags, name, pkgID, type, owner, pos, origin);
     }

@@ -18,8 +18,8 @@ package org.ballerinalang.langserver.compiler.common.modal;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Meta information of a symbol.
@@ -37,11 +37,11 @@ public final class SymbolMetaInfo {
     private BSymbol bSymbol;
     private String typeName;
     private boolean isLocal;
-    private DiagnosticPos position;
+    private BLangDiagnosticLocation position;
 
 
     private SymbolMetaInfo(String name, String pkgOrgName, String pkgName, String pkgAlias, boolean caller,
-                           String kind, BSymbol bSymbol, String typeName, boolean isLocal, DiagnosticPos position) {
+                           String kind, BSymbol bSymbol, String typeName, boolean isLocal, BLangDiagnosticLocation position) {
         this.name = name;
         this.pkgOrgName = pkgOrgName;
         this.pkgName = pkgName;
@@ -104,7 +104,7 @@ public final class SymbolMetaInfo {
         return isLocal;
     }
 
-    public DiagnosticPos getPosition() {
+    public BLangDiagnosticLocation getPosition() {
         return position;
     }
 
@@ -123,7 +123,7 @@ public final class SymbolMetaInfo {
         private BSymbol bSymbol;
         private String typeName;
         private boolean isLocal;
-        private DiagnosticPos pos;
+        private BLangDiagnosticLocation pos;
 
         public SymbolMetaInfoBuilder setName(String name) {
             this.name = name;
@@ -170,7 +170,7 @@ public final class SymbolMetaInfo {
             return this;
         }
 
-        public SymbolMetaInfoBuilder setPos(DiagnosticPos pos) {
+        public SymbolMetaInfoBuilder setPos(BLangDiagnosticLocation pos) {
             this.pos = pos;
             return this;
         }

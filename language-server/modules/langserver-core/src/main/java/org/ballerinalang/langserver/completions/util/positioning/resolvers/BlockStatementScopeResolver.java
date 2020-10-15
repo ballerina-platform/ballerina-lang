@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.Node;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -34,7 +35,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 import java.util.Map;
@@ -49,14 +49,14 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
                                       BLangNode node, BSymbol bSymbol) {
         if (nodePosition == null) {
             return false;
         }
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
+        BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.getStartLine();
         int nodeSCol = zeroBasedPos.getStartColumn();
         // node endLine for the BLangIf node has to calculate by considering the else node. End line of the BLangIf
@@ -139,11 +139,11 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         if (blockOwner == null) {
             // When the else node is evaluating, block owner is null and the block statement only present
             // This is because, else node is represented with a blocks statement only
-            return CommonUtil.toZeroBasedPosition((DiagnosticPos) blockNode.getPosition()).getEndLine();
+            return CommonUtil.toZeroBasedPosition((BLangDiagnosticLocation) blockNode.getPosition()).getEndLine();
         } else if (blockOwner instanceof BLangTransaction) {
             return this.getTransactionBlockComponentEndLine((BLangTransaction) blockOwner, blockNode);
         } else {
-            return CommonUtil.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndLine();
+            return CommonUtil.toZeroBasedPosition((BLangDiagnosticLocation) blockOwner.getPosition()).getEndLine();
         }
     }
 
@@ -151,9 +151,9 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         if (blockOwner == null) {
             // When the else node is evaluating, block owner is null and the block statement only present
             // This is because, else node is represented with a blocks statement only
-            return CommonUtil.toZeroBasedPosition((DiagnosticPos) blockNode.getPosition()).getEndColumn();
+            return CommonUtil.toZeroBasedPosition((BLangDiagnosticLocation) blockNode.getPosition()).getEndColumn();
         } else {
-            return CommonUtil.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition()).getEndColumn();
+            return CommonUtil.toZeroBasedPosition((BLangDiagnosticLocation) blockOwner.getPosition()).getEndColumn();
         }
     }
 

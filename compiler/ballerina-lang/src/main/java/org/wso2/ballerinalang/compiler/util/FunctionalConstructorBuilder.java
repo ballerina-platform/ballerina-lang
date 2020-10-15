@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.util;
 
 
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -27,7 +28,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -45,10 +45,10 @@ public class FunctionalConstructorBuilder {
     private String name;
     private BPackageSymbol langlibPkg;
     private BType constructedType;
-    private DiagnosticPos pos;
+    private BLangDiagnosticLocation pos;
 
     private FunctionalConstructorBuilder(String name, BPackageSymbol langlibPkg, BType constructedType,
-                                         DiagnosticPos pos) {
+                                         BLangDiagnosticLocation pos) {
         this.name = name;
         this.langlibPkg = langlibPkg;
         this.constructedType = constructedType;
@@ -59,7 +59,7 @@ public class FunctionalConstructorBuilder {
     public static FunctionalConstructorBuilder newConstructor(String name,
                                                               BPackageSymbol langlibModule,
                                                               BType constructedType,
-                                                              DiagnosticPos pos) {
+                                                              BLangDiagnosticLocation pos) {
         return new FunctionalConstructorBuilder(name, langlibModule, constructedType, pos);
     }
 

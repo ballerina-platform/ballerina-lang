@@ -21,7 +21,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.List;
  */
 public abstract class BIRNonTerminator extends BIRAbstractInstruction implements BIRInstruction {
 
-    public BIRNonTerminator(DiagnosticPos pos, InstructionKind kind) {
+    public BIRNonTerminator(BLangDiagnosticLocation pos, InstructionKind kind) {
         super(pos, kind);
     }
 
@@ -54,7 +54,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class Move extends BIRNonTerminator implements BIRAssignInstruction {
         public BIROperand rhsOp;
 
-        public Move(DiagnosticPos pos, BIROperand fromOperand, BIROperand toOperand) {
+        public Move(BLangDiagnosticLocation pos, BIROperand fromOperand, BIROperand toOperand) {
             super(pos, InstructionKind.MOVE);
             this.rhsOp = fromOperand;
             this.lhsOp = toOperand;
@@ -87,7 +87,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand rhsOp1;
         public BIROperand rhsOp2;
 
-        public BinaryOp(DiagnosticPos pos,
+        public BinaryOp(BLangDiagnosticLocation pos,
                         InstructionKind kind,
                         BType type,
                         BIROperand lhsOp,
@@ -125,7 +125,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class UnaryOP extends BIRNonTerminator implements BIRAssignInstruction {
         public BIROperand rhsOp;
 
-        public UnaryOP(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand rhsOp) {
+        public UnaryOP(BLangDiagnosticLocation pos, InstructionKind kind, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, kind);
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
@@ -158,7 +158,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public Object value;
         public BType type;
 
-        public ConstantLoad(DiagnosticPos pos, Object value, BType type, BIROperand lhsOp) {
+        public ConstantLoad(BLangDiagnosticLocation pos, Object value, BType type, BIROperand lhsOp) {
             super(pos, InstructionKind.CONST_LOAD);
             this.value = value;
             this.type = type;
@@ -192,14 +192,14 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand rhsOp;
         public List<BIRMappingConstructorEntry> initialValues;
 
-        public NewStructure(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
+        public NewStructure(BLangDiagnosticLocation pos, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, InstructionKind.NEW_STRUCTURE);
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
             this.initialValues = new ArrayList<>();
         }
 
-        public NewStructure(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp,
+        public NewStructure(BLangDiagnosticLocation pos, BIROperand lhsOp, BIROperand rhsOp,
                             List<BIRMappingConstructorEntry> initialValues) {
             super(pos, InstructionKind.NEW_STRUCTURE);
             this.lhsOp = lhsOp;
@@ -231,7 +231,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIRTypeDefinition def;
         public final String objectName;
 
-        public NewInstance(DiagnosticPos pos, BIRTypeDefinition def, BIROperand lhsOp) {
+        public NewInstance(BLangDiagnosticLocation pos, BIRTypeDefinition def, BIROperand lhsOp) {
             super(pos, InstructionKind.NEW_INSTANCE);
             this.lhsOp = lhsOp;
             this.def = def;
@@ -240,7 +240,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.isExternalDef = false;
         }
 
-        public NewInstance(DiagnosticPos pos, PackageID externalPackageId, String objectName, BIROperand lhsOp) {
+        public NewInstance(BLangDiagnosticLocation pos, PackageID externalPackageId, String objectName, BIROperand lhsOp) {
             super(pos, InstructionKind.NEW_INSTANCE);
             this.objectName = objectName;
             this.lhsOp = lhsOp;
@@ -272,7 +272,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BType type;
         public List<BIROperand> values;
 
-        public NewArray(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand sizeOp, List<BIROperand> values) {
+        public NewArray(BLangDiagnosticLocation pos, BType type, BIROperand lhsOp, BIROperand sizeOp, List<BIROperand> values) {
             super(pos, InstructionKind.NEW_ARRAY);
             this.type = type;
             this.lhsOp = lhsOp;
@@ -313,7 +313,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public boolean fillingRead = false;
         public boolean onInitialization = false;
 
-        public FieldAccess(DiagnosticPos pos, InstructionKind kind,
+        public FieldAccess(BLangDiagnosticLocation pos, InstructionKind kind,
                            BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
             super(pos, kind);
             this.lhsOp = lhsOp;
@@ -321,7 +321,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.rhsOp = rhsOp;
         }
 
-        public FieldAccess(DiagnosticPos pos, InstructionKind kind,
+        public FieldAccess(BLangDiagnosticLocation pos, InstructionKind kind,
                            BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp, boolean onInitialization) {
             super(pos, kind);
             this.lhsOp = lhsOp;
@@ -330,7 +330,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.onInitialization = onInitialization;
         }
 
-        public FieldAccess(DiagnosticPos pos, InstructionKind kind,
+        public FieldAccess(BLangDiagnosticLocation pos, InstructionKind kind,
                            BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp, boolean optionalFieldAccess,
                            boolean fillingRead) {
             super(pos, kind);
@@ -367,7 +367,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand causeOp;
         public BIROperand detailOp;
 
-        public NewError(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand messageOp, BIROperand causeOp,
+        public NewError(BLangDiagnosticLocation pos, BType type, BIROperand lhsOp, BIROperand messageOp, BIROperand causeOp,
                         BIROperand detailOp) {
             super(pos, InstructionKind.NEW_ERROR);
             this.type = type;
@@ -400,7 +400,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BType type;
         public boolean checkTypes;
 
-        public TypeCast(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp, BType castType, boolean checkTypes) {
+        public TypeCast(BLangDiagnosticLocation pos, BIROperand lhsOp, BIROperand rhsOp, BType castType, boolean checkTypes) {
             super(pos, InstructionKind.TYPE_CAST);
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
@@ -430,7 +430,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand rhsOp;
         public BType type;
 
-        public IsLike(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand rhsOp) {
+        public IsLike(BLangDiagnosticLocation pos, BType type, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, InstructionKind.IS_LIKE);
             this.type = type;
             this.lhsOp = lhsOp;
@@ -459,7 +459,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand rhsOp;
         public BType type;
 
-        public TypeTest(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand rhsOp) {
+        public TypeTest(BLangDiagnosticLocation pos, BType type, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, InstructionKind.TYPE_TEST);
             this.type = type;
             this.lhsOp = lhsOp;
@@ -487,7 +487,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand defaultNsURIOp;
         public boolean readonly;
 
-        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand defaultNsURIOp,
+        public NewXMLElement(BLangDiagnosticLocation pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand defaultNsURIOp,
                              boolean readonly) {
             super(pos, InstructionKind.NEW_XML_ELEMENT);
             this.lhsOp = lhsOp;
@@ -519,8 +519,8 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand nsURIOp;
         public BIROperand prefixOp;
 
-        public NewXMLQName(DiagnosticPos pos, BIROperand lhsOp, BIROperand localnameOp, BIROperand nsURIOp,
-                BIROperand prefixOp) {
+        public NewXMLQName(BLangDiagnosticLocation pos, BIROperand lhsOp, BIROperand localnameOp, BIROperand nsURIOp,
+                           BIROperand prefixOp) {
             super(pos, InstructionKind.NEW_XML_QNAME);
             this.lhsOp = lhsOp;
             this.localnameOp = localnameOp;
@@ -549,7 +549,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewStringXMLQName extends BIRNonTerminator {
         public BIROperand stringQNameOP;
 
-        public NewStringXMLQName(DiagnosticPos pos, BIROperand lhsOp, BIROperand stringQName) {
+        public NewStringXMLQName(BLangDiagnosticLocation pos, BIROperand lhsOp, BIROperand stringQName) {
             super(pos, InstructionKind.NEW_STRING_XML_QNAME);
             this.lhsOp = lhsOp;
             this.stringQNameOP = stringQName;
@@ -574,7 +574,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewXMLText extends BIRNonTerminator {
         public BIROperand textOp;
 
-        public NewXMLText(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp) {
+        public NewXMLText(BLangDiagnosticLocation pos, BIROperand lhsOp, BIROperand textOp) {
             super(pos, InstructionKind.NEW_XML_TEXT);
             this.lhsOp = lhsOp;
             this.textOp = textOp;
@@ -601,7 +601,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand targetOp;
         public boolean readonly;
 
-        public NewXMLProcIns(DiagnosticPos pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp,
+        public NewXMLProcIns(BLangDiagnosticLocation pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp,
                              boolean readonly) {
             super(pos, InstructionKind.NEW_XML_PI);
             this.lhsOp = lhsOp;
@@ -630,7 +630,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand textOp;
         public boolean readonly;
 
-        public NewXMLComment(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp, boolean readonly) {
+        public NewXMLComment(BLangDiagnosticLocation pos, BIROperand lhsOp, BIROperand textOp, boolean readonly) {
             super(pos, InstructionKind.NEW_XML_COMMENT);
             this.lhsOp = lhsOp;
             this.textOp = textOp;
@@ -657,7 +657,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class XMLAccess extends BIRNonTerminator {
         public BIROperand rhsOp;
 
-        public XMLAccess(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand rhsOp) {
+        public XMLAccess(BLangDiagnosticLocation pos, InstructionKind kind, BIROperand lhsOp, BIROperand rhsOp) {
             super(pos, kind);
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
@@ -693,7 +693,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public List<BIROperand> closureMaps;
         public BType retType;
 
-        public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp, List<BIRVariableDcl> params,
+        public FPLoad(BLangDiagnosticLocation pos, PackageID pkgId, Name funcName, BIROperand lhsOp, List<BIRVariableDcl> params,
                       List<BIROperand> closureMaps, BType retType, String strandName, SchedulerPolicy schedulerPolicy) {
             super(pos, InstructionKind.FP_LOAD);
             this.schedulerPolicy = schedulerPolicy;
@@ -725,7 +725,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand dataOp;
         public BType type;
 
-        public NewTable(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand keyColOp,
+        public NewTable(BLangDiagnosticLocation pos, BType type, BIROperand lhsOp, BIROperand keyColOp,
                         BIROperand dataOp) {
             super(pos, InstructionKind.NEW_TABLE);
             this.type = type;
@@ -756,7 +756,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public final List<BIROperand> closureVars;
         public BType type;
 
-        public NewTypeDesc(DiagnosticPos pos, BIROperand lhsOp, BType type, List<BIROperand> closureVars) {
+        public NewTypeDesc(BLangDiagnosticLocation pos, BIROperand lhsOp, BType type, List<BIROperand> closureVars) {
             super(pos, InstructionKind.NEW_TYPEDESC);
             this.closureVars = closureVars;
             this.lhsOp = lhsOp;

@@ -171,7 +171,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.util.List;
 
@@ -1322,7 +1322,7 @@ class SymbolFinder extends BLangNodeVisitor {
         lookupNodes(xmlNavigation.filters);
     }
 
-    private boolean setEnclosingNode(BSymbol symbol, DiagnosticPos pos) {
+    private boolean setEnclosingNode(BSymbol symbol, BLangDiagnosticLocation pos) {
         if (PositionUtil.withinBlock(this.cursorPos, pos)) {
             this.symbolAtCursor = symbol;
             return true;

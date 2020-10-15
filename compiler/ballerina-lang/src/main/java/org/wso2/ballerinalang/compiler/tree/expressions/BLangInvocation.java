@@ -24,12 +24,12 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -151,7 +151,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
      */
     public static class BFunctionPointerInvocation extends BLangInvocation {
 
-        public BFunctionPointerInvocation(DiagnosticPos pos, BLangExpression varRef, BSymbol bSymbol, BType retType) {
+        public BFunctionPointerInvocation(BLangDiagnosticLocation pos, BLangExpression varRef, BSymbol bSymbol, BType retType) {
             this.pos = pos;
             this.expr = varRef;
             this.symbol = bSymbol;
@@ -181,7 +181,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     public static class BLangAttachedFunctionInvocation extends BLangInvocation {
         public BLangExpression expr;
 
-        public BLangAttachedFunctionInvocation(DiagnosticPos pos,
+        public BLangAttachedFunctionInvocation(BLangDiagnosticLocation pos,
                                                List<BLangExpression> requiredArgs,
                                                List<BLangExpression> restArgs,
                                                BSymbol symbol,

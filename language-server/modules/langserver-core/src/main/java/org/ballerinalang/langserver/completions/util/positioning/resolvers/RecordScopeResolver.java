@@ -23,12 +23,12 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class RecordScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
                                       BLangNode node, BSymbol bSymbol) {
         Node recordNode = treeVisitor.getBlockOwnerStack().peek();
         if (!recordNode.getKind().equals(NodeKind.RECORD_TYPE)) {
@@ -48,8 +48,8 @@ public class RecordScopeResolver extends CursorPositionResolver {
         }
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
-        DiagnosticPos ownerPos = CommonUtil
+        BLangDiagnosticLocation nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
+        BLangDiagnosticLocation ownerPos = CommonUtil
                 .toZeroBasedPosition(((BLangRecordTypeNode) recordNode).parent.getPosition());
         int ownerEndLine = ownerPos.getEndLine();
         int nodeStartLine = nodePos.getStartLine();

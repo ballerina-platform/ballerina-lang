@@ -24,7 +24,7 @@ import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 /**
  * @since 0.94
@@ -36,7 +36,7 @@ public class BXMLNSSymbol extends BSymbol implements VariableSymbol {
      */
     public String namespaceURI;
 
-    public BXMLNSSymbol(Name prefix, String namespaceURI, PackageID pkgID, BSymbol owner, DiagnosticPos pos,
+    public BXMLNSSymbol(Name prefix, String namespaceURI, PackageID pkgID, BSymbol owner, BLangDiagnosticLocation pos,
                         SymbolOrigin origin) {
         super(SymTag.XMLNS, 0, prefix, pkgID, new BNoType(TypeTags.XMLNS), owner, pos, origin);
         this.namespaceURI = namespaceURI;

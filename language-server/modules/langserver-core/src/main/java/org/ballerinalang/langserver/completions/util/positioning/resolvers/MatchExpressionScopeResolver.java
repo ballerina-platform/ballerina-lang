@@ -21,13 +21,13 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 import java.util.Map;
@@ -40,15 +40,15 @@ public class MatchExpressionScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
                                       BLangNode node, BSymbol bSymbol) {
         if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangMatchExpression)) {
             // In the ideal case, this will not get triggered
             return false;
         }
         BLangMatchExpression matchNode = (BLangMatchExpression) treeVisitor.getBlockOwnerStack().peek();
-        DiagnosticPos matchNodePos = CommonUtil.toZeroBasedPosition(matchNode.getPosition());
-        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
+        BLangDiagnosticLocation matchNodePos = CommonUtil.toZeroBasedPosition(matchNode.getPosition());
+        BLangDiagnosticLocation nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
         List<BLangMatchExpression.BLangMatchExprPatternClause> patternClauseList = matchNode.getPatternClauses();
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();

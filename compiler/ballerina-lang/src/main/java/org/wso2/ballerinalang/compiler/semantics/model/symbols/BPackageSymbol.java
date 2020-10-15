@@ -23,9 +23,9 @@ import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.repository.CompiledPackage;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
@@ -58,12 +58,12 @@ public class BPackageSymbol extends BTypeSymbol {
     // TODO Refactor following two flags
     public boolean entryPointExists = false;
 
-    public BPackageSymbol(PackageID pkgID, BSymbol owner, DiagnosticPos pos, SymbolOrigin origin) {
+    public BPackageSymbol(PackageID pkgID, BSymbol owner, BLangDiagnosticLocation pos, SymbolOrigin origin) {
         super(PACKAGE, 0, pkgID.name, pkgID, null, owner, pos, origin);
         this.type = new BPackageType(this);
     }
 
-    public BPackageSymbol(PackageID pkgID, BSymbol owner, int flags, DiagnosticPos pos, SymbolOrigin origin) {
+    public BPackageSymbol(PackageID pkgID, BSymbol owner, int flags, BLangDiagnosticLocation pos, SymbolOrigin origin) {
         this(pkgID, owner, pos, origin);
         this.flags = flags;
     }

@@ -76,7 +76,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -182,7 +182,7 @@ public class Types {
         return expr.type;
     }
 
-    public BType checkType(DiagnosticPos pos,
+    public BType checkType(BLangDiagnosticLocation pos,
                            BType actualType,
                            BType expType,
                            DiagnosticCode diagCode) {

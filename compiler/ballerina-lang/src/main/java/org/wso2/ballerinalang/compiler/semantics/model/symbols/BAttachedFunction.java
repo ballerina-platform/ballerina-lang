@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 /**
  * {@code BAttachedFunction} represents a attached function in Ballerina.
@@ -31,9 +31,9 @@ public class BAttachedFunction {
     public Name funcName;
     public BInvokableType type;
     public BInvokableSymbol symbol;
-    public DiagnosticPos pos;
+    public BLangDiagnosticLocation pos;
 
-    public BAttachedFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type, DiagnosticPos pos) {
+    public BAttachedFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type, BLangDiagnosticLocation pos) {
         this.funcName = funcName;
         this.type = type;
         this.symbol = symbol;

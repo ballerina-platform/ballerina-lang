@@ -28,6 +28,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -112,7 +113,7 @@ public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
         return bLangPackage.topLevelNodes.stream()
                 .filter(topLevelNode -> {
                     if (topLevelNode instanceof BLangTypeDefinition) {
-                        org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition pos =
+                        BLangDiagnosticLocation pos =
                                 topLevelNode.getPosition();
                         return ((pos.getStartLine() == line || pos.getEndLine() == line ||
                                 (pos.getStartLine() < line && pos.getEndLine() > line)) &&

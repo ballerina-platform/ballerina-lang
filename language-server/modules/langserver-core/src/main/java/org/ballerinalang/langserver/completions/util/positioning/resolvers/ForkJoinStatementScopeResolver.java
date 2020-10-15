@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.util.List;
 import java.util.Map;
@@ -41,14 +41,14 @@ public class ForkJoinStatementScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
                                       BLangNode node, BSymbol bSymbol) {
         if (treeVisitor.getForkJoinStack().isEmpty()) {
             return false;
         }
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
+        BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.getStartLine();
         int nodeSCol = zeroBasedPos.getStartColumn();
         int nodeELine = zeroBasedPos.getEndLine();
@@ -75,9 +75,9 @@ public class ForkJoinStatementScopeResolver extends CursorPositionResolver {
         if (!lastChild) {
             return false;
         } else {
-            DiagnosticPos diagnosticPos = CommonUtil.toZeroBasedPosition(parent.pos);
-            int blockOwnerELine = diagnosticPos.getEndLine();
-            int blockOwnerECol = diagnosticPos.getEndColumn();
+            BLangDiagnosticLocation diagnosticLocation = CommonUtil.toZeroBasedPosition(parent.pos);
+            int blockOwnerELine = diagnosticLocation.getEndLine();
+            int blockOwnerECol = diagnosticLocation.getEndColumn();
 
             return (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
                     (line > nodeELine || (line == nodeELine && col > nodeECol));

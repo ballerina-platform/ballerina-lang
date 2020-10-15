@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.util.List;
 import java.util.Map;
@@ -40,15 +40,15 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
                                       BLangNode node, BSymbol bSymbol) {
         if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangMatch)) {
             // In the ideal case, this will not get triggered
             return false;
         }
         BLangMatch matchNode = (BLangMatch) treeVisitor.getBlockOwnerStack().peek();
-        DiagnosticPos matchNodePos = CommonUtil.toZeroBasedPosition(matchNode.getPosition());
-        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
+        BLangDiagnosticLocation matchNodePos = CommonUtil.toZeroBasedPosition(matchNode.getPosition());
+        BLangDiagnosticLocation nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
         List<BLangMatch.BLangMatchBindingPatternClause> patternClauseList = matchNode.patternClauses;
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();

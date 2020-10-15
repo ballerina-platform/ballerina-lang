@@ -20,7 +20,7 @@ import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.util.CompletionVisitorUtil;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 /**
  * List Constructor scope position resolver.
@@ -32,7 +32,7 @@ public class ListConstructorScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(DiagnosticPos position, TreeVisitor treeVisitor, LSContext ctx, BLangNode node) {
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation position, TreeVisitor treeVisitor, LSContext ctx, BLangNode node) {
         if (!(node.parent instanceof BLangListConstructorExpr)) {
             return false;
         }

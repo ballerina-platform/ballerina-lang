@@ -18,6 +18,7 @@
 package org.ballerinalang.util.diagnostic;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 /**
  * The interface for Ballerina diagnostics. A diagnostic represents an error,
@@ -61,7 +62,7 @@ public interface Diagnostic extends Comparable<Diagnostic> {
 
     Kind getKind();
 
-    DiagnosticPosition getPosition();
+    BLangDiagnosticLocation getPosition();
 
     String getMessage();
 

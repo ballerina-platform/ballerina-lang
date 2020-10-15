@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -60,7 +61,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -194,7 +194,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 validateReferences(field);
                 validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
                         Symbols.isFlagOn(((BLangSimpleVariable) field).symbol.flags, Flags.DEPRECATED),
-                        (DiagnosticPos) field.getPosition());
+                        (BLangDiagnosticLocation) field.getPosition());
             }
 
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(this::analyzeNode);
@@ -226,7 +226,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             validateReferences(field);
             validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
                     Symbols.isFlagOn(((BLangSimpleVariable) field).symbol.flags, Flags.DEPRECATED),
-                    (DiagnosticPos) field.getPosition());
+                    (BLangDiagnosticLocation) field.getPosition());
         }
 
         classDefinition.functions.forEach(this::analyzeNode);
@@ -250,7 +250,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     private void validateDeprecationDocumentation(BLangMarkdownDocumentation documentation,
                                                   boolean isDeprecationAnnotationAvailable,
-                                                  DiagnosticPos pos) {
+                                                  BLangDiagnosticLocation pos) {
         if (documentation == null) {
             return;
         }
@@ -270,7 +270,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void validateDeprecatedParametersDocumentation(BLangMarkdownDocumentation documentation, DiagnosticPos pos) {
+    public void validateDeprecatedParametersDocumentation(BLangMarkdownDocumentation documentation, BLangDiagnosticLocation pos) {
         if (documentation == null) {
             return;
         }
@@ -353,7 +353,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 DocReferenceErrorType.NO_ERROR : DocReferenceErrorType.REFERENCE_ERROR;
     }
 
-    private BSymbol resolveFullyQualifiedSymbol(DiagnosticPos pos, SymbolEnv env, String packageId, String type,
+    private BSymbol resolveFullyQualifiedSymbol(BLangDiagnosticLocation pos, SymbolEnv env, String packageId, String type,
                                                 String identifier, int tag) {
         Name identifierName = names.fromString(identifier);
         Name pkgName = names.fromString(packageId);

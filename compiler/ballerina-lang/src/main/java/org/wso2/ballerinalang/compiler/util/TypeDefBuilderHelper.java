@@ -20,6 +20,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -46,7 +47,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 public class TypeDefBuilderHelper {
 
     public static BLangRecordTypeNode createRecordTypeNode(BRecordType recordType, PackageID packageID,
-                                                           SymbolTable symTable, DiagnosticPos pos) {
+                                                           SymbolTable symTable, BLangDiagnosticLocation pos) {
         List<BLangSimpleVariable> fieldList = new ArrayList<>();
         for (BField field : recordType.fields.values()) {
             BVarSymbol symbol = field.symbol;
@@ -80,7 +80,7 @@ public class TypeDefBuilderHelper {
         return createRecordTypeNode(fieldList, recordType, pos);
     }
 
-    public static BLangObjectTypeNode createObjectTypeNode(BObjectType objectType, DiagnosticPos pos) {
+    public static BLangObjectTypeNode createObjectTypeNode(BObjectType objectType, BLangDiagnosticLocation pos) {
         List<BLangSimpleVariable> fieldList = new ArrayList<>();
         for (BField field : objectType.fields.values()) {
             BVarSymbol symbol = field.symbol;
@@ -92,7 +92,7 @@ public class TypeDefBuilderHelper {
     }
 
     public static BLangRecordTypeNode createRecordTypeNode(List<BLangSimpleVariable> typeDefFields,
-                                                           BRecordType recordType, DiagnosticPos pos) {
+                                                           BRecordType recordType, BLangDiagnosticLocation pos) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
         recordTypeNode.type = recordType;
         recordTypeNode.fields = typeDefFields;
@@ -103,7 +103,7 @@ public class TypeDefBuilderHelper {
     }
 
     public static BLangObjectTypeNode createObjectTypeNode(List<BLangSimpleVariable> typeDefFields,
-                                                           BObjectType objectType, DiagnosticPos pos) {
+                                                           BObjectType objectType, BLangDiagnosticLocation pos) {
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
         objectTypeNode.type = objectType;
         objectTypeNode.fields = typeDefFields;
@@ -126,7 +126,7 @@ public class TypeDefBuilderHelper {
         return initFunction;
     }
 
-    public static BLangFunction createInitFunctionForStructureType(DiagnosticPos pos, BSymbol symbol, SymbolEnv env,
+    public static BLangFunction createInitFunctionForStructureType(BLangDiagnosticLocation pos, BSymbol symbol, SymbolEnv env,
                                                                    Names names, Name suffix,
                                                                    SymbolTable symTable, BType type) {
         String structTypeName = type.tsymbol.name.value;
@@ -190,7 +190,7 @@ public class TypeDefBuilderHelper {
         return typeDefinition;
     }
 
-    public static BLangClassDefinition createClassDef(DiagnosticPos pos, BObjectTypeSymbol classTSymbol,
+    public static BLangClassDefinition createClassDef(BLangDiagnosticLocation pos, BObjectTypeSymbol classTSymbol,
                                                       SymbolEnv env) {
         BObjectType objType = (BObjectType) classTSymbol.type;
         List<BLangSimpleVariable> fieldList = new ArrayList<>();

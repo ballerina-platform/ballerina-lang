@@ -20,8 +20,8 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
     /**
      * List of placeholders to keep track of placeholder content.
      */
-    private Map<DiagnosticPos, Map<String, String>> positions = new HashMap<>();
+    private Map<BLangDiagnosticLocation, Map<String, String>> positions = new HashMap<>();
     /**
      * Need to track focus line.
      */
@@ -85,7 +85,7 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
     }
 
     private void merge(PlaceHolder placeHolder, Function<String, String> merger) {
-        DiagnosticPos position = placeHolder.getPosition(bLangPackageOfTestFile);
+        BLangDiagnosticLocation position = placeHolder.getPosition(bLangPackageOfTestFile);
         Map<String, String> placeHolders = positions.get(position);
         placeHolders = (placeHolders == null) ? new HashMap<>() : placeHolders;
         String oldContent = placeHolders.get(placeHolder.getName());
@@ -105,7 +105,7 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
      */
     @Override
     public void put(PlaceHolder placeHolder, String content) {
-        DiagnosticPos position = placeHolder.getPosition(bLangPackageOfTestFile);
+        BLangDiagnosticLocation position = placeHolder.getPosition(bLangPackageOfTestFile);
         Map<String, String> placeHolders = positions.get(position);
         placeHolders = (placeHolders == null) ? new HashMap<>() : placeHolders;
         placeHolders.put(placeHolder.getName(), content);

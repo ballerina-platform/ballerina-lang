@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -87,7 +88,6 @@ import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
@@ -347,7 +347,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineFunction(DataInputStream dataInStream) throws IOException {
-        DiagnosticPos pos = readPosition(dataInStream);
+        BLangDiagnosticLocation pos = readPosition(dataInStream);
 
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
@@ -425,7 +425,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
-        DiagnosticPos pos = readPosition(dataInStream);
+        BLangDiagnosticLocation pos = readPosition(dataInStream);
         String typeDefName = getStringCPEntryValue(dataInStream);
 
         int flags = dataInStream.readInt();
@@ -578,7 +578,7 @@ public class BIRPackageSymbolEnter {
 
         int flags = dataInStream.readInt();
         byte origin = dataInStream.readByte();
-        DiagnosticPos pos = readPosition(dataInStream);
+        BLangDiagnosticLocation pos = readPosition(dataInStream);
 
         int attachPointCount = dataInStream.readInt();
         Set<AttachPoint> attachPoints = new HashSet<>(attachPointCount);
@@ -607,7 +607,7 @@ public class BIRPackageSymbolEnter {
         String constantName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
         byte origin = dataInStream.readByte();
-        DiagnosticPos pos = readPosition(dataInStream);
+        BLangDiagnosticLocation pos = readPosition(dataInStream);
 
         byte[] docBytes = readDocBytes(dataInStream);
 
@@ -859,13 +859,13 @@ public class BIRPackageSymbolEnter {
                 .filter(taintedStatus -> readByte == taintedStatus.getByteValue()).findFirst().get();
     }
 
-    private DiagnosticPos readPosition(DataInputStream dataInStream) throws IOException {
+    private BLangDiagnosticLocation readPosition(DataInputStream dataInStream) throws IOException {
         String cUnitName = getStringCPEntryValue(dataInStream);
         int sLine = dataInStream.readInt();
         int sCol = dataInStream.readInt();
         int eLine = dataInStream.readInt();
         int eCol = dataInStream.readInt();
-        return new DiagnosticPos(cUnitName, this.env.pkgSymbol.pkgID, sLine, eLine, sCol, eCol);
+        return new BLangDiagnosticLocation(cUnitName, this.env.pkgSymbol.pkgID, sLine, eLine, sCol, eCol);
     }
 
     // private utility methods

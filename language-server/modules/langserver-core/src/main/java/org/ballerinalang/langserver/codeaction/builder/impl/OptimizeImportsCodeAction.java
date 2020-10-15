@@ -29,7 +29,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -98,7 +98,7 @@ public class OptimizeImportsCodeAction implements NodeBasedCodeAction {
         List<Range> importLines = new ArrayList<>();
         for (int i = 0; i < fileImports.size(); i++) {
             BLangImportPackage importPkg = fileImports.get(i);
-            DiagnosticPos pos = importPkg.getPosition();
+            BLangDiagnosticLocation pos = importPkg.getPosition();
             String orgName = importPkg.orgName.value;
             String pkgName = importPkg.pkgNameComps.stream().map(s -> s.value).collect(Collectors.joining("."));
             String alias = (pkgName.equals(importPkg.alias.value)) ? "" : importPkg.alias.value;

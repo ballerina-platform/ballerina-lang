@@ -175,7 +175,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -620,7 +620,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         visitAssignment(compoundAssignment.varRef, combinedTaintedStatus, compoundAssignment.pos);
     }
 
-    private void visitAssignment(BLangExpression varRefExpr, TaintedStatus varTaintedStatus, DiagnosticPos pos) {
+    private void visitAssignment(BLangExpression varRefExpr, TaintedStatus varTaintedStatus, BLangDiagnosticLocation pos) {
         if (varRefExpr == null) {
             return;
         }
@@ -2277,17 +2277,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void addTaintError(DiagnosticPos diagnosticPos, String paramName, DiagnosticCode diagnosticCode) {
-        TaintRecord.TaintError taintError = new TaintRecord.TaintError(diagnosticPos, paramName, diagnosticCode);
+    private void addTaintError(BLangDiagnosticLocation diagnosticLocation, String paramName, DiagnosticCode diagnosticCode) {
+        TaintRecord.TaintError taintError = new TaintRecord.TaintError(diagnosticLocation, paramName, diagnosticCode);
         getCurrentAnalysisState().taintErrorSet.add(taintError);
         if (!entryPointAnalysis) {
             stopAnalysis = true;
         }
     }
 
-    private void addTaintError(DiagnosticPos diagnosticPos, String paramName, String paramName2,
+    private void addTaintError(BLangDiagnosticLocation diagnosticLocation, String paramName, String paramName2,
                                DiagnosticCode diagnosticCode) {
-        TaintRecord.TaintError taintError = new TaintRecord.TaintError(diagnosticPos, paramName, paramName2,
+        TaintRecord.TaintError taintError = new TaintRecord.TaintError(diagnosticLocation, paramName, paramName2,
                 diagnosticCode);
         getCurrentAnalysisState().taintErrorSet.add(taintError);
         if (!entryPointAnalysis) {
@@ -2893,7 +2893,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (taintRecord == null) {
                 // This is when current parameter is "untainted". Therefore, providing a tainted value to a untainted
                 // parameter is invalid and should return a compiler error.
-                DiagnosticPos argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
+                BLangDiagnosticLocation argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
                 addTaintError(argPos, paramSymbol.name.value,
                         DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                 this.stopAnalysis = false;
@@ -2904,7 +2904,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                         || error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT) {
                         addTaintError(taintRecord.taintError);
                     } else {
-                        DiagnosticPos argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
+                        BLangDiagnosticLocation argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
                         addTaintError(argPos, paramSymbol.name.value,
                                 DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                     }
