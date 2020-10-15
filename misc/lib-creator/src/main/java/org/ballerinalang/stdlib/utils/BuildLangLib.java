@@ -57,12 +57,7 @@ public class BuildLangLib {
             packageCompilation.diagnostics().forEach(d -> out.println(d.toString()));
             System.exit(1);
         }
-
-        String baloName = ProjectUtils.getBaloName(
-                pkg.packageOrg().toString(),
-                pkg.packageName().toString(),
-                pkg.packageVersion().toString(),
-                null);
+        String baloName = ProjectUtils.getBaloName(pkg);
         packageCompilation.emit(PackageCompilation.OutputType.BALO, target.getBaloPath().resolve(baloName));
     }
 
