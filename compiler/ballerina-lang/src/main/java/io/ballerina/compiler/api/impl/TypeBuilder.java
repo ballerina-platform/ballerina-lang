@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.impl.types.BallerinaFieldDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaFunctionTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaFutureTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaMapTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaObjectTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaParameter;
 import io.ballerina.compiler.api.impl.types.BallerinaRecordTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaSimpleTypeDescriptor;
@@ -32,13 +33,17 @@ import io.ballerina.compiler.api.impl.types.BallerinaStreamTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaTupleTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaTypeDescTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaUnionTypeDescriptor;
+import io.ballerina.compiler.api.impl.types.util.BallerinaMethodDeclaration;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
 import io.ballerina.compiler.api.types.ParameterKind;
+import io.ballerina.compiler.api.types.util.MethodDeclaration;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
@@ -69,6 +74,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -76,6 +82,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.compiler.api.types.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.types.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.types.ParameterKind.REST;
+import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -145,7 +152,27 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
 
     @Override
     public BallerinaTypeDescriptor visit(BObjectType internalType, BType s) {
-        return null;
+        List<FieldDescriptor> fields = new ArrayList<>();
+
+        for (Map.Entry<String, BField> entry : internalType.fields.entrySet()) {
+            BField bField = entry.getValue();
+            BallerinaTypeDescriptor fieldType = bField.type.accept(this, null);
+            BallerinaFieldDescriptor field = new BallerinaFieldDescriptor(fieldType, bField);
+            fields.add(field);
+        }
+
+        BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) internalType.tsymbol;
+        List<MethodDeclaration> methods = new ArrayList<>();
+
+        for (BAttachedFunction func : typeSymbol.attachedFuncs) {
+            BallerinaFunctionTypeDescriptor methodType = (BallerinaFunctionTypeDescriptor) func.type.accept(this, null);
+            BallerinaMethodDeclaration methodDecl = new BallerinaMethodDeclaration(func.funcName.value, new HashSet<>(),
+                                                                                   methodType);
+            methods.add(methodDecl);
+        }
+
+        return new BallerinaObjectTypeDescriptor(moduleID, unmodifiableList(fields), unmodifiableList(methods),
+                                                 internalType);
     }
 
     @Override
@@ -162,8 +189,7 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
         BallerinaTypeDescriptor restType =
                 internalType.restFieldType.tag == TypeTags.NONE ? null : internalType.restFieldType.accept(this, null);
 
-        return new BallerinaRecordTypeDescriptor(moduleID, Collections.unmodifiableList(fields), restType,
-                                                 internalType);
+        return new BallerinaRecordTypeDescriptor(moduleID, unmodifiableList(fields), restType, internalType);
     }
 
     @Override
@@ -177,8 +203,7 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
 
         BallerinaTypeDescriptor restType = internalType.restType.accept(this, null);
 
-        return new BallerinaTupleTypeDescriptor(moduleID, Collections.unmodifiableList(memberTypes), restType,
-                                                internalType);
+        return new BallerinaTupleTypeDescriptor(moduleID, unmodifiableList(memberTypes), restType, internalType);
     }
 
     @Override
@@ -222,7 +247,7 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
             members.add(type);
         }
 
-        return new BallerinaUnionTypeDescriptor(moduleID, Collections.unmodifiableList(members), internalType);
+        return new BallerinaUnionTypeDescriptor(moduleID, unmodifiableList(members), internalType);
     }
 
     @Override
@@ -276,6 +301,6 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
             qualifiers.add(Qualifier.PUBLIC);
         }
 
-        return new BallerinaParameter(name, typeDescriptor, Collections.unmodifiableList(qualifiers), kind);
+        return new BallerinaParameter(name, typeDescriptor, unmodifiableList(qualifiers), kind);
     }
 }

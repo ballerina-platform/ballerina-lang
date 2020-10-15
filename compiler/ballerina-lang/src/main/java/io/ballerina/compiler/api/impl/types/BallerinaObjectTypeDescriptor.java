@@ -18,20 +18,17 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.SymbolFactory;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import io.ballerina.compiler.api.types.util.MethodDeclaration;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
@@ -44,13 +41,20 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     private List<TypeQualifier> typeQualifiers;
     // private TypeDescriptor objectTypeReference;
     private List<FieldDescriptor> objectFields;
-    private List<MethodSymbol> methods;
-    private MethodSymbol initFunction;
+    private List<MethodDeclaration> methods;
+    private BallerinaMethodSymbol initFunction;
 
     public BallerinaObjectTypeDescriptor(ModuleID moduleID, BObjectType objectType) {
         super(TypeDescKind.OBJECT, moduleID, objectType);
         // TODO: Fix this
         // objectTypeReference = null;
+    }
+
+    public BallerinaObjectTypeDescriptor(ModuleID moduleID, List<FieldDescriptor> fields,
+                                         List<MethodDeclaration> methods, BObjectType objectType) {
+        super(TypeDescKind.OBJECT, moduleID, objectType);
+        this.objectFields = fields;
+        this.methods = methods;
     }
 
     @Override
@@ -66,7 +70,9 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
             this.typeQualifiers.add(TypeQualifier.CLIENT);
         }
 
-        // TODO: Check whether we can identify the listeners as well
+        if ((objectType.flags & Flags.LISTENER) == Flags.LISTENER) {
+            this.typeQualifiers.add(TypeQualifier.LISTENER);
+        }
 
         return this.typeQualifiers;
     }
@@ -88,7 +94,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
      * @return {@link List} of object methods
      */
     // TODO: Rename to method declarations
-    public List<MethodSymbol> methods() {
+    public List<MethodDeclaration> methods() {
         if (this.methods == null) {
 //            this.methods = new ArrayList<>();
 //            for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) ((BObjectType) this
@@ -99,18 +105,6 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
         }
 
         return this.methods;
-    }
-
-    @Override
-    public Optional<MethodSymbol> initMethod() {
-        if (this.initFunction == null) {
-//            BAttachedFunction initFunction =
-//                    ((BObjectTypeSymbol) ((BObjectType) this.getBType()).tsymbol).initializerFunc;
-//            this.initFunction = initFunction == null ? null
-//                    : SymbolFactory.createMethodSymbol(initFunction.symbol, initFunction.funcName.getValue());
-        }
-
-        return Optional.ofNullable(this.initFunction);
     }
 
     @Override
