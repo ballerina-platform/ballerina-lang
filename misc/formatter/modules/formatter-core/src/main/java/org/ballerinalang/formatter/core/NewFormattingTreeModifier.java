@@ -1420,13 +1420,13 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token openBracket = formatToken(listBindingPatternNode.openBracket(), 0, 0);
         SeparatedNodeList<BindingPatternNode> bindingPatternNodes =
                 formatSeparatedNodeList(listBindingPatternNode.bindingPatterns(), 0, 0, 0, 0);
-        Token closeBracket = formatToken(listBindingPatternNode.closeBracket(), env.trailingWS, env.trailingNL);
 
         if (listBindingPatternNode.restBindingPattern().isPresent()) {
             RestBindingPatternNode restBindingPattern = formatNode(listBindingPatternNode.restBindingPattern().get(),
-                    env.trailingWS, env.trailingNL);
+                    0, 0);
             listBindingPatternNode = listBindingPatternNode.modify().withRestBindingPattern(restBindingPattern).apply();
         }
+        Token closeBracket = formatToken(listBindingPatternNode.closeBracket(), env.trailingWS, env.trailingNL);
 
         return listBindingPatternNode.modify()
                 .withOpenBracket(openBracket)
@@ -2614,10 +2614,17 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public LetExpressionNode transform(LetExpressionNode letExpressionNode) {
         Token letKeyword = formatToken(letExpressionNode.letKeyword(), 1, 0);
+
+        int prevIndentation = env.currentIndentation;
+        int fieldIndentation = env.lineLength - letKeyword.text().length() - 1;
+        setIndentation(fieldIndentation); // Set indentation for braces
+
         SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
-                formatSeparatedNodeList(letExpressionNode.letVarDeclarations(), 1, 0, 0, 1);
+                formatSeparatedNodeList(letExpressionNode.letVarDeclarations(), 0, 0, 0, 1);
         Token inKeyword = formatToken(letExpressionNode.inKeyword(), 1, 0);
         ExpressionNode expression = formatNode(letExpressionNode.expression(), env.trailingWS, env.trailingNL);
+
+        setIndentation(prevIndentation);  // Revert indentation for braces
 
         return letExpressionNode.modify()
                 .withLetKeyword(letKeyword)
