@@ -18,7 +18,7 @@
 
 package org.ballerina.testobserve.metrics.extension.model;
 
-import org.ballerinalang.jvm.observability.metrics.MetricId;
+import io.ballerina.runtime.observability.metrics.MetricId;
 
 /**
  * Abstract class containing the common data of a metric.
