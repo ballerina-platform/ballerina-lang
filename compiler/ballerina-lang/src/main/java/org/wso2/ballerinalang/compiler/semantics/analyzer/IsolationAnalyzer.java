@@ -1867,28 +1867,25 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         BLangExpression parentExpression = (BLangExpression) parent;
 
-        switch (kind) {
-            case FIELD_BASED_ACCESS_EXPR:
-            case INDEX_BASED_ACCESS_EXPR:
-                return isInvalidCopyingOfMutableValueInIsolatedObject(parentExpression, copyOut, invokedOnSelf);
-            case INVOCATION:
-                BLangInvocation invocation = (BLangInvocation) parentExpression;
-                BLangExpression calledOnExpr = invocation.expr;
-
-                if (calledOnExpr == expression && // if this is a method-call, do additional checks
-                        !Symbols.isFlagOn(calledOnExpr.type.flags, Flags.READONLY) &&
-                        (!invokedOnSelf || invocation.type.tag != TypeTags.NIL) &&
-                        !isIsolatedObjectTypes(type)) {
-                    return true;
-                }
-
-                return !isIsolated(invocation.symbol.flags) && !isCloneOrCloneReadOnlyInvocation(invocation);
-            case GROUP_EXPR:
-                return isInvalidCopyingOfMutableValueInIsolatedObject(((BLangGroupExpr) parentExpression).expression,
-                                                                      copyOut, invokedOnSelf);
+        if (kind != NodeKind.INVOCATION) {
+            return !isIsolatedObjectTypes(type) &&
+                    isInvalidCopyingOfMutableValueInIsolatedObject(parentExpression, copyOut, invokedOnSelf);
         }
 
-        return !isIsolatedObjectTypes(type);
+        BLangInvocation invocation = (BLangInvocation) parentExpression;
+        BLangExpression calledOnExpr = invocation.expr;
+
+        if (calledOnExpr == expression) { // if this is a method-call, do additional checks
+            if (invokedOnSelf && copyOut) {
+                return invocation.type.tag != TypeTags.NIL;
+            }
+
+            if (!Symbols.isFlagOn(calledOnExpr.type.flags, Flags.READONLY) && !isIsolatedObjectTypes(type)) {
+                return true;
+            }
+        }
+
+        return !isIsolated(invocation.symbol.flags) || !isCloneOrCloneReadOnlyInvocation(invocation);
     }
 
     private boolean hasRefDefinedOutsideLock(BLangExpression variableReference) {
