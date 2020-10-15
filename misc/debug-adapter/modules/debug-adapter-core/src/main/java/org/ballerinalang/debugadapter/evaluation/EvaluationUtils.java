@@ -43,8 +43,10 @@ public class EvaluationUtils {
 
     // Helper classes
     public static final String B_TYPE_CHECKER_CLASS = "org.ballerinalang.jvm.TypeChecker";
-    private static final String B_STRING_UTILS_CLASS = "org.ballerinalang.jvm.api.BStringUtils";
+    public static final String B_STRING_UTILS_CLASS = "org.ballerinalang.jvm.api.BStringUtils";
+    public static final String B_XML_FACTORY_CLASS = "org.ballerinalang.jvm.XMLFactory";
     public static final String B_DECIMAL_VALUE_CLASS = "org.ballerinalang.jvm.values.DecimalValue";
+    public static final String B_XML_VALUE_CLASS = "org.ballerinalang.jvm.values.XMLValue";
     public static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
     public static final String JAVA_LONG_CLASS = "java.lang.Long";
     public static final String JAVA_DOUBLE_CLASS = "java.lang.Double";
@@ -59,6 +61,7 @@ public class EvaluationUtils {
     public static final String DECIMAL_GT = "checkDecimalGreaterThan";
     public static final String DECIMAL_LT_EQUALS = "checkDecimalLessThanOrEqual";
     public static final String DECIMAL_GT_EQUALS = "checkDecimalGreaterThanOrEqual";
+    public static final String XML_CONCAT_METHOD = "concatenate";
     private static final String FROM_STRING_METHOD = "fromString";
     private static final String FOR_NAME_METHOD = "forName";
     // Misc

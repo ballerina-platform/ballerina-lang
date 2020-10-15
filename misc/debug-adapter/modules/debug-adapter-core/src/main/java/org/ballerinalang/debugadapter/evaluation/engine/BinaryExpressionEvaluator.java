@@ -33,6 +33,8 @@ import java.util.List;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_DECIMAL_VALUE_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_TYPE_CHECKER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_XML_FACTORY_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.B_XML_VALUE_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_GT;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_GT_EQUALS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_LT;
@@ -40,6 +42,7 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.DECIMAL_
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.JAVA_OBJECT_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.REF_EQUAL_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.VALUE_EQUAL_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.XML_CONCAT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getRuntimeMethod;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.getValueAsObject;
 
@@ -158,9 +161,18 @@ public class BinaryExpressionEvaluator extends Evaluator {
             String result = lVar.computeValue() + rVar.computeValue();
             return EvaluationUtils.make(context, result);
         } else if (lVar.getBType() == BVariableType.XML && rVar.getBType() == BVariableType.XML) {
-            // xml + xml
-            // Todo - Add support
-            throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PLUS_TOKEN);
+            // Prepares to invoke the JVM runtime util function which is responsible for XML concatenation.
+            List<Value> argList = new ArrayList<>();
+            argList.add(getValueAsObject(context, lVar));
+            argList.add(getValueAsObject(context, rVar));
+            List<String> argTypeNames = new ArrayList<>();
+            argTypeNames.add(B_XML_VALUE_CLASS);
+            argTypeNames.add(B_XML_VALUE_CLASS);
+            RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_XML_FACTORY_CLASS, XML_CONCAT_METHOD,
+                    argTypeNames);
+            runtimeMethod.setArgValues(argList);
+            Value result = runtimeMethod.invoke();
+            return new BExpressionValue(context, result);
         } else {
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PLUS_TOKEN);
         }
