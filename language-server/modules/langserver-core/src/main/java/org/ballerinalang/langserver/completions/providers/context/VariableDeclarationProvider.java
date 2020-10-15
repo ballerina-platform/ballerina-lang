@@ -65,7 +65,8 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
             (2) [module:]TypeName c = module:a<cursor>
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol;
+            Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
+                    || symbol.kind() == SymbolKind.FUNCTION;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
             return this.getCompletionItemList(moduleContent, context);
         }

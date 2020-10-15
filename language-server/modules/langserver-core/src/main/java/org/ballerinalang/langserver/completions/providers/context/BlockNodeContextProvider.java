@@ -15,11 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
@@ -72,10 +69,11 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                 }
              */
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            Predicate<Symbol> filter = symbol -> ((symbol.kind() == SymbolKind.TYPE
-                    && ((TypeSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC))
-                    || (symbol.kind() == SymbolKind.FUNCTION
-                    && ((FunctionSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC)));
+            Predicate<Symbol> filter = symbol ->
+                    symbol.kind() == SymbolKind.TYPE
+                            || symbol.kind() == SymbolKind.VARIABLE
+                            || symbol.kind() == SymbolKind.CONST
+                            || symbol.kind() == SymbolKind.FUNCTION;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
 
             return this.getCompletionItemList(moduleContent, context);
