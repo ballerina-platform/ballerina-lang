@@ -542,7 +542,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token fieldName = formatToken(recordField.fieldName(), 0, 0);
 
         if (recordField.questionMarkToken().isPresent()) {
-            Token questionMarkToken = formatToken(recordField.questionMarkToken().get(), 0, 1);
+            Token questionMarkToken = formatToken(recordField.questionMarkToken().get(), 0, 0);
             recordField = recordField.modify().withQuestionMarkToken(questionMarkToken).apply();
         }
 
