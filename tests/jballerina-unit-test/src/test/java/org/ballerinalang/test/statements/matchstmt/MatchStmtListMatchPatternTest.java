@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 @Test(groups = {"disableOnOldParser"})
 public class MatchStmtListMatchPatternTest {
 
-    private CompileResult result, resultNegative, restMatchPatternResult;
+    private CompileResult result, resultNegative, resultSemanticsNegative, restMatchPatternResult;
     private String patternNotMatched = "pattern will not be matched";
     private String unreachablePattern = "unreachable pattern";
     private String unreachableCode = "unreachable code";
@@ -43,6 +43,8 @@ public class MatchStmtListMatchPatternTest {
         restMatchPatternResult = BCompileUtil.compile("test-src/statements/matchstmt/list-match-pattern-with-rest" +
                 "-match-pattern.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/list-match-pattern-negative.bal");
+        resultSemanticsNegative = BCompileUtil.compile("test-src/statements/matchstmt/list-match-pattern-negative" +
+                "-semantics.bal");
     }
 
     @Test
@@ -136,5 +138,16 @@ public class MatchStmtListMatchPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
                 65, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 65, 9);
+    }
+
+    @Test(description = "test negative semantics")
+    public void testNegativeSemantics() {
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 2);
+
+        int i = -1;
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "same variable cannot repeat in a match pattern", 20,
+                17);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "same variable cannot repeat in a match pattern", 21,
+                17);
     }
 }

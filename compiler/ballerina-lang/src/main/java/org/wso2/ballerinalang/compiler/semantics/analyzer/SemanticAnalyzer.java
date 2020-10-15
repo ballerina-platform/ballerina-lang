@@ -2356,13 +2356,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangCaptureBindingPattern captureBindingPattern = (BLangCaptureBindingPattern) bindingPattern;
                 captureBindingPattern.type = patternType;
                 analyzeNode(captureBindingPattern, env);
-                this.variablesInMatchPattern.put(captureBindingPattern.getIdentifier().getValue(),
+                varBindingPattern.declaredVars.put(captureBindingPattern.getIdentifier().getValue(),
                         captureBindingPattern.symbol);
                 break;
         }
         varBindingPattern.type = bindingPattern.type;
-        varBindingPattern.declaredVars.putAll(this.variablesInMatchPattern);
-        this.variablesInMatchPattern.clear();
     }
 
     @Override
@@ -2406,6 +2404,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangMatchPattern memberMatchPattern : listMatchPattern.matchPatterns) {
             memberMatchPattern.accept(this);
             memberTypes.add(memberMatchPattern.type);
+            checkForSimilarVars(listMatchPattern.declaredVars, memberMatchPattern.declaredVars, memberMatchPattern.pos);
             listMatchPattern.declaredVars.putAll(memberMatchPattern.declaredVars);
         }
         BTupleType matchPatternType = new BTupleType(memberTypes);
@@ -2420,6 +2419,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (listMatchPattern.type.tag == TypeTags.TUPLE) {
             assignTypeToListMemberPatterns(listMatchPattern.matchPatterns,
                     ((BTupleType) listMatchPattern.type).tupleTypes);
+        }
+    }
+
+    private void checkForSimilarVars(Map<String, BVarSymbol> declaredVars, Map<String, BVarSymbol> var,
+                                     DiagnosticPos pos) {
+        for (String variableName : var.keySet()) {
+            if (declaredVars.containsKey(variableName)) {
+                dlog.error(pos, DiagnosticCode.MATCH_PATTERN_CANNOT_REPEAT_SAME_VARIABLE);
+            }
         }
     }
 
