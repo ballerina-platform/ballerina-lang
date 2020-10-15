@@ -20,3 +20,6 @@ type CloneableErrorDetail readonly|xml|CloneableErrorDetail[]|map<CloneableError
 # Default error type.
 # The type parameter is for the error detail type. It's constrained to Cloneable type.
 public type 'error error<map<CloneableErrorDetail>>;
+
+# Represents a `JavaError` with the message and the cause.
+public type JavaClassNotFoundError distinct error;
