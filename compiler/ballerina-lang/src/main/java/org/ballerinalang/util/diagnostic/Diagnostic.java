@@ -47,6 +47,7 @@ public interface Diagnostic extends Comparable<Diagnostic> {
      *
      * @since 0.94
      */
+    @Deprecated
     interface DiagnosticPosition extends Comparable<DiagnosticPosition> {
 
         PackageID getPackageID();

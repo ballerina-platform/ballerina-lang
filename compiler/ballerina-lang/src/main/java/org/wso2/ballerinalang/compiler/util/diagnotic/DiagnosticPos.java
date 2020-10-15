@@ -32,6 +32,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
  *
  * @since 0.94
  */
+@Deprecated
 public class DiagnosticPos implements DiagnosticPosition, Location {
 
     private LineRange lineRange;

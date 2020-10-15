@@ -22,7 +22,6 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 
 /**
  * Represent the location of a diagnostic in a {@code TextDocument}.
@@ -31,7 +30,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
  *
  * @since 2.0.0
  */
-public class BLangDiagnosticLocation implements Diagnostic.DiagnosticPosition, Location {
+public class BLangDiagnosticLocation implements Location {
 
     private LineRange lineRange;
     private TextRange textRange;
@@ -65,22 +64,18 @@ public class BLangDiagnosticLocation implements Diagnostic.DiagnosticPosition, L
         return packageID;
     }
 
-    @Override
     public int getStartLine() {
         return lineRange.startLine().line();
     }
 
-    @Override
     public int getEndLine() {
         return lineRange.endLine().line();
     }
 
-    @Override
     public int getStartColumn() {
         return lineRange.startLine().offset();
     }
 
-    @Override
     public int getEndColumn() {
         return lineRange.endLine().offset();
     }
@@ -94,8 +89,33 @@ public class BLangDiagnosticLocation implements Diagnostic.DiagnosticPosition, L
         return lineRange.toString() + textRange.toString();
     }
 
-    @Override
-    public int compareTo(Diagnostic.DiagnosticPosition o) {
+    public int compareTo(BLangDiagnosticLocation diagnosticLocation) {
+
+        // Compare the source first.
+        String thisDiagnosticString = packageID.name.value + packageID.version.value + lineRange().filePath();
+        String otherDiagnosticString = diagnosticLocation.getPackageID().name.value +
+                diagnosticLocation.getPackageID().version.value +
+                diagnosticLocation.lineRange().filePath();
+        int value = thisDiagnosticString.compareTo(otherDiagnosticString);
+
+        if (value != 0) {
+            return value;
+        }
+
+        // If the sources are same, then compare the start line.
+        if (getStartLine() < diagnosticLocation.getStartLine()) {
+            return -1;
+        } else if (getStartLine() > diagnosticLocation.getStartLine()) {
+            return 1;
+        }
+
+        // If the start line is the same, then compare the start column.
+        if (getStartColumn() < diagnosticLocation.getStartColumn()) {
+            return -1;
+        } else if (getStartColumn() > diagnosticLocation.getStartColumn()) {
+            return 1;
+        }
+
         return 0;
     }
 }
