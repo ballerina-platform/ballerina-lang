@@ -21,8 +21,17 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.utils.ProjectUtils;
 
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -49,5 +58,52 @@ public class PackageCache implements PackageRepo {
             return Optional.of(baloPath);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<Path> getLatestPackageBalo(ModuleLoadRequest pkg) {
+        String orgName = pkg.orgName().orElse("");
+        String pkgName = pkg.packageName().value();
+        String glob = "glob:**/" + orgName + "-" + pkgName + "-*.balo";
+        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(glob);
+        List<Path> modules = new ArrayList<>();
+        try {
+            Files.walkFileTree(baloDirectory, new SearchModules(pathMatcher, modules));
+        } catch (IOException e) {
+            throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
+        }
+
+        if (modules.isEmpty()) {
+            return Optional.empty();
+        } else {
+            modules.sort(Comparator.comparing(Path::toString));
+            return Optional.of(modules.get(modules.size() - 1));
+        }
+    }
+
+    private static class SearchModules extends SimpleFileVisitor<Path> {
+
+        private final PathMatcher pathMatcher;
+        private final List<Path> modules;
+
+        public SearchModules(PathMatcher pathMatcher, List<Path> modules) {
+            this.pathMatcher = pathMatcher;
+            this.modules = modules;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path path,
+                                         BasicFileAttributes attrs) throws IOException {
+            if (pathMatcher.matches(path)) {
+                modules.add(path);
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFileFailed(Path file, IOException exc)
+                throws IOException {
+            return FileVisitResult.CONTINUE;
+        }
     }
 }

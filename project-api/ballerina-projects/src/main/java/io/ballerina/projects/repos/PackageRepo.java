@@ -30,4 +30,6 @@ import java.util.Optional;
 public interface PackageRepo {
 
     public Optional<Path> getPackageBalo(ModuleLoadRequest pkg);
+
+    public Optional<Path> getLatestPackageBalo(ModuleLoadRequest pkg);
 }

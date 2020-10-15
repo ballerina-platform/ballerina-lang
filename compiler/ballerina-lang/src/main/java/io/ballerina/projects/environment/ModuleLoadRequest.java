@@ -59,7 +59,7 @@ public class ModuleLoadRequest {
     }
 
     public Optional<SemanticVersion> version() {
-        return Optional.of(version);
+        return Optional.ofNullable(version);
     }
 
     @Override

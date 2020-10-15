@@ -67,7 +67,7 @@ public class DefaultPackageResolver extends PackageResolver {
             }
 
             if (module == null) {
-                module = loadDistributionCache(modLoadRequest);
+                module = loadFromDistributionCache(modLoadRequest);
             }
 
             if (module == null) {
@@ -86,9 +86,14 @@ public class DefaultPackageResolver extends PackageResolver {
         return globalPackageCache.get(packageId);
     }
 
-    private Module loadDistributionCache(ModuleLoadRequest modLoadRequest) {
-        // TODO how about developing a BALRProject to load a package from a .balr file?
-        Optional<Path> balo = distCache.getPackageBalo(modLoadRequest);
+    private Module loadFromDistributionCache(ModuleLoadRequest modLoadRequest) {
+        // If version is null load the latest package
+        Optional<Path> balo;
+        if (modLoadRequest.version().isEmpty()) {
+            balo = distCache.getLatestPackageBalo(modLoadRequest);
+        } else {
+            balo = distCache.getPackageBalo(modLoadRequest);
+        }
         if (balo.isEmpty()) {
             return null;
         }
