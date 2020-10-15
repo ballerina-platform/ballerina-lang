@@ -3138,7 +3138,8 @@ public class Desugar extends BLangNodeVisitor {
         this.onFailCallFuncDef = currentOnFailFunc;
     }
 
-    private void swapAndResetEnclosingOnFail (BLangOnFailClause onFailClause, BLangSimpleVariableDef onFailCallFuncDef) {
+    private void swapAndResetEnclosingOnFail(BLangOnFailClause onFailClause,
+                                             BLangSimpleVariableDef onFailCallFuncDef) {
         this.enclosingOnFailClause.remove(onFailClause);
         this.enclosingOnFailCallFunc.remove(onFailCallFuncDef);
     }
