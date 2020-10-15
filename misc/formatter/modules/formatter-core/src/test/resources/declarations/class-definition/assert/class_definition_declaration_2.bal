@@ -6,7 +6,6 @@ class Person {
         int a = 12345;
         return a;
     }
-
     public string name = "sample name";
     int year = 50;
     function bar() returns string {
@@ -14,6 +13,5 @@ class Person {
         string b = "bar";
         return b;
     }
-
     string month = "february";
 }

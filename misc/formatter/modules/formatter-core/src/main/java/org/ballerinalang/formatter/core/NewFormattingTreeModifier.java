@@ -323,6 +323,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token functionKeyword = formatToken(functionDefinitionNode.functionKeyword(), 1, 0);
         IdentifierToken functionName = formatToken(functionDefinitionNode.functionName(), 0, 0);
         FunctionSignatureNode functionSignatureNode = formatNode(functionDefinitionNode.functionSignature(), 1, 0);
+        //TODO: Fix formatting issue when the function is within a class definition declaration.
         FunctionBodyNode functionBodyNode = formatNode(functionDefinitionNode.functionBody(), this.trailingWS, this.trailingNL);
 
         return functionDefinitionNode.modify()
