@@ -90,12 +90,12 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     // TODO: Rename to method declarations
     public List<MethodSymbol> methods() {
         if (this.methods == null) {
-            this.methods = new ArrayList<>();
-            for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) ((BObjectType) this
-                    .getBType()).tsymbol).attachedFuncs) {
-                this.methods
-                        .add(SymbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
-            }
+//            this.methods = new ArrayList<>();
+//            for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) ((BObjectType) this
+//                    .getBType()).tsymbol).attachedFuncs) {
+//                this.methods
+//                        .add(SymbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
+//            }
         }
 
         return this.methods;
@@ -104,10 +104,10 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     @Override
     public Optional<MethodSymbol> initMethod() {
         if (this.initFunction == null) {
-            BAttachedFunction initFunction =
-                    ((BObjectTypeSymbol) ((BObjectType) this.getBType()).tsymbol).initializerFunc;
-            this.initFunction = initFunction == null ? null
-                    : SymbolFactory.createMethodSymbol(initFunction.symbol, initFunction.funcName.getValue());
+//            BAttachedFunction initFunction =
+//                    ((BObjectTypeSymbol) ((BObjectType) this.getBType()).tsymbol).initializerFunc;
+//            this.initFunction = initFunction == null ? null
+//                    : SymbolFactory.createMethodSymbol(initFunction.symbol, initFunction.funcName.getValue());
         }
 
         return Optional.ofNullable(this.initFunction);

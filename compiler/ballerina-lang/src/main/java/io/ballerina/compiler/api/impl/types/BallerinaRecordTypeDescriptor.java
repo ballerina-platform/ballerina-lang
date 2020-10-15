@@ -46,6 +46,14 @@ public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implem
         this.isInclusive = !recordType.sealed;
     }
 
+    public BallerinaRecordTypeDescriptor(ModuleID moduleID, List<FieldDescriptor> fields,
+                                         BallerinaTypeDescriptor restType, BRecordType recordType) {
+        super(TypeDescKind.RECORD, moduleID, recordType);
+        this.fieldDescriptors = fields;
+        this.restTypeDesc = restType;
+        this.isInclusive = !recordType.sealed;
+    }
+
     /**
      * Get the list of field descriptors.
      *

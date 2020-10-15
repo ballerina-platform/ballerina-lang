@@ -39,6 +39,11 @@ public class BallerinaMapTypeDescriptor extends AbstractTypeDescriptor implement
         super(TypeDescKind.MAP, moduleID, mapType);
     }
 
+    public BallerinaMapTypeDescriptor(ModuleID moduleID, BallerinaTypeDescriptor typeParameter, BMapType mapType) {
+        super(TypeDescKind.MAP, moduleID, mapType);
+        this.memberTypeDesc = typeParameter;
+    }
+
     @Override
     public Optional<BallerinaTypeDescriptor> typeParameter() {
         if (this.memberTypeDesc == null) {

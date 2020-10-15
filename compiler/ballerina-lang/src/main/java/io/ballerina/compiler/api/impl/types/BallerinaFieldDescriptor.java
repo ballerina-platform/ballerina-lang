@@ -45,6 +45,12 @@ public class BallerinaFieldDescriptor implements FieldDescriptor {
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
     }
 
+    public BallerinaFieldDescriptor(BallerinaTypeDescriptor fieldType, BField bField) {
+        this.bField = bField;
+        this.typeDescriptor = fieldType;
+        this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
+    }
+
     /**
      * {@inheritDoc}
      */

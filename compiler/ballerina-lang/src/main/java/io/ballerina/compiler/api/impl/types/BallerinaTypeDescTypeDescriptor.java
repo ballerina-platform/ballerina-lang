@@ -39,6 +39,12 @@ public class BallerinaTypeDescTypeDescriptor extends AbstractTypeDescriptor impl
         super(TypeDescKind.TYPEDESC, moduleID, typedescType);
     }
 
+    public BallerinaTypeDescTypeDescriptor(ModuleID moduleID, BallerinaTypeDescriptor typeParameter,
+                                           BTypedescType typedescType) {
+        super(TypeDescKind.TYPEDESC, moduleID, typedescType);
+        this.typeParameter = typeParameter;
+    }
+
     @Override
     public Optional<BallerinaTypeDescriptor> typeParameter() {
         if (this.typeParameter == null) {

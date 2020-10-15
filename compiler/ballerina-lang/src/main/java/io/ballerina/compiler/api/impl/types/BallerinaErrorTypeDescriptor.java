@@ -37,6 +37,11 @@ public class BallerinaErrorTypeDescriptor extends AbstractTypeDescriptor impleme
         super(TypeDescKind.ERROR, moduleID, errorType);
     }
 
+    public BallerinaErrorTypeDescriptor(ModuleID moduleID, BallerinaTypeDescriptor detailType, BErrorType errorType) {
+        super(TypeDescKind.ERROR, moduleID, errorType);
+        this.detail = detailType;
+    }
+
     /**
      * Get the detail type descriptor.
      *

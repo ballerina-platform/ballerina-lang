@@ -33,18 +33,24 @@ import java.util.Optional;
  */
 public class BallerinaFutureTypeDescriptor extends AbstractTypeDescriptor implements FutureTypeDescriptor {
 
-    private BallerinaTypeDescriptor memberTypeDesc;
+    private BallerinaTypeDescriptor typeParameter;
 
     public BallerinaFutureTypeDescriptor(ModuleID moduleID, BFutureType futureType) {
         super(TypeDescKind.FUTURE, moduleID, futureType);
     }
 
+    public BallerinaFutureTypeDescriptor(ModuleID moduleID, BallerinaTypeDescriptor typeParameter,
+                                         BFutureType futureType) {
+        super(TypeDescKind.FUTURE, moduleID, futureType);
+        this.typeParameter = typeParameter;
+    }
+
     @Override
     public Optional<BallerinaTypeDescriptor> typeParameter() {
-        if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BFutureType) this.getBType()).constraint);
+        if (this.typeParameter == null) {
+            this.typeParameter = TypesFactory.getTypeDescriptor(((BFutureType) this.getBType()).constraint);
         }
-        return Optional.ofNullable(this.memberTypeDesc);
+        return Optional.ofNullable(this.typeParameter);
     }
 
     @Override

@@ -41,6 +41,12 @@ public class BallerinaStreamTypeDescriptor extends AbstractTypeDescriptor implem
         super(TypeDescKind.STREAM, moduleID, streamType);
     }
 
+    public BallerinaStreamTypeDescriptor(ModuleID moduleID, List<BallerinaTypeDescriptor> typeParameters,
+                                         BStreamType streamType) {
+        super(TypeDescKind.STREAM, moduleID, streamType);
+        this.typeParameters = typeParameters;
+    }
+
     @Override
     public List<BallerinaTypeDescriptor> typeParameters() {
         if (this.typeParameters == null) {

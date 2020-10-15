@@ -44,6 +44,13 @@ public class BallerinaTupleTypeDescriptor extends AbstractTypeDescriptor impleme
         super(TypeDescKind.TUPLE, moduleID, tupleType);
     }
 
+    public BallerinaTupleTypeDescriptor(ModuleID moduleID, List<BallerinaTypeDescriptor> memberTypes,
+                                        BallerinaTypeDescriptor restType, BTupleType tupleType) {
+        super(TypeDescKind.TUPLE, moduleID, tupleType);
+        this.memberTypes = memberTypes;
+        this.restTypeDesc = restType;
+    }
+
     @Override
     public List<BallerinaTypeDescriptor> memberTypeDescriptors() {
         if (this.memberTypes == null) {

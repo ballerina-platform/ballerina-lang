@@ -39,6 +39,12 @@ public class BallerinaArrayTypeDescriptor extends AbstractTypeDescriptor impleme
         super(TypeDescKind.ARRAY, moduleID, arrayType);
     }
 
+    public BallerinaArrayTypeDescriptor(ModuleID moduleID, BallerinaTypeDescriptor memberTypeDesc,
+                                        BArrayType arrayType) {
+        super(TypeDescKind.ARRAY, moduleID, arrayType);
+        this.memberTypeDesc = memberTypeDesc;
+    }
+
     @Override
     public BallerinaTypeDescriptor memberTypeDescriptor() {
         if (this.memberTypeDesc == null) {

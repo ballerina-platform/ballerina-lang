@@ -42,6 +42,12 @@ public class BallerinaUnionTypeDescriptor extends AbstractTypeDescriptor impleme
         super(TypeDescKind.UNION, moduleID, unionType);
     }
 
+    public BallerinaUnionTypeDescriptor(ModuleID moduleID, List<BallerinaTypeDescriptor> memberTypes,
+                                        BUnionType unionType) {
+        super(TypeDescKind.UNION, moduleID, unionType);
+        this.memberTypes = memberTypes;
+    }
+
     @Override
     public List<BallerinaTypeDescriptor> memberTypeDescriptors() {
         if (this.memberTypes == null) {
