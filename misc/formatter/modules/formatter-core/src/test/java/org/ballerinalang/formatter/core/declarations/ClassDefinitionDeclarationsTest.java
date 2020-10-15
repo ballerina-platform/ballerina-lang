@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -58,7 +58,7 @@ public class ClassDefinitionDeclarationsTest extends FormatterTest {
      */
     @Override
     public List<String> skipList() {
-        return Arrays.asList("class_definition_declaration_5.bal", "class_definition_declaration_8.bal");
+        return Collections.singletonList("class_definition_declaration_5.bal");
     }
 
     /**

@@ -6,7 +6,7 @@ type Student record {
 public function main() {
     Student[] studentList = [
         {
-            firstName : "Michelle", 
+            firstName : "Michelle",
             gpa : 3.5
         }
     ];
