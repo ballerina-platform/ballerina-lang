@@ -24,6 +24,7 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -56,6 +57,7 @@ public class BallerinaSemanticModel implements SemanticModel {
     private final CompilerContext compilerContext;
     private final EnvironmentResolver envResolver;
     private final SymbolFactory symbolFactory;
+    private final TypeBuilder typeBuilder;
 
     public BallerinaSemanticModel(BLangPackage bLangPackage, CompilerContext context) {
         this.compilerContext = context;
@@ -64,7 +66,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
         this.envResolver = new EnvironmentResolver(pkgEnv);
-        this.symbolFactory = new SymbolFactory(symbolTable);
+        this.typeBuilder = new TypeBuilder(Types.getInstance(context));
+        this.symbolFactory = new SymbolFactory(typeBuilder, symbolTable);
     }
 
     /**

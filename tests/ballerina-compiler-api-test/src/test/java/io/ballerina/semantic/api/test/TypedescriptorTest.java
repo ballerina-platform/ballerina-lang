@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -41,6 +40,7 @@ import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeDescTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import io.ballerina.compiler.api.types.UnionTypeDescriptor;
+import io.ballerina.compiler.api.types.util.MethodDeclaration;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -172,12 +172,10 @@ public class TypedescriptorTest {
         assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().kind(), STRING);
 
-        List<MethodSymbol> methods = type.methods();
-        MethodSymbol method = methods.get(0);
+        List<MethodDeclaration> methods = type.methods();
+        MethodDeclaration method = methods.get(0);
         assertEquals(fields.size(), 1);
         assertEquals(method.name(), "getName");
-
-        assertEquals(type.initMethod().get().name(), "init");
     }
 
     @Test

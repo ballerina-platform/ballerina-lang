@@ -78,13 +78,13 @@ public class BallerinaServiceSymbol extends BallerinaSymbol implements ServiceSy
     private List<FunctionSymbol> getResources(BServiceSymbol serviceSymbol) {
         List<BallerinaFunctionSymbol> resources = new ArrayList<>();
         if (serviceSymbol.type.tsymbol instanceof BObjectTypeSymbol) {
-            for (BAttachedFunction function : ((BObjectTypeSymbol) serviceSymbol.type.tsymbol).attachedFuncs) {
-                if ((function.symbol.flags & Flags.RESOURCE) == Flags.RESOURCE) {
-                    String name = function.symbol.getName().getValue();
-                    BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol, name);
-                    resources.add(functionSymbol);
-                }
-            }
+//            for (BAttachedFunction function : ((BObjectTypeSymbol) serviceSymbol.type.tsymbol).attachedFuncs) {
+//                if ((function.symbol.flags & Flags.RESOURCE) == Flags.RESOURCE) {
+//                    String name = function.symbol.getName().getValue();
+//                    BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol, name);
+//                    resources.add(functionSymbol);
+//                }
+//            }
         }
 
         return Collections.unmodifiableList(resources);
@@ -93,13 +93,13 @@ public class BallerinaServiceSymbol extends BallerinaSymbol implements ServiceSy
     private List<FunctionSymbol> getFunctions(BServiceSymbol serviceSymbol) {
         List<BallerinaFunctionSymbol> functions = new ArrayList<>();
         if (serviceSymbol.type.tsymbol instanceof BObjectTypeSymbol) {
-            for (BAttachedFunction function : ((BObjectTypeSymbol) serviceSymbol.type.tsymbol).attachedFuncs) {
-                if ((function.symbol.flags & Flags.RESOURCE) != Flags.RESOURCE) {
-                    String name = function.symbol.getName().getValue();
-                    BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol, name);
-                    functions.add(functionSymbol);
-                }
-            }
+//            for (BAttachedFunction function : ((BObjectTypeSymbol) serviceSymbol.type.tsymbol).attachedFuncs) {
+//                if ((function.symbol.flags & Flags.RESOURCE) != Flags.RESOURCE) {
+//                    String name = function.symbol.getName().getValue();
+//                    BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol, name);
+//                    functions.add(functionSymbol);
+//                }
+//            }
         }
 
         return Collections.unmodifiableList(functions);

@@ -28,12 +28,11 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.impl.types.BallerinaParameter;
+import io.ballerina.compiler.api.impl.TypeBuilder;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
-import io.ballerina.compiler.api.types.Parameter;
-import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -55,9 +54,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,8 +66,10 @@ public class SymbolFactory {
 
     private final Map<String, BPackageSymbol> langLibs;
     private final Map<String, Map<String, BInvokableSymbol>> langLibMethods;
+    private final TypeBuilder typeBuilder;
 
-    public SymbolFactory(SymbolTable symbolTable) {
+    public SymbolFactory(TypeBuilder typeBuilder, SymbolTable symbolTable) {
+        this.typeBuilder = typeBuilder;
         langLibs = new HashMap<>();
 
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symbolTable.pkgEnvMap.entrySet()) {
@@ -169,7 +168,7 @@ public class SymbolFactory {
             builder.withQualifier(Qualifier.TRANSACTIONAL);
         }
 
-        return builder.withTypeDescriptor((FunctionTypeDescriptor) TypesFactory.getTypeDescriptor(invokableSymbol.type))
+        return builder.withTypeDescriptor((FunctionTypeDescriptor) typeBuilder.build(invokableSymbol.type))
                 .build();
     }
 
@@ -181,7 +180,7 @@ public class SymbolFactory {
      * @return {@link Symbol} generated
      */
     public BallerinaMethodSymbol createMethodSymbol(BInvokableSymbol invokableSymbol, String name) {
-        BallerinaTypeDescriptor typeDescriptor = TypesFactory.getTypeDescriptor(invokableSymbol.type);
+        BallerinaTypeDescriptor typeDescriptor = typeBuilder.build(invokableSymbol.type);
         BallerinaFunctionSymbol functionSymbol = createFunctionSymbol(invokableSymbol, name);
         if (typeDescriptor.kind() == TypeDescKind.FUNCTION) {
             return new BallerinaMethodSymbol(functionSymbol);
@@ -212,38 +211,18 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.READONLY);
         }
         return symbolBuilder
-                .withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.type))
+                .withTypeDescriptor(typeBuilder.build(symbol.type))
                 .build();
     }
 
     public BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol, String name) {
         return new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol.pkgID, symbol)
-                .withReturnType(TypesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint))
+                .withReturnType(typeBuilder.build(((BFutureType) symbol.type).constraint))
                 .build();
     }
 
     public BallerinaServiceSymbol createServiceSymbol(BServiceSymbol symbol, String name) {
         return new BallerinaServiceSymbol.ServiceSymbolBuilder(name, symbol.pkgID, symbol).build();
-    }
-
-    /**
-     * Create a ballerina parameter.
-     *
-     * @param symbol Variable symbol for the parameter
-     * @param kind   The kind of the parameter
-     * @return {@link Parameter} generated parameter
-     */
-    public Parameter createBallerinaParameter(BVarSymbol symbol, ParameterKind kind) {
-        if (symbol == null) {
-            return null;
-        }
-        String name = symbol.getName().getValue();
-        BallerinaTypeDescriptor typeDescriptor = TypesFactory.getTypeDescriptor(symbol.getType());
-        List<Qualifier> qualifiers = new ArrayList<>();
-        if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            qualifiers.add(Qualifier.PUBLIC);
-        }
-        return new BallerinaParameter(name, typeDescriptor, qualifiers, kind);
     }
 
     /**
@@ -270,7 +249,7 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.READONLY);
         }
 
-        return symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(typeSymbol.type))
+        return symbolBuilder.withTypeDescriptor(typeBuilder.build(typeSymbol.type))
                 .build();
     }
 
@@ -285,7 +264,7 @@ public class SymbolFactory {
         BallerinaConstantSymbol.ConstantSymbolBuilder symbolBuilder =
                 new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol.pkgID, constantSymbol);
         symbolBuilder.withConstValue(constantSymbol.getConstValue())
-                .withTypeDescriptor(TypesFactory.getTypeDescriptor(constantSymbol.literalType));
+                .withTypeDescriptor(typeBuilder.build(constantSymbol.literalType));
         if ((constantSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
@@ -306,7 +285,7 @@ public class SymbolFactory {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
         if (symbol.attachedType != null && symbol.attachedType.getType() != null) {
-            symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.attachedType.getType()));
+            symbolBuilder.withTypeDescriptor(typeBuilder.build(symbol.attachedType.getType()));
         }
 
         return symbolBuilder.build();
@@ -333,7 +312,7 @@ public class SymbolFactory {
      * @return {@link BallerinaModule} symbol generated
      */
     public BallerinaModule createModuleSymbol(BPackageSymbol symbol, String name) {
-        return new BallerinaModule.ModuleSymbolBuilder(name, symbol.pkgID, symbol).build();
+        return new BallerinaModule.ModuleSymbolBuilder(name, symbol.pkgID, symbol, this).build();
     }
 
     // Private methods

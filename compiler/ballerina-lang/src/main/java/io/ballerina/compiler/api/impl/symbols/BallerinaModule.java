@@ -56,9 +56,13 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     private List<TypeSymbol> listeners;
     private List<Symbol> allSymbols;
 
-    protected BallerinaModule(String name, PackageID moduleID, BPackageSymbol packageSymbol) {
+    private SymbolFactory symbolFactory;
+
+    protected BallerinaModule(String name, PackageID moduleID, BPackageSymbol packageSymbol,
+                              SymbolFactory symbolFactory) {
         super(name, moduleID, SymbolKind.MODULE, packageSymbol);
         this.packageSymbol = packageSymbol;
+        this.symbolFactory = symbolFactory;
     }
 
     /**
@@ -80,7 +84,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
                     && isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC)
                     && scopeEntry.symbol.origin == COMPILED_SOURCE) {
                 String funcName = scopeEntry.symbol.getName().getValue();
-                functions.add(SymbolFactory.createFunctionSymbol((BInvokableSymbol) scopeEntry.symbol, funcName));
+                functions.add(symbolFactory.createFunctionSymbol((BInvokableSymbol) scopeEntry.symbol, funcName));
             }
         }
 
@@ -102,6 +106,16 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
                     .collect(Collectors.toUnmodifiableList());
         }
 
+            if (scopeEntry.symbol instanceof BTypeSymbol) {
+                String typeName = scopeEntry.symbol.getName().getValue();
+                typeDefs.add(symbolFactory.createTypeDefinition((BTypeSymbol) scopeEntry.symbol, typeName));
+            } else if (scopeEntry.symbol instanceof BConstructorSymbol) {
+                String typeName = scopeEntry.symbol.type.tsymbol.getName().getValue();
+                typeDefs.add(symbolFactory.createTypeDefinition(scopeEntry.symbol.type.tsymbol, typeName));
+            }
+        }
+
+        this.typeDefs = Collections.unmodifiableList(typeDefs);
         return this.typeDefs;
     }
 
@@ -122,7 +136,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             if (scopeEntry.symbol instanceof BConstantSymbol &&
                     (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
                 String constName = scopeEntry.symbol.getName().getValue();
-                constants.add(SymbolFactory.createConstantSymbol((BConstantSymbol) scopeEntry.symbol, constName));
+                constants.add(symbolFactory.createConstantSymbol((BConstantSymbol) scopeEntry.symbol, constName));
             }
         }
 
@@ -181,8 +195,12 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
      */
     public static class ModuleSymbolBuilder extends SymbolBuilder<ModuleSymbolBuilder> {
 
-        public ModuleSymbolBuilder(String name, PackageID moduleID, BPackageSymbol packageSymbol) {
+        private SymbolFactory symbolFactory;
+
+        public ModuleSymbolBuilder(String name, PackageID moduleID, BPackageSymbol packageSymbol,
+                                   SymbolFactory symbolFactory) {
             super(name, moduleID, SymbolKind.MODULE, packageSymbol);
+            this.symbolFactory = symbolFactory;
         }
 
         /**
@@ -193,7 +211,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
             if (this.bSymbol == null) {
                 throw new AssertionError("Package Symbol cannot be null");
             }
-            return new BallerinaModule(this.name, this.moduleID, (BPackageSymbol) this.bSymbol);
+            return new BallerinaModule(this.name, this.moduleID, (BPackageSymbol) this.bSymbol, this.symbolFactory);
         }
     }
 }
