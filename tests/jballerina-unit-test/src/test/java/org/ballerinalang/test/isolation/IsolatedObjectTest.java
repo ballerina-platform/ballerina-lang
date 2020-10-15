@@ -77,6 +77,22 @@ public class IsolatedObjectTest {
         validateError(result, i++, "invalid initial value expression: expected a unique expression", 128, 42);
         validateError(result, i++, "invalid initial value expression: expected a unique expression", 129, 34);
         validateError(result, i++, "invalid initial value expression: expected a unique expression", 136, 22);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 157, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 158, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 159, 23);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 168, 36);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 169, 23);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 172, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 173, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 174, 23);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 189, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 190, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 191, 23);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 200, 36);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 201, 23);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 204, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 205, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 206, 23);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }

@@ -137,3 +137,73 @@ function testInvalidIsolatedObjectWithNonUniqueInitializerExprs() {
         }
     };
 }
+
+isolated class InvalidIsolatedClassWithInvalidCopyIn {
+    public final record {} & readonly a;
+    private int b;
+    private map<boolean>[] c;
+
+    function init(record {} & readonly a, int b, map<boolean>[] c) {
+        self.a = a;
+        self.b = b;
+        self.c = c.clone();
+    }
+
+    function invalidCopyInOne(map<boolean> boolMap) {
+        map<boolean> bm1 = {};
+        lock {
+            map<boolean> bm2 = {a: true, b: false};
+
+            self.c[0] = globBoolMap;
+            self.c.push(boolMap);
+            self.c = [bm1, bm2];
+        }
+    }
+
+    isolated function invalidCopyInTwo(map<boolean> boolMap) {
+        map<boolean> bm1 = {};
+        lock {
+            map<boolean> bm2 = {};
+            lock {
+                map<boolean> bm3 = boolMap;
+                bm2 = bm3;
+            }
+
+            self.c.push(boolMap);
+            self.c[0] = boolMap;
+            self.c = [bm1, bm2];
+        }
+    }
+}
+
+isolated object {} invalidIsolatedObjectWithInvalidCopyIn = object {
+    public final record {} & readonly a = {"type": "final"};
+    private int b = 0;
+    private map<boolean>[] c = [];
+
+    isolated function invalidCopyInOne(map<boolean> boolMap) {
+        map<boolean> bm1 = {};
+        lock {
+            map<boolean> bm2 = {a: true, b: false};
+
+            self.c[0] = boolMap;
+            self.c.push(boolMap);
+            self.c = [bm1, bm2];
+        }
+    }
+
+    function invalidCopyInTwo(map<boolean> boolMap) {
+        map<boolean> bm1 = {};
+        lock {
+            map<boolean> bm2 = {};
+            lock {
+                map<boolean> bm3 = boolMap;
+                bm2 = bm3;
+            }
+
+            self.c.push(boolMap);
+            self.c[0] = globBoolMap;
+            self.c = [bm1, bm2];
+        }
+    }
+};
