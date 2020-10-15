@@ -66,8 +66,6 @@ public class BByteArrayValueNegativeTest {
         BAssertUtil.validateError(result, index++, "missing plus token", 16, 23);
         BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 17, 23);
         BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 18, 23);
-        BAssertUtil.validateError(result, index++, "invalid operation: type 'byte' does not support indexing", 19, 18);
-        BAssertUtil.validateError(result, index++, "missing key expr in member access expr", 19, 23);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 }
