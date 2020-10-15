@@ -25,7 +25,6 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -107,7 +106,7 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
         if (!SymbolUtil.isObject(symbol)) {
             return new ArrayList<>();
         }
-        return ((ObjectTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get()).methods().stream()
+        return ((ObjectTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor()).methods().stream()
                 .filter(method -> method.qualifiers().contains(Qualifier.REMOTE))
                 .collect(Collectors.toList());
     }

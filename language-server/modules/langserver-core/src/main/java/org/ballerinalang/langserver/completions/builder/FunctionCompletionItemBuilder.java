@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
@@ -28,23 +27,18 @@ import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -154,7 +148,7 @@ public final class FunctionCompletionItemBuilder {
     private static Either<String, MarkupContent> getDocumentation(FunctionSymbol functionSymbol,
                                                                   boolean skipFirstParam, LSContext ctx) {
         String pkgID = functionSymbol.moduleID().toString();
-        Optional<FunctionTypeDescriptor> functionTypeDesc = functionSymbol.typeDescriptor();
+        FunctionTypeDescriptor functionTypeDesc = functionSymbol.typeDescriptor();
 
         Optional<Documentation> docAttachment = functionSymbol.docAttachment();
         String description = docAttachment.isEmpty() || docAttachment.get().description().isEmpty()
@@ -162,7 +156,7 @@ public final class FunctionCompletionItemBuilder {
         Map<String, String> docParamsMap = new HashMap<>();
         docAttachment.ifPresent(documentation -> documentation.parameterMap().forEach(docParamsMap::put));
 
-        List<Parameter> defaultParams = functionTypeDesc.get().requiredParams().stream()
+        List<Parameter> defaultParams = functionTypeDesc.requiredParams().stream()
                 .filter(parameter -> parameter.kind() == ParameterKind.DEFAULTABLE)
                 .collect(Collectors.toList());
 
@@ -171,9 +165,9 @@ public final class FunctionCompletionItemBuilder {
         String documentation = "**Package:** " + "_" + pkgID + "_" + CommonUtil.MD_LINE_SEPARATOR
                 + CommonUtil.MD_LINE_SEPARATOR + description + CommonUtil.MD_LINE_SEPARATOR;
         StringJoiner joiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
-        List<Parameter> functionParameters = new ArrayList<>(functionTypeDesc.get().requiredParams());
-        if (functionTypeDesc.get().restParam().isPresent()) {
-            functionParameters.add(functionTypeDesc.get().restParam().get());
+        List<Parameter> functionParameters = new ArrayList<>(functionTypeDesc.requiredParams());
+        if (functionTypeDesc.restParam().isPresent()) {
+            functionParameters.add(functionTypeDesc.restParam().get());
         }
         for (int i = 0; i < functionParameters.size(); i++) {
             Parameter param = functionParameters.get(i);
@@ -199,7 +193,7 @@ public final class FunctionCompletionItemBuilder {
         if (!paramsStr.isEmpty()) {
             documentation += "**Params**" + CommonUtil.MD_LINE_SEPARATOR + paramsStr;
         }
-        if (functionTypeDesc.get().kind() != TypeDescKind.NIL) {
+        if (functionTypeDesc.kind() != TypeDescKind.NIL) {
             String desc = "";
             if (docAttachment.isPresent() && docAttachment.get().returnDescription().isPresent()
                     && !docAttachment.get().returnDescription().get().isEmpty()) {
@@ -207,7 +201,7 @@ public final class FunctionCompletionItemBuilder {
                         .replaceAll(CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
             }
             documentation += CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "**Returns**"
-                    + " `" + CommonUtil.getBTypeName(functionTypeDesc.get().returnTypeDescriptor().get(), ctx, false) + "` " +
+                    + " `" + CommonUtil.getBTypeName(functionTypeDesc.returnTypeDescriptor().get(), ctx, false) + "` " +
                     CommonUtil.MD_LINE_SEPARATOR + desc + CommonUtil.MD_LINE_SEPARATOR;
         }
         docMarkupContent.setValue(documentation);

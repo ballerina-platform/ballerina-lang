@@ -154,13 +154,13 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
             }
             if (CommonUtil.isValidFunctionSymbol(symbol)) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbol, context));
-            } else if (symbol.kind() == SymbolKind.CONST) {
+            } else if (symbol.kind() == SymbolKind.CONSTANT) {
                 CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, context);
                 completionItems.add(new SymbolCompletionItem(context, symbol, constantCItem));
             } else if (symbol.kind() == SymbolKind.VARIABLE) {
                 VariableSymbol varSymbol = (VariableSymbol) symbol;
-                Optional<BallerinaTypeDescriptor> typeDesc = (varSymbol).typeDescriptor();
-                String typeName = typeDesc.isPresent() ? CommonUtil.getBTypeName(typeDesc.get(), context, false) : "";
+                BallerinaTypeDescriptor typeDesc = (varSymbol).typeDescriptor();
+                String typeName = CommonUtil.getBTypeName(typeDesc, context, false);
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(context, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE) {

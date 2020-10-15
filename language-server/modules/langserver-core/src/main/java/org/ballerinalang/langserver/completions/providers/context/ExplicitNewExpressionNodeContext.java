@@ -66,7 +66,7 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
              */
             List<ObjectTypeDescriptor> filteredList = visibleSymbols.stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.TYPE && SymbolUtil.isListener((TypeSymbol) symbol))
-                    .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor().get())
+                    .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor())
                     .collect(Collectors.toList());
             for (ObjectTypeDescriptor objectTypeDesc : filteredList) {
                 completionItems.add(this.getExplicitNewCompletionItem(objectTypeDesc, context));
@@ -81,7 +81,7 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
             }
             List<ObjectTypeDescriptor> filteredList = module.get().allSymbols().stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.TYPE && SymbolUtil.isListener((TypeSymbol) symbol))
-                    .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor().get())
+                    .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor())
                     .collect(Collectors.toList());
             for (ObjectTypeDescriptor objectTypeDesc : filteredList) {
                 completionItems.add(this.getExplicitNewCompletionItem(objectTypeDesc, context));

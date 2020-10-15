@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -72,7 +71,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             Predicate<Symbol> filter = symbol ->
                     symbol.kind() == SymbolKind.TYPE
                             || symbol.kind() == SymbolKind.VARIABLE
-                            || symbol.kind() == SymbolKind.CONST
+                            || symbol.kind() == SymbolKind.CONSTANT
                             || symbol.kind() == SymbolKind.FUNCTION;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
 
@@ -187,16 +186,15 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     if (symbol.kind() != SymbolKind.VARIABLE) {
                         return false;
                     }
-                    Optional<BallerinaTypeDescriptor> typeDesc = ((VariableSymbol) symbol).typeDescriptor();
-                    return typeDesc.isPresent() && typeDesc.get().kind() == TypeDescKind.UNION
-                            && !capturedSymbols.contains(symbol.name());
+                    BallerinaTypeDescriptor typeDesc = ((VariableSymbol) symbol).typeDescriptor();
+                    return typeDesc.kind() == TypeDescKind.UNION && !capturedSymbols.contains(symbol.name());
                 })
                 .map(symbol -> {
                     capturedSymbols.add(symbol.name());
                     List<BallerinaTypeDescriptor> errorTypes = new ArrayList<>();
                     List<BallerinaTypeDescriptor> resultTypes = new ArrayList<>();
                     List<BallerinaTypeDescriptor> members
-                            = new ArrayList<>(((UnionTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor().get())
+                            = new ArrayList<>(((UnionTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor())
                             .memberTypeDescriptors());
                     members.forEach(bType -> {
                         if (bType.kind() == TypeDescKind.ERROR) {

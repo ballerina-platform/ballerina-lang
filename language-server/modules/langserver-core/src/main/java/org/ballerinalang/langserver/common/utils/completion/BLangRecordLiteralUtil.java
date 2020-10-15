@@ -69,10 +69,10 @@ public class BLangRecordLiteralUtil {
                                                                           List<BallerinaTypeDescriptor> refTypeList) {
         Optional<BallerinaTypeDescriptor> typeDescriptor = Optional.empty();
         if (symbol.kind() == SymbolKind.FUNCTION) {
-            Optional<FunctionTypeDescriptor> fTypeDesc = ((FunctionSymbol) symbol).typeDescriptor();
-            typeDescriptor = fTypeDesc.isPresent() ? fTypeDesc.get().returnTypeDescriptor() : Optional.empty();
+            FunctionTypeDescriptor fTypeDesc = ((FunctionSymbol) symbol).typeDescriptor();
+            typeDescriptor = fTypeDesc.returnTypeDescriptor();
         } else if (symbol.kind() == SymbolKind.VARIABLE) {
-            typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
+            typeDescriptor = Optional.of(((VariableSymbol) symbol).typeDescriptor());
         }
 
         if (typeDescriptor.isEmpty()) {

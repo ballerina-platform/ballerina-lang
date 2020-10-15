@@ -75,7 +75,7 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
             typeDescriptor = typeDescriptor.isPresent() && typeDescriptor.get().kind() == TypeDescKind.TYPE_REFERENCE ?
                     Optional.ofNullable(((TypeReferenceTypeDescriptor) typeDescriptor.get()).typeDescriptor())
                     : typeDescriptor;
-            return symbol.kind() == SymbolKind.CONST
+            return symbol.kind() == SymbolKind.CONSTANT
                     && typeDescriptor.isPresent()
                     && typeDescriptor.get().kind() == TypeDescKind.INT;
         };

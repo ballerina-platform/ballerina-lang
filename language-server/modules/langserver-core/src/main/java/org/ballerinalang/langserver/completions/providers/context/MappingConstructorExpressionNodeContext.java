@@ -197,12 +197,14 @@ public class MappingConstructorExpressionNodeContext extends
         recordFields.forEach(fieldDesc -> fieldTypeMap.put(fieldDesc.name(), fieldDesc.typeDescriptor()));
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(symbol -> {
-            Optional<BallerinaTypeDescriptor> typeDescriptor = symbol instanceof VariableSymbol
-                    ? ((VariableSymbol) symbol).typeDescriptor() : Optional.empty();
+            if (!(symbol instanceof VariableSymbol)) {
+                return;
+            }
+            BallerinaTypeDescriptor typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
             String symbolName = symbol.name();
-            if (fieldTypeMap.containsKey(symbolName) && typeDescriptor.isPresent()
-                    && fieldTypeMap.get(symbolName).kind() == typeDescriptor.get().kind()) {
-                String bTypeName = CommonUtil.getBTypeName(typeDescriptor.get(), ctx, false);
+            if (fieldTypeMap.containsKey(symbolName)
+                    && fieldTypeMap.get(symbolName).kind() == typeDescriptor.kind()) {
+                String bTypeName = CommonUtil.getBTypeName(typeDescriptor, ctx, false);
                 CompletionItem cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbolName,
                         bTypeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));

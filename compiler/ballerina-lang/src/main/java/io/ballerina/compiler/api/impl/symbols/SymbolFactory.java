@@ -247,7 +247,7 @@ public class SymbolFactory {
         symbolBuilder.withConstValue(constantSymbol.getConstValue())
                 .withTypeDescriptor(TypesFactory.getTypeDescriptor(constantSymbol.literalType));
         if ((constantSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-            symbolBuilder.withAccessModifier(Qualifier.PUBLIC);
+            symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
         return symbolBuilder.build();

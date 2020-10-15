@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.completions.util;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -35,7 +35,6 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.ProviderFactory;
-import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.slf4j.Logger;

@@ -123,7 +123,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                     continue;
                 }
                 String sortText = genSortTextForInitContextItem(context, lsItem,
-                        (assignableType.get().typeDescriptor().get()).kind());
+                        (assignableType.get().typeDescriptor()).kind());
                 cItem.setSortText(sortText);
             }
         }
@@ -270,9 +270,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                     .findAny();
         }
 
-        return typeSymbol.isPresent() && typeSymbol.get().typeDescriptor().isPresent() ?
-                Optional.of((ObjectTypeDescriptor) typeSymbol.get().typeDescriptor().get())
-                : Optional.empty();
+        return typeSymbol.map(symbol -> (ObjectTypeDescriptor) symbol.typeDescriptor());
     }
 
     private enum ContextScope {

@@ -168,12 +168,9 @@ public class FunctionGenerator {
     public static List<String> getFuncArguments(FunctionSymbol symbol, LSContext ctx) {
         List<String> args = new ArrayList<>();
         boolean skipFirstParam = CommonUtil.skipFirstParam(ctx, symbol);
-        Optional<FunctionTypeDescriptor> functionTypeDesc = symbol.typeDescriptor();
-        if (functionTypeDesc.isEmpty()) {
-            return args;
-        }
-        Optional<Parameter> restParam = functionTypeDesc.get().restParam();
-        List<Parameter> parameterDefs = new ArrayList<>(functionTypeDesc.get().requiredParams());
+        FunctionTypeDescriptor functionTypeDesc = symbol.typeDescriptor();
+        Optional<Parameter> restParam = functionTypeDesc.restParam();
+        List<Parameter> parameterDefs = new ArrayList<>(functionTypeDesc.requiredParams());
         for (int i = 0; i < parameterDefs.size(); i++) {
             if (i == 0 && skipFirstParam) {
                 continue;

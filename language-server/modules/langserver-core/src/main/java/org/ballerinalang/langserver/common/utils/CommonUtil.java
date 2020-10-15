@@ -929,11 +929,11 @@ public class CommonUtil {
     public static Pair<String, String> getFunctionInvocationSignature(FunctionSymbol functionSymbol,
                                                                       String functionName,
                                                                       LSContext ctx) {
-        Optional<FunctionTypeDescriptor> functionTypeDesc = functionSymbol.typeDescriptor();
+        FunctionTypeDescriptor functionTypeDesc = functionSymbol.typeDescriptor();
         // Fixme: Check the following with init and empty args function
-        if (!functionTypeDesc.isPresent()) {
-            return ImmutablePair.of(functionName + "();", functionName + "()");
-        }
+//        if (!functionTypeDesc.isPresent()) {
+//            return ImmutablePair.of(functionName + "();", functionName + "()");
+//        }
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<String> funcArguments = FunctionGenerator.getFuncArguments(functionSymbol, ctx);
@@ -943,8 +943,8 @@ public class CommonUtil {
         }
         signature.append(")");
         insertText.append(")");
-        Optional<BallerinaTypeDescriptor> returnType = functionTypeDesc.get().returnTypeDescriptor();
-        if (!returnType.isPresent() || returnType.get().kind() == TypeDescKind.NIL) {
+        Optional<BallerinaTypeDescriptor> returnType = functionTypeDesc.returnTypeDescriptor();
+        if (returnType.isEmpty() || returnType.get().kind() == TypeDescKind.NIL) {
             insertText.append(";");
         }
         String initString = "(";

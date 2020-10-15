@@ -47,7 +47,7 @@ public class SymbolUtil {
      * @return {@link Boolean} whether the symbol holds the type object
      */
     public static boolean isObject(Symbol symbol) {
-        Optional<BallerinaTypeDescriptor> typeDescriptor;
+        BallerinaTypeDescriptor typeDescriptor;
         switch (symbol.kind()) {
             case TYPE:
                 typeDescriptor = ((TypeSymbol) symbol).typeDescriptor();
@@ -56,10 +56,10 @@ public class SymbolUtil {
                 typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
                 break;
             default:
-                typeDescriptor = Optional.empty();
+                return false;
         }
 
-        return typeDescriptor.isPresent() && typeDescriptor.get().kind() == TypeDescKind.OBJECT;
+        return typeDescriptor.kind() == TypeDescKind.OBJECT;
     }
 
     /**
@@ -69,7 +69,7 @@ public class SymbolUtil {
      * @return {@link Boolean} whether the symbol holds the type record
      */
     public static boolean isRecord(Symbol symbol) {
-        Optional<BallerinaTypeDescriptor> typeDescriptor;
+        BallerinaTypeDescriptor typeDescriptor;
         switch (symbol.kind()) {
             case TYPE:
                 typeDescriptor = ((TypeSymbol) symbol).typeDescriptor();
@@ -78,10 +78,10 @@ public class SymbolUtil {
                 typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
                 break;
             default:
-                typeDescriptor = Optional.empty();
+                return false;
         }
 
-        return typeDescriptor.isPresent() && typeDescriptor.get().kind() == TypeDescKind.RECORD;
+        return typeDescriptor.kind() == TypeDescKind.RECORD;
     }
 
     /**
@@ -97,15 +97,15 @@ public class SymbolUtil {
         }
         switch (symbol.kind()) {
             case TYPE:
-                return ((TypeSymbol) symbol).typeDescriptor();
+                return Optional.ofNullable(((TypeSymbol) symbol).typeDescriptor());
             case VARIABLE:
-                return ((VariableSymbol) symbol).typeDescriptor();
+                return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor());
             case ANNOTATION:
                 return ((AnnotationSymbol) symbol).typeDescriptor();
             case FUNCTION:
-                return ((FunctionSymbol) symbol).typeDescriptor();
-            case CONST:
-                return ((ConstantSymbol) symbol).typeDescriptor();
+                return Optional.ofNullable(((FunctionSymbol) symbol).typeDescriptor());
+            case CONSTANT:
+                return Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
             default:
                 return Optional.empty();
         }
@@ -148,10 +148,10 @@ public class SymbolUtil {
      * @return {@link Boolean} status of the evaluation
      */
     public static boolean isListener(TypeSymbol symbol) {
-        if (symbol.typeDescriptor().isEmpty() || symbol.typeDescriptor().get().kind() != TypeDescKind.OBJECT) {
+        if (symbol.typeDescriptor().kind() != TypeDescKind.OBJECT) {
             return false;
         }
-        List<String> attachedMethods = ((ObjectTypeDescriptor) symbol.typeDescriptor().get()).methods().stream()
+        List<String> attachedMethods = ((ObjectTypeDescriptor) symbol.typeDescriptor()).methods().stream()
                 .map(Symbol::name)
                 .collect(Collectors.toList());
         return attachedMethods.contains("__start") && attachedMethods.contains("__immediateStop")
@@ -179,12 +179,12 @@ public class SymbolUtil {
      * @return {@link Boolean}  whether listener or not
      */
     public static boolean isListener(VariableSymbol symbol) {
-        Optional<BallerinaTypeDescriptor> typeDesc = symbol.typeDescriptor();
-        if (typeDesc.isEmpty() || typeDesc.get().kind() != TypeDescKind.OBJECT) {
+        BallerinaTypeDescriptor typeDesc = symbol.typeDescriptor();
+        if (typeDesc.kind() != TypeDescKind.OBJECT) {
             return false;
         }
 
-        return ((ObjectTypeDescriptor) typeDesc.get()).typeQualifiers()
+        return ((ObjectTypeDescriptor) typeDesc).typeQualifiers()
                 .contains(ObjectTypeDescriptor.TypeQualifier.LISTENER);
     }
 
@@ -198,9 +198,9 @@ public class SymbolUtil {
         if (symbol.kind() != SymbolKind.VARIABLE) {
             return false;
         }
-        Optional<BallerinaTypeDescriptor> typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
+        BallerinaTypeDescriptor typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
 
-        return typeDescriptor.isPresent() && typeDescriptor.get().kind() == TypeDescKind.ERROR;
+        return typeDescriptor.kind() == TypeDescKind.ERROR;
     }
 
     /**
@@ -213,8 +213,8 @@ public class SymbolUtil {
         if (symbol.kind() != SymbolKind.VARIABLE) {
             return Optional.empty();
         }
-        Optional<BallerinaTypeDescriptor> typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
 
-        return typeDescriptor.map(BallerinaTypeDescriptor::kind);
+        return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor().kind());
+
     }
 }

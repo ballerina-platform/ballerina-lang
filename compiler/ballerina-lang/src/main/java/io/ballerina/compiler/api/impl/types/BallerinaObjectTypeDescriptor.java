@@ -18,13 +18,11 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.SymbolFactory;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.impl.symbols.SymbolFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;

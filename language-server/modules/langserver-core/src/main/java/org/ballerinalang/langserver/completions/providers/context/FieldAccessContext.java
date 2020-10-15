@@ -177,7 +177,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             return Optional.empty();
         }
 
-        return symbolRef.get().typeDescriptor().get().returnTypeDescriptor();
+        return symbolRef.get().typeDescriptor().returnTypeDescriptor();
     }
 
     private Optional<? extends BallerinaTypeDescriptor> getTypeDescForMethodCall(LSContext context,
@@ -202,7 +202,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             return Optional.empty();
         }
 
-        return filteredMethod.get().typeDescriptor();
+        return Optional.of(filteredMethod.get().typeDescriptor());
     }
 
     private List<LSCompletionItem> getCompletionsForTypeDesc(LSContext context, BallerinaTypeDescriptor typeDescriptor) {

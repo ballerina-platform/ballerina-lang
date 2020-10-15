@@ -97,19 +97,17 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
             }
             String identifier = ((QualifiedNameReferenceNode) typeDescriptorNode).identifier().text();
             objectType = module.get().typeDefinitions().stream()
-                    .filter(typeSymbol -> typeSymbol.typeDescriptor().isPresent()
-                            && typeSymbol.typeDescriptor().get().kind() == TypeDescKind.OBJECT
+                    .filter(typeSymbol -> typeSymbol.typeDescriptor().kind() == TypeDescKind.OBJECT
                             && typeSymbol.name().equals(identifier))
-                    .map(typeSymbol -> (ObjectTypeDescriptor) typeSymbol.typeDescriptor().get())
+                    .map(typeSymbol -> (ObjectTypeDescriptor) typeSymbol.typeDescriptor())
                     .findAny();
         } else if (typeDescriptorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String identifier = ((SimpleNameReferenceNode) typeDescriptorNode).name().text();
             objectType = visibleSymbols.stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.TYPE
-                            && ((TypeSymbol) symbol).typeDescriptor().isPresent()
-                            && ((TypeSymbol) symbol).typeDescriptor().get().kind() == TypeDescKind.OBJECT
+                            && ((TypeSymbol) symbol).typeDescriptor().kind() == TypeDescKind.OBJECT
                             && symbol.name().equals(identifier))
-                    .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor().get())
+                    .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor())
                     .findAny();
         } else {
             objectType = Optional.empty();

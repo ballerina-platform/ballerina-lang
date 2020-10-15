@@ -35,7 +35,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -66,9 +65,8 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
             if (symbol.kind() != SymbolKind.TYPE) {
                 return false;
             }
-            Optional<BallerinaTypeDescriptor> typeDesc = ((TypeSymbol) symbol).typeDescriptor();
-            return typeDesc.isPresent()
-                    && (typeDesc.get().kind() == TypeDescKind.MAP || typeDesc.get().kind() == TypeDescKind.RECORD);
+            BallerinaTypeDescriptor typeDesc = ((TypeSymbol) symbol).typeDescriptor();
+            return (typeDesc.kind() == TypeDescKind.MAP || typeDesc.kind() == TypeDescKind.RECORD);
         };
         List<Symbol> mappingTypes;
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
