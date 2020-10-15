@@ -3649,86 +3649,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         return node;
     }
 
-    private <T extends Node> void checkForNewline(T node) {
-        this.hasNewline = false;
-        for (Minutiae minutiae : node.trailingMinutiae()) {
-            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
-                this.hasNewline = true;
-                break;
-            }
-        }
-
-        // Set the line length for the next line.
-        if (this.hasNewline) {
-            this.lineLength = 0;
-        } else {
-            this.lineLength = node.location().lineRange().endLine().offset();
-        }
-    }
-
-    /**
-     * Check whether the current line should be wrapped.
-     *
-     * @param node Node that is being formatted
-     * @return Flag indicating whether to wrap the current line or not
-     */
-    private boolean shouldWrapLine(Node node) {
-        if (!this.wrapLine) {
-            return false;
-        }
-
-        // Currently wrapping a line is supported at following levels:
-        SyntaxKind kind = node.kind();
-        switch (kind) {
-            // Parameters
-            case DEFAULTABLE_PARAM:
-            case REQUIRED_PARAM:
-            case REST_PARAM:
-
-                // Func-call arguments
-            case POSITIONAL_ARG:
-            case NAMED_ARG:
-            case REST_ARG:
-
-            case RETURN_TYPE_DESCRIPTOR:
-            case ANNOTATION_ATTACH_POINT:
-                return true;
-            default:
-                // Expressions
-                if (SyntaxKind.BINARY_EXPRESSION.compareTo(kind) <= 0 &&
-                        SyntaxKind.OBJECT_CONSTRUCTOR.compareTo(kind) >= 0) {
-                    return true;
-                }
-
-                // Everything else is not supported
-                return false;
-        }
-    }
-
-    /**
-     * Wrap the node. This is equivalent to adding a newline before the node and re-formatting the node. Wrapped content
-     * will start from the current level of indentation.
-     *
-     * @param <T> Node type
-     * @param node Node to be wrapped
-     * @return Wrapped node
-     */
-    @SuppressWarnings("unchecked")
-    private <T extends Node> T wrapLine(T node) {
-        this.leadingNL += 1;
-        this.lineLength = 0;
-        this.hasNewline = true;
-        this.wrapLine = false;
-        node = (T) node.apply(this);
-
-        // Sometimes wrapping the current node wouldn't be enough.
-        // Therefore set the flag so that the parent node will also
-        // get wrapped, if needed.
-        this.wrapLine = this.lineLength > COLUMN_LIMIT;
-
-        return node;
-    }
-
     /**
      * Format a token.
      *
@@ -3946,6 +3866,86 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         return (T) token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
+    }
+
+    private <T extends Node> void checkForNewline(T node) {
+        this.hasNewline = false;
+        for (Minutiae minutiae : node.trailingMinutiae()) {
+            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                this.hasNewline = true;
+                break;
+            }
+        }
+
+        // Set the line length for the next line.
+        if (this.hasNewline) {
+            this.lineLength = 0;
+        } else {
+            this.lineLength = node.location().lineRange().endLine().offset();
+        }
+    }
+
+    /**
+     * Check whether the current line should be wrapped.
+     *
+     * @param node Node that is being formatted
+     * @return Flag indicating whether to wrap the current line or not
+     */
+    private boolean shouldWrapLine(Node node) {
+        if (!this.wrapLine) {
+            return false;
+        }
+
+        // Currently wrapping a line is supported at following levels:
+        SyntaxKind kind = node.kind();
+        switch (kind) {
+            // Parameters
+            case DEFAULTABLE_PARAM:
+            case REQUIRED_PARAM:
+            case REST_PARAM:
+
+                // Func-call arguments
+            case POSITIONAL_ARG:
+            case NAMED_ARG:
+            case REST_ARG:
+
+            case RETURN_TYPE_DESCRIPTOR:
+            case ANNOTATION_ATTACH_POINT:
+                return true;
+            default:
+                // Expressions
+                if (SyntaxKind.BINARY_EXPRESSION.compareTo(kind) <= 0 &&
+                        SyntaxKind.OBJECT_CONSTRUCTOR.compareTo(kind) >= 0) {
+                    return true;
+                }
+
+                // Everything else is not supported
+                return false;
+        }
+    }
+
+    /**
+     * Wrap the node. This is equivalent to adding a newline before the node and re-formatting the node. Wrapped content
+     * will start from the current level of indentation.
+     *
+     * @param <T> Node type
+     * @param node Node to be wrapped
+     * @return Wrapped node
+     */
+    @SuppressWarnings("unchecked")
+    private <T extends Node> T wrapLine(T node) {
+        this.leadingNL += 1;
+        this.lineLength = 0;
+        this.hasNewline = true;
+        this.wrapLine = false;
+        node = (T) node.apply(this);
+
+        // Sometimes wrapping the current node wouldn't be enough.
+        // Therefore set the flag so that the parent node will also
+        // get wrapped, if needed.
+        this.wrapLine = this.lineLength > COLUMN_LIMIT;
+
+        return node;
     }
 
     /**
@@ -4207,13 +4207,12 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     /**
      * Check whether a mapping constructor expression needs to be expanded in to multiple lines.
      *
-     * @param mappingConstructorExpressionNode mapping constructor expression
+     * @param mappingConstructor mapping constructor expression
      * @return <code>true</code> If the mapping constructor expression needs to be expanded in to multiple lines.
      *         <code>false</code> otherwise
      */
-    private boolean shouldExpand(MappingConstructorExpressionNode mappingConstructorExpressionNode) {
-        int fieldCount = mappingConstructorExpressionNode.fields().size();
-
+    private boolean shouldExpand(MappingConstructorExpressionNode mappingConstructor) {
+        int fieldCount = mappingConstructor.fields().size();
         if (fieldCount <= 1) {
             return false;
         }
@@ -4222,7 +4221,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             return true;
         }
 
-        for (Node field : mappingConstructorExpressionNode.fields()) {
+        for (Node field : mappingConstructor.fields()) {
             TextRange textRange = field.textRange();
             if ((textRange.endOffset() - textRange.startOffset()) > 15) {
                 return true;
@@ -4243,9 +4242,12 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      *         <code>false</code> otherwise
      */
     private boolean shouldExpand(RecordTypeDescriptorNode recordTypeDesc) {
+        if (recordTypeDesc.parent().kind() == SyntaxKind.TYPE_DEFINITION) {
+            return true;
+        }
+
         int fieldCount = recordTypeDesc.fields().size();
         fieldCount += recordTypeDesc.recordRestDescriptor().isPresent() ? 1 : 0;
-
         if (fieldCount <= 1) {
             return false;
         }
@@ -4270,11 +4272,11 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     /**
      * Check whether a minutiae list contains any minutiae other than whitespaces.
      *
-     * @param minutaieList List of minutiae to check.
+     * @param minutiaeList List of minutiae to check.
      * @return <code>true</code> If the list contains any minutiae other than whitespaces. <code>false</code> otherwise
      */
-    private boolean hasNonWSMinutiae(MinutiaeList minutaieList) {
-        for (Minutiae minutiae : minutaieList) {
+    private boolean hasNonWSMinutiae(MinutiaeList minutiaeList) {
+        for (Minutiae minutiae : minutiaeList) {
             switch (minutiae.kind()) {
                 case WHITESPACE_MINUTIAE:
                     continue;
