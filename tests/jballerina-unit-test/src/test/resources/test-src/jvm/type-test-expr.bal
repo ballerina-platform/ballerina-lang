@@ -153,9 +153,21 @@ function testIsLikeForTupleWithRestDescriptor() {
     anydata k10 = k9.cloneReadOnly();
     assertEquals(k10 is [int, int, int...], true);
 
-    [int, int] k11 = [1, 2];
-    any k12 = k11.cloneReadOnly();
-    assertEquals(k12 is [byte, byte], true);
+    [int, int, int] k11 = [1, 2, 3];
+    anydata k12 = k11.cloneReadOnly();
+    assertEquals(k12 is [int, int, int, int, int...], false);
+}
+
+function testIsLikeForTupleWithOutRestDescriptor() {
+    [anydata, anydata] k1 = [1, 2];
+    anydata k2 = k1.cloneReadOnly();
+    assertEquals(k2 is [int, int], true);
+    assertEquals(k2 is [int, byte], true);
+    assertEquals(k2 is [int, string], false);
+
+    [anydata, anydata] k3 = [1, "str"];
+    anydata k4 = k3.cloneReadOnly();
+    assertEquals(k4 is [int, string], true);
 }
 
 function assertEquals(anydata expected, anydata actual) {

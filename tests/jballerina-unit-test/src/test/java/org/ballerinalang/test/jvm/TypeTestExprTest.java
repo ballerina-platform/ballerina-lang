@@ -131,4 +131,9 @@ public class TypeTestExprTest {
     public void testIsLikeForTupleWithRestDescriptor() {
         BRunUtil.invoke(compileResult, "testIsLikeForTupleWithRestDescriptor");
     }
+
+    @Test
+    public void testIsLikeForTupleWithOutRestDescriptor() {
+        BRunUtil.invoke(compileResult, "testIsLikeForTupleWithOutRestDescriptor");
+    }
 }

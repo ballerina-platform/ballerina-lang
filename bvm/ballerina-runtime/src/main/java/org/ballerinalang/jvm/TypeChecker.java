@@ -1982,15 +1982,15 @@ public class TypeChecker {
         }
 
         ArrayValue source = (ArrayValue) sourceValue;
-        List<BType> targetTypes = new ArrayList<>(targetType.getTupleTypes());
+        List<BType> targetTypes = targetType.getTupleTypes();
         int sourceTypeSize = source.size();
         int targetTypeSize = targetTypes.size();
         BType targetRestType = targetType.getRestType();
 
-        if (targetRestType == null && sourceTypeSize != targetTypeSize) {
+        if (sourceTypeSize < targetTypeSize) {
             return false;
         }
-        if (targetRestType != null && sourceTypeSize < targetTypeSize) {
+        if (targetRestType == null && sourceTypeSize > targetTypeSize) {
             return false;
         }
 
