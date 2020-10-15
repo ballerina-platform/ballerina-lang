@@ -3062,10 +3062,15 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public QueryActionNode transform(QueryActionNode queryActionNode) {
+        int prevIndentation = env.currentIndentation;
+        setIndentation(env.lineLength); // Set indentation for braces.
+
         QueryPipelineNode queryPipeline = formatNode(queryActionNode.queryPipeline(), 0, 1);
         Token doKeyword = formatToken(queryActionNode.doKeyword(), 1, 0);
         BlockStatementNode blockStatement = formatNode(queryActionNode.blockStatement(),
                 env.trailingWS, env.trailingNL);
+
+        setIndentation(prevIndentation);  // Revert indentation for braces
 
         return queryActionNode.modify()
                 .withQueryPipeline(queryPipeline)

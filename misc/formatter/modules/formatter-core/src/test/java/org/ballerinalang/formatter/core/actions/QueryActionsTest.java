@@ -38,7 +38,7 @@ public class QueryActionsTest extends FormatterTest {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList("query_action_2.bal", "query_action_3.bal");
+        return Arrays.asList("query_action_3.bal");
     }
 
     @DataProvider(name = "test-file-provider")
