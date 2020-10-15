@@ -1171,7 +1171,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             MappingConstructorExpressionNode mappingConstructorExpressionNode) {
         int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
-        if (shouldExpand(mappingConstructorExpressionNode)) {
+        if (shouldExpand(mappingConstructorExpressionNode.fields())) {
             fieldTrailingNL++;
         } else {
             fieldTrailingWS++;
@@ -2269,11 +2269,31 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         NodeList<Token> objectTypeQualifiers = formatNodeList(objectTypeDescriptorNode.objectTypeQualifiers(),
                 1, 0, 1, 0);
         Token objectKeyword = formatToken(objectTypeDescriptorNode.objectKeyword(), 1, 0);
-        Token openBrace = formatToken(objectTypeDescriptorNode.openBrace(), 0, 1);
+
+        int fieldTrailingWS = 0;
+        int fieldTrailingNL = 0;
+        if (shouldExpand(objectTypeDescriptorNode.members())) {
+            fieldTrailingNL++;
+        } else {
+            fieldTrailingWS++;
+        }
+        int prevIndentation = env.currentIndentation;
+
+        // Set indentation for braces.
+        // For records inside module-level typ-defs, braces should have the same indentation as the type-keyword.
+        // For records in other places, braces should have the same indentation as the record-keyword.
+        // TODO: check whether we can do this without looking at the parent.
+        if (objectTypeDescriptorNode.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
+            int fieldIndentation = env.lineLength - objectKeyword.text().length() - 1;
+            setIndentation(fieldIndentation);
+        }
+
+        Token openBrace = formatToken(objectTypeDescriptorNode.openBrace(), fieldTrailingWS, fieldTrailingNL);
         indent();
-        NodeList<Node> members = formatNodeList(objectTypeDescriptorNode.members(), 0, 1, 0, 1);
+        NodeList<Node> members = formatNodeList(objectTypeDescriptorNode.members(), fieldTrailingWS, fieldTrailingNL, fieldTrailingWS, fieldTrailingNL, true);
         unindent();
         Token closeBrace = formatToken(objectTypeDescriptorNode.closeBrace(), env.trailingWS, env.trailingNL);
+        setIndentation(prevIndentation);  // Revert indentation for braces
 
         return objectTypeDescriptorNode.modify()
                 .withObjectTypeQualifiers(objectTypeQualifiers)
@@ -2292,18 +2312,37 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 1, 0, 1, 0);
         Token objectKeyword = formatToken(objectConstructorExpressionNode.objectKeyword(), 1, 0);
 
+        int fieldTrailingWS = 0;
+        int fieldTrailingNL = 0;
+        if (shouldExpand(objectConstructorExpressionNode.members())) {
+            fieldTrailingNL++;
+        } else {
+            fieldTrailingWS++;
+        }
+        int prevIndentation = env.currentIndentation;
+
+        // Set indentation for braces.
+        // For records inside module-level typ-defs, braces should have the same indentation as the type-keyword.
+        // For records in other places, braces should have the same indentation as the record-keyword.
+        // TODO: check whether we can do this without looking at the parent.
+        if (objectConstructorExpressionNode.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
+            int fieldIndentation = env.lineLength - objectKeyword.text().length() - 1;
+            setIndentation(fieldIndentation);
+        }
+
         if (objectConstructorExpressionNode.typeReference().isPresent()) {
-            TypeDescriptorNode typeReference = formatNode(objectConstructorExpressionNode.typeReference().get(), 1, 0);
+            TypeDescriptorNode typeReference = formatNode(objectConstructorExpressionNode.typeReference().get(), fieldTrailingWS, fieldTrailingNL);
             objectConstructorExpressionNode = objectConstructorExpressionNode.modify()
                     .withTypeReference(typeReference).apply();
         }
 
-        Token openBraceToken = formatToken(objectConstructorExpressionNode.openBraceToken(), 0, 1);
+        Token openBraceToken = formatToken(objectConstructorExpressionNode.openBraceToken(), fieldTrailingWS, fieldTrailingNL);
         indent();
-        NodeList<Node> members = formatNodeList(objectConstructorExpressionNode.members(), 0, 1, 0, 1);
+        NodeList<Node> members = formatNodeList(objectConstructorExpressionNode.members(), fieldTrailingWS, fieldTrailingNL, fieldTrailingWS, fieldTrailingNL, true);
         unindent();
         Token closeBraceToken = formatToken(objectConstructorExpressionNode.closeBraceToken(),
                 env.trailingWS, env.trailingNL);
+        setIndentation(prevIndentation);  // Revert indentation for braces
 
         return objectConstructorExpressionNode.modify()
                 .withAnnotations(annotations)
@@ -4191,14 +4230,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     /**
-     * Check whether a mapping constructor expression needs to be expanded in to multiple lines.
+     * Check whether a node list needs to be expanded into multiple lines.
      *
-     * @param mappingConstructor mapping constructor expression
-     * @return <code>true</code> If the mapping constructor expression needs to be expanded in to multiple lines.
+     * @param nodeList node list
+     * @return <code>true</code> If the node list needs to be expanded into multiple lines.
      *         <code>false</code> otherwise
      */
-    private boolean shouldExpand(MappingConstructorExpressionNode mappingConstructor) {
-        int fieldCount = mappingConstructor.fields().size();
+    private <T extends Node> boolean shouldExpand(NodeList<T> nodeList) {
+        int fieldCount = nodeList.size();
         if (fieldCount <= 1) {
             return false;
         }
@@ -4207,7 +4246,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             return true;
         }
 
-        for (Node field : mappingConstructor.fields()) {
+        for (Node field : nodeList) {
             TextRange textRange = field.textRange();
             if ((textRange.endOffset() - textRange.startOffset()) > 15) {
                 return true;
