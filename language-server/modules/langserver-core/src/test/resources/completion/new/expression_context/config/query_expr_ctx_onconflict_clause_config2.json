@@ -145,6 +145,28 @@
       ]
     },
     {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.future",
       "kind": "Module",
       "detail": "Module",
@@ -494,35 +516,35 @@
     {
       "label": "outputPersonList",
       "kind": "Variable",
-      "detail": "Person[]",
+      "detail": "{| string firstName; string lastName; int age |}[]",
       "insertText": "outputPersonList",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "onConflictError",
       "kind": "Variable",
-      "detail": "error",
+      "detail": "none",
       "insertText": "onConflictError",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "p1",
       "kind": "Variable",
-      "detail": "Person",
+      "detail": "{| string firstName; string lastName; int age |}",
       "insertText": "p1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "p2",
       "kind": "Variable",
-      "detail": "Person",
+      "detail": "{| string firstName; string lastName; int age |}",
       "insertText": "p2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "p3",
       "kind": "Variable",
-      "detail": "Person",
+      "detail": "{| string firstName; string lastName; int age |}",
       "insertText": "p3",
       "insertTextFormat": "Snippet"
     },
@@ -533,7 +555,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "testOnConflictClauseWithNonTableTypes();",
@@ -542,7 +564,7 @@
     {
       "label": "personList",
       "kind": "Variable",
-      "detail": "Person[]",
+      "detail": "{| string firstName; string lastName; int age |}[]",
       "insertText": "personList",
       "insertTextFormat": "Snippet"
     }

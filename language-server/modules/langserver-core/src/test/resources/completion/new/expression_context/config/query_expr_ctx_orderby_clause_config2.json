@@ -145,6 +145,28 @@
       ]
     },
     {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.future",
       "kind": "Module",
       "detail": "Module",
@@ -494,21 +516,21 @@
     {
       "label": "c1",
       "kind": "Variable",
-      "detail": "Customer",
+      "detail": "{| int id; string name; int noOfItems |}",
       "insertText": "c1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "c2",
       "kind": "Variable",
-      "detail": "Customer",
+      "detail": "{| int id; string name; int noOfItems |}",
       "insertText": "c2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "c3",
       "kind": "Variable",
-      "detail": "Customer",
+      "detail": "{| int id; string name; int noOfItems |}",
       "insertText": "c3",
       "insertTextFormat": "Snippet"
     },
@@ -522,35 +544,35 @@
     {
       "label": "onConflictError",
       "kind": "Variable",
-      "detail": "error",
+      "detail": "none",
       "insertText": "onConflictError",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "customerList",
       "kind": "Variable",
-      "detail": "Customer[]",
+      "detail": "{| int id; string name; int noOfItems |}[]",
       "insertText": "customerList",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "p1",
       "kind": "Variable",
-      "detail": "Person",
+      "detail": "{| string firstName; string lastName; int age |}",
       "insertText": "p1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "p2",
       "kind": "Variable",
-      "detail": "Person",
+      "detail": "{| string firstName; string lastName; int age |}",
       "insertText": "p2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "personList",
       "kind": "Variable",
-      "detail": "Person[]",
+      "detail": "{| string firstName; string lastName; int age |}[]",
       "insertText": "personList",
       "insertTextFormat": "Snippet"
     },
@@ -561,7 +583,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "testIterableOperation();",

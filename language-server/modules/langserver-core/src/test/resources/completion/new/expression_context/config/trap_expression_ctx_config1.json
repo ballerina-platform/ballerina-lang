@@ -187,6 +187,28 @@
       ]
     },
     {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.future",
       "kind": "Module",
       "detail": "Module",
@@ -534,13 +556,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testVar",
-      "kind": "Variable",
-      "detail": "(typedesc<int><int>|error)",
-      "insertText": "testVar",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "value2",
       "kind": "Variable",
       "detail": "int",
@@ -548,13 +563,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "functionWithReturn()(Record1)",
+      "label": "functionWithReturn()({ { int rec1Field1; string rec1Field2; int optionalInt; anydata... } testField; int testOptional; anydata... })",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \nThis is a test function\n  \n  \n  \n**Returns** `Record1`   \n- Return Value Description  \n  \n"
+          "value": "**Package:** _._  \n  \nThis is a test function\n  \n  \n  \n**Returns** `{ { int rec1Field1; string rec1Field2; int optionalInt; anydata... } testField; int testOptional; anydata... }`   \n- Return Value Description  \n  \n"
         }
       },
       "insertText": "functionWithReturn()",
@@ -567,7 +582,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
         }
       },
       "insertText": "testFunction();",

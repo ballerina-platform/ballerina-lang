@@ -1,52 +1,10 @@
 {
   "position": {
     "line": 4,
-    "character": 32
+    "character": 21
   },
-  "source": "expression_context/source/typecast_expr_ctx_source6.bal",
+  "source": "expression_context/source/typecast_expr_ctx_source4.bal",
   "items": [
-    {
-      "label": "start",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "start ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "wait",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "wait ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "flush",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "flush ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "from",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "from ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "check",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "check ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "checkpanic",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "checkpanic ",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "module1",
       "kind": "Module",
@@ -183,6 +141,28 @@
             }
           },
           "newText": "import ballerina/lang.'string;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
         }
       ]
     },
@@ -429,87 +409,202 @@
       ]
     },
     {
-      "label": "table",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "table",
+      "label": "ErrorName",
+      "kind": "Event",
+      "detail": "Error",
+      "insertText": "ErrorName",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "service",
+      "label": "float",
+      "kind": "Unit",
+      "detail": "Float",
+      "insertText": "float",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "string",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "string",
+      "label": "readonly",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "readonly",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "xml",
-      "kind": "Keyword",
-      "detail": "Keyword",
+      "kind": "Unit",
+      "detail": "Xml",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "new",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "new ",
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "Byte",
+      "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "isolated",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "isolated ",
+      "label": "handle",
+      "kind": "Unit",
+      "detail": "Handle",
+      "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "function ",
+      "label": "never",
+      "kind": "Unit",
+      "detail": "Never",
+      "insertText": "never",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "let",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "let",
+      "label": "null",
+      "kind": "Unit",
+      "detail": "Nil",
+      "insertText": "null",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "typeof",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "typeof ",
+      "label": "decimal",
+      "kind": "Unit",
+      "detail": "Decimal",
+      "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "trap",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "trap",
+      "label": "string",
+      "kind": "Unit",
+      "detail": "String",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream",
+      "kind": "Unit",
+      "detail": "Stream",
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Unit",
+      "detail": "Json",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "table",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "table",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "Unit",
+      "detail": "Anydata",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "Unit",
+      "detail": "Any",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "int",
+      "kind": "Unit",
+      "detail": "Int",
+      "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "boolean",
+      "kind": "Unit",
+      "detail": "Boolean",
+      "insertText": "boolean",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "future",
+      "kind": "Unit",
+      "detail": "Future",
+      "insertText": "future",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typedesc",
+      "kind": "Unit",
+      "detail": "Typedesc",
+      "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map",
+      "kind": "Unit",
+      "detail": "type ",
+      "insertText": "map",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
+      "kind": "Event",
+      "detail": "error",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "client",
+      "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
-      "insertText": "client ",
+      "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "record {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {||}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "record {|\n\t${1}\n|}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -520,65 +615,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error constructor",
+      "label": "object {}",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "error(\"${1}\")",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object constructor",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "object {\n\t\n};",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorName",
-      "kind": "Event",
-      "detail": "Error",
-      "insertText": "ErrorName",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value2",
-      "kind": "Variable",
-      "detail": "string",
-      "insertText": "value2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "insertText": "value1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value3",
-      "kind": "Variable",
-      "detail": "int",
-      "insertText": "value3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getTDesc()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "insertText": "getTDesc()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "is",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "is",
+      "insertText": "object {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     }
   ]
