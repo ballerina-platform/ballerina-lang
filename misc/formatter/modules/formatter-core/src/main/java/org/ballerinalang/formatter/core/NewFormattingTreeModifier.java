@@ -3601,16 +3601,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         env.trailingNL = trailingNL;
         env.trailingWS = trailingWS;
 
-        node = (T) node.apply(this);
-        if (env.lineLength > options.getColumnLimit()) {
-            // If at-least one child node exceeds the column-limit,
-            // then the parent should be wrapped. Therefore we only
-            // set the flag, but do not un-set it.
-            env.wrapLine = true;
-        }
+        // Cache the current node and parent before format.
+        // Because reference to the nodes will change after modifying.
+        T oldNode = node;
+        Node parent = node.parent();
 
-        if (shouldWrapLine(node)) {
-            node = wrapLine(node);
+        node = (T) node.apply(this);
+        if (shouldWrapLine(oldNode, parent)) {
+            node = wrapLine(oldNode, parent);
         }
 
         env.trailingNL = prevTrailingNL;
@@ -3797,11 +3795,11 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 break;
             }
 
-            Token oldSeperator = nodeList.getSeparator(index);
-            Token newSeperator = formatToken(oldSeperator, separatorTrailingWS, separatorTrailingNL);
-            newNodes[(2 * index) + 1] = newSeperator;
+            Token oldSeparator = nodeList.getSeparator(index);
+            Token newSeparator = formatToken(oldSeparator, separatorTrailingWS, separatorTrailingNL);
+            newNodes[(2 * index) + 1] = newSeparator;
 
-            if (oldSeperator != newSeperator) {
+            if (oldSeparator != newSeparator) {
                 nodeModified = true;
             }
 
@@ -3858,10 +3856,13 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      * Check whether the current line should be wrapped.
      *
      * @param node Node that is being formatted
+     * @param parent
      * @return Flag indicating whether to wrap the current line or not
      */
-    private boolean shouldWrapLine(Node node) {
-        if (!env.wrapLine) {
+    private boolean shouldWrapLine(Node node, Node parent) {
+        boolean exceedsColumnLimit = env.lineLength > options.getColumnLimit();
+        boolean descendantNeedWrapping = env.nodeToWrap == node;
+        if (!exceedsColumnLimit && !descendantNeedWrapping) {
             return false;
         }
 
@@ -3887,7 +3888,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             case XML_TEMPLATE_EXPRESSION:
             case STRING_TEMPLATE_EXPRESSION:
             case TEMPLATE_STRING:
-                return false;
+                break;
             default:
                 // Expressions
                 if (SyntaxKind.BINARY_EXPRESSION.compareTo(kind) <= 0 &&
@@ -3896,8 +3897,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 }
 
                 // Everything else is not supported
-                return false;
+                break;
         }
+
+        // We reach here, if the current node exceeds the limit, but it is
+        // not a wrapping-point. Then we ask the parent to wrap itself.
+        env.nodeToWrap = parent;
+
+        return false;
     }
 
     /**
@@ -3906,20 +3913,23 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      *
      * @param <T> Node type
      * @param node Node to be wrapped
+     * @param parent
      * @return Wrapped node
      */
     @SuppressWarnings("unchecked")
-    private <T extends Node> T wrapLine(T node) {
+    private <T extends Node> T wrapLine(T node, Node parent) {
         env.leadingNL += 1;
         env.lineLength = 0;
         env.hasNewline = true;
-        env.wrapLine = false;
         node = (T) node.apply(this);
 
-        // Sometimes wrapping the current node wouldn't be enough.
-        // Therefore set the flag so that the parent node will also
-        // get wrapped, if needed.
-        env.wrapLine = env.lineLength > options.getColumnLimit();
+        // Sometimes wrapping the current node wouldn't be enough. Therefore, if the column
+        // length exceeds even after wrapping current node, then ask the parent node to warp.
+        if (env.lineLength > options.getColumnLimit()) {
+            env.nodeToWrap = parent;
+        } else {
+            env.nodeToWrap = null;
+        }
 
         return node;
     }
@@ -4116,7 +4126,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     /**
      * Check whether a trailing newline needs to be added.
      *
-     * @param prevMinutiae Mintiae that precedes the current token
+     * @param prevMinutiae Minutiae that precedes the current token
      * @return <code>true</code> if a trailing newline needs to be added. <code>false</code> otherwise
      */
     private boolean shouldAddTrailingNewline(Minutiae prevMinutiae) {

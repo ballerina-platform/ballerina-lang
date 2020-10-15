@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerina.compiler.syntax.tree.Node;
+
 /**
  * Environment that holds a set of properties related to the currently formatting node.
  *
@@ -60,7 +62,7 @@ public class FormattingEnv {
     boolean preserveNewlines = false;
 
     /**
-     * Flag indicating whether to line-wrap the currently processing node.
+     * Reference to the next node that needs to be wrapped.
      */
-    boolean wrapLine = false;
+    Node nodeToWrap = null;
 }
