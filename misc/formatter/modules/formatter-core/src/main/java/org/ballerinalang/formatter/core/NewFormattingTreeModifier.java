@@ -2756,7 +2756,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public LetClauseNode transform(LetClauseNode letClauseNode) {
         Token letKeyword = formatToken(letClauseNode.letKeyword(), 1, 0);
         SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
-                formatSeparatedNodeList(letClauseNode.letVarDeclarations(), 1, 0, env.trailingWS, env.trailingNL);
+                formatSeparatedNodeList(letClauseNode.letVarDeclarations(), 0, 0, env.trailingWS, env.trailingNL);
 
         return letClauseNode.modify()
                 .withLetKeyword(letKeyword)
@@ -2766,11 +2766,9 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public QueryPipelineNode transform(QueryPipelineNode queryPipelineNode) {
-        indent();
         FromClauseNode fromClause = formatNode(queryPipelineNode.fromClause(), 0, 1);
         NodeList<IntermediateClauseNode> intermediateClauses = formatNodeList(queryPipelineNode.intermediateClauses(),
                 0, 1, env.trailingWS, env.trailingNL);
-        unindent();
 
         return queryPipelineNode.modify()
                 .withFromClause(fromClause)
@@ -2796,9 +2794,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     1, 0);
             queryExpressionNode = queryExpressionNode.modify().withQueryConstructType(queryConstructType).apply();
         }
+        int prevIndentation = env.currentIndentation;
+        setIndentation(env.lineLength); // Set indentation for braces.
 
         QueryPipelineNode queryPipeline = formatNode(queryExpressionNode.queryPipeline(), 0, 1);
-        indent();
         SelectClauseNode selectClause;
 
         if (queryExpressionNode.onConflictClause().isPresent()) {
@@ -2809,7 +2808,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         } else {
             selectClause = formatNode(queryExpressionNode.selectClause(), env.trailingWS, env.trailingNL);
         }
-        unindent();
+        setIndentation(prevIndentation);  // Revert indentation for braces
 
         return queryExpressionNode.modify()
                 .withQueryPipeline(queryPipeline)
@@ -3064,11 +3063,9 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public QueryActionNode transform(QueryActionNode queryActionNode) {
         QueryPipelineNode queryPipeline = formatNode(queryActionNode.queryPipeline(), 0, 1);
-        indent();
         Token doKeyword = formatToken(queryActionNode.doKeyword(), 1, 0);
         BlockStatementNode blockStatement = formatNode(queryActionNode.blockStatement(),
                 env.trailingWS, env.trailingNL);
-        unindent();
 
         return queryActionNode.modify()
                 .withQueryPipeline(queryPipeline)

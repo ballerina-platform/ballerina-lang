@@ -1,13 +1,5 @@
 import ballerina/io;
 
-type Student record {
-    readonly id;
-    string firstName;
-    string lastName;
-    int intakeYear;
-    float gpa;
-};
-
 type Report record {
     readonly id;
     string name;
@@ -21,12 +13,6 @@ type ReportTable table<Report> key(id);
 public function main() {
     Student s1 = { id: 1, firstName: "Michelle", lastName: "Sadler",
                    intakeYear: 1990, gpa: 3.5 };
-    Student s2 = { id: 2, firstName: "Ranjan", lastName: "Fonseka",
-                   intakeYear: 2001, gpa: 1.9 };
-    Student s3 = { id: 3, firstName: "Martin", lastName: "Guthrie",
-                   intakeYear: 2002, gpa: 3.7 };
-    Student s4 = { id: 4, firstName: "George", lastName: "Fernando",
-                   intakeYear: 2005, gpa: 4.0 };
 
     Student[] studentList = [s1, s2, s3, s4];
 

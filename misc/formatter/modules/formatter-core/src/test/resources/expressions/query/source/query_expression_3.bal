@@ -10,12 +10,6 @@ type Student record {
 public function main() {
     Student s1 = { firstName: "Michelle", lastName: "Sadler", intakeYear: 1990,
                    gpa: 3.5 };
-    Student s2 = { firstName: "Ranjan", lastName: "Fonseka", intakeYear: 2001,
-                   gpa: 1.9 };
-    Student s3 = { firstName: "Martin", lastName: "Guthrie", intakeYear: 2002,
-                   gpa: 3.7 };
-    Student s4 = { firstName: "George", lastName: "Fernando", intakeYear: 2005,
-                   gpa: 4.0 };
 
     Student[] studentList = [s1, s2, s3, s4];
 
