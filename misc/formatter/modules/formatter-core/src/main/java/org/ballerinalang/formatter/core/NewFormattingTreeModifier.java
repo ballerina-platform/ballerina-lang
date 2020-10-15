@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
+ * WSO2 Inc. licenses env file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use env file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -250,58 +250,22 @@ import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
  */
 public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
-    /**
-     * Number of of whitespace characters to be used as the indentation for the current line.
-     */
-    private int indentation = 0;
+    // Formatting configurations of the current session. These configurations
+    // are fixed for the given session.
+    private final FormattingOptions options;
 
-    /**
-     * Number of leading newlines to be added to the currently processing node.
-     */
-    private int leadingNL = 0;
+    // A property bag that holds formatting information associated
+    // with the currently processing node.
+    private final FormattingEnv env;
 
-    /**
-     * Number of trailing newlines to be added to the currently processing node.
-     */
-    private int trailingNL = 0;
-
-    /**
-     * Number of trailing whitespace characters to be added to the currently processing node.
-     */
-    private int trailingWS = 0;
-
-    /**
-     * Flag indicating whether the currently formatting token is the first token of the current line.
-     */
-    private boolean hasNewline = true;
-
-    /**
-     * Number of of whitespace characters to be used for a single indentation.
-     */
-    private static final int DEFAULT_INDENTATION = 4;
-
-    /**
-     * Maximum length of a line. Any line that goes pass this limit will be wrapped.
-     */
-    private static final int COLUMN_LIMIT = 80;
-
-    /**
-     * Length of the currently formatting line.
-     */
-    private int lineLength = 0;
-
-    /**
-     * Flag indicating whether to preserve the user added newlines. Preserves up to two newlines per each line-of-code.
-     */
-    private boolean preserveNewlines = false;
-
-    /**
-     * Flag indicating whether to line-wrap the currently processing node.
-     */
-    private boolean wrapLine = false;
+    // Range of the file to be formatted.
+    private final LineRange lineRange;
 
     public NewFormattingTreeModifier(FormattingOptions options, LineRange lineRange) {
         super(options, lineRange);
+        this.options = options;
+        this.lineRange = lineRange;
+        this.env = new FormattingEnv();
     }
 
     @Override
@@ -324,7 +288,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         IdentifierToken functionName = formatToken(functionDefinitionNode.functionName(), 0, 0);
         FunctionSignatureNode functionSignatureNode = formatNode(functionDefinitionNode.functionSignature(), 1, 0);
         FunctionBodyNode functionBodyNode = formatNode(functionDefinitionNode.functionBody(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return functionDefinitionNode.modify()
                 .withFunctionKeyword(functionKeyword)
@@ -340,8 +304,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         // Start a new indentation for the parameters. So any wrapped parameter will
         // start from the same level as the open parenthesis.
-        int currentIndentation = this.indentation;
-        setIndentation(this.lineLength);
+        int currentIndentation = env.currentIndentation;
+        setIndentation(env.lineLength);
         SeparatedNodeList<ParameterNode> parameters =
                 formatSeparatedNodeList(functionSignatureNode.parameters(), 0, 0, 0, 0);
         setIndentation(currentIndentation);
@@ -350,10 +314,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (functionSignatureNode.returnTypeDesc().isPresent()) {
             closePara = formatToken(functionSignatureNode.closeParenToken(), 1, 0);
             ReturnTypeDescriptorNode returnTypeDesc =
-                    formatNode(functionSignatureNode.returnTypeDesc().get(), this.trailingWS, this.trailingNL);
+                    formatNode(functionSignatureNode.returnTypeDesc().get(), env.trailingWS, env.trailingNL);
             functionSignatureNode = functionSignatureNode.modify().withReturnTypeDesc(returnTypeDesc).apply();
         } else {
-            closePara = formatToken(functionSignatureNode.closeParenToken(), this.trailingWS, this.trailingNL);
+            closePara = formatToken(functionSignatureNode.closeParenToken(), env.trailingWS, env.trailingNL);
         }
 
         return functionSignatureNode.modify()
@@ -369,14 +333,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Node typeName;
         if (requiredParameterNode.paramName().isPresent()) {
             typeName = formatNode(requiredParameterNode.typeName(), 1, 0);
-            Token paramName = formatToken(requiredParameterNode.paramName().get(), this.trailingWS, this.trailingNL);
+            Token paramName = formatToken(requiredParameterNode.paramName().get(), env.trailingWS, env.trailingNL);
             return requiredParameterNode.modify()
                     .withAnnotations(annotations)
                     .withTypeName(typeName)
                     .withParamName(paramName)
                     .apply();
         } else {
-            typeName = formatNode(requiredParameterNode.typeName(), this.trailingWS, this.trailingNL);
+            typeName = formatNode(requiredParameterNode.typeName(), env.trailingWS, env.trailingNL);
             return requiredParameterNode.modify()
                     .withAnnotations(annotations)
                     .withTypeName(typeName)
@@ -398,7 +362,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         unindent(); // reset the indentation
-        Token closeBrace = formatToken(functionBodyBlockNode.closeBraceToken(), this.trailingWS, this.trailingNL);
+        Token closeBrace = formatToken(functionBodyBlockNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return functionBodyBlockNode.modify()
                 .withOpenBraceToken(openBrace)
@@ -421,7 +385,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             Token equalToken = formatToken(variableDeclarationNode.equalsToken().get(), 1, 0);
             ExpressionNode initializer = formatNode(variableDeclarationNode.initializer().get(), 0, 0);
             Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             return variableDeclarationNode.modify()
                     .withAnnotations(annotationNodes)
                     .withTypedBindingPattern(typedBindingPatternNode)
@@ -432,7 +396,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         } else {
             typedBindingPatternNode = formatNode(variableDeclarationNode.typedBindingPattern(), 0, 0);
             Token semicolonToken = formatToken(variableDeclarationNode.semicolonToken(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             return variableDeclarationNode.modify()
                     .withAnnotations(annotationNodes)
                     .withTypedBindingPattern(typedBindingPatternNode)
@@ -445,7 +409,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public TypedBindingPatternNode transform(TypedBindingPatternNode typedBindingPatternNode) {
         TypeDescriptorNode typeDescriptorNode = formatNode(typedBindingPatternNode.typeDescriptor(), 1, 0);
         BindingPatternNode bindingPatternNode =
-                formatNode(typedBindingPatternNode.bindingPattern(), this.trailingWS, this.trailingNL);
+                formatNode(typedBindingPatternNode.bindingPattern(), env.trailingWS, env.trailingNL);
         return typedBindingPatternNode.modify()
                 .withTypeDescriptor(typeDescriptorNode)
                 .withBindingPattern(bindingPatternNode)
@@ -454,19 +418,19 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public BuiltinSimpleNameReferenceNode transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
-        Token name = formatToken(builtinSimpleNameReferenceNode.name(), this.trailingWS, this.trailingNL);
+        Token name = formatToken(builtinSimpleNameReferenceNode.name(), env.trailingWS, env.trailingNL);
         return builtinSimpleNameReferenceNode.modify().withName(name).apply();
     }
 
     @Override
     public BasicLiteralNode transform(BasicLiteralNode basicLiteralNode) {
-        Token literalToken = formatToken(basicLiteralNode.literalToken(), this.trailingWS, this.trailingNL);
+        Token literalToken = formatToken(basicLiteralNode.literalToken(), env.trailingWS, env.trailingNL);
         return basicLiteralNode.modify().withLiteralToken(literalToken).apply();
     }
 
     @Override
     public CaptureBindingPatternNode transform(CaptureBindingPatternNode captureBindingPatternNode) {
-        Token variableName = formatToken(captureBindingPatternNode.variableName(), this.trailingWS, this.trailingNL);
+        Token variableName = formatToken(captureBindingPatternNode.variableName(), env.trailingWS, env.trailingNL);
         return captureBindingPatternNode.modify().withVariableName(variableName).apply();
     }
 
@@ -477,10 +441,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         BlockStatementNode ifBody;
         if (ifElseStatementNode.elseBody().isPresent()) {
             ifBody = formatNode(ifElseStatementNode.ifBody(), 1, 0);
-            Node elseBody = formatNode(ifElseStatementNode.elseBody().get(), this.trailingWS, this.trailingNL);
+            Node elseBody = formatNode(ifElseStatementNode.elseBody().get(), env.trailingWS, env.trailingNL);
             ifElseStatementNode = ifElseStatementNode.modify().withElseBody(elseBody).apply();
         } else {
-            ifBody = formatNode(ifElseStatementNode.ifBody(), this.trailingWS, this.trailingNL);
+            ifBody = formatNode(ifElseStatementNode.ifBody(), env.trailingWS, env.trailingNL);
         }
 
         return ifElseStatementNode.modify()
@@ -493,7 +457,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public ElseBlockNode transform(ElseBlockNode elseBlockNode) {
         Token elseKeyword = formatToken(elseBlockNode.elseKeyword(), 1, 0);
-        StatementNode elseBody = formatNode(elseBlockNode.elseBody(), this.trailingWS, this.trailingNL);
+        StatementNode elseBody = formatNode(elseBlockNode.elseBody(), env.trailingWS, env.trailingNL);
         return elseBlockNode.modify()
                 .withElseKeyword(elseKeyword)
                 .withElseBody(elseBody)
@@ -506,7 +470,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         indent(); // start an indentation
         NodeList<StatementNode> statements = formatNodeList(blockStatementNode.statements(), 0, 1, 0, 1, true);
         unindent(); // end the indentation
-        Token closeBrace = formatToken(blockStatementNode.closeBraceToken(), this.trailingWS, this.trailingNL);
+        Token closeBrace = formatToken(blockStatementNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return blockStatementNode.modify()
                 .withOpenBraceToken(openBrace)
@@ -527,14 +491,13 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             fieldTrailingWS++;
         }
 
-        int prevIndentation = this.indentation;
+        int prevIndentation = env.currentIndentation;
 
         // Set indentation for braces.
         // For records inside module-level typ-defs, braces should have the same indentation as the type-keyword.
         // For records in other places, braces should have the same indentation as the record-keyword.
-        // TODO: check whether we can do this without looking at the parent.
         if (recordTypeDesc.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
-            int fieldIndentation = this.lineLength - recordKeyword.text().length() - recordKeywordTrailingWS;
+            int fieldIndentation = env.lineLength - recordKeyword.text().length() - recordKeywordTrailingWS;
             setIndentation(fieldIndentation);
         }
 
@@ -550,7 +513,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         unindent(); // Revert indentation for record fields
-        Token bodyEndDelimiter = formatToken(recordTypeDesc.bodyEndDelimiter(), this.trailingWS, this.trailingNL);
+        Token bodyEndDelimiter = formatToken(recordTypeDesc.bodyEndDelimiter(), env.trailingWS, env.trailingNL);
         setIndentation(prevIndentation);  // Revert indentation for braces
         return recordTypeDesc.modify()
                 .withRecordKeyword(recordKeyword)
@@ -580,7 +543,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             recordField = recordField.modify().withQuestionMarkToken(questionMarkToken).apply();
         }
 
-        Token semicolonToken = formatToken(recordField.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(recordField.semicolonToken(), env.trailingWS, env.trailingNL);
         return recordField.modify()
                 .withTypeName(typeName)
                 .withFieldName(fieldName)
@@ -604,7 +567,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token fieldName = formatToken(recordField.fieldName(), 1, 0);
         Token equalsToken = formatToken(recordField.equalsToken(), 1, 0);
         ExpressionNode expression = formatNode(recordField.expression(), 0, 0);
-        Token semicolonToken = formatToken(recordField.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(recordField.semicolonToken(), env.trailingWS, env.trailingNL);
 
         return recordField.modify()
                 .withTypeName(typeName)
@@ -638,7 +601,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             ImportPrefixNode prefix = formatNode(importDeclarationNode.prefix().get(), 0, 0);
             importDeclarationNode = importDeclarationNode.modify().withPrefix(prefix).apply();
         }
-        Token semicolon = formatToken(importDeclarationNode.semicolon(), this.trailingWS, this.trailingNL);
+        Token semicolon = formatToken(importDeclarationNode.semicolon(), env.trailingWS, env.trailingNL);
 
         return importDeclarationNode.modify()
                 .withImportKeyword(importKeyword)
@@ -650,7 +613,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public ImportOrgNameNode transform(ImportOrgNameNode importOrgNameNode) {
         Token orgName = formatToken(importOrgNameNode.orgName(), 0, 0);
-        Token slashToken = formatToken(importOrgNameNode.slashToken(), this.trailingWS, this.trailingNL);
+        Token slashToken = formatToken(importOrgNameNode.slashToken(), env.trailingWS, env.trailingNL);
 
         return importOrgNameNode.modify()
                 .withOrgName(orgName)
@@ -661,7 +624,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public ImportPrefixNode transform(ImportPrefixNode importPrefixNode) {
         Token asKeyword = formatToken(importPrefixNode.asKeyword(), 1, 0);
-        Token prefix = formatToken(importPrefixNode.prefix(), this.trailingWS, this.trailingNL);
+        Token prefix = formatToken(importPrefixNode.prefix(), env.trailingWS, env.trailingNL);
 
         return importPrefixNode.modify()
                 .withAsKeyword(asKeyword)
@@ -673,7 +636,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public ImportVersionNode transform(ImportVersionNode importVersionNode) {
         Token versionKeyword = formatToken(importVersionNode.versionKeyword(), 1, 0);
         SeparatedNodeList<Token> versionNumber = formatSeparatedNodeList(importVersionNode.versionNumber(),
-                0, 0, 0, 0, this.trailingWS, this.trailingNL);
+                0, 0, 0, 0, env.trailingWS, env.trailingNL);
 
         return importVersionNode.modify()
                 .withVersionKeyword(versionKeyword)
@@ -693,7 +656,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token onKeyword = formatToken(serviceDeclarationNode.onKeyword(), 1, 0);
         SeparatedNodeList<ExpressionNode> expressions =
                 formatSeparatedNodeList(serviceDeclarationNode.expressions(), 0, 0, 1, 0);
-        Node serviceBody = formatNode(serviceDeclarationNode.serviceBody(), this.trailingWS, this.trailingNL);
+        Node serviceBody = formatNode(serviceDeclarationNode.serviceBody(), env.trailingWS, env.trailingNL);
 
         return serviceDeclarationNode.modify()
                 .withServiceKeyword(serviceKeyword)
@@ -709,7 +672,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token newKeywordToken = formatToken(explicitNewExpressionNode.newKeyword(), 1, 0);
         TypeDescriptorNode typeDescriptorNode = formatNode(explicitNewExpressionNode.typeDescriptor(), 0, 0);
         ParenthesizedArgList parenthesizedArgList = formatNode(explicitNewExpressionNode.parenthesizedArgList(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return explicitNewExpressionNode.modify()
                 .withNewKeyword(newKeywordToken)
@@ -723,7 +686,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token openParenToken = formatToken(parenthesizedArgList.openParenToken(), 0, 0);
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(parenthesizedArgList
                 .arguments(), 0, 0, 0, 0);
-        Token closeParenToken = formatToken(parenthesizedArgList.closeParenToken(), this.trailingWS, this.trailingNL);
+        Token closeParenToken = formatToken(parenthesizedArgList.closeParenToken(), env.trailingWS, env.trailingNL);
 
         return parenthesizedArgList.modify()
                 .withOpenParenToken(openParenToken)
@@ -738,7 +701,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         indent(); // increase indentation for the statements to follow.
         NodeList<Node> resources = formatNodeList(serviceBodyNode.resources(), 0, 1, 0, 1, true);
         unindent(); // reset the indentation
-        Token closeBraceToken = formatToken(serviceBodyNode.closeBraceToken(), this.trailingWS, this.trailingNL);
+        Token closeBraceToken = formatToken(serviceBodyNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return serviceBodyNode.modify()
                 .withOpenBraceToken(openBraceToken)
@@ -752,7 +715,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token modulePrefix = formatToken(qualifiedNameReferenceNode.modulePrefix(), 0, 0);
         Token colon = formatToken((Token) qualifiedNameReferenceNode.colon(), 0, 0);
         IdentifierToken identifier = formatToken(qualifiedNameReferenceNode.identifier(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return qualifiedNameReferenceNode.modify()
                 .withModulePrefix(modulePrefix)
@@ -765,7 +728,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public ReturnTypeDescriptorNode transform(ReturnTypeDescriptorNode returnTypeDescriptorNode) {
         Token returnsKeyword = formatToken(returnTypeDescriptorNode.returnsKeyword(), 1, 0);
         NodeList<AnnotationNode> annotations = formatNodeList(returnTypeDescriptorNode.annotations(), 0, 0, 1, 0);
-        Node type = formatNode(returnTypeDescriptorNode.type(), this.trailingWS, this.trailingNL);
+        Node type = formatNode(returnTypeDescriptorNode.type(), env.trailingWS, env.trailingNL);
 
         return returnTypeDescriptorNode.modify()
                 .withReturnsKeyword(returnsKeyword)
@@ -778,7 +741,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public OptionalTypeDescriptorNode transform(OptionalTypeDescriptorNode optionalTypeDescriptorNode) {
         Node typeDescriptor = formatNode(optionalTypeDescriptorNode.typeDescriptor(), 0, 0);
         Token questionMarkToken = formatToken(optionalTypeDescriptorNode.questionMarkToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return optionalTypeDescriptorNode.modify()
                 .withTypeDescriptor(typeDescriptor)
@@ -789,7 +752,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public ExpressionStatementNode transform(ExpressionStatementNode expressionStatementNode) {
         ExpressionNode expression = formatNode(expressionStatementNode.expression(), 0, 0);
-        Token semicolonToken = formatToken(expressionStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(expressionStatementNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
         return expressionStatementNode.modify()
                 .withExpression(expression)
@@ -800,7 +763,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public CheckExpressionNode transform(CheckExpressionNode checkExpressionNode) {
         Token checkKeyword = formatToken(checkExpressionNode.checkKeyword(), 1, 0);
-        ExpressionNode expressionNode = formatNode(checkExpressionNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expressionNode = formatNode(checkExpressionNode.expression(), env.trailingWS, env.trailingNL);
 
         return checkExpressionNode.modify()
                 .withCheckKeyword(checkKeyword)
@@ -817,7 +780,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(remoteMethodCallActionNode
                 .arguments(), 1, 0, 0, 0);
         Token closeParenToken = formatToken(remoteMethodCallActionNode.closeParenToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return remoteMethodCallActionNode.modify()
                 .withExpression(expression)
@@ -831,7 +794,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public SimpleNameReferenceNode transform(SimpleNameReferenceNode simpleNameReferenceNode) {
-        Token name = formatToken(simpleNameReferenceNode.name(), this.trailingWS, this.trailingNL);
+        Token name = formatToken(simpleNameReferenceNode.name(), env.trailingWS, env.trailingNL);
 
         return simpleNameReferenceNode.modify()
                 .withName(name)
@@ -852,7 +815,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token typeKeyword = formatToken(typeDefinitionNode.typeKeyword(), 1, 0);
         Token typeName = formatToken(typeDefinitionNode.typeName(), 1, 0);
         Node typeDescriptor = formatNode(typeDefinitionNode.typeDescriptor(), 0, 0);
-        Token semicolonToken = formatToken(typeDefinitionNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(typeDefinitionNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
         return typeDefinitionNode.modify()
                 .withTypeKeyword(typeKeyword)
@@ -865,7 +828,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public SingletonTypeDescriptorNode transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
         ExpressionNode simpleContExprNode =
-                formatNode(singletonTypeDescriptorNode.simpleContExprNode(), this.trailingWS, this.trailingNL);
+                formatNode(singletonTypeDescriptorNode.simpleContExprNode(), env.trailingWS, env.trailingNL);
         return singletonTypeDescriptorNode.modify()
                 .withSimpleContExprNode(simpleContExprNode)
                 .apply();
@@ -881,10 +844,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (hasOnFailClause) {
             whileBody = formatNode(whileStatementNode.whileBody(), 1, 0);
             OnFailClauseNode onFailClause = formatNode(whileStatementNode.onFailClause().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             whileStatementNode = whileStatementNode.modify().withOnFailClause(onFailClause).apply();
         } else {
-            whileBody = formatNode(whileStatementNode.whileBody(), this.trailingWS, this.trailingNL);
+            whileBody = formatNode(whileStatementNode.whileBody(), env.trailingWS, env.trailingNL);
         }
 
         return whileStatementNode.modify()
@@ -898,7 +861,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public BracedExpressionNode transform(BracedExpressionNode bracedExpressionNode) {
         Token openParen = formatToken(bracedExpressionNode.openParen(), 0, 0);
         ExpressionNode expression = formatNode(bracedExpressionNode.expression(), 0, 0);
-        Token closeParen = formatToken(bracedExpressionNode.closeParen(), this.trailingWS, this.trailingNL);
+        Token closeParen = formatToken(bracedExpressionNode.closeParen(), env.trailingWS, env.trailingNL);
 
         return bracedExpressionNode.modify()
                 .withOpenParen(openParen)
@@ -912,7 +875,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Node varRef = formatNode(assignmentStatementNode.varRef(), 1, 0);
         Token equalsToken = formatToken(assignmentStatementNode.equalsToken(), 1, 0);
         ExpressionNode expression = formatNode(assignmentStatementNode.expression(), 0, 0);
-        Token semicolonToken = formatToken(assignmentStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(assignmentStatementNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
         return assignmentStatementNode.modify()
                 .withVarRef(varRef)
@@ -929,7 +892,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token equalsToken = formatToken(compoundAssignmentStatementNode.equalsToken(), 1, 0);
         ExpressionNode rhsExpression = formatNode(compoundAssignmentStatementNode.rhsExpression(), 0, 0);
         Token semicolonToken = formatToken(compoundAssignmentStatementNode.semicolonToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return compoundAssignmentStatementNode.modify()
                 .withLhsExpression(lhsExpression)
@@ -949,10 +912,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (hasOnFailClause) {
             blockStatement = formatNode(doStatementNode.blockStatement(), 1, 0);
             OnFailClauseNode onFailClause = formatNode(doStatementNode.onFailClause().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             doStatementNode = doStatementNode.modify().withOnFailClause(onFailClause).apply();
         } else {
-            blockStatement = formatNode(doStatementNode.blockStatement(), this.trailingWS, this.trailingNL);
+            blockStatement = formatNode(doStatementNode.blockStatement(), env.trailingWS, env.trailingNL);
         }
 
         return doStatementNode.modify()
@@ -973,10 +936,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (hasOnFailClause) {
             blockStatement = formatNode(forEachStatementNode.blockStatement(), 1, 0);
             OnFailClauseNode onFailClause = formatNode(forEachStatementNode.onFailClause().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             forEachStatementNode = forEachStatementNode.modify().withOnFailClause(onFailClause).apply();
         } else {
-            blockStatement = formatNode(forEachStatementNode.blockStatement(), this.trailingWS, this.trailingNL);
+            blockStatement = formatNode(forEachStatementNode.blockStatement(), env.trailingWS, env.trailingNL);
         }
 
         return forEachStatementNode.modify()
@@ -992,7 +955,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public BinaryExpressionNode transform(BinaryExpressionNode binaryExpressionNode) {
         Node lhsExpr = formatNode(binaryExpressionNode.lhsExpr(), 1, 0);
         Token operator = formatToken(binaryExpressionNode.operator(), 1, 0);
-        Node rhsExpr = formatNode(binaryExpressionNode.rhsExpr(), this.trailingWS, this.trailingNL);
+        Node rhsExpr = formatNode(binaryExpressionNode.rhsExpr(), env.trailingWS, env.trailingNL);
 
         return binaryExpressionNode.modify()
                 .withLhsExpr(lhsExpr)
@@ -1008,7 +971,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         TypeDescriptorNode typeDescriptor = formatNode(onFailClauseNode.typeDescriptor(), 1, 0);
         IdentifierToken failErrorName = formatToken(onFailClauseNode.failErrorName(), 1, 0);
         BlockStatementNode blockStatement = formatNode(onFailClauseNode.blockStatement(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return onFailClauseNode.modify()
                 .withOnKeyword(onKeyword)
@@ -1028,7 +991,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             ExpressionNode expressionNode = formatNode(returnStatementNode.expression().get(), 0, 0);
             returnStatementNode = returnStatementNode.modify().withExpression(expressionNode).apply();
         }
-        Token semicolonToken = formatToken(returnStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(returnStatementNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
         return returnStatementNode.modify()
                 .withReturnKeyword(returnKeyword)
@@ -1043,7 +1006,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(functionCallExpressionNode
                 .arguments(), 0, 0, 0, 0);
         Token functionCallClosePara = formatToken(functionCallExpressionNode.closeParenToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return functionCallExpressionNode.modify()
                 .withFunctionName(functionName)
@@ -1058,7 +1021,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         TypeDescriptorNode leftTypeDesc = formatNode(unionTypeDescriptorNode.leftTypeDesc(), 0, 0);
         Token pipeToken = formatToken(unionTypeDescriptorNode.pipeToken(), 0, 0);
         TypeDescriptorNode rightTypeDesc = formatNode(unionTypeDescriptorNode.rightTypeDesc(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return unionTypeDescriptorNode.modify()
                 .withLeftTypeDesc(leftTypeDesc)
@@ -1070,7 +1033,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public NilTypeDescriptorNode transform(NilTypeDescriptorNode nilTypeDescriptorNode) {
         Token openParenToken = formatToken(nilTypeDescriptorNode.openParenToken(), 0, 0);
-        Token closeParenToken = formatToken(nilTypeDescriptorNode.closeParenToken(), this.trailingWS, this.trailingNL);
+        Token closeParenToken = formatToken(nilTypeDescriptorNode.closeParenToken(), env.trailingWS, env.trailingNL);
 
         return nilTypeDescriptorNode.modify()
                 .withOpenParenToken(openParenToken)
@@ -1101,7 +1064,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token variableName = formatToken(constantDeclarationNode.variableName(), 1, 0);
         Token equalsToken = formatToken(constantDeclarationNode.equalsToken(), 1, 0);
         Node initializer = formatNode(constantDeclarationNode.initializer(), 0, 0);
-        Token semicolonToken = formatToken(constantDeclarationNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(constantDeclarationNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
         return constantDeclarationNode.modify()
                 .withConstKeyword(constKeyword)
@@ -1116,7 +1079,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public ParameterizedTypeDescriptorNode transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
         Token parameterizedType = formatToken(parameterizedTypeDescriptorNode.parameterizedType(), 0, 0);
         TypeParameterNode typeParameter = formatNode(parameterizedTypeDescriptorNode.typeParameter(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return parameterizedTypeDescriptorNode.modify()
                 .withParameterizedType(parameterizedType)
@@ -1128,7 +1091,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public TypeParameterNode transform(TypeParameterNode typeParameterNode) {
         Token ltToken = formatToken(typeParameterNode.ltToken(), 0, 0);
         TypeDescriptorNode typeNode = formatNode(typeParameterNode.typeNode(), 0, 0);
-        Token gtToken = formatToken(typeParameterNode.gtToken(), this.trailingWS, this.trailingNL);
+        Token gtToken = formatToken(typeParameterNode.gtToken(), env.trailingWS, env.trailingNL);
 
         return typeParameterNode.modify()
                 .withTypeNode(typeNode)
@@ -1142,7 +1105,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         NodeList<Token> qualifierList = formatNodeList(functionTypeDescriptorNode.qualifierList(), 1, 0, 0, 1);
         Token functionKeyword = formatToken(functionTypeDescriptorNode.functionKeyword(), 1, 0);
         FunctionSignatureNode functionSignature = formatNode(functionTypeDescriptorNode.functionSignature(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return functionTypeDescriptorNode.modify()
                 .withQualifierList(qualifierList)
@@ -1156,7 +1119,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token openParenToken = formatToken(parenthesisedTypeDescriptorNode.openParenToken(), 0, 0);
         TypeDescriptorNode typedesc = formatNode(parenthesisedTypeDescriptorNode.typedesc(), 0, 0);
         Token closeParenToken = formatToken(parenthesisedTypeDescriptorNode.closeParenToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return parenthesisedTypeDescriptorNode.modify()
                 .withOpenParenToken(openParenToken)
@@ -1170,7 +1133,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token equalsToken = formatToken(externalFunctionBodyNode.equalsToken(), 1, 0);
         NodeList<AnnotationNode> annotations = formatNodeList(externalFunctionBodyNode.annotations(), 0, 1, 1, 0);
         Token externalKeyword = formatToken(externalFunctionBodyNode.externalKeyword(), 0, 0);
-        Token semicolonToken = formatToken(externalFunctionBodyNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(externalFunctionBodyNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
         return externalFunctionBodyNode.modify()
                 .withEqualsToken(equalsToken)
@@ -1188,10 +1151,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (annotationNode.annotValue().isPresent()) {
             annotReference = formatNode(annotationNode.annotReference(), 1, 0);
             MappingConstructorExpressionNode annotValue = formatNode(annotationNode.annotValue().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             annotationNode = annotationNode.modify().withAnnotValue(annotValue).apply();
         } else {
-            annotReference = formatNode(annotationNode.annotReference(), this.trailingWS, this.trailingNL);
+            annotReference = formatNode(annotationNode.annotReference(), env.trailingWS, env.trailingNL);
         }
 
         return annotationNode.modify()
@@ -1217,7 +1180,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 mappingConstructorExpressionNode.fields(), 0, 0, fieldTrailingWS, fieldTrailingNL,
                 fieldTrailingWS, fieldTrailingNL);
         unindent();
-        Token closeBrace = formatToken(mappingConstructorExpressionNode.closeBrace(), this.trailingWS, this.trailingNL);
+        Token closeBrace = formatToken(mappingConstructorExpressionNode.closeBrace(), env.trailingWS, env.trailingNL);
 
         return mappingConstructorExpressionNode.modify()
                 .withOpenBrace(openBrace)
@@ -1245,14 +1208,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             fieldName = formatToken(fieldName, 0, 0);
             Token colon = formatToken(specificFieldNode.colon().get(), 1, 0);
             ExpressionNode expressionNode = formatNode(specificFieldNode.valueExpr().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             return specificFieldNode.modify()
                     .withFieldName(fieldName)
                     .withColon(colon)
                     .withValueExpr(expressionNode)
                     .apply();
         } else {
-            fieldName = formatToken(fieldName, this.trailingWS, this.trailingNL);
+            fieldName = formatToken(fieldName, env.trailingWS, env.trailingNL);
             return specificFieldNode.modify()
                     .withFieldName(fieldName)
                     .apply();
@@ -1265,7 +1228,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<Node> expressions = formatSeparatedNodeList(listConstructorExpressionNode.expressions(),
                 0, 0, 0, 0);
         Token closeBracket = formatToken(listConstructorExpressionNode.closeBracket(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return listConstructorExpressionNode.modify()
                 .withOpenBracket(openBracket)
@@ -1279,7 +1242,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (errorTypeDescriptorNode.errorTypeParamsNode().isPresent()) {
             Token errorKeywordToken = formatToken(errorTypeDescriptorNode.errorKeywordToken(), 0, 0);
             ErrorTypeParamsNode errorTypeParamsNode = formatNode(errorTypeDescriptorNode.errorTypeParamsNode().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
 
             return errorTypeDescriptorNode.modify()
                     .withErrorKeywordToken(errorKeywordToken)
@@ -1287,7 +1250,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .apply();
         } else {
             Token errorKeywordToken = formatToken(errorTypeDescriptorNode.errorKeywordToken(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
 
             return errorTypeDescriptorNode.modify()
                     .withErrorKeywordToken(errorKeywordToken)
@@ -1299,7 +1262,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public PanicStatementNode transform(PanicStatementNode panicStatementNode) {
         Token panicKeyword = formatToken(panicStatementNode.panicKeyword(), 1, 0);
         ExpressionNode expression = formatNode(panicStatementNode.expression(), 0, 0);
-        Token semicolonToken = formatToken(panicStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(panicStatementNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
         return panicStatementNode.modify()
                 .withPanicKeyword(panicKeyword)
@@ -1313,7 +1276,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Node leftTypeDesc = formatNode(intersectionTypeDescriptorNode.leftTypeDesc(), 1, 0);
         Token bitwiseAndToken = formatToken(intersectionTypeDescriptorNode.bitwiseAndToken(), 1, 0);
         Node rightTypeDesc = formatNode(intersectionTypeDescriptorNode.rightTypeDesc(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return intersectionTypeDescriptorNode.modify()
                 .withLeftTypeDesc(leftTypeDesc)
@@ -1340,7 +1303,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token equalsToken = formatToken(moduleVariableDeclarationNode.equalsToken(), 1, 0);
         ExpressionNode initializer = formatNode(moduleVariableDeclarationNode.initializer(), 0, 0);
         Token semicolonToken = formatToken(moduleVariableDeclarationNode.semicolonToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return moduleVariableDeclarationNode.modify()
                 .withTypedBindingPattern(typedBindingPatternNode)
@@ -1357,7 +1320,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (expressionFunctionBodyNode.semicolon().isPresent()) {
             ExpressionNode expression = formatNode(expressionFunctionBodyNode.expression(), 0, 0);
             Token semicolon = formatToken(expressionFunctionBodyNode.semicolon().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
 
             return expressionFunctionBodyNode.modify()
                     .withRightDoubleArrow(rightDoubleArrow)
@@ -1366,7 +1329,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .apply();
         } else {
             ExpressionNode expression = formatNode(expressionFunctionBodyNode.expression(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
 
             return expressionFunctionBodyNode.modify()
                     .withRightDoubleArrow(rightDoubleArrow)
@@ -1380,7 +1343,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token ltToken = formatToken(typeCastExpressionNode.ltToken(), 0, 0);
         TypeCastParamNode typeCastParam = formatNode(typeCastExpressionNode.typeCastParam(), 0, 0);
         Token gtToken = formatToken(typeCastExpressionNode.gtToken(), 0, 0);
-        ExpressionNode expression = formatNode(typeCastExpressionNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(typeCastExpressionNode.expression(), env.trailingWS, env.trailingNL);
 
         return typeCastExpressionNode.modify()
                 .withLtToken(ltToken)
@@ -1393,7 +1356,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public TypeCastParamNode transform(TypeCastParamNode typeCastParamNode) {
         NodeList<AnnotationNode> annotations = formatNodeList(typeCastParamNode.annotations(), 0, 1, 1, 0);
-        Node type = formatNode(typeCastParamNode.type(), this.trailingWS, this.trailingNL);
+        Node type = formatNode(typeCastParamNode.type(), env.trailingWS, env.trailingNL);
 
         return typeCastParamNode.modify()
                 .withAnnotations(annotations)
@@ -1407,7 +1370,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token openBracket = formatToken(indexedExpressionNode.openBracket(), 0, 0);
         SeparatedNodeList<ExpressionNode> keyExpression = formatSeparatedNodeList(indexedExpressionNode.keyExpression(),
                 0, 0, 0, 0);
-        Token closeBracket = formatToken(indexedExpressionNode.closeBracket(), this.trailingWS, this.trailingNL);
+        Token closeBracket = formatToken(indexedExpressionNode.closeBracket(), env.trailingWS, env.trailingNL);
 
         return indexedExpressionNode.modify()
                 .withContainerExpression(containerExpression)
@@ -1423,7 +1386,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         ExpressionNode fieldNameExpr = formatNode(computedNameFieldNode.fieldNameExpr(), 0, 0);
         Token closeBracket = formatToken(computedNameFieldNode.closeBracket(), 1, 0);
         Token colonToken = formatToken(computedNameFieldNode.colonToken(), 1, 0);
-        ExpressionNode valueExpr = formatNode(computedNameFieldNode.valueExpr(), this.trailingWS, this.trailingNL);
+        ExpressionNode valueExpr = formatNode(computedNameFieldNode.valueExpr(), env.trailingWS, env.trailingNL);
 
         return computedNameFieldNode.modify()
                 .withOpenBracket(openBracket)
@@ -1440,7 +1403,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<Node> memberTypeDesc = formatSeparatedNodeList(tupleTypeDescriptorNode.memberTypeDesc(),
                 0, 0, 0, 0);
         Token closeBracketToken = formatToken(tupleTypeDescriptorNode.closeBracketToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return tupleTypeDescriptorNode.modify()
                 .withOpenBracketToken(openBracketToken)
@@ -1454,11 +1417,11 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token openBracket = formatToken(listBindingPatternNode.openBracket(), 0, 0);
         SeparatedNodeList<BindingPatternNode> bindingPatternNodes =
                 formatSeparatedNodeList(listBindingPatternNode.bindingPatterns(), 0, 0, 0, 0);
-        Token closeBracket = formatToken(listBindingPatternNode.closeBracket(), this.trailingWS, this.trailingNL);
+        Token closeBracket = formatToken(listBindingPatternNode.closeBracket(), env.trailingWS, env.trailingNL);
 
         if (listBindingPatternNode.restBindingPattern().isPresent()) {
             RestBindingPatternNode restBindingPattern = formatNode(listBindingPatternNode.restBindingPattern().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             listBindingPatternNode = listBindingPatternNode.modify().withRestBindingPattern(restBindingPattern).apply();
         }
 
@@ -1473,7 +1436,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public RestBindingPatternNode transform(RestBindingPatternNode restBindingPatternNode) {
         Token ellipsisToken = formatToken(restBindingPatternNode.ellipsisToken(), 0, 0);
         SimpleNameReferenceNode variableName = formatNode(restBindingPatternNode.variableName(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return restBindingPatternNode.modify()
                 .withEllipsisToken(ellipsisToken)
@@ -1486,7 +1449,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token tableKeywordToken = formatToken(tableTypeDescriptorNode.tableKeywordToken(), 0, 0);
         Node rowTypeParameterNode = formatNode(tableTypeDescriptorNode.rowTypeParameterNode(), 1, 0);
         Node keyConstraintNode = formatNode(tableTypeDescriptorNode.keyConstraintNode(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return tableTypeDescriptorNode.modify()
                 .withTableKeywordToken(tableKeywordToken)
@@ -1499,7 +1462,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public KeyTypeConstraintNode transform(KeyTypeConstraintNode keyTypeConstraintNode) {
         Token keyKeywordToken = formatToken(keyTypeConstraintNode.keyKeywordToken(), 0, 0);
         Node typeParameterNode = formatNode(keyTypeConstraintNode.typeParameterNode(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return keyTypeConstraintNode.modify()
                 .withKeyKeywordToken(keyKeywordToken)
@@ -1521,10 +1484,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (hasOnFailClause) {
             closeBrace = formatToken(matchStatementNode.closeBrace(), 1, 0);
             OnFailClauseNode onFailClause = formatNode(matchStatementNode.onFailClause().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             matchStatementNode = matchStatementNode.modify().withOnFailClause(onFailClause).apply();
         } else {
-            closeBrace = formatToken(matchStatementNode.closeBrace(), this.trailingWS, this.trailingNL);
+            closeBrace = formatToken(matchStatementNode.closeBrace(), env.trailingWS, env.trailingNL);
         }
 
         return matchStatementNode.modify()
@@ -1548,7 +1511,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         Token rightDoubleArrow = formatToken(matchClauseNode.rightDoubleArrow(), 1, 0);
         BlockStatementNode blockStatement = formatNode(matchClauseNode.blockStatement(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return matchClauseNode.modify()
                 .withMatchPatterns(matchPatterns)
@@ -1560,7 +1523,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public MatchGuardNode transform(MatchGuardNode matchGuardNode) {
         Token ifKeyword = formatToken(matchGuardNode.ifKeyword(), 1, 0);
-        ExpressionNode expression = formatNode(matchGuardNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(matchGuardNode.expression(), env.trailingWS, env.trailingNL);
 
         return matchGuardNode.modify()
                 .withIfKeyword(ifKeyword)
@@ -1576,10 +1539,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (lockStatementNode.onFailClause().isPresent()) {
             blockStatement = formatNode(lockStatementNode.blockStatement(), 1, 0);
             OnFailClauseNode onFailClause = formatNode(lockStatementNode.onFailClause().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             lockStatementNode = lockStatementNode.modify().withOnFailClause(onFailClause).apply();
         } else {
-            blockStatement = formatNode(lockStatementNode.blockStatement(), this.trailingWS, this.trailingNL);
+            blockStatement = formatNode(lockStatementNode.blockStatement(), env.trailingWS, env.trailingNL);
         }
 
         return lockStatementNode.modify()
@@ -1593,7 +1556,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         ExpressionNode expression = formatNode(fieldAccessExpressionNode.expression(), 0, 0);
         Token dotToken = formatToken(fieldAccessExpressionNode.dotToken(), 0, 0);
         NameReferenceNode fieldName = formatNode(fieldAccessExpressionNode.fieldName(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return fieldAccessExpressionNode.modify()
                 .withExpression(expression)
@@ -1608,7 +1571,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         if (metadataNode.documentationString().isPresent()) {
             Node documentationString = formatNode(metadataNode.documentationString().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             metadataNode = metadataNode.modify().withDocumentationString(documentationString).apply();
         }
 
@@ -1633,7 +1596,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<Node> enumMemberList = formatSeparatedNodeList(enumDeclarationNode.enumMemberList(),
                 0, 0, 0, 1, 0, 1);
         unindent();
-        Token closeBraceToken = formatToken(enumDeclarationNode.closeBraceToken(), this.trailingWS, this.trailingNL);
+        Token closeBraceToken = formatToken(enumDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return enumDeclarationNode.modify()
                 .withQualifier(qualifier)
@@ -1657,7 +1620,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             identifier = formatNode(enumMemberNode.identifier(), 1, 0);
             Token equalToken = formatToken(enumMemberNode.equalToken().get(), 1, 0);
             ExpressionNode constExprNode = formatNode(enumMemberNode.constExprNode().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
 
             return enumMemberNode.modify()
                     .withIdentifier(identifier)
@@ -1665,7 +1628,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .withConstExprNode(constExprNode)
                     .apply();
         } else {
-            identifier = formatNode(enumMemberNode.identifier(), this.trailingWS, this.trailingNL);
+            identifier = formatNode(enumMemberNode.identifier(), env.trailingWS, env.trailingNL);
 
             return enumMemberNode.modify()
                     .withIdentifier(identifier)
@@ -1676,7 +1639,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public MarkdownDocumentationNode transform(MarkdownDocumentationNode markdownDocumentationNode) {
         NodeList<Node> documentationLines = formatNodeList(markdownDocumentationNode.documentationLines(),
-                0, 1, this.trailingWS, this.trailingNL);
+                0, 1, env.trailingWS, env.trailingNL);
 
         return markdownDocumentationNode.modify()
                 .withDocumentationLines(documentationLines)
@@ -1687,7 +1650,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public MarkdownDocumentationLineNode transform(MarkdownDocumentationLineNode markdownDocumentationLineNode) {
         Token hashToken = formatToken(markdownDocumentationLineNode.hashToken(), 0, 0);
         NodeList<Node> documentElements = formatNodeList(markdownDocumentationLineNode.documentElements(),
-                0, 0, this.trailingWS, this.trailingNL);
+                0, 0, env.trailingWS, env.trailingNL);
 
         return markdownDocumentationLineNode.modify()
                 .withDocumentElements(documentElements)
@@ -1703,7 +1666,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token parameterName = formatToken(markdownParameterDocumentationLineNode.parameterName(), 1, 0);
         Token minusToken = formatToken(markdownParameterDocumentationLineNode.minusToken(), 0, 0);
         NodeList<Node> documentElements = formatNodeList(markdownParameterDocumentationLineNode.documentElements(),
-                0, 0, this.trailingWS, this.trailingNL);
+                0, 0, env.trailingWS, env.trailingNL);
 
         return markdownParameterDocumentationLineNode.modify()
                 .withHashToken(hashToken)
@@ -1723,7 +1686,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         Token startBacktick = formatToken(documentationReferenceNode.startBacktick(), 0, 0);
         Node backtickContent = formatNode(documentationReferenceNode.backtickContent(), 0, 0);
-        Token endBacktick = formatToken(documentationReferenceNode.endBacktick(), this.trailingWS, this.trailingNL);
+        Token endBacktick = formatToken(documentationReferenceNode.endBacktick(), env.trailingWS, env.trailingNL);
 
         return documentationReferenceNode.modify()
                 .withStartBacktick(startBacktick)
@@ -1734,7 +1697,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public PositionalArgumentNode transform(PositionalArgumentNode positionalArgumentNode) {
-        ExpressionNode expression = formatNode(positionalArgumentNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(positionalArgumentNode.expression(), env.trailingWS, env.trailingNL);
 
         return positionalArgumentNode.modify()
                 .withExpression(expression)
@@ -1753,7 +1716,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .withRestBindingPattern(restBindingPattern).apply();
         }
 
-        Token closeBraceToken = formatToken(mappingBindingPatternNode.closeBrace(), this.trailingWS, this.trailingNL);
+        Token closeBraceToken = formatToken(mappingBindingPatternNode.closeBrace(), env.trailingWS, env.trailingNL);
         return mappingBindingPatternNode.modify()
                 .withOpenBrace(openBraceToken)
                 .withFieldBindingPatterns(fieldBindingPatternNodes)
@@ -1766,7 +1729,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SimpleNameReferenceNode variableName = formatNode(fieldBindingPatternFullNode.variableName(), 1, 0);
         Token colon = formatToken(fieldBindingPatternFullNode.colon(), 1, 0);
         BindingPatternNode bindingPatternNode = formatNode(fieldBindingPatternFullNode.bindingPattern(),
-                this.trailingWS, this.leadingNL);
+                env.trailingWS, env.leadingNL);
         return fieldBindingPatternFullNode.modify()
                 .withVariableName(variableName)
                 .withColon(colon)
@@ -1777,7 +1740,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public FieldBindingPatternVarnameNode transform(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
         SimpleNameReferenceNode variableName = formatNode(fieldBindingPatternVarnameNode.variableName(),
-                this.trailingWS, this.leadingNL);
+                env.trailingWS, env.leadingNL);
         return fieldBindingPatternVarnameNode.modify()
                 .withVariableName(variableName)
                 .apply();
@@ -1788,7 +1751,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         ExpressionNode expression = formatNode(typeTestExpressionNode.expression(), 1, 0);
         Token isToken = formatToken(typeTestExpressionNode.isKeyword(), 1, 0);
         Node typeDescriptor = formatNode(typeTestExpressionNode.typeDescriptor(),
-                this.trailingWS, this.leadingNL);
+                env.trailingWS, env.leadingNL);
         return typeTestExpressionNode.modify()
                 .withExpression(expression)
                 .withIsKeyword(isToken)
@@ -1815,7 +1778,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token variableName = formatToken(listenerDeclarationNode.variableName(), 1, 0);
         Token equalsToken = formatToken(listenerDeclarationNode.equalsToken(), 1, 0);
         Node initializer = formatNode(listenerDeclarationNode.initializer(), 0, 0);
-        Token semicolonToken = formatToken(listenerDeclarationNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(listenerDeclarationNode.semicolonToken(), env.trailingWS, env.trailingNL);
         return listenerDeclarationNode.modify()
                 .withListenerKeyword(listenerKeyword)
                 .withTypeDescriptor(typeDescriptor)
@@ -1835,8 +1798,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(methodCallExpressionNode
                 .arguments(), 0, 0, 0, 0);
         Token closeParenToken = formatToken(methodCallExpressionNode.closeParenToken(),
-                this.trailingWS, this.trailingNL);
-
+                env.trailingWS, env.trailingNL);
 
         return methodCallExpressionNode.modify()
                 .withExpression(expression)
@@ -1851,7 +1813,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public NilLiteralNode transform(NilLiteralNode nilLiteralNode) {
         Token openParenToken = formatToken(nilLiteralNode.openParenToken(), 0, 0);
-        Token closeParenToken = formatToken(nilLiteralNode.closeParenToken(), this.trailingWS, this.trailingNL);
+        Token closeParenToken = formatToken(nilLiteralNode.closeParenToken(), env.trailingWS, env.trailingNL);
 
         return nilLiteralNode.modify()
                 .withOpenParenToken(openParenToken)
@@ -1878,7 +1840,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         Token semicolonToken = formatToken(xMLNamespaceDeclarationNode.semicolonToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return xMLNamespaceDeclarationNode.modify()
                 .withXmlnsKeyword(xmlnsKeyword)
@@ -1895,7 +1857,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token asKeyword = formatToken(moduleXMLNamespaceDeclarationNode.asKeyword(), 1, 0);
         IdentifierToken namespacePrefix = formatNode(moduleXMLNamespaceDeclarationNode.namespacePrefix(), 0, 0);
         Token semicolonToken = formatToken(moduleXMLNamespaceDeclarationNode.semicolonToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return moduleXMLNamespaceDeclarationNode.modify()
                 .withNamespacePrefix(namespacePrefix)
@@ -1908,7 +1870,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public XMLSimpleNameNode transform(XMLSimpleNameNode xMLSimpleNameNode) {
-        Token name = formatToken(xMLSimpleNameNode.name(), this.trailingWS, this.trailingNL);
+        Token name = formatToken(xMLSimpleNameNode.name(), env.trailingWS, env.trailingNL);
 
         return xMLSimpleNameNode.modify()
                 .withName(name)
@@ -1919,7 +1881,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public XMLQualifiedNameNode transform(XMLQualifiedNameNode xMLQualifiedNameNode) {
         XMLSimpleNameNode prefix = formatNode(xMLQualifiedNameNode.prefix(), 0, 0);
         Token colon = formatToken(xMLQualifiedNameNode.colon(), 0, 0);
-        XMLSimpleNameNode name = formatNode(xMLQualifiedNameNode.name(), this.trailingWS, this.trailingNL);
+        XMLSimpleNameNode name = formatNode(xMLQualifiedNameNode.name(), env.trailingWS, env.trailingNL);
 
         return xMLQualifiedNameNode.modify()
                 .withPrefix(prefix)
@@ -1940,7 +1902,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         NodeList<XMLAttributeNode> attributes = formatNodeList(xMLEmptyElementNode.attributes(), 1, 0, 0, 0);
         Token slashToken = formatToken(xMLEmptyElementNode.slashToken(), 0, 0);
-        Token getToken = formatToken(xMLEmptyElementNode.getToken(), this.trailingWS, this.trailingNL);
+        Token getToken = formatToken(xMLEmptyElementNode.getToken(), env.trailingWS, env.trailingNL);
 
         return xMLEmptyElementNode.modify()
                 .withLtToken(ltToken)
@@ -1953,7 +1915,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public XMLTextNode transform(XMLTextNode xMLTextNode) {
-        Token content = formatToken(xMLTextNode.content(), this.trailingWS, this.trailingNL);
+        Token content = formatToken(xMLTextNode.content(), env.trailingWS, env.trailingNL);
+        for (char c : content.text().toCharArray()) {
+            if (c == '\n') {
+                env.lineLength = 0;
+            } else {
+                env.lineLength++;
+            }
+        }
 
         return xMLTextNode.modify()
                 .withContent(content)
@@ -1964,7 +1933,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public XMLComment transform(XMLComment xMLComment) {
         Token commentStart = formatToken(xMLComment.commentStart(), 0, 0);
         NodeList<Node> content = formatNodeList(xMLComment.content(), 1, 0, 0, 0);
-        Token commentEnd = formatToken(xMLComment.commentEnd(), this.trailingWS, this.trailingNL);
+        Token commentEnd = formatToken(xMLComment.commentEnd(), env.trailingWS, env.trailingNL);
 
         return xMLComment.modify()
                 .withCommentStart(commentStart)
@@ -1978,7 +1947,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token piStart = formatToken(xMLProcessingInstruction.piStart(), 0, 0);
         XMLNameNode target = formatNode(xMLProcessingInstruction.target(), 1, 0);
         NodeList<Node> data = formatNodeList(xMLProcessingInstruction.data(), 1, 0, 0, 0);
-        Token piEnd = formatToken(xMLProcessingInstruction.piEnd(), this.trailingWS, this.trailingNL);
+        Token piEnd = formatToken(xMLProcessingInstruction.piEnd(), env.trailingWS, env.trailingNL);
 
         return xMLProcessingInstruction.modify()
                 .withTarget(target)
@@ -1992,7 +1961,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public XMLFilterExpressionNode transform(XMLFilterExpressionNode xMLFilterExpressionNode) {
         ExpressionNode expression = formatNode(xMLFilterExpressionNode.expression(), 0, 0);
         XMLNamePatternChainingNode xmlPatternChain = formatNode(xMLFilterExpressionNode.xmlPatternChain(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return xMLFilterExpressionNode.modify()
                 .withExpression(expression)
@@ -2003,7 +1972,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public XMLStepExpressionNode transform(XMLStepExpressionNode xMLStepExpressionNode) {
         ExpressionNode expression = formatNode(xMLStepExpressionNode.expression(), 0, 0);
-        Node xmlStepStart = formatNode(xMLStepExpressionNode.xmlStepStart(), this.trailingWS, this.trailingNL);
+        Node xmlStepStart = formatNode(xMLStepExpressionNode.xmlStepStart(), env.trailingWS, env.trailingNL);
 
         return xMLStepExpressionNode.modify()
                 .withExpression(expression)
@@ -2016,7 +1985,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token startToken = formatToken(xMLNamePatternChainingNode.startToken(), 0, 0);
         SeparatedNodeList<Node> xmlNamePattern = formatSeparatedNodeList(xMLNamePatternChainingNode.xmlNamePattern(),
                 0, 0, 0, 0, 0, 0);
-        Token gtToken = formatToken(xMLNamePatternChainingNode.gtToken(), this.trailingWS, this.trailingNL);
+        Token gtToken = formatToken(xMLNamePatternChainingNode.gtToken(), env.trailingWS, env.trailingNL);
 
         return xMLNamePatternChainingNode.modify()
                 .withStartToken(startToken)
@@ -2029,7 +1998,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public XMLAtomicNamePatternNode transform(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
         Token prefix = formatToken(xMLAtomicNamePatternNode.prefix(), 0, 0);
         Token colon = formatToken(xMLAtomicNamePatternNode.colon(), 0, 0);
-        Token name = formatToken(xMLAtomicNamePatternNode.name(), this.trailingWS, this.trailingNL);
+        Token name = formatToken(xMLAtomicNamePatternNode.name(), env.trailingWS, env.trailingNL);
 
         return xMLAtomicNamePatternNode.modify()
                 .withPrefix(prefix)
@@ -2048,7 +2017,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         Token startBacktick = formatToken(templateExpressionNode.startBacktick(), 0, 0);
         NodeList<TemplateMemberNode> content = formatNodeList(templateExpressionNode.content(), 0, 0, 0, 0);
-        Token endBacktick = formatToken(templateExpressionNode.endBacktick(), this.trailingWS, this.trailingNL);
+        Token endBacktick = formatToken(templateExpressionNode.endBacktick(), env.trailingWS, env.trailingNL);
 
         return templateExpressionNode.modify()
                 .withStartBacktick(startBacktick)
@@ -2067,7 +2036,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .withContent(content).apply();
         }
 
-        Token endBacktick = formatToken(byteArrayLiteralNode.endBacktick(), this.trailingWS, this.trailingNL);
+        Token endBacktick = formatToken(byteArrayLiteralNode.endBacktick(), env.trailingWS, env.trailingNL);
         return byteArrayLiteralNode.modify()
                 .withType(type)
                 .withStartBacktick(startBacktick)
@@ -2079,7 +2048,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public TypeReferenceNode transform(TypeReferenceNode typeReferenceNode) {
         Token asteriskToken = formatToken(typeReferenceNode.asteriskToken(), 0, 0);
         Node typeName = formatNode(typeReferenceNode.typeName(), 0, 0);
-        Token semicolonToken = formatToken(typeReferenceNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(typeReferenceNode.semicolonToken(), env.trailingWS, env.trailingNL);
         return typeReferenceNode.modify()
                 .withAsteriskToken(asteriskToken)
                 .withTypeName(typeName)
@@ -2101,7 +2070,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         Token closeBraceToken =
-                formatToken(mappingMatchPatternNode.closeBraceToken(), this.trailingWS, this.trailingNL);
+                formatToken(mappingMatchPatternNode.closeBraceToken(), env.trailingWS, env.trailingNL);
         return mappingMatchPatternNode.modify()
                 .withOpenBraceToken(openBraceToken)
                 .withFieldMatchPatterns(fieldMatchPatterns)
@@ -2113,7 +2082,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public StartActionNode transform(StartActionNode startActionNode) {
         NodeList<AnnotationNode> annotations = formatNodeList(startActionNode.annotations(), 0, 1, 0, 1);
         Token startKeyword = formatToken(startActionNode.startKeyword(), 1, 0);
-        ExpressionNode expression = formatNode(startActionNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(startActionNode.expression(), env.trailingWS, env.trailingNL);
 
         return startActionNode.modify()
                 .withAnnotations(annotations)
@@ -2125,7 +2094,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public FlushActionNode transform(FlushActionNode flushActionNode) {
         Token flushKeyword = formatToken(flushActionNode.flushKeyword(), 1, 0);
-        NameReferenceNode peerWorker = formatNode(flushActionNode.peerWorker(), this.trailingWS, this.trailingNL);
+        NameReferenceNode peerWorker = formatNode(flushActionNode.peerWorker(), env.trailingWS, env.trailingNL);
 
         return flushActionNode.modify()
                 .withFlushKeyword(flushKeyword)
@@ -2133,12 +2102,11 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 .apply();
     }
 
-
     @Override
     public FailStatementNode transform(FailStatementNode failStatementNode) {
         Token failKeyword = formatToken(failStatementNode.failKeyword(), 1, 0);
         ExpressionNode expression = formatNode(failStatementNode.expression(), 0, 0);
-        Token semicolonToken = formatToken(failStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(failStatementNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
         return failStatementNode.modify()
                 .withFailKeyword(failKeyword)
@@ -2150,7 +2118,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public ContinueStatementNode transform(ContinueStatementNode continueStatementNode) {
         Token continueToken = formatToken(continueStatementNode.continueToken(), 0, 0);
-        Token semicolonToken = formatToken(continueStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(continueStatementNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
         return continueStatementNode.modify()
                 .withContinueToken(continueToken)
@@ -2167,7 +2135,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Node typeName = formatNode(localTypeDefinitionStatementNode.typeName(), 1, 0);
         Node typeDescriptor = formatNode(localTypeDefinitionStatementNode.typeDescriptor(), 1, 0);
         Token semicolonToken = formatToken(localTypeDefinitionStatementNode.semicolonToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return localTypeDefinitionStatementNode.modify()
                 .withAnnotations(annotations)
@@ -2186,7 +2154,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations =
                 formatNodeList(forkStatementNode.namedWorkerDeclarations(), 0, 1, 0, 1);
         unindent();
-        Token closeBraceToken = formatToken(forkStatementNode.closeBraceToken(), this.trailingWS, this.trailingNL);
+        Token closeBraceToken = formatToken(forkStatementNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return forkStatementNode.modify()
                 .withForkKeyword(forkKeyword)
@@ -2199,7 +2167,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public TypeofExpressionNode transform(TypeofExpressionNode typeofExpressionNode) {
         Token typeofKeyword = formatToken(typeofExpressionNode.typeofKeyword(), 1, 0);
-        ExpressionNode expression = formatNode(typeofExpressionNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(typeofExpressionNode.expression(), env.trailingWS, env.trailingNL);
         return typeofExpressionNode.modify()
                 .withTypeofKeyword(typeofKeyword)
                 .withExpression(expression)
@@ -2209,7 +2177,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public UnaryExpressionNode transform(UnaryExpressionNode unaryExpressionNode) {
         Token unaryOperator = formatToken(unaryExpressionNode.unaryOperator(), 0, 0);
-        ExpressionNode expression = formatNode(unaryExpressionNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(unaryExpressionNode.expression(), env.trailingWS, env.trailingNL);
 
         return unaryExpressionNode.modify()
                 .withUnaryOperator(unaryOperator)
@@ -2228,7 +2196,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         Token equalsToken = formatToken(defaultableParameterNode.equalsToken(), 1, 0);
-        Node expression = formatNode(defaultableParameterNode.expression(), this.trailingWS, this.trailingNL);
+        Node expression = formatNode(defaultableParameterNode.expression(), env.trailingWS, env.trailingNL);
 
         return defaultableParameterNode.modify()
                 .withAnnotations(annotations)
@@ -2246,10 +2214,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         if (restParameterNode.paramName().isPresent()) {
             ellipsisToken = formatToken(restParameterNode.ellipsisToken(), 1, 0);
-            Token paramName = formatToken(restParameterNode.paramName().get(), this.trailingWS, this.trailingNL);
+            Token paramName = formatToken(restParameterNode.paramName().get(), env.trailingWS, env.trailingNL);
             restParameterNode = restParameterNode.modify().withParamName(paramName).apply();
         } else {
-            ellipsisToken = formatToken(restParameterNode.ellipsisToken(), this.trailingWS, this.trailingNL);
+            ellipsisToken = formatToken(restParameterNode.ellipsisToken(), env.trailingWS, env.trailingNL);
         }
 
         return restParameterNode.modify()
@@ -2262,7 +2230,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public SpreadFieldNode transform(SpreadFieldNode spreadFieldNode) {
         Token ellipsis = formatToken(spreadFieldNode.ellipsis(), 0, 0);
-        ExpressionNode valueExpr = formatNode(spreadFieldNode.valueExpr(), this.trailingWS, this.trailingNL);
+        ExpressionNode valueExpr = formatNode(spreadFieldNode.valueExpr(), env.trailingWS, env.trailingNL);
         return spreadFieldNode.modify()
                 .withEllipsis(ellipsis)
                 .withValueExpr(valueExpr)
@@ -2273,7 +2241,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public NamedArgumentNode transform(NamedArgumentNode namedArgumentNode) {
         SimpleNameReferenceNode argumentName = formatNode(namedArgumentNode.argumentName(), 1, 0);
         Token equalsToken = formatToken(namedArgumentNode.equalsToken(), 1, 0);
-        ExpressionNode expression = formatNode(namedArgumentNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(namedArgumentNode.expression(), env.trailingWS, env.trailingNL);
 
         return namedArgumentNode.modify()
                 .withArgumentName(argumentName)
@@ -2285,7 +2253,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public RestArgumentNode transform(RestArgumentNode restArgumentNode) {
         Token ellipsis = formatToken(restArgumentNode.ellipsis(), 0, 0);
-        ExpressionNode expression = formatNode(restArgumentNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(restArgumentNode.expression(), env.trailingWS, env.trailingNL);
 
         return restArgumentNode.modify()
                 .withEllipsis(ellipsis)
@@ -2302,7 +2270,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         indent();
         NodeList<Node> members = formatNodeList(objectTypeDescriptorNode.members(), 0, 1, 0, 1);
         unindent();
-        Token closeBrace = formatToken(objectTypeDescriptorNode.closeBrace(), this.trailingWS, this.trailingNL);
+        Token closeBrace = formatToken(objectTypeDescriptorNode.closeBrace(), env.trailingWS, env.trailingNL);
 
         return objectTypeDescriptorNode.modify()
                 .withObjectTypeQualifiers(objectTypeQualifiers)
@@ -2332,7 +2300,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         NodeList<Node> members = formatNodeList(objectConstructorExpressionNode.members(), 0, 1, 0, 1);
         unindent();
         Token closeBraceToken = formatToken(objectConstructorExpressionNode.closeBraceToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return objectConstructorExpressionNode.modify()
                 .withAnnotations(annotations)
@@ -2375,7 +2343,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         } else {
             fieldName = formatToken(objectFieldNode.fieldName(), 0, 0);
         }
-        Token semicolonToken = formatToken(objectFieldNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(objectFieldNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
         return objectFieldNode.modify()
                 .withTypeName(typeName)
@@ -2388,7 +2356,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public RecordRestDescriptorNode transform(RecordRestDescriptorNode recordRestDescriptorNode) {
         Node typeName = formatNode(recordRestDescriptorNode.typeName(), 0, 0);
         Token ellipsisToken = formatToken(recordRestDescriptorNode.ellipsisToken(), 0, 0);
-        Token semicolonToken = formatToken(recordRestDescriptorNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(recordRestDescriptorNode.semicolonToken(), env.trailingWS, env.trailingNL);
         return recordRestDescriptorNode.modify()
                 .withTypeName(typeName)
                 .withEllipsisToken(ellipsisToken)
@@ -2427,8 +2395,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         if (annotationDeclarationNode.onKeyword().isPresent()) {
             Token onKeyword = formatToken(annotationDeclarationNode.onKeyword().get(), 1, 0);
-            int currentIndentation = this.indentation;
-            setIndentation(this.lineLength);
+            int currentIndentation = env.currentIndentation;
+            setIndentation(env.lineLength);
             SeparatedNodeList<Node> attachPoints = formatSeparatedNodeList(annotationDeclarationNode.attachPoints(),
                     1, 0, 1, 0);
             setIndentation(currentIndentation);
@@ -2439,7 +2407,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         Token semicolonToken = formatToken(annotationDeclarationNode.semicolonToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
         return annotationDeclarationNode.modify()
                 .withAnnotationKeyword(annotationKeyword)
                 .withAnnotationTag(annotationTag)
@@ -2458,14 +2426,14 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         if (annotationAttachPointNode.secondIdent().isPresent()) {
             Token firstIdent = formatToken(annotationAttachPointNode.firstIdent(), 1, 0);
-            Token secondIdent = formatToken(annotationAttachPointNode.secondIdent().get(), this.trailingWS,
-                    this.trailingNL);
+            Token secondIdent = formatToken(annotationAttachPointNode.secondIdent().get(), env.trailingWS,
+                    env.trailingNL);
             return annotationAttachPointNode.modify()
                     .withFirstIdent(firstIdent)
                     .withSecondIdent(secondIdent)
                     .apply();
         } else {
-            Token firstIdent = formatToken(annotationAttachPointNode.firstIdent(), this.trailingWS, this.trailingNL);
+            Token firstIdent = formatToken(annotationAttachPointNode.firstIdent(), env.trailingWS, env.trailingNL);
             return annotationAttachPointNode.modify()
                     .withFirstIdent(firstIdent)
                     .apply();
@@ -2481,7 +2449,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public TrapExpressionNode transform(TrapExpressionNode trapExpressionNode) {
         Token trapKeyword = formatToken(trapExpressionNode.trapKeyword(), 1, 0);
-        ExpressionNode expression = formatNode(trapExpressionNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(trapExpressionNode.expression(), env.trailingWS, env.trailingNL);
 
         return trapExpressionNode.modify()
                 .withTrapKeyword(trapKeyword)
@@ -2503,7 +2471,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<Node> mappingConstructors =
                 formatSeparatedNodeList(tableConstructorExpressionNode.mappingConstructors(), 0, 0, 0, 0);
         Token closeBracket =
-                formatToken(tableConstructorExpressionNode.closeBracket(), this.trailingWS, this.trailingNL);
+                formatToken(tableConstructorExpressionNode.closeBracket(), env.trailingWS, env.trailingNL);
         return tableConstructorExpressionNode.modify()
                 .withTableKeyword(tableKeyword)
                 .withOpenBracket(openBracket)
@@ -2518,7 +2486,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token openParenToken = formatToken(keySpecifierNode.openParenToken(), 0, 0);
         SeparatedNodeList<IdentifierToken> fieldNames = formatSeparatedNodeList(keySpecifierNode.fieldNames(),
                 1, 0, 0, 0);
-        Token closeParenToken = formatToken(keySpecifierNode.closeParenToken(), this.trailingWS, this.trailingNL);
+        Token closeParenToken = formatToken(keySpecifierNode.closeParenToken(), env.trailingWS, env.trailingNL);
 
         return keySpecifierNode.modify()
                 .withKeyKeyword(keyKeyword)
@@ -2532,7 +2500,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public ErrorTypeParamsNode transform(ErrorTypeParamsNode errorTypeParamsNode) {
         Token ltToken = formatToken(errorTypeParamsNode.ltToken(), 0, 0);
         Node parameter = formatNode(errorTypeParamsNode.parameter(), 0, 0);
-        Token gtToken = formatToken(errorTypeParamsNode.gtToken(), this.trailingWS, this.trailingNL);
+        Token gtToken = formatToken(errorTypeParamsNode.gtToken(), env.trailingWS, env.trailingNL);
 
         return errorTypeParamsNode.modify()
                 .withLtToken(ltToken)
@@ -2548,12 +2516,12 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (streamTypeDescriptorNode.streamTypeParamsNode().isPresent()) {
             streamKeywordToken = formatToken(streamTypeDescriptorNode.streamKeywordToken(), 0, 0);
             Node streamTypeParamsNode = formatNode(streamTypeDescriptorNode.streamTypeParamsNode().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             streamTypeDescriptorNode = streamTypeDescriptorNode.modify()
                     .withStreamTypeParamsNode(streamTypeParamsNode).apply();
         } else {
             streamKeywordToken = formatToken(streamTypeDescriptorNode.streamKeywordToken(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
         }
 
         return streamTypeDescriptorNode.modify()
@@ -2565,7 +2533,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public StreamTypeParamsNode transform(StreamTypeParamsNode streamTypeParamsNode) {
         Token ltToken = formatToken(streamTypeParamsNode.ltToken(), 0, 0);
         Node leftTypeDescNode = formatNode(streamTypeParamsNode.leftTypeDescNode(), 0, 0);
-        Token gtToken = formatToken(streamTypeParamsNode.gtToken(), this.trailingWS, this.trailingNL);
+        Token gtToken = formatToken(streamTypeParamsNode.gtToken(), env.trailingWS, env.trailingNL);
 
         if (streamTypeParamsNode.commaToken().isPresent() && streamTypeParamsNode.rightTypeDescNode().isPresent()) {
             Token commaToken = formatToken(streamTypeParamsNode.commaToken().get(), 1, 0);
@@ -2588,8 +2556,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (typedescTypeDescriptorNode.typedescTypeParamsNode().isPresent()) {
             Token typedescKeyword = formatToken(typedescTypeDescriptorNode.typedescKeywordToken(), 0, 0);
             TypeParameterNode typedescTypeParamsNode =
-                    formatNode(typedescTypeDescriptorNode.typedescTypeParamsNode().get(), this.trailingWS,
-                            this.trailingNL);
+                    formatNode(typedescTypeDescriptorNode.typedescTypeParamsNode().get(), env.trailingWS,
+                            env.trailingNL);
             return typedescTypeDescriptorNode.modify()
                     .withTypedescKeywordToken(typedescKeyword)
                     .withTypedescTypeParamsNode(typedescTypeParamsNode)
@@ -2597,7 +2565,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         Token typedescKeyword =
-                formatToken(typedescTypeDescriptorNode.typedescKeywordToken(), this.trailingWS, this.trailingNL);
+                formatToken(typedescTypeDescriptorNode.typedescKeywordToken(), env.trailingWS, env.trailingNL);
         return typedescTypeDescriptorNode.modify()
                 .withTypedescKeywordToken(typedescKeyword)
                 .apply();
@@ -2609,7 +2577,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
                 formatSeparatedNodeList(letExpressionNode.letVarDeclarations(), 1, 0, 0, 1);
         Token inKeyword = formatToken(letExpressionNode.inKeyword(), 1, 0);
-        ExpressionNode expression = formatNode(letExpressionNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(letExpressionNode.expression(), env.trailingWS, env.trailingNL);
 
         return letExpressionNode.modify()
                 .withLetKeyword(letKeyword)
@@ -2626,7 +2594,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                 1, 0);
         Token equalsToken = formatToken(letVariableDeclarationNode.equalsToken(), 1, 0);
         ExpressionNode expression = formatNode(letVariableDeclarationNode.expression(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return letVariableDeclarationNode.modify()
                 .withAnnotations(annotations)
@@ -2641,7 +2609,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token interpolationStartToken = formatToken(interpolationNode.interpolationStartToken(), 0, 0);
         ExpressionNode expression = formatNode(interpolationNode.expression(), 0, 0);
         Token interpolationEndToken = formatToken(interpolationNode.interpolationEndToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return interpolationNode.modify()
                 .withInterpolationStartToken(interpolationStartToken)
@@ -2661,7 +2629,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         FunctionSignatureNode functionSignature =
                 formatNode(explicitAnonymousFunctionExpressionNode.functionSignature(), 1, 0);
         FunctionBodyNode functionBody = formatNode(explicitAnonymousFunctionExpressionNode.functionBody(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return explicitAnonymousFunctionExpressionNode.modify()
                 .withQualifierList(qualifierList)
@@ -2677,16 +2645,16 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (implicitNewExpressionNode.parenthesizedArgList().isPresent()) {
             Token newKeyword = formatToken(implicitNewExpressionNode.newKeyword(), 0, 0);
             ParenthesizedArgList parenthesizedArgList =
-                    formatNode(implicitNewExpressionNode.parenthesizedArgList().get(), this.trailingWS,
-                            this.trailingNL);
+                    formatNode(implicitNewExpressionNode.parenthesizedArgList().get(), env.trailingWS,
+                            env.trailingNL);
             return implicitNewExpressionNode.modify()
                     .withNewKeyword(newKeyword)
                     .withParenthesizedArgList(parenthesizedArgList)
                     .apply();
         }
 
-        Token newKeyword = formatToken(implicitNewExpressionNode.newKeyword(), this.trailingWS,
-                this.trailingNL);
+        Token newKeyword = formatToken(implicitNewExpressionNode.newKeyword(), env.trailingWS,
+                env.trailingNL);
         return implicitNewExpressionNode.modify()
                 .withNewKeyword(newKeyword)
                 .apply();
@@ -2696,15 +2664,15 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public QueryConstructTypeNode transform(QueryConstructTypeNode queryConstructTypeNode) {
         if (queryConstructTypeNode.keySpecifier().isPresent()) {
             Token keyword = formatToken(queryConstructTypeNode.keyword(), 1, 0);
-            KeySpecifierNode keySpecifier = formatNode(queryConstructTypeNode.keySpecifier().get(), this.trailingWS,
-                    this.trailingNL);
+            KeySpecifierNode keySpecifier = formatNode(queryConstructTypeNode.keySpecifier().get(), env.trailingWS,
+                    env.trailingNL);
             return queryConstructTypeNode.modify()
                     .withKeyword(keyword)
                     .withKeySpecifier(keySpecifier)
                     .apply();
         } else {
-            Token keyword = formatToken(queryConstructTypeNode.keyword(), this.trailingWS,
-                    this.trailingNL);
+            Token keyword = formatToken(queryConstructTypeNode.keyword(), env.trailingWS,
+                    env.trailingNL);
             return queryConstructTypeNode.modify()
                     .withKeyword(keyword)
                     .apply();
@@ -2716,7 +2684,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token fromKeyword = formatToken(fromClauseNode.fromKeyword(), 1, 0);
         TypedBindingPatternNode typedBindingPattern = formatNode(fromClauseNode.typedBindingPattern(), 1, 0);
         Token inKeyword = formatToken(fromClauseNode.inKeyword(), 1, 0);
-        ExpressionNode expression = formatNode(fromClauseNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(fromClauseNode.expression(), env.trailingWS, env.trailingNL);
 
         return fromClauseNode.modify()
                 .withFromKeyword(fromKeyword)
@@ -2729,7 +2697,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public WhereClauseNode transform(WhereClauseNode whereClauseNode) {
         Token whereKeyword = formatToken(whereClauseNode.whereKeyword(), 1, 0);
-        ExpressionNode expression = formatNode(whereClauseNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(whereClauseNode.expression(), env.trailingWS, env.trailingNL);
 
         return whereClauseNode.modify()
                 .withWhereKeyword(whereKeyword)
@@ -2741,7 +2709,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public LetClauseNode transform(LetClauseNode letClauseNode) {
         Token letKeyword = formatToken(letClauseNode.letKeyword(), 1, 0);
         SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
-                formatSeparatedNodeList(letClauseNode.letVarDeclarations(), 1, 0, this.trailingWS, this.trailingNL);
+                formatSeparatedNodeList(letClauseNode.letVarDeclarations(), 1, 0, env.trailingWS, env.trailingNL);
 
         return letClauseNode.modify()
                 .withLetKeyword(letKeyword)
@@ -2754,7 +2722,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         indent();
         FromClauseNode fromClause = formatNode(queryPipelineNode.fromClause(), 0, 1);
         NodeList<IntermediateClauseNode> intermediateClauses = formatNodeList(queryPipelineNode.intermediateClauses(),
-                0, 1, this.trailingWS, this.trailingNL);
+                0, 1, env.trailingWS, env.trailingNL);
         unindent();
 
         return queryPipelineNode.modify()
@@ -2766,7 +2734,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public SelectClauseNode transform(SelectClauseNode selectClauseNode) {
         Token selectKeyword = formatToken(selectClauseNode.selectKeyword(), 1, 0);
-        ExpressionNode expression = formatNode(selectClauseNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(selectClauseNode.expression(), env.trailingWS, env.trailingNL);
 
         return selectClauseNode.modify()
                 .withSelectKeyword(selectKeyword)
@@ -2789,10 +2757,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (queryExpressionNode.onConflictClause().isPresent()) {
             selectClause = formatNode(queryExpressionNode.selectClause(), 0, 1);
             OnConflictClauseNode onConflictClause = formatNode(queryExpressionNode.onConflictClause().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             queryExpressionNode = queryExpressionNode.modify().withOnConflictClause(onConflictClause).apply();
         } else {
-            selectClause = formatNode(queryExpressionNode.selectClause(), this.trailingWS, this.trailingNL);
+            selectClause = formatNode(queryExpressionNode.selectClause(), env.trailingWS, env.trailingNL);
         }
         unindent();
 
@@ -2809,7 +2777,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<SimpleNameReferenceNode> parameters =
                 formatSeparatedNodeList(implicitAnonymousFunctionParameters.parameters(), 0, 0, 0, 0);
         Token closeParenToken = formatToken(implicitAnonymousFunctionParameters.closeParenToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return implicitAnonymousFunctionParameters.modify()
                 .withOpenParenToken(openParenToken)
@@ -2824,7 +2792,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Node params = formatNode(implicitAnonymousFunctionExpressionNode.params(), 1, 0);
         Token rightDoubleArrow = formatToken(implicitAnonymousFunctionExpressionNode.rightDoubleArrow(), 1, 0);
         ExpressionNode expression = formatNode(implicitAnonymousFunctionExpressionNode.expression(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return implicitAnonymousFunctionExpressionNode.modify()
                 .withParams(params)
@@ -2844,7 +2812,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token functionKeyword = formatToken(methodDeclarationNode.functionKeyword(), 1, 0);
         IdentifierToken methodName = formatNode(methodDeclarationNode.methodName(), 0, 0);
         FunctionSignatureNode methodSignature = formatNode(methodDeclarationNode.methodSignature(), 0, 0);
-        Token semicolon = formatToken(methodDeclarationNode.semicolon(), this.trailingWS, this.trailingNL);
+        Token semicolon = formatToken(methodDeclarationNode.semicolon(), env.trailingWS, env.trailingNL);
 
         return methodDeclarationNode.modify()
                 .withQualifierList(qualifierList)
@@ -2858,7 +2826,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public WildcardBindingPatternNode transform(WildcardBindingPatternNode wildcardBindingPatternNode) {
         Token underscoreToken = formatToken(wildcardBindingPatternNode.underscoreToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return wildcardBindingPatternNode.modify()
                 .withUnderscoreToken(underscoreToken)
@@ -2881,7 +2849,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<BindingPatternNode> argListBindingPatterns =
                 formatSeparatedNodeList(errorBindingPatternNode.argListBindingPatterns(), 0, 0, 0, 0);
         Token closeParenthesis = formatToken(errorBindingPatternNode.closeParenthesis(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return errorBindingPatternNode.modify()
                 .withErrorKeyword(errorKeyword)
@@ -2896,8 +2864,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public NamedArgBindingPatternNode transform(NamedArgBindingPatternNode namedArgBindingPatternNode) {
         IdentifierToken argName = formatToken(namedArgBindingPatternNode.argName(), 1, 0);
         Token equalsToken = formatToken(namedArgBindingPatternNode.equalsToken(), 1, 0);
-        BindingPatternNode bindingPattern = formatNode(namedArgBindingPatternNode.bindingPattern(), this.trailingWS,
-                this.leadingNL);
+        BindingPatternNode bindingPattern = formatNode(namedArgBindingPatternNode.bindingPattern(), env.trailingWS,
+                env.leadingNL);
         return namedArgBindingPatternNode.modify()
                 .withArgName(argName)
                 .withEqualsToken(equalsToken)
@@ -2910,7 +2878,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         ExpressionNode expression = formatNode(asyncSendActionNode.expression(), 1, 0);
         Token rightArrowToken = formatToken(asyncSendActionNode.rightArrowToken(), 1, 0);
         SimpleNameReferenceNode peerWorker = formatNode(asyncSendActionNode.peerWorker(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return asyncSendActionNode.modify()
                 .withExpression(expression)
@@ -2924,7 +2892,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         ExpressionNode expression = formatNode(syncSendActionNode.expression(), 1, 0);
         Token syncSendToken = formatToken(syncSendActionNode.syncSendToken(), 1, 0);
         SimpleNameReferenceNode peerWorker = formatNode(syncSendActionNode.peerWorker(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return syncSendActionNode.modify()
                 .withExpression(expression)
@@ -2937,7 +2905,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public ReceiveActionNode transform(ReceiveActionNode receiveActionNode) {
         Token leftArrow = formatToken(receiveActionNode.leftArrow(), 1, 0);
         SimpleNameReferenceNode receiveWorkers = formatNode(receiveActionNode.receiveWorkers(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return receiveActionNode.modify()
                 .withLeftArrow(leftArrow)
@@ -2964,7 +2932,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public RestDescriptorNode transform(RestDescriptorNode restDescriptorNode) {
         TypeDescriptorNode typeDescriptor = formatNode(restDescriptorNode.typeDescriptor(), 0, 0);
-        Token ellipsisToken = formatToken(restDescriptorNode.ellipsisToken(), this.trailingWS, this.trailingNL);
+        Token ellipsisToken = formatToken(restDescriptorNode.ellipsisToken(), env.trailingWS, env.trailingNL);
 
         return restDescriptorNode.modify()
                 .withTypeDescriptor(typeDescriptor)
@@ -2975,7 +2943,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public DoubleGTTokenNode transform(DoubleGTTokenNode doubleGTTokenNode) {
         Token openGTToken = formatToken(doubleGTTokenNode.openGTToken(), 0, 0);
-        Token endGTToken = formatToken(doubleGTTokenNode.endGTToken(), this.trailingWS, this.trailingNL);
+        Token endGTToken = formatToken(doubleGTTokenNode.endGTToken(), env.trailingWS, env.trailingNL);
 
         return doubleGTTokenNode.modify()
                 .withOpenGTToken(openGTToken)
@@ -2987,7 +2955,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public TrippleGTTokenNode transform(TrippleGTTokenNode trippleGTTokenNode) {
         Token openGTToken = formatToken(trippleGTTokenNode.openGTToken(), 0, 0);
         Token middleGTToken = formatToken(trippleGTTokenNode.middleGTToken(), 0, 0);
-        Token endGTToken = formatToken(trippleGTTokenNode.endGTToken(), this.trailingWS, this.trailingNL);
+        Token endGTToken = formatToken(trippleGTTokenNode.endGTToken(), env.trailingWS, env.trailingNL);
 
         return trippleGTTokenNode.modify()
                 .withOpenGTToken(openGTToken)
@@ -2999,7 +2967,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public WaitActionNode transform(WaitActionNode waitActionNode) {
         Token waitKeyword = formatToken(waitActionNode.waitKeyword(), 1, 0);
-        Node waitFutureExpr = formatNode(waitActionNode.waitFutureExpr(), this.trailingWS, this.trailingNL);
+        Node waitFutureExpr = formatNode(waitActionNode.waitFutureExpr(), env.trailingWS, env.trailingNL);
 
         return waitActionNode.modify()
                 .withWaitKeyword(waitKeyword)
@@ -3011,7 +2979,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public WaitFieldsListNode transform(WaitFieldsListNode waitFieldsListNode) {
         Token openBrace = formatToken(waitFieldsListNode.openBrace(), 0, 0);
         SeparatedNodeList<Node> waitFields = formatSeparatedNodeList(waitFieldsListNode.waitFields(), 0, 0, 0, 0);
-        Token closeBrace = formatToken(waitFieldsListNode.closeBrace(), this.trailingWS, this.trailingNL);
+        Token closeBrace = formatToken(waitFieldsListNode.closeBrace(), env.trailingWS, env.trailingNL);
 
         return waitFieldsListNode.modify()
                 .withOpenBrace(openBrace)
@@ -3024,7 +2992,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public WaitFieldNode transform(WaitFieldNode waitFieldNode) {
         SimpleNameReferenceNode fieldName = formatNode(waitFieldNode.fieldName(), 0, 0);
         Token colon = formatToken(waitFieldNode.colon(), 1, 0);
-        ExpressionNode waitFutureExpr = formatNode(waitFieldNode.waitFutureExpr(), this.trailingWS, this.trailingNL);
+        ExpressionNode waitFutureExpr = formatNode(waitFieldNode.waitFutureExpr(), env.trailingWS, env.trailingNL);
 
         return waitFieldNode.modify()
                 .withFieldName(fieldName)
@@ -3038,7 +3006,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         ExpressionNode expression = formatNode(annotAccessExpressionNode.expression(), 0, 0);
         Token annotChainingToken = formatToken(annotAccessExpressionNode.annotChainingToken(), 0, 0);
         NameReferenceNode annotTagReference =
-                formatNode(annotAccessExpressionNode.annotTagReference(), this.trailingWS, this.trailingNL);
+                formatNode(annotAccessExpressionNode.annotTagReference(), env.trailingWS, env.trailingNL);
         return annotAccessExpressionNode.modify()
                 .withExpression(expression)
                 .withAnnotChainingToken(annotChainingToken)
@@ -3052,7 +3020,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         indent();
         Token doKeyword = formatToken(queryActionNode.doKeyword(), 1, 0);
         BlockStatementNode blockStatement = formatNode(queryActionNode.blockStatement(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
         unindent();
 
         return queryActionNode.modify()
@@ -3068,7 +3036,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         ExpressionNode expression = formatNode(optionalFieldAccessExpressionNode.expression(), 0, 0);
         Token optionalChainingToken = formatToken(optionalFieldAccessExpressionNode.optionalChainingToken(), 0, 0);
         NameReferenceNode fieldName = formatNode(optionalFieldAccessExpressionNode.fieldName(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return optionalFieldAccessExpressionNode.modify()
                 .withExpression(expression)
@@ -3084,7 +3052,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         ExpressionNode middleExpression = formatNode(conditionalExpressionNode.middleExpression(), 1, 0);
         Token colonToken = formatToken(conditionalExpressionNode.colonToken(), 1, 0);
         ExpressionNode endExpression = formatNode(conditionalExpressionNode.endExpression(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return conditionalExpressionNode.modify()
                 .withLhsExpression(lhsExpression)
@@ -3103,10 +3071,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (transactionStatementNode.onFailClause().isPresent()) {
             blockStatement = formatNode(transactionStatementNode.blockStatement(), 1, 0);
             OnFailClauseNode onFailClause = formatNode(transactionStatementNode.onFailClause().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             transactionStatementNode = transactionStatementNode.modify().withOnFailClause(onFailClause).apply();
         } else {
-            blockStatement = formatNode(transactionStatementNode.blockStatement(), this.trailingWS, this.trailingNL);
+            blockStatement = formatNode(transactionStatementNode.blockStatement(), env.trailingWS, env.trailingNL);
         }
 
         return transactionStatementNode.modify()
@@ -3127,7 +3095,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             rollbackKeyword = formatToken(rollbackStatementNode.rollbackKeyword(), 0, 0);
         }
 
-        Token semicolon = formatToken(rollbackStatementNode.semicolon(), this.trailingWS, this.trailingNL);
+        Token semicolon = formatToken(rollbackStatementNode.semicolon(), env.trailingWS, env.trailingNL);
 
         return rollbackStatementNode.modify()
                 .withRollbackKeyword(rollbackKeyword)
@@ -3158,10 +3126,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (retryStatementNode.onFailClause().isPresent()) {
             retryBody = formatNode(retryStatementNode.retryBody(), 1, 0);
             OnFailClauseNode onFailClause = formatNode(retryStatementNode.onFailClause().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             retryStatementNode = retryStatementNode.modify().withOnFailClause(onFailClause).apply();
         } else {
-            retryBody = formatNode(retryStatementNode.retryBody(), this.trailingWS, this.trailingNL);
+            retryBody = formatNode(retryStatementNode.retryBody(), env.trailingWS, env.trailingNL);
         }
 
         return retryStatementNode.modify()
@@ -3172,7 +3140,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public CommitActionNode transform(CommitActionNode commitActionNode) {
-        Token commitKeyword = formatToken(commitActionNode.commitKeyword(), this.trailingWS, this.trailingNL);
+        Token commitKeyword = formatToken(commitActionNode.commitKeyword(), env.trailingWS, env.trailingNL);
 
         return commitActionNode.modify()
                 .withCommitKeyword(commitKeyword)
@@ -3182,7 +3150,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public TransactionalExpressionNode transform(TransactionalExpressionNode transactionalExpressionNode) {
         Token transactionalKeyword = formatToken(transactionalExpressionNode.transactionalKeyword(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return transactionalExpressionNode.modify()
                 .withTransactionalKeyword(transactionalKeyword)
@@ -3203,7 +3171,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         Token serviceKeyword = formatToken(serviceConstructorExpressionNode.serviceKeyword(), 1, 0);
-        Node serviceBody = formatNode(serviceConstructorExpressionNode.serviceBody(), this.trailingWS, this.trailingNL);
+        Node serviceBody = formatNode(serviceConstructorExpressionNode.serviceBody(), env.trailingWS, env.trailingNL);
         return serviceConstructorExpressionNode.modify()
                 .withAnnotations(annotations)
                 .withServiceKeyword(serviceKeyword)
@@ -3213,7 +3181,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public TypeReferenceTypeDescNode transform(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
-        NameReferenceNode typeRef = formatNode(typeReferenceTypeDescNode.typeRef(), this.trailingWS, this.trailingNL);
+        NameReferenceNode typeRef = formatNode(typeReferenceTypeDescNode.typeRef(), env.trailingWS, env.trailingNL);
         return typeReferenceTypeDescNode.modify()
                 .withTypeRef(typeRef)
                 .apply();
@@ -3222,8 +3190,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public DistinctTypeDescriptorNode transform(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         Token distinctKeyword = formatToken(distinctTypeDescriptorNode.distinctKeyword(), 1, 0);
-        TypeDescriptorNode typeDescriptor = formatNode(distinctTypeDescriptorNode.typeDescriptor(), this.trailingWS,
-                this.trailingNL);
+        TypeDescriptorNode typeDescriptor = formatNode(distinctTypeDescriptorNode.typeDescriptor(), env.trailingWS,
+                env.trailingNL);
         return distinctTypeDescriptorNode.modify()
                 .withDistinctKeyword(distinctKeyword)
                 .withTypeDescriptor(typeDescriptor)
@@ -3234,7 +3202,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public OnConflictClauseNode transform(OnConflictClauseNode onConflictClauseNode) {
         Token onKeyword = formatToken(onConflictClauseNode.onKeyword(), 1, 0);
         Token conflictKeyword = formatToken(onConflictClauseNode.conflictKeyword(), 1, 0);
-        ExpressionNode expression = formatNode(onConflictClauseNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(onConflictClauseNode.expression(), env.trailingWS, env.trailingNL);
 
         return onConflictClauseNode.modify()
                 .withOnKeyword(onKeyword)
@@ -3246,7 +3214,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public LimitClauseNode transform(LimitClauseNode limitClauseNode) {
         Token limitKeyword = formatToken(limitClauseNode.limitKeyword(), 1, 0);
-        ExpressionNode expression = formatNode(limitClauseNode.expression(), this.trailingWS, this.trailingNL);
+        ExpressionNode expression = formatNode(limitClauseNode.expression(), env.trailingWS, env.trailingNL);
 
         return limitClauseNode.modify()
                 .withLimitKeyword(limitKeyword)
@@ -3266,7 +3234,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         TypedBindingPatternNode typedBindingPattern = formatNode(joinClauseNode.typedBindingPattern(), 1, 0);
         Token inKeyword = formatToken(joinClauseNode.inKeyword(), 1, 0);
         ExpressionNode expression = formatNode(joinClauseNode.expression(), 1, 0);
-        OnClauseNode joinOnCondition = formatNode(joinClauseNode.joinOnCondition(), this.trailingWS, this.trailingNL);
+        OnClauseNode joinOnCondition = formatNode(joinClauseNode.joinOnCondition(), env.trailingWS, env.trailingNL);
 
         return joinClauseNode.modify()
                 .withJoinKeyword(joinKeyword)
@@ -3282,7 +3250,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token onKeyword = formatToken(onClauseNode.onKeyword(), 1, 0);
         ExpressionNode lhsExpr = formatNode(onClauseNode.lhsExpression(), 1, 0);
         Token equalsKeyword = formatToken(onClauseNode.equalsKeyword(), 1, 0);
-        ExpressionNode rhsExpr = formatNode(onClauseNode.rhsExpression(), this.trailingWS, this.trailingNL);
+        ExpressionNode rhsExpr = formatNode(onClauseNode.rhsExpression(), env.trailingWS, env.trailingNL);
 
         return onClauseNode.modify()
                 .withOnKeyword(onKeyword)
@@ -3306,7 +3274,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .apply();
         }
 
-        Token closeBracket = formatToken(listMatchPatternNode.closeBracket(), this.trailingWS, this.trailingNL);
+        Token closeBracket = formatToken(listMatchPatternNode.closeBracket(), env.trailingWS, env.trailingNL);
         return listMatchPatternNode.modify()
                 .withOpenBracket(openBracket)
                 .withMatchPatterns(matchPatterns)
@@ -3319,7 +3287,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token ellipsisToken = formatToken(restMatchPatternNode.ellipsisToken(), 0, 0);
         Token varKeywordToken = formatToken(restMatchPatternNode.varKeywordToken(), 1, 0);
         SimpleNameReferenceNode variableName = formatNode(restMatchPatternNode.variableName(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return restMatchPatternNode.modify()
                 .withEllipsisToken(ellipsisToken)
@@ -3332,7 +3300,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public FieldMatchPatternNode transform(FieldMatchPatternNode fieldMatchPatternNode) {
         SimpleNameReferenceNode fieldNameNode = formatNode(fieldMatchPatternNode.fieldNameNode(), 0, 0);
         Token colonToken = formatToken(fieldMatchPatternNode.colonToken(), 0, 0);
-        Node matchPattern = formatNode(fieldMatchPatternNode.matchPattern(), this.trailingWS, this.trailingNL);
+        Node matchPattern = formatNode(fieldMatchPatternNode.matchPattern(), env.trailingWS, env.trailingNL);
 
         return fieldMatchPatternNode.modify()
                 .withFieldNameNode(fieldNameNode)
@@ -3358,7 +3326,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         SeparatedNodeList<Node> argListMatchPatternNode =
                 formatSeparatedNodeList(errorMatchPatternNode.argListMatchPatternNode(), 1, 0, 0, 0);
         Token closeParenthesisToken = formatToken(errorMatchPatternNode.closeParenthesisToken(),
-                this.trailingWS, this.trailingNL);
+                env.trailingWS, env.trailingNL);
 
         return errorMatchPatternNode.modify()
                 .withErrorKeyword(errorKeywordToken)
@@ -3372,7 +3340,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public NamedArgMatchPatternNode transform(NamedArgMatchPatternNode namedArgMatchPatternNode) {
         IdentifierToken identifier = formatToken(namedArgMatchPatternNode.identifier(), 1, 0);
         Token equalToken = formatToken(namedArgMatchPatternNode.equalToken(), 1, 0);
-        Node matchPattern = formatNode(namedArgMatchPatternNode.matchPattern(), this.trailingWS, this.trailingNL);
+        Node matchPattern = formatNode(namedArgMatchPatternNode.matchPattern(), env.trailingWS, env.trailingNL);
         return namedArgMatchPatternNode.modify()
                 .withIdentifier(identifier)
                 .withEqualToken(equalToken)
@@ -3385,7 +3353,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token orderKeyword = formatToken(orderByClauseNode.orderKeyword(), 1, 0);
         Token byKeyword = formatToken(orderByClauseNode.byKeyword(), 1, 0);
         SeparatedNodeList<OrderKeyNode> orderKey = formatSeparatedNodeList(orderByClauseNode.orderKey(),
-                1, 0, this.trailingWS, this.trailingNL);
+                1, 0, env.trailingWS, env.trailingNL);
 
         return orderByClauseNode.modify()
                 .withOrderKeyword(orderKeyword)
@@ -3400,10 +3368,10 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         if (orderKeyNode.orderDirection().isPresent()) {
             expression = formatNode(orderKeyNode.expression(), 1, 0);
-            Token orderDirection = formatToken(orderKeyNode.orderDirection().get(), this.trailingWS, this.trailingNL);
+            Token orderDirection = formatToken(orderKeyNode.orderDirection().get(), env.trailingWS, env.trailingNL);
             orderKeyNode = orderKeyNode.modify().withOrderDirection(orderDirection).apply();
         } else {
-            expression = formatNode(orderKeyNode.expression(), this.trailingWS, this.trailingNL);
+            expression = formatNode(orderKeyNode.expression(), env.trailingWS, env.trailingNL);
         }
 
         return orderKeyNode.modify()
@@ -3420,7 +3388,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @Override
     public BreakStatementNode transform(BreakStatementNode breakStatementNode) {
         Token breakToken = formatToken(breakStatementNode.breakToken(), 0, 0);
-        Token semicolonToken = formatToken(breakStatementNode.semicolonToken(), this.trailingWS, this.trailingNL);
+        Token semicolonToken = formatToken(breakStatementNode.semicolonToken(), env.trailingWS, env.trailingNL);
 
         return breakStatementNode.modify()
                 .withBreakToken(breakToken)
@@ -3440,8 +3408,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .apply();
         }
 
-        BlockStatementNode workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), this.trailingWS,
-                this.trailingNL);
+        BlockStatementNode workerBody = formatNode(namedWorkerDeclarationNode.workerBody(), env.trailingWS,
+                env.trailingNL);
 
         return namedWorkerDeclarationNode.modify()
                 .withAnnotations(annotations)
@@ -3462,7 +3430,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     .apply();
         }
 
-        Token closeBracket = formatToken(arrayTypeDescriptorNode.closeBracket(), this.trailingWS, this.trailingNL);
+        Token closeBracket = formatToken(arrayTypeDescriptorNode.closeBracket(), env.trailingWS, env.trailingNL);
         return arrayTypeDescriptorNode.modify()
                 .withOpenBracket(openBracket)
                 .withCloseBracket(closeBracket)
@@ -3475,7 +3443,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public XMLElementNode transform(XMLElementNode xMLElementNode) {
         XMLStartTagNode startTagNode = formatNode(xMLElementNode.startTag(), 0, 0);
         NodeList<XMLItemNode> content = formatNodeList(xMLElementNode.content(), 0, 0, 0, 0);
-        XMLEndTagNode endTagNode = formatNode(xMLElementNode.endTag(), this.trailingWS, this.trailingNL);
+        XMLEndTagNode endTagNode = formatNode(xMLElementNode.endTag(), env.trailingWS, env.trailingNL);
 
         return xMLElementNode.modify()
                 .withStartTag(startTagNode)
@@ -3490,7 +3458,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         int nameTrailingWS = xMLStartTagNode.attributes().isEmpty() ? 0 : 1;
         XMLNameNode name = formatNode(xMLStartTagNode.name(), nameTrailingWS, 0);
         NodeList<XMLAttributeNode> attributes = formatNodeList(xMLStartTagNode.attributes(), 1, 0, 0, 0);
-        Token getToken = formatToken(xMLStartTagNode.getToken(), this.trailingWS, this.trailingNL);
+        Token getToken = formatToken(xMLStartTagNode.getToken(), env.trailingWS, env.trailingNL);
 
         return xMLStartTagNode.modify()
                 .withLtToken(ltToken)
@@ -3505,7 +3473,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         Token ltToken = formatToken(xMLEndTagNode.ltToken(), 0, 0);
         Token slashToken = formatToken(xMLEndTagNode.slashToken(), 0, 0);
         XMLNameNode name = formatNode(xMLEndTagNode.name(), 0, 0);
-        Token getToken = formatToken(xMLEndTagNode.getToken(), this.trailingWS, this.trailingNL);
+        Token getToken = formatToken(xMLEndTagNode.getToken(), env.trailingWS, env.trailingNL);
 
         return xMLEndTagNode.modify()
                 .withLtToken(ltToken)
@@ -3521,12 +3489,12 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         if (xmlTypeDescriptorNode.xmlTypeParamsNode().isPresent()) {
             xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), 0, 0);
             TypeParameterNode xmlTypeParamsNode = formatNode(xmlTypeDescriptorNode.xmlTypeParamsNode().get(),
-                    this.trailingWS, this.trailingNL);
+                    env.trailingWS, env.trailingNL);
             xmlTypeDescriptorNode = xmlTypeDescriptorNode.modify()
                     .withXmlTypeParamsNode(xmlTypeParamsNode)
                     .apply();
         } else {
-            xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), this.trailingWS, this.trailingNL);
+            xmlKeywordToken = formatToken(xmlTypeDescriptorNode.xmlKeywordToken(), env.trailingWS, env.trailingNL);
         }
 
         return xmlTypeDescriptorNode.modify()
@@ -3538,7 +3506,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public XMLAttributeNode transform(XMLAttributeNode xMLAttributeNode) {
         XMLNameNode attributeName = formatNode(xMLAttributeNode.attributeName(), 0, 0);
         Token equalToken = formatToken(xMLAttributeNode.equalToken(), 0, 0);
-        XMLAttributeValue value = formatNode(xMLAttributeNode.value(), this.trailingWS, this.trailingNL);
+        XMLAttributeValue value = formatNode(xMLAttributeNode.value(), env.trailingWS, env.trailingNL);
 
         return xMLAttributeNode.modify()
                 .withAttributeName(attributeName)
@@ -3551,7 +3519,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     public XMLAttributeValue transform(XMLAttributeValue xMLAttributeValue) {
         Token startQuote = formatToken(xMLAttributeValue.startQuote(), 0, 0);
         NodeList<Node> value = formatNodeList(xMLAttributeValue.value(), 0, 0, 0, 0);
-        Token endQuote = formatToken(xMLAttributeValue.endQuote(), this.trailingWS, this.trailingNL);
+        Token endQuote = formatToken(xMLAttributeValue.endQuote(), env.trailingWS, env.trailingNL);
 
         return xMLAttributeValue.modify()
                 .withStartQuote(startQuote)
@@ -3562,12 +3530,12 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     @Override
     public IdentifierToken transform(IdentifierToken identifier) {
-        return formatToken(identifier, this.trailingWS, this.trailingNL);
+        return formatToken(identifier, env.trailingWS, env.trailingNL);
     }
 
     @Override
     public Token transform(Token token) {
-        return formatToken(token, this.trailingWS, this.trailingNL);
+        return formatToken(token, env.trailingWS, env.trailingNL);
     }
 
     // ------------------------------------- Set of private helper methods -------------------------------------
@@ -3592,25 +3560,25 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             return node;
         }
 
-        int prevTrailingNL = this.trailingNL;
-        int prevTrailingWS = this.trailingWS;
-        this.trailingNL = trailingNL;
-        this.trailingWS = trailingWS;
+        int prevTrailingNL = env.trailingNL;
+        int prevTrailingWS = env.trailingWS;
+        env.trailingNL = trailingNL;
+        env.trailingWS = trailingWS;
 
         node = (T) node.apply(this);
-        if (this.lineLength > COLUMN_LIMIT) {
+        if (env.lineLength > options.getColumnLimit()) {
             // If at-least one child node exceeds the column-limit,
             // then the parent should be wrapped. Therefore we only
             // set the flag, but do not un-set it.
-            this.wrapLine = true;
+            env.wrapLine = true;
         }
 
         if (shouldWrapLine(node)) {
             node = wrapLine(node);
         }
 
-        this.trailingNL = prevTrailingNL;
-        this.trailingWS = prevTrailingWS;
+        env.trailingNL = prevTrailingNL;
+        env.trailingWS = prevTrailingWS;
         return node;
     }
 
@@ -3633,23 +3601,23 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             return token;
         }
 
-        int prevTrailingNL = this.trailingNL;
-        int prevTrailingWS = this.trailingWS;
+        int prevTrailingNL = env.trailingNL;
+        int prevTrailingWS = env.trailingWS;
 
         // Trailing newlines can be at-most 1. Rest will go as newlines for the next token
-        this.trailingNL = trailingNL > 0 ? 1 : 0;
-        this.trailingWS = trailingWS;
+        env.trailingNL = trailingNL > 0 ? 1 : 0;
+        env.trailingWS = trailingWS;
 
         token = formatTokenInternal(token);
 
         // Set the leading newlines for the next token
-        this.leadingNL = trailingNL > 0 ? trailingNL - 1 : 0;
+        env.leadingNL = trailingNL > 0 ? trailingNL - 1 : 0;
 
-        // If this node has a trailing new line, then the next immediate token
+        // If env node has a trailing new line, then the next immediate token
         // will become the first token the the next line
-        this.hasNewline = trailingNL > 0;
-        this.trailingNL = prevTrailingNL;
-        this.trailingWS = prevTrailingWS;
+        env.hasNewline = trailingNL > 0;
+        env.trailingNL = prevTrailingNL;
+        env.trailingWS = prevTrailingWS;
         return token;
     }
 
@@ -3701,16 +3669,16 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         for (int index = 0; index < size; index++) {
             T oldNode = nodeList.get(index);
             T newNode;
-            boolean prevPreserveNL = this.preserveNewlines;
-            this.preserveNewlines = preserveNL;
+            boolean prevPreserveNL = env.preserveNewlines;
+            env.preserveNewlines = preserveNL;
             if (index == size - 1) {
-                // This is the last item of the list. Trailing WS and NL for the last item on the list
+                // env is the last item of the list. Trailing WS and NL for the last item on the list
                 // should be the WS and NL of the entire list
                 newNode = formatNode(oldNode, listTrailingWS, listTrailingNL);
             } else {
                 newNode = formatNode(oldNode, itemTrailingWS, itemTrailingNL);
             }
-            this.preserveNewlines = prevPreserveNL;
+            env.preserveNewlines = prevPreserveNL;
 
             if (oldNode != newNode) {
                 nodeModified = true;
@@ -3726,8 +3694,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     /**
-     * Format a delimited list of nodes. This method assumes the delimiters are followed by a single whitespace
-     * character only.
+     * Format a delimited list of nodes. env method assumes the delimiters are followed by a single whitespace character
+     * only.
      *
      * @param <T> Type of the list item
      * @param nodeList Node list to be formatted
@@ -3778,7 +3746,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             T oldNode = nodeList.get(index);
             T newNode;
             if (index == size - 1) {
-                // This is the last item of the list. Trailing WS and NL for the last item on the list
+                // env is the last item of the list. Trailing WS and NL for the last item on the list
                 // should be the WS and NL of the entire list
                 newNode = formatNode(oldNode, listTrailingWS, listTrailingNL);
             } else {
@@ -3820,33 +3788,33 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     @SuppressWarnings("unchecked")
     private <T extends Token> T formatTokenInternal(T token) {
         MinutiaeList newLeadingMinutiaeList = getLeadingMinutiae(token);
-        this.lineLength += token.text().length();
+        env.lineLength += token.text().length();
         MinutiaeList newTrailingMinutiaeList = getTrailingMinutiae(token);
 
-        if (this.preserveNewlines) {
+        if (env.preserveNewlines) {
             // We reach here for the first token in a list item (i.e: first token
-            // after making 'this.preserveNewlines = true').
+            // after making 'env.preserveNewlines = true').
             // However, rest of the token in the same item don't need to preserve the newlines.
-            this.preserveNewlines = false;
+            env.preserveNewlines = false;
         }
 
         return (T) token.modify(newLeadingMinutiaeList, newTrailingMinutiaeList);
     }
 
     private <T extends Node> void checkForNewline(T node) {
-        this.hasNewline = false;
+        env.hasNewline = false;
         for (Minutiae minutiae : node.trailingMinutiae()) {
             if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
-                this.hasNewline = true;
+                env.hasNewline = true;
                 break;
             }
         }
 
         // Set the line length for the next line.
-        if (this.hasNewline) {
-            this.lineLength = 0;
+        if (env.hasNewline) {
+            env.lineLength = 0;
         } else {
-            this.lineLength = node.location().lineRange().endLine().offset();
+            env.lineLength = node.location().lineRange().endLine().offset();
         }
     }
 
@@ -3857,7 +3825,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      * @return Flag indicating whether to wrap the current line or not
      */
     private boolean shouldWrapLine(Node node) {
-        if (!this.wrapLine) {
+        if (!env.wrapLine) {
             return false;
         }
 
@@ -3877,6 +3845,13 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             case RETURN_TYPE_DESCRIPTOR:
             case ANNOTATION_ATTACH_POINT:
                 return true;
+
+            // Template literals are multi line tokens, and newline are
+            // part of the content. Hence we cannot wrap those.
+            case XML_TEMPLATE_EXPRESSION:
+            case STRING_TEMPLATE_EXPRESSION:
+            case TEMPLATE_STRING:
+                return false;
             default:
                 // Expressions
                 if (SyntaxKind.BINARY_EXPRESSION.compareTo(kind) <= 0 &&
@@ -3890,7 +3865,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     /**
-     * Wrap the node. This is equivalent to adding a newline before the node and re-formatting the node. Wrapped content
+     * Wrap the node. env is equivalent to adding a newline before the node and re-formatting the node. Wrapped content
      * will start from the current level of indentation.
      *
      * @param <T> Node type
@@ -3899,16 +3874,16 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      */
     @SuppressWarnings("unchecked")
     private <T extends Node> T wrapLine(T node) {
-        this.leadingNL += 1;
-        this.lineLength = 0;
-        this.hasNewline = true;
-        this.wrapLine = false;
+        env.leadingNL += 1;
+        env.lineLength = 0;
+        env.hasNewline = true;
+        env.wrapLine = false;
         node = (T) node.apply(this);
 
         // Sometimes wrapping the current node wouldn't be enough.
         // Therefore set the flag so that the parent node will also
         // get wrapped, if needed.
-        this.wrapLine = this.lineLength > COLUMN_LIMIT;
+        env.wrapLine = env.lineLength > options.getColumnLimit();
 
         return node;
     }
@@ -3923,12 +3898,12 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         int consecutiveNewlines = 0;
         Minutiae prevMinutiae = null;
-        if (this.hasNewline) {
+        if (env.hasNewline) {
             // 'hasNewlines == true' means a newline has already been added.
             // Therefore increase the 'consecutiveNewlines' count
             consecutiveNewlines++;
 
-            for (int i = 0; i < this.leadingNL; i++) {
+            for (int i = 0; i < env.leadingNL; i++) {
                 prevMinutiae = getNewline();
                 leadingMinutiae.add(prevMinutiae);
                 consecutiveNewlines++;
@@ -3961,9 +3936,9 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                     break;
                 case COMMENT_MINUTIAE:
                     if (consecutiveNewlines > 0) {
-                        // If there's a newline before this, then add padding to
+                        // If there's a newline before env, then add padding to
                         // match the current indentation level
-                        addWhitespace(this.indentation, leadingMinutiae);
+                        addWhitespace(env.currentIndentation, leadingMinutiae);
                     } else {
                         // Else, add a single whitespace
                         addWhitespace(1, leadingMinutiae);
@@ -3984,7 +3959,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
         }
 
         if (consecutiveNewlines > 0) {
-            addWhitespace(this.indentation, leadingMinutiae);
+            addWhitespace(env.currentIndentation, leadingMinutiae);
         }
 
         MinutiaeList newLeadingMinutiaeList = NodeFactory.createMinutiaeList(leadingMinutiae);
@@ -4009,11 +3984,11 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     /**
      * Check whether a leading newline needs to be added.
      *
-     * @param prevMinutiae Mintiae that precedes the current token
+     * @param prevMinutiae Minutiae that precedes the current token
      * @return <code>true</code> if a leading newline needs to be added. <code>false</code> otherwise
      */
     private boolean shouldAddLeadingNewline(Minutiae prevMinutiae) {
-        if (this.preserveNewlines) {
+        if (env.preserveNewlines) {
             return true;
         }
 
@@ -4034,7 +4009,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     /**
      * Check whether a whitespace needs to be added.
      *
-     * @param prevMinutiae Mintiae that precedes the current token
+     * @param prevMinutiae Minutiae that precedes the current token
      * @return <code>true</code> if a whitespace needs to be added. <code>false</code> otherwise
      */
     private boolean shouldAddWS(Minutiae prevMinutiae) {
@@ -4054,8 +4029,8 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     private MinutiaeList getTrailingMinutiae(Token token) {
         List<Minutiae> trailingMinutiae = new ArrayList<>();
         Minutiae prevMinutiae = null;
-        if (this.trailingWS > 0) {
-            addWhitespace(this.trailingWS, trailingMinutiae);
+        if (env.trailingWS > 0) {
+            addWhitespace(env.trailingWS, trailingMinutiae);
         }
 
         // Preserve the necessary trailing minutiae coming from the original token
@@ -4077,7 +4052,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
                         continue;
                     }
 
-                    addWhitespace(this.trailingWS, trailingMinutiae);
+                    addWhitespace(env.trailingWS, trailingMinutiae);
                     break;
                 case COMMENT_MINUTIAE:
                     addWhitespace(1, trailingMinutiae);
@@ -4095,7 +4070,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
             prevMinutiae = minutiae;
         }
 
-        if (consecutiveNewlines == 0 && this.trailingNL > 0) {
+        if (consecutiveNewlines == 0 && env.trailingNL > 0) {
             trailingMinutiae.add(getNewline());
         }
         MinutiaeList newTrailingMinutiaeList = NodeFactory.createMinutiaeList(trailingMinutiae);
@@ -4125,7 +4100,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
     private Minutiae getNewline() {
         // reset the line length
-        this.lineLength = 0;
+        env.lineLength = 0;
         return NodeFactory.createEndOfLineMinutiae(FormatterUtils.NEWLINE_SYMBOL);
     }
 
@@ -4133,19 +4108,19 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      * Indent the code by the 4-whitespace characters.
      */
     private void indent() {
-        this.indentation += DEFAULT_INDENTATION;
+        env.currentIndentation += options.getTabSize();
     }
 
     /**
      * Undo the indentation of the code by the 4-whitespace characters.
      */
     private void unindent() {
-        if (this.indentation < DEFAULT_INDENTATION) {
-            this.indentation = 0;
+        if (env.currentIndentation < options.getTabSize()) {
+            env.currentIndentation = 0;
             return;
         }
 
-        this.indentation -= DEFAULT_INDENTATION;
+        env.currentIndentation -= options.getTabSize();
     }
 
     /**
@@ -4154,16 +4129,16 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
      * @param value Number of characters to set the indentation from the start of the line.
      */
     private void setIndentation(int value) {
-        this.indentation = value;
+        env.currentIndentation = value;
     }
 
     private String getWSContent(int count) {
         // for all whitespaces, increase the line length
-        this.lineLength += count;
+        env.lineLength += count;
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < count; i++) {
-            sb.append(" ");
+            sb.append(options.getWSCharacter());
         }
 
         return sb.toString();
