@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
@@ -137,7 +137,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_SNIPPET.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR_TYPE_DESC.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR_TYPE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLASS.get()));
         return completionItems;
     }

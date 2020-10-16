@@ -21,31 +21,19 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 
 /**
  * Extern function lang.string:getCodePoint(string, int).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", version = STRING_VERSION, functionName = "getCodePoint",
-        args = {@Argument(name = "str", type = TypeKind.STRING), @Argument(name = "i", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
-        isPublic = true
-)
 public class GetCodePoint {
 
-    public static long getCodePoint(Strand strand, BString str, long i) {
+    public static long getCodePoint(BString str, long i) {
         try {
             return str.getCodePoint((int) i);
         } catch (IndexOutOfBoundsException e) {

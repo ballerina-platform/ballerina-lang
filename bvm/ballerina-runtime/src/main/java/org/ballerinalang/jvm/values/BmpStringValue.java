@@ -71,6 +71,11 @@ package org.ballerinalang.jvm.values;
      }
 
      @Override
+     public String expressionStringValue(BLink parent) {
+         return informalStringValue(parent);
+     }
+
+     @Override
      public int hashCode() {
          return value.hashCode();
      }

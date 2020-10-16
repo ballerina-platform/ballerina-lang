@@ -18,28 +18,20 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.FLOAT_VERSION;
-
 /**
  * Native implementation of lang.float:floor(float).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", version = FLOAT_VERSION, functionName = "floor",
-        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
-        returnType = {@ReturnType(type = TypeKind.FLOAT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.float", functionName = "floor",
+//        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
+//        returnType = {@ReturnType(type = TypeKind.FLOAT)},
+//        isPublic = true
+//)
 public class Floor {
 
-    public static double floor(Strand strand, double x) {
+    public static double floor(double x) {
         return Math.floor(x);
     }
 }

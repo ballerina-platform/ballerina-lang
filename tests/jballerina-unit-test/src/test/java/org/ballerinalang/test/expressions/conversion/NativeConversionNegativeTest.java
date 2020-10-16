@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.expressions.conversion;
 
-import org.ballerinalang.model.types.BErrorType;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.types.BErrorType;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;

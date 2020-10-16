@@ -71,7 +71,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static org.ballerinalang.jvm.IdentifierEncoder.decodeIdentifier;
+import static org.ballerinalang.jvm.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -474,8 +474,8 @@ class JvmTypeGen {
                                String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRAND_METADATA, SCHEDULER,
                                              STRAND_CLASS, MAP), false);
             mv.visitInsn(SWAP);
-            mv.visitMethodInsn(INVOKESTATIC, className, "$init", String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE),
-                               false);
+            mv.visitMethodInsn(INVOKESTATIC, className, JvmConstants.RECORD_INIT_WRAPPER_NAME,
+                    String.format("(L%s;L%s;)V", STRAND_CLASS, MAP_VALUE), false);
 
             mv.visitInsn(ARETURN);
             i += 1;

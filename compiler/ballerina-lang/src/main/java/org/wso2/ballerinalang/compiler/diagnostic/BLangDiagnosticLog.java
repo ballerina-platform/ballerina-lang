@@ -164,7 +164,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      * Report a diagnostic for a given package.
      * 
      * @param pkgId Package ID of the diagnostic associated with
-     * @param diagnostic
+     * @param diagnostic the diagnostic to be logged
      */
     public void logDiagnostic(PackageID pkgId, Diagnostic diagnostic) {
         if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {

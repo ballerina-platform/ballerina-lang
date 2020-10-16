@@ -17,10 +17,8 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
-import org.ballerinalang.model.tree.IdentifiableNode;
-
 /**
  * @since 0.94
  */
-public interface VariableReferenceNode extends ExpressionNode, IdentifiableNode {
+public interface VariableReferenceNode extends ExpressionNode {
 }

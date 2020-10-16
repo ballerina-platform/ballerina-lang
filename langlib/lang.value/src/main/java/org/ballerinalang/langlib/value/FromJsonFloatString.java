@@ -22,31 +22,16 @@ import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.api.BErrorCreator;
 import org.ballerinalang.jvm.api.BStringUtils;
 import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
  * Parse a string in JSON format and return the the value that it represents.
  * All numbers in the JSON will be represented as float values.
  */
 
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
-        functionName = "fromJsonFloatString",
-        args = {@Argument(name = "str", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.ERROR)},
-        isPublic = true
-)
-
 public class FromJsonFloatString {
 
-    public static Object fromJsonFloatString(Strand strand, BString value) {
+    public static Object fromJsonFloatString(BString value) {
 
         String str = value.getValue();
         if (str.equals("null")) {

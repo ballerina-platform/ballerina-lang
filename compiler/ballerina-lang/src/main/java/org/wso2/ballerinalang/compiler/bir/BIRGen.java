@@ -69,7 +69,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -310,8 +310,9 @@ public class BIRGen extends BLangNodeVisitor {
             String builtinFuncName = funcName.substring(funcName.indexOf("<") + 1, funcName.indexOf(">"));
             String modifiedFuncName = funcName.replace(builtinFuncName, "test" + builtinFuncName);
             function.name.setValue(modifiedFuncName);
-            function.originalFuncSymbol.name.value = modifiedFuncName;
-            function.symbol.name.value = modifiedFuncName;
+            Name functionName = names.fromString(modifiedFuncName);
+            function.originalFuncSymbol.name = functionName;
+            function.symbol.name = functionName;
         }
     }
 
@@ -322,8 +323,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Replace Mocked Function calls in every service
         if (birPkg.typeDefs.size() != 0) {
             for (BIRTypeDefinition typeDef : birPkg.typeDefs) {
-                if (typeDef.type instanceof BServiceType) {
-                    // Replace Mocked function calls in every service function
+                if (typeDef.type instanceof BObjectType) {
                     replaceFunctions(typeDef.attachedFuncs, mockFunctionMap);
                 }
             }

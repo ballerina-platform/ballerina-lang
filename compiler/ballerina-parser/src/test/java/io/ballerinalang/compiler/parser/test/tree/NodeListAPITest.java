@@ -17,21 +17,21 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
-import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NodeFactory;
-import io.ballerinalang.compiler.syntax.tree.NodeList;
-import io.ballerinalang.compiler.syntax.tree.StatementNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.StatementNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

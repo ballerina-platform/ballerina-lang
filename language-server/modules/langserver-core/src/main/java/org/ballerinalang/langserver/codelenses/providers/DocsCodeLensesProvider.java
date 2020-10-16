@@ -15,38 +15,37 @@
  */
 package org.ballerinalang.langserver.codelenses.providers;
 
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.langserver.codelenses.CodeLensUtil;
-import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.codelenses.CodeLensesProviderKeys;
 import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
-import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.AnnotatableNode;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-
-import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.getDocumentationEditForNodeByPosition;
+import java.util.Optional;
 
 /**
  * Code lenses provider for adding all documentation for top level items.
@@ -68,129 +67,88 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
     @Override
     public List<CodeLens> getLenses(LSContext context) throws LSCodeLensesProviderException {
         List<CodeLens> lenses = new ArrayList<>();
-        BLangCompilationUnit cUnit = context.get(CodeLensesProviderKeys.COMPILATION_UNIT_KEY);
-        String fileUri = context.get(CodeLensesProviderKeys.FILE_URI_KEY);
-        BLangPackage bLangPackage = context.get(CodeLensesProviderKeys.BLANG_PACKAGE_KEY);
-        for (TopLevelNode topLevelNode : cUnit.getTopLevelNodes()) {
-            addDocLenses(lenses, fileUri, bLangPackage, topLevelNode, context);
-        }
-        return lenses;
-    }
-
-    private void addDocLenses(List<CodeLens> lenses, String fileUri, BLangPackage bLangPackage,
-                              TopLevelNode topLevelNode, LSContext context) {
-        TopLevelNodeDetail nodeDetail = resolveTopLevelTypeDetails(topLevelNode);
-        if (nodeDetail == null) {
-            // Skip, unknown construct
-            return;
-        }
-        String nodeType = nodeDetail.type;
-        String nodeName = nodeDetail.name;
-        Position nodePosition = nodeDetail.position;
-        Position nodeTopMostPos = nodeDetail.topMostPosition;
-        boolean hasDocumentation = nodeDetail.hasDocumentation;
-        DocAttachmentInfo info = getDocumentationEditForNodeByPosition(
-                nodeType, bLangPackage, topLevelNode.getPosition().getStartLine() - 1, context);
-        if (info == null) {
-            // Skip, can not document
-            return;
-        }
-        if (topLevelNode instanceof AnnotatableNode &&
-                (((AnnotatableNode) topLevelNode).getFlags() == null ||
-                        !((AnnotatableNode) topLevelNode).getFlags().contains(Flag.PUBLIC))) {
-            // Skip, does not have public modifier
-            return;
-        }
-        Command command;
-        if (hasDocumentation) {
-            CommandArgument nameArg = new CommandArgument(CommandConstants.ARG_KEY_FUNCTION_NAME, nodeName);
-            List<Object> args = new ArrayList<>(Collections.singletonList(nameArg));
-            command = new Command("Preview Docs", "ballerina.showDocs", args);
-            lenses.add(new CodeLens(new Range(nodeTopMostPos, nodeTopMostPos), command, null));
-        } else {
-            CommandArgument nodeTypeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, nodeType);
-            CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, fileUri);
-            CommandArgument lineStart = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE,
-                                                            String.valueOf(nodePosition.getLine()));
-            List<Object> args = new ArrayList<>(Arrays.asList(nodeTypeArg, docUriArg, lineStart));
-            command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE,
-                                  AddDocumentationExecutor.COMMAND, args);
-            lenses.add(new CodeLens(new Range(nodeTopMostPos, nodeTopMostPos), command, null));
-        }
-    }
-
-    private TopLevelNodeDetail resolveTopLevelTypeDetails(TopLevelNode topLevelNode) {
-        if (topLevelNode.getWS() == null) {
-            // Skip $anon$ constructs
-            return null;
-        } else if (topLevelNode instanceof BLangTypeDefinition) {
-            BLangTypeDefinition definition = (BLangTypeDefinition) topLevelNode;
-            return TopLevelNodeDetail.fromTypeDefinition(definition);
-        } else if (topLevelNode instanceof BLangFunction) {
-            BLangFunction func = (BLangFunction) topLevelNode;
-            return TopLevelNodeDetail.fromFunction(func);
-        } else if (topLevelNode instanceof BLangService) {
-            BLangService service = (BLangService) topLevelNode;
-            return TopLevelNodeDetail.fromService(service);
-        }
-        return null;
-    }
-
-    private static class TopLevelNodeDetail {
-        String type;
-        String name;
-        Position position;
-        Position topMostPosition;
-        boolean hasDocumentation;
-
-        TopLevelNodeDetail(String type, String name, Position position,
-                           Position topmostPos, boolean hasDocumentation) {
-            this.type = type;
-            this.name = name;
-            this.position = position;
-            this.topMostPosition = topmostPos;
-            this.hasDocumentation = hasDocumentation;
-        }
-
-        static TopLevelNodeDetail fromFunction(BLangFunction func) {
-            if (BLangConstants.MAIN_FUNCTION_NAME.equals(func.name.value)) {
-                // Skip main function
-                return null;
+        String documentUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+        try {
+            Optional<Path> filePath = CommonUtil.getPathFromURI(documentUri);
+            if (!filePath.isPresent()) {
+                return new ArrayList<>();
             }
-            int sLine = func.pos.sLine - 1;
-            sLine = CodeLensUtil.getTopMostLocOfAnnotations(func.annAttachments, sLine);
-            sLine = CodeLensUtil.getTopMostLocOfDocs(func.markdownDocumentationAttachment, sLine);
-            boolean hasDocs = (func.markdownDocumentationAttachment != null);
-            Position pos = new Position(func.pos.sLine - 1, 0);
-            Position topmostPos = new Position(sLine, 0);
-            return new TopLevelNodeDetail("function", func.name.value, pos, topmostPos, hasDocs);
-        }
-
-        static TopLevelNodeDetail fromService(BLangService service) {
-            int sLine = service.pos.sLine - 1;
-            sLine = CodeLensUtil.getTopMostLocOfAnnotations(service.annAttachments, sLine);
-            sLine = CodeLensUtil.getTopMostLocOfDocs(service.markdownDocumentationAttachment, sLine);
-            boolean hasDocs = (service.markdownDocumentationAttachment != null);
-            Position pos = new Position(service.pos.sLine - 1, 0);
-            Position topmostPos = new Position(sLine, 0);
-            return new TopLevelNodeDetail("service", service.name.value, pos, topmostPos, hasDocs);
-        }
-
-        static TopLevelNodeDetail fromTypeDefinition(BLangTypeDefinition definition) {
-            boolean hasDocs = (definition.markdownDocumentationAttachment != null);
-            int sLine = definition.pos.sLine - 1;
-            sLine = CodeLensUtil.getTopMostLocOfAnnotations(definition.annAttachments, sLine);
-            sLine = CodeLensUtil.getTopMostLocOfDocs(definition.markdownDocumentationAttachment, sLine);
-            Position pos = new Position(definition.pos.sLine - 1, 0);
-            Position topmostPos = new Position(sLine, 0);
-            if (definition.typeNode instanceof BLangObjectTypeNode) {
-                if (!((BLangObjectTypeNode) definition.typeNode).flagSet.contains(Flag.SERVICE)) {
-                    return new TopLevelNodeDetail("object", definition.name.value, pos, topmostPos, hasDocs);
+            WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+            SyntaxTree syntaxTree = documentManager.getTree(filePath.get());
+            for (ModuleMemberDeclarationNode member : ((ModulePartNode) syntaxTree.rootNode()).members()) {
+                Position nodeTopMostPos = null;
+                int line = 0;
+                boolean showLens = false;
+                switch (member.kind()) {
+                    case FUNCTION_DEFINITION:
+                        FunctionDefinitionNode funcDef = (FunctionDefinitionNode) member;
+                        String nodeName = funcDef.functionName().text();
+                        for (Token qualifier : funcDef.qualifierList()) {
+                            if (qualifier.kind() == SyntaxKind.PUBLIC_KEYWORD && !"main".equals(nodeName)) {
+                                showLens = true;
+                                break;
+                            }
+                        }
+                        nodeTopMostPos = CommonUtil.toRange(funcDef.lineRange()).getStart();
+                        line = nodeTopMostPos.getLine();
+                        if (funcDef.metadata().isPresent() && !funcDef.metadata().get().annotations().isEmpty()) {
+                            LineRange topAnnotRange = funcDef.metadata().get().annotations().get(0).lineRange();
+                            nodeTopMostPos = CommonUtil.toRange(topAnnotRange).getStart();
+                        }
+                        break;
+                    case TYPE_DEFINITION:
+                        TypeDefinitionNode typeDef = (TypeDefinitionNode) member;
+                        showLens = typeDef.visibilityQualifier()
+                                .map(s -> s.kind() == SyntaxKind.PUBLIC_KEYWORD)
+                                .orElse(false);
+                        nodeTopMostPos = CommonUtil.toRange(typeDef.lineRange()).getStart();
+                        line = nodeTopMostPos.getLine();
+                        if (typeDef.metadata().isPresent() && !typeDef.metadata().get().annotations().isEmpty()) {
+                            LineRange topAnnotRange = typeDef.metadata().get().annotations().get(0).lineRange();
+                            nodeTopMostPos = CommonUtil.toRange(topAnnotRange).getStart();
+                        }
+                        break;
+                    case CLASS_DEFINITION:
+                        ClassDefinitionNode classDef = (ClassDefinitionNode) member;
+                        showLens = classDef.visibilityQualifier()
+                                .map(s -> s.kind() == SyntaxKind.PUBLIC_KEYWORD)
+                                .orElse(false);
+                        nodeTopMostPos = CommonUtil.toRange(classDef.lineRange()).getStart();
+                        line = nodeTopMostPos.getLine();
+                        if (classDef.metadata().isPresent() && !classDef.metadata().get().annotations().isEmpty()) {
+                            LineRange topAnnotRange = classDef.metadata().get().annotations().get(0).lineRange();
+                            nodeTopMostPos = CommonUtil.toRange(topAnnotRange).getStart();
+                        }
+                        break;
+                    case SERVICE_DECLARATION:
+                        ServiceDeclarationNode serviceDeclr = (ServiceDeclarationNode) member;
+                        showLens = false;
+                        nodeTopMostPos = CommonUtil.toRange(serviceDeclr.lineRange()).getStart();
+                        line = nodeTopMostPos.getLine();
+                        if (serviceDeclr.metadata().isPresent() &&
+                                !serviceDeclr.metadata().get().annotations().isEmpty()) {
+                            LineRange topAnnotRange = serviceDeclr.metadata().get().annotations().get(0).lineRange();
+                            nodeTopMostPos = CommonUtil.toRange(topAnnotRange).getStart();
+                        }
+                        break;
+                    default:
+                        break;
                 }
-            } else if (definition.typeNode instanceof BLangRecordTypeNode) {
-                return new TopLevelNodeDetail("record", definition.name.value, pos, topmostPos, hasDocs);
+                if (showLens) {
+                    CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, documentUri);
+                    CommandArgument lineStart = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE,
+                                                                    String.valueOf(line));
+                    List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
+                    Command command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE,
+                                                  AddDocumentationExecutor.COMMAND, args);
+                    lenses.add(new CodeLens(new Range(nodeTopMostPos, nodeTopMostPos), command, null));
+                }
             }
-            return null;
+        } catch (
+                WorkspaceDocumentException e) {
+            throw new LSCodeLensesProviderException("Error when processing the 'add all documentation' code lens", e);
         }
+
+        return lenses;
     }
 }

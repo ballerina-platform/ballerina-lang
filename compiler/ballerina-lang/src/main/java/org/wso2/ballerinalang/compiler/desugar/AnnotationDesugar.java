@@ -91,6 +91,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.jvm.util.BLangConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
@@ -537,7 +538,7 @@ public class AnnotationDesugar {
     }
 
     private BLangFunction defineFunction(DiagnosticPos pos, PackageID pkgID, BSymbol owner) {
-        String funcName = ANNOT_FUNC + annotFuncCount++;
+        String funcName = ANNOT_FUNC + UNDERSCORE + annotFuncCount++;
         BLangFunction function = ASTBuilderUtil.createFunction(pos, funcName);
         function.type = new BInvokableType(Collections.emptyList(), symTable.mapType, null);
 

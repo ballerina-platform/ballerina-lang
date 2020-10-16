@@ -413,12 +413,6 @@ public class BTestRunner {
                                  Scheduler scheduler, AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
                                  List<String> failedOrSkippedTests, List<String> failedAfterFuncTests) {
         TesterinaResult functionResult;
-        Path sourceRootPath = Paths.get(suite.getSourceRootPath());
-        Path jsonCacheDir = sourceRootPath.resolve("target").resolve("caches").resolve("json_cache");
-        Path rerunJson =
-                jsonCacheDir.resolve(suite.getOrgName()).resolve(suite.getPackageID()).resolve(suite.getVersion());
-        Path jsonPath = Paths.get(rerunJson.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
-        File jsonFile = new File(jsonPath.toString());
 
         try {
             if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests) ||
@@ -467,7 +461,15 @@ public class BTestRunner {
             suite.getGroups().get(groupName).incrementExecutedCount();
         }
 
-        writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
+        if (!packageName.equals(TesterinaConstants.DOT)) {
+            Path sourceRootPath = Paths.get(suite.getSourceRootPath()).resolve(TesterinaConstants.TARGET_DIR_NAME)
+                    .resolve(TesterinaConstants.CACHES_DIR_NAME).resolve(TesterinaConstants.JSON_CACHE_DIR_NAME);
+            Path rerunJson = sourceRootPath.resolve(suite.getOrgName()).resolve(suite.getPackageID())
+                    .resolve(suite.getVersion());
+            Path jsonPath = Paths.get(rerunJson.toString(), TesterinaConstants.RERUN_TEST_JSON_FILE);
+            File jsonFile = new File(jsonPath.toString());
+            writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
+        }
 
     }
 
@@ -761,4 +763,3 @@ public class BTestRunner {
     }
 
 }
-

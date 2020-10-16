@@ -179,6 +179,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.jvm.util.BLangConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
@@ -264,9 +265,9 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = null;
         } else {
             BLangVariableReference result;
-            if (queryExpr.type.tag == TypeTags.XML) {
+            if (TypeTags.isXMLTypeTag(queryExpr.type.tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
-            } else if (queryExpr.type.tag == TypeTags.STRING) {
+            } else if (TypeTags.isStringTypeTag(queryExpr.type.tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
                 BType arrayType = queryExpr.type;
@@ -899,7 +900,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return new variable name.
      */
     private String getNewVarName() {
-        return "$streamElement$" + streamElementCount++;
+        return "$streamElement$" + UNDERSCORE + streamElementCount++;
     }
 
     /**
