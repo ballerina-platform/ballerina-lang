@@ -4,6 +4,7 @@ class Foo {
     }
 
     function getName() {
+
     }
     private remote function get() {
     }

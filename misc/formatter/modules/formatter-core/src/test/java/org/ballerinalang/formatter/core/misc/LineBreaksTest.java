@@ -27,7 +27,7 @@ import java.nio.file.Paths;
  *
  * @since 2.0.0
  */
-public class LineWrappingTest extends FormatterTest {
+public class LineBreaksTest extends FormatterTest {
 
     @Test(dataProvider = "test-file-provider")
     public void test(String source, String sourcePath) throws IOException {
@@ -42,6 +42,6 @@ public class LineWrappingTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("misc", "linewrapping").toString();
+        return Paths.get("misc", "linebreaks").toString();
     }
 }
