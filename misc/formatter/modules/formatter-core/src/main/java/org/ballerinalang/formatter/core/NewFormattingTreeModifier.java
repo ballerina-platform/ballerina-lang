@@ -2272,7 +2272,7 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
-        if (shouldExpand(objectTypeDescriptorNode.members())) {
+        if (shouldExpand(objectTypeDescriptorNode)) {
             fieldTrailingNL++;
         } else {
             fieldTrailingWS++;
@@ -4264,6 +4264,43 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     }
 
     /**
+     * Check whether a object type descriptor needs to be expanded in to multiple lines.
+     *
+     * @param objectTypeDesc Object type descriptor
+     * @return <code>true</code> If the object type descriptor needs to be expanded in to multiple lines.
+     *         <code>false</code> otherwise
+     */
+    private boolean shouldExpand(ObjectTypeDescriptorNode objectTypeDesc) {
+        if (objectTypeDesc.parent().kind() == SyntaxKind.TYPE_DEFINITION) {
+            return true;
+        }
+
+        NodeList<Node> members = objectTypeDesc.members();
+        int fieldCount = members.size();
+
+        if (fieldCount > 3) {
+            return true;
+        }
+
+        for (Node member : members) {
+            if (member.kind() == SyntaxKind.METHOD_DECLARATION) {
+                return true;
+            }
+
+            TextRange textRange = member.textRange();
+            if ((textRange.endOffset() - textRange.startOffset()) > 15) {
+                return true;
+            }
+
+            if (hasNonWSMinutiae(member.leadingMinutiae()) || hasNonWSMinutiae(member.trailingMinutiae())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Check whether a record type descriptor needs to be expanded in to multiple lines.
      *
      * @param recordTypeDesc Record type descriptor
@@ -4277,10 +4314,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
 
         int fieldCount = recordTypeDesc.fields().size();
         fieldCount += recordTypeDesc.recordRestDescriptor().isPresent() ? 1 : 0;
-        if (fieldCount <= 1) {
-            return false;
-        }
-
         if (fieldCount > 3) {
             return true;
         }
