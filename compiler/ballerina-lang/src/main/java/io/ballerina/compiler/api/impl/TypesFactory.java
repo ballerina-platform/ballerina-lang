@@ -110,7 +110,8 @@ public class TypesFactory {
                 // fall through
             default:
                 if (isTypeReference(bType, rawTypeOnly)) {
-                    return new BallerinaTypeReferenceTypeDescriptor(moduleID, bType, bType.tsymbol.getName().getValue());
+                    return new BallerinaTypeReferenceTypeDescriptor(moduleID, bType,
+                            bType.tsymbol.getName().getValue());
                 }
                 return new BallerinaSimpleTypeDescriptor(moduleID, bType);
         }

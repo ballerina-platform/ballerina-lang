@@ -29,4 +29,5 @@ module io.ballerina.language.server.core {
     exports org.ballerinalang.langserver.common.utils;
     exports org.ballerinalang.langserver.common.constants;
     exports org.ballerinalang.langserver.codeaction.providers;
+    exports org.ballerinalang.langserver.exception;
 }

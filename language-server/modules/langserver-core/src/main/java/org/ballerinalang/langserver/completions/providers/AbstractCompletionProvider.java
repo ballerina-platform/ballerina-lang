@@ -180,18 +180,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         return completionItems;
     }
 
-//    /**
-//     * Populate the completion item list by either list.
-//     *
-//     * @param list    Either List of completion items or symbol info
-//     * @param context LS Operation Context
-//     * @return {@link List}     Completion Items List
-//     */
-//    protected List<LSCompletionItem> getCompletionItemList(Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> list,
-//                                                           LSContext context) {
-//        return list.isLeft() ? list.getLeft() : this.getCompletionItemList(list.getRight(), context);
-//    }
-
     /**
      * Get the type completion Items.
      *
@@ -207,7 +195,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 completionItems.add(new SymbolCompletionItem(context, bSymbol, cItem));
             }
         });
-        
+
         completionItems.add(new TypeCompletionItem(context, null, Snippet.TYPE_MAP.get().build(context)));
 
         completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
@@ -265,8 +253,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                     item.setDetail(ItemResolverConstants.MODULE_TYPE);
                     item.setKind(CompletionItemKind.Module);
                     populatedList.add(orgName + "/" + pkgName);
-                    // Fixme
-//                    return new SymbolCompletionItem(ctx, pkg.symbol, item);
                     return new SymbolCompletionItem(ctx, null, item);
                 }).collect(Collectors.toList());
 
@@ -447,43 +433,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         CompletionItem completionItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
         return new SymbolCompletionItem(context, symbol, completionItem);
     }
-
-//    /**
-//     * Get the function parameter signature generated dynamically, with the given list of parameter types.
-//     * Parameter names will not be included for the arrow function snippets and the parameter names are generated
-//     * dynamically
-//     *
-//     * @param paramTypes List of Parameter Types
-//     * @param withType   Whether tha parameters included with the types. In case of arrow functions this value is false
-//     * @param context    Language server operation context
-//     * @return {@link String} Generated function parameter snippet
-//     * @throws LSCompletionException Completion exception
-//     */
-//    protected String getDynamicParamsSnippet(List<BLangVariable> paramTypes, boolean withType, LSContext context)
-//            throws LSCompletionException {
-//        String paramName = "param";
-//        StringBuilder signature = new StringBuilder("(");
-//        List<String> params = IntStream.range(0, paramTypes.size())
-//                .mapToObj(index -> {
-//                    int paramIndex = index + 1;
-//                    String paramPlaceHolder = "${" + paramIndex + ":" + paramName + paramIndex + "}";
-//                    if (withType) {
-//                        BType paramType = paramTypes.get(index).getTypeNode().type;
-//                        paramPlaceHolder = CommonUtil.getBTypeName(paramType, context, true) + " " + paramPlaceHolder;
-//                    }
-//                    return paramPlaceHolder;
-//                })
-//                .collect(Collectors.toList());
-//
-//        if (params.contains("")) {
-//            throw new LSCompletionException("Contains invalid parameter type");
-//        }
-//
-//        signature.append(String.join(", ", params))
-//                .append(") ");
-//
-//        return signature.toString();
-//    }
 
     /**
      * Whether the cursor is located at the qualified name reference context.

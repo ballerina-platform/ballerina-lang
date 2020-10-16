@@ -61,7 +61,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -265,7 +264,8 @@ public class CommonUtil {
 //                }
 //                break;
             case UNION:
-                List<BallerinaTypeDescriptor> members = new ArrayList<>(((UnionTypeDescriptor) bType).memberTypeDescriptors());
+                List<BallerinaTypeDescriptor> members =
+                        new ArrayList<>(((UnionTypeDescriptor) bType).memberTypeDescriptors());
                 typeString = getDefaultValueForType(members.get(0));
                 break;
             case STREAM:
@@ -401,7 +401,7 @@ public class CommonUtil {
      */
     public static Optional<TypeSymbol> getTypeFromModule(LSContext context, String alias, String typeName) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, alias);
-        if (!module.isPresent()) {
+        if (module.isEmpty()) {
             return Optional.empty();
         }
         for (TypeSymbol typeSymbol : module.get().typeDefinitions()) {
@@ -411,10 +411,6 @@ public class CommonUtil {
         }
 
         return Optional.empty();
-//        return module.flatMap(scopeEntry -> scopeEntry.symbol.scope.entries.values().stream()
-//                .filter(isBType()
-//                        .and(entry -> getBTypeName(entry.symbol.type, context, false).equals(alias + ":" + typeName)))
-//                .findAny());
     }
 
     /**
@@ -563,26 +559,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get the function name from the Invokable symbol.
-     *
-     * @param functionSymbol symbol
-     * @return {@link String} Function name
-     */
-    public static String getFunctionNameFromSymbol(FunctionSymbol functionSymbol) {
-        String[] funcNameComponents = functionSymbol.name().split("\\.");
-        String functionName = funcNameComponents[funcNameComponents.length - 1];
-
-        // If there is a receiver symbol, then the name comes with the package name and struct name appended.
-        // Hence we need to remove it
-//        if (functionSymbol.receiverSymbol != null) {
-//            String receiverType = functionSymbol.receiverSymbol.getType().toString();
-//            functionName = functionName.replace(receiverType + ".", "");
-//        }
-
-        return functionName;
-    }
-
-    /**
      * Get the function invocation signature.
      *
      * @param functionSymbol ballerina function instance
@@ -594,7 +570,7 @@ public class CommonUtil {
                                                                       String functionName,
                                                                       LSContext ctx) {
         FunctionTypeDescriptor functionTypeDesc = functionSymbol.typeDescriptor();
-        // Fixme: Check the following with init and empty args function
+        // TODO: Check the following with init and empty args function
 //        if (!functionTypeDesc.isPresent()) {
 //            return ImmutablePair.of(functionName + "();", functionName + "()");
 //        }
@@ -623,22 +599,8 @@ public class CommonUtil {
     }
 
     /**
-     * Get the type of the given symbol.
-     *
-     * @param symbol symbol to evaluate
-     * @return {@link BType} of the symbol
-     */
-    public static BType getTypeOfSymbol(BSymbol symbol) {
-        if (symbol instanceof BInvokableSymbol) {
-            return ((BInvokableSymbol) symbol).getReturnType();
-        }
-
-        return symbol.type;
-    }
-
-    /**
      * Extract the required fields from the records.
-     * 
+     *
      * @param recordType record type descriptor to evaluate
      * @return {@link List} of required fields captured
      */
@@ -706,22 +668,12 @@ public class CommonUtil {
     ///////////////////////////////
 
     /**
-     * Predicate to check for the invalid symbols.
-     *
-     * @return {@link Predicate}    Predicate for the check
-     */
-    public static Predicate<Scope.ScopeEntry> invalidSymbolsPredicate() {
-        return scopeEntry -> scopeEntry != null && isInvalidSymbol(scopeEntry.symbol);
-    }
-
-    /**
      * Predicate to check for the imports in the current file.
      *
      * @return {@link Predicate}    Predicate for the check
      */
     public static Predicate<BLangImportPackage> importInCurrentFilePredicate(LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        //TODO: Removed `importPkg.getWS() != null` check, need to find another way to skip streaming imports
         return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile);
     }
 
@@ -803,7 +755,7 @@ public class CommonUtil {
 
     /**
      * Whether the given module is a langlib module.
-     * 
+     *
      * @param moduleID Module ID to evaluate
      * @return {@link Boolean} whether langlib or not
      */

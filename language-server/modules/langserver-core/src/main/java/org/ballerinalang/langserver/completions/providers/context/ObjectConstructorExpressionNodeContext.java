@@ -15,9 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
@@ -113,8 +111,8 @@ public class ObjectConstructorExpressionNodeContext
         Token objectKeyword = node.objectKeyword();
         Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
 
-        return cursor > lastQualifier.textRange().endOffset() && (objectKeyword.isMissing()
-                || cursor < objectKeyword.textRange().startOffset());
+        return cursor > lastQualifier.textRange().endOffset()
+                && (objectKeyword.isMissing() || cursor < objectKeyword.textRange().startOffset());
     }
 
     private boolean onSuggestTypeReferences(LSContext context, ObjectConstructorExpressionNode node) {

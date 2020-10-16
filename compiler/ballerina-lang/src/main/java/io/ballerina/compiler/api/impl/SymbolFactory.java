@@ -106,7 +106,7 @@ public class SymbolFactory {
         if (symbol.kind == SymbolKind.XMLNS) {
             return createXMLNamespaceSymbol((BXMLNSSymbol) symbol);
         }
-        
+
         if (symbol == null) {
             throw new IllegalArgumentException("Symbol is 'null'");
         }

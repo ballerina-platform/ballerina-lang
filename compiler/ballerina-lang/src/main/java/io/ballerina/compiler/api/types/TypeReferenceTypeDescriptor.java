@@ -17,8 +17,6 @@
  */
 package io.ballerina.compiler.api.types;
 
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-
 /**
  * Represents a TypeReference type descriptor.
  *
@@ -35,7 +33,7 @@ public interface TypeReferenceTypeDescriptor extends BallerinaTypeDescriptor {
 
     /**
      * Get the reference name.
-     * 
+     *
      * @return {@link String} name of the definition
      */
     String name();

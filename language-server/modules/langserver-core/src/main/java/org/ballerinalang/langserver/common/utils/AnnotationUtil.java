@@ -38,11 +38,12 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.annotation.Nonnull;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getRecordFieldCompletionInsertText;
@@ -183,7 +184,7 @@ public class AnnotationUtil {
                 List<FieldDescriptor> requiredFields = new ArrayList<>();
                 annotationStart.append(" ").append(CommonKeys.OPEN_BRACE_KEY).append(LINE_SEPARATOR);
                 if (resultType.get().kind() == TypeDescKind.RECORD) {
-                    requiredFields.addAll(CommonUtil.getMandatoryRecordFields(((RecordTypeDescriptor) resultType.get())));
+                    requiredFields.addAll(CommonUtil.getMandatoryRecordFields((RecordTypeDescriptor) resultType.get()));
                 }
                 List<String> insertTexts = new ArrayList<>();
                 requiredFields.forEach(field -> {

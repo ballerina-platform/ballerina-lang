@@ -136,7 +136,7 @@ public class SignatureHelpUtil {
         Optional<BLangPackage> bLangPackage = ExtendedLSCompiler.compileContent(subRule, CompilerPhase.CODE_ANALYZE)
                 .getBLangPackage();
 
-        if (!bLangPackage.isPresent()) {
+        if (bLangPackage.isEmpty()) {
             return Optional.empty();
         }
 
@@ -255,7 +255,8 @@ public class SignatureHelpUtil {
 //                    break;
 //                }
 //            }
-//            visibleSymbols = moduleSymbol.map(symbol -> new ArrayList<>(symbol.allSymbols())).orElseGet(ArrayList::new);
+//            visibleSymbols = moduleSymbol.map(symbol -> new ArrayList<>(symbol.allSymbols()))
+//            .orElseGet(ArrayList::new);
 //        }
 //        // Resolve rest of the path
 //        String[] nameComps = pathStr.split("\\.");
@@ -411,7 +412,8 @@ public class SignatureHelpUtil {
 //                    bRecordType.fields.values().forEach(p -> {
 //                        BVarSymbol symbol = p.symbol;
 //                        parameters.add(
-//                                new Parameter(symbol.name.getValue(), symbol.type, Symbols.isOptional(symbol), false));
+//                                new Parameter(symbol.name.getValue(), symbol.type, Symbols.isOptional(symbol),
+//                                false));
 //                    });
 //                    BType restFieldType = bRecordType.restFieldType;
 //                    if (restFieldType != null) {

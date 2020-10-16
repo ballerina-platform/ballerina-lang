@@ -24,7 +24,6 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -54,7 +53,7 @@ import java.util.stream.Collectors;
 
 /**
  * Find the visible Symbols for Resources and Functions.
- * 
+ *
  * @since 0.985.0
  */
 public class VisibleEndpointVisitor extends LSNodeVisitor {
@@ -66,7 +65,7 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     private SymbolTable symTable;
 
     private Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode;
-    
+
     private Map<PackageID, BLangImportPackage> packageMap;
 
     public VisibleEndpointVisitor(CompilerContext compilerContext) {
@@ -180,12 +179,12 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
                 .map(bLangSimpleVariable -> bLangSimpleVariable.symbol)
                 .collect(Collectors.toList());
         List<BSymbol> visibleSymbols = new ArrayList<>();
-        symbolResolver.getAllVisibleInScopeSymbols(symbolEnv).forEach((key, value) -> 
+        symbolResolver.getAllVisibleInScopeSymbols(symbolEnv).forEach((key, value) ->
                 visibleSymbols.addAll(
                         value.stream()
                                 .map(scopeEntry -> scopeEntry.symbol)
                                 .collect(Collectors.toList())));
-        
+
 //        return visibleSymbols.stream()
 //                .filter(symbol -> symbol instanceof BVarSymbol && SymbolUtil.isClient(/*symbol*/null)
 //                    && (parameters.contains(symbol) || symbol.owner instanceof BPackageSymbol))
@@ -210,10 +209,10 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
 //                .collect(Collectors.toList());
         return new ArrayList<>();
     }
-    
+
     private void resolveEndpointsFromStatements(List<BLangStatement> statements, BLangNode owner) {
         statements.forEach(stmt -> {
-            if (stmt instanceof  BLangSimpleVariableDef) {
+            if (stmt instanceof BLangSimpleVariableDef) {
                 BVarSymbol symbol = ((BLangSimpleVariableDef) stmt).var.symbol;
                 if (SymbolUtil.isClient(/*symbol*/null)) {
                     BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
