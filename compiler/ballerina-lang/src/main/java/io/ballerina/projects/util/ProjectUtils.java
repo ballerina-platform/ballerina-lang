@@ -14,7 +14,6 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -60,8 +59,6 @@ public class ProjectUtils {
                                              List<CompiledJarFile> compiledPackageJarList,
                                              Path targetPath) throws IOException {
 
-        PrintStream printStream = System.out;
-        printStream.println();
         // Used to prevent adding duplicated entries during the final jar creation.
         HashSet<String> copiedEntries = new HashSet<>();
 
