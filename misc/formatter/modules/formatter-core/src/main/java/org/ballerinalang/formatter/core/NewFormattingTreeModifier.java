@@ -3668,12 +3668,11 @@ public class NewFormattingTreeModifier extends TreeModifier {
 
             env.trailingNL = prevTrailingNL;
             env.trailingWS = prevTrailingWS;
-            return node;
         } catch (Exception e) {
-            LOGGER.error(String.format("Error while formatting [node: %s] [line: %s]: %s",
-                    node.kind().name(), node.lineRange().startLine().line() + 1, e));
-            return node;
+            LOGGER.error(String.format("Error while formatting [node: %s] [line: %s] [column:%s]: %s",
+                node.kind().name(), node.lineRange().startLine().line() + 1, node.lineRange().startLine().offset(), e));
         }
+        return node;
     }
 
     /**
