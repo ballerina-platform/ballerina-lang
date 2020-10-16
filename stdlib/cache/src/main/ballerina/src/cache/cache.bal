@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/java;
-import ballerina/log;
 import ballerina/task;
 import ballerina/time;
 

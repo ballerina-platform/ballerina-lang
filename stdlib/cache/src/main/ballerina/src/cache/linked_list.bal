@@ -34,7 +34,7 @@ public type Node record {|
 #
 # + head - The first node of the linked list
 # + tail - The last node of the linked list
-public type Cache object {
+public type LinkedList object {
 
     // This flag is used to avoid concurrency issues occurring during the removing nodes from the linked-list.
     // Ballerina locks cannot be used for this since it may lead to unexpected results.
