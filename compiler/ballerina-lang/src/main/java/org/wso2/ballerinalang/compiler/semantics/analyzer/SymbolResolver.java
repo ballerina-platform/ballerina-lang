@@ -894,11 +894,14 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public void boostrapCloneableType() {
         ScopeEntry entry = symTable.langValueModuleSymbol.scope.lookup(Names.CLONEABLE);
+        boolean foundCloneableType = false;
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
                 entry = entry.next;
                 continue;
             }
+            foundCloneableType = true;
+
             symTable.cloneableType = (BUnionType) entry.symbol.type;
             symTable.cloneableType.flags |= Flags.CYCLIC;
             symTable.cloneableType.tsymbol =
@@ -906,9 +909,24 @@ public class SymbolResolver extends BLangNodeVisitor {
                             symTable.cloneableType, symTable.langValueModuleSymbol, symTable.builtinPos, BUILTIN);
 
             symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
+            break;
+        }
+
+        if (!foundCloneableType) {
+            throw new IllegalStateException("built-in 'lang.value:Cloneable' type not found");
+        }
+
+        entry = symTable.rootPkgSymbol.scope.lookup(Names.ERROR);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            BErrorType errorType = (BErrorType) entry.symbol.type;
+            errorType.detailType = symTable.detailType;
             return;
         }
-        throw new IllegalStateException("built-in 'lang.value:Cloneable' type not found");
+        throw new IllegalStateException("built-in error not found ?");
     }
 
     public void boostrapIntRangeType() {
