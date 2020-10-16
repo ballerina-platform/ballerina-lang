@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompiledPackage;
@@ -134,12 +135,6 @@ public class PackageLoader {
 
     private PackageLoader(CompilerContext context) {
         context.put(PACKAGE_LOADER_KEY, this);
-
-        this.sourceDirectory = context.get(SourceDirectory.class);
-        if (this.sourceDirectory == null) {
-            throw new IllegalArgumentException("source directory has not been initialized");
-        }
-
         this.options = CompilerOptions.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.parser = Parser.getInstance(context);
@@ -151,6 +146,21 @@ public class PackageLoader {
         this.testEnabled = Boolean.parseBoolean(options.get(TEST_ENABLED));
         this.lockEnabled = Boolean.parseBoolean(options.get(LOCK_ENABLED));
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
+
+        // Check whether the compilation is initiated by the project API.
+        boolean projectAPIInitiatedCompilation = Boolean.parseBoolean(
+                options.get(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION));
+        if (projectAPIInitiatedCompilation) {
+            this.sourceDirectory = null;
+            this.repos = null;
+            this.lockFile = null;
+            return;
+        }
+
+        this.sourceDirectory = context.get(SourceDirectory.class);
+        if (this.sourceDirectory == null) {
+            throw new IllegalArgumentException("source directory has not been initialized");
+        }
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
         this.lockFile = LockFileProcessor.getInstance(context, this.lockEnabled).getLockFile();
     }
