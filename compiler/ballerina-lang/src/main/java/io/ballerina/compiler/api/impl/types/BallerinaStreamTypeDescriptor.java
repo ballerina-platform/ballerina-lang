@@ -18,13 +18,11 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.StreamTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -49,11 +47,6 @@ public class BallerinaStreamTypeDescriptor extends AbstractTypeDescriptor implem
 
     @Override
     public List<BallerinaTypeDescriptor> typeParameters() {
-        if (this.typeParameters == null) {
-            this.typeParameters = new ArrayList<>();
-            typeParameters.add(TypesFactory.getTypeDescriptor(((BStreamType) this.getBType()).constraint));
-        }
-
         return this.typeParameters;
     }
 

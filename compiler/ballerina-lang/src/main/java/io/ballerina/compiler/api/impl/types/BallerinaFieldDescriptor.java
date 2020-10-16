@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.api.impl.types;
 
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.impl.symbols.BallerinaDocumentation;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -38,12 +37,6 @@ public class BallerinaFieldDescriptor implements FieldDescriptor {
     private final Documentation docAttachment;
     private final BField bField;
     private final BallerinaTypeDescriptor typeDescriptor;
-
-    public BallerinaFieldDescriptor(BField bField) {
-        this.bField = bField;
-        this.typeDescriptor = TypesFactory.getTypeDescriptor(bField.getType());
-        this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
-    }
 
     public BallerinaFieldDescriptor(BallerinaTypeDescriptor fieldType, BField bField) {
         this.bField = bField;
@@ -77,7 +70,7 @@ public class BallerinaFieldDescriptor implements FieldDescriptor {
      */
     @Override
     public BallerinaTypeDescriptor typeDescriptor() {
-        return TypesFactory.getTypeDescriptor(this.bField.getType());
+        return this.typeDescriptor;
     }
 
     /**

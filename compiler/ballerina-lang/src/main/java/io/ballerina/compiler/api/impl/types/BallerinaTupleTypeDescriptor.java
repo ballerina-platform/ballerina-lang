@@ -18,14 +18,11 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TupleTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -53,22 +50,11 @@ public class BallerinaTupleTypeDescriptor extends AbstractTypeDescriptor impleme
 
     @Override
     public List<BallerinaTypeDescriptor> memberTypeDescriptors() {
-        if (this.memberTypes == null) {
-            this.memberTypes = new ArrayList<>();
-            for (BType type : ((BTupleType) this.getBType()).tupleTypes) {
-                this.memberTypes.add(TypesFactory.getTypeDescriptor(type));
-            }
-        }
-
         return this.memberTypes;
     }
 
     @Override
     public Optional<BallerinaTypeDescriptor> restTypeDescriptor() {
-        if (this.restTypeDesc == null) {
-            this.restTypeDesc = TypesFactory.getTypeDescriptor(((BTupleType) this.getBType()).restType);
-        }
-
         return Optional.ofNullable(this.restTypeDesc);
     }
 

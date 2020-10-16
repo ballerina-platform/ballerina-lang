@@ -18,14 +18,11 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.UnionTypeDescriptor;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -50,12 +47,6 @@ public class BallerinaUnionTypeDescriptor extends AbstractTypeDescriptor impleme
 
     @Override
     public List<BallerinaTypeDescriptor> memberTypeDescriptors() {
-        if (this.memberTypes == null) {
-            this.memberTypes = new ArrayList<>();
-            for (BType memberType : ((BUnionType) this.getBType()).getMemberTypes()) {
-                this.memberTypes.add(TypesFactory.getTypeDescriptor(memberType));
-            }
-        }
         return this.memberTypes;
     }
 

@@ -18,7 +18,6 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
@@ -50,9 +49,6 @@ public class BallerinaTypeReferenceTypeDescriptor extends AbstractTypeDescriptor
 
     @Override
     public BallerinaTypeDescriptor typeDescriptor() {
-        if (this.typeDescriptorImpl == null) {
-            this.typeDescriptorImpl = TypesFactory.getTypeDescriptor(this.getBType(), true);
-        }
         return this.typeDescriptorImpl;
     }
 

@@ -18,12 +18,10 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.util.MethodDeclaration;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -42,7 +40,6 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     // private TypeDescriptor objectTypeReference;
     private List<FieldDescriptor> objectFields;
     private List<MethodDeclaration> methods;
-    private BallerinaMethodSymbol initFunction;
 
     public BallerinaObjectTypeDescriptor(ModuleID moduleID, BObjectType objectType) {
         super(TypeDescKind.OBJECT, moduleID, objectType);
@@ -79,12 +76,6 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
 
     @Override
     public List<FieldDescriptor> fieldDescriptors() {
-        if (this.objectFields == null) {
-            this.objectFields = new ArrayList<>();
-            for (BField field : ((BObjectType) this.getBType()).fields.values()) {
-                this.objectFields.add(new BallerinaFieldDescriptor(field));
-            }
-        }
         return objectFields;
     }
 
@@ -93,17 +84,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
      *
      * @return {@link List} of object methods
      */
-    // TODO: Rename to method declarations
     public List<MethodDeclaration> methods() {
-        if (this.methods == null) {
-//            this.methods = new ArrayList<>();
-//            for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) ((BObjectType) this
-//                    .getBType()).tsymbol).attachedFuncs) {
-//                this.methods
-//                        .add(SymbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
-//            }
-        }
-
         return this.methods;
     }
 

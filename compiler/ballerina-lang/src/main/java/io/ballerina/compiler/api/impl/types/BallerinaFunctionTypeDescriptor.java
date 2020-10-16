@@ -77,9 +77,6 @@ public class BallerinaFunctionTypeDescriptor extends AbstractTypeDescriptor impl
 
     @Override
     public Optional<BallerinaTypeDescriptor> returnTypeDescriptor() {
-        if (returnType == null) {
-            this.returnType = TypesFactory.getTypeDescriptor(this.typeSymbol.returnType);
-        }
         return Optional.ofNullable(this.returnType);
     }
 

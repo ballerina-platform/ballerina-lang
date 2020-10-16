@@ -18,15 +18,12 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.RecordTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -61,13 +58,6 @@ public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implem
      */
     @Override
     public List<FieldDescriptor> fieldDescriptors() {
-        if (this.fieldDescriptors == null) {
-            this.fieldDescriptors = new ArrayList<>();
-            for (BField field : ((BRecordType) this.getBType()).fields.values()) {
-                this.fieldDescriptors.add(new BallerinaFieldDescriptor(field));
-            }
-        }
-
         return this.fieldDescriptors;
     }
 
@@ -83,9 +73,6 @@ public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implem
 
     @Override
     public Optional<BallerinaTypeDescriptor> restTypeDescriptor() {
-        if (this.restTypeDesc == null) {
-            this.restTypeDesc = TypesFactory.getTypeDescriptor(((BRecordType) this.getBType()).restFieldType);
-        }
         return Optional.ofNullable(this.restTypeDesc);
     }
 

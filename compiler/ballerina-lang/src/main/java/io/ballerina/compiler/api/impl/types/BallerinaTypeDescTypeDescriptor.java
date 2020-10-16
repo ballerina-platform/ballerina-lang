@@ -18,7 +18,6 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeDescTypeDescriptor;
@@ -47,10 +46,6 @@ public class BallerinaTypeDescTypeDescriptor extends AbstractTypeDescriptor impl
 
     @Override
     public Optional<BallerinaTypeDescriptor> typeParameter() {
-        if (this.typeParameter == null) {
-            this.typeParameter = TypesFactory.getTypeDescriptor(((BTypedescType) this.getBType()).constraint);
-        }
-
         return Optional.ofNullable(this.typeParameter);
     }
 

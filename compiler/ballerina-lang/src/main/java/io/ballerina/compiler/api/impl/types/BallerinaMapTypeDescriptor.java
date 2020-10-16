@@ -18,7 +18,6 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.MapTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
@@ -46,9 +45,6 @@ public class BallerinaMapTypeDescriptor extends AbstractTypeDescriptor implement
 
     @Override
     public Optional<BallerinaTypeDescriptor> typeParameter() {
-        if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BMapType) this.getBType()).constraint);
-        }
         return Optional.ofNullable(this.memberTypeDesc);
     }
 

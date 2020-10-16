@@ -18,7 +18,6 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.ErrorTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
@@ -49,9 +48,6 @@ public class BallerinaErrorTypeDescriptor extends AbstractTypeDescriptor impleme
      */
     @Override
     public BallerinaTypeDescriptor detailTypeDescriptor() {
-        if (this.detail == null) {
-            this.detail = TypesFactory.getTypeDescriptor(((BErrorType) this.getBType()).getDetailType());
-        }
         return this.detail;
     }
 

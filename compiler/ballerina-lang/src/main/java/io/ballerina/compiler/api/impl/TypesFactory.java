@@ -62,6 +62,7 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
  */
 public class TypesFactory {
 
+    @Deprecated
     public static BallerinaTypeDescriptor getTypeDescriptor(BType bType) {
         return getTypeDescriptor(bType, false);
     }
@@ -73,6 +74,7 @@ public class TypesFactory {
      * @param rawTypeOnly Whether to convert the type descriptor to type reference or keep the raw type
      * @return {@link BallerinaTypeDescriptor} generated
      */
+    @Deprecated
     public static BallerinaTypeDescriptor getTypeDescriptor(BType bType, boolean rawTypeOnly) {
         if (bType == null || bType.tag == TypeTags.NONE) {
             return null;

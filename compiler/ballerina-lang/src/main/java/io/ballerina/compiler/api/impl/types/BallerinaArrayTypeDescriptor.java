@@ -18,7 +18,6 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.ArrayTypeDescriptor;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
@@ -47,9 +46,6 @@ public class BallerinaArrayTypeDescriptor extends AbstractTypeDescriptor impleme
 
     @Override
     public BallerinaTypeDescriptor memberTypeDescriptor() {
-        if (this.memberTypeDesc == null) {
-            this.memberTypeDesc = TypesFactory.getTypeDescriptor(((BArrayType) this.getBType()).eType);
-        }
         return memberTypeDesc;
     }
 
