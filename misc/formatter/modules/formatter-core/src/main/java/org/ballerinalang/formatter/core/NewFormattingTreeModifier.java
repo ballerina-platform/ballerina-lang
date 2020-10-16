@@ -193,6 +193,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
 import io.ballerina.compiler.syntax.tree.TransactionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
+import io.ballerina.compiler.syntax.tree.TreeModifier;
 import io.ballerina.compiler.syntax.tree.TrippleGTTokenNode;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
@@ -248,7 +249,7 @@ import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
  *
  * @since 2.0.0
  */
-public class NewFormattingTreeModifier extends FormattingTreeModifier {
+public class NewFormattingTreeModifier extends TreeModifier {
 
     // Formatting configurations of the current session. These configurations
     // are fixed for the given session.
@@ -262,7 +263,6 @@ public class NewFormattingTreeModifier extends FormattingTreeModifier {
     private final LineRange lineRange;
 
     public NewFormattingTreeModifier(FormattingOptions options, LineRange lineRange) {
-        super(options, lineRange);
         this.options = options;
         this.lineRange = lineRange;
         this.env = new FormattingEnv();
