@@ -366,6 +366,10 @@ public class NewFormattingTreeModifier extends TreeModifier {
         }
 
         unindent(); // reset the indentation
+        if (functionBodyBlockNode.statements().isEmpty() &&
+                !functionBodyBlockNode.namedWorkerDeclarator().isPresent()) {
+            env.preserveNewlines = true;
+        }
         Token closeBrace = formatToken(functionBodyBlockNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return functionBodyBlockNode.modify()
@@ -706,8 +710,11 @@ public class NewFormattingTreeModifier extends TreeModifier {
         indent(); // increase indentation for the statements to follow.
         NodeList<Node> resources = formatNodeList(serviceBodyNode.resources(), 0, 1, 0, 1, true);
         unindent(); // reset the indentation
-        Token closeBraceToken = formatToken(serviceBodyNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
+        if (serviceBodyNode.resources().isEmpty()) {
+            env.preserveNewlines = true;
+        }
+        Token closeBraceToken = formatToken(serviceBodyNode.closeBraceToken(), env.trailingWS, env.trailingNL);
         return serviceBodyNode.modify()
                 .withOpenBraceToken(openBraceToken)
                 .withResources(resources)
