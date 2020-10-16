@@ -1080,16 +1080,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             ExpressionNode initializer,
             Token semicolonToken) {
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
-        Objects.requireNonNull(equalsToken, "equalsToken must not be null");
-        Objects.requireNonNull(initializer, "initializer must not be null");
         Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
 
         STNode stModuleVariableDeclarationNode = STNodeFactory.createModuleVariableDeclarationNode(
                 getOptionalSTNode(metadata),
                 getOptionalSTNode(finalKeyword),
                 typedBindingPattern.internalNode(),
-                equalsToken.internalNode(),
-                initializer.internalNode(),
+                getOptionalSTNode(equalsToken),
+                getOptionalSTNode(initializer),
                 semicolonToken.internalNode());
         return stModuleVariableDeclarationNode.createUnlinkedFacade();
     }

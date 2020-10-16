@@ -1114,9 +1114,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         TypedBindingPatternNode typedBindingPattern =
                 modifyNode(moduleVariableDeclarationNode.typedBindingPattern());
         Token equalsToken =
-                modifyToken(moduleVariableDeclarationNode.equalsToken());
+                modifyToken(moduleVariableDeclarationNode.equalsToken().orElse(null));
         ExpressionNode initializer =
-                modifyNode(moduleVariableDeclarationNode.initializer());
+                modifyNode(moduleVariableDeclarationNode.initializer().orElse(null));
         Token semicolonToken =
                 modifyToken(moduleVariableDeclarationNode.semicolonToken());
         return moduleVariableDeclarationNode.modify(
