@@ -76,6 +76,7 @@ configurations {
     htmlTemplateResources {
         transitive false
     }
+    distributionBalo
 }
 
 dependencies {
@@ -186,6 +187,27 @@ dependencies {
     syntaxHighlighter project(path: ':docerina', configuration: 'syntaxHighlighter')
     htmlTemplateResources project(path: ':docerina', configuration: 'htmlTemplateResources')
 
+    distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:future', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:integer', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:map', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:object', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:query', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:stream', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:string', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:table', configuration: 'distributionBalo')
+    // distributionBalo project(path: ':ballerina-langlib:test', configuration: 'distributionBalo')
+    // distributionBalo project(path: ':ballerina-lang:transaction', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:typedesc', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
 }
 
 
@@ -231,6 +253,13 @@ def copyBalxSpec = {
     path -> copySpec {
         from configurations.balx
         into(path + 'lib/balx')
+    }
+}
+
+def copyToDistCache = {
+    path -> copySpec {
+        from configurations.distributionBalo
+        into(path + 'distribution-cache')
     }
 }
 
@@ -438,6 +467,7 @@ task createZip(type: Zip) {
 //    with copySrcBaloSpec(basePath)
     with copyKraalLib(basePath)
     with copyJaCoCoAgent(basePath)
+    with copyToDistCache(basePath)
 }
 
 task updateBalHome(type: Copy) {
@@ -491,6 +521,7 @@ task createDistribution(type: Copy) {
 //    with copySrcBaloSpec("")
     with copyKraalLib("")
     with copyJaCoCoAgent("")
+    with copyToDistCache("")
     destinationDir=file(filePath)
 }
 
