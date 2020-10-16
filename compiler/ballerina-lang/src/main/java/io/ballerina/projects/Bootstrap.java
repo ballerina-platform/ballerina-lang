@@ -133,7 +133,8 @@ class Bootstrap {
             Package pkg = packageResolver.getPackage(module.packageId());
             PackageCompilation compilation = pkg.getCompilation();
             if (compilation.diagnostics().size() > 0) {
-                throw new RuntimeException("Error while bootstrapping :" + pkg.packageId().toString());
+                throw new RuntimeException("Error while bootstrapping :" + pkg.packageId().toString() +
+                        " diagnostics: " + compilation.diagnostics());
             }
         });
     }
