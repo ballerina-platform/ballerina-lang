@@ -44,6 +44,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import static io.ballerina.compiler.api.types.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.types.TypeDescKind.BOOLEAN;
+import static io.ballerina.compiler.api.types.TypeDescKind.DECIMAL;
+import static io.ballerina.compiler.api.types.TypeDescKind.ERROR;
+import static io.ballerina.compiler.api.types.TypeDescKind.FLOAT;
+import static io.ballerina.compiler.api.types.TypeDescKind.FUTURE;
+import static io.ballerina.compiler.api.types.TypeDescKind.INT;
+import static io.ballerina.compiler.api.types.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.types.TypeDescKind.OBJECT;
+import static io.ballerina.compiler.api.types.TypeDescKind.STREAM;
+import static io.ballerina.compiler.api.types.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.types.TypeDescKind.TYPEDESC;
+import static io.ballerina.compiler.api.types.TypeDescKind.XML;
+
 /**
  * A class to hold the lang library function info required for types.
  *
@@ -85,7 +99,8 @@ public class LangLibrary {
     }
 
     public List<LangLibMethod> getMethods(TypeDescKind typeDescKind) {
-        String langLibName = typeDescKind.getName();
+        String langLibName = getAssociatedLangLibName(typeDescKind);
+
         if (wrappedLangLibMethods.containsKey(langLibName)) {
             return wrappedLangLibMethods.get(langLibName);
         }
@@ -113,6 +128,42 @@ public class LangLibrary {
     }
 
     // Private Methods
+
+    private String getAssociatedLangLibName(TypeDescKind typeDescKind) {
+        switch (typeDescKind) {
+            case INT:
+            case BYTE:
+                return INT.getName();
+            case FLOAT:
+                return FLOAT.getName();
+            case DECIMAL:
+                return DECIMAL.getName();
+            case STRING:
+                return STRING.getName();
+            case BOOLEAN:
+                return BOOLEAN.getName();
+            case ARRAY:
+            case TUPLE:
+                return ARRAY.getName();
+            case STREAM:
+                return STREAM.getName();
+            case OBJECT:
+                return OBJECT.getName();
+            case RECORD:
+            case MAP:
+                return MAP.getName();
+            case ERROR:
+                return ERROR.getName();
+            case FUTURE:
+                return FUTURE.getName();
+            case TYPEDESC:
+                return TYPEDESC.getName();
+            case XML:
+                return XML.getName();
+            default:
+                return "value";
+        }
+    }
 
     private static Map<String, Map<String, BInvokableSymbol>> getLangLibMethods(Map<String, BPackageSymbol> langLibs) {
         Map<String, Map<String, BInvokableSymbol>> langLibMethods = new HashMap<>();

@@ -53,7 +53,7 @@ public interface BallerinaTypeDescriptor {
     /**
      * List of members that are visible to a value of this type.
      *
-     * @return {@link List} of visible member symbols
+     * @return {@link List} of visible members
      */
-    List<LangLibMethod> langlibMethods();
+    List<LangLibMethod> langLibMethods();
 }

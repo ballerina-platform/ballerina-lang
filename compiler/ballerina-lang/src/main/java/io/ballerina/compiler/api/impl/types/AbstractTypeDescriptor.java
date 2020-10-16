@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.util.LangLibMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,6 +33,7 @@ import java.util.List;
 public abstract class AbstractTypeDescriptor implements BallerinaTypeDescriptor {
     private TypeDescKind typeDescKind;
     private ModuleID moduleID;
+    private List<LangLibMethod> langLibMethods;
     private BType bType;
 
     public AbstractTypeDescriptor(TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
@@ -56,16 +56,21 @@ public abstract class AbstractTypeDescriptor implements BallerinaTypeDescriptor 
     public abstract String signature();
 
     @Override
-    public List<LangLibMethod> langlibMethods() {
-        return new ArrayList<>();
+    public List<LangLibMethod> langLibMethods() {
+        return langLibMethods;
     }
 
     /**
      * Get the BType.
-     * 
+     *
      * @return {@link BType} associated with the type desc
      */
     protected BType getBType() {
         return bType;
+    }
+
+    // Setters. Only to be used by the type builder
+    void setLangLibMethods(List<LangLibMethod> langLibMethods) {
+        this.langLibMethods = langLibMethods;
     }
 }

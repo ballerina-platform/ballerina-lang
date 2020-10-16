@@ -75,7 +75,6 @@ import java.util.stream.Collectors;
 import static io.ballerina.compiler.api.types.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.types.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.types.ParameterKind.REST;
-import static io.ballerina.compiler.api.types.TypeDescKind.ARRAY;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
@@ -110,6 +109,11 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
 
         moduleID = internalType.tsymbol == null ? null : new BallerinaModuleID(internalType.tsymbol.pkgID);
         BallerinaTypeDescriptor publicType = internalType.accept(this, null);
+
+        if (publicType != null) {
+            List<LangLibMethod> langLibMethods = langLibrary.getMethods(publicType.kind());
+            ((AbstractTypeDescriptor) publicType).setLangLibMethods(langLibMethods);
+        }
 
         if (isTypeReference(internalType)) {
             BallerinaTypeDescriptor refType =
@@ -166,8 +170,7 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
     @Override
     public BallerinaTypeDescriptor visit(BArrayType internalType, BType s) {
         BallerinaTypeDescriptor memberType = build(internalType.eType);
-        List<LangLibMethod> langLibMethods = langLibrary.getMethods(ARRAY);
-        return new BallerinaArrayTypeDescriptor(moduleID, memberType, langLibMethods, internalType);
+        return new BallerinaArrayTypeDescriptor(moduleID, memberType, internalType);
     }
 
     @Override
