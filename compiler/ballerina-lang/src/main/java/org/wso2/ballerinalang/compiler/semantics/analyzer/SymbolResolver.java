@@ -832,7 +832,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return namespaces;
     }
 
-    public void reloadErrorAndDependentTypes() {
+    public void boostrapErrorType() {
 
         ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.ERROR);
         while (entry != NOT_FOUND_ENTRY) {
@@ -852,7 +852,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         symTable.defineOperators();
     }
 
-    public void loadAnydataAndDependentTypes() {
+    public void boostrapAnydataType() {
         ScopeEntry entry = symTable.langAnnotationModuleSymbol.scope.lookup(Names.ANYDATA);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
@@ -873,7 +873,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         throw new IllegalStateException("built-in 'anydata' type not found");
     }
 
-    public void loadJSONAndDependentTypes() {
+    public void boostrapJsonType() {
         ScopeEntry entry = symTable.langAnnotationModuleSymbol.scope.lookup(Names.JSON);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
@@ -892,7 +892,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         throw new IllegalStateException("built-in 'json' type not found");
     }
 
-    public void loadCloneableType() {
+    public void boostrapCloneableType() {
         ScopeEntry entry = symTable.langValueModuleSymbol.scope.lookup(Names.CLONEABLE);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
@@ -906,24 +906,12 @@ public class SymbolResolver extends BLangNodeVisitor {
                             symTable.cloneableType, symTable.langValueModuleSymbol, symTable.builtinPos, BUILTIN);
 
             symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
-            symTable.errorType = new BErrorType(null, symTable.detailType);
-            symTable.errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
-                    symTable.rootPkgSymbol.pkgID, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos,
-                    BUILTIN);
-            symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
-            symTable.anyOrErrorType = BUnionType.create(null, symTable.anyType, symTable.errorType);
-            symTable.mapAllType = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
-            symTable.arrayAllType = new BArrayType(symTable.anyOrErrorType);
-            symTable.typeDesc.constraint = symTable.anyOrErrorType;
-            symTable.futureType.constraint = symTable.anyOrErrorType;
-
-            symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
             return;
         }
         throw new IllegalStateException("built-in 'lang.value:Cloneable' type not found");
     }
 
-    public void reloadIntRangeType() {
+    public void boostrapIntRangeType() {
 
         ScopeEntry entry = symTable.langInternalModuleSymbol.scope.lookup(Names.CREATE_INT_RANGE);
         while (entry != NOT_FOUND_ENTRY) {

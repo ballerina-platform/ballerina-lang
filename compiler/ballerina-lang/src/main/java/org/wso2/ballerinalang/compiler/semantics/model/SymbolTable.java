@@ -769,7 +769,7 @@ public class SymbolTable {
         streamType = new BStreamType(TypeTags.STREAM, pureType, null, null);
         tableType = new BTableType(TypeTags.TABLE, pureType, null);
 
-        initializeType(mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
+
         initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
         initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
     }
@@ -808,5 +808,7 @@ public class SymbolTable {
         arrayAnydataType = new BArrayType(anydataType);
         mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
         anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
+
+        initializeType(mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
     }
 }
