@@ -20,10 +20,9 @@ package io.ballerina.cli.task;
 
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -34,8 +33,8 @@ import java.util.List;
  * @since 2.0.0
  */
 public class CompileTask implements Task {
-    private transient PrintStream out;
-    private transient PrintStream err;
+    private final transient PrintStream out;
+    private final transient PrintStream err;
 
     public CompileTask(PrintStream out, PrintStream err) {
         this.out = out;
@@ -44,10 +43,20 @@ public class CompileTask implements Task {
 
     @Override
     public void execute(Project project) {
-//        CompilerContext context = project.environmentContext().getService(CompilerContext.class);
-//        Compiler compiler = Compiler.getInstance(context);
-//        compiler.setOutStream(this.out);
-//        compiler.setErrorStream(this.err);
+        this.out.println();
+        this.out.println("Compiling source");
+
+        String sourceName;
+        if (project instanceof SingleFileProject) {
+            sourceName = project.currentPackage().getDefaultModule().document(
+                    project.currentPackage().getDefaultModule().documentIds().iterator().next()).name();
+        } else {
+            sourceName = project.currentPackage().packageOrg().toString() + "/" +
+                    project.currentPackage().packageName().toString() + ":" +
+                    project.currentPackage().packageVersion();
+        }
+        // Print the source
+        this.out.println("\t" + sourceName);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         List<Diagnostic> diagnostics = packageCompilation.diagnostics();

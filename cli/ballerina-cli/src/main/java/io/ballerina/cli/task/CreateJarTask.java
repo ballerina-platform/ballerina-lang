@@ -21,7 +21,6 @@ package io.ballerina.cli.task;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.model.Target;
-import io.ballerina.projects.utils.ProjectUtils;
 
 import java.io.IOException;
 
@@ -37,7 +36,6 @@ public class CreateJarTask implements Task {
         Target target;
         try {
             target = new Target(project.sourceRoot());
-            String jarName = ProjectUtils.getJarName(project.currentPackage());
             project.currentPackage().getCompilation().emit(PackageCompilation.OutputType.JAR,
                     target.getJarCachePath());
         } catch (IOException e) {

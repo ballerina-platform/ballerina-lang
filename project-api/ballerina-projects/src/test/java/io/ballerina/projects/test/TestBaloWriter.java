@@ -70,7 +70,7 @@ public class TestBaloWriter {
                 project.currentPackage().packageName().toString(),
                 project.currentPackage().packageVersion().toString(),
                 null);
-        Path baloPath = target.getBaloPath(project.currentPackage()).resolve(baloName);
+        Path baloPath = target.getBaloPath().resolve(baloName);
         // balo name
         Assert.assertEquals(baloName, "foo-winery-any-0.1.0.balo");
         // invoke write balo method
@@ -173,7 +173,7 @@ public class TestBaloWriter {
                 project.currentPackage().packageName().toString(),
                 project.currentPackage().packageVersion().toString(),
                 null);
-        Path baloPath = target.getBaloPath(project.currentPackage()).resolve(baloName);
+        Path baloPath = target.getBaloPath().resolve(baloName);
         packageCompilation.emit(PackageCompilation.OutputType.BALO, baloPath);
 
         // balo name
