@@ -175,18 +175,6 @@ public class TransactionLocalContext {
         TransactionResourceManager.getInstance().notifyResourceFailure(globalTransactionId);
     }
 
-    public boolean onTransactionEnd(String transactionBlockId) {
-        boolean isOuterTx = false;
-        --transactionLevel;
-        if (transactionLevel == 0) {
-            transactionResourceManager.endXATransaction(globalTransactionId, transactionBlockId);
-            resetTransactionInfo();
-            isOuterTx = true;
-        }
-        return isOuterTx;
-
-    }
-
     public int getAllowedRetryCount(String localTransactionID) {
         return allowedTransactionRetryCounts.get(localTransactionID);
     }

@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.websocket.client;
 
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BalEnv;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.MapValue;
@@ -43,7 +44,7 @@ public class RetryInitEndpoint {
     private static final BString MAX_COUNT = BStringUtils.fromString("maxCount");
     private static final BString BACK_OF_FACTOR = BStringUtils.fromString("backOffFactor");
 
-    public static void initEndpoint(BObject retryClient) {
+    public static void initEndpoint(BalEnv env, BObject retryClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<BString, Object> clientEndpointConfig = (MapValue<BString, Object>) retryClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
@@ -55,7 +56,7 @@ public class RetryInitEndpoint {
         retryClient.addNativeData(WebSocketConstants.RETRY_CONTEXT.getValue(), retryConnectorConfig);
         retryClient.addNativeData(WebSocketConstants.CLIENT_LISTENER, new RetryConnectorListener(
                 new ClientConnectorListener()));
-        InitEndpoint.initEndpoint(retryClient);
+        InitEndpoint.initEndpoint(env, retryClient);
     }
 
     /**

@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.websocket.client;
 
 import org.ballerinalang.jvm.api.BStringUtils;
+import org.ballerinalang.jvm.api.BalEnv;
 import org.ballerinalang.jvm.api.values.BObject;
 import org.ballerinalang.jvm.api.values.BString;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -45,7 +46,7 @@ public class FailoverInitEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(FailoverInitEndpoint.class);
     private static final BString FAILOVER_INTERVAL = BStringUtils.fromString("failoverIntervalInMillis");
 
-    public static void initEndpoint(BObject failoverClient) {
+    public static void initEndpoint(BalEnv env, BObject failoverClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<BString, Object> clientEndpointConfig = (MapValue<BString, Object>) failoverClient.getMapValue(
                 WebSocketConstants.CLIENT_ENDPOINT_CONFIG);
@@ -57,7 +58,7 @@ public class FailoverInitEndpoint {
         failoverClient.addNativeData(WebSocketConstants.FAILOVER_CONTEXT, failoverContext);
         failoverClient.addNativeData(WebSocketConstants.CLIENT_LISTENER, new FailoverConnectorListener(
                 new ClientConnectorListener()));
-        InitEndpoint.initEndpoint(failoverClient);
+        InitEndpoint.initEndpoint(env, failoverClient);
     }
 
     /**
