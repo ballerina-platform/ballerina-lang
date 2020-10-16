@@ -153,7 +153,7 @@ public class DefinitionUtil {
     private static List<Location> prepareLocations(BLangDiagnosticLocation diagPos, BSymbol symbol, BLangNode node)
             throws LSStdlibCacheException {
         String sourceRoot = LSStandardLibCache.getInstance()
-                .getCachedStdlibRoot(diagPos.getPackageID().name.value).toString();
+                .getCachedStdlibRoot(symbol.pkgID.name.value).toString();
         SymbolReferencesModel.Reference reference = new SymbolReferencesModel.Reference(diagPos, symbol, node);
         return ReferencesUtil.getLocations(Collections.singletonList(reference), sourceRoot);
     }

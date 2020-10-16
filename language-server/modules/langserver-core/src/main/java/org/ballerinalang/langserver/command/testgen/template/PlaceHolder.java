@@ -29,7 +29,7 @@ public enum PlaceHolder {
     DECLARATIONS("declarations") {
         @Override
         public BLangDiagnosticLocation getPosition(BLangPackage bLangPackage) {
-            final BLangDiagnosticLocation[] pos = {new BLangDiagnosticLocation(null, null, 0, 0, 0, 0)};
+            final BLangDiagnosticLocation[] pos = {new BLangDiagnosticLocation(null, 0, 0, 0, 0)};
             //after imports
             bLangPackage.getImports().forEach(imp -> pos[0] = getMaximumPosition(imp.getPosition(), pos[0]));
             bLangPackage.getGlobalVariables().forEach(var -> pos[0] = getMaximumPosition(var.getPosition(), pos[0]));
@@ -40,13 +40,13 @@ public enum PlaceHolder {
     CONTENT("content") {
         @Override
         public BLangDiagnosticLocation getPosition(BLangPackage bLangPackage) {
-            final BLangDiagnosticLocation[] pos = {new BLangDiagnosticLocation(null, null, 0, 0, 0, 0)};
+            final BLangDiagnosticLocation[] pos = {new BLangDiagnosticLocation(null, 0, 0, 0, 0)};
             bLangPackage.topLevelNodes.forEach(topLevelNode -> {
                 if (topLevelNode instanceof BLangNode) {
                     pos[0] = getMaximumPosition(((BLangNode) topLevelNode).getPosition(), pos[0]);
                 }
             });
-            pos[0] = new BLangDiagnosticLocation(null, null, pos[0].getEndLine(), pos[0].getEndLine() + 1, 0, 0);
+            pos[0] = new BLangDiagnosticLocation(null, pos[0].getEndLine(), pos[0].getEndLine() + 1, 0, 0);
             return zeroColumnPosition(pos[0]);
         }
     },
@@ -54,7 +54,7 @@ public enum PlaceHolder {
     IMPORTS("imports") {
         @Override
         public BLangDiagnosticLocation getPosition(BLangPackage bLangPackage) {
-            final BLangDiagnosticLocation[] pos = {new BLangDiagnosticLocation(null, null, 0, 0, 0, 0)};
+            final BLangDiagnosticLocation[] pos = {new BLangDiagnosticLocation(null, 0, 0, 0, 0)};
             bLangPackage.getImports().forEach(pkg -> pos[0] = getMaximumPosition(pkg.getPosition(), pos[0]));
             return zeroColumnPosition(pos[0]);
         }
@@ -80,8 +80,9 @@ public enum PlaceHolder {
     }
 
     private static BLangDiagnosticLocation zeroColumnPosition(BLangDiagnosticLocation pos) {
-        return new BLangDiagnosticLocation(pos.lineRange().filePath(), pos.getPackageID(),
-                pos.lineRange().startLine().line(), pos.lineRange().endLine().line(), 0, 0);
+        return new BLangDiagnosticLocation(pos.lineRange().filePath(),
+                                           pos.lineRange().startLine().line(),
+                                           pos.lineRange().endLine().line(), 0, 0);
     }
 
     private static BLangDiagnosticLocation getMaximumPosition(BLangDiagnosticLocation pos1, BLangDiagnosticLocation pos2) {

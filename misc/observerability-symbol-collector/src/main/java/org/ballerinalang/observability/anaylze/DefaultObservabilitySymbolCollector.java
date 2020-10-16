@@ -91,6 +91,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     @Override
     public void writeCollectedSymbols(BLangPackage module, Path destination)
             throws IOException, NoSuchAlgorithmException {
+        this.diagnosticLog.setCurrentPackageId(module.packageID);
         Path targetDirPath = destination.resolve(AST);
         if (Files.notExists(targetDirPath)) {
             Files.createDirectory(targetDirPath);

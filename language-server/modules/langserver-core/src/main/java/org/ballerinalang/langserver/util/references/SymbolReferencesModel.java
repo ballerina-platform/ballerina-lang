@@ -77,7 +77,7 @@ public class SymbolReferencesModel {
                     ? symbol.pkgID.nameComps.stream().map(Name::getValue).collect(Collectors.joining("."))
                     : "";
             this.compilationUnit = position.lineRange().filePath();
-            this.sourcePkgName = position.getPackageID().name.value;
+            this.sourcePkgName = symbol.pkgID.name.value;
         }
 
         public BLangDiagnosticLocation getPosition() {

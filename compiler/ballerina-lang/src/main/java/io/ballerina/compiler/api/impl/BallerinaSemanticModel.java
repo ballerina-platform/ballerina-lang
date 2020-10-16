@@ -76,7 +76,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
                 symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(compilationUnit, linePosition));
 
-        BLangDiagnosticLocation cursorPos = new BLangDiagnosticLocation(compilationUnit.name, bLangPackage.packageID,
+        BLangDiagnosticLocation cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
                                                     linePosition.line(), linePosition.line(),
                                                     linePosition.offset(), linePosition.offset());
 

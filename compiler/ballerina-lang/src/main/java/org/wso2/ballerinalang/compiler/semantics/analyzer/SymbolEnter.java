@@ -233,6 +233,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
+        dlog.setCurrentPackageId(pkgNode.packageID);
         populatePackageNode(pkgNode);
         defineNode(pkgNode, this.symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol));
         return pkgNode;

@@ -21,7 +21,6 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
-import org.ballerinalang.model.elements.PackageID;
 
 /**
  * Represent the location of a diagnostic in a {@code TextDocument}.
@@ -34,17 +33,8 @@ public class BLangDiagnosticLocation implements Location {
 
     private LineRange lineRange;
     private TextRange textRange;
-    private PackageID packageID;
 
     public BLangDiagnosticLocation(String filePath, int startLine, int endLine, int startColumn, int endColumn) {
-        this.lineRange = LineRange.from(filePath, LinePosition.from(startLine, startColumn),
-                LinePosition.from(endLine, endColumn));
-        this.textRange = TextRange.from(0, 0);
-    }
-
-    public BLangDiagnosticLocation(String filePath, PackageID pkgId, int startLine, int endLine,
-                                   int startColumn, int endColumn) {
-        this.packageID = pkgId;
         this.lineRange = LineRange.from(filePath, LinePosition.from(startLine, startColumn),
                 LinePosition.from(endLine, endColumn));
         this.textRange = TextRange.from(0, 0);
@@ -58,10 +48,6 @@ public class BLangDiagnosticLocation implements Location {
     @Override
     public TextRange textRange() {
         return textRange;
-    }
-
-    public PackageID getPackageID() {
-        return packageID;
     }
 
     public int getStartLine() {
@@ -80,10 +66,6 @@ public class BLangDiagnosticLocation implements Location {
         return lineRange.endLine().offset();
     }
 
-    public void setPackageID(PackageID packageID) {
-        this.packageID = packageID;
-    }
-
     @Override
     public String toString() {
         return lineRange.toString() + textRange.toString();
@@ -92,11 +74,9 @@ public class BLangDiagnosticLocation implements Location {
     public int compareTo(BLangDiagnosticLocation diagnosticLocation) {
 
         // Compare the source first.
-        String thisDiagnosticString = packageID.name.value + packageID.version.value + lineRange().filePath();
-        String otherDiagnosticString = diagnosticLocation.getPackageID().name.value +
-                diagnosticLocation.getPackageID().version.value +
-                diagnosticLocation.lineRange().filePath();
-        int value = thisDiagnosticString.compareTo(otherDiagnosticString);
+        String thisDiagnosticFilePath = lineRange().filePath();
+        String otherDiagnosticFilePath = diagnosticLocation.lineRange().filePath();
+        int value = thisDiagnosticFilePath.compareTo(otherDiagnosticFilePath);
 
         if (value != 0) {
             return value;

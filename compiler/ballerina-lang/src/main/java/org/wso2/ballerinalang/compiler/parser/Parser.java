@@ -19,9 +19,6 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -29,7 +26,6 @@ import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnostic;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
@@ -86,7 +82,7 @@ public class Parser {
                 if (!pkgNode.containsTestablePkg()) {
                     BLangTestablePackage testablePkg = TreeBuilder.createTestablePackageNode();
                     testablePkg.flagSet.add(Flag.TESTABLE);
-                    testablePkg.pos = new BLangDiagnosticLocation(pkgSource.getName(), pkgId, 1, 1, 1, 1);
+                    testablePkg.pos = new BLangDiagnosticLocation(pkgSource.getName(), 1, 1, 1, 1);
                     pkgNode.addTestablePkg(testablePkg);
                 }
                 pkgNode.getTestablePkg().addCompilationUnit(
@@ -97,7 +93,7 @@ public class Parser {
             }
         }
 
-        pkgNode.pos = new BLangDiagnosticLocation(pkgSource.getName(), pkgId, 0, 0, 0, 0);
+        pkgNode.pos = new BLangDiagnosticLocation(pkgSource.getName(), 0, 0, 0, 0);
         pkgNode.repos = pkgSource.getRepoHierarchy();
         return pkgNode;
     }

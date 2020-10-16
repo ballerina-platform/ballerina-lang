@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockNode;
@@ -172,7 +173,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
 
-import javax.xml.XMLConstants;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -182,6 +182,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+
+import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
@@ -274,7 +276,7 @@ public class BIRGen extends BLangNodeVisitor {
                 testPkg.symbol.bir = testBirPkg;
                 Map<String, String> mockFunctionMap = astPkg.getTestablePkg().getMockFunctionNamesMap();
                 if (!mockFunctionMap.isEmpty()) {
-                    replaceMockedFunctions(testBirPkg, mockFunctionMap);
+                    replaceMockedFunctions(testBirPkg, mockFunctionMap, astPkg.packageID);
                 }
             });
         }
@@ -315,21 +317,21 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    private void replaceMockedFunctions(BIRPackage birPkg, Map<String, String> mockFunctionMap) {
+    private void replaceMockedFunctions(BIRPackage birPkg, Map<String, String> mockFunctionMap, PackageID packageID) {
         // Replace Mocked function calls in every function
-        replaceFunctions(birPkg.functions, mockFunctionMap);
+        replaceFunctions(birPkg.functions, mockFunctionMap, packageID);
 
         // Replace Mocked Function calls in every service
         if (birPkg.typeDefs.size() != 0) {
             for (BIRTypeDefinition typeDef : birPkg.typeDefs) {
                 if (typeDef.type instanceof BObjectType) {
-                    replaceFunctions(typeDef.attachedFuncs, mockFunctionMap);
+                    replaceFunctions(typeDef.attachedFuncs, mockFunctionMap, packageID);
                 }
             }
         }
     }
 
-    private void replaceFunctions(List<BIRFunction> functionList, Map<String, String> mockFunctionMap) {
+    private void replaceFunctions(List<BIRFunction> functionList, Map<String, String> mockFunctionMap, PackageID packageID) {
         // Loop through all defined BIRFunctions in functionList
         for (BIRFunction function : functionList) {
             List<BIRBasicBlock> basicBlocks = function.basicBlocks;
@@ -350,12 +352,12 @@ public class BIRGen extends BLangNodeVisitor {
                         // Replace the function call with the equivalent $MOCK_ substitiute
                         String desugarFunction = "$MOCK_" + callTerminator.name.getValue();
                         callTerminator.name = new Name(desugarFunction);
-                        callTerminator.calleePkg = function.pos.getPackageID();
+                        callTerminator.calleePkg = packageID;
                     } else if (mockFunctionMap.get(legacyKey) != null) {
                         // Just "get" the reference. If this doesnt work then it doesnt exist
                         String mockfunctionName = mockFunctionMap.get(legacyKey);
                         callTerminator.name = new Name(mockfunctionName);
-                        callTerminator.calleePkg = function.pos.getPackageID();
+                        callTerminator.calleePkg = packageID;
                     }
                 }
             }

@@ -180,7 +180,7 @@ public class CommonUtil {
         int startColumn = diagnosticLocation.getStartColumn() - 1;
         int endColumn = diagnosticLocation.getEndColumn() - 1;
         return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
-                diagnosticLocation.getPackageID(), startLine, endLine, startColumn, endColumn);
+                                           startLine, endLine, startColumn, endColumn);
     }
 
     /**
@@ -204,12 +204,11 @@ public class CommonUtil {
      * @return {@link BLangDiagnosticLocation} cloned diagnostic position
      */
     public static BLangDiagnosticLocation clonePosition(BLangDiagnosticLocation diagnosticLocation) {
-        int startLine = diagnosticLocation.getStartLine();
-        int endLine = diagnosticLocation.getEndLine();
-        int startColumn = diagnosticLocation.getStartColumn();
-        int endColumn = diagnosticLocation.getEndColumn();
-        return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(), diagnosticLocation.getPackageID(),
-                                 startLine, endLine, startColumn, endColumn);
+        return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
+                                           diagnosticLocation.lineRange().startLine().line(),
+                                           diagnosticLocation.lineRange().endLine().line(),
+                                           diagnosticLocation.lineRange().startLine().offset(),
+                                           diagnosticLocation.lineRange().endLine().offset());
     }
 
     public static LSCompletionItem getAnnotationCompletionItem(PackageID moduleID, BAnnotationSymbol annotationSymbol,

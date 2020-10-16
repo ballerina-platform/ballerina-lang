@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -169,18 +169,19 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         if (functionNode.expr != null) {
             padding = StringUtils.repeat(' ', 4);
             BTypeSymbol tSymbol = functionNode.expr.type.tsymbol;
-            Pair<BLangDiagnosticLocation, Boolean> nodeLocation = getNodeLocationAndHasFunctions(tSymbol.name.value, context);
+            Triple<BLangDiagnosticLocation, PackageID, Boolean> nodeLocation =
+                    getNodeLocationAndHasFunctions(tSymbol.name.value, context);
             if (!nodeLocation.getRight()) {
                 prependLineFeed = false;
             }
             eLine = nodeLocation.getLeft().getEndLine() - 1;
             String cUnitName = nodeLocation.getLeft().lineRange().filePath();
             String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
-            String pkgName = nodeLocation.getLeft().getPackageID().name.toString();
+            String pkgName = tSymbol.pkgID.name.value;
             String uri = new File(sourceRoot).toPath().resolve("src").resolve(pkgName)
                     .resolve(cUnitName).toUri().toString();
             textDocumentIdentifier.setUri(uri);
-            if (!nodeLocation.getLeft().getPackageID().equals(functionNode.pos.getPackageID())) {
+            if (!nodeLocation.getMiddle().equals(packageNode.packageID)) {
                 modifiers += "public ";
             }
         }
@@ -210,9 +211,10 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         return currentCUnit.get();
     }
 
-    private Pair<BLangDiagnosticLocation, Boolean> getNodeLocationAndHasFunctions(String name, LSContext context) {
+    private Triple<BLangDiagnosticLocation, PackageID, Boolean> getNodeLocationAndHasFunctions(String name, LSContext context) {
         List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
         BLangDiagnosticLocation pos;
+        PackageID pkgId;
         boolean hasFunctions = false;
         for (BLangPackage bLangPackage : bLangPackages) {
             for (BLangCompilationUnit cUnit : bLangPackage.getCompilationUnits()) {
@@ -221,17 +223,18 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) node;
                         if (typeDefinition.name.value.equals(name)) {
                             pos = typeDefinition.getPosition();
+                            pkgId = bLangPackage.packageID;
                             if (typeDefinition.symbol instanceof BObjectTypeSymbol) {
                                 BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) typeDefinition.symbol;
                                 hasFunctions = typeSymbol.attachedFuncs.size() > 0;
                             }
-                            return new ImmutablePair<>(pos, hasFunctions);
+                            return new ImmutableTriple<>(pos, pkgId, hasFunctions);
                         }
                     }
                 }
             }
         }
-        return new ImmutablePair<>(null, hasFunctions);
+        return new ImmutableTriple<>(null, null, hasFunctions);
     }
 
     /**

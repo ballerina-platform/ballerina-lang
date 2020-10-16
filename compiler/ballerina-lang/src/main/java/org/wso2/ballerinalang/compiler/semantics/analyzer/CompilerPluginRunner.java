@@ -128,6 +128,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     }
 
     public BLangPackage runPlugins(BLangPackage pkgNode) {
+        this.dlog.setCurrentPackageId(pkgNode.packageID);
         this.defaultPos = pkgNode.pos;
         loadPlugins();
         pkgNode.accept(this);

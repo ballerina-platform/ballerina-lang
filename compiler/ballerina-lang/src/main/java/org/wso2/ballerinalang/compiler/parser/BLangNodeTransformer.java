@@ -453,7 +453,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     public BLangNodeTransformer(CompilerContext context,
                                 PackageID packageID, String entryName) {
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context, packageID);
         this.symTable = SymbolTable.getInstance(context);
         this.packageID = packageID;
         this.currentCompUnitName = entryName;
@@ -492,7 +492,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         LineRange lineRange = node.lineRange();
         LinePosition startPos = lineRange.startLine();
         LinePosition endPos = lineRange.endLine();
-        return new BLangDiagnosticLocation(currentCompUnitName, packageID,
+        return new BLangDiagnosticLocation(currentCompUnitName,
                 startPos.line(),
                 endPos.line(),
                 startPos.offset(),
@@ -515,7 +515,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             startPos = nodeLineRange.startLine();
         }
         LinePosition endPos = nodeLineRange.endLine();
-        return new BLangDiagnosticLocation(currentCompUnitName, packageID,
+        return new BLangDiagnosticLocation(currentCompUnitName,
                 startPos.line(),
                 endPos.line(),
                 startPos.offset(),
@@ -542,10 +542,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
         }
 
-        BLangDiagnosticLocation newLocation = new BLangDiagnosticLocation(pos.lineRange().filePath(), pos.getPackageID(),
-                                                0, 0, 0, 0);
+        BLangDiagnosticLocation newLocation = new BLangDiagnosticLocation(pos.lineRange().filePath(), 0, 0, 0, 0);
 
         compilationUnit.pos = newLocation;
+        compilationUnit.setPackageID(packageID);
         this.currentCompilationUnit = null;
         return compilationUnit;
     }
@@ -655,7 +655,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             // Create a new anonymous type definition.
             BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-            String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.getPackageID());
+            String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
             IdentifierNode anonTypeGenName = createIdentifier(identifierPos, genName);
             typeDef.setName(anonTypeGenName);
             typeDef.flagSet.add(Flag.PUBLIC);
@@ -4124,7 +4124,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private void generateForkStatements(List<BLangStatement> statements, ForkStatementNode forkStatementNode) {
         BLangForkJoin forkJoin = (BLangForkJoin) forkStatementNode.apply(this);
-        String nextAnonymousForkKey = anonymousModelHelper.getNextAnonymousForkKey(forkJoin.pos.getPackageID());
+        String nextAnonymousForkKey = anonymousModelHelper.getNextAnonymousForkKey(packageID);
         for (NamedWorkerDeclarationNode workerDeclarationNode : forkStatementNode.namedWorkerDeclarations()) {
             BLangSimpleVariableDef workerDef = (BLangSimpleVariableDef) workerDeclarationNode.apply(this);
             workerDef.isWorker = true;
@@ -4467,7 +4467,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     String hexStringWithBraces = matcher.group(0);
                     int offset = originalText.indexOf(hexStringWithBraces) + 1;
                     BLangDiagnosticLocation pos = getPosition(literal);
-                    dlog.error(new BLangDiagnosticLocation(currentCompUnitName, packageID,
+                    dlog.error(new BLangDiagnosticLocation(currentCompUnitName,
                                     pos.getStartLine(),
                                     pos.getEndLine(),
                                     pos.getStartColumn() + offset,
@@ -4928,7 +4928,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BLangDiagnosticLocation pos = getPosition(literal);
             if (sign == SyntaxKind.MINUS_TOKEN) {
                 pos = new BLangDiagnosticLocation(pos.lineRange().filePath(),
-                                        pos.getPackageID(),
                                         pos.lineRange().startLine().line(),
                                         pos.lineRange().endLine().line(),
                                         pos.lineRange().startLine().offset() - 1,
@@ -5245,7 +5244,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                        location.lineRange().startLine().offset() >= upTo.lineRange().startLine().offset());
 
         BLangDiagnosticLocation expandedLocation = new BLangDiagnosticLocation(location.lineRange().filePath(),
-                location.getPackageID(),
                 upTo.lineRange().startLine().line(),
                 location.lineRange().endLine().line(),
                 upTo.lineRange().startLine().offset(),
@@ -5263,7 +5261,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (location.lineRange().startLine().line() == upTo.lineRange().startLine().line() &&
                         location.lineRange().startLine().offset() <= upTo.lineRange().startLine().offset());
 
-        BLangDiagnosticLocation trimmedLocation = new BLangDiagnosticLocation(location.lineRange().filePath(), location.getPackageID(),
+        BLangDiagnosticLocation trimmedLocation = new BLangDiagnosticLocation(location.lineRange().filePath(),
                                                           upTo.lineRange().startLine().line(),
                                                           location.lineRange().endLine().line(),
                                                           upTo.lineRange().startLine().offset(),
@@ -5282,7 +5280,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (location.lineRange().endLine().line() == upTo.lineRange().endLine().line() &&
                         location.lineRange().endLine().offset() >= upTo.lineRange().endLine().offset());
 
-        BLangDiagnosticLocation trimmedLocation = new BLangDiagnosticLocation(location.lineRange().filePath(), location.getPackageID(),
+        BLangDiagnosticLocation trimmedLocation = new BLangDiagnosticLocation(location.lineRange().filePath(),
                                                           location.lineRange().startLine().line(),
                                                           upTo.lineRange().endLine().line(),
                                                           location.lineRange().startLine().offset(),

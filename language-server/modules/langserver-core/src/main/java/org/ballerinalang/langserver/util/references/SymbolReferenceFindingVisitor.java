@@ -1120,7 +1120,6 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         BLangDiagnosticLocation diagnosticLocation = bLangType.pos;
         BObjectType objectType = (BObjectType) bLangType.type;
         BLangDiagnosticLocation pos = new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
-                                              diagnosticLocation.getPackageID(),
                                               diagnosticLocation.getStartLine(),
                                               diagnosticLocation.getEndLine(),
                                               diagnosticLocation.getStartColumn(),
