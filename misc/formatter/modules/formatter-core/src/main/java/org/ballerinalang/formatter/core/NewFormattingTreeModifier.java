@@ -1450,15 +1450,23 @@ public class NewFormattingTreeModifier extends TreeModifier {
     @Override
     public TableTypeDescriptorNode transform(TableTypeDescriptorNode tableTypeDescriptorNode) {
         Token tableKeywordToken = formatToken(tableTypeDescriptorNode.tableKeywordToken(), 0, 0);
-        Node rowTypeParameterNode = formatNode(tableTypeDescriptorNode.rowTypeParameterNode(), 1, 0);
-        Node keyConstraintNode = formatNode(tableTypeDescriptorNode.keyConstraintNode(),
-                env.trailingWS, env.trailingNL);
-
-        return tableTypeDescriptorNode.modify()
-                .withTableKeywordToken(tableKeywordToken)
-                .withRowTypeParameterNode(rowTypeParameterNode)
-                .withKeyConstraintNode(keyConstraintNode)
-                .apply();
+        if (tableTypeDescriptorNode.keyConstraintNode().isPresent()) {
+            Node rowTypeParameterNode = formatNode(tableTypeDescriptorNode.rowTypeParameterNode(), 1, 0);
+            Node keyConstraintNode = formatNode(tableTypeDescriptorNode.keyConstraintNode().get(),
+                    env.trailingWS, env.trailingNL);
+            return tableTypeDescriptorNode.modify()
+                    .withTableKeywordToken(tableKeywordToken)
+                    .withRowTypeParameterNode(rowTypeParameterNode)
+                    .withKeyConstraintNode(keyConstraintNode)
+                    .apply();
+        } else {
+            Node rowTypeParameterNode =
+                    formatNode(tableTypeDescriptorNode.rowTypeParameterNode(), env.trailingWS, env.trailingNL);
+            return tableTypeDescriptorNode.modify()
+                    .withTableKeywordToken(tableKeywordToken)
+                    .withRowTypeParameterNode(rowTypeParameterNode)
+                    .apply();
+        }
     }
 
     @Override
@@ -2498,16 +2506,29 @@ public class NewFormattingTreeModifier extends TreeModifier {
                     .withKeySpecifier(keySpecifier).apply();
         }
 
-        // TODO: selectively expand the list
-        Token openBracket = formatToken(tableConstructorExpressionNode.openBracket(), 0, 0);
+        SeparatedNodeList<Node> rows = tableConstructorExpressionNode.rows();
+        int rowTrailingWS = 0, rowTrailingNL = 0;
+        if (rows.size() > 1) {
+            rowTrailingNL++;
+        } else {
+            rowTrailingWS++;
+        }
+
+        indent();
+        Token openBracket = formatToken(tableConstructorExpressionNode.openBracket(), 0, rowTrailingNL);
+        indent();
         SeparatedNodeList<Node> mappingConstructors =
-                formatSeparatedNodeList(tableConstructorExpressionNode.mappingConstructors(), 0, 0, 0, 0);
+                formatSeparatedNodeList(tableConstructorExpressionNode.rows(), 0, 0, rowTrailingWS, rowTrailingNL, 0,
+                        rowTrailingNL);
+        unindent();
         Token closeBracket =
                 formatToken(tableConstructorExpressionNode.closeBracket(), env.trailingWS, env.trailingNL);
+        unindent();
+
         return tableConstructorExpressionNode.modify()
                 .withTableKeyword(tableKeyword)
                 .withOpenBracket(openBracket)
-                .withMappingConstructors(mappingConstructors)
+                .withRows(mappingConstructors)
                 .withCloseBracket(closeBracket)
                 .apply();
     }

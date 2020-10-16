@@ -1959,7 +1959,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "mappingConstructors",
+                    "name": "rows",
                     "type": "Node",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
@@ -2450,7 +2450,8 @@
                 },
                 {
                     "name": "keyConstraintNode",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 }
             ]
         },

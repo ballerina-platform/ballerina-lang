@@ -1413,18 +1413,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token tableKeyword,
             KeySpecifierNode keySpecifier,
             Token openBracket,
-            SeparatedNodeList<Node> mappingConstructors,
+            SeparatedNodeList<Node> rows,
             Token closeBracket) {
         Objects.requireNonNull(tableKeyword, "tableKeyword must not be null");
         Objects.requireNonNull(openBracket, "openBracket must not be null");
-        Objects.requireNonNull(mappingConstructors, "mappingConstructors must not be null");
+        Objects.requireNonNull(rows, "rows must not be null");
         Objects.requireNonNull(closeBracket, "closeBracket must not be null");
 
         STNode stTableConstructorExpressionNode = STNodeFactory.createTableConstructorExpressionNode(
                 tableKeyword.internalNode(),
                 getOptionalSTNode(keySpecifier),
                 openBracket.internalNode(),
-                mappingConstructors.underlyingListNode().internalNode(),
+                rows.underlyingListNode().internalNode(),
                 closeBracket.internalNode());
         return stTableConstructorExpressionNode.createUnlinkedFacade();
     }
@@ -1769,12 +1769,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Node keyConstraintNode) {
         Objects.requireNonNull(tableKeywordToken, "tableKeywordToken must not be null");
         Objects.requireNonNull(rowTypeParameterNode, "rowTypeParameterNode must not be null");
-        Objects.requireNonNull(keyConstraintNode, "keyConstraintNode must not be null");
 
         STNode stTableTypeDescriptorNode = STNodeFactory.createTableTypeDescriptorNode(
                 tableKeywordToken.internalNode(),
                 rowTypeParameterNode.internalNode(),
-                keyConstraintNode.internalNode());
+                getOptionalSTNode(keyConstraintNode));
         return stTableTypeDescriptorNode.createUnlinkedFacade();
     }
 
