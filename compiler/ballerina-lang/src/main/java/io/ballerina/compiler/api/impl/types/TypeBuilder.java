@@ -342,6 +342,6 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
         }
 
         TypeKind kind = bType.getKind();
-        return kind == RECORD || kind == OBJECT || bType.tsymbol.isLabel;
+        return bType.tsymbol.isLabel || kind == RECORD || kind == OBJECT;
     }
 }

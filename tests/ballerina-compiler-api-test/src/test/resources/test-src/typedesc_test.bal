@@ -64,3 +64,20 @@ function test() {
 type Number int|float|decimal;
 
 type Digit 0|1|2|3;
+
+function testAnonTypes() {
+    record {|
+        string name;
+        string...;
+    |} person = {name: "Pubudu"};
+
+    object {
+        string name;
+
+        function getName() returns string;
+    } personObj = object {
+        string name = "Pubudu";
+
+        function getName() returns string => self.name;
+    };
+}

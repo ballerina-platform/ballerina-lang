@@ -167,15 +167,43 @@ public class TypedescriptorTest {
         assertEquals(type.kind(), OBJECT);
 
         List<FieldDescriptor> fields = type.fieldDescriptors();
-        FieldDescriptor field = fields.get(0);
         assertEquals(fields.size(), 1);
+
+        FieldDescriptor field = fields.get(0);
         assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().kind(), STRING);
 
         List<MethodDeclaration> methods = type.methods();
-        MethodDeclaration method = methods.get(0);
         assertEquals(fields.size(), 1);
+
+        MethodDeclaration method = methods.get(0);
         assertEquals(method.name(), "getName");
+    }
+
+    @Test
+    public void testObjectType2() {
+        Symbol symbol = getSymbol(78, 7);
+        ObjectTypeDescriptor type = (ObjectTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.kind(), OBJECT);
+
+        List<FieldDescriptor> fields = type.fieldDescriptors();
+        assertEquals(fields.size(), 1);
+
+        FieldDescriptor field = fields.get(0);
+        assertEquals(field.name(), "name");
+        assertEquals(field.typeDescriptor().kind(), STRING);
+
+        List<MethodDeclaration> methods = type.methods();
+        assertEquals(fields.size(), 1);
+
+        MethodDeclaration method = methods.get(0);
+        assertEquals(method.name(), "getName");
+
+        FunctionTypeDescriptor methodSig = method.typeDescriptor();
+        assertTrue(methodSig.requiredParams().isEmpty());
+        assertTrue(methodSig.defaultableParams().isEmpty());
+        assertFalse(methodSig.restParam().isPresent());
+        assertEquals(methodSig.returnTypeDescriptor().get().kind(), STRING);
     }
 
     @Test
@@ -189,9 +217,26 @@ public class TypedescriptorTest {
         assertFalse(type.restTypeDescriptor().isPresent());
 
         List<FieldDescriptor> fields = type.fieldDescriptors();
-        FieldDescriptor field = fields.get(0);
         assertEquals(fields.size(), 1);
+
+        FieldDescriptor field = fields.get(0);
         assertEquals(field.name(), "path");
+        assertEquals(field.typeDescriptor().kind(), STRING);
+    }
+
+    @Test
+    public void testRecordType2() {
+        Symbol symbol = getSymbol(72, 8);
+        RecordTypeDescriptor type = (RecordTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.kind(), RECORD);
+        assertTrue(type.inclusive());
+        assertEquals(type.restTypeDescriptor().get().kind(), STRING);
+
+        List<FieldDescriptor> fields = type.fieldDescriptors();
+        assertEquals(fields.size(), 1);
+
+        FieldDescriptor field = fields.get(0);
+        assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().kind(), STRING);
     }
 
