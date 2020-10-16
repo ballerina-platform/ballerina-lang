@@ -18,9 +18,7 @@
 package io.ballerina.projects.internal;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
@@ -59,7 +57,6 @@ public class CompilerPhaseRunner {
 
     private final CompilerOptions options;
     private final BLangDiagnosticLog dlog;
-//    private final PackageLoader pkgLoader;
     private final PackageCache pkgCache;
     private final SymbolTable symbolTable;
     private final SymbolEnter symbolEnter;
@@ -92,7 +89,6 @@ public class CompilerPhaseRunner {
 
         this.options = CompilerOptions.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
-//        this.pkgLoader = PackageLoader.getInstance(context);
         this.pkgCache = PackageCache.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
