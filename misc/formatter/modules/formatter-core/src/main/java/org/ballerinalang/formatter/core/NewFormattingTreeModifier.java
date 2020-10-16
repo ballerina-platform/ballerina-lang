@@ -4143,14 +4143,13 @@ public class NewFormattingTreeModifier extends TreeModifier {
                     addWhitespace(1, leadingMinutiae);
                     break;
                 case COMMENT_MINUTIAE:
-                    if (consecutiveNewlines > 0) {
-                        // If there's a newline before this, then add padding to
-                        // match the current indentation level
-                        addWhitespace(env.currentIndentation, leadingMinutiae);
-                    } else {
-                        // Else, add a single whitespace
-                        addWhitespace(1, leadingMinutiae);
+                    if (consecutiveNewlines == 0) {
+                        // A comment without a leading newline is only possible if there is a explicit newline added
+                        // by the user. So, it is being honored here.
+                        leadingMinutiae.add(getNewline());
                     }
+                    // Then add padding to match the current indentation level
+                    addWhitespace(env.currentIndentation, leadingMinutiae);
 
                     leadingMinutiae.add(minutiae);
                     consecutiveNewlines = 0;
