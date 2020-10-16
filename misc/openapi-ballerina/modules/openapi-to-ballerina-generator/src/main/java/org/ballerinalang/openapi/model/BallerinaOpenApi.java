@@ -144,15 +144,15 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
      * @return True if there are path parameters, else false.
      */
     private boolean hasPathParams(PathItem path) {
-        if (null != path.getParameters() && path.getParameters().size() > 0) {
+        if (path.getParameters() != null && path.getParameters().size() > 0) {
             return path.getParameters().stream()
-                    .anyMatch(parameter -> null != parameter.getIn() && parameter.getIn().equals("path"));
+                    .anyMatch(parameter -> parameter.getIn() != null && parameter.getIn().equals("path"));
         }
         if (path.readOperations().size() > 0) {
             return path.readOperations().stream().anyMatch(operation -> {
-                if (null != operation.getParameters() && operation.getParameters().size() > 0) {
+                if (operation.getParameters() != null && operation.getParameters().size() > 0) {
                     return operation.getParameters().stream()
-                            .anyMatch(parameter -> null != parameter.getIn() && parameter.getIn().equals("path"));
+                            .anyMatch(parameter -> parameter.getIn() != null && parameter.getIn().equals("path"));
                 }
                 return false;
             });
