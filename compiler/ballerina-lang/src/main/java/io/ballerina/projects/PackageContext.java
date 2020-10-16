@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import org.wso2.ballerinalang.compiler.CompiledJarFile;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,6 +44,7 @@ class PackageContext {
 
     private Set<PackageDependency> packageDependencies;
     private DependencyGraph<ModuleId> moduleDependencyGraph;
+    private CompiledJarFile compiledJarEntries;
 
     // TODO Try to reuse the unaffected compilations if possible
     private final Map<ModuleId, ModuleCompilation> moduleCompilationMap;
@@ -144,6 +147,31 @@ class PackageContext {
 
     Project project() {
         return this.project;
+    }
+
+    /**
+     * Returns a {@code CompiledJarFile} that contains all the entries in modules.
+     *
+     * @return {@code CompiledJarFile} that contains all the entries in modules
+     */
+    CompiledJarFile compiledJarEntries() {
+        if (compiledJarEntries != null) {
+            return compiledJarEntries;
+        }
+
+        // TODO Refactor this logic once the proper root module is generated
+        String mainClass = "";
+        Map<String, byte[]> jarEntryMap = new HashMap<>();
+        for (ModuleContext moduleContext : moduleContextMap.values()) {
+            CompiledJarFile moduleCompiledJarEntries = moduleContext.compiledJarEntries();
+            jarEntryMap.putAll(moduleCompiledJarEntries.getJarEntries());
+            // Get the mainClass only from the default module
+            if (moduleContext.isDefaultModule()) {
+                mainClass = moduleCompiledJarEntries.getMainClassName().orElse(null);
+            }
+        }
+        compiledJarEntries = new CompiledJarFile(mainClass, Collections.unmodifiableMap(jarEntryMap));
+        return compiledJarEntries;
     }
 
     void resolveDependencies() {
