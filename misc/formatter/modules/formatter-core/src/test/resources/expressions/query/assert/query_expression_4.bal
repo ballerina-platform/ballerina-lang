@@ -58,3 +58,8 @@ public function main() {
 function calGraduationYear(int year) returns int {
     return year + 5;
 }
+
+function foo() {
+    from SomeTable where student.gpa >= 2.0
+    select { } -> default;
+}

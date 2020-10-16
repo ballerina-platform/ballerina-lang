@@ -2786,7 +2786,13 @@ public class NewFormattingTreeModifier extends TreeModifier {
     @Override
     public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
         int prevIndentation = env.currentIndentation;
-        setIndentation(env.lineLength); // Set indentation for braces.
+        // Set indentation for braces.
+        if (env.lineLength == 0) {
+            // Set the indentation for statements starting with query expression nodes.
+            setIndentation(env.lineLength + prevIndentation);
+        } else {
+            setIndentation(env.lineLength);
+        }
 
         if (queryExpressionNode.queryConstructType().isPresent()) {
             QueryConstructTypeNode queryConstructType = formatNode(queryExpressionNode.queryConstructType().get(),
