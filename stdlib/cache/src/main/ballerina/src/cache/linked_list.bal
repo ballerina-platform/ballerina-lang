@@ -34,7 +34,7 @@ public type Node record {|
 #
 # + head - The first node of the linked list
 # + tail - The last node of the linked list
-public class LinkedList {
+public type Cache object {
 
     // This flag is used to avoid concurrency issues occurring during the removing nodes from the linked-list.
     // Ballerina locks cannot be used for this since it may lead to unexpected results.
@@ -45,7 +45,7 @@ public class LinkedList {
     # Adds a node to the end of the provided linked list.
     #
     # + node - The node, which should be added to the provided linked list
-    public isolated function addLast(Node node) {
+    public function addLast(Node node) {
         if (self.tail is ()) {
             self.head = node;
             self.tail = self.head;
@@ -61,7 +61,7 @@ public class LinkedList {
     # Adds a node to the start of the provided linked list.
     #
     # + node - The node, which should be added to the provided linked list
-    public isolated function addFirst(Node node) {
+    public function addFirst(Node node) {
         if (self.head is ()) {
             self.head = node;
             self.tail = self.head;
@@ -77,7 +77,7 @@ public class LinkedList {
     # Removes a node from the provided linked list.
     #
     # + node - The node, which should be removed from the provided linked list
-    public isolated function remove(Node node) {
+    public function remove(Node node) {
         // Using this flag, we prevent the concurrency issues, but this will avoid removing some nodes from the linked-list.
         // Due to that, when the eviction happens, there can be situations where a node which is used recently is get
         // removed from the cache.
@@ -104,7 +104,7 @@ public class LinkedList {
     # Removes the last node from the provided linked list.
     #
     # + return - Last node of the provided linked list or `()` if the last node is empty
-    public isolated function removeLast() returns Node? {
+    public function removeLast() returns Node? {
         if (self.tail is ()) {
             return ();
         }
@@ -118,11 +118,11 @@ public class LinkedList {
     }
 
     # Clears the provided linked list.
-    public isolated function clear() {
+    public function clear() {
         self.head = ();
         self.tail = ();
     }
-}
+};
 
 function externLockInit(LinkedList linkedList) = @java:Method {
     name: "init",

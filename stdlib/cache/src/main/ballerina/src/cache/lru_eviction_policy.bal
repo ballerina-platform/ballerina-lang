@@ -18,36 +18,36 @@ import ballerina/java;
 
 # The `cache:LruEvictionPolicy` object consists of the LRU eviction algorithm related operations based on a linked
 # list data structure.
-public class LruEvictionPolicy {
+public type LruEvictionPolicy object {
 
     *AbstractEvictionPolicy;
     //LinkedList linkedList;
 
     # Called when a new `cache:LruEvictionPolicy` object is created.
     public function init() {
-        externIni(self);
+        self.linkedList = new LinkedList();
     }
 
     # Updates the linked list based on the get operation related to the LRU eviction algorithm.
     #
     # + node - Node of the linked list, which is retrieved
     public function get(Node node) {
-        externRemoveNode(self, node);
-        externAddFirst(self, node);
+        self.linkedList.remove(node);
+        self.linkedList.addFirst(node);
     }
 
     # Updates the linked list based on the put operation related to the LRU eviction algorithm.
     #
     # + node - Node of the linked list, which is added newly
     public function put(Node node) {
-        externAddFirst(self, node);
+        self.linkedList.addFirst(node);
     }
 
     # Updates the linked list based on the remove operation related to the LRU eviction algorithm.
     #
     # + node - Node of the linked list, which is deleted
     public function remove(Node node) {
-        externRemoveNode(self, node);
+        self.linkedList.remove(node);
     }
 
     # Updates the linked list based on the replace operation related to the LRU eviction algorithm.
@@ -55,20 +55,20 @@ public class LruEvictionPolicy {
     # + newNode - Node of the linked list, which will be replacing the `oldNode`
     # + oldNode - Node of the linked list, which will be replaced by the `newNode`
     public function replace(Node newNode, Node oldNode) {
-        externRemoveNode(self, oldNode);
-        externAddFirst(self, newNode);
+        self.linkedList.remove(oldNode);
+        self.linkedList.addFirst(newNode);
     }
 
     # Updates the linked list based on the clear operation related to the LRU eviction algorithm.
     public function clear() {
-        externClear(self);
+        self.linkedList.clear();
     }
 
     # Updates the linked list based on the evict operation.
     #
     # + return - The Node, which is evicted from the linked list or `()` if nothing to be evicted
     public function evict() returns Node? {
-        return externRemoveLast(self);
+        return self.linkedList.removeLast();
     }
 
 };
