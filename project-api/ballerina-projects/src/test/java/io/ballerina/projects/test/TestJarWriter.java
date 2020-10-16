@@ -38,7 +38,7 @@ public class TestJarWriter {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
     Path tempDirectory;
 
-    @Test (description = "tests writing of the executable")
+    @Test (description = "tests writing of the executable", enabled = false)
     public void testJarWriter() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 

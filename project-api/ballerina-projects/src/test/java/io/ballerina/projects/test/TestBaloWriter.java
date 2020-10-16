@@ -57,7 +57,7 @@ public class TestBaloWriter {
         Files.createDirectory(Paths.get(String.valueOf(BALO_PATH)));
     }
 
-    @Test
+    @Test (enabled = false)
     public void testBaloWriter() throws IOException {
         Gson gson = new Gson();
         Path projectPath = RESOURCE_DIRECTORY.resolve("balowriter").resolve("projectOne");
@@ -159,7 +159,7 @@ public class TestBaloWriter {
 //        Assert.assertTrue(libPath.resolve("ballerina-io-1.0.0-java.txt").toFile().exists());
     }
 
-    @Test
+    @Test (enabled = false)
     public void testBaloWriterWithMinimalBalProject() throws IOException {
         Gson gson = new Gson();
         Path projectPath = RESOURCE_DIRECTORY.resolve("balowriter").resolve("projectTwo");
