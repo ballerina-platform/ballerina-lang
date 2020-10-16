@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
-
 # The `cache:LruEvictionPolicy` object consists of the LRU eviction algorithm related operations based on a linked
 # list data structure.
 public type LruEvictionPolicy object {
@@ -24,7 +22,7 @@ public type LruEvictionPolicy object {
     LinkedList linkedList;
 
     # Called when a new `cache:LruEvictionPolicy` object is created.
-    public function init() {
+    public function __init() {
         self.linkedList = new LinkedList();
     }
 
