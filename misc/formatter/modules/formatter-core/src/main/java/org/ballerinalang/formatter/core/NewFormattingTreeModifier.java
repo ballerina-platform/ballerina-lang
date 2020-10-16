@@ -2312,7 +2312,7 @@ public class NewFormattingTreeModifier extends TreeModifier {
 
         int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
-        if (shouldExpand(objectConstructorExpressionNode.members())) {
+        if (shouldExpandObjectMembers(objectConstructorExpressionNode.members())) {
             fieldTrailingNL++;
         } else {
             fieldTrailingWS++;
@@ -3746,16 +3746,17 @@ public class NewFormattingTreeModifier extends TreeModifier {
         for (int index = 0; index < size; index++) {
             T oldNode = nodeList.get(index);
             T newNode;
-            boolean prevPreserveNL = env.preserveNewlines;
-            env.preserveNewlines = preserveNL;
-            if (index == size - 1) {
-                // This is the last item of the list. Trailing WS and NL for the last item on the list
-                // should be the WS and NL of the entire list
-                newNode = formatNode(oldNode, listTrailingWS, listTrailingNL);
+            if (preserveNL) {
+                boolean prevPreserveNL = env.preserveNewlines;
+                env.preserveNewlines = preserveNL;
+                newNode = formatListItem(itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, size, index,
+                        oldNode);
+                env.preserveNewlines = prevPreserveNL;
             } else {
-                newNode = formatNode(oldNode, itemTrailingWS, itemTrailingNL);
+                // If preserve newlines is false, then honour what is coming from the environment.
+                newNode = formatListItem(itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, size, index,
+                        oldNode);
             }
-            env.preserveNewlines = prevPreserveNL;
 
             if (oldNode != newNode) {
                 nodeModified = true;
@@ -3768,6 +3769,19 @@ public class NewFormattingTreeModifier extends TreeModifier {
         }
 
         return (NodeList<T>) NodeFactory.createNodeList(newNodes);
+    }
+
+    private <T extends Node> T formatListItem(int itemTrailingWS, int itemTrailingNL, int listTrailingWS,
+                                              int listTrailingNL, int size, int index, T oldNode) {
+        T newNode;
+        if (index == size - 1) {
+            // This is the last item of the list. Trailing WS and NL for the last item on the list
+            // should be the WS and NL of the entire list
+            newNode = formatNode(oldNode, listTrailingWS, listTrailingNL);
+        } else {
+            newNode = formatNode(oldNode, itemTrailingWS, itemTrailingNL);
+        }
+        return newNode;
     }
 
     /**
@@ -3821,14 +3835,8 @@ public class NewFormattingTreeModifier extends TreeModifier {
 
         for (int index = 0; index < size; index++) {
             T oldNode = nodeList.get(index);
-            T newNode;
-            if (index == size - 1) {
-                // This is the last item of the list. Trailing WS and NL for the last item on the list
-                // should be the WS and NL of the entire list
-                newNode = formatNode(oldNode, listTrailingWS, listTrailingNL);
-            } else {
-                newNode = formatNode(oldNode, itemTrailingWS, itemTrailingNL);
-            }
+            T newNode = formatListItem(itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, size, index,
+                    oldNode);
             newNodes[2 * index] = newNode;
             if (oldNode != newNode) {
                 nodeModified = true;
@@ -4276,8 +4284,11 @@ public class NewFormattingTreeModifier extends TreeModifier {
         }
 
         NodeList<Node> members = objectTypeDesc.members();
-        int fieldCount = members.size();
+        return shouldExpandObjectMembers(members);
+    }
 
+    private boolean shouldExpandObjectMembers(NodeList<Node> members) {
+        int fieldCount = members.size();
         if (fieldCount > 3) {
             return true;
         }
