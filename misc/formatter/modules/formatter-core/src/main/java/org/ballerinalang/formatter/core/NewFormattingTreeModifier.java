@@ -237,6 +237,8 @@ import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -250,6 +252,8 @@ import static org.ballerinalang.formatter.core.FormatterUtils.isInLineRange;
  * @since 2.0.0
  */
 public class NewFormattingTreeModifier extends TreeModifier {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NewFormattingTreeModifier.class);
 
     // Formatting configurations of the current session. These configurations
     // are fixed for the given session.
@@ -3631,33 +3635,39 @@ public class NewFormattingTreeModifier extends TreeModifier {
      */
     @SuppressWarnings("unchecked")
     private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL) {
-        if (node == null || node.isMissing()) {
+        try {
+            if (node == null || node.isMissing()) {
+                return node;
+            }
+
+            if (!isInLineRange(node, lineRange)) {
+                checkForNewline(node);
+                return node;
+            }
+
+            int prevTrailingNL = env.trailingNL;
+            int prevTrailingWS = env.trailingWS;
+            env.trailingNL = trailingNL;
+            env.trailingWS = trailingWS;
+
+            // Cache the current node and parent before format.
+            // Because reference to the nodes will change after modifying.
+            T oldNode = node;
+            Node parent = node.parent();
+
+            node = (T) node.apply(this);
+            if (shouldWrapLine(oldNode, parent)) {
+                node = wrapLine(oldNode, parent);
+            }
+
+            env.trailingNL = prevTrailingNL;
+            env.trailingWS = prevTrailingWS;
+            return node;
+        } catch (Exception e) {
+            LOGGER.error(String.format("Error while formatting [node: %s] [line: %s]: %s",
+                    node.kind().name(), node.lineRange().startLine().line() + 1, e));
             return node;
         }
-
-        if (!isInLineRange(node, lineRange)) {
-            checkForNewline(node);
-            return node;
-        }
-
-        int prevTrailingNL = env.trailingNL;
-        int prevTrailingWS = env.trailingWS;
-        env.trailingNL = trailingNL;
-        env.trailingWS = trailingWS;
-
-        // Cache the current node and parent before format.
-        // Because reference to the nodes will change after modifying.
-        T oldNode = node;
-        Node parent = node.parent();
-
-        node = (T) node.apply(this);
-        if (shouldWrapLine(oldNode, parent)) {
-            node = wrapLine(oldNode, parent);
-        }
-
-        env.trailingNL = prevTrailingNL;
-        env.trailingWS = prevTrailingWS;
-        return node;
     }
 
     /**
