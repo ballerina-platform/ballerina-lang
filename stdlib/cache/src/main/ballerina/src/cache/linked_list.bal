@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 // This is a linked list data structure implementation, which is used for the eviction algorithm of the cache.
 
 # Represents a structure to keep data and references to the adjacent nodes of the linked list.
@@ -27,103 +29,107 @@ public type Node record {|
     Node? next = ();
 |};
 
-# Represents a linked list, which is used to govern the cache eviction policy.
+# The `cache:LinkedList` object consists operations of `LinkedList` data structure which are related
+# to LRU eviction algorithm
 #
 # + head - The first node of the linked list
 # + tail - The last node of the linked list
-public type LinkedList record {
-    Node? head;
-    Node? tail;
-};
+public class LinkedList {
 
-# Adds a node to the end of the provided linked list.
-#
-# + list - Linked list to which the provided node should be added
-# + node - The node, which should be added to the provided linked list
-public function addLast(LinkedList list, Node node) {
-    if (list.tail is ()) {
-        list.head = node;
-        list.tail = list.head;
-        return;
-    }
+    // This flag is used to avoid concurrency issues occurring during the removing nodes from the linked-list.
+    // Ballerina locks cannot be used for this since it may lead to unexpected results.
+    boolean removeInProgress = false;
+    Node? head = ();
+    Node? tail = ();
 
-    Node tailNode = <Node>list.tail;
-    node.prev = tailNode;
-    tailNode.next = node;
-    list.tail = node;
-}
-
-# Adds a node to the start of the provided linked list.
-#
-# + list - Linked list to which the provided node should be added
-# + node - The node, which should be added to the provided linked list
-public function addFirst(LinkedList list, Node node) {
-    if (list.head is ()) {
-        list.head = node;
-        list.tail = list.head;
-        return;
-    }
-
-    Node headNode = <Node>list.head;
-    node.next = headNode;
-    headNode.prev = node;
-    list.head = node;
-}
-
-// This flag is used to avoid concurrency issues occurring during the removing nodes from the linked-list.
-// Ballerina locks cannot be used for this since it may lead to unexpected results.
-boolean removeInProgress = false;
-
-# Removes a node from the provided linked list.
-#
-# + list - Linked list from which the provided node should be removed
-# + node - The node, which should be removed from the provided linked list
-public function remove(LinkedList list, Node node) {
-    // Using this flag, we prevent the concurrency issues, but this will avoid removing some nodes from the linked-list.
-    // Due to that, when the eviction happens, there can be situations where a node which is used recently is get
-    // removed from the cache.
-    if (!removeInProgress) {
-        removeInProgress = true;
-        if (node.prev is ()) {
-            list.head = node.next;
-        } else {
-            Node prev = <Node>node.prev;
-            prev.next = node.next;
+    # Adds a node to the end of the provided linked list.
+    #
+    # + node - The node, which should be added to the provided linked list
+    public isolated function addLast(Node node) {
+        if (self.tail is ()) {
+            self.head = node;
+            self.tail = self.head;
+            return;
         }
+        Node tempNode = node;
+        Node tailNode = <Node>self.tail;
+        tempNode.prev = tailNode;
+        tailNode.next = tempNode;
+        self.tail = tempNode;
+    }
 
-        if (node.next is ()) {
-            list.tail = node.prev;
-        } else {
-            Node next = <Node>node.next;
-            next.prev = node.prev;
+    # Adds a node to the start of the provided linked list.
+    #
+    # + node - The node, which should be added to the provided linked list
+    public isolated function addFirst(Node node) {
+        if (self.head is ()) {
+            self.head = node;
+            self.tail = self.head;
+            return;
         }
-        node.next = ();
-        node.prev = ();
-        removeInProgress = false;
+        Node tempNode = node;
+        Node headNode = <Node>self.head;
+        tempNode.next = headNode;
+        headNode.prev = tempNode;
+        self.head = tempNode;
+    }
+
+    # Removes a node from the provided linked list.
+    #
+    # + node - The node, which should be removed from the provided linked list
+    public isolated function remove(Node node) {
+        // Using this flag, we prevent the concurrency issues, but this will avoid removing some nodes from the linked-list.
+        // Due to that, when the eviction happens, there can be situations where a node which is used recently is get
+        // removed from the cache.
+        if (!self.removeInProgress) {
+            self.removeInProgress = true;
+            if (node.prev is ()) {
+                self.head = node.next;
+            } else {
+                Node prev = <Node>node.prev;
+                prev.next = node.next;
+            }
+            if (node.next is ()) {
+                self.tail = node.prev;
+            } else {
+                Node next = <Node>node.next;
+                next.prev = node.prev;
+            }
+            node.next = ();
+            node.prev = ();
+            self.removeInProgress = false;
+        }
+    }
+
+    # Removes the last node from the provided linked list.
+    #
+    # + return - Last node of the provided linked list or `()` if the last node is empty
+    public isolated function removeLast() returns Node? {
+        if (self.tail is ()) {
+            return ();
+        }
+        Node tail = <Node>self.tail;
+        Node predecessorOfTail = <Node>tail.prev;
+        self.tail = predecessorOfTail;
+        predecessorOfTail.next = ();
+        tail.prev = ();
+
+        return tail;
+    }
+
+    # Clears the provided linked list.
+    public isolated function clear() {
+        self.head = ();
+        self.tail = ();
     }
 }
 
-# Removes the last node from the provided linked list.
-#
-# + list - Linked list from which the last node should be removed
-# + return - Last node of the provided linked list or `()` if the last node is empty
-public function removeLast(LinkedList list) returns Node? {
-    if (list.tail is ()) {
-        return ();
-    }
-    Node tail = <Node>list.tail;
-    Node predecessorOfTail = <Node>tail.prev;
-    list.tail = predecessorOfTail;
-    predecessorOfTail.next = ();
-    tail.prev = ();
+function externLockInit(LinkedList linkedList) = @java:Method {
+    name: "init",
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Lock"
+} external;
 
-    return tail;
-}
-
-# Clears the provided linked list.
-#
-# + list - Linked list which should be cleared
-public function clear(LinkedList list) {
-    list.head = ();
-    list.tail = ();
-}
+function externCheckState(LinkedList linkedList) returns boolean = @java:Method {
+    name: "lock",
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Lock"
+} external;

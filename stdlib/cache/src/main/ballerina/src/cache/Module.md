@@ -21,12 +21,12 @@ The `cache:AbstractEvictionPolicy` object has the common APIs for the cache evic
 
 ```ballerina
 public type AbstractEvictionPolicy abstract object {
-    public function get(LinkedList list, Node node);
-    public function put(LinkedList list, Node node);
-    public function remove(LinkedList list, Node node);
-    public function replace(LinkedList list, Node newNode, Node oldNode);
-    public function clear(LinkedList list);
-    public function evict(LinkedList list) returns Node?;
+    public function get(Node node);
+    public function put(Node node);
+    public function remove(Node node);
+    public function replace(Node newNode, Node oldNode);
+    public function clear();
+    public function evict() returns Node?;
 };
 ```
 
