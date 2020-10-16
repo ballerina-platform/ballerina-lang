@@ -29,6 +29,7 @@ import io.swagger.v3.oas.models.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.utils.CodegenUtils;
+import org.ballerinalang.openapi.utils.GeneratorConstants;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -145,14 +146,14 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
      */
     private boolean hasPathParams(PathItem path) {
         if (path.getParameters() != null && path.getParameters().size() > 0) {
-            return path.getParameters().stream()
-                    .anyMatch(parameter -> parameter.getIn() != null && parameter.getIn().equals("path"));
+            return path.getParameters().stream().anyMatch(parameter -> parameter.getIn() != null && parameter.getIn()
+                    .equals(GeneratorConstants.PATH));
         }
         if (path.readOperations().size() > 0) {
             return path.readOperations().stream().anyMatch(operation -> {
                 if (operation.getParameters() != null && operation.getParameters().size() > 0) {
-                    return operation.getParameters().stream()
-                            .anyMatch(parameter -> parameter.getIn() != null && parameter.getIn().equals("path"));
+                    return operation.getParameters().stream().anyMatch(parameter -> parameter.getIn() != null &&
+                            parameter.getIn().equals(GeneratorConstants.PATH));
                 }
                 return false;
             });
