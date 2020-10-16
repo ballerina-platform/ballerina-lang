@@ -21,7 +21,7 @@ import ballerina/java;
 public type LruEvictionPolicy object {
 
     *AbstractEvictionPolicy;
-    //LinkedList linkedList;
+    LinkedList linkedList;
 
     # Called when a new `cache:LruEvictionPolicy` object is created.
     public function init() {
