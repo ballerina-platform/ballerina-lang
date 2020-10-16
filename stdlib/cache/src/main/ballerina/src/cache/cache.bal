@@ -268,7 +268,7 @@ function cleanup(Cache cache, AbstractEvictionPolicy evictionPolicy) {
             return;
         }
     }
-};
+}
 
 function externInit(Cache cache, int capacity) = @java:Method {
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
