@@ -20,12 +20,12 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.util.List;
 import java.util.Map;
@@ -41,8 +41,8 @@ public class ForkJoinStatementScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
-                                      BLangNode node, BSymbol bSymbol) {
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+                                      LSContext completionContext, BLangNode node, BSymbol bSymbol) {
         if (treeVisitor.getForkJoinStack().isEmpty()) {
             return false;
         }

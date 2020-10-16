@@ -18,9 +18,9 @@
 package org.ballerinalang.util.diagnostic;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 /**
  * A {@code DiagnosticLog} provides a way for the Ballerina compiler
@@ -41,10 +41,10 @@ public interface DiagnosticLog {
     void logDiagnostic(Kind kind, BLangDiagnosticLocation pos, CharSequence message);
 
     /**
-     * Set the working package id for logging
+     * Set the working package id for logging.
      *
-     * @param currentPackageId Package Id specified in the {@link BLangPackage}
+     * @param packageID Package Id specified in the {@link BLangPackage}
      */
-    void setCurrentPackageId(PackageID currentPackageId);
+    void setCurrentPackageId(PackageID packageID);
 
 }

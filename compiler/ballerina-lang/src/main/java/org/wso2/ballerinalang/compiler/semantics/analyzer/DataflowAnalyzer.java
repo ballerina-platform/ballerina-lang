@@ -1103,14 +1103,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean isFieldsInitializedForSelfInvocation(List<BLangExpression> argExpressions, BLangDiagnosticLocation pos) {
+    private boolean isFieldsInitializedForSelfInvocation(List<BLangExpression> argExpressions,
+                                                         BLangDiagnosticLocation location) {
 
         for (BLangExpression expr : argExpressions) {
             if (isSelfKeyWordExpr(expr)) {
                 StringBuilder uninitializedFields =
                         getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef) expr).symbol.type);
                 if (uninitializedFields.length() != 0) {
-                    this.dlog.error(pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
+                    this.dlog.error(location, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
                             uninitializedFields.toString());
                     return false;
                 }

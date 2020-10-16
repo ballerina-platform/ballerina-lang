@@ -265,8 +265,9 @@ public class ASTBuilderUtil {
         return assignment;
     }
 
-    static BLangAssignment createAssignmentStmt(BLangDiagnosticLocation pos, BLangExpression varRef, BLangExpression rhsExpr) {
-        return createAssignmentStmt(pos, varRef, rhsExpr, false);
+    static BLangAssignment createAssignmentStmt(BLangDiagnosticLocation location, BLangExpression varRef,
+                                                BLangExpression rhsExpr) {
+        return createAssignmentStmt(location, varRef, rhsExpr, false);
     }
 
     static BLangAssignment createAssignmentStmt(BLangDiagnosticLocation pos, BLangExpression varRef,
@@ -395,11 +396,12 @@ public class ASTBuilderUtil {
         return typeofExpr;
     }
 
-    static BLangIndexBasedAccess createIndexBasesAccessExpr(BLangDiagnosticLocation pos, BType type, BVarSymbol varSymbol,
+    static BLangIndexBasedAccess createIndexBasesAccessExpr(BLangDiagnosticLocation location, BType type,
+                                                            BVarSymbol varSymbol,
                                                             BLangExpression indexExpr) {
         final BLangIndexBasedAccess arrayAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
-        arrayAccess.pos = pos;
-        arrayAccess.expr = createVariableRef(pos, varSymbol);
+        arrayAccess.pos = location;
+        arrayAccess.expr = createVariableRef(location, varSymbol);
         arrayAccess.indexExpr = indexExpr;
         arrayAccess.type = type;
         return arrayAccess;
@@ -435,9 +437,11 @@ public class ASTBuilderUtil {
         return argsExpr;
     }
 
-    public static BLangInvocation createInvocationExpr(BLangDiagnosticLocation pos, BInvokableSymbol invokableSymbol,
-                                                       List<BLangSimpleVariable> requiredArgs, SymbolResolver symResolver) {
-        return createInvocationExpr(pos, invokableSymbol, requiredArgs, new ArrayList<>(), symResolver);
+    public static BLangInvocation createInvocationExpr(BLangDiagnosticLocation location,
+                                                       BInvokableSymbol invokableSymbol,
+                                                       List<BLangSimpleVariable> requiredArgs,
+                                                       SymbolResolver symResolver) {
+        return createInvocationExpr(location, invokableSymbol, requiredArgs, new ArrayList<>(), symResolver);
     }
 
     static BLangInvocation createInvocationExpr(BLangDiagnosticLocation pos, BInvokableSymbol invokableSymbol,
@@ -454,9 +458,11 @@ public class ASTBuilderUtil {
         return invokeLambda;
     }
 
-    static BLangInvocation createInvocationExprForMethod(BLangDiagnosticLocation pos, BInvokableSymbol invokableSymbol,
-                                                         List<BLangExpression> requiredArgs, SymbolResolver symResolver) {
-        return createInvocationExprMethod(pos, invokableSymbol, requiredArgs, new ArrayList<>(), symResolver);
+    static BLangInvocation createInvocationExprForMethod(BLangDiagnosticLocation location,
+                                                         BInvokableSymbol invokableSymbol,
+                                                         List<BLangExpression> requiredArgs,
+                                                         SymbolResolver symResolver) {
+        return createInvocationExprMethod(location, invokableSymbol, requiredArgs, new ArrayList<>(), symResolver);
     }
 
     static BLangInvocation createInvocationExprMethod(BLangDiagnosticLocation pos, BInvokableSymbol invokableSymbol,
@@ -548,9 +554,10 @@ public class ASTBuilderUtil {
         return checkExpr;
     }
 
-    static BLangCheckPanickedExpr createCheckPanickedExpr(BLangDiagnosticLocation pos, BLangExpression expr, BType returnType) {
+    static BLangCheckPanickedExpr createCheckPanickedExpr(BLangDiagnosticLocation location, BLangExpression expr,
+                                                          BType returnType) {
         final BLangCheckPanickedExpr checkExpr = (BLangCheckPanickedExpr) TreeBuilder.createCheckPanicExpressionNode();
-        checkExpr.pos = pos;
+        checkExpr.pos = location;
         checkExpr.expr = expr;
         checkExpr.type = returnType;
         checkExpr.equivalentErrorTypeList = new ArrayList<>();
@@ -631,10 +638,11 @@ public class ASTBuilderUtil {
         return recordKeyValue;
     }
 
-    static BLangListConstructorExpr.BLangArrayLiteral createEmptyArrayLiteral(BLangDiagnosticLocation pos, BArrayType type) {
+    static BLangListConstructorExpr.BLangArrayLiteral createEmptyArrayLiteral(BLangDiagnosticLocation location,
+                                                                              BArrayType type) {
         final BLangListConstructorExpr.BLangArrayLiteral arrayLiteralNode =
                 (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
-        arrayLiteralNode.pos = pos;
+        arrayLiteralNode.pos = location;
         arrayLiteralNode.type = type;
         arrayLiteralNode.exprs = new ArrayList<>();
         return arrayLiteralNode;
@@ -827,12 +835,15 @@ public class ASTBuilderUtil {
         return dupFuncSymbol;
     }
 
-    public static BInvokableSymbol duplicateFunctionDeclarationSymbol(BInvokableSymbol invokableSymbol, BSymbol owner,
-                                                                      Name newName, PackageID newPkgID,
-                                                                      BLangDiagnosticLocation pos, SymbolOrigin origin) {
+    public static BInvokableSymbol duplicateFunctionDeclarationSymbol(BInvokableSymbol invokableSymbol,
+                                                                      BSymbol owner,
+                                                                      Name newName,
+                                                                      PackageID newPkgID,
+                                                                      BLangDiagnosticLocation location,
+                                                                      SymbolOrigin origin) {
         BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newPkgID,
-                                                                      null, owner, invokableSymbol.bodyExist, pos,
-                                                                      origin);
+                                                                      null, owner, invokableSymbol.bodyExist,
+                                                                      location, origin);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.receiverSymbol = null;
@@ -866,11 +877,12 @@ public class ASTBuilderUtil {
         return newParamSymbol;
     }
 
-    private static List<BLangExpression> generateArgExprsForLambdas(BLangDiagnosticLocation pos, List<BLangSimpleVariable> args,
+    private static List<BLangExpression> generateArgExprsForLambdas(BLangDiagnosticLocation location,
+                                                                    List<BLangSimpleVariable> args,
                                                                     List<BVarSymbol> formalParams,
                                                                     SymbolResolver symResolver) {
         List<BLangExpression> argsExpr = new ArrayList<>();
-        final List<BLangSimpleVarRef> variableRefList = createVariableRefList(pos, args);
+        final List<BLangSimpleVarRef> variableRefList = createVariableRefList(location, args);
         int mapSymbolsParams = formalParams.size() - args.size();
         for (int i = 0; i < variableRefList.size(); i++) {
             BLangSimpleVarRef varRef = variableRefList.get(i);

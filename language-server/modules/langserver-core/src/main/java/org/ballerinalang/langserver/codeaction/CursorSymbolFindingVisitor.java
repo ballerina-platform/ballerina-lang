@@ -90,7 +90,8 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
     }
 
     @Override
-    protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition, BLangDiagnosticLocation position) {
+    protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition,
+                             BLangDiagnosticLocation location) {
         SymbolReferencesModel.Reference symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
@@ -100,7 +101,7 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
         if (symbolAtCursor != null) {
             return;
         }
-        BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(position);
+        BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(location);
         bSymbol = (bSymbol instanceof BVarSymbol && ((BVarSymbol) bSymbol).originalSymbol != null)
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;

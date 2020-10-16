@@ -161,8 +161,9 @@ public class BallerinaSemanticModel implements SemanticModel {
     // Private helper methods for the public APIs above.
 
     private boolean isSymbolInUserProject(BSymbol symbol, BLangDiagnosticLocation cursorPos) {
+        int value = cursorPos.lineRange().filePath().compareTo(symbol.pos.lineRange().filePath());
         return symbol.origin == SOURCE &&
-                (cursorPos.compareTo(symbol.pos) > 0
+                (value > 0
                         || symbol.owner.getKind() == SymbolKind.PACKAGE
                         || Symbols.isFlagOn(symbol.flags, Flags.WORKER));
     }

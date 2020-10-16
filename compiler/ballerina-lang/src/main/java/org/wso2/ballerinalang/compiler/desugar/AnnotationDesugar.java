@@ -212,9 +212,12 @@ public class AnnotationDesugar {
         return null;
     }
 
-    void defineStatementAnnotations(List<BLangAnnotationAttachment> attachments, BLangDiagnosticLocation pos, PackageID pkgID,
-                                    BSymbol owner, SymbolEnv env) {
-        BLangFunction function = defineFunction(pos, pkgID, owner);
+    void defineStatementAnnotations(List<BLangAnnotationAttachment> attachments,
+                                    BLangDiagnosticLocation location,
+                                    PackageID pkgID,
+                                    BSymbol owner,
+                                    SymbolEnv env) {
+        BLangFunction function = defineFunction(location, pkgID, owner);
         BLangRecordLiteral mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
         addAnnotsToLiteral(attachments, mapLiteral, function, env);
     }
@@ -341,9 +344,9 @@ public class AnnotationDesugar {
         }
     }
 
-    private BLangLambdaFunction defineAnnotations(AnnotatableNode node, BLangDiagnosticLocation pos, BLangPackage pkgNode,
-                                                  SymbolEnv env, PackageID pkgID, BSymbol owner) {
-        return defineAnnotations(getAnnotationList(node), pos, pkgNode, env, pkgID, owner);
+    private BLangLambdaFunction defineAnnotations(AnnotatableNode node, BLangDiagnosticLocation location,
+                                                  BLangPackage pkgNode, SymbolEnv env, PackageID pkgID, BSymbol owner) {
+        return defineAnnotations(getAnnotationList(node), location, pkgNode, env, pkgID, owner);
     }
 
     private List<BLangAnnotationAttachment> getAnnotationList(AnnotatableNode node) {
@@ -352,13 +355,17 @@ public class AnnotationDesugar {
                 .collect(Collectors.toList());
     }
 
-    private BLangLambdaFunction defineAnnotations(List<BLangAnnotationAttachment> annAttachments, BLangDiagnosticLocation pos,
-                                                  BLangPackage pkgNode, SymbolEnv env, PackageID pkgID, BSymbol owner) {
+    private BLangLambdaFunction defineAnnotations(List<BLangAnnotationAttachment> annAttachments,
+                                                  BLangDiagnosticLocation location,
+                                                  BLangPackage pkgNode,
+                                                  SymbolEnv env,
+                                                  PackageID pkgID,
+                                                  BSymbol owner) {
         if (annAttachments.isEmpty()) {
             return null;
         }
 
-        BLangFunction function = defineFunction(pos, pkgID, owner);
+        BLangFunction function = defineFunction(location, pkgID, owner);
         BLangRecordLiteral mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
         addAnnotsToLiteral(annAttachments, mapLiteral, function, env);
 

@@ -426,12 +426,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         return this.lookupAnnotationSpaceSymbolInPackage(pos, env, pkgAlias, annotationName);
     }
 
-    public BSymbol resolveStructField(BLangDiagnosticLocation pos, SymbolEnv env, Name fieldName, BTypeSymbol structSymbol) {
-        return lookupMemberSymbol(pos, structSymbol.scope, env, fieldName, SymTag.VARIABLE);
+    public BSymbol resolveStructField(BLangDiagnosticLocation location, SymbolEnv env, Name fieldName,
+                                      BTypeSymbol structSymbol) {
+        return lookupMemberSymbol(location, structSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
 
-    public BSymbol resolveObjectField(BLangDiagnosticLocation pos, SymbolEnv env, Name fieldName, BTypeSymbol objectSymbol) {
-        return lookupMemberSymbol(pos, objectSymbol.scope, env, fieldName, SymTag.VARIABLE);
+    public BSymbol resolveObjectField(BLangDiagnosticLocation location, SymbolEnv env, Name fieldName,
+                                      BTypeSymbol objectSymbol) {
+        return lookupMemberSymbol(location, objectSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
 
     public BSymbol resolveObjectMethod(BLangDiagnosticLocation pos, SymbolEnv env, Name fieldName,
@@ -1363,8 +1365,12 @@ public class SymbolResolver extends BLangNodeVisitor {
                                          functionTypeNode.pos);
     }
 
-    public BType createInvokableType(List<? extends BLangVariable> paramVars, BLangVariable restVariable,
-                                              BLangType retTypeVar, int flags, SymbolEnv env, BLangDiagnosticLocation pos) {
+    public BType createInvokableType(List<? extends BLangVariable> paramVars,
+                                     BLangVariable restVariable,
+                                     BLangType retTypeVar,
+                                     int flags,
+                                     SymbolEnv env,
+                                     BLangDiagnosticLocation location) {
         List<BType> paramTypes = new ArrayList<>();
         List<BVarSymbol> params = new ArrayList<>();
 
@@ -1436,7 +1442,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         bInvokableType.flags = flags;
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                                                                          env.enclPkg.symbol.pkgID, bInvokableType,
-                                                                         env.scope.owner, pos, SOURCE);
+                                                                         env.scope.owner, location, SOURCE);
 
         tsymbol.params = params;
         tsymbol.restParam = restParam;

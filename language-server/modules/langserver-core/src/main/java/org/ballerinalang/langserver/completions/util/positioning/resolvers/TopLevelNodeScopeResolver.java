@@ -32,8 +32,8 @@ public class TopLevelNodeScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
-                                      BLangNode node, BSymbol bSymbol) {
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+                                      LSContext completionContext, BLangNode node, BSymbol bSymbol) {
         Position cursorPos = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int line = cursorPos.getLine();
         int col = cursorPos.getCharacter();

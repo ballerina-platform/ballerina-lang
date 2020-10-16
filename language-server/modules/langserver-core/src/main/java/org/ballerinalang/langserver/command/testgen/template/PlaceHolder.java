@@ -85,27 +85,28 @@ public enum PlaceHolder {
                                            pos.lineRange().endLine().line(), 0, 0);
     }
 
-    private static BLangDiagnosticLocation getMaximumPosition(BLangDiagnosticLocation pos1, BLangDiagnosticLocation pos2) {
+    private static BLangDiagnosticLocation getMaximumPosition(BLangDiagnosticLocation location1,
+                                                              BLangDiagnosticLocation location2) {
         // handle null
-        if (pos1 == null) {
-            return pos2;
-        } else if (pos2 == null) {
-            return pos1;
+        if (location1 == null) {
+            return location2;
+        } else if (location2 == null) {
+            return location1;
         }
-        if (pos1.getEndLine() > pos2.getEndLine()) {
-            // pos1.Line > pos2.Line
-            return pos1;
-        } else if (pos1.getEndLine() < pos2.getEndLine()) {
-            // pos1.Line < pos2.Line
-            return pos2;
+        if (location1.getEndLine() > location2.getEndLine()) {
+            // location1.Line > location2.Line
+            return location1;
+        } else if (location1.getEndLine() < location2.getEndLine()) {
+            // location1.Line < location2.Line
+            return location2;
         } else {
-            // pos1.Line == pos2.Line
-            if (pos1.getEndColumn() > pos2.getEndColumn()) {
-                // pos1.Col > pos2.Col
-                return pos1;
+            // location1.Line == location2.Line
+            if (location1.getEndColumn() > location2.getEndColumn()) {
+                // location1.Col > location2.Col
+                return location1;
             } else {
-                // pos1.Col < pos2.Col
-                return pos2;
+                // location1.Col < location2.Col
+                return location2;
             }
         }
     }

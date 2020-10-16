@@ -56,7 +56,8 @@ public class BSymbol implements Symbol {
      */
     public Scope scope;
 
-    public BSymbol(int tag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner, BLangDiagnosticLocation pos,
+    public BSymbol(int tag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
+                   BLangDiagnosticLocation location,
                    SymbolOrigin origin) {
         this.tag = tag;
         this.flags = flags;
@@ -64,7 +65,7 @@ public class BSymbol implements Symbol {
         this.pkgID = pkgID;
         this.type = type;
         this.owner = owner;
-        this.pos = pos;
+        this.pos = location;
         this.origin = origin;
     }
 

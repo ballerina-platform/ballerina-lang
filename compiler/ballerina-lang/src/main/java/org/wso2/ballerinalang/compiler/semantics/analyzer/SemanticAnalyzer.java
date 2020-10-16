@@ -2184,12 +2184,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
-    private void checkErrorDetailRefItem(BLangDiagnosticLocation pos, BLangDiagnosticLocation rhsPos, BLangNamedArgsExpression detailItem,
+    private void checkErrorDetailRefItem(BLangDiagnosticLocation location,
+                                         BLangDiagnosticLocation rhsLocation,
+                                         BLangNamedArgsExpression detailItem,
                                          BType expectedType) {
         if (detailItem.expr.getKind() == NodeKind.RECORD_VARIABLE_REF) {
             typeChecker.checkExpr(detailItem.expr, env);
-            checkRecordVarRefEquivalency(pos, (BLangRecordVarRef) detailItem.expr, expectedType,
-                    rhsPos);
+            checkRecordVarRefEquivalency(location, (BLangRecordVarRef) detailItem.expr, expectedType,
+                    rhsLocation);
             return;
         }
 

@@ -103,7 +103,8 @@ class JvmObservabilityGen {
     private static final String ANONYMOUS_SERVICE_IDENTIFIER = "$anonService$";
     private static final String INVOCATION_INSTRUMENTATION_TYPE = "invocation";
     private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "funcBody";
-    private static final BLangDiagnosticLocation COMPILE_TIME_CONST_POS = new BLangDiagnosticLocation(null, -1, -1, -1, -1);
+    private static final BLangDiagnosticLocation COMPILE_TIME_CONST_POS =
+            new BLangDiagnosticLocation(null, -1, -1, -1, -1);
 
     private final PackageCache packageCache;
     private final SymbolTable symbolTable;
@@ -590,7 +591,7 @@ class JvmObservabilityGen {
      * Inject start observation call to a basic block.
      *
      * @param observeStartBB The basic block to which the start observation call should be injected
-     * @param desugaredInsPos The position of all instructions, variables declarations, terminators to be generated
+     * @param desugaredInsLocation The position of all instructions, variables declarations, terminators to be generated
      * @param isRemote True if a remote function will be observed by the observation
      * @param isMainEntryPoint True if the main function will be observed by the observation
      * @param isWorker True if a worker function will be observed by the observation
@@ -599,7 +600,8 @@ class JvmObservabilityGen {
      * @param pkg The package the invocation belongs to
      * @param originalInsPosition The source code position of the invocation
      */
-    private void injectStartCallableObservationCall(BIRBasicBlock observeStartBB, BLangDiagnosticLocation desugaredInsPos,
+    private void injectStartCallableObservationCall(BIRBasicBlock observeStartBB,
+                                                    BLangDiagnosticLocation desugaredInsLocation,
                                                     boolean isRemote, boolean isMainEntryPoint, boolean isWorker,
                                                     BIROperand objectOperand, String action, BIRPackage pkg,
                                                     BLangDiagnosticLocation originalInsPosition) {
@@ -614,7 +616,7 @@ class JvmObservabilityGen {
         BIROperand originalInsPosOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, position);
         BIROperand actionOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, action);
 
-        JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsPos);
+        JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsLocation);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
         observeStartCallTerminator.jMethodVMSig = String.format("(ZZZL%s;L%s;L%s;L%s;)V", OBJECT_VALUE, B_STRING_VALUE,

@@ -71,20 +71,21 @@ public class TaintRecord {
         public List<String> paramName;
         public DiagnosticCode diagnosticCode;
 
-        public TaintError(BLangDiagnosticLocation pos, String paramName, DiagnosticCode diagnosticCode) {
-            this.pos = pos;
+        public TaintError(BLangDiagnosticLocation location, String paramName, DiagnosticCode diagnosticCode) {
+            this.pos = location;
             this.paramName = new ArrayList<>(1);
             this.paramName.add(paramName);
             this.diagnosticCode = diagnosticCode;
         }
 
-        public TaintError(BLangDiagnosticLocation pos, List<String> paramName, DiagnosticCode diagnosticCode) {
-            this.pos = pos;
+        public TaintError(BLangDiagnosticLocation location, List<String> paramName, DiagnosticCode diagnosticCode) {
+            this.pos = location;
             this.paramName = paramName;
             this.diagnosticCode = diagnosticCode;
         }
 
-        public TaintError(BLangDiagnosticLocation pos, String paramName, String paramName2, DiagnosticCode diagnosticCode) {
+        public TaintError(BLangDiagnosticLocation pos, String paramName, String paramName2,
+                          DiagnosticCode diagnosticCode) {
             this.pos = pos;
             this.paramName = new ArrayList<>(1);
             this.paramName.add(paramName);

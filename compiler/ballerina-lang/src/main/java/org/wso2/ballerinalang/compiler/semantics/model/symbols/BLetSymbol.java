@@ -31,7 +31,8 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class BLetSymbol extends BSymbol {
 
-    public BLetSymbol(int tag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner, BLangDiagnosticLocation pos) {
-        super(tag, flags, name, pkgID, type, owner, pos, SymbolOrigin.VIRTUAL);
+    public BLetSymbol(int tag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
+                      BLangDiagnosticLocation location) {
+        super(tag, flags, name, pkgID, type, owner, location, SymbolOrigin.VIRTUAL);
     }
 }

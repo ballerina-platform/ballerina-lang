@@ -304,15 +304,16 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createAssignmentStmt(pos, prevAttemptInfoRef, infoInvocation);
     }
 
-    private BLangInvocation createStartTransactionInvocation(BLangDiagnosticLocation pos,
-                                                             BLangLiteral transactionBlockIDLiteral, BLangSimpleVarRef prevAttempt) {
+    private BLangInvocation createStartTransactionInvocation(BLangDiagnosticLocation location,
+                                                             BLangLiteral transactionBlockIDLiteral,
+                                                             BLangSimpleVarRef prevAttempt) {
         BInvokableSymbol startTransactionInvokableSymbol =
                 (BInvokableSymbol) getTransactionLibInvokableSymbol(START_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(transactionBlockIDLiteral);
         args.add(prevAttempt);
         BLangInvocation startTransactionInvocation = ASTBuilderUtil.
-                createInvocationExprForMethod(pos, startTransactionInvokableSymbol, args, symResolver);
+                createInvocationExprForMethod(location, startTransactionInvokableSymbol, args, symResolver);
         startTransactionInvocation.argExprs = args;
         return startTransactionInvocation;
     }

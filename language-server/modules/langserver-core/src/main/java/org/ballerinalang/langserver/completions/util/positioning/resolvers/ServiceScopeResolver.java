@@ -43,8 +43,8 @@ public class ServiceScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
-                                      BLangNode node, BSymbol bSymbol) {
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+                                      LSContext completionContext, BLangNode node, BSymbol bSymbol) {
         Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         BLangDiagnosticLocation zeroBasedPo = CommonUtil.toZeroBasedPosition(nodePosition);
         int line = position.getLine();

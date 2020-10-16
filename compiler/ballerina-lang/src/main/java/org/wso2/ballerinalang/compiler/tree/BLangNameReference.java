@@ -34,7 +34,8 @@ public class BLangNameReference {
     public BLangDiagnosticLocation pos;
     public Set<Whitespace> ws;
 
-    public BLangNameReference(BLangDiagnosticLocation poc, Set<Whitespace> ws, IdentifierNode pkgAlias, IdentifierNode name) {
+    public BLangNameReference(BLangDiagnosticLocation poc, Set<Whitespace> ws, IdentifierNode pkgAlias,
+                              IdentifierNode name) {
         this.pkgAlias = pkgAlias;
         this.name = name;
         this.pos = poc;

@@ -32,8 +32,8 @@ public class InvocationParameterScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
-                                      BLangNode node, BSymbol bSymbol) {
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+                                      LSContext completionContext, BLangNode node, BSymbol bSymbol) {
         return super.isCursorBeforeNode(nodePosition, treeVisitor, completionContext, node, bSymbol);
     }
 }

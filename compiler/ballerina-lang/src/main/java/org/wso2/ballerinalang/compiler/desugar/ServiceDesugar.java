@@ -178,8 +178,11 @@ public class ServiceDesugar {
         }
     }
 
-    private void addMethodInvocation(BLangDiagnosticLocation pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
-                                     List<BLangExpression> args, List<BLangNamedArgsExpression> namedArgs,
+    private void addMethodInvocation(BLangDiagnosticLocation pos,
+                                     BLangSimpleVarRef varRef,
+                                     BInvokableSymbol methodRefSymbol,
+                                     List<BLangExpression> args,
+                                     List<BLangNamedArgsExpression> namedArgs,
                                      BlockNode body) {
         // Create method invocation
         final BLangInvocation methodInvocation =

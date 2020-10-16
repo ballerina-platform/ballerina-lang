@@ -114,13 +114,15 @@ public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
                             // eg. function test() {...}
                             start = new Position(func.returnTypeNode.pos.getStartLine() - 1,
                                                  func.returnTypeNode.pos.getEndColumn() - 1);
-                            end = new Position(func.returnTypeNode.pos.getEndLine() - 1, func.returnTypeNode.pos.getEndColumn() - 1);
+                            end = new Position(func.returnTypeNode.pos.getEndLine() - 1,
+                                    func.returnTypeNode.pos.getEndColumn() - 1);
                             editText = " returns (" + editText + ")";
                         } else {
                             // eg. function test() returns () {...}
                             start = new Position(func.returnTypeNode.pos.getStartLine() - 1,
                                                  func.returnTypeNode.pos.getStartColumn() - 1);
-                            end = new Position(func.returnTypeNode.pos.getEndLine() - 1, func.returnTypeNode.pos.getEndColumn() - 1);
+                            end = new Position(func.returnTypeNode.pos.getEndLine() - 1,
+                                    func.returnTypeNode.pos.getEndColumn() - 1);
                         }
                         edits.add(new TextEdit(new Range(start, end), editText));
 

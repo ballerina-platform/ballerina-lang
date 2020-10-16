@@ -77,6 +77,7 @@ public class SymbolReferencesModel {
                     ? symbol.pkgID.nameComps.stream().map(Name::getValue).collect(Collectors.joining("."))
                     : "";
             this.compilationUnit = position.lineRange().filePath();
+            assert symbol != null;
             this.sourcePkgName = symbol.pkgID.name.value;
         }
 

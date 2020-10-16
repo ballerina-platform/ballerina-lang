@@ -126,18 +126,22 @@ public class TypeDefBuilderHelper {
         return initFunction;
     }
 
-    public static BLangFunction createInitFunctionForStructureType(BLangDiagnosticLocation pos, BSymbol symbol, SymbolEnv env,
-                                                                   Names names, Name suffix,
-                                                                   SymbolTable symTable, BType type) {
+    public static BLangFunction createInitFunctionForStructureType(BLangDiagnosticLocation location,
+                                                                   BSymbol symbol,
+                                                                   SymbolEnv env,
+                                                                   Names names,
+                                                                   Name suffix,
+                                                                   SymbolTable symTable,
+                                                                   BType type) {
         String structTypeName = type.tsymbol.name.value;
         BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunctionWithNilReturn(pos, structTypeName, suffix);
+                .createInitFunctionWithNilReturn(location, structTypeName, suffix);
 
         // Create the receiver and add receiver details to the node
-        initFunction.receiver = ASTBuilderUtil.createReceiver(pos, type);
+        initFunction.receiver = ASTBuilderUtil.createReceiver(location, type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                    names.fromIdNode(initFunction.receiver.name),
-                                                   env.enclPkg.symbol.pkgID, type, null, pos, VIRTUAL);
+                                                   env.enclPkg.symbol.pkgID, type, null, location, VIRTUAL);
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
@@ -154,7 +158,7 @@ public class TypeDefBuilderHelper {
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
-        initFunction.name = ASTBuilderUtil.createIdentifier(pos, funcSymbolName.value);
+        initFunction.name = ASTBuilderUtil.createIdentifier(location, funcSymbolName.value);
 
         // Create the function type symbol
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,

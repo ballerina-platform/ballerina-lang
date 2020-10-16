@@ -17,8 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.util;
 
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 /**
  * Class to track the closure variable symbols of lambads and arrow function expression with their positions which will

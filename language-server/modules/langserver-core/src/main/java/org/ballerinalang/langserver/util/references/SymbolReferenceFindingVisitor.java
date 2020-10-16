@@ -1019,7 +1019,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         return new SymbolReferencesModel.Reference(position, symbol, bLangNode);
     }
 
-    protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition, BLangDiagnosticLocation position) {
+    protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition,
+                             BLangDiagnosticLocation position) {
         SymbolReferencesModel.Reference symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
@@ -1034,7 +1035,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;
         SymbolReferencesModel.Reference ref = this.getSymbolReference(zeroBasedPos, bSymbol, bLangNode);
-        if (this.currentCUnitMode && this.cursorLine == zeroBasedPos.getStartLine() && this.cursorCol >= zeroBasedPos.getStartColumn()
+        if (this.currentCUnitMode && this.cursorLine == zeroBasedPos.getStartLine()
+                && this.cursorCol >= zeroBasedPos.getStartColumn()
                 && this.cursorCol <= zeroBasedPos.getEndColumn()) {
             // This is the symbol at current cursor position
             this.symbolReferences.setReferenceAtCursor(ref);
@@ -1073,8 +1075,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         return this.workerLambdas.stream()
                 .filter(function -> {
                     BLangDiagnosticLocation namePosition = function.defaultWorkerName.getPosition();
-                    return namePosition.getStartLine() == position.getStartLine() && namePosition.getEndLine() == position.getEndLine()
-                            && namePosition.getStartColumn() == position.getStartColumn() && namePosition.getEndColumn() == position.getEndColumn();
+                    return namePosition.getStartLine() == position.getStartLine()
+                            && namePosition.getEndLine() == position.getEndLine()
+                            && namePosition.getStartColumn() == position.getStartColumn()
+                            && namePosition.getEndColumn() == position.getEndColumn();
                 })
                 .findAny();
     }
@@ -1097,8 +1101,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         return this.workerVarDefMap.entrySet().stream()
                 .filter(workerPos -> {
                     BLangDiagnosticLocation posValue = workerPos.getValue();
-                    return posValue.getStartLine() == pos.getStartLine() && posValue.getEndLine() == pos.getEndLine()
-                            && posValue.getStartColumn() == pos.getStartColumn() && posValue.getEndColumn() == pos.getEndColumn();
+                    return posValue.getStartLine() == pos.getStartLine()
+                            && posValue.getEndLine() == pos.getEndLine()
+                            && posValue.getStartColumn() == pos.getStartColumn()
+                            && posValue.getEndColumn() == pos.getEndColumn();
                 })
                 .findAny()
                 .map(Map.Entry::getKey)

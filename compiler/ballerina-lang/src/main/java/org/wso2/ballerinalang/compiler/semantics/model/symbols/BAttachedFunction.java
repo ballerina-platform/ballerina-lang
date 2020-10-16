@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 /**
  * {@code BAttachedFunction} represents a attached function in Ballerina.

@@ -40,8 +40,8 @@ public class RecordLiteralScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
-                                      BLangNode node) {
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+                                      LSContext completionContext, BLangNode node) {
         Node recordNode = treeVisitor.getBlockOwnerStack().peek();
         if (!(recordNode instanceof BLangRecordLiteral)) {
             return false;

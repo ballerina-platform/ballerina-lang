@@ -211,7 +211,8 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         return currentCUnit.get();
     }
 
-    private Triple<BLangDiagnosticLocation, PackageID, Boolean> getNodeLocationAndHasFunctions(String name, LSContext context) {
+    private Triple<BLangDiagnosticLocation, PackageID, Boolean> getNodeLocationAndHasFunctions(String name,
+                                                                                               LSContext context) {
         List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
         BLangDiagnosticLocation pos;
         PackageID pkgId;

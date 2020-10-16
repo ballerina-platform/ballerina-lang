@@ -255,10 +255,11 @@ public class RunTestsTask implements Task {
         suite.setSourceRootPath(sourceRootPath.toString());
         // add module functions
         bLangPackage.functions.forEach(function -> {
-            String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                                                                       bLangPackage.packageID.name.value,
-                                                                       bLangPackage.packageID.version.value,
-                                                                       getClassName(function.pos.lineRange().filePath()));
+            String functionClassName =
+                    BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                                                    bLangPackage.packageID.name.value,
+                                                    bLangPackage.packageID.version.value,
+                                                    getClassName(function.pos.lineRange().filePath()));
             suite.addTestUtilityFunction(function.name.value, functionClassName);
         });
         // add test functions
@@ -267,10 +268,11 @@ public class RunTestsTask implements Task {
             suite.setTestStartFunctionName(bLangPackage.getTestablePkg().startFunction.name.value);
             suite.setTestStopFunctionName(bLangPackage.getTestablePkg().stopFunction.name.value);
             bLangPackage.getTestablePkg().functions.forEach(function -> {
-                String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                                                                           bLangPackage.packageID.name.value,
-                                                                           bLangPackage.packageID.version.value,
-                                                                           getClassName(function.pos.lineRange().filePath()));
+                String functionClassName =
+                        BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                                                        bLangPackage.packageID.name.value,
+                                                        bLangPackage.packageID.version.value,
+                                                        getClassName(function.pos.lineRange().filePath()));
                 suite.addTestUtilityFunction(function.name.value, functionClassName);
             });
         } else {

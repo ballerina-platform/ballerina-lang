@@ -38,6 +38,7 @@ import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
@@ -180,7 +181,6 @@ import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -739,7 +739,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return new BFiniteType(null, matchedValueSpace);
     }
 
-    private BType getIntLiteralType(BLangDiagnosticLocation pos, BType expType, BType literalType, Object literalValue) {
+    private BType getIntLiteralType(BLangDiagnosticLocation location, BType expType, BType literalType,
+                                    Object literalValue) {
 
         switch (expType.tag) {
             case TypeTags.INT:
@@ -781,7 +782,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             default:
         }
-        dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
+        dlog.error(location, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
         resultType = symTable.semanticError;
         return resultType;
     }
@@ -5692,14 +5693,15 @@ public class TypeChecker extends BLangNodeVisitor {
         return checkRecordLiteralKeyByName(keyExpr.pos, this.env, fieldName, recordType);
     }
 
-    private BType checkRecordLiteralKeyByName(BLangDiagnosticLocation pos, SymbolEnv env, Name key, BRecordType recordType) {
-        BSymbol fieldSymbol = symResolver.resolveStructField(pos, env, key, recordType.tsymbol);
+    private BType checkRecordLiteralKeyByName(BLangDiagnosticLocation location, SymbolEnv env, Name key,
+                                              BRecordType recordType) {
+        BSymbol fieldSymbol = symResolver.resolveStructField(location, env, key, recordType.tsymbol);
         if (fieldSymbol != symTable.notFoundSymbol) {
             return fieldSymbol.type;
         }
 
         if (recordType.sealed) {
-            dlog.error(pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, key,
+            dlog.error(location, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, key,
                        recordType.tsymbol.type.getKind().typeName(), recordType);
             return symTable.semanticError;
         }
@@ -7145,10 +7147,11 @@ public class TypeChecker extends BLangNodeVisitor {
         return recordType;
     }
 
-    private BRecordTypeSymbol createRecordTypeSymbol(PackageID pkgID, BLangDiagnosticLocation pos, SymbolOrigin origin) {
+    private BRecordTypeSymbol createRecordTypeSymbol(PackageID pkgID, BLangDiagnosticLocation location,
+                                                     SymbolOrigin origin) {
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(0, names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID)),
-                                           pkgID, null, env.scope.owner, pos, origin);
+                                           pkgID, null, env.scope.owner, location, origin);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
@@ -7156,7 +7159,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 symTable.builtinPos, VIRTUAL);
         initFuncSymbol.retType = symTable.nilType;
         recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
-                                                             bInvokableType, pos);
+                                                             bInvokableType, location);
 
         recordSymbol.scope = new Scope(recordSymbol);
         recordSymbol.scope.define(
@@ -7206,7 +7209,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    private BType checkXmlSubTypeLiteralCompatibility(BLangDiagnosticLocation pos, BXMLSubType mutableXmlSubType, BType expType) {
+    private BType checkXmlSubTypeLiteralCompatibility(BLangDiagnosticLocation location, BXMLSubType mutableXmlSubType,
+                                                      BType expType) {
         if (expType == symTable.semanticError) {
             return expType;
         }
@@ -7222,7 +7226,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BXMLSubType immutableXmlSubType = (BXMLSubType)
-                ImmutableTypeCloner.getEffectiveImmutableType(pos, types, mutableXmlSubType, env, symTable,
+                ImmutableTypeCloner.getEffectiveImmutableType(location, types, mutableXmlSubType, env, symTable,
                                                               anonymousModelHelper, names);
 
         if (expType == immutableXmlSubType) {
@@ -7234,7 +7238,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (!unionExpType) {
-            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, mutableXmlSubType);
+            dlog.error(location, DiagnosticCode.INCOMPATIBLE_TYPES, expType, mutableXmlSubType);
             return symTable.semanticError;
         }
 
@@ -7260,7 +7264,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (compatibleTypes.isEmpty()) {
-            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, mutableXmlSubType);
+            dlog.error(location, DiagnosticCode.INCOMPATIBLE_TYPES, expType, mutableXmlSubType);
             return symTable.semanticError;
         }
 
@@ -7268,7 +7272,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return compatibleTypes.get(0);
         }
 
-        dlog.error(pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+        dlog.error(location, DiagnosticCode.AMBIGUOUS_TYPES, expType);
         return symTable.semanticError;
     }
 

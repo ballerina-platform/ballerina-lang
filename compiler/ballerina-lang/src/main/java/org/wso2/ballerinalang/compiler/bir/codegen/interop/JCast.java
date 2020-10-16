@@ -18,8 +18,8 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
  * Java cast instruction.

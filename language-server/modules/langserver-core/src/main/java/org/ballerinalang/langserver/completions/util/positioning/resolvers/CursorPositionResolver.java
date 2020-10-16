@@ -48,8 +48,8 @@ public abstract class CursorPositionResolver {
      * @param node                  Node
      * @return {@link Boolean}      Whether the cursor is before the node start or not
      */
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
-                                      BLangNode node) {
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+                                      LSContext completionContext, BLangNode node) {
         return false;
     }
 }

@@ -1901,7 +1901,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLFieldBasedAccess.pos = getPosition(fieldAccessExprNode);
         bLFieldBasedAccess.field.pos = getPosition(fieldAccessExprNode);
-        bLFieldBasedAccess.field.pos = trimLeft(bLFieldBasedAccess.field.pos, getPosition(fieldAccessExprNode.dotToken()));
+        bLFieldBasedAccess.field.pos = trimLeft(bLFieldBasedAccess.field.pos,
+                getPosition(fieldAccessExprNode.dotToken()));
         bLFieldBasedAccess.optionalFieldAccess = false;
         return bLFieldBasedAccess;
     }
@@ -2638,8 +2639,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return refType;
     }
 
-    private VariableDefinitionNode createBLangVarDef(BLangDiagnosticLocation pos, TypedBindingPatternNode typedBindingPattern,
-                                                     Optional<io.ballerina.compiler.syntax.tree.ExpressionNode> initializer, Optional<Token> finalKeyword) {
+    private VariableDefinitionNode createBLangVarDef(BLangDiagnosticLocation location,
+                                                TypedBindingPatternNode typedBindingPattern,
+                                                Optional<io.ballerina.compiler.syntax.tree.ExpressionNode> initializer,
+                                                Optional<Token> finalKeyword) {
         BindingPatternNode bindingPattern = typedBindingPattern.bindingPattern();
         BLangVariable variable = getBLangVariableNode(bindingPattern);
         switch (bindingPattern.kind()) {
@@ -2647,7 +2650,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case WILDCARD_BINDING_PATTERN:
                 BLangSimpleVariableDef bLVarDef =
                         (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-                bLVarDef.pos = variable.pos = pos;
+                bLVarDef.pos = variable.pos = location;
                 BLangExpression expr = initializer.isPresent() ? createExpression(initializer.get()) : null;
                 variable.setInitialExpression(expr);
                 bLVarDef.setVariable(variable);
@@ -3979,9 +3982,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLiteral;
     }
 
-    private BLangVariable createSimpleVariable(BLangDiagnosticLocation pos, String identifier, BLangDiagnosticLocation identifierPos) {
+    private BLangVariable createSimpleVariable(BLangDiagnosticLocation location,
+                                               String identifier,
+                                               BLangDiagnosticLocation identifierPos) {
         BLangSimpleVariable memberVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        memberVar.pos = pos;
+        memberVar.pos = location;
         IdentifierNode name = createIdentifier(identifierPos, identifier);
         ((BLangIdentifier) name).pos = identifierPos;
         memberVar.setName(name);
@@ -4184,9 +4189,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private BLangUnaryExpr createBLangUnaryExpr(BLangDiagnosticLocation pos, OperatorKind operatorKind, BLangExpression expr) {
+    private BLangUnaryExpr createBLangUnaryExpr(BLangDiagnosticLocation location,
+                                                OperatorKind operatorKind,
+                                                BLangExpression expr) {
         BLangUnaryExpr bLUnaryExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
-        bLUnaryExpr.pos = pos;
+        bLUnaryExpr.pos = location;
         bLUnaryExpr.operator = operatorKind;
         bLUnaryExpr.expr = expr;
         return bLUnaryExpr;
@@ -4226,7 +4233,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private BLangNode createStringTemplateLiteral(NodeList<TemplateMemberNode> memberNodes, BLangDiagnosticLocation pos) {
+    private BLangNode createStringTemplateLiteral(NodeList<TemplateMemberNode> memberNodes,
+                                                  BLangDiagnosticLocation location) {
         BLangStringTemplateLiteral stringTemplateLiteral =
                 (BLangStringTemplateLiteral) TreeBuilder.createStringTemplateLiteralNode();
         for (Node memberNode : memberNodes) {
@@ -4235,17 +4243,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         if (stringTemplateLiteral.exprs.isEmpty()) {
             BLangLiteral emptyLiteral = createEmptyLiteral();
-            emptyLiteral.pos = pos;
+            emptyLiteral.pos = location;
             stringTemplateLiteral.exprs.add(emptyLiteral);
         }
 
-        stringTemplateLiteral.pos = pos;
+        stringTemplateLiteral.pos = location;
         return stringTemplateLiteral;
     }
 
-    private BLangRawTemplateLiteral createRawTemplateLiteral(NodeList<TemplateMemberNode> members, BLangDiagnosticLocation pos) {
+    private BLangRawTemplateLiteral createRawTemplateLiteral(NodeList<TemplateMemberNode> members,
+                                                             BLangDiagnosticLocation location) {
         BLangRawTemplateLiteral literal = (BLangRawTemplateLiteral) TreeBuilder.createRawTemplateLiteralNode();
-        literal.pos = pos;
+        literal.pos = location;
 
         boolean prevNodeWasInterpolation = false;
         Node firstMember = members.isEmpty() ? null : members.get(0); // will be empty for empty raw template
@@ -4604,12 +4613,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private VariableNode createBasicVarNodeWithoutType(BLangDiagnosticLocation pos, Set<Whitespace> ws, String identifier,
-                                                       BLangDiagnosticLocation identifierPos, ExpressionNode expr) {
+    private VariableNode createBasicVarNodeWithoutType(BLangDiagnosticLocation location, Set<Whitespace> ws,
+                                                       String identifier, BLangDiagnosticLocation identifierLocation,
+                                                       ExpressionNode expr) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        bLSimpleVar.pos = pos;
-        IdentifierNode name = this.createIdentifier(identifierPos, identifier, ws);
-        ((BLangIdentifier) name).pos = identifierPos;
+        bLSimpleVar.pos = location;
+        IdentifierNode name = this.createIdentifier(identifierLocation, identifier, ws);
+        ((BLangIdentifier) name).pos = identifierLocation;
         bLSimpleVar.setName(name);
         bLSimpleVar.addWS(ws);
         if (expr != null) {

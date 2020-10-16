@@ -40,8 +40,8 @@ public class MatchExpressionScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
-                                      BLangNode node, BSymbol bSymbol) {
+    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+                                      LSContext completionContext, BLangNode node, BSymbol bSymbol) {
         if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangMatchExpression)) {
             // In the ideal case, this will not get triggered
             return false;

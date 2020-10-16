@@ -110,7 +110,8 @@ public class ImmutableTypeCloner {
                                             symTable, anonymousModelHelper, names, origObjFlagSet, new HashSet<>());
     }
 
-    private static BType getImmutableType(BLangDiagnosticLocation pos, Types types, BType type, SymbolEnv env, PackageID pkgId,
+    private static BType getImmutableType(BLangDiagnosticLocation pos, Types types, BType type, SymbolEnv env,
+                                          PackageID pkgId,
                                           BSymbol owner, SymbolTable symTable,
                                           BLangAnonymousModelHelper anonymousModelHelper, Names names,
                                           Set<BType> unresolvedTypes) {
@@ -425,7 +426,8 @@ public class ImmutableTypeCloner {
                                              types, env, symTable, anonymousModelHelper, names);
     }
 
-    private static void defineUndefinedImmutableRecordFields(BRecordType immutableRecordType, BLangDiagnosticLocation pos,
+    private static void defineUndefinedImmutableRecordFields(BRecordType immutableRecordType,
+                                                             BLangDiagnosticLocation loc,
                                                              PackageID pkgID,
                                                              BLangTypeDefinition immutableTypeDefinition,
                                                              Types types, SymbolEnv env, SymbolTable symTable,
@@ -436,7 +438,7 @@ public class ImmutableTypeCloner {
 
             populateImmutableStructureFields(types, symTable, anonymousModelHelper, names,
                                              (BLangRecordTypeNode) immutableTypeDefinition.typeNode,
-                                             immutableRecordType, origRecordType, pos, env, pkgID, new HashSet<>());
+                                             immutableRecordType, origRecordType, loc, env, pkgID, new HashSet<>());
         }
 
         BType currentRestFieldType = immutableRecordType.restFieldType;
@@ -444,11 +446,12 @@ public class ImmutableTypeCloner {
             return;
         }
 
-        setRestType(types, symTable, anonymousModelHelper, names, immutableRecordType, origRecordType, pos, env,
+        setRestType(types, symTable, anonymousModelHelper, names, immutableRecordType, origRecordType, loc, env,
                     new HashSet<>());
     }
 
-    private static void defineUndefinedImmutableObjectFields(BObjectType immutableObjectType, BLangDiagnosticLocation pos,
+    private static void defineUndefinedImmutableObjectFields(BObjectType immutableObjectType,
+                                                             BLangDiagnosticLocation location,
                                                              PackageID pkgID,
                                                              BLangTypeDefinition immutableTypeDefinition,
                                                              Types types, SymbolEnv env, SymbolTable symTable,
@@ -460,7 +463,7 @@ public class ImmutableTypeCloner {
             populateImmutableStructureFields(types, symTable, anonymousModelHelper, names,
                                              (BLangObjectTypeNode) immutableTypeDefinition.typeNode,
                                              immutableObjectType, origObjectType,
-                                             pos, env, pkgID, new HashSet<>(), Flags.FINAL);
+                                             location, env, pkgID, new HashSet<>(), Flags.FINAL);
         }
     }
 

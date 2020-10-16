@@ -70,32 +70,4 @@ public class BLangDiagnosticLocation implements Location {
     public String toString() {
         return lineRange.toString() + textRange.toString();
     }
-
-    public int compareTo(BLangDiagnosticLocation diagnosticLocation) {
-
-        // Compare the source first.
-        String thisDiagnosticFilePath = lineRange().filePath();
-        String otherDiagnosticFilePath = diagnosticLocation.lineRange().filePath();
-        int value = thisDiagnosticFilePath.compareTo(otherDiagnosticFilePath);
-
-        if (value != 0) {
-            return value;
-        }
-
-        // If the sources are same, then compare the start line.
-        if (getStartLine() < diagnosticLocation.getStartLine()) {
-            return -1;
-        } else if (getStartLine() > diagnosticLocation.getStartLine()) {
-            return 1;
-        }
-
-        // If the start line is the same, then compare the start column.
-        if (getStartColumn() < diagnosticLocation.getStartColumn()) {
-            return -1;
-        } else if (getStartColumn() > diagnosticLocation.getStartColumn()) {
-            return 1;
-        }
-
-        return 0;
-    }
 }

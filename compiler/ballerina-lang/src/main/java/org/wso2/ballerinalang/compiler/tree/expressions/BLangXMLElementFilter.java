@@ -37,8 +37,10 @@ public class BLangXMLElementFilter extends BLangExpression implements XMLElement
     public final String name;
     public BSymbol namespaceSymbol;
 
-    public BLangXMLElementFilter(BLangDiagnosticLocation pos, Set<Whitespace> ws, String ns, BLangDiagnosticLocation nsPos,
-                                 String elementName, BLangDiagnosticLocation elemNamePos) {
+    public BLangXMLElementFilter(BLangDiagnosticLocation pos, Set<Whitespace> ws, String ns,
+                                 BLangDiagnosticLocation nsPos,
+                                 String elementName,
+                                 BLangDiagnosticLocation elemNamePos) {
         this.namespace = ns;
         this.name = elementName;
         this.pos = pos;

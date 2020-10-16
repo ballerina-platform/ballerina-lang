@@ -271,7 +271,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void validateDeprecatedParametersDocumentation(BLangMarkdownDocumentation documentation, BLangDiagnosticLocation pos) {
+    public void validateDeprecatedParametersDocumentation(BLangMarkdownDocumentation documentation,
+                                                          BLangDiagnosticLocation location) {
         if (documentation == null) {
             return;
         }
@@ -279,7 +280,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation =
                 documentation.getDeprecatedParametersDocumentation();
         if (deprecatedParametersDocumentation != null) {
-            dlog.error(pos, DiagnosticCode.DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED);
+            dlog.error(location, DiagnosticCode.DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED);
         }
     }
 
@@ -354,8 +355,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 DocReferenceErrorType.NO_ERROR : DocReferenceErrorType.REFERENCE_ERROR;
     }
 
-    private BSymbol resolveFullyQualifiedSymbol(BLangDiagnosticLocation pos, SymbolEnv env, String packageId, String type,
-                                                String identifier, int tag) {
+    private BSymbol resolveFullyQualifiedSymbol(BLangDiagnosticLocation location, SymbolEnv env, String packageId,
+                                                String type, String identifier, int tag) {
         Name identifierName = names.fromString(identifier);
         Name pkgName = names.fromString(packageId);
         Name typeName = names.fromString(type);
@@ -363,7 +364,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
         if (pkgName != Names.EMPTY) {
             BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgName,
-                    names.fromString(pos.lineRange().filePath()));
+                    names.fromString(location.lineRange().filePath()));
 
             if (pkgSymbol == symTable.notFoundSymbol) {
                 return symTable.notFoundSymbol;
@@ -378,16 +379,16 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         // If there is no type in the reference we need to search in the package level and the current scope only.
         if (typeName == Names.EMPTY) {
             if ((tag & SymTag.IMPORT) == SymTag.IMPORT) {
-                return symResolver.lookupPrefixSpaceSymbolInPackage(pos, env, pkgName, identifierName);
+                return symResolver.lookupPrefixSpaceSymbolInPackage(location, env, pkgName, identifierName);
             } else if ((tag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
-                return symResolver.lookupAnnotationSpaceSymbolInPackage(pos, env, pkgName, identifierName);
+                return symResolver.lookupAnnotationSpaceSymbolInPackage(location, env, pkgName, identifierName);
             } else if ((tag & SymTag.MAIN) == SymTag.MAIN) {
-                return symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgName, identifierName);
+                return symResolver.lookupMainSpaceSymbolInPackage(location, env, pkgName, identifierName);
             }
         }
 
         // Check for type in the environment.
-        BSymbol typeSymbol = symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgName, typeName);
+        BSymbol typeSymbol = symResolver.lookupMainSpaceSymbolInPackage(location, env, pkgName, typeName);
         if (typeSymbol == symTable.notFoundSymbol) {
             return symTable.notFoundSymbol;
         }
@@ -398,7 +399,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             // `pkgEnv` is `env` if no package was identified or else it's the package's environment
             String functionID = typeName + "." + identifierName;
             Name functionName = names.fromString(functionID);
-            return symResolver.lookupMemberSymbol(pos, objectTypeSymbol.methodScope, pkgEnv, functionName, tag);
+            return symResolver.lookupMemberSymbol(location, objectTypeSymbol.methodScope, pkgEnv, functionName, tag);
         }
 
         return symTable.notFoundSymbol;

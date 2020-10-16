@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -175,7 +176,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -621,7 +621,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         visitAssignment(compoundAssignment.varRef, combinedTaintedStatus, compoundAssignment.pos);
     }
 
-    private void visitAssignment(BLangExpression varRefExpr, TaintedStatus varTaintedStatus, BLangDiagnosticLocation pos) {
+    private void visitAssignment(BLangExpression varRefExpr, TaintedStatus varTaintedStatus,
+                                 BLangDiagnosticLocation location) {
         if (varRefExpr == null) {
             return;
         }
@@ -631,21 +632,21 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
                 if (isMutableVariable(varRef) && isGlobalVarOrServiceVar(varRef) && !isMarkedTainted(varRef)) {
                     if (varRef.symbol != null && varRef.symbol.type.tag == TypeTags.OBJECT) {
-                        addTaintError(pos, getVariableName(varRef),
+                        addTaintError(location, getVariableName(varRef),
                                 DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT);
                     } else {
-                        addTaintError(pos, getVariableName(varRef),
+                        addTaintError(location, getVariableName(varRef),
                                 DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
                     }
                     return;
                 } else if (varRef.symbol != null && varRef.symbol.closure
                         && !varRef.symbol.tainted && notInSameScope(varRef, env)) {
-                    addTaintError(pos, getVariableName(varRef),
+                    addTaintError(location, getVariableName(varRef),
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE);
                     return;
                 } else if (varRef.symbol != null && isMarkedUntainted(varRef)
                         && (varRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
-                    addTaintError(pos, getVariableName(varRef),
+                    addTaintError(location, getVariableName(varRef),
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                 }
             }
@@ -2278,8 +2279,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void addTaintError(BLangDiagnosticLocation diagnosticLocation, String paramName, DiagnosticCode diagnosticCode) {
-        TaintRecord.TaintError taintError = new TaintRecord.TaintError(diagnosticLocation, paramName, diagnosticCode);
+    private void addTaintError(BLangDiagnosticLocation location, String paramName, DiagnosticCode diagnosticCode) {
+        TaintRecord.TaintError taintError = new TaintRecord.TaintError(location, paramName, diagnosticCode);
         getCurrentAnalysisState().taintErrorSet.add(taintError);
         if (!entryPointAnalysis) {
             stopAnalysis = true;

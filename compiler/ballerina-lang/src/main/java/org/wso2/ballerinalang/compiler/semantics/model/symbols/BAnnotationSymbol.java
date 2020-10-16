@@ -21,10 +21,10 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.util.AttachPoints;
 
 import java.util.EnumSet;

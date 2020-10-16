@@ -40,8 +40,8 @@ public final class SymbolMetaInfo {
     private BLangDiagnosticLocation position;
 
 
-    private SymbolMetaInfo(String name, String pkgOrgName, String pkgName, String pkgAlias, boolean caller,
-                           String kind, BSymbol bSymbol, String typeName, boolean isLocal, BLangDiagnosticLocation position) {
+    private SymbolMetaInfo(String name, String pkgOrgName, String pkgName, String pkgAlias, boolean caller, String kind,
+                           BSymbol bSymbol, String typeName, boolean isLocal, BLangDiagnosticLocation position) {
         this.name = name;
         this.pkgOrgName = pkgOrgName;
         this.pkgName = pkgName;

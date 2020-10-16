@@ -79,8 +79,8 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     }
 
     @Override
-    public void setCurrentPackageId(PackageID currentPackageId) {
-        this.currentPackageId = currentPackageId;
+    public void setCurrentPackageId(PackageID packageID) {
+        this.currentPackageId = packageID;
     }
 
     /**

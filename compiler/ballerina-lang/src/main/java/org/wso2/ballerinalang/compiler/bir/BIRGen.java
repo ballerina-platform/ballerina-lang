@@ -331,7 +331,9 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    private void replaceFunctions(List<BIRFunction> functionList, Map<String, String> mockFunctionMap, PackageID packageID) {
+    private void replaceFunctions(List<BIRFunction> functionList,
+                                  Map<String, String> mockFunctionMap,
+                                  PackageID packageID) {
         // Loop through all defined BIRFunctions in functionList
         for (BIRFunction function : functionList) {
             List<BIRBasicBlock> basicBlocks = function.basicBlocks;

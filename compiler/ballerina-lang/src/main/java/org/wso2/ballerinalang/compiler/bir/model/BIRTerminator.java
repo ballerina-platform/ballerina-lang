@@ -537,9 +537,9 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public boolean isSameStrand;
         public boolean isSync;
 
-        public WorkerSend(BLangDiagnosticLocation pos, Name workerName, BIROperand data, boolean isSameStrand, boolean isSync,
-                          BIROperand lhsOp, BIRBasicBlock thenBB) {
-            super(pos, InstructionKind.WK_SEND);
+        public WorkerSend(BLangDiagnosticLocation location, Name workerName, BIROperand data,
+                          boolean isSameStrand, boolean isSync, BIROperand lhsOp, BIRBasicBlock thenBB) {
+            super(location, InstructionKind.WK_SEND);
             this.channel = workerName;
             this.data = data;
             this.thenBB = thenBB;

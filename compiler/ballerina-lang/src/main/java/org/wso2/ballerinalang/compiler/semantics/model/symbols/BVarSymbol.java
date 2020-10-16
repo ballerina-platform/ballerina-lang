@@ -20,9 +20,9 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.symbols.VariableSymbol;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VARIABLE;
 

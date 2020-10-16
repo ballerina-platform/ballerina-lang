@@ -1357,7 +1357,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             funcNode.flagSet.add(Flag.LANG_LIB);
         }
 
-        BLangDiagnosticLocation symbolPos = funcNode.flagSet.contains(Flag.LAMBDA) ? symTable.builtinPos : funcNode.name.pos;
+        BLangDiagnosticLocation symbolPos = funcNode.flagSet.contains(Flag.LAMBDA) ?
+                                                        symTable.builtinPos : funcNode.name.pos;
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                                                                    getFuncSymbolName(funcNode),
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
@@ -2404,8 +2405,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    public void defineTypeNarrowedSymbol(BLangDiagnosticLocation pos, SymbolEnv targetEnv, BVarSymbol symbol, BType type,
-                                         boolean isInternal) {
+    public void defineTypeNarrowedSymbol(BLangDiagnosticLocation location, SymbolEnv targetEnv, BVarSymbol symbol,
+                                         BType type, boolean isInternal) {
         if (symbol.owner.tag == SymTag.PACKAGE) {
             // Avoid defining shadowed symbol for global vars, since the type is not narrowed.
             return;
@@ -2422,7 +2423,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         varSymbol.owner = symbol.owner;
         varSymbol.originalSymbol = symbol;
-        defineShadowedSymbol(pos, varSymbol, targetEnv);
+        defineShadowedSymbol(location, varSymbol, targetEnv);
     }
 
     private void defineSymbolWithCurrentEnvOwner(BLangDiagnosticLocation pos, BSymbol symbol) {
@@ -2458,19 +2459,19 @@ public class SymbolEnter extends BLangNodeVisitor {
         return createVarSymbol(Flags.asMask(flagSet), varType, varName, env, pos, isInternal);
     }
 
-    public BVarSymbol createVarSymbol(int flags, BType varType, Name varName, SymbolEnv env, BLangDiagnosticLocation pos,
-                                      boolean isInternal) {
+    public BVarSymbol createVarSymbol(int flags, BType varType, Name varName, SymbolEnv env,
+                                      BLangDiagnosticLocation location, boolean isInternal) {
         BType safeType = types.getSafeType(varType, true, false);
         BVarSymbol varSymbol;
         if (safeType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, varType,
-                                             env.scope.owner, pos, isInternal ? VIRTUAL : getOrigin(varName));
+                                             env.scope.owner, location, isInternal ? VIRTUAL : getOrigin(varName));
             if (Symbols.isFlagOn(safeType.flags, Flags.ISOLATED)) {
                 varSymbol.flags |= Flags.ISOLATED;
             }
             varSymbol.kind = SymbolKind.FUNCTION;
         } else {
-            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, pos,
+            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, location,
                                        isInternal ? VIRTUAL : getOrigin(varName));
             if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
                 varSymbol.tag = SymTag.ENDPOINT;
@@ -2739,10 +2740,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         structureTypeNode.typeRefs.removeAll(invalidTypeRefs);
     }
 
-    private void defineReferencedFunction(BLangDiagnosticLocation pos, Set<Flag> flagSet, SymbolEnv objEnv, BLangType typeRef,
-                                          BAttachedFunction referencedFunc, Set<String> includedFunctionNames,
-                                          BTypeSymbol typeDefSymbol, List<BLangFunction> declaredFunctions,
-                                          boolean isInternal) {
+    private void defineReferencedFunction(BLangDiagnosticLocation location, Set<Flag> flagSet, SymbolEnv objEnv,
+                                          BLangType typeRef, BAttachedFunction referencedFunc,
+                                          Set<String> includedFunctionNames, BTypeSymbol typeDefSymbol,
+                                          List<BLangFunction> declaredFunctions, boolean isInternal) {
         String referencedFuncName = referencedFunc.funcName.value;
         Name funcName = names.fromString(
                 Symbols.getAttachedFuncSymbolName(typeDefSymbol.name.value, referencedFuncName));
@@ -2791,7 +2792,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             defineSymbol(typeRef.pos, funcSymbol.restParam, funcEnv);
         }
         funcSymbol.receiverSymbol =
-                defineVarSymbol(pos, flagSet, typeDefSymbol.type, Names.SELF, funcEnv, isInternal);
+                defineVarSymbol(location, flagSet, typeDefSymbol.type, Names.SELF, funcEnv, isInternal);
 
         // Cache the function symbol.
         BAttachedFunction attachedFunc =

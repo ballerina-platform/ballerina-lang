@@ -18,10 +18,10 @@
 package org.wso2.ballerinalang.compiler.bir.model;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -240,7 +240,8 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.isExternalDef = false;
         }
 
-        public NewInstance(BLangDiagnosticLocation pos, PackageID externalPackageId, String objectName, BIROperand lhsOp) {
+        public NewInstance(BLangDiagnosticLocation pos, PackageID externalPackageId, String objectName,
+                           BIROperand lhsOp) {
             super(pos, InstructionKind.NEW_INSTANCE);
             this.objectName = objectName;
             this.lhsOp = lhsOp;
@@ -272,8 +273,9 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BType type;
         public List<BIROperand> values;
 
-        public NewArray(BLangDiagnosticLocation pos, BType type, BIROperand lhsOp, BIROperand sizeOp, List<BIROperand> values) {
-            super(pos, InstructionKind.NEW_ARRAY);
+        public NewArray(BLangDiagnosticLocation location, BType type, BIROperand lhsOp, BIROperand sizeOp,
+                        List<BIROperand> values) {
+            super(location, InstructionKind.NEW_ARRAY);
             this.type = type;
             this.lhsOp = lhsOp;
             this.sizeOp = sizeOp;
@@ -367,9 +369,9 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand causeOp;
         public BIROperand detailOp;
 
-        public NewError(BLangDiagnosticLocation pos, BType type, BIROperand lhsOp, BIROperand messageOp, BIROperand causeOp,
-                        BIROperand detailOp) {
-            super(pos, InstructionKind.NEW_ERROR);
+        public NewError(BLangDiagnosticLocation location, BType type, BIROperand lhsOp, BIROperand messageOp,
+                        BIROperand causeOp, BIROperand detailOp) {
+            super(location, InstructionKind.NEW_ERROR);
             this.type = type;
             this.lhsOp = lhsOp;
             this.messageOp = messageOp;
@@ -400,8 +402,9 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BType type;
         public boolean checkTypes;
 
-        public TypeCast(BLangDiagnosticLocation pos, BIROperand lhsOp, BIROperand rhsOp, BType castType, boolean checkTypes) {
-            super(pos, InstructionKind.TYPE_CAST);
+        public TypeCast(BLangDiagnosticLocation location, BIROperand lhsOp, BIROperand rhsOp, BType castType,
+                        boolean checkTypes) {
+            super(location, InstructionKind.TYPE_CAST);
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
             this.type = castType;
@@ -487,9 +490,9 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand defaultNsURIOp;
         public boolean readonly;
 
-        public NewXMLElement(BLangDiagnosticLocation pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand defaultNsURIOp,
-                             boolean readonly) {
-            super(pos, InstructionKind.NEW_XML_ELEMENT);
+        public NewXMLElement(BLangDiagnosticLocation location, BIROperand lhsOp, BIROperand startTagOp,
+                             BIROperand defaultNsURIOp, boolean readonly) {
+            super(location, InstructionKind.NEW_XML_ELEMENT);
             this.lhsOp = lhsOp;
             this.startTagOp = startTagOp;
             this.defaultNsURIOp = defaultNsURIOp;
@@ -693,9 +696,10 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public List<BIROperand> closureMaps;
         public BType retType;
 
-        public FPLoad(BLangDiagnosticLocation pos, PackageID pkgId, Name funcName, BIROperand lhsOp, List<BIRVariableDcl> params,
-                      List<BIROperand> closureMaps, BType retType, String strandName, SchedulerPolicy schedulerPolicy) {
-            super(pos, InstructionKind.FP_LOAD);
+        public FPLoad(BLangDiagnosticLocation location, PackageID pkgId, Name funcName, BIROperand lhsOp,
+                      List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType retType, String strandName,
+                      SchedulerPolicy schedulerPolicy) {
+            super(location, InstructionKind.FP_LOAD);
             this.schedulerPolicy = schedulerPolicy;
             this.strandName = strandName;
             this.lhsOp = lhsOp;
