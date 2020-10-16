@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.compiler.api.LangLibrary;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.SymbolFactory;
 import io.ballerina.compiler.api.impl.types.TypeBuilder;
@@ -68,8 +69,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(bLangPackage.symbol);
         this.envResolver = new EnvironmentResolver(pkgEnv);
-        this.typeBuilder = new TypeBuilder(Types.getInstance(context));
-        this.symbolFactory = new SymbolFactory(typeBuilder, symbolTable);
+        this.typeBuilder = new TypeBuilder(Types.getInstance(context), LangLibrary.getInstance(context));
+        this.symbolFactory = new SymbolFactory(typeBuilder);
     }
 
     /**

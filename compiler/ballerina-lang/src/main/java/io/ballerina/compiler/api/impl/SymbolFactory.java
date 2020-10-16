@@ -37,9 +37,6 @@ import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -51,12 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
-import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Represents a set of factory methods to generate the {@link Symbol}s.
@@ -65,25 +57,10 @@ import java.util.Map;
  */
 public class SymbolFactory {
 
-    private final Map<String, BPackageSymbol> langLibs;
-    private final Map<String, Map<String, BInvokableSymbol>> langLibMethods;
     private final TypeBuilder typeBuilder;
 
-    public SymbolFactory(TypeBuilder typeBuilder, SymbolTable symbolTable) {
+    public SymbolFactory(TypeBuilder typeBuilder) {
         this.typeBuilder = typeBuilder;
-        langLibs = new HashMap<>();
-
-        for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symbolTable.pkgEnvMap.entrySet()) {
-            BPackageSymbol module = entry.getKey();
-            PackageID moduleID = module.pkgID;
-
-            if (Names.BALLERINA_ORG.equals(moduleID.orgName) &&
-                    (moduleID.nameComps.size() == 2 && Names.LANG.equals(moduleID.nameComps.get(0)))) {
-                langLibs.put(moduleID.nameComps.get(1).value, module);
-            }
-        }
-
-        langLibMethods = getLangLibMethods(langLibs);
     }
 
     /**
@@ -319,35 +296,5 @@ public class SymbolFactory {
     // Private methods
     public boolean isFlagOn(int mask, int flag) {
         return (mask & flag) == flag;
-    }
-
-    private Map<String, Map<String, BInvokableSymbol>> getLangLibMethods(Map<String, BPackageSymbol> langLibs) {
-        Map<String, Map<String, BInvokableSymbol>> langLibMethods = new HashMap<>();
-
-        for (Map.Entry<String, BPackageSymbol> entry : langLibs.entrySet()) {
-            String key = entry.getKey();
-            BPackageSymbol value = entry.getValue();
-
-            Map<String, BInvokableSymbol> methods = new HashMap<>();
-
-            for (Map.Entry<Name, Scope.ScopeEntry> nameScopeEntry : value.scope.entries.entrySet()) {
-                BSymbol symbol = nameScopeEntry.getValue().symbol;
-
-                if (symbol.kind != SymbolKind.FUNCTION) {
-                    continue;
-                }
-
-                BInvokableSymbol invSymbol = (BInvokableSymbol) symbol;
-
-                if (Symbols.isFlagOn(invSymbol.flags, Flags.PUBLIC) && !invSymbol.params.isEmpty() &&
-                        key.compareToIgnoreCase(invSymbol.params.get(0).type.getKind().name()) == 0) {
-                    methods.put(invSymbol.name.value, invSymbol);
-                }
-            }
-
-            langLibMethods.put(key, methods);
-        }
-
-        return langLibMethods;
     }
 }

@@ -15,45 +15,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.api.types;
 
-import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.types.util.LangLibMethod;
+package io.ballerina.compiler.api.types.util;
 
-import java.util.List;
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
+
+import java.util.Set;
 
 /**
- * Represents a Ballerina Type Descriptor.
+ * Defines the methods for accessing the information on lang library methods.
  *
  * @since 2.0.0
  */
-public interface BallerinaTypeDescriptor {
+public interface LangLibMethod {
 
     /**
-     * Get the Type Kind.
+     * Get the set of qualifiers added to the method.
      *
-     * @return {@link TypeDescKind} represented by the model
+     * @return The set of qualifiers for the method
      */
-    TypeDescKind kind();
+    Set<Qualifier> qualifiers();
 
     /**
-     * Get the module ID.
+     * Get the name of the method.
      *
-     * @return {@link ModuleID} of the Type
+     * @return Name of the method
      */
-    ModuleID moduleID();
+    String name();
 
     /**
-     * Get the signature of the type descriptor.
+     * Get the signature information of the method.
      *
-     * @return {@link String} signature.
+     * @return The type of the method
      */
-    String signature();
-
-    /**
-     * List of members that are visible to a value of this type.
-     *
-     * @return {@link List} of visible member symbols
-     */
-    List<LangLibMethod> langlibMethods();
+    FunctionTypeDescriptor typeDescriptor();
 }

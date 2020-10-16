@@ -18,6 +18,7 @@
 
 package io.ballerina.compiler.api.impl.types;
 
+import io.ballerina.compiler.api.LangLibrary;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.impl.types.util.BallerinaMethodDeclaration;
@@ -26,6 +27,7 @@ import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
 import io.ballerina.compiler.api.types.ParameterKind;
+import io.ballerina.compiler.api.types.util.LangLibMethod;
 import io.ballerina.compiler.api.types.util.MethodDeclaration;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -73,6 +75,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.compiler.api.types.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.types.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.types.ParameterKind.REST;
+import static io.ballerina.compiler.api.types.TypeDescKind.ARRAY;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
@@ -87,11 +90,13 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
 
     private ModuleID moduleID;
     private final Types types;
+    private final LangLibrary langLibrary;
     private final Map<BType, BallerinaTypeDescriptor> typeCache;
 
-    public TypeBuilder(Types types) {
+    public TypeBuilder(Types types, LangLibrary langLibrary) {
         this.types = types;
         this.typeCache = new HashMap<>();
+        this.langLibrary = langLibrary;
     }
 
     public BallerinaTypeDescriptor build(BType internalType) {
@@ -161,7 +166,8 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
     @Override
     public BallerinaTypeDescriptor visit(BArrayType internalType, BType s) {
         BallerinaTypeDescriptor memberType = build(internalType.eType);
-        return new BallerinaArrayTypeDescriptor(moduleID, memberType, internalType);
+        List<LangLibMethod> langLibMethods = langLibrary.getMethods(ARRAY);
+        return new BallerinaArrayTypeDescriptor(moduleID, memberType, langLibMethods, internalType);
     }
 
     @Override

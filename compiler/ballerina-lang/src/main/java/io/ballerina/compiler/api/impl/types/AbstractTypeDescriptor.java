@@ -18,9 +18,9 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.util.LangLibMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public abstract class AbstractTypeDescriptor implements BallerinaTypeDescriptor 
     public abstract String signature();
 
     @Override
-    public List<MethodSymbol> langlibMethods() {
+    public List<LangLibMethod> langlibMethods() {
         return new ArrayList<>();
     }
 
