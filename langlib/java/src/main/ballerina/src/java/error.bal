@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,9 +14,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# The type of value to which `clone` and `cloneReadOnly` can be applied.
-type __Cloneable readonly|xml|__Cloneable[]|map<__Cloneable>|table<map<__Cloneable>>;
-
-# Default error type.
-# The type parameter is for the error detail type. It's constrained to Cloneable type.
-public type 'error error<map<__Cloneable>>;
+# Represents a `JavaError` with the message and the cause.
+public type JavaClassNotFoundError distinct error;
