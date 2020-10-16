@@ -2584,22 +2584,29 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
         // First analyze the variable reference expression.
-        ((BLangVariableReference) indexBasedAccessExpr.expr).lhsVar = indexBasedAccessExpr.lhsVar;
-        ((BLangVariableReference) indexBasedAccessExpr.expr).compoundAssignmentLhsVar =
+        BLangExpression containerExpression = indexBasedAccessExpr.expr;
+        if (containerExpression.getKind() ==  NodeKind.TYPEDESC_EXPRESSION) {
+            dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+                    ((BLangTypedescExpr) containerExpression).typeNode);
+            resultType = symTable.semanticError;
+            return;
+        }
+        ((BLangVariableReference) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
+        ((BLangVariableReference) containerExpression).compoundAssignmentLhsVar =
                 indexBasedAccessExpr.compoundAssignmentLhsVar;
-        checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
+        checkExpr(containerExpression, this.env, symTable.noType);
 
         if (indexBasedAccessExpr.indexExpr.getKind() == NodeKind.TABLE_MULTI_KEY &&
-                indexBasedAccessExpr.expr.type.tag != TypeTags.TABLE) {
+                containerExpression.type.tag != TypeTags.TABLE) {
             dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED,
-                    indexBasedAccessExpr.expr.type);
+                    containerExpression.type);
             resultType = symTable.semanticError;
             return;
         }
 
         BType actualType = checkIndexAccessExpr(indexBasedAccessExpr);
 
-        BType exprType = indexBasedAccessExpr.expr.type;
+        BType exprType = containerExpression.type;
         BLangExpression indexExpr = indexBasedAccessExpr.indexExpr;
 
         if (actualType != symTable.semanticError &&

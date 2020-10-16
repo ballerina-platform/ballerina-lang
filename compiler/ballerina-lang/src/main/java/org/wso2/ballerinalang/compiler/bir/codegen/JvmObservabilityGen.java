@@ -872,7 +872,7 @@ class JvmObservabilityGen {
      * @return The generated ID
      */
     private String generatePositionId(DiagnosticPos pos) {
-        return String.format("%s:%d:%d", pos.src.cUnitName, pos.sLine, pos.sCol);
+        return String.format("%s:%d:%d", pos.src.cUnitName, pos.sLine + 1, pos.sCol + 1);
     }
 
     /**
