@@ -44,6 +44,13 @@ public interface FieldDescriptor {
     boolean isOptional();
 
     /**
+     * Whether the field has a default.
+     *
+     * @return {@link Boolean} optional status
+     */
+    boolean hasDefaultValue();
+
+    /**
      * Get the type descriptor of the field.
      *
      * @return {@link BallerinaTypeDescriptor} of the field

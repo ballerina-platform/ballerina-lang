@@ -100,7 +100,7 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
      */
     public static class AnnotationSymbolBuilder extends SymbolBuilder<AnnotationSymbolBuilder> {
 
-        private Set<Qualifier> qualifiers = new HashSet<>();
+        private final Set<Qualifier> qualifiers = new HashSet<>();
         private BallerinaTypeDescriptor typeDescriptor;
         private List<AnnotationAttachPoint> attachPoints;
 
@@ -165,6 +165,9 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
             if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.SERVICE)) {
                 annotationAttachPoints.add(AnnotationAttachPoint.SERVICE);
             }
+            if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.CLASS)) {
+                annotationAttachPoints.add(AnnotationAttachPoint.CLASS);
+            }
             if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.LISTENER)) {
                 annotationAttachPoints.add(AnnotationAttachPoint.LISTENER);
             }
@@ -182,6 +185,15 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
             }
             if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.WORKER)) {
                 annotationAttachPoints.add(AnnotationAttachPoint.WORKER);
+            }
+            if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FIELD)) {
+                annotationAttachPoints.add(AnnotationAttachPoint.FIELD);
+            }
+            if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.OBJECT_FIELD)) {
+                annotationAttachPoints.add(AnnotationAttachPoint.OBJECT_FIELD);
+            }
+            if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.RECORD_FIELD)) {
+                annotationAttachPoints.add(AnnotationAttachPoint.RECORD_FIELD);
             }
 
             return annotationAttachPoints;

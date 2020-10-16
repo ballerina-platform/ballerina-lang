@@ -73,6 +73,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+
 /**
  * Interface for completion item providers.
  *
@@ -152,7 +155,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
             if (processedSymbols.contains(symbol)) {
                 return;
             }
-            if (CommonUtil.isValidFunctionSymbol(symbol)) {
+            if (symbol.kind() == FUNCTION || symbol.kind() == METHOD) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbol, context));
             } else if (symbol.kind() == SymbolKind.CONSTANT) {
                 CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, context);

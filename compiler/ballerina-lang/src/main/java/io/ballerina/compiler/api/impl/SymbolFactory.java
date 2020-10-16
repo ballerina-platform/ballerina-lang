@@ -280,7 +280,9 @@ public class SymbolFactory {
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
-        symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.attachedType.getType()));
+        if (symbol.attachedType != null && symbol.attachedType.getType() != null) {
+            symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.attachedType.getType()));
+        }
 
         return symbolBuilder.build();
     }
