@@ -100,7 +100,7 @@ public class Formatter {
     }
 
     private static SyntaxTree modifyTree(SyntaxTree syntaxTree, FormattingOptions options, LineRange range) {
-        FormattingTreeModifier treeModifier = new NewFormattingTreeModifier(options, range);
+        NewFormattingTreeModifier treeModifier = new NewFormattingTreeModifier(options, range);
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         try {
             return syntaxTree.modifyWith(treeModifier.transform(modulePartNode));

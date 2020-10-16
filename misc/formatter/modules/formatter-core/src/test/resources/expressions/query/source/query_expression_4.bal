@@ -33,7 +33,8 @@ public function main() {
     // Defines an `error` to handle a key conflict.
     error onConflictError = error("Key Conflict", message = "cannot insert report");
 
-      stream  <  Report  >   reportStream   =  stream   from   var   student   in   duplicateStdList
+      stream  <  Report  >   reportStream   =
+stream   from   var   student   in   duplicateStdList
          select   {
               id  :   student  .  id  ,
             name  :   student.firstName   +   " "   + student.lastName  ,
@@ -52,4 +53,9 @@ foreach var report in reportStream {
 
 function calGraduationYear(int year) returns int {
     return year + 5;
+}
+
+function foo() {
+from   SomeTable   where   student.gpa   >=   2.0   select   {  }     ->   default
+;
 }

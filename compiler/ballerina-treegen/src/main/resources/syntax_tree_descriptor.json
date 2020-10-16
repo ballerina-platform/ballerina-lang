@@ -1700,11 +1700,13 @@
                 },
                 {
                     "name": "asKeyword",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "namespacePrefix",
-                    "type": "IdentifierToken"
+                    "type": "IdentifierToken",
+                    "isOptional": true
                 },
                 {
                     "name": "semicolonToken",
@@ -1959,7 +1961,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "mappingConstructors",
+                    "name": "rows",
                     "type": "Node",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
@@ -2450,7 +2452,8 @@
                 },
                 {
                     "name": "keyConstraintNode",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 }
             ]
         },

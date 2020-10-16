@@ -1268,9 +1268,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         ExpressionNode namespaceuri =
                 modifyNode(moduleXMLNamespaceDeclarationNode.namespaceuri());
         Token asKeyword =
-                modifyToken(moduleXMLNamespaceDeclarationNode.asKeyword());
+                modifyToken(moduleXMLNamespaceDeclarationNode.asKeyword().orElse(null));
         IdentifierToken namespacePrefix =
-                modifyNode(moduleXMLNamespaceDeclarationNode.namespacePrefix());
+                modifyNode(moduleXMLNamespaceDeclarationNode.namespacePrefix().orElse(null));
         Token semicolonToken =
                 modifyToken(moduleXMLNamespaceDeclarationNode.semicolonToken());
         return moduleXMLNamespaceDeclarationNode.modify(
@@ -1461,15 +1461,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(tableConstructorExpressionNode.keySpecifier().orElse(null));
         Token openBracket =
                 modifyToken(tableConstructorExpressionNode.openBracket());
-        SeparatedNodeList<Node> mappingConstructors =
-                modifySeparatedNodeList(tableConstructorExpressionNode.mappingConstructors());
+        SeparatedNodeList<Node> rows =
+                modifySeparatedNodeList(tableConstructorExpressionNode.rows());
         Token closeBracket =
                 modifyToken(tableConstructorExpressionNode.closeBracket());
         return tableConstructorExpressionNode.modify(
                 tableKeyword,
                 keySpecifier,
                 openBracket,
-                mappingConstructors,
+                rows,
                 closeBracket);
     }
 
@@ -1821,7 +1821,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node rowTypeParameterNode =
                 modifyNode(tableTypeDescriptorNode.rowTypeParameterNode());
         Node keyConstraintNode =
-                modifyNode(tableTypeDescriptorNode.keyConstraintNode());
+                modifyNode(tableTypeDescriptorNode.keyConstraintNode().orElse(null));
         return tableTypeDescriptorNode.modify(
                 tableKeywordToken,
                 rowTypeParameterNode,

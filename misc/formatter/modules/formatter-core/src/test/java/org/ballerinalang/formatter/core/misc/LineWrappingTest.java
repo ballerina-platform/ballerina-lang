@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.formatter.core.statements;
+package org.ballerinalang.formatter.core.misc;
 
 import org.ballerinalang.formatter.core.FormatterTest;
 import org.testng.annotations.DataProvider;

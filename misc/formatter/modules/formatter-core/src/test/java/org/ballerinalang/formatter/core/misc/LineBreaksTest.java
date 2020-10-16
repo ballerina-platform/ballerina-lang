@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.formatter.core.statements;
+package org.ballerinalang.formatter.core.misc;
 
 import org.ballerinalang.formatter.core.FormatterTest;
 import org.testng.annotations.DataProvider;
@@ -21,15 +21,13 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Test the formatting of if else statements.
+ * Test the line wrapping.
  *
  * @since 2.0.0
  */
-public class IfElseStatementsTest extends FormatterTest {
+public class LineBreaksTest extends FormatterTest {
 
     @Test(dataProvider = "test-file-provider")
     public void test(String source, String sourcePath) throws IOException {
@@ -44,12 +42,6 @@ public class IfElseStatementsTest extends FormatterTest {
 
     @Override
     public String getTestResourceDir() {
-        return Paths.get("statements", "if-else").toString();
-    }
-
-    public List<String> skipList() {
-        ArrayList<String> skip = new ArrayList<>();
-        skip.add("if_else_statement_6.bal");
-        return skip;
+        return Paths.get("misc", "linebreaks").toString();
     }
 }
