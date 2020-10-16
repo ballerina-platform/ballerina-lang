@@ -20,8 +20,6 @@ function testOnFailEdgeTestcases() {
     testRetryOnFailWithinWhile();
     testOnFailWithinAnonFunc();
     testRetryOnFailWithinObjectFunc();
-
-    //Need fix for https://github.com/ballerina-platform/ballerina-lang/issues/26202
     testFailExprWithinOnFail();
     testCheckExprWithinOnFail();
 }
@@ -171,8 +169,7 @@ function testFailExprWithinOnFail() {
         str += " -> Error caught at level #2";
     }
 
-    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
-    //assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Error caught at level #2", str);
+    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Error caught at level #2", str);
 }
 
 function testCheckExprWithinOnFail() {
@@ -191,8 +188,7 @@ function testCheckExprWithinOnFail() {
         str += " -> Error caught at level #2";
     }
 
-    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
-    //assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Error caught at level #2", str);
+    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Error caught at level #2", str);
 }
 
 function getCheckError()  returns int|error {
