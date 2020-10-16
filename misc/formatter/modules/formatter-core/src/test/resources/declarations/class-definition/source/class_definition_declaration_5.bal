@@ -9,7 +9,12 @@ function    init  (   object
                 ;public
         function    foo  (  )   returns   int
         ;
-                }   a  )   {
+
+                public object {
+                                                                   public int x;
+                                                                   public function foo() returns int;
+                                                               } b;
+                                     public int y;}   a  )   {
      self  .  parent   =   a  ;
       }
 }
