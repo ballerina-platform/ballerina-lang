@@ -29,14 +29,14 @@ public interface ServiceSymbol extends Symbol {
     /**
      * Get the Service's resources.
      *
-     * @return {@link List} of resource functions
+     * @return {@link List} of resource methods
      */
-    List<FunctionSymbol> resources();
+    List<MethodSymbol> resources();
 
     /**
-     * Get the Service's functions.
+     * Get the Service's methods.
      *
-     * @return {@link List} of resource functions
+     * @return {@link List} of regular methods of the service
      */
-    List<FunctionSymbol> functions();
+    List<MethodSymbol> methods();
 }

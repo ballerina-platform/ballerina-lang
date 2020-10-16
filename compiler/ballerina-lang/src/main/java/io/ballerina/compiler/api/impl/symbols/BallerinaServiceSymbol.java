@@ -19,12 +19,14 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ServiceSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -39,70 +41,25 @@ import java.util.List;
 public class BallerinaServiceSymbol extends BallerinaSymbol implements ServiceSymbol {
 
     private final BServiceSymbol serviceSymbol;
-    private List<FunctionSymbol> resources;
-    private List<FunctionSymbol> functions;
+    private List<MethodSymbol> resources;
+    private List<MethodSymbol> methods;
 
-    private BallerinaServiceSymbol(String name, PackageID moduleID, BServiceSymbol serviceSymbol) {
+    private BallerinaServiceSymbol(String name, List<MethodSymbol> resources, List<MethodSymbol> methods,
+                                   PackageID moduleID, BServiceSymbol serviceSymbol) {
         super(name, moduleID, SymbolKind.SERVICE, serviceSymbol);
         this.serviceSymbol = serviceSymbol;
+        this.resources = resources;
+        this.methods = methods;
     }
 
-    /**
-     * Get the Service's resources.
-     *
-     * @return {@link List} of resource functions
-     */
     @Override
-    public List<FunctionSymbol> resources() {
-        if (resources == null) {
-            this.resources = this.getResources(this.serviceSymbol);
-        }
-
+    public List<MethodSymbol> resources() {
         return this.resources;
     }
 
-    /**
-     * Get the Service's functions.
-     *
-     * @return {@link List} of resource functions
-     */
     @Override
-    public List<FunctionSymbol> functions() {
-        if (functions == null) {
-            this.functions = this.getFunctions(this.serviceSymbol);
-        }
-
-        return this.functions;
-    }
-
-    private List<FunctionSymbol> getResources(BServiceSymbol serviceSymbol) {
-        List<BallerinaFunctionSymbol> resources = new ArrayList<>();
-        if (serviceSymbol.type.tsymbol instanceof BObjectTypeSymbol) {
-//            for (BAttachedFunction function : ((BObjectTypeSymbol) serviceSymbol.type.tsymbol).attachedFuncs) {
-//                if ((function.symbol.flags & Flags.RESOURCE) == Flags.RESOURCE) {
-//                    String name = function.symbol.getName().getValue();
-//                    BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol, name);
-//                    resources.add(functionSymbol);
-//                }
-//            }
-        }
-
-        return Collections.unmodifiableList(resources);
-    }
-
-    private List<FunctionSymbol> getFunctions(BServiceSymbol serviceSymbol) {
-        List<BallerinaFunctionSymbol> functions = new ArrayList<>();
-        if (serviceSymbol.type.tsymbol instanceof BObjectTypeSymbol) {
-//            for (BAttachedFunction function : ((BObjectTypeSymbol) serviceSymbol.type.tsymbol).attachedFuncs) {
-//                if ((function.symbol.flags & Flags.RESOURCE) != Flags.RESOURCE) {
-//                    String name = function.symbol.getName().getValue();
-//                    BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol, name);
-//                    functions.add(functionSymbol);
-//                }
-//            }
-        }
-
-        return Collections.unmodifiableList(functions);
+    public List<MethodSymbol> methods() {
+        return this.methods;
     }
 
     /**
@@ -112,13 +69,48 @@ public class BallerinaServiceSymbol extends BallerinaSymbol implements ServiceSy
      */
     public static class ServiceSymbolBuilder extends SymbolBuilder<ServiceSymbolBuilder> {
 
-        public ServiceSymbolBuilder(String name, PackageID moduleID, BServiceSymbol serviceSymbol) {
+        private final SymbolFactory symbolFactory;
+
+        public ServiceSymbolBuilder(String name, PackageID moduleID, BServiceSymbol serviceSymbol,
+                                    SymbolFactory symbolFactory) {
             super(name, moduleID, SymbolKind.SERVICE, serviceSymbol);
+            this.symbolFactory = symbolFactory;
         }
 
         @Override
         public BallerinaServiceSymbol build() {
-            return new BallerinaServiceSymbol(this.name, this.moduleID, (BServiceSymbol) this.bSymbol);
+            List<MethodSymbol> resources = getResources((BServiceSymbol) this.bSymbol);
+            List<MethodSymbol> methods = getMethods((BServiceSymbol) this.bSymbol);
+            return new BallerinaServiceSymbol(this.name, resources, methods, this.moduleID,
+                                              (BServiceSymbol) this.bSymbol);
+        }
+
+        private List<MethodSymbol> getMethods(BServiceSymbol serviceSymbol) {
+            List<MethodSymbol> methods = new ArrayList<>();
+
+            for (BAttachedFunction method : ((BObjectTypeSymbol) serviceSymbol.type.tsymbol).attachedFuncs) {
+                if (!Symbols.isFlagOn(method.symbol.flags, Flags.RESOURCE)) {
+                    String name = method.symbol.getName().getValue();
+                    MethodSymbol methodSymbol = symbolFactory.createMethodSymbol(method.symbol, name);
+                    methods.add(methodSymbol);
+                }
+            }
+
+            return Collections.unmodifiableList(methods);
+        }
+
+        private List<MethodSymbol> getResources(BServiceSymbol serviceSymbol) {
+            List<MethodSymbol> resources = new ArrayList<>();
+
+            for (BAttachedFunction method : ((BObjectTypeSymbol) serviceSymbol.type.tsymbol).attachedFuncs) {
+                if (Symbols.isFlagOn(method.symbol.flags, Flags.RESOURCE)) {
+                    String name = method.symbol.getName().getValue();
+                    MethodSymbol resourceSymbol = symbolFactory.createMethodSymbol(method.symbol, name);
+                    resources.add(resourceSymbol);
+                }
+            }
+
+            return Collections.unmodifiableList(resources);
         }
     }
 }

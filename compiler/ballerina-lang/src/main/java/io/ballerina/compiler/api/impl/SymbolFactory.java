@@ -223,7 +223,7 @@ public class SymbolFactory {
     }
 
     public BallerinaServiceSymbol createServiceSymbol(BServiceSymbol symbol, String name) {
-        return new BallerinaServiceSymbol.ServiceSymbolBuilder(name, symbol.pkgID, symbol).build();
+        return new BallerinaServiceSymbol.ServiceSymbolBuilder(name, symbol.pkgID, symbol, this).build();
     }
 
     /**
