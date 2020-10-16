@@ -64,9 +64,7 @@ class ModuleContext {
     private BLangPackage bLangPackage;
     private List<Diagnostic> diagnostics;
 
-    private PackageResolver packageResolver;
-
-    private final Bootstrap bootstrap = new Bootstrap();
+    private final Bootstrap bootstrap;
 
     // TODO How about introducing a ModuleState concept. ModuleState.DEPENDENCIES_RESOLVED
     private boolean dependenciesResolved;
@@ -84,7 +82,7 @@ class ModuleContext {
         this.testDocContextMap = testDocContextMap;
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
-        this.packageResolver = project.environmentContext().getService(PackageResolver.class);
+        this.bootstrap = new Bootstrap(project.environmentContext().getService(PackageResolver.class));
     }
 
     private ModuleContext(Project project, ModuleId moduleId, ModuleName moduleName, boolean isDefaultModule,
@@ -193,9 +191,9 @@ class ModuleContext {
                 new Name(this.moduleName.toString()), new Name(packageDescriptor.version().toString()));
 
         if (PackageID.isLangLibPackageID(pkgID)) {
-            bootstrap.loadLangLib(compilerContext, packageResolver, pkgID);
+            bootstrap.loadLangLib(compilerContext, pkgID);
         } else {
-            bootstrap.loadLangLibSymbols(compilerContext, packageResolver);
+            bootstrap.loadLangLibSymbols(compilerContext);
         }
 
         // if this is already loaded from BALO, then skip rest of the compilation
