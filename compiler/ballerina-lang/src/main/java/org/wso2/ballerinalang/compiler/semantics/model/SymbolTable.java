@@ -746,7 +746,7 @@ public class SymbolTable {
         tmpCloneableType.add(tableMapCloneableType);
 
         cloneableType =  tmpCloneableType;
-        cloneableType.flags |= Flags.ANONYMOUS;
+        cloneableType.flags |= Flags.CYCLIC;
         cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
                 cloneableType, langValueModuleSymbol, builtinPos, BUILTIN);
 
@@ -756,8 +756,10 @@ public class SymbolTable {
         errorType = new BErrorType(null, detailType);
         errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                 rootPkgSymbol.pkgID, errorType, rootPkgSymbol, this.builtinPos, BUILTIN);
+
         errorOrNilType = BUnionType.create(null, errorType, nilType);
         anyOrErrorType = BUnionType.create(null, anyType, errorType);
+
         mapAllType = new BMapType(TypeTags.MAP, anyOrErrorType, null);
         arrayAllType = new BArrayType(anyOrErrorType);
         typeDesc.constraint = anyOrErrorType;
@@ -780,7 +782,7 @@ public class SymbolTable {
         jsonInternal.add(arrayJsonTypeInternal);
         jsonInternal.add(mapJsonTypeInternal);
         jsonType = new BJSONType(jsonInternal);
-        jsonType.flags |= Flags.ANONYMOUS;
+        jsonType.flags |= Flags.CYCLIC;
         jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, PackageID.ANNOTATIONS, jsonType,
                 langAnnotationModuleSymbol, this.builtinPos, BUILTIN);
 
@@ -799,7 +801,7 @@ public class SymbolTable {
         anyDataInternal.add(tableMapAnydataType);
 
         anydataType = new BAnydataType(anyDataInternal);
-        anydataType.flags |= Flags.ANONYMOUS;
+        anydataType.flags |= Flags.CYCLIC;
 
         anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, PackageID.ANNOTATIONS,
                 anydataType, rootPkgSymbol, this.builtinPos, BUILTIN);

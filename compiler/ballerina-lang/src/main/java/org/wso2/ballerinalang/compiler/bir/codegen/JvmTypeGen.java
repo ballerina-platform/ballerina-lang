@@ -1227,7 +1227,7 @@ class JvmTypeGen {
                     return;
                 case TypeTags.UNION:
                     BUnionType unionType = (BUnionType) bType;
-                    if (Symbols.isFlagOn(unionType.flags, Flags.ANONYMOUS)) {
+                    if (Symbols.isFlagOn(unionType.flags, Flags.CYCLIC)) {
                         loadUserDefinedType(mv, bType);
                     } else {
                         loadUnionType(mv, (BUnionType) bType);

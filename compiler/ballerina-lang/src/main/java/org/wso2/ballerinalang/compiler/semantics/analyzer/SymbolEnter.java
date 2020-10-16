@@ -1249,7 +1249,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BUnionType definedUnionType = (BUnionType) definedType;
             unionType.tsymbol = definedUnionType.tsymbol;
             unionType.tsymbol.name = names.fromIdNode(typeDef.name);
-            unionType.flags |= Flags.asMask(EnumSet.of(Flag.ANONYMOUS));
+            unionType.flags |= Flags.asMask(EnumSet.of(Flag.CYCLIC));
             unionType.flags |= typeDefSymbol.flags;
             unionType.addAll(definedUnionType.getMemberTypes());
         }
