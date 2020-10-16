@@ -23,7 +23,6 @@ import io.ballerina.projects.environment.GlobalPackageCache;
 import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.repos.DistributionPackageCache;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.wso2.ballerinalang.compiler.SourceDirectoryManager;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
@@ -31,10 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_API_INITIATED_COMPILATION;
 
 /**
  * Represents the {@code EnvironmentContext} of the build project.
@@ -73,14 +69,10 @@ public class BuildEnvContext extends EnvironmentContext {
     private void populateCompilerContext() {
         compilerContext = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-//        options.put(PROJECT_DIR, "../../langlib/lang.annotations/src/main/ballerina");
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
 
-        // TODO This is a temporary property to compile lang lib modules from source
-//        System.setProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", "true");
-
-        // This is a temporary workaround. This can be removed once we migrate all the old projects to the new model
-//        SourceDirectoryManager.getInstance(compilerContext);
+        // TODO Remove the following line, once we fully migrate the old project structures
+        options.put(PROJECT_API_INITIATED_COMPILATION, Boolean.toString(true));
     }
 
     private void initGlobalPackageCache() {
