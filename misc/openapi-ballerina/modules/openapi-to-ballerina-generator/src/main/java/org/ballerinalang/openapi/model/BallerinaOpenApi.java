@@ -145,22 +145,21 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
      * @return True if there are path parameters, else false.
      */
     private boolean hasPathParams(PathItem path) {
-        if (path.getParameters() != null && path.getParameters().size() > 0) {
+        if (path.getParameters() != null && !path.getParameters().isEmpty()) {
             return path.getParameters().stream().anyMatch(parameter -> parameter.getIn() != null && parameter.getIn()
                     .equals(GeneratorConstants.PATH));
         }
-        if (path.readOperations().size() > 0) {
-            return path.readOperations().stream().anyMatch(operation -> {
-                if (operation.getParameters() != null && operation.getParameters().size() > 0) {
-                    return operation.getParameters().stream().anyMatch(parameter -> parameter.getIn() != null &&
-                            parameter.getIn().equals(GeneratorConstants.PATH));
-                }
-                return false;
-            });
+        if (path.readOperations().isEmpty()) {
+            return false;
         }
-        return false;
+        return path.readOperations().stream().anyMatch(operation -> {
+            if (operation.getParameters() != null && !operation.getParameters().isEmpty()) {
+                return operation.getParameters().stream().anyMatch(parameter -> parameter.getIn() != null &&
+                        parameter.getIn().equals(GeneratorConstants.PATH));
+            }
+            return false;
+        });
     }
-
     /**
      * Populate schemas into a "Set".
      *
