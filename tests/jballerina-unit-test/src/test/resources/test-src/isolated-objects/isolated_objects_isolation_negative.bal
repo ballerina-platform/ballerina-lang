@@ -207,3 +207,69 @@ isolated object {} invalidIsolatedObjectWithInvalidCopyIn = object {
         }
     }
 };
+
+isolated class InvalidIsolatedClassWithInvalidCopyOut {
+    public final record {} & readonly a = {"type": "final"};
+    private int b = 1;
+    private map<boolean>[] c;
+
+    function init() {
+        self.c = [];
+    }
+
+    function invalidCopyOutOne(map<boolean>[] boolMaps) {
+        map<boolean>[] bm1 = boolMaps;
+        lock {
+            map<boolean>[] bm2 = [{a: true, b: false}];
+
+            bm1 = self.c;
+            globBoolMap = bm2[0];
+            bm1 = [self.c[0]];
+        }
+    }
+
+    isolated function invalidCopyOutTwo(map<boolean>[] boolMaps) {
+        map<boolean> bm1 = {};
+        lock {
+            map<boolean> bm2 = {};
+            lock {
+                map<boolean> bm3 = boolMaps[0].clone();
+                bm1 = bm3;
+            }
+
+            bm1 = self.c[0];
+            bm1 = bm2;
+        }
+    }
+}
+
+function testInvalidIsolatedObjectWithInvalidCopyIn() {
+    isolated object {} invalidIsolatedObjectWithInvalidCopyIn = object {
+        private map<boolean>[] c = [];
+
+        isolated function invalidCopyOutOne(map<boolean>[] boolMaps) {
+            map<boolean>[] bm1 = boolMaps;
+            lock {
+                map<boolean>[] bm2 = [{a: true, b: false}];
+
+                bm1 = self.c;
+                bm1 = bm2;
+                bm1 = [self.c[0]];
+            }
+        }
+
+        function invalidCopyOutTwo(map<boolean>[] boolMaps) {
+            map<boolean> bm1 = {};
+            lock {
+                map<boolean> bm2 = {};
+                lock {
+                    map<boolean> bm3 = boolMaps[0].clone();
+                    bm1 = bm3;
+                }
+
+                globBoolMap = self.c[0];
+                bm1 = bm2;
+            }
+        }
+    };
+}

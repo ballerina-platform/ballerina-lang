@@ -1823,10 +1823,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 (methodName.equals(CLONE_LANG_LIB_METHOD) || methodName.equals(CLONE_READONLY_LANG_LIB_METHOD));
     }
 
-    private boolean isInvalidCopyingOfMutableValueInIsolatedObject(BLangExpression expression, boolean copyOut) {
+    private boolean isInvalidCopyingOfMutableValueInIsolatedObject(BLangSimpleVarRef expression, boolean copyOut) {
         return isInvalidCopyingOfMutableValueInIsolatedObject(
-                expression, copyOut, expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                        Names.SELF.value.equals(((BLangSimpleVarRef) expression).variableName.value));
+                expression, copyOut, Names.SELF.value.equals(expression.variableName.value));
     }
 
     private boolean isInvalidCopyingOfMutableValueInIsolatedObject(BLangExpression expression, boolean copyOut,
@@ -1840,6 +1839,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         NodeKind kind = parent.getKind();
         if (!(parent instanceof BLangExpression)) {
+            if (isIsolatedObjectTypes(type)) {
+                return false;
+            }
+
+            if (expression.getKind() == NodeKind.INVOCATION &&
+                    isCloneOrCloneReadOnlyInvocation(((BLangInvocation) expression))) {
+                return false;
+            }
+
             if (!copyOut) {
                 return true;
             }
@@ -1868,24 +1876,27 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangExpression parentExpression = (BLangExpression) parent;
 
         if (kind != NodeKind.INVOCATION) {
-            return !isIsolatedObjectTypes(type) &&
-                    isInvalidCopyingOfMutableValueInIsolatedObject(parentExpression, copyOut, invokedOnSelf);
+            return isInvalidCopyingOfMutableValueInIsolatedObject(parentExpression, copyOut, invokedOnSelf);
         }
 
         BLangInvocation invocation = (BLangInvocation) parentExpression;
         BLangExpression calledOnExpr = invocation.expr;
 
-        if (calledOnExpr == expression) { // if this is a method-call, do additional checks
-            if (invokedOnSelf && copyOut) {
-                return invocation.type.tag != TypeTags.NIL;
+        if (calledOnExpr == expression) {
+            // If this is the analysis of the called-on expression of a method call, do some additional checks.
+            if (invocation.type.tag == TypeTags.NIL) {
+                return false;
             }
 
-            if (!Symbols.isFlagOn(calledOnExpr.type.flags, Flags.READONLY) && !isIsolatedObjectTypes(type)) {
-                return true;
+            if (invokedOnSelf && !copyOut) {
+                return false;
             }
+
+            return isInvalidCopyingOfMutableValueInIsolatedObject(parentExpression, copyOut, invokedOnSelf);
         }
 
-        return !isIsolated(invocation.symbol.flags) || !isCloneOrCloneReadOnlyInvocation(invocation);
+        // `expression` is an argument to a function
+        return !isCloneOrCloneReadOnlyInvocation(invocation);
     }
 
     private boolean hasRefDefinedOutsideLock(BLangExpression variableReference) {
@@ -1938,7 +1949,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isDefinedOutsideLock(Name name, int symTag, SymbolEnv currentEnv) {
-        if (symResolver.lookupSymbolInGivenScope(currentEnv, name, symTag) != symTable.notFoundSymbol) {
+        if (Names.IGNORE == name ||
+                symResolver.lookupSymbolInGivenScope(currentEnv, name, symTag) != symTable.notFoundSymbol) {
             return false;
         }
 
