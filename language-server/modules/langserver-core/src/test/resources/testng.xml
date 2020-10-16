@@ -42,22 +42,22 @@ under the License.
 <!--            <package name="org.ballerinalang.langserver.extensions.connector.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.codeaction.*"/>-->
             <class name="org.ballerinalang.langserver.completion.latest.AnnotationTest" />
-<!--            <class name="org.ballerinalang.langserver.completion.latest.ClassDefContextTest" />-->
-<!--            <class name="org.ballerinalang.langserver.completion.latest.ExpressionContextTest" />-->
-<!--            <class name="org.ballerinalang.langserver.completion.latest.FunctionBodyTest" />-->
-<!--            <class name="org.ballerinalang.langserver.completion.latest.FunctionDefinitionTest" />-->
-<!--            <class name="org.ballerinalang.langserver.completion.latest.ImportDeclarationTest" />-->
-<!--            <class name="org.ballerinalang.langserver.completion.latest.ModulePartNodeContextTest" />-->
-<!--&lt;!&ndash;            <class name="org.ballerinalang.langserver.completion.latest.ModuleVariableContextTest" />&ndash;&gt;-->
-<!--            <class name="org.ballerinalang.langserver.completion.latest.ListenerDeclarationTest" />-->
-<!--            <class name="org.ballerinalang.langserver.completion.latest.RecordTypeDescriptorTest" />-->
-<!--&lt;!&ndash;            <class name="org.ballerinalang.langserver.completion.latest.ServiceBodyTest" />&ndash;&gt;-->
-<!--&lt;!&ndash;            <class name="org.ballerinalang.langserver.completion.latest.ServiceDeclarationTest" />&ndash;&gt;-->
-<!--            <class name="org.ballerinalang.langserver.completion.latest.StatementContextTest" />-->
-<!--            <class name="org.ballerinalang.langserver.completion.latest.TypeDefinitionTest" />-->
-<!--            <class name="org.ballerinalang.langserver.completion.latest.TypeDescContextTest" />-->
-<!--&lt;!&ndash;            <class name="org.ballerinalang.langserver.completion.latest.XMLTypeDescContextTest" />&ndash;&gt;-->
-<!--&lt;!&ndash;            <package name="org.ballerinalang.langserver.command.*"/>&ndash;&gt;-->
+            <class name="org.ballerinalang.langserver.completion.latest.ClassDefContextTest" />
+            <class name="org.ballerinalang.langserver.completion.latest.ExpressionContextTest" />
+            <class name="org.ballerinalang.langserver.completion.latest.FunctionBodyTest" />
+            <class name="org.ballerinalang.langserver.completion.latest.FunctionDefinitionTest" />
+            <class name="org.ballerinalang.langserver.completion.latest.ImportDeclarationTest" />
+            <class name="org.ballerinalang.langserver.completion.latest.ModulePartNodeContextTest" />
+<!--            <class name="org.ballerinalang.langserver.completion.latest.ModuleVariableContextTest" />-->
+            <class name="org.ballerinalang.langserver.completion.latest.ListenerDeclarationTest" />
+            <class name="org.ballerinalang.langserver.completion.latest.RecordTypeDescriptorTest" />
+<!--            <class name="org.ballerinalang.langserver.completion.latest.ServiceBodyTest" />-->
+<!--            <class name="org.ballerinalang.langserver.completion.latest.ServiceDeclarationTest" />-->
+            <class name="org.ballerinalang.langserver.completion.latest.StatementContextTest" />
+            <class name="org.ballerinalang.langserver.completion.latest.TypeDefinitionTest" />
+            <class name="org.ballerinalang.langserver.completion.latest.TypeDescContextTest" />
+<!--            <class name="org.ballerinalang.langserver.completion.latest.XMLTypeDescContextTest" />-->
+<!--            <package name="org.ballerinalang.langserver.command.*"/>-->
         </classes>
     </test>
 </suite>
