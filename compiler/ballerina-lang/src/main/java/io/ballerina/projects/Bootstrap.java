@@ -34,15 +34,22 @@ import java.util.Collections;
 
 import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
 import static org.ballerinalang.model.elements.PackageID.ARRAY;
+import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
+import static org.ballerinalang.model.elements.PackageID.DECIMAL;
 import static org.ballerinalang.model.elements.PackageID.ERROR;
+import static org.ballerinalang.model.elements.PackageID.FLOAT;
+import static org.ballerinalang.model.elements.PackageID.FUTURE;
+import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.INTERNAL;
 import static org.ballerinalang.model.elements.PackageID.JAVA;
 import static org.ballerinalang.model.elements.PackageID.MAP;
+import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.QUERY;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
 import static org.ballerinalang.model.elements.PackageID.TABLE;
 import static org.ballerinalang.model.elements.PackageID.TRANSACTION;
+import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
 import static org.ballerinalang.model.elements.PackageID.VALUE;
 import static org.ballerinalang.model.elements.PackageID.XML;
 
@@ -62,10 +69,6 @@ class Bootstrap {
 
         langLibLoaded = true;
         // we will load any lang.lib found in cache directory
-
-//        if (!PackageID.isLangLibPackageID(langLib)) {
-//            return;
-//        }
 
         SymbolResolver symResolver = SymbolResolver.getInstance(compilerContext);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
@@ -117,6 +120,38 @@ class Bootstrap {
         symResolver.reloadIntRangeType();
 
         loadLib(langLib, packageResolver, compilerContext);
+    }
+
+    void loadLangLibSymbols(CompilerContext compilerContext, PackageResolver packageResolver) {
+        SymbolResolver symResolver = SymbolResolver.getInstance(compilerContext);
+        SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
+
+        // we will load any lang.lib found in cache directory
+        symbolTable.langAnnotationModuleSymbol = loadLib(ANNOTATIONS, packageResolver, compilerContext);
+        symbolTable.langJavaModuleSymbol = loadLib(JAVA, packageResolver, compilerContext);
+        symbolTable.langInternalModuleSymbol = loadLib(INTERNAL, packageResolver, compilerContext);
+        symResolver.reloadErrorAndDependentTypes();
+        symResolver.reloadIntRangeType();
+        symbolTable.langArrayModuleSymbol = loadLib(ARRAY, packageResolver, compilerContext);
+        symbolTable.langDecimalModuleSymbol = loadLib(DECIMAL, packageResolver, compilerContext);
+        symbolTable.langErrorModuleSymbol = loadLib(ERROR, packageResolver, compilerContext);
+        symbolTable.langFloatModuleSymbol = loadLib(FLOAT, packageResolver, compilerContext);
+        symbolTable.langFutureModuleSymbol = loadLib(FUTURE, packageResolver, compilerContext);
+        symbolTable.langIntModuleSymbol = loadLib(INT, packageResolver, compilerContext);
+        symbolTable.langMapModuleSymbol = loadLib(MAP, packageResolver, compilerContext);
+        symbolTable.langObjectModuleSymbol = loadLib(OBJECT, packageResolver, compilerContext);
+        symResolver.loadRawTemplateType();
+        symbolTable.langStreamModuleSymbol = loadLib(STREAM, packageResolver, compilerContext);
+        symbolTable.langTableModuleSymbol = loadLib(TABLE, packageResolver, compilerContext);
+        symbolTable.langStringModuleSymbol = loadLib(STRING, packageResolver, compilerContext);
+        symbolTable.langTypedescModuleSymbol = loadLib(TYPEDESC, packageResolver, compilerContext);
+        symbolTable.langValueModuleSymbol = loadLib(VALUE, packageResolver, compilerContext);
+        symbolTable.langXmlModuleSymbol = loadLib(XML, packageResolver, compilerContext);
+        symbolTable.langBooleanModuleSymbol = loadLib(BOOLEAN, packageResolver, compilerContext);
+        symbolTable.langQueryModuleSymbol = loadLib(QUERY, packageResolver, compilerContext);
+//        symbolTable.langTransactionModuleSymbol = loadLib(TRANSACTION, packageResolver, compilerContext);
+        symbolTable.loadPredeclaredModules();
+        symResolver.loadFunctionalConstructors();
     }
 
     private BPackageSymbol loadLib(PackageID langLib, PackageResolver packageResolver,
