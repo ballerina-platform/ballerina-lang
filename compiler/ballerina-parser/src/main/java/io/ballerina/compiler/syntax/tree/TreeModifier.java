@@ -1268,9 +1268,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         ExpressionNode namespaceuri =
                 modifyNode(moduleXMLNamespaceDeclarationNode.namespaceuri());
         Token asKeyword =
-                modifyToken(moduleXMLNamespaceDeclarationNode.asKeyword());
+                modifyToken(moduleXMLNamespaceDeclarationNode.asKeyword().orElse(null));
         IdentifierToken namespacePrefix =
-                modifyNode(moduleXMLNamespaceDeclarationNode.namespacePrefix());
+                modifyNode(moduleXMLNamespaceDeclarationNode.namespacePrefix().orElse(null));
         Token semicolonToken =
                 modifyToken(moduleXMLNamespaceDeclarationNode.semicolonToken());
         return moduleXMLNamespaceDeclarationNode.modify(

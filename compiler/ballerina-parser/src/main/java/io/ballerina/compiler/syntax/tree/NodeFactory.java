@@ -1225,15 +1225,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token semicolonToken) {
         Objects.requireNonNull(xmlnsKeyword, "xmlnsKeyword must not be null");
         Objects.requireNonNull(namespaceuri, "namespaceuri must not be null");
-        Objects.requireNonNull(asKeyword, "asKeyword must not be null");
-        Objects.requireNonNull(namespacePrefix, "namespacePrefix must not be null");
         Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
 
         STNode stModuleXMLNamespaceDeclarationNode = STNodeFactory.createModuleXMLNamespaceDeclarationNode(
                 xmlnsKeyword.internalNode(),
                 namespaceuri.internalNode(),
-                asKeyword.internalNode(),
-                namespacePrefix.internalNode(),
+                getOptionalSTNode(asKeyword),
+                getOptionalSTNode(namespacePrefix),
                 semicolonToken.internalNode());
         return stModuleXMLNamespaceDeclarationNode.createUnlinkedFacade();
     }

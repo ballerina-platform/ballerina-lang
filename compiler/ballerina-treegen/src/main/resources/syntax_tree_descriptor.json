@@ -1700,11 +1700,13 @@
                 },
                 {
                     "name": "asKeyword",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "namespacePrefix",
-                    "type": "IdentifierToken"
+                    "type": "IdentifierToken",
+                    "isOptional": true
                 },
                 {
                     "name": "semicolonToken",
