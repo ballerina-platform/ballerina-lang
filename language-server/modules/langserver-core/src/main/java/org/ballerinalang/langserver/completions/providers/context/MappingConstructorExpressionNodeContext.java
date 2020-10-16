@@ -105,7 +105,7 @@ public class MappingConstructorExpressionNodeContext extends
         }
         Optional<RecordTypeDescriptor> recordTypeDesc = this.getRecordTypeDesc(context, node);
         if (recordTypeDesc.isPresent()) {
-            List<FieldDescriptor> fields = new ArrayList<>(recordTypeDesc.get().fieldDescriptors().values());
+            List<FieldDescriptor> fields = new ArrayList<>(recordTypeDesc.get().fieldDescriptors());
             // TODO: Revamp the implementation
 //            completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
             completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields));
@@ -243,11 +243,13 @@ public class MappingConstructorExpressionNodeContext extends
         RecordTypeDescriptor recordType = record.get();
         Collections.reverse(fieldNames);
         for (String fieldName : fieldNames) {
-            FieldDescriptor fieldDesc = recordType.fieldDescriptors().get(fieldName);
-            if (fieldDesc.typeDescriptor().kind() != TypeDescKind.RECORD) {
+            Optional<FieldDescriptor> fieldDesc = recordType.fieldDescriptors().stream()
+                    .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
+                    .findAny();
+            if (fieldDesc.isEmpty() || fieldDesc.get().typeDescriptor().kind() != TypeDescKind.RECORD) {
                 return Optional.empty();
             }
-            recordType = (RecordTypeDescriptor) fieldDesc.typeDescriptor();
+            recordType = (RecordTypeDescriptor) fieldDesc.get().typeDescriptor();
         }
 
         return Optional.ofNullable(recordType);
@@ -266,7 +268,7 @@ public class MappingConstructorExpressionNodeContext extends
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) annotRef;
             Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context,
                     QNameReferenceUtil.getAlias(qNameRef));
-            if (!module.isPresent()) {
+            if (module.isEmpty()) {
                 return Optional.empty();
             }
             searchableEntries = new ArrayList<>((module.get()).allSymbols());

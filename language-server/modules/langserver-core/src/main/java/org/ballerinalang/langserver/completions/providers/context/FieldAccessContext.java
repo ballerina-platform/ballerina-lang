@@ -139,7 +139,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         if (typeDescriptor.get().kind() == TypeDescKind.OBJECT) {
             fieldDescriptors.addAll(((ObjectTypeDescriptor) typeDescriptor.get()).fieldDescriptors());
         } else if (typeDescriptor.get().kind() == TypeDescKind.RECORD) {
-            fieldDescriptors.addAll(((RecordTypeDescriptor) typeDescriptor.get()).fieldDescriptors().values());
+            fieldDescriptors.addAll(((RecordTypeDescriptor) typeDescriptor.get()).fieldDescriptors());
         }
 
         return fieldDescriptors.stream()
@@ -211,10 +211,10 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
 
         switch (typeDescriptor.kind()) {
             case RECORD:
-                ((RecordTypeDescriptor) typeDescriptor).fieldDescriptors().forEach((name, fieldDescriptor) -> {
+                ((RecordTypeDescriptor) typeDescriptor).fieldDescriptors().forEach(fieldDescriptor -> {
                     CompletionItem completionItem = new CompletionItem();
-                    completionItem.setLabel(name);
-                    completionItem.setInsertText(name);
+                    completionItem.setLabel(fieldDescriptor.name());
+                    completionItem.setInsertText(fieldDescriptor.name());
                     completionItem.setDetail(fieldDescriptor.typeDescriptor().signature());
                     completionItems.add(new FieldCompletionItem(context, fieldDescriptor, completionItem));
                 });

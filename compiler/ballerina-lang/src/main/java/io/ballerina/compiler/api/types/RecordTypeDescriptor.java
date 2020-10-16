@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.api.types;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +32,7 @@ public interface RecordTypeDescriptor extends BallerinaTypeDescriptor {
      *
      * @return {@link List} of ballerina field
      */
-    LinkedHashMap<String, FieldDescriptor> fieldDescriptors();
+    List<FieldDescriptor> fieldDescriptors();
 
     /**
      * Whether inclusive record ot not.

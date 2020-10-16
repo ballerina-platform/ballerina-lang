@@ -643,7 +643,7 @@ public class CommonUtil {
      * @return {@link List} of required fields captured
      */
     public static List<FieldDescriptor> getMandatoryRecordFields(RecordTypeDescriptor recordType) {
-        return recordType.fieldDescriptors().values().stream()
+        return recordType.fieldDescriptors().stream()
                 .filter(field -> !field.hasDefaultValue() && !field.isOptional())
                 .collect(Collectors.toList());
     }

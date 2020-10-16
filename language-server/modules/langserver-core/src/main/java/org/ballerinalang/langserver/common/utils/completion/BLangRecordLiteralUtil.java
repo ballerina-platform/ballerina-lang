@@ -110,7 +110,7 @@ public class BLangRecordLiteralUtil {
             }
             return Collections.singletonList(memberType.get());
         } else if (typeDesc.kind() == TypeDescKind.RECORD) {
-            return ((RecordTypeDescriptor) typeDesc).fieldDescriptors().values().stream()
+            return ((RecordTypeDescriptor) typeDesc).fieldDescriptors().stream()
                     .map(FieldDescriptor::typeDescriptor)
                     .collect(Collectors.toList());
         }

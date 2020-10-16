@@ -38,17 +38,13 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implements RecordTypeDescriptor {
-
-    private LinkedHashMap<String, FieldDescriptor> fieldDescriptors;
-    private boolean isInclusive;
-    // private TypeDescriptor typeReference;
+    private List<FieldDescriptor> fieldDescriptors;
+    private final boolean isInclusive;
     private BallerinaTypeDescriptor restTypeDesc;
 
     public BallerinaRecordTypeDescriptor(ModuleID moduleID, BRecordType recordType) {
         super(TypeDescKind.RECORD, moduleID, recordType);
         this.isInclusive = !recordType.sealed;
-        // TODO: Fix this
-        // this.typeReference = null;
     }
 
     /**
@@ -57,11 +53,12 @@ public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implem
      * @return {@link List} of ballerina field
      */
     @Override
-    public LinkedHashMap<String, FieldDescriptor> fieldDescriptors() {
+    public List<FieldDescriptor> fieldDescriptors() {
         if (this.fieldDescriptors == null) {
-            this.fieldDescriptors = new LinkedHashMap<>();
-            ((BRecordType) this.getBType()).fields
-                    .forEach((name, bField) -> this.fieldDescriptors.put(name, new BallerinaFieldDescriptor(bField)));
+            this.fieldDescriptors = new ArrayList<>();
+            for (BField field : ((BRecordType) this.getBType()).fields.values()) {
+                this.fieldDescriptors.add(new BallerinaFieldDescriptor(field));
+            }
         }
 
         return this.fieldDescriptors;
@@ -93,13 +90,12 @@ public class BallerinaRecordTypeDescriptor extends AbstractTypeDescriptor implem
         } else {
             joiner = new StringJoiner("; ", "{| ", " |}");
         }
-        for (FieldDescriptor fieldDescriptor : this.fieldDescriptors().values()) {
+        for (FieldDescriptor fieldDescriptor : this.fieldDescriptors()) {
             String ballerinaFieldSignature = fieldDescriptor.signature();
             joiner.add(ballerinaFieldSignature);
         }
 
         restTypeDescriptor().ifPresent(typeDescriptor -> joiner.add(typeDescriptor.signature() + "..."));
-        // this.getTypeReference().ifPresent(typeDescriptor -> joiner.add("*" + typeDescriptor.getSignature()));
 
         return joiner.toString();
     }
