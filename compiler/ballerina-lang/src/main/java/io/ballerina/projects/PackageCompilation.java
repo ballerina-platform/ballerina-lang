@@ -25,6 +25,7 @@ import io.ballerina.projects.environment.ProjectEnvironmentContext;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -38,6 +39,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 /**
@@ -143,22 +146,19 @@ public class PackageCompilation {
     private void emitBirs(Path filePath) {
         for (ModuleId moduleId : packageContext.moduleIds()) {
             BLangPackage bLangPackage = packageContext.moduleContext(moduleId).bLangPackage();
-            if (bLangPackage != null) {
-                String birName;
-                if (packageContext.moduleContext(moduleId).moduleName().isDefaultModuleName()) {
-                    birName = packageContext.moduleContext(moduleId).moduleName().packageName().toString();
-                } else {
-                    birName = packageContext.moduleContext(moduleId).moduleName().moduleNamePart();
-                }
-                BirWriter.write(bLangPackage,
-                        filePath.resolve(birName + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT));
+            String birName;
+            if (packageContext.moduleContext(moduleId).moduleName().isDefaultModuleName()) {
+                birName = packageContext.moduleContext(moduleId).moduleName().packageName().toString();
+            } else {
+                birName = packageContext.moduleContext(moduleId).moduleName().moduleNamePart();
             }
+            BirWriter.write(bLangPackage, filePath.resolve(birName + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT));
         }
     }
 
     private void emitJar(Path filePath) {
         for (ModuleId moduleId : packageContext.moduleIds()) {
-            BLangPackage bLangPackage = this.packageContext.moduleContext(moduleId).bLangPackage();
+            CompiledJarFile compiledJarFile = this.packageContext.moduleContext(moduleId).compiledJarEntries();
             String jarName;
             if (packageContext.moduleContext(moduleId).moduleName().isDefaultModuleName()) {
                 jarName = packageContext.moduleContext(moduleId).moduleName().packageName().toString();
@@ -166,7 +166,7 @@ public class PackageCompilation {
                 jarName = packageContext.moduleContext(moduleId).moduleName().moduleNamePart();
             }
             try {
-                JarWriter.write(bLangPackage, filePath.resolve(jarName + ProjectConstants.BLANG_COMPILED_JAR_EXT));
+                JarWriter.write(compiledJarFile, filePath.resolve(jarName + ProjectConstants.BLANG_COMPILED_JAR_EXT));
             } catch (IOException e) {
                 throw new RuntimeException("error while creating the jar file for package: " +
                         this.packageContext.packageName(), e);
@@ -174,29 +174,39 @@ public class PackageCompilation {
         }
     }
 
-    private void emitExecutable(Path filePath) {
-        if (this.packageContext.defaultModuleContext().bLangPackage().symbol.entryPointExists) {
-            List<PackageId> sortedPackageIds = dependencyGraph.toTopologicallySortedList();
-            List<BLangPackage> bLangPackageList = new ArrayList<>();
-            BLangPackage entryBLangPackage = this.packageContext.defaultModuleContext().bLangPackage();
-            sortedPackageIds.stream().map(packageResolver::getPackage).forEach(pkg -> {
-                pkg.moduleIds().stream()
-                        .filter(moduleId -> moduleId != this.packageContext.defaultModuleContext().moduleId())
-                        .map(moduleId -> pkg.module(moduleId).getCompilation().bLangPackage())
-                        .forEach(bLangPackageList::add);
-            });
-            try {
-                JarWriter.write(entryBLangPackage, bLangPackageList, filePath);
-                // copy the rt jar to the executable
-                ProjectUtils.copyRuntimeJar(filePath);
-            } catch (IOException e) {
-                throw new RuntimeException("error while creating the executable jar file for package: " +
-                        this.packageContext.packageName(), e);
-            }
-        } else {
-            throw new UnsupportedOperationException("no entrypoint found in package: "
-                    + this.packageContext.packageName());
+    private void emitExecutable(Path executableFilePath) {
+        if (!this.packageContext.defaultModuleContext().entryPointExists()) {
+            // TODO Improve error handling
+            throw new RuntimeException("no entrypoint found in package: " + this.packageContext.packageName());
         }
+
+        // TODO We need to generate a root package
+        CompiledJarFile entryModuleJarEntries = this.packageContext.compiledJarEntries();
+        Manifest manifest = getManifest(entryModuleJarEntries);
+
+        List<PackageId> sortedPackageIds = dependencyGraph.toTopologicallySortedList();
+        List<CompiledJarFile> compiledPackageJarList = sortedPackageIds
+                .stream()
+                .map(packageResolver::getPackage)
+                .map(pkg -> pkg.packageContext().compiledJarEntries())
+                .collect(Collectors.toList());
+
+        try {
+            ProjectUtils.assembleExecutableJar(manifest, compiledPackageJarList, executableFilePath);
+        } catch (IOException e) {
+            throw new RuntimeException("error while creating the executable jar file for package: " +
+                    this.packageContext.packageName(), e);
+        }
+    }
+
+    private Manifest getManifest(CompiledJarFile entryModuleJarEntries) {
+        Manifest manifest = new Manifest();
+        Attributes mainAttributes = manifest.getMainAttributes();
+        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        String mainClass = entryModuleJarEntries.getMainClassName().orElseThrow(
+                () -> new RuntimeException("main class not found in:" + this.packageContext.packageName()));
+        mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClass);
+        return manifest;
     }
 
     /**

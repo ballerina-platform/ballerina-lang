@@ -18,14 +18,11 @@
 package io.ballerina.projects;
 
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -42,17 +39,11 @@ class JarWriter {
     /**
      * Write the compiled module to a jar file.
      *
-     * @param bLangPackage compiled module
-     * @param jarFilePath  path to the jar file
+     * @param compiledJarFile compiled module
+     * @param jarFilePath     path to the jar file
      * @throws IOException if jar creation fails
      */
-    public static void write(BLangPackage bLangPackage, Path jarFilePath) throws IOException {
-        BPackageSymbol packageSymbol = bLangPackage.symbol;
-        if (packageSymbol.compiledJarFile == null) {
-            return;
-        }
-
-        CompiledJarFile compiledJarFile = packageSymbol.compiledJarFile;
+    public static void write(CompiledJarFile compiledJarFile, Path jarFilePath) throws IOException {
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
@@ -70,46 +61,5 @@ class JarWriter {
                 target.closeEntry();
             }
         }
-    }
-
-    /**
-     * Write the provided compiled modules to an executable jar file.
-     *
-     * @param entryPackage compiled module which contains the entrypoint
-     * @param bLangPackageList all compiled modules except the module containing the entrypoint
-     * @param jarFilePath  path to the jar file
-     * @throws IOException if executable jar creation fails
-     */
-    static void write(BLangPackage entryPackage, List<BLangPackage> bLangPackageList, Path jarFilePath)
-            throws IOException {
-        Manifest manifest = new Manifest();
-        Attributes mainAttributes = manifest.getMainAttributes();
-        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        addMainClass(entryPackage, mainAttributes);
-
-        try (JarOutputStream target = new JarOutputStream(new BufferedOutputStream(
-                new FileOutputStream(jarFilePath.toString())), manifest)) {
-            for (BLangPackage bLangPackage : bLangPackageList) {
-                BPackageSymbol packageSymbol = bLangPackage.symbol;
-                CompiledJarFile compiledJarFile = packageSymbol.compiledJarFile;
-
-                Map<String, byte[]> jarEntries = compiledJarFile.getJarEntries();
-                for (Map.Entry<String, byte[]> keyVal : jarEntries.entrySet()) {
-                    byte[] entryContent = keyVal.getValue();
-                    JarEntry entry = new JarEntry(keyVal.getKey());
-                    target.putNextEntry(entry);
-                    target.write(entryContent);
-                    target.closeEntry();
-                }
-            }
-        }
-    }
-
-    private static void addMainClass(BLangPackage entryPackage, Attributes mainAttributes) {
-        CompiledJarFile compiledJarFile = entryPackage.symbol.compiledJarFile;
-        if (compiledJarFile.getMainClassName().isEmpty()) {
-            throw new RuntimeException("main class not found in:" + entryPackage.packageID.toString());
-        }
-        mainAttributes.put(Attributes.Name.MAIN_CLASS, compiledJarFile.getMainClassName().get());
     }
 }
