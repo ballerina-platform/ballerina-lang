@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -125,6 +126,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -186,13 +188,13 @@ public class SymbolEnter extends BLangNodeVisitor {
     private static final CompilerContext.Key<SymbolEnter> SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
-//    private final PackageLoader pkgLoader;
+    private final PackageLoader pkgLoader;
     private final SymbolTable symTable;
     private final Names names;
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
     private final Types types;
-//    private final SourceDirectory sourceDirectory;
+    private final SourceDirectory sourceDirectory;
     private List<BLangNode> unresolvedTypes;
     private List<BLangClassDefinition> unresolvedClasses;
     private HashSet<LocationData> unknownTypeRefs;
@@ -204,6 +206,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private PackageCache packageCache;
 
     private SymbolEnv env;
+    private final boolean projectAPIInitiatedCompilation;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
 
@@ -219,7 +222,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public SymbolEnter(CompilerContext context) {
         context.put(SYMBOL_ENTER_KEY, this);
 
-//        this.pkgLoader = PackageLoader.getInstance(context);
+        this.pkgLoader = PackageLoader.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
@@ -227,11 +230,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-//        this.sourceDirectory = context.get(SourceDirectory.class);
+        this.sourceDirectory = context.get(SourceDirectory.class);
         this.importedPackages = new ArrayList<>();
         this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
+
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        projectAPIInitiatedCompilation = Boolean.parseBoolean(
+                options.get(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION));
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -717,15 +724,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (!isNullOrEmpty(importPkgNode.version.value)) {
                 version = names.fromIdNode(importPkgNode.version);
             } else {
-                String pkgName = importPkgNode.getPackageName().stream()
-                        .map(id -> id.value)
-                        .collect(Collectors.joining("."));
-//                if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
-//                        && orgName.value.equals(enclPackageID.orgName.value)) {
-//                    version = enclPackageID.version;
-//                } else {
+                // TODO We are removing the version in the import declaration anyway
+                if (projectAPIInitiatedCompilation) {
                     version = Names.EMPTY;
-//                }
+                } else {
+                    String pkgName = importPkgNode.getPackageName().stream()
+                            .map(id -> id.value)
+                            .collect(Collectors.joining("."));
+                    if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
+                            && orgName.value.equals(enclPackageID.orgName.value)) {
+                        version = enclPackageID.version;
+                    } else {
+                        version = Names.EMPTY;
+                    }
+                }
             }
         } else {
             orgName = enclPackageID.orgName;
@@ -791,8 +803,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-//        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, this.env.enclPkg.repos);
-        BPackageSymbol pkgSymbol = packageCache.getSymbol(pkgId);
+        BPackageSymbol pkgSymbol;
+        if (projectAPIInitiatedCompilation) {
+            pkgSymbol = packageCache.getSymbol(pkgId);
+        } else {
+            pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, this.env.enclPkg.repos);
+        }
+
         if (pkgSymbol == null) {
             dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
