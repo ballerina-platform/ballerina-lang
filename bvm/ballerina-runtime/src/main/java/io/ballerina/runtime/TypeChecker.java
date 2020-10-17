@@ -28,7 +28,6 @@ import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.commons.TypeValuePair;
@@ -538,13 +537,13 @@ public class TypeChecker {
      * @param value Value
      * @return type desc associated with the value
      */
-    public static BTypedesc getTypedesc(Object value) {
+    public static TypedescValue getTypedesc(Object value) {
         Type type = TypeChecker.getType(value);
         if (type == null) {
             return null;
         }
         if (value instanceof MapValue) {
-            BTypedesc typedesc = ((MapValue) value).getTypedesc();
+            TypedescValue typedesc = (TypedescValue) ((MapValue) value).getTypedesc();
             if (typedesc != null) {
                 return typedesc;
             }
