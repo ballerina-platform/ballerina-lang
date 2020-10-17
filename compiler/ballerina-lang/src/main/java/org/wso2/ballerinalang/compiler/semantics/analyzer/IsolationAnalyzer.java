@@ -1869,6 +1869,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     return hasRefDefinedOutsideLock(((BLangTupleDestructure) parent).varRef);
                 case ERROR_DESTRUCTURE:
                     return hasRefDefinedOutsideLock(((BLangErrorDestructure) parent).varRef);
+                case RETURN:
+                    return true;
             }
             return false;
         }

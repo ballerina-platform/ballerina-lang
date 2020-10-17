@@ -217,7 +217,7 @@ isolated class InvalidIsolatedClassWithInvalidCopyOut {
         self.c = [];
     }
 
-    function invalidCopyOutOne(map<boolean>[] boolMaps) {
+    function invalidCopyOutOne(map<boolean>[] boolMaps) returns map<boolean>[] {
         map<boolean>[] bm1 = boolMaps;
         lock {
             map<boolean>[] bm2 = [{a: true, b: false}];
@@ -225,6 +225,7 @@ isolated class InvalidIsolatedClassWithInvalidCopyOut {
             bm1 = self.c;
             globBoolMap = bm2[0];
             bm1 = [self.c[0]];
+            return self.c;
         }
     }
 
@@ -243,11 +244,11 @@ isolated class InvalidIsolatedClassWithInvalidCopyOut {
     }
 }
 
-function testInvalidIsolatedObjectWithInvalidCopyIn() {
-    isolated object {} invalidIsolatedObjectWithInvalidCopyIn = object {
+function testInvalidIsolatedObjectWithInvalidCopyOut() {
+    isolated object {} invalidIsolatedObjectWithInvalidCopyOut = object {
         private map<boolean>[] c = [];
 
-        isolated function invalidCopyOutOne(map<boolean>[] boolMaps) {
+        isolated function invalidCopyOutOne(map<boolean>[] boolMaps) returns map<boolean> {
             map<boolean>[] bm1 = boolMaps;
             lock {
                 map<boolean>[] bm2 = [{a: true, b: false}];
@@ -255,6 +256,7 @@ function testInvalidIsolatedObjectWithInvalidCopyIn() {
                 bm1 = self.c;
                 bm1 = bm2;
                 bm1 = [self.c[0]];
+                return self.c.pop();
             }
         }
 
@@ -272,4 +274,44 @@ function testInvalidIsolatedObjectWithInvalidCopyIn() {
             }
         }
     };
+}
+
+isolated class InvalidIsolatedClassWithNonIsolatedFunctionInvocation {
+    private int[] x = [];
+
+    function testInvalidNonIsolatedInvocation() {
+        lock {
+            int[] a = self.x;
+
+            IsolatedClass ic = new;
+            a[0] = ic.nonIsolatedFunc();
+            a.push(ic.nonIsolatedFunc());
+
+            a = nonIsolatedFunc();
+        }
+    }
+}
+
+isolated object {} invalidIsolatedObjectWithNonIsolatedFunctionInvocation = object {
+    private int[] x = [];
+
+    function testInvalidNonIsolatedInvocation() {
+        lock {
+            int[] a = self.x;
+
+            IsolatedClass ic = new;
+            a[0] = ic.nonIsolatedFunc();
+            a.push(ic.nonIsolatedFunc());
+
+            a = nonIsolatedFunc();
+        }
+    }
+};
+
+isolated class IsolatedClass {
+    function nonIsolatedFunc() returns int => 1;
+}
+
+function nonIsolatedFunc() returns int[] {
+    return [1, 2, 3];
 }

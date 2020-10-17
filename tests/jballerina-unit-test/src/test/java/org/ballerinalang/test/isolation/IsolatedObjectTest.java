@@ -96,15 +96,35 @@ public class IsolatedObjectTest {
         validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 225, 19);
         validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 226, 27);
         validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 227, 20);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 237, 23);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 240, 19);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 228, 20);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 238, 23);
         validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 241, 19);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 255, 23);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 242, 19);
         validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 256, 23);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 257, 24);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 267, 27);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 270, 31);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 271, 23);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 257, 23);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 258, 24);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 259, 24);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 269, 27);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 272, 31);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 273, 23);
+        validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
+                "field of an 'isolated' object", 287, 20);
+        validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
+                "field of an 'isolated' object", 288, 20);
+        validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
+                "field of an 'isolated' object", 290, 17);
+        validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
+                "field of an 'isolated' object", 303, 20);
+        validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
+                "field of an 'isolated' object", 304, 20);
+        validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
+                "field of an 'isolated' object", 306, 17);
         Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test
+    public void testIsolatedObjects() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/isolated-objects/isolated_objects.bal");
+        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
     }
 }
