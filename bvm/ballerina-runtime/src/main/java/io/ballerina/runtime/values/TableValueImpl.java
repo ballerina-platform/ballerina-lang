@@ -34,7 +34,6 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.types.BRecordType;
 import io.ballerina.runtime.types.BTableType;
@@ -384,29 +383,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         return iteratorNextReturnType;
-    }
-
-    @Override
-    public long getDefaultableIntValue(BString key) {
-        if (get(key) != null) {
-            return getIntValue(key);
-        }
-        return 0;
-    }
-
-    @Override
-    public Object merge(BMap v2, boolean checkMergeability) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public BTypedesc getTypedesc() {
-        return null;
-    }
-
-    @Override
-    public void populateInitialValue(K key, V value) {
-        throw new UnsupportedOperationException();
     }
 
     private class TableIterator<K, V> implements IteratorValue {
