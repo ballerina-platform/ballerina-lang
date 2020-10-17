@@ -72,7 +72,10 @@ class Bootstrap {
         }
 
         langLibLoaded = true;
-        // we will load any lang.lib found in cache directory
+
+        if (langLib.equals(ANNOTATIONS)) {
+            return; // Nothing else to load.
+        }
 
         SymbolResolver symResolver = SymbolResolver.getInstance(compilerContext);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
@@ -80,26 +83,21 @@ class Bootstrap {
         // load annotation
         symbolTable.langAnnotationModuleSymbol = loadLib(ANNOTATIONS, compilerContext);
 
-        if (langLib.equals(ANNOTATIONS)) {
-            return; // Nothing else to load.
-        }
-
         symResolver.reloadErrorAndDependentTypes();
-
-        // load java
-        symbolTable.langJavaModuleSymbol = loadLib(JAVA, compilerContext);
 
         if (langLib.equals(JAVA)) {
             return; // Nothing else to load.
         }
 
-        symbolTable.langInternalModuleSymbol = loadLib(INTERNAL, compilerContext);
+        // load java
+        symbolTable.langJavaModuleSymbol = loadLib(JAVA, compilerContext);
 
         if (langLib.equals(INTERNAL)) {
             return; // Nothing else to load.
         }
 
-        symbolTable.langArrayModuleSymbol = loadLib(ARRAY, compilerContext);
+        // load internal
+        symbolTable.langInternalModuleSymbol = loadLib(INTERNAL, compilerContext);
 
         if (langLib.equals(QUERY)) {
             // Query module requires stream, array, map, string, table, xml & value modules. Hence loading them.
@@ -122,8 +120,6 @@ class Bootstrap {
         }
 
         symResolver.reloadIntRangeType();
-
-        loadLib(langLib, compilerContext);
     }
 
     void loadLangLibSymbols(CompilerContext compilerContext) {
@@ -160,12 +156,12 @@ class Bootstrap {
 
     private BPackageSymbol loadLib(PackageID langLib, CompilerContext compilerContext) {
         ModuleLoadRequest langLibLoadRequest = toModuleRequest(langLib);
-        loadLib(langLibLoadRequest, packageResolver);
+        loadLib(langLibLoadRequest);
 
         return getSymbolFromCache(compilerContext, langLib);
     }
 
-    private void loadLib(ModuleLoadRequest lib, PackageResolver packageResolver) {
+    private void loadLib(ModuleLoadRequest lib) {
         Collection<ModuleLoadResponse> modules = packageResolver.loadPackages(Collections.singletonList(lib));
         modules.forEach(module -> {
             Package pkg = packageResolver.getPackage(module.packageId());
