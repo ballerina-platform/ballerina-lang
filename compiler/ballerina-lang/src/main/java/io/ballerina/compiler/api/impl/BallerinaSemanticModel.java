@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.api.impl;
 
-import io.ballerina.compiler.api.LangLibrary;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.SymbolFactory;
 import io.ballerina.compiler.api.impl.types.TypeBuilder;

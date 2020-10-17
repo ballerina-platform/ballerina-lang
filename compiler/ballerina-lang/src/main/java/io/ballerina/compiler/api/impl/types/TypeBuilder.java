@@ -18,7 +18,7 @@
 
 package io.ballerina.compiler.api.impl.types;
 
-import io.ballerina.compiler.api.LangLibrary;
+import io.ballerina.compiler.api.impl.LangLibrary;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.impl.types.util.BallerinaMethodDeclaration;

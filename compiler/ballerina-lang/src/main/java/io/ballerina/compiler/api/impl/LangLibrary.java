@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api;
+package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.impl.types.TypeBuilder;
 import io.ballerina.compiler.api.impl.types.util.BallerinaLangLibMethod;
