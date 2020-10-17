@@ -50,6 +50,7 @@ public enum TypeDescKind {
     XML("xml"),
     HANDLE("handle"),
     TABLE("table"),
+    READONLY("readonly"),
     NEVER("never");
 
     

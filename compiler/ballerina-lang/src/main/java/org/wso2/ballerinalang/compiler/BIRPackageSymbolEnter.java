@@ -734,6 +734,7 @@ public class BIRPackageSymbolEnter {
         tsymbol.params = invokableSymbol.params;
         tsymbol.restParam = invokableSymbol.restParam;
         tsymbol.returnType = invokableSymbol.retType;
+        tsymbol.type = invokableType;
 
         boolean hasReceiver = dataInStream.readBoolean(); // if receiver is written, read and ignore
         if (hasReceiver) {

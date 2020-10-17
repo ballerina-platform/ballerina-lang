@@ -18,13 +18,14 @@
 
 package io.ballerina.compiler.api.impl.types;
 
-import io.ballerina.compiler.api.impl.LangLibrary;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
+import io.ballerina.compiler.api.impl.LangLibrary;
 import io.ballerina.compiler.api.impl.types.util.BallerinaMethodDeclaration;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
+import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
 import io.ballerina.compiler.api.types.ParameterKind;
 import io.ballerina.compiler.api.types.util.LangLibMethod;
@@ -44,12 +45,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -112,7 +115,8 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
 
         if (publicType != null) {
             List<LangLibMethod> langLibMethods = langLibrary.getMethods(publicType.kind());
-            ((AbstractTypeDescriptor) publicType).setLangLibMethods(langLibMethods);
+            langLibMethods = filterMethods(langLibMethods, internalType);
+            ((AbstractTypeDescriptor) publicType).setLangLibMethods(unmodifiableList(langLibMethods));
         }
 
         if (isTypeReference(internalType)) {
@@ -138,6 +142,14 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
 
     @Override
     public BallerinaTypeDescriptor visit(BBuiltInRefType internalType, BType s) {
+        if (internalType.tag == TypeTags.READONLY) {
+            return new BallerinaReadonlyTypeDescriptor(moduleID, (BReadonlyType) internalType);
+        }
+
+        if (internalType.tag == TypeTags.HANDLE) {
+            return new BallerinaHandleTypeDescriptor(moduleID, (BHandleType) internalType);
+        }
+
         return build(internalType);
     }
 
@@ -310,6 +322,24 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
     }
 
     // Private Methods
+    private List<LangLibMethod> filterMethods(List<LangLibMethod> methods, BType internalType) {
+        List<LangLibMethod> filteredMethods = new ArrayList<>();
+
+        for (LangLibMethod method : methods) {
+            BType firstParamType = getFirstParamType(method.typeDescriptor());
+            if (types.isAssignable(internalType, firstParamType)) {
+                filteredMethods.add(method);
+            }
+        }
+
+        return filteredMethods;
+    }
+
+    private BType getFirstParamType(FunctionTypeDescriptor functionTypeDescriptor) {
+        BInvokableType funcType =
+                (BInvokableType) ((BallerinaFunctionTypeDescriptor) functionTypeDescriptor).getBType();
+        return funcType.paramTypes.get(0);
+    }
 
     private List<FieldDescriptor> createFields(BStructureType internalType) {
         List<FieldDescriptor> fields = new ArrayList<>();
