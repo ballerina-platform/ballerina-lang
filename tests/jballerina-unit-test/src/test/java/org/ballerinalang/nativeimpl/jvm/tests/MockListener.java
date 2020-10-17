@@ -17,12 +17,12 @@
 
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.api.BRuntime;
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.runtime.api.Env;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.async.CallableUnitCallback;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
@@ -40,10 +40,10 @@ public class MockListener {
         return null;
     }
 
-    public static Object invokeResource(BalEnv env, BString name) throws InterruptedException {
+    public static Object invokeResource(Env env, BString name) throws InterruptedException {
         if (service != null) {
             CountDownLatch latch = new CountDownLatch(1);
-            BRuntime runtime = env.getRuntime();
+            Runtime runtime = env.getRuntime();
             runtime.invokeMethodAsync(service, name.getValue(), null, null,
                                       new CallableUnitCallback() {
                                           @Override

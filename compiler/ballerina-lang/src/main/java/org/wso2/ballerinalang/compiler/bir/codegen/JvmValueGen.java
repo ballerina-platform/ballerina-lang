@@ -433,7 +433,7 @@ class JvmValueGen {
                 mv.visitInsn(ACONST_NULL);
             } else {
                 JvmCastGen.addBoxInsn(mv, retType);
-                if (org.ballerinalang.jvm.util.Flags.isFlagOn(func.flags, org.ballerinalang.jvm.util.Flags.RESOURCE)) {
+                if (io.ballerina.runtime.util.Flags.isFlagOn(func.flags, io.ballerina.runtime.util.Flags.RESOURCE)) {
                     mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, "handleResourceError",
                                        String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
                 }
