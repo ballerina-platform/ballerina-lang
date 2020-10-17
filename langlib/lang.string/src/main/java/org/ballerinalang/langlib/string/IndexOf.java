@@ -19,13 +19,13 @@
 package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
 import static io.ballerina.runtime.util.BLangConstants.STRING_LANG_LIB;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
 
 /**
  * Extern function ballerina.model.strings:indexOf.
@@ -37,7 +37,7 @@ public class IndexOf {
     public static Object indexOf(BString bStr, BString subString, long startIndx) {
 
         if (bStr == null || subString == null) {
-            throw ErrorUtils.createNullReferenceError();
+            throw createNullReferenceError();
         }
         if (startIndx > Integer.MAX_VALUE) {
             throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,

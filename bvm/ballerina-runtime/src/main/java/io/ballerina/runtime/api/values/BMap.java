@@ -19,9 +19,6 @@ package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
-import io.ballerina.runtime.values.ArrayValue;
-import io.ballerina.runtime.values.MapValue;
-import io.ballerina.runtime.values.ObjectValue;
 
 import java.util.Collection;
 import java.util.Map;
@@ -183,11 +180,19 @@ public interface BMap<K, V> extends BRefValue, BCollection {
 
     Boolean getBooleanValue(BString key);
 
-    MapValue<?, ?> getMapValue(BString key);
+    BMap<?, ?> getMapValue(BString key);
 
-    ObjectValue getObjectValue(BString key);
+    BObject getObjectValue(BString key);
 
-    ArrayValue getArrayValue(BString key);
+    BArray getArrayValue(BString key);
 
     Type getIteratorNextReturnType();
+
+    long getDefaultableIntValue(BString key);
+
+    Object merge(BMap v2, boolean checkMergeability);
+
+    BTypedesc getTypedesc();
+
+    void populateInitialValue(K key, V value);
 }

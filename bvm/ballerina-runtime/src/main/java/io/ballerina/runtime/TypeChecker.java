@@ -26,7 +26,9 @@ import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.commons.TypeValuePair;
@@ -59,7 +61,6 @@ import io.ballerina.runtime.values.ErrorValue;
 import io.ballerina.runtime.values.HandleValue;
 import io.ballerina.runtime.values.MapValue;
 import io.ballerina.runtime.values.MapValueImpl;
-import io.ballerina.runtime.values.ObjectValue;
 import io.ballerina.runtime.values.RefValue;
 import io.ballerina.runtime.values.StreamValue;
 import io.ballerina.runtime.values.TableValueImpl;
@@ -537,13 +538,13 @@ public class TypeChecker {
      * @param value Value
      * @return type desc associated with the value
      */
-    public static TypedescValue getTypedesc(Object value) {
+    public static BTypedesc getTypedesc(Object value) {
         Type type = TypeChecker.getType(value);
         if (type == null) {
             return null;
         }
         if (value instanceof MapValue) {
-            TypedescValue typedesc = ((MapValue) value).getTypedesc();
+            BTypedesc typedesc = ((MapValue) value).getTypedesc();
             if (typedesc != null) {
                 return typedesc;
             }
@@ -1395,7 +1396,7 @@ public class TypeChecker {
                 return false;
             }
         } else if (!checkObjectSubTypeForFieldsByValue(targetFields, sourceFields, targetTypeModule, sourceTypeModule,
-                                                       (ObjectValue) sourceVal, unresolvedTypes)) {
+                                                       (BObject) sourceVal, unresolvedTypes)) {
             return false;
         }
 
@@ -1421,7 +1422,7 @@ public class TypeChecker {
 
     private static boolean checkObjectSubTypeForFieldsByValue(Map<String, Field> targetFields,
                                                               Map<String, Field> sourceFields, String targetTypeModule,
-                                                              String sourceTypeModule, ObjectValue sourceObjVal,
+                                                              String sourceTypeModule, BObject sourceObjVal,
                                                               List<TypePair> unresolvedTypes) {
         for (Field lhsField : targetFields.values()) {
             String name = lhsField.getFieldName();

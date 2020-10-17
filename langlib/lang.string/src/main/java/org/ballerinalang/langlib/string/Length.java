@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.ErrorUtils;
+import org.ballerinalang.langlib.string.utils.StringUtils;
 
 /**
  * Extern function ballerina.model.strings:length.
@@ -37,7 +37,7 @@ public class Length {
 
     public static long length(BString value) {
         if (value == null) {
-            throw ErrorUtils.createNullReferenceError();
+            throw StringUtils.createNullReferenceError();
         }
         return value.length();
     }

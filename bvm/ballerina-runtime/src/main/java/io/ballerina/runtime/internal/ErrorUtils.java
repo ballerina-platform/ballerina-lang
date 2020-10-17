@@ -31,8 +31,6 @@ import io.ballerina.runtime.values.ErrorValue;
 import io.ballerina.runtime.values.MapValueImpl;
 
 import static io.ballerina.runtime.api.ErrorCreator.createError;
-import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR;
-import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * This class contains internal methods used by codegen and runtime classes to handle errors.
@@ -45,7 +43,6 @@ public class ErrorUtils {
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
     private static final BString ERROR_CAUSE_FIELD = StringUtils.fromString("cause");
     private static final BString NULL_REF_EXCEPTION = StringUtils.fromString("NullReferenceException");
-
 
     /**
      * Create balleria error using java exception for interop.
@@ -87,12 +84,6 @@ public class ErrorUtils {
         return (ErrorValue) createError(BallerinaErrorReasons.FUTURE_CANCELLED);
     }
 
-    public static BError createConversionError(Object inputValue, Type targetType) {
-        return createError(BALLERINA_PREFIXED_CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                TypeChecker.getType(inputValue), targetType));
-    }
-
     public static BError createTypeCastError(Object sourceVal, Type targetType) {
         throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
                           BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,
@@ -116,10 +107,6 @@ public class ErrorUtils {
     public static BError createNumericConversionError(Object inputValue, Type inputType, Type targetType) {
         throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION, inputType, inputValue, targetType));
-    }
-
-    public static BError createNullReferenceError() {
-        return createError(NULL_REF_EXCEPTION);
     }
 }
 

@@ -22,7 +22,9 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.types.BArrayType;
@@ -170,11 +172,11 @@ public class TableJSONDataSource implements JSONDataSource {
         }
     }
 
-    private static Object getStructData(MapValueImpl data, BField[] structFields, int index, BString key) {
+    private static Object getStructData(BMap data, BField[] structFields, int index, BString key) {
         if (structFields == null) {
             ArrayValue jsonArray = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
             if (data != null) {
-                ArrayValue dataArray = data.getArrayValue(key);
+                BArray dataArray = data.getArrayValue(key);
                 for (int i = 0; i < dataArray.size(); i++) {
                     Object value = dataArray.get(i);
                     if (value instanceof String) {
@@ -228,7 +230,7 @@ public class TableJSONDataSource implements JSONDataSource {
     }
 
     private static Object getDataArray(MapValue df, BString key) {
-        ArrayValue dataArray = df.getArrayValue(key);
+        BArray dataArray = df.getArrayValue(key);
         ArrayValue jsonArray = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
         for (int i = 0; i < dataArray.size(); i++) {
             jsonArray.append(dataArray.get(i));

@@ -33,15 +33,16 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XMLType;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXML;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.DecimalValue;
+import io.ballerina.runtime.values.MapValue;
+import io.ballerina.runtime.values.ObjectValue;
+import io.ballerina.runtime.values.XMLValue;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.entity.TesterinaFunction;
@@ -714,19 +715,19 @@ public class BTestRunner {
         } else if (elementType instanceof BooleanType) {
             type = Boolean.TYPE;
         } else if (elementType instanceof DecimalType) {
-            type = BDecimal.class;
+            type = DecimalValue.class;
         } else if (elementType instanceof ByteType) {
             type = Integer.TYPE;
         } else if (elementType instanceof ArrayType || elementType instanceof TupleType) {
-            type = BArray.class;
+            type = ArrayValue.class;
         } else if (elementType instanceof FloatType) {
             type = Double.TYPE;
         } else if (elementType instanceof MapType || elementType instanceof RecordType) {
-            type = BMap.class;
+            type = MapValue.class;
         } else if (elementType instanceof XMLType) {
-            type = BXML.class;
+            type = XMLValue.class;
         } else if (elementType instanceof ObjectType) {
-            type = BObject.class;
+            type = ObjectValue.class;
         } else {
             // default case
             type = Object.class;

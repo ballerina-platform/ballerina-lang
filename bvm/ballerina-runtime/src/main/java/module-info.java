@@ -23,11 +23,9 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.api.commons;
 
     exports io.ballerina.runtime.util;
-    exports io.ballerina.runtime.internal;
     exports io.ballerina.runtime.util.exceptions;
     exports io.ballerina.runtime.launch;
     exports io.ballerina.runtime;
-//    exports io.ballerina.runtime.values.connector;
     exports io.ballerina.runtime.scheduling;
     exports io.ballerina.runtime.observability;
     exports io.ballerina.runtime.transactions;
@@ -38,4 +36,5 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.observability.metrics.spi;
     exports io.ballerina.runtime.services.spi;
     exports io.ballerina.runtime.annotation;
+    exports io.ballerina.runtime.values to io.ballerina.testerina.core, io.ballerina.testerina.runtime;
 }

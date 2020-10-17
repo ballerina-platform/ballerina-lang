@@ -10,7 +10,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
-import org.ballerinalang.testerina.natives.BExecutor;
+import org.ballerinalang.testerina.natives.Executor;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -82,8 +82,8 @@ public class FunctionMock {
 
         List<Object> argsList = Arrays.asList(args);
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, originalFunction);
-        return BExecutor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, orgName,
-                                         packageName, version, className, originalFunction, argsList.toArray());
+        return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, orgName,
+                                        packageName, version, className, originalFunction, argsList.toArray());
     }
 
     private static Object callFunction(String originalFunction, String originalFunctionPackage, String returnVal,
@@ -113,8 +113,8 @@ public class FunctionMock {
         List<Object> argsList = Arrays.asList(args);
         ClassLoader classLoader = FunctionMock.class.getClassLoader();
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, methodName);
-        return BExecutor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, orgName,
-                                         packageName, version, className, methodName, argsList.toArray());
+        return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, orgName,
+                                        packageName, version, className, methodName, argsList.toArray());
     }
 
     private static String getClassName(String mockMethodName, String orgName, String packageName, String version,

@@ -17,8 +17,8 @@
 */
 package io.ballerina.runtime.values.connector;
 
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
-import io.ballerina.runtime.values.ObjectValue;
 
 import java.util.List;
 
@@ -43,7 +43,7 @@ public interface BallerinaServerConnector {
      * @param service to be registered.
      * @throws BallerinaConnectorException if an error occurs
      */
-    void serviceRegistered(ObjectValue service) throws BallerinaConnectorException;
+    void serviceRegistered(BObject service) throws BallerinaConnectorException;
 
     /**
      * This will fire a deployment complete event so to the server connector implementation.

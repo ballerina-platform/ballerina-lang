@@ -20,7 +20,9 @@ package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.ErrorUtils;
+
+import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
+
 /**
  * Extern function ballerina.model.strings:trim.
  *
@@ -37,7 +39,7 @@ public class Trim {
 
     public static BString trim(BString str) {
         if (str == null) {
-            throw ErrorUtils.createNullReferenceError();
+            throw createNullReferenceError();
         }
         return StringUtils.fromString(str.getValue().trim());
     }

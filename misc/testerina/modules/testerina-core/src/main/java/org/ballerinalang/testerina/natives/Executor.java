@@ -20,15 +20,16 @@ package org.ballerinalang.testerina.natives;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.async.CallableUnitCallback;
 import io.ballerina.runtime.api.async.StrandMetadata;
-import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.ArrayValueImpl;
+import io.ballerina.runtime.values.MapValue;
+import io.ballerina.runtime.values.ObjectValue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,9 +43,9 @@ import java.util.function.Function;
  *
  * @since 0.995.0
  */
-public class BExecutor {
+public class Executor {
 
-    private BExecutor() {
+    private Executor() {
     }
 
     /**
@@ -108,10 +109,10 @@ public class BExecutor {
     }
 
     private static Class<?> getJvmType(Object paramValue) {
-        if (paramValue instanceof BMap) {
-            return BMap.class;
-        } else if (paramValue instanceof BObject) {
-            return BObject.class;
+        if (paramValue instanceof MapValue) {
+            return MapValue.class;
+        } else if (paramValue instanceof ObjectValue) {
+            return ObjectValue.class;
         } else if (paramValue instanceof Boolean) {
             return boolean.class;
         } else if (paramValue instanceof BString) {
@@ -126,8 +127,8 @@ public class BExecutor {
             return double.class;
         } else if (paramValue instanceof Float) {
             return double.class;
-        } else if (paramValue instanceof BArray) {
-            return BArray.class;
+        } else if (paramValue instanceof ArrayValueImpl) {
+            return ArrayValue.class;
         } else {
             // This is done temporarily, until blocks are added here for all possible cases.
             throw new RuntimeException("unknown param type: " + paramValue.getClass());

@@ -18,8 +18,6 @@
 package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.scheduling.Strand;
 
 /**
  * <p>
@@ -33,11 +31,4 @@ import io.ballerina.runtime.scheduling.Strand;
  */
 public interface ObjectValue extends BObject, RefValue {
 
-    FutureValue start(Strand strand, String funcName, Object... args);
-
-    MapValue getMapValue(BString fieldName);
-
-    ObjectValue getObjectValue(BString fieldName);
-
-    ArrayValue getArrayValue(BString fieldName);
 }

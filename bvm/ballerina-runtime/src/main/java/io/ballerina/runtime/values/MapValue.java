@@ -18,7 +18,6 @@
 package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
 
 /**
  * <p>
@@ -35,11 +34,4 @@ import io.ballerina.runtime.api.values.BString;
  */
 public interface MapValue<K, V> extends RefValue, CollectionValue, BMap<K, V> {
 
-    long getDefaultableIntValue(BString key);
-
-    Object merge(MapValue v2, boolean checkMergeability);
-
-    TypedescValue getTypedesc();
-
-    void populateInitialValue(K key, V value);
 }

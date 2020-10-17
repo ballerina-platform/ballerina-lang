@@ -134,7 +134,7 @@ public class WorkerDataChannel {
             releaseChannelLock();
         }
     }
-    
+
     @SuppressWarnings("rawtypes")
     public Object tryTakeData(Strand strand) throws Throwable {
         try {

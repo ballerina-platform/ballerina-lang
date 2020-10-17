@@ -29,11 +29,14 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.types.BField;
 import io.ballerina.runtime.types.BMapType;
@@ -127,16 +130,16 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return (Boolean) get(key);
     }
 
-    public MapValueImpl<?, ?> getMapValue(BString key) {
-        return (MapValueImpl<?, ?>) get(key);
+    public BMap<?, ?> getMapValue(BString key) {
+        return (BMap<?, ?>) get(key);
     }
 
-    public ObjectValue getObjectValue(BString key) {
-        return (ObjectValue) get(key);
+    public BObject getObjectValue(BString key) {
+        return (BObject) get(key);
     }
 
-    public ArrayValue getArrayValue(BString key) {
-        return (ArrayValue) get(key);
+    public BArray getArrayValue(BString key) {
+        return (BArray) get(key);
     }
 
     public long getDefaultableIntValue(BString key) {
@@ -206,8 +209,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public Object merge(MapValue v2, boolean checkMergeability) {
-        return merge((MapValueImpl) v2, checkMergeability);
+    public Object merge(BMap v2, boolean checkMergeability) {
+        return merge(v2, checkMergeability);
     }
 
     /**
@@ -555,7 +558,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public TypedescValue getTypedesc() {
+    public BTypedesc getTypedesc() {
         return typedesc;
     }
 

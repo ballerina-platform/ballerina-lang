@@ -28,9 +28,13 @@ import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.types.BRecordType;
 import io.ballerina.runtime.types.BTableType;
@@ -382,6 +386,29 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return iteratorNextReturnType;
     }
 
+    @Override
+    public long getDefaultableIntValue(BString key) {
+        if (get(key) != null) {
+            return getIntValue(key);
+        }
+        return 0;
+    }
+
+    @Override
+    public Object merge(BMap v2, boolean checkMergeability) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        return null;
+    }
+
+    @Override
+    public void populateInitialValue(K key, V value) {
+        throw new UnsupportedOperationException();
+    }
+
     private class TableIterator<K, V> implements IteratorValue {
         private long cursor;
 
@@ -657,17 +684,17 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     @Override
-    public MapValueImpl<?, ?> getMapValue(BString key) {
-        return (MapValueImpl<?, ?>) get(key);
+    public BMap<?, ?> getMapValue(BString key) {
+        return (BMap<?, ?>) get(key);
     }
 
     @Override
-    public ObjectValue getObjectValue(BString key) {
-        return (ObjectValue) get(key);
+    public BObject getObjectValue(BString key) {
+        return (BObject) get(key);
     }
 
     @Override
-    public ArrayValue getArrayValue(BString key) {
-        return (ArrayValue) get(key);
+    public BArray getArrayValue(BString key) {
+        return (BArray) get(key);
     }
 }

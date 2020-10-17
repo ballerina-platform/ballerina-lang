@@ -20,9 +20,10 @@ package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.ErrorUtils;
 
 import java.util.Locale;
+
+import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
 
 /**
  * Extern function ballerina.model.strings:toUpper.
@@ -33,7 +34,7 @@ public class ToUpperAscii {
 
     public static BString toUpperAscii(BString str) {
         if (str == null) {
-            throw ErrorUtils.createNullReferenceError();
+            throw createNullReferenceError();
         }
         return StringUtils.fromString(str.getValue().toUpperCase(Locale.getDefault()));
     }

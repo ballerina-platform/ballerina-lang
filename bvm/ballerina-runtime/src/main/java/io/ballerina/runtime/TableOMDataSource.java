@@ -20,11 +20,12 @@ package io.ballerina.runtime;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.types.BField;
 import io.ballerina.runtime.types.BStructureType;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
-import io.ballerina.runtime.values.ArrayValue;
 import io.ballerina.runtime.values.DecimalValue;
 import io.ballerina.runtime.values.IteratorValue;
 import io.ballerina.runtime.values.MapValueImpl;
@@ -113,17 +114,17 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
                 break;
             case TypeTags.ARRAY_TAG:
                 isArray = true;
-                ArrayValue array = record.getArrayValue(key);
+                BArray array = record.getArrayValue(key);
                 processArray(xmlStreamWriter, array);
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
                 isArray = true;
                 if (structFields == null) {
-                    ArrayValue structData = record.getArrayValue(key);
+                    BArray structData = record.getArrayValue(key);
                     processArray(xmlStreamWriter, structData);
                 } else {
-                    MapValueImpl structData = record.getMapValue(key);
+                    BMap structData = record.getMapValue(key);
                     processStruct(xmlStreamWriter, structData, structFields, index);
                 }
                 break;
@@ -142,7 +143,7 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
         xmlStreamWriter.writeEndElement();
     }
 
-    private void processArray(XMLStreamWriter xmlStreamWriter, ArrayValue array) throws XMLStreamException {
+    private void processArray(XMLStreamWriter xmlStreamWriter, BArray array) throws XMLStreamException {
         if (array != null) {
             for (int i = 0; i < array.size(); i++) {
                 xmlStreamWriter.writeStartElement("", ARRAY_ELEMENT_NAME, "");
@@ -152,7 +153,7 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
         }
     }
 
-    private void processStruct(XMLStreamWriter xmlStreamWriter, MapValueImpl structData,
+    private void processStruct(XMLStreamWriter xmlStreamWriter, BMap structData,
                                BField[] structFields, int index) throws XMLStreamException {
         boolean structError = true;
         Type internalType = structFields[index].getFieldType();

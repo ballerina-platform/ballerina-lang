@@ -38,7 +38,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.commons.TypeValuePair;
-import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
@@ -135,7 +134,7 @@ public class FromJsonWithType {
                     break;
                 }
                 // should never reach here
-                throw ErrorUtils.createConversionError(value, targetType);
+                throw CloneUtils.createConversionError(value, targetType);
         }
 
         unresolvedValues.remove(typeValuePair);
@@ -178,7 +177,7 @@ public class FromJsonWithType {
                 return convert(map, matchingType, unresolvedValues, t);
         }
         // should never reach here
-        throw ErrorUtils.createConversionError(map, targetType);
+        throw CloneUtils.createConversionError(map, targetType);
     }
 
 
@@ -221,7 +220,7 @@ public class FromJsonWithType {
                 return newTable;
         }
         // should never reach here
-        throw ErrorUtils.createConversionError(array, targetType);
+        throw CloneUtils.createConversionError(array, targetType);
     }
 
     private static void putToMap(BMap<BString, Object> map, Map.Entry entry, Type fieldType,

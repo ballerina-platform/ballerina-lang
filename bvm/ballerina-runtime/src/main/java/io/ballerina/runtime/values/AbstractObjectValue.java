@@ -22,8 +22,12 @@ import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.types.BObjectType;
 import io.ballerina.runtime.util.Flags;
@@ -115,22 +119,22 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
-    public MapValueImpl getMapValue(BString fieldName) {
+    public BMap getMapValue(BString fieldName) {
         return (MapValueImpl) get(fieldName);
     }
 
     @Override
-    public ObjectValue getObjectValue(BString fieldName) {
-        return (ObjectValue) get(fieldName);
+    public BObject getObjectValue(BString fieldName) {
+        return (BObject) get(fieldName);
     }
 
     @Override
-    public ArrayValue getArrayValue(BString fieldName) {
+    public BArray getArrayValue(BString fieldName) {
         return (ArrayValue) get(fieldName);
     }
 
     @Override
-    public BObjectType getType() {
+    public ObjectType getType() {
         return type;
     }
 

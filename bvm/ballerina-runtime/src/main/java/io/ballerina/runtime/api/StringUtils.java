@@ -19,11 +19,11 @@ package io.ballerina.runtime.api;
 import io.ballerina.runtime.CycleUtils;
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Scheduler;
-import io.ballerina.runtime.types.BObjectType;
 import io.ballerina.runtime.util.exceptions.BallerinaException;
 import io.ballerina.runtime.values.AbstractObjectValue;
 import io.ballerina.runtime.values.ArrayValue;
@@ -226,7 +226,7 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
-            BObjectType objectType = objectValue.getType();
+            ObjectType objectType = objectValue.getType();
             for (AttachedFunctionType func : objectType.getAttachedFunctions()) {
                 if (func.getName().equals("toString") && func.getParameterTypes().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
@@ -303,7 +303,7 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
-            BObjectType objectType = objectValue.getType();
+            ObjectType objectType = objectValue.getType();
             for (AttachedFunctionType func : objectType.getAttachedFunctions()) {
                 if (func.getName().equals("toString") && func.getParameterTypes().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {

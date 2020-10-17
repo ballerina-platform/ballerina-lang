@@ -18,9 +18,19 @@
 
 package org.ballerinalang.langlib.value;
 
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BRefValue;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 
 import java.util.HashMap;
+
+import static io.ballerina.runtime.api.ErrorCreator.createError;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR;
+import static io.ballerina.runtime.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * This class contains the functions related to cloning Ballerina values.
@@ -28,6 +38,8 @@ import java.util.HashMap;
  * @since 1.0.0
  */
 public class CloneUtils {
+
+    private static final BString NULL_REF_EXCEPTION = StringUtils.fromString("NullReferenceException");
 
     /**
      * Returns a clone of `value`. A clone is a deep copy that does not copy immutable subtrees.A clone can therefore
@@ -67,5 +79,11 @@ public class CloneUtils {
 
         BRefValue refValue = (BRefValue) value;
         return refValue.frozenCopy(new HashMap<>());
+    }
+
+    public static BError createConversionError(Object inputValue, Type targetType) {
+        return createError(BALLERINA_PREFIXED_CONVERSION_ERROR,
+                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                                                                TypeChecker.getType(inputValue), targetType));
     }
 }
