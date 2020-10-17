@@ -569,11 +569,10 @@ public class CommonUtil {
     public static Pair<String, String> getFunctionInvocationSignature(FunctionSymbol functionSymbol,
                                                                       String functionName,
                                                                       LSContext ctx) {
+        if (functionSymbol == null) {
+            return ImmutablePair.of(functionName + "();", functionName + "()");
+        }
         FunctionTypeDescriptor functionTypeDesc = functionSymbol.typeDescriptor();
-        // TODO: Check the following with init and empty args function
-//        if (!functionTypeDesc.isPresent()) {
-//            return ImmutablePair.of(functionName + "();", functionName + "()");
-//        }
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<String> funcArguments = FunctionGenerator.getFuncArguments(functionSymbol, ctx);

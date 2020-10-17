@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -40,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
 
@@ -145,7 +147,7 @@ class SemanticHighlightingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        if (SymbolUtil.isClient(null)) {
+        if (this.isClient(varNode.symbol)) {
             SemanticHighlightProvider.HighlightInfo highlightInfo =
                     new SemanticHighlightProvider.HighlightInfo(ScopeEnum.ENDPOINT, varNode.name);
             highlights.add(highlightInfo);
@@ -158,7 +160,7 @@ class SemanticHighlightingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        if (!SymbolUtil.isClient(null)) {
+        if (!this.isClient(varRefExpr.symbol)) {
             return;
         }
         SemanticHighlightProvider.HighlightInfo highlightInfo =
@@ -185,5 +187,9 @@ class SemanticHighlightingVisitor extends LSNodeVisitor {
         if (node != null) {
             node.accept(this);
         }
+    }
+
+    private boolean isClient(BSymbol symbol) {
+        return (symbol.flags & Flags.CLIENT) == Flags.CLIENT;
     }
 }

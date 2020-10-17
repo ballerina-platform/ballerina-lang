@@ -17,13 +17,13 @@ package org.ballerinalang.langserver.extensions;
 
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -185,36 +185,35 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
                                 .map(scopeEntry -> scopeEntry.symbol)
                                 .collect(Collectors.toList())));
 
-//        return visibleSymbols.stream()
-//                .filter(symbol -> symbol instanceof BVarSymbol && SymbolUtil.isClient(/*symbol*/null)
-//                    && (parameters.contains(symbol) || symbol.owner instanceof BPackageSymbol))
-//                .map(symbol -> {
-//                    BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
-//                    String typeName = symbol.type.tsymbol.getName().getValue();
-//                    String pkgName = symbol.pkgID.getName().getValue();
-//                    String orgName = symbol.pkgID.getOrgName().getValue();
-//                    String alias = importPackage == null ? "" : importPackage.getAlias().getValue();
-//                    boolean isCaller = parameters.contains(symbol);
-//                    return new SymbolMetaInfo.SymbolMetaInfoBuilder()
-//                            .setName(symbol.getName().getValue())
-//                            .setPkgName(pkgName)
-//                            .setPkgOrgName(orgName)
-//                            .setPkgAlias(alias)
-//                            .setKind("VisibleEndpoint")
-//                            .setCaller(isCaller)
-//                            .setTypeName(typeName)
-//                            .setLocal(false)
-//                            .build();
-//                })
-//                .collect(Collectors.toList());
-        return new ArrayList<>();
+        return visibleSymbols.stream()
+                .filter(symbol -> symbol instanceof BVarSymbol && this.isClient(symbol)
+                        && (parameters.contains(symbol) || symbol.owner instanceof BPackageSymbol))
+                .map(symbol -> {
+                    BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
+                    String typeName = symbol.type.tsymbol.getName().getValue();
+                    String pkgName = symbol.pkgID.getName().getValue();
+                    String orgName = symbol.pkgID.getOrgName().getValue();
+                    String alias = importPackage == null ? "" : importPackage.getAlias().getValue();
+                    boolean isCaller = parameters.contains(symbol);
+                    return new SymbolMetaInfo.SymbolMetaInfoBuilder()
+                            .setName(symbol.getName().getValue())
+                            .setPkgName(pkgName)
+                            .setPkgOrgName(orgName)
+                            .setPkgAlias(alias)
+                            .setKind("VisibleEndpoint")
+                            .setCaller(isCaller)
+                            .setTypeName(typeName)
+                            .setLocal(false)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
     private void resolveEndpointsFromStatements(List<BLangStatement> statements, BLangNode owner) {
         statements.forEach(stmt -> {
             if (stmt instanceof BLangSimpleVariableDef) {
                 BVarSymbol symbol = ((BLangSimpleVariableDef) stmt).var.symbol;
-                if (SymbolUtil.isClient(/*symbol*/null)) {
+                if (this.isClient(symbol)) {
                     BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
                     String typeName = symbol.type.tsymbol.getName().getValue();
                     String pkgName = symbol.pkgID.getName().getValue();
@@ -241,5 +240,9 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
                 stmt.accept(this);
             }
         });
+    }
+
+    private boolean isClient(BSymbol symbol) {
+        return (symbol.flags & Flags.CLIENT) == Flags.CLIENT;
     }
 }

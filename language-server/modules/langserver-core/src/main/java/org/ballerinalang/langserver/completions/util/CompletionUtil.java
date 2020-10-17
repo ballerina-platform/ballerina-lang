@@ -37,8 +37,6 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
@@ -52,8 +50,6 @@ import java.util.stream.Collectors;
  * Common utility methods for the completion operation.
  */
 public class CompletionUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompletionUtil.class);
-
     /**
      * Resolve the visible symbols from the given BLang Package and the current context.
      *
@@ -61,7 +57,6 @@ public class CompletionUtil {
      */
     public static void resolveSymbols(LSContext completionContext) {
         // Visit the package to resolve the symbols
-//        TreeVisitor treeVisitor = new TreeVisitor(completionContext);
         BLangPackage bLangPackage = completionContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage,
                 completionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
@@ -69,7 +64,6 @@ public class CompletionUtil {
         String filePath = completionContext.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         completionContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, semanticModel
                 .visibleSymbols(filePath, LinePosition.from(position.getLine(), position.getCharacter())));
-//        bLangPackage.accept(treeVisitor);
     }
 
     /**
