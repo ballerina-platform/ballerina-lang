@@ -29,6 +29,8 @@ import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
+import java.util.HashMap;
+
 /**
  * Class @{@link BErrorCreator} provides apis to create ballerina error instances.
  *
@@ -60,7 +62,12 @@ public class BErrorCreator {
         if (details != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, details);
         }
-        return new ErrorValue(message, detailMap);
+        return new ErrorValue(message, readonlyCloneDetailMap(detailMap));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static MapValueImpl<BString, Object> readonlyCloneDetailMap(MapValueImpl<BString, Object> detailMap) {
+        return (MapValueImpl<BString, Object>) detailMap.frozenCopy(new HashMap<>());
     }
 
     /**

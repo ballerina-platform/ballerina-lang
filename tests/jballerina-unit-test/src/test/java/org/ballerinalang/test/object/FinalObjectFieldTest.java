@@ -31,10 +31,9 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 2.0.0
  */
-@Test(groups = { "brokenOnOldParser" })
 public class FinalObjectFieldTest {
 
-    @Test (enabled = false)
+    @Test
     public void testFinalObjectFields() {
         CompileResult result = BCompileUtil.compile("test-src/object/final_object_fields.bal");
         BRunUtil.invoke(result, "testFinalObjectFields");
