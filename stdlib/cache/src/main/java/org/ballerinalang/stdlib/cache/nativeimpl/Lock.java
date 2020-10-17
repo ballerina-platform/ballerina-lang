@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.cache.nativeimpl;
 
-import org.ballerinalang.jvm.values.ObjectValue;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -27,14 +25,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class Lock {
     private static AtomicBoolean locked = new AtomicBoolean(false);
-    private static final String LOCKED = "Locked";
 
-    public static void init(ObjectValue list) {
-        list.addNativeData(LOCKED, locked);
-    }
-
-    public static boolean lock(ObjectValue list) {
-        locked = (AtomicBoolean) list.getNativeData(LOCKED);
+    public static boolean lock() {
+        locked.set(false);
         return locked.compareAndSet(false, true);
     }
 }

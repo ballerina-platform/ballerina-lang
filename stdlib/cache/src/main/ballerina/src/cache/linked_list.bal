@@ -81,8 +81,7 @@ public type LinkedList object {
         // Using this flag, we prevent the concurrency issues, but this will avoid removing some nodes from the linked-list.
         // Due to that, when the eviction happens, there can be situations where a node which is used recently is get
         // removed from the cache.
-        if (!self.removeInProgress) {
-            self.removeInProgress = true;
+        if (externCheckState()) {
             if (node.prev is ()) {
                 self.head = node.next;
             } else {
@@ -97,7 +96,6 @@ public type LinkedList object {
             }
             node.next = ();
             node.prev = ();
-            self.removeInProgress = false;
         }
     }
 
@@ -124,12 +122,7 @@ public type LinkedList object {
     }
 };
 
-function externLockInit(LinkedList linkedList) = @java:Method {
-    name: "init",
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Lock"
-} external;
-
-function externCheckState(LinkedList linkedList) returns boolean = @java:Method {
+function externCheckState() returns boolean = @java:Method {
     name: "lock",
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Lock"
 } external;
