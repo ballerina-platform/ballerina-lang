@@ -54,6 +54,7 @@ public class TesterinaConstants {
     public static final String REPORT_ZIP_NAME = REPORT_DIR_NAME + ".zip";
     public static final String REPORT_DATA_PLACEHOLDER = "__data__";
     public static final String FILE_PROTOCOL = "file://";
+    public static final int FILE_DEPTH = 5;
 
     //Coverage dependencies
     public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.5.jar";

@@ -377,8 +377,7 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
-                                  boolean isService) {
+    private void createCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "call", String.format(
                 "(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT), null, null);
@@ -434,7 +433,7 @@ class JvmValueGen {
                 mv.visitInsn(ACONST_NULL);
             } else {
                 JvmCastGen.addBoxInsn(mv, retType);
-                if (isService) {
+                if (org.ballerinalang.jvm.util.Flags.isFlagOn(func.flags, org.ballerinalang.jvm.util.Flags.RESOURCE)) {
                     mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, "handleResourceError",
                                        String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
                 }
@@ -1346,16 +1345,10 @@ class JvmValueGen {
 
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
             BType bType = optionalTypeDef.type;
-            if (bType instanceof BServiceType) {
-                BServiceType serviceType = (BServiceType) bType;
-                String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
-                byte[] bytes = this.createObjectValueClass(serviceType, className, optionalTypeDef, true);
-                jarEntries.put(className + ".class", bytes);
-            } else if (bType.tag == TypeTags.OBJECT &&
-                    Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.CLASS)) {
+            if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
                 String className = getTypeValueClassName(this.module, optionalTypeDef.name.value);
-                byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, false);
+                byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef);
                 jarEntries.put(className + ".class", bytes);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
@@ -1370,8 +1363,7 @@ class JvmValueGen {
         });
     }
 
-    private byte[] createObjectValueClass(BObjectType objectType, String className,
-                                          BIRNode.BIRTypeDefinition typeDef, boolean isService) {
+    private byte[] createObjectValueClass(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.getSource().cUnitName, null);
@@ -1389,7 +1381,7 @@ class JvmValueGen {
         }
 
         this.createObjectInit(cw, fields, className);
-        this.createCallMethod(cw, attachedFuncs, className, isService);
+        this.createCallMethod(cw, attachedFuncs, className);
         this.createObjectGetMethod(cw, fields, className);
         this.createObjectSetMethod(cw, fields, className);
         this.createObjectSetOnInitializationMethod(cw, fields, className);
