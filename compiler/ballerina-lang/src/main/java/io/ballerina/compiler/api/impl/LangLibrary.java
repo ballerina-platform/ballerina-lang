@@ -79,6 +79,8 @@ public class LangLibrary {
             return langLibrary;
         }
 
+        // Only need to do the following once.
+
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         typeBuilder = new TypeBuilder(Types.getInstance(context), langLibrary);
         langLibs = new HashMap<>();

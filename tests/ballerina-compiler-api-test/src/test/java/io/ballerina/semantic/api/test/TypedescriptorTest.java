@@ -226,7 +226,7 @@ public class TypedescriptorTest {
 
     @Test
     public void testRecordType2() {
-        Symbol symbol = getSymbol(72, 8);
+        Symbol symbol = getSymbol(71, 7);
         RecordTypeDescriptor type = (RecordTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.kind(), RECORD);
         assertTrue(type.inclusive());

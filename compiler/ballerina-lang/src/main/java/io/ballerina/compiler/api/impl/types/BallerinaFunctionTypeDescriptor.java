@@ -41,12 +41,10 @@ public class BallerinaFunctionTypeDescriptor extends AbstractTypeDescriptor impl
     private List<Parameter> defaultableParams;
     private Parameter restParam;
     private BallerinaTypeDescriptor returnType;
-    private final BInvokableTypeSymbol typeSymbol;
     // TODO: Represent the return type's annotations
 
     public BallerinaFunctionTypeDescriptor(ModuleID moduleID, BInvokableTypeSymbol invokableSymbol) {
         super(TypeDescKind.FUNCTION, moduleID, invokableSymbol.type);
-        this.typeSymbol = invokableSymbol;
     }
 
     public BallerinaFunctionTypeDescriptor(ModuleID moduleID, List<Parameter> requiredParams,
@@ -57,7 +55,6 @@ public class BallerinaFunctionTypeDescriptor extends AbstractTypeDescriptor impl
         this.defaultableParams = defaultableParams;
         this.restParam = restParam;
         this.returnType = returnType;
-        this.typeSymbol = invokableSymbol;
     }
 
     @Override

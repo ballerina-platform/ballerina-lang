@@ -40,14 +40,12 @@ import java.util.List;
  */
 public class BallerinaServiceSymbol extends BallerinaSymbol implements ServiceSymbol {
 
-    private final BServiceSymbol serviceSymbol;
     private List<MethodSymbol> resources;
     private List<MethodSymbol> methods;
 
     private BallerinaServiceSymbol(String name, List<MethodSymbol> resources, List<MethodSymbol> methods,
                                    PackageID moduleID, BServiceSymbol serviceSymbol) {
         super(name, moduleID, SymbolKind.SERVICE, serviceSymbol);
-        this.serviceSymbol = serviceSymbol;
         this.resources = resources;
         this.methods = methods;
     }
