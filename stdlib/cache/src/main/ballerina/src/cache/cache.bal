@@ -89,7 +89,7 @@ public type Cache object {
         if (self.defaultMaxAgeInSeconds != -1 && self.defaultMaxAgeInSeconds <= 0) {
             panic prepareError("Default max age should be greater than 0 or -1 for indicate forever valid.");
         }
-
+        externLockInit();
         externInit(self, self.capacity);
 
         int? cleanupIntervalInSeconds = cacheConfig?.cleanupIntervalInSeconds;

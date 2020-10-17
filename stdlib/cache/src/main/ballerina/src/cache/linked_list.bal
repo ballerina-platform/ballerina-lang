@@ -97,6 +97,7 @@ public type LinkedList object {
             node.next = ();
             node.prev = ();
         }
+        //externSetLock();
     }
 
     # Removes the last node from the provided linked list.
@@ -122,7 +123,17 @@ public type LinkedList object {
     }
 };
 
+function externLockInit() = @java:Method {
+    name: "init",
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Lock"
+} external;
+
 function externCheckState() returns boolean = @java:Method {
     name: "lock",
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Lock"
+} external;
+
+function externSetLock() = @java:Method {
+    name: "setLock",
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Lock"
 } external;

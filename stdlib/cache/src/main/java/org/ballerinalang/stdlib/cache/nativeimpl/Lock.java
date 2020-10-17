@@ -24,10 +24,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Class to handle ballerina external functions in Cache library.
  */
 public class Lock {
-    private static AtomicBoolean locked = new AtomicBoolean(false);
+    private static AtomicBoolean locked;
+
+    public static void init() {
+        locked = new AtomicBoolean(false);
+    }
 
     public static boolean lock() {
-        locked.set(false);
         return locked.compareAndSet(false, true);
+    }
+
+    public static void setLock() {
+        locked.set(false);
     }
 }
