@@ -17,34 +17,10 @@
  */
 package io.ballerina.compiler.api.types;
 
-import java.util.List;
-import java.util.Optional;
-
 /**
- * Represents a table type descriptor.
+ * Represents the any type descriptor.
  *
  * @since 2.0.0
  */
-public interface TableTypeDescriptor extends BallerinaTypeDescriptor {
-
-    /**
-     * Get the type descriptor of the row type parameter.
-     *
-     * @return The type parameter of the row
-     */
-    BallerinaTypeDescriptor rowTypeParameter();
-
-    /**
-     * Get the type descriptor of the type parameter of the key constraint.
-     *
-     * @return The type parameter
-     */
-    Optional<TypeDescTypeDescriptor> keyConstraintTypeParameter();
-
-    /**
-     * Get the list of key specifiers.
-     *
-     * @return {@link List} of key names
-     */
-    List<String> keySpecifiers();
+public interface AnyTypeDescriptor extends BallerinaTypeDescriptor {
 }

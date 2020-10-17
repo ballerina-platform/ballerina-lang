@@ -138,17 +138,17 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
 
     @Override
     public BallerinaTypeDescriptor visit(BBuiltInRefType internalType, BType s) {
-        return null;
+        return build(internalType);
     }
 
     @Override
     public BallerinaTypeDescriptor visit(BAnyType internalType, BType s) {
-        return null;
+        return new BallerinaAnyTypeDescriptor(moduleID, internalType);
     }
 
     @Override
     public BallerinaTypeDescriptor visit(BAnydataType internalType, BType s) {
-        return null;
+        return new BallerinaAnydataTypeDescriptor(moduleID, internalType);
     }
 
     @Override
@@ -159,12 +159,13 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
 
     @Override
     public BallerinaTypeDescriptor visit(BXMLType internalType, BType s) {
-        return null;
+        BallerinaTypeDescriptor typeParameter = build(internalType.constraint);
+        return new BallerinaXMLTypeDescriptor(moduleID, typeParameter, internalType);
     }
 
     @Override
     public BallerinaTypeDescriptor visit(BJSONType internalType, BType s) {
-        return null;
+        return new BallerinaJSONTypeDescriptor(moduleID, internalType);
     }
 
     @Override
@@ -232,7 +233,9 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
 
     @Override
     public BallerinaTypeDescriptor visit(BTableType internalType, BType s) {
-        return null;
+        BallerinaTypeDescriptor rowTypeParam = build(internalType.constraint);
+        BallerinaTypeDescriptor keyConstraint = build(internalType.keyTypeConstraint);
+        return new BallerinaTableTypeDescriptor(moduleID, rowTypeParam, keyConstraint, internalType);
     }
 
     @Override

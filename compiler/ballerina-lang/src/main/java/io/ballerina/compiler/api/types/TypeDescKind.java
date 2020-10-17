@@ -51,7 +51,7 @@ public enum TypeDescKind {
     HANDLE("handle"),
     TABLE("table"),
     NEVER("never");
-    
+
     
     private final String name;
 
