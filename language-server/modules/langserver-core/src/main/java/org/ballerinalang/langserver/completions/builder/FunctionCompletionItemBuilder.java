@@ -169,7 +169,7 @@ public final class FunctionCompletionItemBuilder {
         }
         for (int i = 0; i < functionParameters.size(); i++) {
             Parameter param = functionParameters.get(i);
-            String paramType = CommonUtil.getBTypeName(param.typeDescriptor(), ctx, false);
+            String paramType = param.typeDescriptor().signature();
             if (i == 0 && skipFirstParam) {
                 continue;
             }
@@ -199,7 +199,7 @@ public final class FunctionCompletionItemBuilder {
                         .replaceAll(CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
             }
             documentation += CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "**Returns**"
-                    + " `" + CommonUtil.getBTypeName(functionTypeDesc.returnTypeDescriptor().get(), ctx, false) + "` " +
+                    + " `" + functionTypeDesc.returnTypeDescriptor().get().signature() + "` " +
                     CommonUtil.MD_LINE_SEPARATOR + desc + CommonUtil.MD_LINE_SEPARATOR;
         }
         docMarkupContent.setValue(documentation);

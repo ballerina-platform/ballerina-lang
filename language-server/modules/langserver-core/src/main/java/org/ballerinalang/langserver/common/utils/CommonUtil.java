@@ -349,37 +349,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get the BType name as string.
-     *
-     * @param bType      BType to get the name
-     * @param ctx        LS Operation Context
-     * @param doSimplify Simplifies the types eg. Errors
-     * @return {@link String}   BType Name as String
-     */
-    public static String getBTypeName(BallerinaTypeDescriptor bType, LSContext ctx, boolean doSimplify) {
-        return bType.signature();
-//        if (bType instanceof ConstrainedType) {
-//            return getConstrainedTypeName(bType, ctx, doSimplify);
-//        }
-//        if (bType.kind() == TypeDescKind.UNION) {
-//            return getUnionTypeName((BallerinaUnionTypeDescriptor) bType, ctx, doSimplify);
-//        }
-//        if (bType instanceof BTupleType) {
-//            return getTupleTypeName((BTupleType) bType, ctx, doSimplify);
-//        }
-//        if (bType instanceof BFiniteType || bType instanceof BInvokableType || bType instanceof BNilType) {
-//            return bType.toString();
-//        }
-//        if (bType instanceof BArrayType) {
-//            return getArrayTypeName((BArrayType) bType, ctx, doSimplify);
-//        }
-//        if (bType instanceof BRecordType) {
-//            return getRecordTypeName((BRecordType) bType, ctx, doSimplify);
-//        }
-//        return getShallowBTypeName(bType, ctx);
-    }
-
-    /**
      * Get the Symbol Name.
      *
      * @param bSymbol BSymbol to evaluate
@@ -590,7 +559,7 @@ public class CommonUtil {
         String endString = ")";
 
         if (returnType.isPresent() && returnType.get().kind() != TypeDescKind.NIL) {
-            signature.append(initString).append(CommonUtil.getBTypeName(returnType.get(), ctx, false));
+            signature.append(initString).append(returnType.get().signature());
             signature.append(endString);
         }
 
@@ -903,7 +872,7 @@ public class CommonUtil {
      */
     public static boolean skipFirstParam(LSContext context, FunctionSymbol functionSymbol) {
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-        return isLangLibSymbol(functionSymbol) && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
+        return isLangLib(functionSymbol.moduleID()) && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
     }
 
     /**
@@ -936,17 +905,6 @@ public class CommonUtil {
             }
         }));
         return strings;
-    }
-
-    /**
-     * Check whether the given symbol is a symbol within the langlib.
-     *
-     * @param symbol BSymbol to evaluate
-     * @return {@link Boolean} whether langlib symbol or not
-     */
-    public static boolean isLangLibSymbol(Symbol symbol) {
-        ModuleID moduleID = symbol.moduleID();
-        return moduleID.orgName().equals("ballerina") && moduleID.moduleName().startsWith("lang.");
     }
 
     /**

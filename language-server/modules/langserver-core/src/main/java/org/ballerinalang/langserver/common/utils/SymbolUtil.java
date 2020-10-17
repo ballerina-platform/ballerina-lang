@@ -173,22 +173,6 @@ public class SymbolUtil {
     }
 
     /**
-     * Check whether the symbol is a listener object.
-     *
-     * @param symbol Symbol to evaluate
-     * @return {@link Boolean}  whether listener or not
-     */
-    public static boolean isListener(VariableSymbol symbol) {
-        BallerinaTypeDescriptor typeDesc = symbol.typeDescriptor();
-        if (typeDesc.kind() != TypeDescKind.OBJECT) {
-            return false;
-        }
-
-        return ((ObjectTypeDescriptor) typeDesc).typeQualifiers()
-                .contains(ObjectTypeDescriptor.TypeQualifier.LISTENER);
-    }
-
-    /**
      * Whether the symbol is an error symbol.
      *
      * @param symbol symbol to be evaluated
@@ -215,6 +199,5 @@ public class SymbolUtil {
         }
 
         return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor().kind());
-
     }
 }

@@ -164,7 +164,7 @@ public class SignatureHelpUtil {
         Optional<io.ballerina.compiler.api.types.Parameter> restParam = functionSymbol.typeDescriptor().restParam();
         restParam.ifPresent(parameter
                 -> parameters.add(new Parameter(parameter.name().get(), parameter.typeDescriptor(), false, true)));
-        boolean skipFirstParam = functionSymbol.kind() == METHOD && CommonUtil.isLangLibSymbol(functionSymbol);
+        boolean skipFirstParam = functionSymbol.kind() == METHOD && CommonUtil.isLangLib(functionSymbol.moduleID());
         // Create a list of param info models
         for (int i = 0; i < parameters.size(); i++) {
             if (i == 0 && skipFirstParam) {
@@ -177,7 +177,7 @@ public class SignatureHelpUtil {
             if (paramToDesc.containsKey(param.name)) {
                 desc = paramToDesc.get(param.name);
             }
-            String type = CommonUtil.getBTypeName(param.type, context, true);
+            String type = param.type.signature();
             if (param.isRestArg && !"".equals(type)) {
                 // Rest Arg type sometimes appear as array [], sometimes not eg. 'error()'
                 if (type.contains("[]")) {

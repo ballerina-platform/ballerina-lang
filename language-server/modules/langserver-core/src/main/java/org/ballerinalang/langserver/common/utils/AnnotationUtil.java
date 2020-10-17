@@ -24,8 +24,6 @@ import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.RecordTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -38,12 +36,11 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import javax.annotation.Nonnull;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getRecordFieldCompletionInsertText;
@@ -120,6 +117,13 @@ public class AnnotationUtil {
         return new SymbolCompletionItem(ctx, annotationSymbol, completionItem);
     }
 
+    /**
+     * Get the additional text edits.
+     *
+     * @param context  language server context
+     * @param moduleID module id
+     * @return {@link List} of text edits
+     */
     public static List<TextEdit> getAdditionalTextEdits(LSContext context, ModuleID moduleID) {
         ModuleSymbol currentModule = context.get(DocumentServiceKeys.CURRENT_MODULE_KEY);
         ModuleID currentModuleId = currentModule.moduleID();
@@ -144,18 +148,15 @@ public class AnnotationUtil {
         return textEdits;
     }
 
+    /**
+     * Whether the annotation symbol has the given attachment point.
+     *
+     * @param annotation  Annotation to evaluate
+     * @param attachPoint attachment point to check
+     * @return {@link Boolean} having the attachment point or not
+     */
     public static boolean hasAttachment(AnnotationSymbol annotation, AnnotationAttachPoint attachPoint) {
         return annotation.attachPoints().contains(attachPoint);
-    }
-
-    public static boolean addAlias(LSContext context, AnnotationNode node, ModuleID annotationOwner) {
-        ModuleSymbol currentModule = context.get(DocumentServiceKeys.CURRENT_MODULE_KEY);
-        String orgName = annotationOwner.orgName();
-        String value = annotationOwner.moduleName();
-        return node.annotReference().kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE
-                && !currentModule.moduleID().moduleName().equals(annotationOwner.moduleName())
-                && !("ballerina".equals(orgName)
-                && "lang.annotations".equals(value));
     }
 
     /**

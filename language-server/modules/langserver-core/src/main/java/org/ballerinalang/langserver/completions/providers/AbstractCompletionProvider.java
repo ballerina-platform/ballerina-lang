@@ -163,7 +163,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
             } else if (symbol.kind() == SymbolKind.VARIABLE) {
                 VariableSymbol varSymbol = (VariableSymbol) symbol;
                 BallerinaTypeDescriptor typeDesc = (varSymbol).typeDescriptor();
-                String typeName = CommonUtil.getBTypeName(typeDesc, context, false);
+                String typeName = typeDesc.signature();
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(context, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE) {

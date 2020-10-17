@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.AnnotationAttachPoint;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -81,7 +82,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
         LSAnnotationCache.getInstance().getAnnotationMapForSyntaxKind(attachedNode, context)
                 .forEach((key, value) -> value.forEach(annotation -> {
                     LSCompletionItem cItem;
-                    if (AnnotationUtil.addAlias(context, node, key)) {
+                    if (this.addAlias(context, node, key)) {
                         cItem = AnnotationUtil.getModuleQualifiedAnnotationItem(key, annotation, context, pkgAliasMap);
                     } else {
                         cItem = AnnotationUtil.getAnnotationItem(annotation, context);
@@ -190,5 +191,15 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
     @Override
     public boolean onPreValidation(LSContext context, AnnotationNode node) {
         return !node.atToken().isMissing();
+    }
+
+    private boolean addAlias(LSContext context, AnnotationNode node, ModuleID annotationOwner) {
+        ModuleSymbol currentModule = context.get(DocumentServiceKeys.CURRENT_MODULE_KEY);
+        String orgName = annotationOwner.orgName();
+        String value = annotationOwner.moduleName();
+        return node.annotReference().kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE
+                && !currentModule.moduleID().moduleName().equals(annotationOwner.moduleName())
+                && !("ballerina".equals(orgName)
+                && "lang.annotations".equals(value));
     }
 }

@@ -176,12 +176,12 @@ public class FunctionGenerator {
                 continue;
             }
             Parameter param = parameterDefs.get(i);
-            args.add(CommonUtil.getBTypeName(param.typeDescriptor(), ctx, true)
-                    + (param.name().isEmpty() ? "" : " " + param.name().get()));
+            args.add(param.typeDescriptor().signature() + (param.name().isEmpty() ? "" : " " + param.name().get()));
         }
         restParam.ifPresent(param ->
-                args.add(CommonUtil.getBTypeName(param.typeDescriptor(), ctx, false)
-                        + (param.name().isEmpty() ? "" : "... " + param.name().get())));
+                args.add(param.typeDescriptor().signature()
+                        + (param.name().isEmpty() ? "" : "... "
+                        + param.name().get())));
         return (!args.isEmpty()) ? args : new ArrayList<>();
     }
 
