@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.cache.nativeimpl;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Class to handle ballerina external functions in Cache library.
+ * Class to handle concurrency behaviour of `LinkedList` using compare and swap technique.
  */
 public class Lock {
     private static AtomicBoolean locked;
@@ -30,11 +30,11 @@ public class Lock {
         locked = new AtomicBoolean(false);
     }
 
-    public static boolean lock() {
+    public static boolean tryLock() {
         return locked.compareAndSet(false, true);
     }
 
-    public static void setLock() {
+    public static void releaseLock() {
         locked.set(false);
     }
 }

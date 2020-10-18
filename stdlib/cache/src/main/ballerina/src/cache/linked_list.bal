@@ -78,10 +78,7 @@ public type LinkedList object {
     #
     # + node - The node, which should be removed from the provided linked list
     public function remove(Node node) {
-        // Using this flag, we prevent the concurrency issues, but this will avoid removing some nodes from the linked-list.
-        // Due to that, when the eviction happens, there can be situations where a node which is used recently is get
-        // removed from the cache.
-        if (externCheckState()) {
+        if (tryLock()) {
             if (node.prev is ()) {
                 self.head = node.next;
             } else {
@@ -96,8 +93,8 @@ public type LinkedList object {
             }
             node.next = ();
             node.prev = ();
+            releaseLock();
         }
-        //externSetLock();
     }
 
     # Removes the last node from the provided linked list.
@@ -128,12 +125,10 @@ function externLockInit() = @java:Method {
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Lock"
 } external;
 
-function externCheckState() returns boolean = @java:Method {
-    name: "lock",
+function tryLock() returns boolean = @java:Method {
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Lock"
 } external;
 
-function externSetLock() = @java:Method {
-    name: "setLock",
+function releaseLock() = @java:Method {
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Lock"
 } external;
