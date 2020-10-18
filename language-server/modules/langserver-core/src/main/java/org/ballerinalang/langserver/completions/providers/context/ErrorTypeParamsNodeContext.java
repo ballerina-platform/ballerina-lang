@@ -69,8 +69,7 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
         };
         List<Symbol> mappingTypes;
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            mappingTypes= QNameReferenceUtil.getModuleContent(context,
-                    (QualifiedNameReferenceNode) nodeAtCursor,
+            mappingTypes = QNameReferenceUtil.getModuleContent(context, (QualifiedNameReferenceNode) nodeAtCursor,
                     predicate);
             return this.getCompletionItemList(mappingTypes, context);
         }

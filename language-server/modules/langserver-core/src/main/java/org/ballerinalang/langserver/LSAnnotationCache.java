@@ -57,24 +57,24 @@ public class LSAnnotationCache {
 
     private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
 
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> typeAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> classAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> objectAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> functionAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> objectMethodAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> resourceAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> parameterAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> returnAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> serviceAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> listenerAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> annotationAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> externalAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> varAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> constAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> workerAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> fieldAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> recordFieldAnnotations = new HashMap<>();
-    private static final HashMap<ModuleID, List<AnnotationSymbol>> objectFieldAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> typeAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> classAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> objectAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> functionAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> objectMethodAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> resourceAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> parameterAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> returnAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> serviceAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> listenerAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> annotationAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> externalAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> varAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> constAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> workerAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> fieldAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> recordFieldAnnotations = new HashMap<>();
+    private static final Map<ModuleID, List<AnnotationSymbol>> objectFieldAnnotations = new HashMap<>();
     private static final List<PackageID> processedPackages = new ArrayList<>();
 
     private static LSAnnotationCache lsAnnotationCache = null;
@@ -104,7 +104,7 @@ public class LSAnnotationCache {
      * @param ctx             LSContext
      * @return {@link HashMap}  Map of annotation lists
      */
-    public HashMap<ModuleID, List<AnnotationSymbol>> getAnnotationMapForSyntaxKind(SyntaxKind attachmentPoint,
+    public Map<ModuleID, List<AnnotationSymbol>> getAnnotationMapForSyntaxKind(SyntaxKind attachmentPoint,
                                                                                    LSContext ctx) {
         // TODO: Add service method definition, handle individual and rest params
         CompilerContext compilerCtx = ctx.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
@@ -189,7 +189,7 @@ public class LSAnnotationCache {
      */
     public Map<ModuleID, List<AnnotationSymbol>> getAnnotationsInModule(LSContext context, String alias,
                                                                         SyntaxKind attachmentPoint) {
-        HashMap<ModuleID, List<AnnotationSymbol>> annotations = getAnnotationMapForSyntaxKind(attachmentPoint, context);
+        Map<ModuleID, List<AnnotationSymbol>> annotations = getAnnotationMapForSyntaxKind(attachmentPoint, context);
         return annotations.entrySet().stream()
                 .filter(entry -> entry.getKey().modulePrefix().equals(alias))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -336,7 +336,7 @@ public class LSAnnotationCache {
     }
 
     private static void addAttachment(BAnnotationSymbol bAnnotationSymbol,
-                                      HashMap<ModuleID, List<AnnotationSymbol>> map) {
+                                      Map<ModuleID, List<AnnotationSymbol>> map) {
         AnnotationSymbol annotationSymbol = SymbolFactory.createAnnotationSymbol(bAnnotationSymbol);
         // TODO: Check the map contains is valid
         if (map.containsKey(annotationSymbol.moduleID())) {

@@ -95,12 +95,12 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
             }
             nameReferenceSymbol = pkgSymbol.get().allSymbols().stream()
                     .filter(symbol -> symbol.name().equals(nameReferenceNode.identifier().text()))
-                    .findAny();
+                    .findFirst();
         } else if (typeDescriptor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) typeDescriptor;
             nameReferenceSymbol = visibleSymbols.stream()
                     .filter(symbol -> symbol.name().equals(nameReferenceNode.name().text()))
-                    .findAny();
+                    .findFirst();
         }
 
         if (nameReferenceSymbol.isEmpty() || !SymbolUtil.isObject(nameReferenceSymbol.get())) {
@@ -118,7 +118,7 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         String varName = ((SimpleNameReferenceNode) varRefNode).name().text();
         Optional<Symbol> varEntry = visibleSymbols.stream()
                 .filter(symbol -> symbol.name().equals(varName))
-                .findAny();
+                .findFirst();
 
         if (varEntry.isEmpty() || !SymbolUtil.isObject(varEntry.get())) {
             return Optional.empty();

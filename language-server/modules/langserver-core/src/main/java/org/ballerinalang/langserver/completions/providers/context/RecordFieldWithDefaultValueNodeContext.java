@@ -67,8 +67,8 @@ public class RecordFieldWithDefaultValueNodeContext extends
             (2) [module:]TypeName c = module:a<cursor>
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.expression();
-            Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol;
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
+            Predicate<Symbol> modSymbolFilter = symbol -> symbol instanceof VariableSymbol;
+            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, modSymbolFilter);
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
             /*
