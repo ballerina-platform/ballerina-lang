@@ -66,6 +66,7 @@ import static io.ballerina.compiler.api.types.TypeDescKind.XML;
 public class LangLibrary {
 
     private static final LangLibrary langLibrary = new LangLibrary();
+    private static final String LANG_VALUE = "value";
     private static Map<String, BPackageSymbol> langLibs;
     private static Map<String, Map<String, BInvokableSymbol>> langLibMethods;
     private static Map<String, List<LangLibMethod>> wrappedLangLibMethods;
@@ -110,26 +111,29 @@ public class LangLibrary {
         List<LangLibMethod> wrappedMethods = new ArrayList<>();
         Map<String, BInvokableSymbol> methods = langLibMethods.get(langLibName);
 
-        if (methods == null) {
-            // TODO: handle types which dont have a corresponding lang lib
-            return wrappedMethods;
-        }
-
         wrappedLangLibMethods.put(langLibName, wrappedMethods);
+        populateMethodList(wrappedMethods, methods);
 
-        for (Map.Entry<String, BInvokableSymbol> entry : methods.entrySet()) {
-            String name = entry.getKey();
-            BInvokableSymbol methodSymbol = entry.getValue();
-            BallerinaLangLibMethod method =
-                    new BallerinaLangLibMethod(name, new HashSet<>(),
-                                               (FunctionTypeDescriptor) typeBuilder.build(methodSymbol.type));
-            wrappedMethods.add(method);
+        // Add the common functions in lang.value to types which have an associated lang library.
+        if (!LANG_VALUE.equals(langLibName)) {
+            populateMethodList(wrappedMethods, langLibMethods.get(LANG_VALUE));
         }
 
         return wrappedMethods;
     }
 
     // Private Methods
+
+    private void populateMethodList(List<LangLibMethod> list, Map<String, BInvokableSymbol> langLib) {
+        for (Map.Entry<String, BInvokableSymbol> entry : langLib.entrySet()) {
+            String name = entry.getKey();
+            BInvokableSymbol methodSymbol = entry.getValue();
+            BallerinaLangLibMethod method =
+                    new BallerinaLangLibMethod(name, new HashSet<>(),
+                                               (FunctionTypeDescriptor) typeBuilder.build(methodSymbol.type));
+            list.add(method);
+        }
+    }
 
     private String getAssociatedLangLibName(TypeDescKind typeDescKind) {
         switch (typeDescKind) {
@@ -194,6 +198,25 @@ public class LangLibrary {
             langLibMethods.put(key, methods);
         }
 
+        populateLangValueLibrary(langLibs, langLibMethods);
         return langLibMethods;
+    }
+
+    private static void populateLangValueLibrary(Map<String, BPackageSymbol> langLibs,
+                                                 Map<String, Map<String, BInvokableSymbol>> langLibMethods) {
+        BPackageSymbol langValue = langLibs.get(LANG_VALUE);
+        Map<String, BInvokableSymbol> methods = new HashMap<>();
+
+        for (Map.Entry<Name, Scope.ScopeEntry> nameScopeEntry : langValue.scope.entries.entrySet()) {
+            BSymbol symbol = nameScopeEntry.getValue().symbol;
+
+            if (symbol.kind != SymbolKind.FUNCTION || !Symbols.isFlagOn(symbol.flags, Flags.LANG_LIB)) {
+                continue;
+            }
+
+            methods.put(symbol.name.value, (BInvokableSymbol) symbol);
+        }
+
+        langLibMethods.put(LANG_VALUE, methods);
     }
 }
