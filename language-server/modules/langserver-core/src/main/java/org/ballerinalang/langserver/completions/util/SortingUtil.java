@@ -133,6 +133,7 @@ public class SortingUtil {
      */
     public static String genSortTextForInitContextItem(LSContext context, LSCompletionItem item,
                                                        TypeDescKind assignableType) {
+        // TODO: Revamp should carry out after fixing the type reference issue in semantic model is fixed 
         /*
         Sorting order is as follows,
         (1) new Keyword and the new(...) snippet

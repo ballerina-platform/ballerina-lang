@@ -67,10 +67,9 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, AnnotAccessExpressionNode node) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        Optional<Symbol> expressionEntry = this.getExpressionEntry(context, node.expression());
+//        List<LSCompletionItem> completionItems = new ArrayList<>();
+//        Optional<Symbol> expressionEntry = this.getExpressionEntry(context, node.expression());
 
-        return completionItems;
         // Fixme
 //        if (!expressionEntry.isPresent()) {
 //            return completionItems;
@@ -83,9 +82,11 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
 //        }
 //
 //        return getAnnotationTags(context, (BTypedescType) typeOfSymbol);
+
+        return new ArrayList<>();
     }
 
-    private List<LSCompletionItem> getAnnotationTags(LSContext context, BTypedescType typedescType) {
+    public List<LSCompletionItem> getAnnotationTags(LSContext context, BTypedescType typedescType) {
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
         AttachPoint.Point attachPoint = getAttachPointForType(typedescType);
 
@@ -94,10 +95,9 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
         }
 
         if (onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            String alias = ((QualifiedNameReferenceNode) nodeAtCursor).modulePrefix().text();
-            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
+//            String alias = ((QualifiedNameReferenceNode) nodeAtCursor).modulePrefix().text();
+//            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
 
-            return new ArrayList<>();
             // Fixme
 //            return scopeEntry.map(value -> value.symbol.scope.entries.values().stream()
 //                    .filter(entry -> {
@@ -111,7 +111,7 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
 //                        return getAnnotationsCompletionItem(context, symbol);
 //                    })
 //                    .collect(Collectors.toList())).orElseGet(ArrayList::new);
-
+            return new ArrayList<>();
         }
 
         List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);

@@ -125,6 +125,7 @@ public class SignatureHelpUtil {
         List<ParameterInfoModel> paramModels = new ArrayList<>();
         Optional<Documentation> documentation = functionSymbol.docAttachment();
         List<Parameter> parameters = new ArrayList<>();
+        // TODO: Handle the error constructor in the next phase
         // Handle error constructors
 //        if (functionSymbol.kind() == SymbolKind.ERROR_CONSTRUCTOR) {
 //            documentation = functionSymbol.type.tsymbol.markdownDocumentation;
@@ -388,7 +389,7 @@ public class SignatureHelpUtil {
         }
     }
 
-    public static Optional<? extends BallerinaTypeDescriptor> getTypeDescForFieldAccess(
+    private static Optional<? extends BallerinaTypeDescriptor> getTypeDescForFieldAccess(
             LSContext context, FieldAccessExpressionNode node) {
         String fieldName = ((SimpleNameReferenceNode) node.fieldName()).name().text();
         ExpressionNode expressionNode = node.expression();

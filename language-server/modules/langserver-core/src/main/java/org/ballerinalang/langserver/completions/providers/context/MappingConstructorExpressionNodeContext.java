@@ -52,7 +52,6 @@ import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBu
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -282,7 +281,7 @@ public class MappingConstructorExpressionNodeContext extends
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION && symbol.name().equals(annotationName))
                 .map(entry -> ((AnnotationSymbol) entry).typeDescriptor().orElse(null))
                 .findAny();
-        if (bTypeSymbol.isEmpty() || !(bTypeSymbol.get() instanceof BRecordTypeSymbol)) {
+        if (bTypeSymbol.isEmpty() || bTypeSymbol.get().kind() != TypeDescKind.RECORD) {
             return Optional.empty();
         }
         return Optional.of((RecordTypeDescriptor) bTypeSymbol.get());

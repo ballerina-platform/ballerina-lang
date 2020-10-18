@@ -167,7 +167,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, symbol.name(), typeName);
                 completionItems.add(new SymbolCompletionItem(context, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE) {
-                // Fixme
                 // Here skip all the package symbols since the package is added separately
                 CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.name());
                 completionItems.add(new SymbolCompletionItem(context, symbol, typeCItem));
@@ -492,7 +491,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_OBJECT_CONSTRUCTOR.get()));
 
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> symbol instanceof VariableSymbol || symbol instanceof FunctionSymbol)
+                .filter(symbol -> symbol instanceof VariableSymbol || symbol.kind() == FUNCTION)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         // TODO: anon function expressions, 

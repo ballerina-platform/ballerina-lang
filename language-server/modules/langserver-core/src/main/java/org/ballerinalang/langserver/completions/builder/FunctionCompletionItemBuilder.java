@@ -84,7 +84,7 @@ public final class FunctionCompletionItemBuilder {
         setMeta(item, functionSymbol, context);
         if (functionSymbol != null) {
             // Override function signature
-            String functionName = functionSymbol.name()/*CommonUtil.getFunctionNameFromSymbol(functionSymbol)*/;
+            String functionName = functionSymbol.name();
             Pair<String, String> functionSignature = CommonUtil.getFunctionInvocationSignature(functionSymbol,
                     functionName, context);
             item.setInsertText(functionSignature.getLeft());
@@ -99,9 +99,8 @@ public final class FunctionCompletionItemBuilder {
         setMeta(item, initMethod, ctx);
         String functionName;
         if (mode == InitializerBuildMode.EXPLICIT && typeDesc.kind() == TypeDescKind.TYPE_REFERENCE) {
-//            NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
             functionName = ((TypeReferenceTypeDescriptor) typeDesc).name();
-            // null check added in the filter, in order to avoid 
+            // TODO: Following is blocked due to the Type Referencing issue in Semantic Model
 //            Optional<BLangIdentifier> moduleAlias = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
 //                    .filter(pkg -> pkg.symbol != null && pkg.symbol.pkgID == typeDesc.pkgID)
 //                    .map(BLangImportPackage::getAlias)
@@ -113,7 +112,7 @@ public final class FunctionCompletionItemBuilder {
 //                (1) ... = new <cursor>
 //                (1) ... = new m<cursor> // blocked by #25210
 //                 */
-////                functionName = moduleAlias.get().getValue() + ":" + functionName;
+//                functionName = moduleAlias.get().getValue() + ":" + functionName;
 //            }
         } else {
             functionName = "new";

@@ -46,12 +46,11 @@ public class ReceiveActionNodeContext extends AbstractCompletionProvider<Receive
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ReceiveActionNode node)
             throws LSCompletionException {
-        // TODO: Following logic can be generalized
         ArrayList<Symbol> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<Symbol> filteredWorkers = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.WORKER)
                 .collect(Collectors.toList());
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getCompletionItemList(filteredWorkers, context));
+        List<LSCompletionItem> completionItems = this.getCompletionItemList(filteredWorkers, context);
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
 
         return completionItems;

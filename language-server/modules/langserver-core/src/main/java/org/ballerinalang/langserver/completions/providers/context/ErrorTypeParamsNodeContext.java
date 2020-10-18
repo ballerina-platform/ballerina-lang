@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -70,8 +69,9 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
         };
         List<Symbol> mappingTypes;
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            mappingTypes = QNameReferenceUtil.getModuleContent(context, (QualifiedNameReferenceNode) nodeAtCursor,
-                    predicate.and(symbol -> ((TypeSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC)));
+            mappingTypes= QNameReferenceUtil.getModuleContent(context,
+                    (QualifiedNameReferenceNode) nodeAtCursor,
+                    predicate);
             return this.getCompletionItemList(mappingTypes, context);
         }
 

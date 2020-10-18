@@ -33,9 +33,9 @@ import java.util.Locale;
 import java.util.Optional;
 
 /**
- * This class is being used to build BType completion item.
+ * This class is being used to build Type completion item.
  *
- * @since 0.983.0
+ * @since 2.0.0
  */
 public class TypeCompletionItemBuilder {
     private TypeCompletionItemBuilder() {

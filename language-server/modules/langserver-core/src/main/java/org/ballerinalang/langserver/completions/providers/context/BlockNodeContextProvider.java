@@ -145,10 +145,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_CONTINUE.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_BREAK.get()));
         }
-        // Fixme
-//        if (context.get(CompletionKeys.TRANSACTION_COUNT_KEY) > 0) {
-//            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ROLLBACK.get()));
-//        }
+        // Todo: Implement rollback statement suggestion
 
         return completionItems;
     }

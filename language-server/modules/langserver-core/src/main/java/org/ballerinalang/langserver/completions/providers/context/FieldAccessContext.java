@@ -88,7 +88,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      * @return {@link Boolean} optional field removal status
      */
     protected abstract boolean removeOptionalFields();
-    
+
     private Optional<? extends BallerinaTypeDescriptor> getTypeDesc(LSContext ctx, ExpressionNode expr) {
         switch (expr.kind()) {
             case SIMPLE_NAME_REFERENCE:
@@ -127,8 +127,8 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         }
     }
 
-    public Optional<? extends BallerinaTypeDescriptor> getTypeDescForFieldAccess(LSContext context,
-                                                                                 FieldAccessExpressionNode node) {
+    private Optional<? extends BallerinaTypeDescriptor> getTypeDescForFieldAccess(LSContext context,
+                                                                                  FieldAccessExpressionNode node) {
         String fieldName = ((SimpleNameReferenceNode) node.fieldName()).name().text();
         ExpressionNode expressionNode = node.expression();
         Optional<? extends BallerinaTypeDescriptor> typeDescriptor = this.getTypeDesc(context, expressionNode);
@@ -240,6 +240,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return completionItems;
     }
 
+    @Deprecated
     public List<LSCompletionItem> getObjectMethods(LSContext context,
                                                    ObjectTypeDescriptor objectTypeDesc,
                                                    String symbolName) {
@@ -261,6 +262,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return this.getCompletionItemList(methods, context);
     }
 
+    @Deprecated
     public List<LSCompletionItem> getObjectFields(LSContext context,
                                                   ObjectTypeDescriptor objectTypeDesc,
                                                   String symbolName) {
