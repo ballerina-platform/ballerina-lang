@@ -1,1 +1,2 @@
-function foo(() a = ()){ }
+function foo(() a = ()) {
+}
