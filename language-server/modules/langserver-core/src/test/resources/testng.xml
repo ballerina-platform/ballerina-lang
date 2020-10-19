@@ -54,7 +54,7 @@ under the License.
             <class name="org.ballerinalang.langserver.completion.latest.ListenerDeclarationTest" />
             <class name="org.ballerinalang.langserver.completion.latest.RecordTypeDescriptorTest" />
 <!--            <class name="org.ballerinalang.langserver.completion.latest.ServiceBodyTest" />-->
-<!--            <class name="org.ballerinalang.langserver.completion.latest.ServiceDeclarationTest" />-->
+            <class name="org.ballerinalang.langserver.completion.latest.ServiceDeclarationTest" />
             <class name="org.ballerinalang.langserver.completion.latest.StatementContextTest" />
             <class name="org.ballerinalang.langserver.completion.latest.TypeDefinitionTest" />
             <class name="org.ballerinalang.langserver.completion.latest.TypeDescContextTest" />

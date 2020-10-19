@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
@@ -65,7 +64,7 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
             (2) public listener mod:Listener test = new a<cursor>
              */
             List<ObjectTypeDescriptor> filteredList = visibleSymbols.stream()
-                    .filter(symbol -> symbol.kind() == SymbolKind.TYPE && SymbolUtil.isListener((TypeSymbol) symbol))
+                    .filter(SymbolUtil::isListener)
                     .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor())
                     .collect(Collectors.toList());
             for (ObjectTypeDescriptor objectTypeDesc : filteredList) {
@@ -80,7 +79,7 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
                 return completionItems;
             }
             List<ObjectTypeDescriptor> filteredList = module.get().allSymbols().stream()
-                    .filter(symbol -> symbol.kind() == SymbolKind.TYPE && SymbolUtil.isListener((TypeSymbol) symbol))
+                    .filter(SymbolUtil::isListener)
                     .map(symbol -> (ObjectTypeDescriptor) ((TypeSymbol) symbol).typeDescriptor())
                     .collect(Collectors.toList());
             for (ObjectTypeDescriptor objectTypeDesc : filteredList) {
