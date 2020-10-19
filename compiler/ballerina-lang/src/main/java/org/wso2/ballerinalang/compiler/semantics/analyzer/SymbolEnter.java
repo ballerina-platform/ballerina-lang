@@ -813,7 +813,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (Name alias : predeclaredModules.keySet()) {
             int index = 0;
             ScopeEntry entry = this.env.scope.lookup(alias);
-            if (entry == NOT_FOUND_ENTRY) {
+            if (entry == NOT_FOUND_ENTRY && !compUnits.isEmpty()) {
                 this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
                         new Name(compUnits.get(index++).name)));
                 entry = this.env.scope.lookup(alias);
