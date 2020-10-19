@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.api.types;
+package io.ballerina.compiler.api.types.util;
 
 /**
  * Represents the Type Kinds.

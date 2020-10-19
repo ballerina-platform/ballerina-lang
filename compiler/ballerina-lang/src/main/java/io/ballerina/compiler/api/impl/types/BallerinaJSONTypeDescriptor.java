@@ -19,7 +19,7 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.types.JSONTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.util.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 
 /**

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.types.util;
+package io.ballerina.compiler.api.types;
 
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;

@@ -19,10 +19,10 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.impl.types.TypeBuilder;
-import io.ballerina.compiler.api.impl.types.util.BallerinaMethodDescriptor;
+import io.ballerina.compiler.api.impl.types.BallerinaMethodDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.util.MethodDescriptor;
+import io.ballerina.compiler.api.types.util.TypeDescKind;
+import io.ballerina.compiler.api.types.MethodDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -44,19 +44,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.compiler.api.types.TypeDescKind.ARRAY;
-import static io.ballerina.compiler.api.types.TypeDescKind.BOOLEAN;
-import static io.ballerina.compiler.api.types.TypeDescKind.DECIMAL;
-import static io.ballerina.compiler.api.types.TypeDescKind.ERROR;
-import static io.ballerina.compiler.api.types.TypeDescKind.FLOAT;
-import static io.ballerina.compiler.api.types.TypeDescKind.FUTURE;
-import static io.ballerina.compiler.api.types.TypeDescKind.INT;
-import static io.ballerina.compiler.api.types.TypeDescKind.MAP;
-import static io.ballerina.compiler.api.types.TypeDescKind.OBJECT;
-import static io.ballerina.compiler.api.types.TypeDescKind.STREAM;
-import static io.ballerina.compiler.api.types.TypeDescKind.STRING;
-import static io.ballerina.compiler.api.types.TypeDescKind.TYPEDESC;
-import static io.ballerina.compiler.api.types.TypeDescKind.XML;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.BOOLEAN;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.DECIMAL;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.ERROR;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.FLOAT;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.FUTURE;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.INT;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.OBJECT;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.STREAM;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.TYPEDESC;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.XML;
 
 /**
  * A class to hold the lang library function info required for types.

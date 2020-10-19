@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl.types.util;
+package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
-import io.ballerina.compiler.api.types.util.MethodDescriptor;
+import io.ballerina.compiler.api.types.MethodDescriptor;
 
 import java.util.Set;
 

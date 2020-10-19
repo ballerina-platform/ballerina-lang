@@ -17,8 +17,6 @@
  */
 package io.ballerina.compiler.api.types;
 
-import io.ballerina.compiler.api.types.util.MethodDescriptor;
-
 import java.util.List;
 
 /**

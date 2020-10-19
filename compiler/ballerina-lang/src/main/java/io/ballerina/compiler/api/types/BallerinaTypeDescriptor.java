@@ -18,7 +18,7 @@
 package io.ballerina.compiler.api.types;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.types.util.MethodDescriptor;
+import io.ballerina.compiler.api.types.util.TypeDescKind;
 
 import java.util.List;
 

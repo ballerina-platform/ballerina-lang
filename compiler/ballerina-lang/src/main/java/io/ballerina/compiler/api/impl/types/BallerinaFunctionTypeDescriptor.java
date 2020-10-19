@@ -23,7 +23,7 @@ import io.ballerina.compiler.api.impl.TypesFactory;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
-import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.util.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 
 import java.util.List;

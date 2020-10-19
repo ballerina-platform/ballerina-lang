@@ -33,7 +33,7 @@ import io.ballerina.compiler.api.impl.types.BallerinaTypeDescTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaTypeReferenceTypeDescriptor;
 import io.ballerina.compiler.api.impl.types.BallerinaUnionTypeDescriptor;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.util.TypeDescKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;

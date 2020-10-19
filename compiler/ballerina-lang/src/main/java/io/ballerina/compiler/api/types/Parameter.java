@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.types;
 
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.types.util.ParameterKind;
 
 import java.util.List;
 import java.util.Optional;

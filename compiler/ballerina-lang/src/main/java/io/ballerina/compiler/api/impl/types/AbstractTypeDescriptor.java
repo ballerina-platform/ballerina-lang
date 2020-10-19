@@ -19,8 +19,8 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.util.MethodDescriptor;
+import io.ballerina.compiler.api.types.util.TypeDescKind;
+import io.ballerina.compiler.api.types.MethodDescriptor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.List;

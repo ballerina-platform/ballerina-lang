@@ -20,7 +20,7 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
-import io.ballerina.compiler.api.types.ParameterKind;
+import io.ballerina.compiler.api.types.util.ParameterKind;
 
 import java.util.Collections;
 import java.util.List;
