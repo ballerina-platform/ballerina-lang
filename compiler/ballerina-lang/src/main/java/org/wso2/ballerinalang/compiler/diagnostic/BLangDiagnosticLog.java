@@ -189,7 +189,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
             this.errorCount++;
         }
 
-        storeDiagnosticInPackage(pkgId, diagnostic);
+        storeDiagnosticInModule(pkgId, diagnostic);
     }
 
     // private helper methods
@@ -213,10 +213,10 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         DiagnosticInfo diagInfo = new DiagnosticInfo(null, msg, severity);
 
         BLangDiagnostic diagnostic = new BLangDiagnostic(location, msg, diagInfo, diagnosticCode);
-        storeDiagnosticInPackage(currentPackageId, diagnostic);
+        storeDiagnosticInModule(currentPackageId, diagnostic);
     }
 
-    private void storeDiagnosticInPackage(PackageID pkgId, Diagnostic diagnostic) {
+    private void storeDiagnosticInModule(PackageID pkgId, Diagnostic diagnostic) {
         BLangPackage pkgNode = this.packageCache.get(pkgId);
         pkgNode.addDiagnostic(diagnostic);
     }
