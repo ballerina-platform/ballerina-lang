@@ -35,5 +35,6 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.observability.metrics.spi;
     exports io.ballerina.runtime.services.spi;
     exports io.ballerina.runtime.annotation;
-    exports io.ballerina.runtime.values to io.ballerina.testerina.core, io.ballerina.testerina.runtime;
+    exports io.ballerina.runtime.values;
+    exports io.ballerina.runtime.types;
 }
