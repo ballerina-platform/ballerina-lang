@@ -50,7 +50,8 @@ public class FromString {
         } else {
             BString reason = getModulePrefixedReason(BOOLEAN_LANG_LIB, BOOLEAN_PARSING_ERROR_IDENTIFIER);
             BString msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                                               PredefinedTypes.TYPE_STRING, s, PredefinedTypes.TYPE_BOOLEAN);
+                                                               PredefinedTypes.TYPE_STRING, s,
+                                                               PredefinedTypes.TYPE_BOOLEAN);
             return ErrorCreator.createError(reason, msg);
         }
     }

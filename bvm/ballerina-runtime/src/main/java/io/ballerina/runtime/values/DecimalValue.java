@@ -161,7 +161,8 @@ public class DecimalValue implements SimpleValue, BDecimal {
         }
 
         if (!isDecimalWithinIntRange(value)) {
-            throw ErrorUtils.createNumericConversionError(this.stringValue(null), PredefinedTypes.TYPE_DECIMAL, PredefinedTypes.TYPE_INT);
+            throw ErrorUtils.createNumericConversionError(this.stringValue(null), PredefinedTypes.TYPE_DECIMAL,
+                                                          PredefinedTypes.TYPE_INT);
         }
         return (long) Math.rint(value.doubleValue());
     }
@@ -193,7 +194,8 @@ public class DecimalValue implements SimpleValue, BDecimal {
 
         int intVal = (int) Math.rint(this.value.doubleValue());
         if (!isByteLiteral(intVal)) {
-            throw ErrorUtils.createNumericConversionError(value, PredefinedTypes.TYPE_DECIMAL, PredefinedTypes.TYPE_BYTE);
+            throw ErrorUtils.createNumericConversionError(value, PredefinedTypes.TYPE_DECIMAL,
+                                                          PredefinedTypes.TYPE_BYTE);
         }
         return intVal;
     }

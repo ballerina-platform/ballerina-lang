@@ -48,8 +48,8 @@ public class BAnyType extends BType implements AnyType {
 
         if (!readonly) {
             BAnyType immutableAnyType = new BAnyType(TypeConstants.READONLY_ANY_TNAME, pkg, true);
-            this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY}, immutableAnyType,
-                                                       TypeFlags.asMask(TypeFlags.NILABLE), true);
+            this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},
+                                                       immutableAnyType, TypeFlags.asMask(TypeFlags.NILABLE), true);
         }
     }
 

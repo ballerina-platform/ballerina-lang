@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;

@@ -18,9 +18,9 @@
 
 package org.ballerinalang.mime.util;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.values.BArray;
@@ -42,7 +42,8 @@ import static org.ballerinalang.mime.util.MimeConstants.HEADER_NAMES_ARRAY_FIELD
  */
 public class EntityHeaderHandler {
 
-    private static MapType mapType = TypeCreator.createMapType(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING));
+    private static MapType mapType =
+            TypeCreator.createMapType(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING));
 
     /**
      * Get the entity header map. If not exist, creates new one.

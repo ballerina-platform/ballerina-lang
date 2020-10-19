@@ -95,6 +95,7 @@ public class Runtime {
             }
             return object.call(strand, methodName, args);
         };
-        scheduler.schedule(new Object[1], func, null, callback, properties, PredefinedTypes.TYPE_NULL, strandName, metadata);
+        scheduler.schedule(new Object[1], func, null, callback, properties, PredefinedTypes.TYPE_NULL, strandName,
+                           metadata);
     }
 }

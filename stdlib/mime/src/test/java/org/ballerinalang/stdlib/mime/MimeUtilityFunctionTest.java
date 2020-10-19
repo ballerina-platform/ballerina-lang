@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.mime;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.core.model.util.JsonParser;

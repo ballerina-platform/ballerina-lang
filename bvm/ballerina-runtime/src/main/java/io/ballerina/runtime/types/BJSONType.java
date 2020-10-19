@@ -51,7 +51,8 @@ public class BJSONType extends BType implements JSONType {
 
         if (!readonly) {
             BJSONType immutableJsonType = new BJSONType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
-            this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY}, immutableJsonType,
+            this.immutableType = new BIntersectionType(pkg, new Type[]{this, PredefinedTypes.TYPE_READONLY},
+                                                       immutableJsonType,
                                                        TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                         TypeFlags.PURETYPE), true);
         }
@@ -61,7 +62,8 @@ public class BJSONType extends BType implements JSONType {
         super(TypeConstants.JSON_TNAME, null, MapValueImpl.class);
         this.readonly = false;
         BJSONType immutableJsonType = new BJSONType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
-        this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY}, immutableJsonType,
+        this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY},
+                                                   immutableJsonType,
                                                    TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                     TypeFlags.PURETYPE), true);
     }

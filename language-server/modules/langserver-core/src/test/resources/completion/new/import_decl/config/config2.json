@@ -62,6 +62,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/java",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/lang.future",
       "kind": "Module",
       "detail": "Module",

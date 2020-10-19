@@ -18,7 +18,6 @@
 package io.ballerina.runtime;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -83,6 +82,24 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANY;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BOOLEAN;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_BYTE;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_DECIMAL;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FLOAT;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_SIGNED_16;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_SIGNED_32;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_SIGNED_8;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_16;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_32;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_8;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_JSON;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
+import static io.ballerina.runtime.api.PredefinedTypes.isValueType;
 import static io.ballerina.runtime.util.BLangConstants.BBYTE_MAX_VALUE;
 import static io.ballerina.runtime.util.BLangConstants.BBYTE_MIN_VALUE;
 import static io.ballerina.runtime.util.BLangConstants.SIGNED16_MAX_VALUE;
@@ -131,63 +148,64 @@ public class TypeChecker {
 
     public static long anyToInt(Object sourceVal) {
         return TypeConverter.anyToIntCast(sourceVal,
-                () -> ErrorUtils.createTypeCastError(sourceVal, PredefinedTypes.TYPE_INT));
+                () -> ErrorUtils.createTypeCastError(sourceVal, TYPE_INT));
     }
 
     public static long anyToSigned32(Object sourceVal) {
-        return TypeConverter.anyToIntSubTypeCast(sourceVal, PredefinedTypes.TYPE_INT_SIGNED_32,
+        return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_SIGNED_32,
                                                  () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                      PredefinedTypes.TYPE_INT_SIGNED_32));
+                                                                                      TYPE_INT_SIGNED_32));
     }
 
     public static long anyToSigned16(Object sourceVal) {
-        return TypeConverter.anyToIntSubTypeCast(sourceVal, PredefinedTypes.TYPE_INT_SIGNED_16,
+        return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_SIGNED_16,
                                                  () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                      PredefinedTypes.TYPE_INT_SIGNED_16));
+                                                                                      TYPE_INT_SIGNED_16));
     }
 
     public static long anyToSigned8(Object sourceVal) {
-        return TypeConverter.anyToIntSubTypeCast(sourceVal, PredefinedTypes.TYPE_INT_SIGNED_8,
+        return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_SIGNED_8,
                                                  () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                      PredefinedTypes.TYPE_INT_SIGNED_8));
+                                                                                      TYPE_INT_SIGNED_8));
     }
 
     public static long anyToUnsigned32(Object sourceVal) {
-        return TypeConverter.anyToIntSubTypeCast(sourceVal, PredefinedTypes.TYPE_INT_UNSIGNED_32,
+        return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_UNSIGNED_32,
                                                  () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                      PredefinedTypes.TYPE_INT_UNSIGNED_32));
+                                                                                      TYPE_INT_UNSIGNED_32));
     }
 
     public static long anyToUnsigned16(Object sourceVal) {
-        return TypeConverter.anyToIntSubTypeCast(sourceVal, PredefinedTypes.TYPE_INT_UNSIGNED_16,
-                                                 () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                      PredefinedTypes.TYPE_INT_UNSIGNED_16));
+        return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_UNSIGNED_16,
+                                                 () -> ErrorUtils
+                                                         .createTypeCastError(sourceVal, TYPE_INT_UNSIGNED_16));
     }
 
     public static long anyToUnsigned8(Object sourceVal) {
-        return TypeConverter.anyToIntSubTypeCast(sourceVal, PredefinedTypes.TYPE_INT_UNSIGNED_8,
-                                                 () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                      PredefinedTypes.TYPE_INT_UNSIGNED_8));
+        return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_UNSIGNED_8,
+                                                 () -> ErrorUtils
+                                                         .createTypeCastError(sourceVal,
+                                                                              TYPE_INT_UNSIGNED_8));
     }
 
     public static double anyToFloat(Object sourceVal) {
-        return TypeConverter.anyToFloatCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                            PredefinedTypes.TYPE_FLOAT));
+        return TypeConverter.anyToFloatCast(sourceVal, () -> ErrorUtils
+                .createTypeCastError(sourceVal, TYPE_FLOAT));
     }
 
     public static boolean anyToBoolean(Object sourceVal) {
-        return TypeConverter.anyToBooleanCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                              PredefinedTypes.TYPE_BOOLEAN));
+        return TypeConverter.anyToBooleanCast(sourceVal, () -> ErrorUtils
+                .createTypeCastError(sourceVal, TYPE_BOOLEAN));
     }
 
     public static int anyToByte(Object sourceVal) {
         return TypeConverter.anyToByteCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                           PredefinedTypes.TYPE_BYTE));
+                                                                                           TYPE_BYTE));
     }
 
     public static DecimalValue anyToDecimal(Object sourceVal) {
         return TypeConverter.anyToDecimal(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                          PredefinedTypes.TYPE_DECIMAL));
+                                                                                          TYPE_DECIMAL));
     }
 
     public static byte anyToJByte(Object sourceVal) {
@@ -357,19 +375,19 @@ public class TypeChecker {
 
     public static Type getType(Object value) {
         if (value == null) {
-            return PredefinedTypes.TYPE_NULL;
+            return TYPE_NULL;
         } else if (value instanceof Number) {
             if (value instanceof Long) {
-                return PredefinedTypes.TYPE_INT;
+                return TYPE_INT;
             } else if (value instanceof Double) {
-                return PredefinedTypes.TYPE_FLOAT;
+                return TYPE_FLOAT;
             } else if (value instanceof Integer || value instanceof Byte) {
-                return PredefinedTypes.TYPE_BYTE;
+                return TYPE_BYTE;
             }
         } else if (value instanceof String || value instanceof BString) {
-            return PredefinedTypes.TYPE_STRING;
+            return TYPE_STRING;
         } else if (value instanceof Boolean) {
-            return PredefinedTypes.TYPE_BOOLEAN;
+            return TYPE_BOOLEAN;
         }
 
         return ((BValue) value).getType();
@@ -703,8 +721,8 @@ public class TypeChecker {
                 return checkIsMapType(sourceVal, sourceType, (BMapType) targetType, unresolvedTypes);
             case TypeTags.JSON_TAG:
                 return checkIsMapType(sourceVal, sourceType,
-                                      new BMapType(targetType.isReadOnly() ? PredefinedTypes.TYPE_READONLY_JSON :
-                                                           PredefinedTypes.TYPE_JSON), unresolvedTypes);
+                                      new BMapType(targetType.isReadOnly() ? TYPE_READONLY_JSON :
+                                                           TYPE_JSON), unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
                 return checkIsRecordType(sourceVal, sourceType, (BRecordType) targetType, unresolvedTypes);
             case TypeTags.UNION_TAG:
@@ -971,7 +989,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsJSONType(Type sourceType, List<TypePair> unresolvedTypes) {
-        BJSONType jsonType = (BJSONType) PredefinedTypes.TYPE_JSON;
+        BJSONType jsonType = (BJSONType) TYPE_JSON;
 
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
@@ -1100,7 +1118,7 @@ public class TypeChecker {
 
     private static boolean checkRecordBelongsToAnydataType(MapValue sourceVal, BRecordType recordType,
                                                            List<TypePair> unresolvedTypes) {
-        Type targetType = PredefinedTypes.TYPE_ANYDATA;
+        Type targetType = TYPE_ANYDATA;
         TypePair pair = new TypePair(recordType, targetType);
         if (unresolvedTypes.contains(pair)) {
             return true;
@@ -1683,11 +1701,11 @@ public class TypeChecker {
     private static boolean checkConstraints(Type sourceConstraint, Type targetConstraint,
                                             List<TypePair> unresolvedTypes) {
         if (sourceConstraint == null) {
-            sourceConstraint = PredefinedTypes.TYPE_ANY;
+            sourceConstraint = TYPE_ANY;
         }
 
         if (targetConstraint == null) {
-            targetConstraint = PredefinedTypes.TYPE_ANY;
+            targetConstraint = TYPE_ANY;
         }
 
         return checkIsType(sourceConstraint, targetConstraint, unresolvedTypes);
@@ -1950,7 +1968,7 @@ public class TypeChecker {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.MAP_TAG:
-                return isLikeType(((MapValueImpl) sourceValue).values().toArray(), PredefinedTypes.TYPE_ANYDATA,
+                return isLikeType(((MapValueImpl) sourceValue).values().toArray(), TYPE_ANYDATA,
                                   unresolvedValues, allowNumericConversion);
             case TypeTags.ARRAY_TAG:
                 ArrayValue arr = (ArrayValue) sourceValue;
@@ -1964,18 +1982,18 @@ public class TypeChecker {
                     case TypeTags.BYTE_TAG:
                         return true;
                     default:
-                        return isLikeType(arr.getValues(), PredefinedTypes.TYPE_ANYDATA, unresolvedValues,
+                        return isLikeType(arr.getValues(), TYPE_ANYDATA, unresolvedValues,
                                           allowNumericConversion);
                 }
             case TypeTags.TUPLE_TAG:
-                return isLikeType(((ArrayValue) sourceValue).getValues(), PredefinedTypes.TYPE_ANYDATA, unresolvedValues,
+                return isLikeType(((ArrayValue) sourceValue).getValues(), TYPE_ANYDATA, unresolvedValues,
                                   allowNumericConversion);
             case TypeTags.ANYDATA_TAG:
                 return true;
             // TODO: 8/13/19 Check if can be removed
             case TypeTags.FINITE_TYPE_TAG:
             case TypeTags.UNION_TAG:
-                return checkIsLikeType(sourceValue, PredefinedTypes.TYPE_ANYDATA, unresolvedValues, allowNumericConversion);
+                return checkIsLikeType(sourceValue, TYPE_ANYDATA, unresolvedValues, allowNumericConversion);
             default:
                 return false;
         }
@@ -2079,7 +2097,7 @@ public class TypeChecker {
         Type targetTypeElementType = targetType.getElementType();
         if (source.getType().getTag() == TypeTags.ARRAY_TAG) {
             Type sourceElementType = ((BArrayType) source.getType()).getElementType();
-            if (PredefinedTypes.isValueType(sourceElementType)) {
+            if (isValueType(sourceElementType)) {
                 boolean isType = checkIsType(sourceElementType, targetTypeElementType, new ArrayList<>());
 
                 if (isType || !allowNumericConversion || !isNumericType(sourceElementType)) {
@@ -2142,7 +2160,7 @@ public class TypeChecker {
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
             ArrayValue source = (ArrayValue) sourceValue;
             Type elementType = ((BArrayType) source.getType()).getElementType();
-            if (PredefinedTypes.isValueType(elementType)) {
+            if (isValueType(elementType)) {
                 return checkIsType(elementType, targetType, new ArrayList<>());
             }
 
@@ -2641,7 +2659,7 @@ public class TypeChecker {
             }
         }
         // Control reaching this point means there is only one type in the union.
-        return PredefinedTypes.isValueType(firstMember) && hasFillerValue(firstMember);
+        return isValueType(firstMember) && hasFillerValue(firstMember);
     }
 
     private static boolean checkFillerValue(BRecordType type, List<Type> unAnalyzedTypes) {

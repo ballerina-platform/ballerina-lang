@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.TupleType;

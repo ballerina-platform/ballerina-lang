@@ -18,8 +18,8 @@
 
 package org.ballerinalang.mime.util;
 
-import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;

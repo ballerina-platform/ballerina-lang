@@ -45,7 +45,8 @@ public class XMLPi extends XMLNonElementItem {
     public XMLPi(String data, String target, boolean readonly) {
         this.data = data;
         this.target = target;
-        this.type = readonly ? PredefinedTypes.TYPE_READONLY_PROCESSING_INSTRUCTION : PredefinedTypes.TYPE_PROCESSING_INSTRUCTION;
+        this.type = readonly ? PredefinedTypes.TYPE_READONLY_PROCESSING_INSTRUCTION :
+                PredefinedTypes.TYPE_PROCESSING_INSTRUCTION;
     }
 
     @Override

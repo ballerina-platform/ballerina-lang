@@ -405,7 +405,8 @@ public class JSONUtils {
             case TypeTags.JSON_TAG:
                 return source;
             default:
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, PredefinedTypes.TYPE_JSON, type);
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+                                                               PredefinedTypes.TYPE_JSON, type);
         }
     }
 
@@ -695,14 +696,15 @@ public class JSONUtils {
                 case TypeTags.MAP_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
                 case TypeTags.OBJECT_TYPE_TAG:
-                    json.append(convertMapToJSON((MapValueImpl<BString, ?>) value, (BJSONType) PredefinedTypes.TYPE_JSON));
+                    json.append(convertMapToJSON((MapValueImpl<BString, ?>) value,
+                                                 (BJSONType) PredefinedTypes.TYPE_JSON));
                     break;
                 case TypeTags.ARRAY_TAG:
                     json.append(convertArrayToJSON((ArrayValue) value));
                     break;
                 default:
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, PredefinedTypes.TYPE_JSON,
-                                                                   type);
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+                                                                   PredefinedTypes.TYPE_JSON, type);
             }
         }
         return json;
@@ -793,8 +795,8 @@ public class JSONUtils {
                     json.put(key, convertMapToJSON((MapValueImpl<BString, ?>) value, (BJSONType) exptType));
                     break;
                 default:
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, PredefinedTypes.TYPE_JSON,
-                                                                   type);
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+                                                                   PredefinedTypes.TYPE_JSON, type);
             }
         } catch (Exception e) {
             handleError(e, key.getValue());

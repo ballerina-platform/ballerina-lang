@@ -18,8 +18,8 @@
 package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.CycleUtils;
-import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeConstants;

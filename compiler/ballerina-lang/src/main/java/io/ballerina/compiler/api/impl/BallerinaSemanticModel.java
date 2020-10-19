@@ -18,7 +18,6 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.SymbolFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
@@ -78,8 +77,8 @@ public class BallerinaSemanticModel implements SemanticModel {
                 symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(compilationUnit, linePosition));
 
         DiagnosticPos cursorPos = new DiagnosticPos(new BDiagnosticSource(bLangPackage.packageID, compilationUnit.name),
-                                                    linePosition.line(), linePosition.line(),
-                                                    linePosition.offset(), linePosition.offset());
+                linePosition.line(), linePosition.line(),
+                linePosition.offset(), linePosition.offset());
 
         for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : scopeSymbols.entrySet()) {
             Name name = entry.getKey();

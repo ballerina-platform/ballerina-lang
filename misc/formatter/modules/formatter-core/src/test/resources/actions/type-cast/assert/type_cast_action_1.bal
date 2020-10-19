@@ -7,9 +7,7 @@ type Employee record {
 };
 
 public function foo() {
-    Employee employee = {
-        name : "Jane Doe"
-    };
+    Employee employee = { name: "Jane Doe" };
     Person person = <Person>employee;
     anydata value = 100;
     int i = <int>value;

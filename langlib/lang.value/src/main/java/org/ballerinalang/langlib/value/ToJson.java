@@ -19,10 +19,10 @@ package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.JSONUtils;
 import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
@@ -119,7 +119,8 @@ public class ToJson {
     }
 
     private static Object convertMapToJson(BMap<?, ?> map, List<TypeValuePair> unresolvedValues) {
-        BMap<BString, Object> newMap = ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_JSON));
+        BMap<BString, Object> newMap =
+                ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_JSON));
         for (Map.Entry entry : map.entrySet()) {
             Object newValue = convert(entry.getValue(), unresolvedValues);
             newMap.put(StringUtils.fromString(entry.getKey().toString()), newValue);

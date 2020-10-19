@@ -18,8 +18,8 @@
 
 package org.ballerinalang.cli.utils;
 
-import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -155,8 +155,9 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                                                                   boolean.class);
             Object[] entryFuncArgs =
                     ArgumentParser.extractEntryFuncArgs(new RuntimeUtils.ParamInfo[]{
-                            new RuntimeUtils.ParamInfo(false, "%1", TypeCreator
-                                                               .createArrayType(PredefinedTypes.TYPE_STRING, stringArgs.length))
+                            new RuntimeUtils.ParamInfo(false, "%1",
+                                                       TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
+                                                                                   stringArgs.length))
                     }, stringArgs, true);
 
             //TODO fix following method invoke to scheduler.schedule()

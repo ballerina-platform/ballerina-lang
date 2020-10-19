@@ -288,7 +288,9 @@ public enum Snippet {
     
     CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),
     
-    CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet());
+    CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet()),
+    
+    TYPE_MAP(SnippetGenerator.getMapTypeSnippet());
 
     private final String snippetName;
     private final SnippetBlock snippetBlock;
