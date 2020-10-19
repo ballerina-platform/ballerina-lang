@@ -63,4 +63,6 @@ public class ProjectConstants {
     public static final String PROPERTIES_FILE = "/META-INF/tool.properties";
 
     public static final String TARGET_BALO_DIR_NAME = "balo";
+    public static final String BALLERINA_INSTALL_DIR_PROP = "ballerina.home";
+    public static final String DIST_CACHE_DIRECTORY = "distribution-cache";
 }

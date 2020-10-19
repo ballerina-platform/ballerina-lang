@@ -25,6 +25,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -63,6 +64,8 @@ class ModuleContext {
     private BLangPackage bLangPackage;
     private List<Diagnostic> diagnostics;
 
+    private final Bootstrap bootstrap;
+
     // TODO How about introducing a ModuleState concept. ModuleState.DEPENDENCIES_RESOLVED
     private boolean dependenciesResolved;
 
@@ -79,6 +82,7 @@ class ModuleContext {
         this.testDocContextMap = testDocContextMap;
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
+        this.bootstrap = new Bootstrap(project.environmentContext().getService(PackageResolver.class));
     }
 
     private ModuleContext(Project project, ModuleId moduleId, ModuleName moduleName, boolean isDefaultModule,
@@ -185,6 +189,18 @@ class ModuleContext {
 
         PackageID pkgId = new PackageID(new Name(packageDescriptor.org().toString()),
                 new Name(this.moduleName.toString()), new Name(packageDescriptor.version().toString()));
+
+        if (PackageID.isLangLibPackageID(pkgId)) {
+            bootstrap.loadLangLib(compilerContext, pkgId);
+        } else {
+            bootstrap.loadLangLibSymbols(compilerContext);
+        }
+
+        // if this is already loaded from BALO, then skip rest of the compilation
+        if (packageCache.get(pkgId) != null) {
+            return;
+        }
+
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         packageCache.put(pkgId, pkgNode);
 
@@ -206,7 +222,26 @@ class ModuleContext {
         this.bLangPackage = pkgNode;
     }
 
+    boolean entryPointExists() {
+        // TODO this is temporary method. We should remove this ASAP
+        BLangPackage bLangPackage = getBLangPackageOrThrow();
+        return bLangPackage.symbol.entryPointExists;
+    }
+
     BLangPackage bLangPackage() {
+        return getBLangPackageOrThrow();
+    }
+
+    CompiledJarFile compiledJarEntries() {
+        BLangPackage bLangPackage = getBLangPackageOrThrow();
+        return bLangPackage.symbol.compiledJarFile;
+    }
+
+    private BLangPackage getBLangPackageOrThrow() {
+        if (bLangPackage == null) {
+            throw new IllegalStateException("Compile the module first!");
+        }
+
         return bLangPackage;
     }
 

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -33,6 +34,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -124,6 +126,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -200,8 +203,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final TypeParamAnalyzer typeParamAnalyzer;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
+    private PackageCache packageCache;
 
     private SymbolEnv env;
+    private final boolean projectAPIInitiatedCompilation;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
 
@@ -229,6 +234,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.importedPackages = new ArrayList<>();
         this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
+        this.packageCache = PackageCache.getInstance(context);
+
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        projectAPIInitiatedCompilation = Boolean.parseBoolean(
+                options.get(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION));
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -714,14 +724,19 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (!isNullOrEmpty(importPkgNode.version.value)) {
                 version = names.fromIdNode(importPkgNode.version);
             } else {
-                String pkgName = importPkgNode.getPackageName().stream()
-                        .map(id -> id.value)
-                        .collect(Collectors.joining("."));
-                if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
-                        && orgName.value.equals(enclPackageID.orgName.value)) {
-                    version = enclPackageID.version;
-                } else {
+                // TODO We are removing the version in the import declaration anyway
+                if (projectAPIInitiatedCompilation) {
                     version = Names.EMPTY;
+                } else {
+                    String pkgName = importPkgNode.getPackageName().stream()
+                            .map(id -> id.value)
+                            .collect(Collectors.joining("."));
+                    if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
+                            && orgName.value.equals(enclPackageID.orgName.value)) {
+                        version = enclPackageID.version;
+                    } else {
+                        version = Names.EMPTY;
+                    }
                 }
             }
         } else {
@@ -788,7 +803,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, this.env.enclPkg.repos);
+        BPackageSymbol pkgSymbol;
+        if (projectAPIInitiatedCompilation) {
+            pkgSymbol = packageCache.getSymbol(pkgId);
+        } else {
+            pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, this.env.enclPkg.repos);
+        }
+
         if (pkgSymbol == null) {
             dlog.error(importPkgNode.pos, DiagnosticCode.MODULE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());

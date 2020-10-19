@@ -20,12 +20,14 @@ package io.ballerina.cli.task;
 
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.model.Target;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
@@ -35,21 +37,28 @@ import java.util.Optional;
  */
 public class CreateExecutableTask implements Task {
     private final transient PrintStream out;
-    private final Path outputPath;
+    private final String outputPath;
 
-    public CreateExecutableTask(PrintStream out, Path outputPath) {
+    public CreateExecutableTask(PrintStream out, String outputPath) {
         this.out = out;
         this.outputPath = outputPath;
     }
 
     @Override
     public void execute(Project project) {
+        this.out.println();
+        this.out.println("Generating executables");
+
         Path executablePath;
         Target target;
         try {
             target = new Target(project.sourceRoot());
             if (outputPath != null) {
-                target.setOutputPath(project.currentPackage(), outputPath);
+                target.setOutputPath(project.currentPackage(), Paths.get(outputPath));
+            } else if (project instanceof SingleFileProject) {
+                String executableName = project.currentPackage().getDefaultModule().moduleName().moduleNamePart();
+                target.setOutputPath(project.currentPackage(),
+                        Paths.get(System.getProperty("user.dir")).resolve(executableName));
             }
         } catch (IOException e) {
             throw new RuntimeException("unable to set executable path: " + e.getMessage());

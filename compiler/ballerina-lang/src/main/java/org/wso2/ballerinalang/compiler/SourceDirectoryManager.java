@@ -74,6 +74,15 @@ public class SourceDirectoryManager implements Project {
 
         this.names = Names.getInstance(context);
         this.options = CompilerOptions.getInstance(context);
+
+        // Check whether the compilation is initiated by the project API.
+        boolean projectAPIInitiatedCompilation = Boolean.parseBoolean(
+                options.get(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION));
+        if (projectAPIInitiatedCompilation) {
+            this.sourceDirectory = null;
+            return;
+        }
+
         this.sourceDirectory = initializeAndGetSourceDirectory(context);
         // load manifest only once
         this.manifest = getManifest();

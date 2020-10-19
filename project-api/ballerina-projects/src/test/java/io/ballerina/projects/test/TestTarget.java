@@ -51,7 +51,7 @@ public class TestTarget {
         Package currentPackage = project.currentPackage();
 
         Target projectTarget = new Target(project.sourceRoot());
-        Path baloCachePath = projectTarget.getBaloPath(currentPackage);
+        Path baloCachePath = projectTarget.getBaloPath();
         Path birCachePath = projectTarget.getBirCachePath();
         Path jarCachePath = projectTarget.getJarCachePath();
         Path executablePath = projectTarget.getExecutablePath(currentPackage);

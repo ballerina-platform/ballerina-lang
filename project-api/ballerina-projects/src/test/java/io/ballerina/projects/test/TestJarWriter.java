@@ -18,20 +18,16 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 
 /**
  * Contains cases to test the JarWriter.
@@ -40,8 +36,9 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
  */
 public class TestJarWriter {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    Path tempDirectory;
 
-    @Test (enabled = false, description = "tests writing of the executable")
+    @Test (description = "tests writing of the executable", enabled = false)
     public void testJarWriter() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
@@ -55,16 +52,19 @@ public class TestJarWriter {
         // 2) Load the package
         Package currentPackage = project.currentPackage();
 
-        ProjectEnvironmentContext environmentContext = project.environmentContext();
-        CompilerContext compilerContext = environmentContext.getService(CompilerContext.class);
-        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
-        compilerOptions.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-
-        Path tempDirectory = Files.createTempDirectory("ballerina-test-" + System.nanoTime());
+        tempDirectory = Files.createTempDirectory("ballerina-test-" + System.nanoTime());
         Path tempFile = tempDirectory.resolve("test.jar");
         Assert.assertFalse(tempFile.toFile().exists());
-//        JarWriter.write(currentPackage, tempFile);
-//        Assert.assertTrue(tempFile.toFile().exists());
-//        Assert.assertTrue(tempFile.toFile().length() > 0);
+
+        currentPackage.getCompilation().emit(PackageCompilation.OutputType.JAR, tempFile);
+        Assert.assertTrue(tempFile.toFile().exists());
+        Assert.assertTrue(tempFile.toFile().length() > 0);
+    }
+
+    @AfterMethod(alwaysRun = true)
+    public void cleanup() {
+        if (tempDirectory.toFile().exists()) {
+            TestUtils.deleteDirectory(tempDirectory.toFile());
+        }
     }
 }

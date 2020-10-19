@@ -153,9 +153,6 @@ public class JvmPackageGen {
     }
 
     private static void addBuiltinImports(BIRPackage currentModule, Set<PackageID> dependentModuleArray) {
-        Name ballerinaOrgName = new Name("ballerina");
-        Name builtInVersion = new Name("");
-
         // Add the builtin and utils modules to the imported list of modules
         if (isSameModule(currentModule, PackageID.ANNOTATIONS)) {
             return;

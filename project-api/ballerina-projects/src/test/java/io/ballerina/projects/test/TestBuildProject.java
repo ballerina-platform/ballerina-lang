@@ -60,7 +60,7 @@ public class TestBuildProject {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
     private final String dummyContent = "function foo() {\n}";
 
-    @Test (description = "tests loading a valid build project")
+    @Test (description = "tests loading a valid build project", enabled = false)
     public void testBuildProjectAPI() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
@@ -108,7 +108,7 @@ public class TestBuildProject {
 
     }
 
-    @Test(description = "tests package compilation")
+    @Test(description = "tests package compilation", enabled = false)
     public void testPackageCompilation() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_pkg_compilation");
 
@@ -132,7 +132,7 @@ public class TestBuildProject {
         Assert.assertEquals(diagnostics.size(), 4);
     }
 
-    @Test(description = "tests package compilation with errors in test source files")
+    @Test(description = "tests package compilation with errors in test source files", enabled = false)
     public void testPackageCompilationWithTests() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_with_tests");
 
@@ -155,7 +155,7 @@ public class TestBuildProject {
         Assert.assertEquals(diagnostics.size(), 3);
     }
 
-    @Test(description = "tests loading a valid build project using project compilation")
+    @Test(description = "tests loading a valid build project using project compilation", enabled = false)
     public void testBuildProjectAPIWithPackageCompilation() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
@@ -630,7 +630,7 @@ public class TestBuildProject {
         }
     }
 
-    @Test(description = "tests get semantic model in module compilation")
+    @Test(description = "tests get semantic model in module compilation", enabled = false)
     public void testGetSemanticModel() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 

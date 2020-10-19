@@ -55,15 +55,11 @@ public class Target {
     }
 
     /**
-     * Returns the balo cache path.
+     * Returns the balo dir path.
      *
-     * @param pkg Package instance
      * @return path of the balo file
      */
-    public Path getBaloPath(Package pkg) throws IOException {
-        // todo move balo name to a util
-        /* String baloFileName = ProjectUtils.getBaloName(pkg.packageOrg().toString(), pkg.packageName().toString(),
-                pkg.packageVersion().toString(), null);*/
+    public Path getBaloPath() throws IOException {
         Files.createDirectories(baloCachePath);
         return baloCachePath;
     }
@@ -88,7 +84,11 @@ public class Target {
         if (outputPath != null) {
             return outputPath;
         }
-        return this.binPath.resolve(ProjectUtils.getExecutableName(pkg));
+        try {
+            return getBinPath().resolve(ProjectUtils.getExecutableName(pkg));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

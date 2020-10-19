@@ -28,7 +28,7 @@ import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.environment.ProjectEnvironmentContext;
+import io.ballerina.projects.env.BuildEnvContext;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.launch.LaunchUtils;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -93,8 +93,8 @@ public class BuildCommand implements BLauncherCmd {
         this.output = executableOutputDir.toString();
     }
 
-//    @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
-//                                                                   "executable(s).")
+    @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
+                                                                   "executable(s).")
     private boolean compile;
 
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
@@ -187,10 +187,8 @@ public class BuildCommand implements BLauncherCmd {
             }
         }
 
-        Path outputPath = null == this.output ? Paths.get(System.getProperty("user.dir")) : Paths.get(this.output);
-
-        ProjectEnvironmentContext environmentContext = project.environmentContext();
-        CompilerContext compilerContext = environmentContext.getService(CompilerContext.class);
+        BuildEnvContext buildEnvContext = BuildEnvContext.getInstance();
+        CompilerContext compilerContext = buildEnvContext.compilerContext();
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(OFFLINE, Boolean.toString(this.offline));
@@ -208,13 +206,13 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateBirTask())   // create the bir
 //                .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
                                                             // the given skipLock flag does not exist(projects only)
-                .addTask(new CreateBaloTask(outStream))   // create the BALOs for modules (projects only)
-                .addTask(new CreateJarTask())   // create the jar
+                .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)
+                .addTask(new CreateJarTask(), isSingleFileBuild)   // create the jar
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
 //                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
 //                .addTask(new RunTestsTask(testReport, coverage, args), this.skipTests || isSingleFileBuild)
                     // run tests (projects only)
-                .addTask(new CreateExecutableTask(outStream, outputPath), this.compile) //create the executable.jar file
+                .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
 //                .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
                 .build();

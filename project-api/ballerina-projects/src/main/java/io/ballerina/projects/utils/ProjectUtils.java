@@ -130,6 +130,14 @@ public class ProjectUtils {
         return packageName;
     }
 
+    public static String getBaloName(Package pkg) {
+        return ProjectUtils.getBaloName(pkg.packageOrg().toString(),
+                pkg.packageName().toString(),
+                pkg.packageVersion().toString(),
+                null
+        );
+    }
+
     public static String getBaloName(String org, String pkgName, String version, String platform) {
         // <orgname>-<packagename>-<platform>-<version>.balo
         if (platform == null || "".equals(platform)) {

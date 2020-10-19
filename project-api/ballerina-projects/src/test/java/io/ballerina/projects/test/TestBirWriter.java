@@ -37,7 +37,7 @@ import java.nio.file.Paths;
 public class TestBirWriter {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
-    @Test (description = "tests writing of the BIR")
+    @Test (description = "tests writing of the BIR", enabled = false)
     public void testBirWriter() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 

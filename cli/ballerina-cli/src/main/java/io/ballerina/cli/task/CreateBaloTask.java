@@ -20,10 +20,10 @@ package io.ballerina.cli.task;
 
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.Target;
 import io.ballerina.projects.utils.ProjectUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -45,22 +45,30 @@ public class CreateBaloTask implements Task {
         this.out.println();
         this.out.println("Creating balos");
 
-        if (project instanceof BuildProject) {
-            Target target;
-            Path baloPath;
-            try {
-                target = new Target(project.sourceRoot());
-                baloPath = target.getBaloPath(project.currentPackage());
-            } catch (IOException e) {
-                throw new RuntimeException("error occurred while writing the BALO:" + e.getMessage());
-            }
-            PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-            String baloName = ProjectUtils.getBaloName(
-                    project.currentPackage().packageOrg().toString(),
-                    project.currentPackage().packageName().toString(),
-                    project.currentPackage().packageVersion().toString(),
-                    null);
-            packageCompilation.emit(PackageCompilation.OutputType.BALO, baloPath.resolve(baloName));
+        Target target;
+        Path baloPath;
+        try {
+            target = new Target(project.sourceRoot());
+            baloPath = target.getBaloPath();
+        } catch (IOException e) {
+            throw new RuntimeException("error occurred while writing the BALO:" + e.getMessage());
+        }
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        String baloName = ProjectUtils.getBaloName(
+                project.currentPackage().packageOrg().toString(),
+                project.currentPackage().packageName().toString(),
+                project.currentPackage().packageVersion().toString(),
+                null);
+        packageCompilation.emit(PackageCompilation.OutputType.BALO, baloPath.resolve(baloName));
+
+        // Print the path of the BALO file
+        Path relativePathToExecutable = project.sourceRoot().relativize(baloPath.resolve(baloName));
+        if (relativePathToExecutable.toString().contains("..") ||
+                relativePathToExecutable.toString().contains("." + File.separator)) {
+            this.out.println("\t" + baloPath.resolve(baloName).toString());
+        } else {
+            this.out.println("\t" + relativePathToExecutable.toString());
         }
     }
+
 }
