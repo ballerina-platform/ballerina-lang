@@ -19,34 +19,31 @@ package io.ballerina.compiler.api.symbols;
 
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 
-import java.util.List;
-import java.util.Optional;
-
 /**
  * Represents a ballerina type definition.
  *
  * @since 2.0.0
  */
-public interface TypeSymbol extends Symbol {
+public interface TypeSymbol extends Symbol, Qualifiable, Deprecatable {
 
     /**
      * Get the module qualified name.
-     * 
+     *
      * @return {@link String} name
      */
     String moduleQualifiedName();
 
     /**
-     * List of qualifiers attached to the type definition.
-     * 
-     * @return {@link List} of qualifiers
-     */
-    List<Qualifier> qualifiers();
-
-    /**
      * Type descriptor of the definition.
-     * 
+     *
      * @return {@link BallerinaTypeDescriptor} attached
      */
-    Optional<BallerinaTypeDescriptor> typeDescriptor();
+    BallerinaTypeDescriptor typeDescriptor();
+
+    /**
+     * Checks whether the type is a readonly type.
+     *
+     * @return True if the type is readonly
+     */
+    boolean readonly();
 }

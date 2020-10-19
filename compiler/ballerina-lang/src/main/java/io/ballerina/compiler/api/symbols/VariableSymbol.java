@@ -19,27 +19,17 @@ package io.ballerina.compiler.api.symbols;
 
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 
-import java.util.List;
-import java.util.Optional;
-
 /**
  * Represents a ballerina variable.
  *
  * @since 2.0.0
  */
-public interface VariableSymbol extends Symbol {
-
-    /**
-     * Get the list of access modifiers attached to this Variable symbol.
-     *
-     * @return {@link List} of access modifiers
-     */
-    List<Qualifier> qualifiers();
+public interface VariableSymbol extends Symbol, Qualifiable, Deprecatable {
 
     /**
      * Get the Type of the variable.
      *
      * @return {@link BallerinaTypeDescriptor} of the variable
      */
-    Optional<BallerinaTypeDescriptor> typeDescriptor();
+    BallerinaTypeDescriptor typeDescriptor();
 }

@@ -8,10 +8,9 @@ public
 x     =     "abc"
         ;
 }
+
     int
     a
 ;
     int    b   ;
-
-
 }

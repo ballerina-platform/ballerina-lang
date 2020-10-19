@@ -48,7 +48,6 @@ public class MemberAccessTest {
 
     @Test(groups = { "disableOnOldParser" })
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 53);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 34, 12);
@@ -118,6 +117,10 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 195, 14);
         validateError(negativeResult, i++, "undefined field 'age' in 'Employee'", 196, 14);
         validateError(negativeResult, i++, "missing key expr in member access expr", 201, 26);
+        validateError(negativeResult, i++, "invalid expression statement", 202, 5);
+        validateError(negativeResult, i++, "missing key expr in member access expr", 202, 14);
+        validateError(negativeResult, i++, "missing semicolon token", 203, 1);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test(dataProvider = "listMemberAccessFunctions")

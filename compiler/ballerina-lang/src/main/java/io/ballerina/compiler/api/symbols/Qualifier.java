@@ -18,19 +18,27 @@
 package io.ballerina.compiler.api.symbols;
 
 /**
- * Represents the access modifier types.
- * 
+ * Represents the various qualifiers used in the language.
+ *
  * @since 2.0.0
  */
 public enum Qualifier {
 
     PUBLIC("public"),
     PRIVATE("private"),
-    FINAL("final");
+    FINAL("final"),
+    ISOLATED("isolated"),
+    TRANSACTIONAL("transactional"),
+    DISTINCT("distinct"),
+    CLIENT("client"),
+    READONLY("readonly"),
+    REMOTE("remote"),
+    RESOURCE("resource"),
+    LISTENER("listener");
 
-    private String value;
+    private final String value;
 
-    private Qualifier(String value) {
+    Qualifier(String value) {
         this.value = value;
     }
 

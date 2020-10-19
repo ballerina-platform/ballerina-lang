@@ -68,7 +68,7 @@ public class ResilientParserTest {
         BAssertUtil.validateError(result, 28, "missing semicolon token", 52, 1);
         BAssertUtil.validateError(result, 29, "missing at token", 53, 1);
         BAssertUtil.validateError(result, 30, "missing type keyword", 53, 1);
-        BAssertUtil.validateError(result, 31, "undefined annotation '$missingNode$12'", 53, 1);
+        BAssertUtil.validateError(result, 31, "undefined annotation '$missingNode$_12'", 53, 1);
         BAssertUtil.validateError(result, 32, "invalid token '}'", 55, 2);
         BAssertUtil.validateError(result, 33, "redeclared symbol 'Foo1'", 55, 2);
         BAssertUtil.validateError(result, 34, "redeclared symbol 'Foo1'", 59, 6);
@@ -141,11 +141,11 @@ public class ResilientParserTest {
 
         BAssertUtil.validateError(result, 0, "redeclared symbol ''", 2, 1);
         BAssertUtil.validateError(result, 1, "missing identifier", 2, 12);
-        BAssertUtil.validateError(result, 2, "cannot resolve module '$missingNode$0/bar'", 3, 1);
+        BAssertUtil.validateError(result, 2, "cannot resolve module '$missingNode$_0/bar'", 3, 1);
         BAssertUtil.validateError(result, 3, "missing identifier", 3, 8);
-        BAssertUtil.validateError(result, 4, "cannot resolve module 'foo/bar version 1.0.0 as $missingNode$1'", 4, 1);
+        BAssertUtil.validateError(result, 4, "cannot resolve module 'foo/bar version 1.0.0 as $missingNode$_1'", 4, 1);
         BAssertUtil.validateError(result, 5, "missing identifier", 4, 32);
-        BAssertUtil.validateError(result, 6, "cannot resolve module 'foo/bar version 1.0.0 as $missingNode$2'", 5, 1);
+        BAssertUtil.validateError(result, 6, "cannot resolve module 'foo/bar version 1.0.0 as $missingNode$_2'", 5, 1);
         BAssertUtil.validateError(result, 7, "cannot resolve module 'foo/bar as foobar'", 6, 1);
         BAssertUtil.validateError(result, 8, "missing identifier", 6, 1);
         BAssertUtil.validateError(result, 9, "missing semicolon token", 6, 1);

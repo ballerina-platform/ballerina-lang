@@ -132,11 +132,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
         // this.getObjectTypeReference()
         //         .ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
         this.fieldDescriptors().forEach(objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()));
-        this.methods().forEach(method -> {
-            if (method.typeDescriptor().isPresent()) {
-                methodJoiner.add(method.typeDescriptor().get().signature());
-            }
-        });
+        this.methods().forEach(method -> methodJoiner.add(method.typeDescriptor().signature()));
 
         return signature.append(fieldJoiner.toString())
                 .append(methodJoiner.toString())
