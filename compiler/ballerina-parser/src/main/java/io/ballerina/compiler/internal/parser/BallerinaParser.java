@@ -12063,8 +12063,9 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseVarTypedBindingPattern() {
         STNode varKeyword = parseVarKeyword();
+        STNode varTypeDesc = createBuiltinSimpleNameReference(varKeyword);
         STNode bindingPattern = parseBindingPattern();
-        return STNodeFactory.createTypedBindingPatternNode(varKeyword, bindingPattern);
+        return STNodeFactory.createTypedBindingPatternNode(varTypeDesc, bindingPattern);
     }
 
     /**
