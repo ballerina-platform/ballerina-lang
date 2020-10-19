@@ -16,22 +16,22 @@
 
 import ballerina/test;
 
-# Execute tests to verify the string diff error messages during assert equality checks
+# Execute tests to verify the diff error messages during assert equality checks
 
 @test:Config {}
 function testAssertStringValues() {
     error? err = trap test:assertEquals("hello dilhasha","hello dilhashaaa");
     error result = <error>err;
-    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,1 +1,1 @@\n\n-hello dilhasha\n+hello dilhashaaa\n\n\n"));
+    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,1 +1,1 @@\n\n-hello dilhashaaa\n+hello dilhasha\n\n\n"));
 }
 
 @test:Config {}
 function testAssertLongStringValues() {
-        string value1 = "Ballerina is an open source programming language and platform for cloud-era application " + "programmers.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & conccurrent " + "programs work.";
-        string value2 = "Ballerina is an open source programming language and platform for cloud-era application " + "programmersss.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & concurrent " + "programs work.";
-        error? err = trap test:assertEquals(value1, value2);
-        error result = <error>err;
-        test:assertTrue(result.message().toString().endsWith("Sequence diagrams have been everyone’s favorite tool to " + "describe how distributed\n- & conccurrent programs work.\n+ & concurrent programs work.\n\n\n"));
+    string value1 = "Ballerina is an open source programming language and platform for cloud-era application " + "programmers.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & conccurrent " + "programs work.";
+    string value2 = "Ballerina is an open source programming language and platform for cloud-era application " + "programmersss.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & concurrent " + "programs work.";
+    error? err = trap test:assertEquals(value1, value2);
+    error result = <error>err;
+    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,4 +1,4 @@\n\n Ballerina is an open source programming language and platform for cloud-era appl\n-ication programmersss.\n+ication programmers.\n Sequence diagrams have been everyone’s favorite tool to " + "describe how distributed\n- & concurrent programs work.\n+ & conccurrent programs work.\n\n\n"));
 }
 
 @test:Config {}
@@ -56,25 +56,24 @@ function testAssertJsonValues() {
     json bioData2 = {name:"John Doe New", age:25, address:{city:"Colombo", country:"Sri Lanka"}};
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
-    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,13 +1,13 @@\n { name:\n-<string> John Doe New,\n+<string> John Doe,\n age: <int> 25, address: <map> { city: <string> Colombo, country: <string> Sri Lanka } }\n\n"));
+    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,8 +1,8 @@\n\n {\n-name: <string> John Doe New,\n+name: <string> John Doe,\n age: <int> 25,\n address: <map> {\n city: <string> Colombo,\n country: <string> Sri Lanka\n }\n }\n\n\n"));
 }
 
 @test:Config {}
 function testAssertJsonInJson() {
-      json j1 = {name: "Anne", age: "21", marks: {maths: 100, physics: 90, status: {pass:true}}};
-      json j2 = {name: "Anne", age: 21, marks: {maths: 100, physics: 90, status: {pass:false}}};
-      error? err = trap test:assertEquals(j1, j2);
-      error result = <error>err;
-      test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,18 +1,18 @@\n { name: <string> Anne, age:\n-<int> 21,\n+<string> 21,\n marks: <map> { maths: <int> 100, physics: <int> 90, status: <map> { pass:\n-<boolean> false\n+<boolean> true\n } } }\n\n"));
+     json j1 = {name: "Anne", age: "21", marks: {maths: 100, physics: 90, status: {pass:true}}};
+     json j2 = {name: "Anne", age: 21, marks: {maths: 100, physics: 90, status: {pass:false}}};
+     error? err = trap test:assertEquals(j1, j2);
+     error result = <error>err;
+     test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,11 +1,11 @@\n\n {\n name: <string> Anne,\n-age: <int> 21,\n+age: <string> 21,\n marks: <map> {\n maths: <int> 100,\n physics: <int> 90,\n status: <map> {\n-pass: <boolean> false\n+pass: <boolean> true\n }\n }\n }\n\n\n"));
 }
 
-@test:Config {}
 function testAssertLongJsonValues() {
     json bioData = {name:"John Doe Old", age:25, designation: "SSE", address:{city:"Colombo", country:"Sri Lankaa"}};
     json bioData2 = {name:"John Doe New", age:25, designation: "SSE", address:{city:"Colombo", country:"Sri Lanka"}};
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
-    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,15 +1,15 @@\n { name:\n-<string> John Doe New,\n+<string> John Doe Old,\n age: <int> 25, designation: <string> SSE, address: <map> { city: <string> Colombo, country:\n-<string> Sri Lanka\n+<string> Sri Lankaa\n } }\n\n"));
+    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,9 +1,9 @@\n\n {\n-name: <string> John Doe New,\n+name: <string> John Doe Old,\n age: <int> 25,\n designation: <string> SSE,\n address: <map> {\n city: <string> Colombo,\n-country: <string> Sri Lanka\n+country: <string> Sri Lankaa\n }\n }\n\n\n"));
 }
 
 @test:Config {}
@@ -94,4 +93,13 @@ function testAssertObjects() {
     error? err = trap test:assertExactEquals(person, person2);
     error result = <error>err;
     test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: 'object assertions-error-messages:Person'\nactual\t: 'object assertions-error-messages:Person'");
+}
+
+@test:Config {}
+function testAssertJsonArray() {
+        json j1 = [1, false, null, "foo", {first: "John", last: "Pala"}];
+        json j2 = [2, false, null, "foo", {first: "John", last: "Pala"}];
+        error? err = trap test:assertEquals(j1, j2);
+        error result = <error>err;
+        test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '[2,false,null,\"foo\",{\"first\":\"John\",\"last\":\"Pala\"}]'\nactual\t: '[1,false,null,\"foo\",{\"first\":\"John\",\"last\":\"Pala\"}]'");
 }

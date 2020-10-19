@@ -89,25 +89,8 @@ public class AssertionDiffEvaluator {
         return output;
     }
 
-    public static BString getStringDiff(BString expected, BString actual) {
+    public static BString getStringDiff(BString actual, BString expected) {
         return BStringUtils.fromString(getStringValueDiff(actual.toString(), expected.toString()));
-    }
-
-    public static BString getJsonDiff(BString actual, BString expected) {
-        String diffValue = "";
-        String diff = getStringValueDiff(actual.toString(), expected.toString());
-        String[] diffLines = diff.split("\n");
-        for (String line : diffLines) {
-            if (line.startsWith("+") || line.startsWith("-") || line.startsWith("@@ -")) {
-                if (!diffValue.endsWith("\n")) {
-                    diffValue = diffValue.concat("\n");
-                }
-                diffValue = diffValue.concat(line + "\n");
-            } else {
-                diffValue = diffValue.concat(line);
-            }
-        }
-        return BStringUtils.fromString(diffValue);
     }
 
 }
