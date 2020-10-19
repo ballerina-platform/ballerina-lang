@@ -25,9 +25,9 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
+import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
 import io.ballerina.compiler.api.types.util.ParameterKind;
-import io.ballerina.compiler.api.types.MethodDescriptor;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -88,15 +89,28 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
  */
 public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor> {
 
+    private static final CompilerContext.Key<TypeBuilder> TYPE_BUILDER_KEY = new CompilerContext.Key<>();
+
     private ModuleID moduleID;
     private final Types types;
     private final LangLibrary langLibrary;
     private final Map<BType, BallerinaTypeDescriptor> typeCache;
 
-    public TypeBuilder(Types types, LangLibrary langLibrary) {
-        this.types = types;
+    private TypeBuilder(CompilerContext context) {
+        context.put(TYPE_BUILDER_KEY, this);
+
+        this.types = Types.getInstance(context);
+        this.langLibrary = LangLibrary.getInstance(context);
         this.typeCache = new HashMap<>();
-        this.langLibrary = langLibrary;
+    }
+
+    public static TypeBuilder getInstance(CompilerContext context) {
+        TypeBuilder typeBuilder = context.get(TYPE_BUILDER_KEY);
+        if (typeBuilder == null) {
+            typeBuilder = new TypeBuilder(context);
+        }
+
+        return typeBuilder;
     }
 
     public BallerinaTypeDescriptor build(BType internalType) {

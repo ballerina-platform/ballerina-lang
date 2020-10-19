@@ -18,14 +18,13 @@
 
 package io.ballerina.compiler.api.impl;
 
-import io.ballerina.compiler.api.impl.types.TypeBuilder;
 import io.ballerina.compiler.api.impl.types.BallerinaMethodDescriptor;
+import io.ballerina.compiler.api.impl.types.TypeBuilder;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
-import io.ballerina.compiler.api.types.util.TypeDescKind;
 import io.ballerina.compiler.api.types.MethodDescriptor;
+import io.ballerina.compiler.api.types.util.TypeDescKind;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -65,27 +64,19 @@ import static io.ballerina.compiler.api.types.util.TypeDescKind.XML;
  */
 public class LangLibrary {
 
-    private static final LangLibrary langLibrary = new LangLibrary();
+    private static final CompilerContext.Key<LangLibrary> LANG_LIB_KEY = new CompilerContext.Key<>();
+
     private static final String LANG_VALUE = "value";
-    private static Map<String, BPackageSymbol> langLibs;
-    private static Map<String, Map<String, BInvokableSymbol>> langLibMethods;
-    private static Map<String, List<MethodDescriptor>> wrappedLangLibMethods;
-    private static TypeBuilder typeBuilder;
+    private Map<String, BPackageSymbol> langLibs;
+    private Map<String, Map<String, BInvokableSymbol>> langLibMethods;
+    private Map<String, List<MethodDescriptor>> wrappedLangLibMethods;
+    private TypeBuilder typeBuilder;
 
-    private LangLibrary() {
-    }
+    private LangLibrary(CompilerContext context) {
+        context.put(LANG_LIB_KEY, this);
 
-    // TODO: add this to the compiler context.
-    public static LangLibrary getInstance(CompilerContext context) {
-        if (langLibs != null) {
-            return langLibrary;
-        }
-
-        // Only need to do the following once.
-
-        // TODO: Move this initialization part to the constructor.
         SymbolTable symbolTable = SymbolTable.getInstance(context);
-        typeBuilder = new TypeBuilder(Types.getInstance(context), langLibrary);
+        typeBuilder = TypeBuilder.getInstance(context);
         langLibs = new HashMap<>();
         wrappedLangLibMethods = new HashMap<>();
 
@@ -100,7 +91,15 @@ public class LangLibrary {
         }
 
         langLibMethods = getLangLibMethods(langLibs);
-        return langLibrary;
+    }
+
+    public static LangLibrary getInstance(CompilerContext context) {
+        LangLibrary langLib = context.get(LANG_LIB_KEY);
+        if (langLib == null) {
+            langLib = new LangLibrary(context);
+        }
+
+        return langLib;
     }
 
     public List<MethodDescriptor> getMethods(TypeDescKind typeDescKind) {

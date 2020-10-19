@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
@@ -57,11 +58,23 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class SymbolFactory {
 
+    private static final CompilerContext.Key<SymbolFactory> SYM_FACTORY_KEY = new CompilerContext.Key<>();
+
     private final TypeBuilder typeBuilder;
 
-    // TODO: put this to the compiler context.
-    public SymbolFactory(TypeBuilder typeBuilder) {
-        this.typeBuilder = typeBuilder;
+    private SymbolFactory(CompilerContext context) {
+        context.put(SYM_FACTORY_KEY, this);
+
+        this.typeBuilder = TypeBuilder.getInstance(context);
+    }
+
+    public static SymbolFactory getInstance(CompilerContext context) {
+        SymbolFactory langLib = context.get(SYM_FACTORY_KEY);
+        if (langLib == null) {
+            langLib = new SymbolFactory(context);
+        }
+
+        return langLib;
     }
 
     /**
