@@ -26,9 +26,6 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Represents the target directory model.
@@ -132,31 +129,18 @@ public class Target {
     /**
      * Sets a custom path as the executable jar path.
      *
-     * @param pkg Package instance
      * @param outputPath path to set for the executable jar
      * @throws IOException if directory creation fails
      */
-    public void setOutputPath(Package pkg, Path outputPath) throws IOException {
-        if (this.outputPath.isAbsolute()) {
-            if (Files.isDirectory(this.outputPath)) {
-                if (Files.notExists(this.outputPath)) {
-                    Files.createDirectories(this.outputPath);
-                }
-
-                String outputFileName = ProjectUtils.getJarName(pkg);
-                this.outputPath = this.outputPath.resolve(outputFileName);
-            } else {
-                if (!this.outputPath.toString().endsWith(BLANG_COMPILED_JAR_EXT)) {
-                    this.outputPath = Paths.get(this.outputPath.toString() + BLANG_COMPILED_JAR_EXT);
-                }
-            }
-        } else {
-            Path userDir = Paths.get(System.getProperty("user.dir"));
-            if (io.ballerina.projects.utils.FileUtils.hasExtension(this.outputPath)) {
-                this.outputPath = userDir.resolve(this.outputPath);
-            } else {
-                this.outputPath = userDir.resolve(this.outputPath + BLANG_COMPILED_JAR_EXT);
-            }
+    public void setOutputPath(Path outputPath) throws IOException {
+        outputPath = outputPath.toAbsolutePath();
+        if (Files.exists(outputPath)) {
+            Files.delete(outputPath);
+        }
+        // create parent directories
+        Path parent = outputPath.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
         }
         this.outputPath = outputPath;
     }

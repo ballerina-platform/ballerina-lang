@@ -65,4 +65,8 @@ public class ProjectConstants {
     public static final String TARGET_BALO_DIR_NAME = "balo";
     public static final String BALLERINA_INSTALL_DIR_PROP = "ballerina.home";
     public static final String DIST_CACHE_DIRECTORY = "distribution-cache";
+
+    public static final String ANON_ORG = "$anon";
+    public static final String DOT = ".";
+    public static final String DEFAULT_VERSION = "0.0.0";
 }
