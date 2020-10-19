@@ -18,6 +18,19 @@ import ballerina/test;
 
 # Execute tests to verify the diff error messages during assert equality checks
 
+type Member record {
+    string fname;
+    string lname;
+    int age;
+};
+
+type Movie record {
+    string title;
+    string year;
+    string released;
+    Member writer;
+};
+
 @test:Config {}
 function testAssertStringValues() {
     error? err = trap test:assertEquals("hello dilhasha","hello dilhashaaa");
@@ -102,4 +115,31 @@ function testAssertJsonArray() {
         error? err = trap test:assertEquals(j1, j2);
         error result = <error>err;
         test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: '[2,false,null,\"foo\",{\"first\":\"John\",\"last\":\"Pala\"}]'\nactual\t: '[1,false,null,\"foo\",{\"first\":\"John\",\"last\":\"Pala\"}]'");
+}
+
+@test:Config {}
+function testAssertRecords() {
+    Movie theRevenant = {
+        title: "The Revenant",
+        year: "2015",
+        released: "08 Jan 2016",
+        writer: {
+            fname: "Michael",
+            lname: "Punke",
+            age: 30
+        }
+    };
+    Movie theRevenantNew = {
+        title: "The Revenant",
+        year: "2020",
+        released: "08 Jan 2020",
+        writer: {
+            fname: "Michael",
+            lname: "Punke",
+            age: 35
+        }
+    };
+    error? err = trap test:assertEquals(theRevenant, theRevenantNew);
+    error result = <error>err;
+    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ actual\n@@ -1,10 +1,10 @@\n\n {\n title: <string> The Revenant,\n-year: <string> 2020,\n-released: <string> 08 Jan 2020,\n+year: <string> 2015,\n+released: <string> 08 Jan 2016,\n writer: <Member> {\n fname: <string> Michael,\n lname: <string> Punke,\n-age: <int> 35\n+age: <int> 30\n }\n }\n\n\n"));
 }
