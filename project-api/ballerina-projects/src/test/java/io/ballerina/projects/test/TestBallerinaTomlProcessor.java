@@ -55,16 +55,6 @@ public class TestBallerinaTomlProcessor {
 
     }
 
-    @Test(description = "Test validate ballerina toml package section which contains build options")
-    public void testValidateBallerinaTomlWithBuildOptions() throws IOException, TomlException {
-        Path ballerinaTomlPath = RESOURCE_DIRECTORY.resolve("ballerinatomlWithBuildOptions").resolve("Ballerina.toml");
-        BallerinaToml ballerinaToml = BallerinaTomlProcessor.parse(ballerinaTomlPath);
-        Assert.assertNotNull(ballerinaToml.getBuildOptions());
-        Assert.assertEquals(ballerinaToml.getBuildOptions().getB7aConfigFile(), "/tmp/ballerina.conf");
-        Assert.assertTrue(ballerinaToml.getBuildOptions().isExperimental());
-        Assert.assertFalse(ballerinaToml.getBuildOptions().isOffline());
-    }
-
     @Test(description = "Test validate ballerina toml package section")
     public void testValidateBallerinaTomlPackage() {
         BallerinaToml ballerinaToml = new BallerinaToml();

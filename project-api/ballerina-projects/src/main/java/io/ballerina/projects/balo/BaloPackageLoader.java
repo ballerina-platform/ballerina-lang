@@ -26,7 +26,6 @@ import io.ballerina.projects.directory.PackageData;
 import io.ballerina.projects.directory.PackageLoader;
 
 import java.nio.file.Path;
-import java.util.Collections;
 
 import static io.ballerina.projects.utils.ProjectUtils.getOrgFromBaloName;
 import static io.ballerina.projects.utils.ProjectUtils.getPackageNameFromBaloName;
@@ -46,8 +45,7 @@ public class BaloPackageLoader extends PackageLoader {
         PackageName packageName = PackageName.from(getPackageNameFromBaloName(String.valueOf(baloName)));
         PackageOrg packageOrg = PackageOrg.from(getOrgFromBaloName(String.valueOf(baloName)));
         PackageVersion packageVersion = PackageVersion.from(getVersionFromBaloName(String.valueOf(baloName)));
-        PackageDescriptor packageDescriptor = new PackageDescriptor(packageName,
-                packageOrg, packageVersion, Collections.emptyList());
+        PackageDescriptor packageDescriptor = PackageDescriptor.from(packageName, packageOrg, packageVersion);
         return createPackageConfig(packageData, packageDescriptor);
     }
 }

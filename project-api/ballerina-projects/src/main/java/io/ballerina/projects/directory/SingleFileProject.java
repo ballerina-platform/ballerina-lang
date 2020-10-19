@@ -30,7 +30,6 @@ import io.ballerina.projects.utils.ProjectUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -60,7 +59,6 @@ public class SingleFileProject extends Project {
 
         this.sourceRoot = createTempProjectRoot(); // create a temp directory and assign to source root
         addPackage(projectPath);
-        this.setBuildOptions(new BuildOptions()); // Set default build options
     }
 
     private Path createTempProjectRoot() {
@@ -80,8 +78,7 @@ public class SingleFileProject extends Project {
         PackageName packageName = PackageName.from(".");
         PackageOrg packageOrg = PackageOrg.from(System.getProperty("user.name"));
         PackageVersion packageVersion = PackageVersion.from("0.0.0");
-        PackageDescriptor packageDescriptor = new PackageDescriptor(packageName,
-                packageOrg, packageVersion, Collections.emptyList());
+        PackageDescriptor packageDescriptor = PackageDescriptor.from(packageName, packageOrg, packageVersion);
         PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, true, packageDescriptor);
         this.addPackage(packageConfig);
     }
@@ -118,15 +115,6 @@ public class SingleFileProject extends Project {
             }
         }
         return true;
-    }
-
-    /**
-     * Returns build options of the project.
-     *
-     * @return build options
-     */
-    public BuildOptions getBuildOptions() {
-        return (BuildOptions) super.getBuildOptions();
     }
 
     /**
