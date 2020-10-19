@@ -893,6 +893,9 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void boostrapCloneableType() {
+        if (symTable.langValueModuleSymbol == null) {
+            return;
+        }
         ScopeEntry entry = symTable.langValueModuleSymbol.scope.lookup(Names.CLONEABLE);
         boolean foundCloneableType = false;
         while (entry != NOT_FOUND_ENTRY) {
@@ -914,6 +917,19 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if (!foundCloneableType) {
             throw new IllegalStateException("built-in 'lang.value:Cloneable' type not found");
+        }
+
+        // Replace internal `__Cloneable` type defined in annotation package
+        if (foundCloneableType) {
+            entry = symTable.rootPkgSymbol.scope.lookup(Names.__CLONEABLE);
+            while (entry != NOT_FOUND_ENTRY) {
+                if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                    entry = entry.next;
+                    continue;
+                }
+                entry.symbol.type = symTable.cloneableType;
+                break;
+            }
         }
 
         entry = symTable.rootPkgSymbol.scope.lookup(Names.ERROR);

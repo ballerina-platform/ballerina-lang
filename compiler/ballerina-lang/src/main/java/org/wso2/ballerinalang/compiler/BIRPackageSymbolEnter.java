@@ -1155,11 +1155,16 @@ public class BIRPackageSymbolEnter {
                     bArrayType.eType = readTypeFromCp();
                     return bArrayType;
                 case TypeTags.UNION:
+                    Name unionNameValue;
+                    if (Symbols.isFlagOn(flags, Flags.CYCLIC)) {
+                        unionNameValue = names.fromString(getStringCPEntryValue(inputStream));
+                    } else {
+                        unionNameValue = Names.EMPTY;
+                    }
+
                     BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE,
-                                                                           Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                                           Names.EMPTY, env.pkgSymbol.pkgID, null,
-                                                                           env.pkgSymbol.owner, symTable.builtinPos,
-                                                                           COMPILED_SOURCE);
+                            Flags.asMask(EnumSet.of(Flag.PUBLIC)), unionNameValue, env.pkgSymbol.pkgID,
+                            null, env.pkgSymbol.owner, symTable.builtinPos, COMPILED_SOURCE);
                     BUnionType unionType = BUnionType.create(unionTypeSymbol,
                                                              new LinkedHashSet<>()); //TODO improve(useless second
                     // param)

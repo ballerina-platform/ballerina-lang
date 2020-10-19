@@ -266,7 +266,8 @@ public class BUnionType extends BType implements UnionType {
 
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
-                .flatMap(type -> type.tag == TypeTags.UNION && !isTypeParamAvailable(type) ?
+                .flatMap(type -> type.tag == TypeTags.UNION && !isTypeParamAvailable(type) &&
+                        !Symbols.isFlagOn(type.flags, Flags.CYCLIC) ?
                         ((BUnionType) type).memberTypes.stream() : Stream.of(type))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }

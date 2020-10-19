@@ -293,6 +293,9 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BUnionType bUnionType) {
+        if (Symbols.isFlagOn(bUnionType.flags, Flags.CYCLIC)) {
+            buff.writeInt(addStringCPEntry(bUnionType.tsymbol.name.value));
+        }
         buff.writeInt(bUnionType.getMemberTypes().size());
         for (BType memberType : bUnionType.getMemberTypes()) {
             writeTypeCpIndex(memberType);

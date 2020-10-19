@@ -271,6 +271,8 @@ types:
         type: s4
   type_union:
     seq:
+      - id: name_cp_index
+        type: s4
       - id: member_types_count
         type: s4
       - id: member_type_cp_index
