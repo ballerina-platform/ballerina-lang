@@ -136,7 +136,7 @@ public abstract class AbstractParser {
         this.errorHandler.switchContext(context);
     }
 
-    protected STToken getNextNextToken(SyntaxKind tokenKind) {
+    protected STToken getNextNextToken() {
         return peek(2);
     }
 
