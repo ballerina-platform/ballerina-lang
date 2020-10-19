@@ -785,8 +785,8 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public RemoteMethodCallActionNode transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
-        ExpressionNode expression = formatNode(remoteMethodCallActionNode.expression(), 0, 0);
-        Token rightArrowToken = formatToken(remoteMethodCallActionNode.rightArrowToken(), 0, 0);
+        ExpressionNode expression = formatNode(remoteMethodCallActionNode.expression(), 1, 0);
+        Token rightArrowToken = formatToken(remoteMethodCallActionNode.rightArrowToken(), 1, 0);
         SimpleNameReferenceNode methodName = formatNode(remoteMethodCallActionNode.methodName(), 0, 0);
         Token openParenToken = formatToken(remoteMethodCallActionNode.openParenToken(), 0, 0);
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(remoteMethodCallActionNode
