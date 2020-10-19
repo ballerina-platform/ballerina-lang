@@ -50,6 +50,13 @@ isolated class InvalidIsolatedClassNotOverridingMutableFieldsInIncludedIsolatedO
     }
 }
 
+isolated object {} invalidIsolatedObjectNotOverridingMutableFieldsInIncludedIsolatedObject = object IsolatedObjectType {
+   function init() {
+       self.a = 1;
+       self.b = [];
+   }
+};
+
 isolated class InvalidIsolatedClassAccessingMutableFieldsOutsideLock {
     final int a = 1;
     private string b = "hello";

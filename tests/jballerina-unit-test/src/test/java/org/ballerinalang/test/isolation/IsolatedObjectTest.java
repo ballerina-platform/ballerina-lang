@@ -27,7 +27,7 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 /**
  * Test cases related to isolated objects.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public class IsolatedObjectTest {
 
@@ -56,69 +56,71 @@ public class IsolatedObjectTest {
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 30, 5);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 45, 6);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 45, 6);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 53, 101);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 53, 101);
         validateError(result, i++,
-                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 62, 39);
+                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 69, 39);
         validateError(result, i++,
-                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 65, 9);
+                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 72, 9);
         validateError(result, i++,
-                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 72, 16);
+                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 79, 16);
         validateError(result, i++,
-                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 82, 43);
+                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 89, 43);
         validateError(result, i++,
-                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 85, 13);
+                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 92, 13);
         validateError(result, i++,
-                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 92, 20);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 109, 30);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 115, 22);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 117, 23);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 117, 35);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 122, 18);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 128, 30);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 128, 42);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 129, 34);
-        validateError(result, i++, "invalid initial value expression: expected a unique expression", 136, 22);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 157, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 158, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 159, 23);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 168, 36);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 169, 23);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 172, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 173, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 174, 23);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 189, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 190, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 191, 23);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 200, 36);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 201, 23);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 204, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 205, 25);
-        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 206, 23);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 225, 19);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 226, 27);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 227, 20);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 228, 20);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 238, 23);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 241, 19);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 242, 19);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 256, 23);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 257, 23);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 258, 24);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 259, 24);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 269, 27);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 272, 31);
-        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 273, 23);
+                      "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 99, 20);
+        validateError(result, i++, "invalid initial value expression: expected a unique expression", 116, 30);
+        validateError(result, i++, "invalid initial value expression: expected a unique expression", 122, 22);
+        validateError(result, i++, "invalid initial value expression: expected a unique expression", 124, 23);
+        validateError(result, i++, "invalid initial value expression: expected a unique expression", 124, 35);
+        validateError(result, i++, "invalid initial value expression: expected a unique expression", 129, 18);
+        validateError(result, i++, "invalid initial value expression: expected a unique expression", 135, 30);
+        validateError(result, i++, "invalid initial value expression: expected a unique expression", 135, 42);
+        validateError(result, i++, "invalid initial value expression: expected a unique expression", 136, 34);
+        validateError(result, i++, "invalid initial value expression: expected a unique expression", 143, 22);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 164, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 165, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 166, 23);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 175, 36);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 176, 23);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 179, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 180, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 181, 23);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 196, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 197, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 198, 23);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 207, 36);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 208, 23);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 211, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 212, 25);
+        validateError(result, i++, "invalid attempt to copy a mutable value into an 'isolated' object", 213, 23);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 232, 19);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 233, 27);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 234, 20);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 235, 20);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 245, 23);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 248, 19);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 249, 19);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 263, 23);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 264, 23);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 265, 24);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 266, 24);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 276, 27);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 279, 31);
+        validateError(result, i++, "invalid attempt to copy out a mutable value from an 'isolated' object", 280, 23);
         validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
-                "field of an 'isolated' object", 287, 20);
+                "field of an 'isolated' object", 294, 20);
         validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
-                "field of an 'isolated' object", 288, 20);
+                "field of an 'isolated' object", 295, 20);
         validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
-                "field of an 'isolated' object", 290, 17);
+                "field of an 'isolated' object", 297, 17);
         validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
-                "field of an 'isolated' object", 303, 20);
+                "field of an 'isolated' object", 310, 20);
         validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
-                "field of an 'isolated' object", 304, 20);
+                "field of an 'isolated' object", 311, 20);
         validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
-                "field of an 'isolated' object", 306, 17);
+                "field of an 'isolated' object", 313, 17);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
