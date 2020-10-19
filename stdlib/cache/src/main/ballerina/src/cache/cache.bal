@@ -45,12 +45,12 @@ type CacheEntry record {|
 boolean cleanupInProgress = false;
 
 // Cleanup service which cleans the cache entries periodically.
-service cleanupService = service {
-    resource function onTrigger(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
+final service cleanupService = service {
+    resource function onTrigger(Cache cache, AbstractEvictionPolicy evictionPolicy) {
         // This check will skip the processes triggered while the clean up in progress.
         if (!cleanupInProgress) {
             cleanupInProgress = true;
-            cleanup(cache, list, evictionPolicy);
+            cleanup(cache, evictionPolicy);
             cleanupInProgress = false;
         }
     }
@@ -66,7 +66,6 @@ public type Cache object {
     private AbstractEvictionPolicy evictionPolicy;
     private float evictionFactor;
     private int defaultMaxAgeInSeconds;
-    private LinkedList list;
 
     # Called when a new `cache:Cache` object is created.
     #
@@ -90,12 +89,7 @@ public type Cache object {
         if (self.defaultMaxAgeInSeconds != -1 && self.defaultMaxAgeInSeconds <= 0) {
             panic prepareError("Default max age should be greater than 0 or -1 for indicate forever valid.");
         }
-
-        self.list = {
-            head: (),
-            tail: ()
-        };
-
+        externLockInit();
         externInit(self, self.capacity);
 
         int? cleanupIntervalInSeconds = cacheConfig?.cleanupIntervalInSeconds;
@@ -105,7 +99,7 @@ public type Cache object {
                 initialDelayInMillis: cleanupIntervalInSeconds
             };
             task:Scheduler cleanupScheduler = new(timerConfiguration);
-            task:SchedulerError? result = cleanupScheduler.attach(cleanupService, self, self.list, self.evictionPolicy);
+            task:SchedulerError? result = cleanupScheduler.attach(cleanupService, self, self.evictionPolicy);
             if (result is task:SchedulerError) {
                 panic prepareError("Failed to create the cache cleanup task.", result);
             }
@@ -131,7 +125,7 @@ public type Cache object {
         }
         // If the current cache is full (i.e. size = capacity), evict cache.
         if (self.size() == self.capacity) {
-            evict(self, self.list, self.evictionPolicy, self.capacity, self.evictionFactor);
+            evict(self, self.evictionPolicy, self.capacity, self.evictionFactor);
         }
 
         // Calculate the `expTime` of the cache entry based on the `maxAgeInSeconds` property and
@@ -154,9 +148,9 @@ public type Cache object {
 
         if (self.hasKey(key)) {
             Node oldNode = externGet(self, java:fromString(key));
-            self.evictionPolicy.replace(self.list, newNode, oldNode);
+            self.evictionPolicy.replace(newNode, oldNode);
         } else {
-            self.evictionPolicy.put(self.list, newNode);
+            self.evictionPolicy.put(newNode);
         }
         externPut(self, java:fromString(key), newNode);
     }
@@ -179,12 +173,12 @@ public type Cache object {
         // and runs in predefined intervals, sometimes the cache entry might not have been removed at this point
         // even though it is expired. So this check guarantees that the expired cache entries will not be returned.
         if (entry.expTime != -1 && entry.expTime < time:nanoTime()) {
-            self.evictionPolicy.remove(self.list, node);
+            self.evictionPolicy.remove(node);
             externRemove(self, java:fromString(key));
             return ();
         }
 
-        self.evictionPolicy.get(self.list, node);
+        self.evictionPolicy.get(node);
         return entry.data;
     }
 
@@ -200,7 +194,7 @@ public type Cache object {
         }
 
         Node node = externGet(self, java:fromString(key));
-        self.evictionPolicy.remove(self.list, node);
+        self.evictionPolicy.remove(node);
         externRemove(self, java:fromString(key));
     }
 
@@ -209,7 +203,7 @@ public type Cache object {
     # + return - `()` if successfully discarded all the values from the cache or an `Error` if any error occurred while
     # discarding all the values from the cache.
     public function invalidateAll() returns Error? {
-        self.evictionPolicy.clear(self.list);
+        self.evictionPolicy.clear();
         externRemoveAll(self);
     }
 
@@ -244,10 +238,10 @@ public type Cache object {
     }
 };
 
-function evict(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPolicy, int capacity, float evictionFactor) {
+function evict(Cache cache, AbstractEvictionPolicy evictionPolicy, int capacity, float evictionFactor) {
     int evictionKeysCount = <int>(capacity * evictionFactor);
     foreach int i in 1...evictionKeysCount {
-        Node? node = evictionPolicy.evict(list);
+        Node? node = evictionPolicy.evict();
         if (node is Node) {
             CacheEntry entry = <CacheEntry>node.value;
             externRemove(cache, java:fromString(entry.key));
@@ -259,7 +253,7 @@ function evict(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPoli
     }
 }
 
-function cleanup(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
+function cleanup(Cache cache, AbstractEvictionPolicy evictionPolicy) {
     if (externSize(cache) == 0) {
         return;
     }
@@ -267,7 +261,7 @@ function cleanup(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPo
         Node node = externGet(cache, java:fromString(key));
         CacheEntry entry = <CacheEntry>node.value;
         if (entry.expTime != -1 && entry.expTime < time:nanoTime()) {
-            evictionPolicy.remove(list, node);
+            evictionPolicy.remove(node);
             externRemove(cache, java:fromString(entry.key));
             // The return result (error which occurred due to unavailability of the key or nil) is ignored
             // since no purpose of handling it.
