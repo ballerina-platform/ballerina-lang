@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -15,9 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.api.impl.symbols;
+package io.ballerina.compiler.api.impl;
 
-import io.ballerina.compiler.api.impl.TypesFactory;
+import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
+import io.ballerina.compiler.api.impl.symbols.BallerinaServiceSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.impl.types.BallerinaParameter;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -36,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.util.Flags;
@@ -54,10 +65,15 @@ public class SymbolFactory {
      * Get the matching {@link Symbol} for a given {@link BSymbol}.
      *
      * @param symbol BSymbol to generated the BCompiled Symbol
-     * @param name symbol name
+     * @param name   symbol name
      * @return generated compiled symbol
      */
     public static Symbol getBCompiledSymbol(BSymbol symbol, String name) {
+
+        if (symbol == null) {
+            throw new IllegalArgumentException("Symbol is 'null'");
+        }
+        
         if (symbol instanceof BVarSymbol) {
             if (symbol.kind == SymbolKind.FUNCTION) {
                 if (Symbols.isFlagOn(symbol.flags, Flags.ATTACHED)) {
@@ -92,8 +108,8 @@ public class SymbolFactory {
             return createTypeDefinition((BTypeSymbol) symbol, name);
         }
 
-        if (symbol == null) {
-            throw new IllegalArgumentException("Symbol is 'null'");
+        if (symbol.kind == SymbolKind.XMLNS) {
+            return createXMLNamespaceSymbol((BXMLNSSymbol) symbol);
         }
 
         throw new IllegalArgumentException("Unsupported symbol type: " + symbol.getClass().getName());
@@ -103,7 +119,7 @@ public class SymbolFactory {
      * Create Function Symbol.
      *
      * @param invokableSymbol {@link BInvokableSymbol} to convert
-     * @param name symbol name
+     * @param name            symbol name
      * @return {@link Symbol} generated
      */
     public static BallerinaFunctionSymbol createFunctionSymbol(BInvokableSymbol invokableSymbol, String name) {
@@ -137,7 +153,7 @@ public class SymbolFactory {
      * Create Method Symbol.
      *
      * @param invokableSymbol {@link BInvokableSymbol} to convert
-     * @param name symbol name
+     * @param name            symbol name
      * @return {@link Symbol} generated
      */
     public static BallerinaMethodSymbol createMethodSymbol(BInvokableSymbol invokableSymbol, String name) {
@@ -154,7 +170,7 @@ public class SymbolFactory {
      * Create a generic variable symbol.
      *
      * @param symbol {@link BVarSymbol} to convert
-     * @param name symbol name
+     * @param name   symbol name
      * @return {@link BallerinaVariableSymbol} generated
      */
     public static BallerinaVariableSymbol createVariableSymbol(BVarSymbol symbol, String name) {
@@ -210,7 +226,7 @@ public class SymbolFactory {
      * Create a Ballerina Type Definition Symbol.
      *
      * @param typeSymbol type symbol to convert
-     * @param name symbol name
+     * @param name       symbol name
      * @return {@link}
      */
     public static BallerinaTypeSymbol createTypeDefinition(BTypeSymbol typeSymbol, String name) {
@@ -238,15 +254,19 @@ public class SymbolFactory {
      * Create a constant symbol.
      *
      * @param constantSymbol BConstantSymbol to convert
-     * @param name symbol name
+     * @param name           symbol name
      * @return {@link BallerinaConstantSymbol} generated
      */
     public static BallerinaConstantSymbol createConstantSymbol(BConstantSymbol constantSymbol, String name) {
         BallerinaConstantSymbol.ConstantSymbolBuilder symbolBuilder =
                 new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol.pkgID, constantSymbol);
-        return symbolBuilder.withConstValue(constantSymbol.getConstValue())
-                .withTypeDescriptor(TypesFactory.getTypeDescriptor(constantSymbol.literalType))
-                .build();
+        symbolBuilder.withConstValue(constantSymbol.getConstValue())
+                .withTypeDescriptor(TypesFactory.getTypeDescriptor(constantSymbol.literalType));
+        if ((constantSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+            symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+
+        return symbolBuilder.build();
     }
 
     /**
@@ -256,9 +276,29 @@ public class SymbolFactory {
      * @return {@link BallerinaAnnotationSymbol}
      */
     public static BallerinaAnnotationSymbol createAnnotationSymbol(BAnnotationSymbol symbol) {
-        return new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol)
-                .withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.attachedType.getType()))
-                .build();
+        BallerinaAnnotationSymbol.AnnotationSymbolBuilder symbolBuilder =
+                new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol);
+        if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+            symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+        if (symbol.attachedType != null && symbol.attachedType.getType() != null) {
+            symbolBuilder.withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.attachedType.getType()));
+        }
+
+        return symbolBuilder.build();
+    }
+
+    /**
+     * Creates an annotation Symbol.
+     *
+     * @param symbol Annotation symbol to convert
+     * @return {@link BallerinaAnnotationSymbol}
+     */
+    public static BallerinaXMLNSSymbol createXMLNamespaceSymbol(BXMLNSSymbol symbol) {
+        BallerinaXMLNSSymbol.XmlNSSymbolBuilder symbolBuilder =
+                new BallerinaXMLNSSymbol.XmlNSSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol);
+
+        return symbolBuilder.build();
     }
 
     /**

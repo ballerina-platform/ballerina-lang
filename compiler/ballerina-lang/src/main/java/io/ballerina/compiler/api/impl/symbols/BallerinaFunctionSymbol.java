@@ -20,7 +20,6 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -67,7 +66,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
     }
 
     @Override
-    public BallerinaTypeDescriptor typeDescriptor() {
+    public FunctionTypeDescriptor typeDescriptor() {
         return this.typeDescriptor;
     }
 
@@ -84,7 +83,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
     /**
      * Represents Ballerina XML Namespace Symbol Builder.
      */
-    static class FunctionSymbolBuilder extends SymbolBuilder<FunctionSymbolBuilder> {
+    public static class FunctionSymbolBuilder extends SymbolBuilder<FunctionSymbolBuilder> {
 
         protected Set<Qualifier> qualifiers = new HashSet<>();
         protected FunctionTypeDescriptor typeDescriptor;
