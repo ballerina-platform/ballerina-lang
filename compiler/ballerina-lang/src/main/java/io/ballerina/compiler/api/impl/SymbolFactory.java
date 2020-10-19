@@ -59,6 +59,7 @@ public class SymbolFactory {
 
     private final TypeBuilder typeBuilder;
 
+    // TODO: put this to the compiler context.
     public SymbolFactory(TypeBuilder typeBuilder) {
         this.typeBuilder = typeBuilder;
     }

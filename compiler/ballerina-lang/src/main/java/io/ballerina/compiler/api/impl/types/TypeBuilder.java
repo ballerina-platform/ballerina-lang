@@ -28,7 +28,6 @@ import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
 import io.ballerina.compiler.api.types.ParameterKind;
-import io.ballerina.compiler.api.types.util.LangLibMethod;
 import io.ballerina.compiler.api.types.util.MethodDeclaration;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -114,7 +113,7 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
         BallerinaTypeDescriptor publicType = internalType.accept(this, null);
 
         if (publicType != null) {
-            List<LangLibMethod> langLibMethods = langLibrary.getMethods(publicType.kind());
+            List<MethodDeclaration> langLibMethods = langLibrary.getMethods(publicType.kind());
             langLibMethods = filterMethods(langLibMethods, internalType);
             ((AbstractTypeDescriptor) publicType).setLangLibMethods(unmodifiableList(langLibMethods));
         }
@@ -322,10 +321,10 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
     }
 
     // Private Methods
-    private List<LangLibMethod> filterMethods(List<LangLibMethod> methods, BType internalType) {
-        List<LangLibMethod> filteredMethods = new ArrayList<>();
+    private List<MethodDeclaration> filterMethods(List<MethodDeclaration> methods, BType internalType) {
+        List<MethodDeclaration> filteredMethods = new ArrayList<>();
 
-        for (LangLibMethod method : methods) {
+        for (MethodDeclaration method : methods) {
             BType firstParamType = getFirstParamType(method.typeDescriptor());
             if (types.isAssignable(internalType, firstParamType)) {
                 filteredMethods.add(method);
