@@ -49,8 +49,8 @@ public class ServiceScopeResolver extends CursorPositionResolver {
         BLangDiagnosticLocation zeroBasedPo = CommonUtil.toZeroBasedPosition(nodePosition);
         int line = position.getLine();
         int col = position.getCharacter();
-        int nodeSLine = zeroBasedPo.getStartLine();
-        int nodeSCol = zeroBasedPo.getStartColumn();
+        int nodeSLine = zeroBasedPo.lineRange().startLine().line();
+        int nodeSCol = zeroBasedPo.lineRange().startLine().offset();
 
         if (line < nodeSLine
                 || (line == nodeSLine && col <= nodeSCol)
@@ -87,10 +87,10 @@ public class ServiceScopeResolver extends CursorPositionResolver {
         List<BLangNode> serviceContent = new ArrayList<>(serviceFunctions);
         serviceContent.sort(new CommonUtil.BLangNodeComparator());
 
-        int serviceEndLine = classNodePos.getEndLine();
-        int serviceEndCol = classNodePos.getEndColumn();
-        int nodeEndLine = nodePos.getEndLine();
-        int nodeEndCol = nodePos.getEndColumn();
+        int serviceEndLine = classNodePos.lineRange().endLine().line();
+        int serviceEndCol = classNodePos.lineRange().endLine().offset();
+        int nodeEndLine = nodePos.lineRange().endLine().line();
+        int nodeEndCol = nodePos.lineRange().endLine().offset();
         boolean isLastChildNode;
 
         isLastChildNode = !serviceContent.isEmpty() && serviceContent.indexOf(node) == (serviceContent.size() - 1);

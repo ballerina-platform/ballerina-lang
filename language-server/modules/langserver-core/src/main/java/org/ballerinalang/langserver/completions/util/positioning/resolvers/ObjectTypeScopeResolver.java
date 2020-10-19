@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -59,10 +60,14 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
         BLangNode lastItem = CommonUtil.getLastItem(CompletionVisitorUtil.getObjectItemsOrdered(ownerObject));
         boolean isLastItem = (lastItem == node);
 
-        if (line < zeroBasedPos.getStartLine()
-                || (line == zeroBasedPos.getStartLine() && col < zeroBasedPos.getStartColumn())
-                || (isLastItem && ((blockOwnerPos.getEndLine() > line && zeroBasedPos.getEndLine() < line)
-                || (blockOwnerPos.getEndLine() == line && blockOwnerPos.getEndColumn() > col)))) {
+        LineRange zeroBasedLineRange = zeroBasedPos.lineRange();
+        LineRange blockOwnerLineRange = blockOwnerPos.lineRange();
+
+        if (line < zeroBasedLineRange.startLine().line()
+                || (line == zeroBasedLineRange.startLine().line() && col < zeroBasedLineRange.startLine().offset())
+                || (isLastItem && ((blockOwnerLineRange.endLine().line() > line
+                    && zeroBasedLineRange.endLine().line() < line)
+                || (blockOwnerLineRange.endLine().line() == line && blockOwnerLineRange.endLine().offset() > col)))) {
             
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());

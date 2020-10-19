@@ -101,11 +101,11 @@ public class ImportModuleCodeAction implements DiagBasedCodeAction {
         List<TopLevelNode> nodes = CommonUtil.getCurrentFileTopLevelNodes(bLangPackage, context);
         int lowestLine = 1;
         if (!nodes.isEmpty()) {
-            lowestLine = nodes.get(0).getPosition().getStartLine();
+            lowestLine = nodes.get(0).getPosition().lineRange().startLine().line();
             for (TopLevelNode node : nodes) {
                 BLangDiagnosticLocation position = node.getPosition();
-                if (lowestLine > position.getStartLine()) {
-                    lowestLine = position.getStartLine();
+                if (lowestLine > position.lineRange().startLine().line()) {
+                    lowestLine = position.lineRange().startLine().line();
                 }
             }
         }
@@ -117,7 +117,7 @@ public class ImportModuleCodeAction implements DiagBasedCodeAction {
         Position insertPos = new Position(lowestLine - 1, 0);
         if (!imports.isEmpty()) {
             BLangImportPackage last = CommonUtil.getLastItem(imports);
-            insertPos = new Position(last.getPosition().getEndLine(), 0);
+            insertPos = new Position(last.getPosition().lineRange().endLine().line(), 0);
         }
         return insertPos;
     }

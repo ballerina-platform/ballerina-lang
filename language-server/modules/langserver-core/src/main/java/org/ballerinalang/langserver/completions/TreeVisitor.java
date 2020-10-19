@@ -877,10 +877,10 @@ public class TreeVisitor extends LSNodeVisitor {
         Position position = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int cLine = position.getLine();
         int cCol = position.getCharacter();
-        int sLine = pos.getStartLine();
-        int eLine = pos.getEndLine();
-        int sCol = pos.getStartColumn();
-        int eCol = pos.getEndColumn();
+        int sLine = pos.lineRange().startLine().line();
+        int eLine = pos.lineRange().endLine().line();
+        int sCol = pos.lineRange().startLine().offset();
+        int eCol = pos.lineRange().endLine().offset();
 
         if ((sLine < cLine && eLine > cLine) || (sLine == cLine && eLine == cLine && cCol >= sCol && cCol <= eCol)) {
             throw new CompletionContextNotSupportedException("Completion within Literals are not Supported");

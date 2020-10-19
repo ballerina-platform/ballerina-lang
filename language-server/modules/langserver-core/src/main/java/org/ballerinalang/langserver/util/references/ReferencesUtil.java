@@ -299,8 +299,10 @@ public class ReferencesUtil {
     }
 
     private static Range getRange(BLangDiagnosticLocation referencePos) {
-        Position start = new Position(referencePos.getStartLine(), referencePos.getStartColumn());
-        Position end = new Position(referencePos.getEndLine(), referencePos.getEndColumn());
+        Position start = new Position(
+                referencePos.lineRange().startLine().line(), referencePos.lineRange().startLine().offset());
+        Position end = new Position(
+                referencePos.lineRange().endLine().line(), referencePos.lineRange().endLine().offset());
         return new Range(start, end);
     }
 }

@@ -68,9 +68,11 @@ public class ImplementFunctionsCodeAction implements DiagBasedCodeAction {
                     if (topLevelNode instanceof BLangTypeDefinition) {
                         BLangDiagnosticLocation pos =
                                 topLevelNode.getPosition();
-                        return ((pos.getStartLine() == line || pos.getEndLine() == line ||
-                                (pos.getStartLine() < line && pos.getEndLine() > line)) &&
-                                (pos.getStartColumn() <= column && pos.getEndColumn() <= column));
+                        return ((pos.lineRange().startLine().line() == line || pos.lineRange().endLine().line() == line
+                                || (pos.lineRange().startLine().line() < line
+                                && pos.lineRange().endLine().line() > line))
+                                && (pos.lineRange().startLine().offset() <= column
+                                && pos.lineRange().endLine().offset() <= column));
                     }
                     return false;
                 }).findAny().map(t -> (BLangTypeDefinition) t);
@@ -125,7 +127,7 @@ public class ImplementFunctionsCodeAction implements DiagBasedCodeAction {
         String modifiers = (isPublic) ? "public " : "";
         String editText = FunctionGenerator.createFunction(function.funcName.value, funcArgs, returnType, returnValue,
                                                            modifiers, false, StringUtils.repeat(' ', 4));
-        Position editPos = new Position(object.pos.getEndLine() - 1, 0);
+        Position editPos = new Position(object.pos.lineRange().endLine().line() - 1, 0);
         edits.addAll(importsAcceptor.getNewImportTextEdits());
         edits.add(new TextEdit(new Range(editPos, editPos), editText));
         return edits;

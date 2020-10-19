@@ -462,10 +462,10 @@ class BIRTestUtils {
     }
 
     private static void assertPosition(Bir.Position actualPosition, BLangDiagnosticLocation expectedPosition) {
-        Assert.assertEquals(actualPosition.sLine(), expectedPosition.getStartLine());
-        Assert.assertEquals(actualPosition.eLine(), expectedPosition.getEndLine());
-        Assert.assertEquals(actualPosition.sCol(), expectedPosition.getStartColumn());
-        Assert.assertEquals(actualPosition.eCol(), expectedPosition.getEndColumn());
+        Assert.assertEquals(actualPosition.sLine(), expectedPosition.lineRange().startLine().line());
+        Assert.assertEquals(actualPosition.eLine(), expectedPosition.lineRange().endLine().line());
+        Assert.assertEquals(actualPosition.sCol(), expectedPosition.lineRange().startLine().offset());
+        Assert.assertEquals(actualPosition.eCol(), expectedPosition.lineRange().endLine().offset());
     }
 
     private static void assertAnnotations(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,

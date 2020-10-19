@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 
 import com.google.common.primitives.Ints;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.semantichighlighter.SemanticHighlightingInformation;
@@ -74,7 +75,7 @@ public class SemanticHighlightProvider {
         Map<Integer, int[]> lineInfo = new HashMap<>();
         ArrayList<SemanticHighlightingInformation> highlightsArr = new ArrayList<>();
         context.get(SemanticHighlightingKeys.SEMANTIC_HIGHLIGHTING_KEY).forEach(element-> {
-            int line = element.identifier.pos.getStartLine() - 1;
+            int line = element.identifier.pos.lineRange().startLine().line() - 1;
             int[] token = getToken(element);
 
             if (lineInfo.get(line) != null) {
@@ -92,8 +93,9 @@ public class SemanticHighlightProvider {
     }
 
     private static int[] getToken(HighlightInfo element) {
-        int character = element.identifier.pos.getStartColumn() - 1;
-        int length = element.identifier.pos.getEndColumn() - element.identifier.pos.getStartColumn();
+        LineRange lineRange = element.identifier.pos.lineRange();
+        int character = lineRange.startLine().offset() - 1;
+        int length = lineRange.endLine().offset() - lineRange.startLine().offset();
         int scope = element.scopeEnum.getScopeId();
 
         SemanticHighlightingToken highlightingToken = new SemanticHighlightingToken(character, length, scope);

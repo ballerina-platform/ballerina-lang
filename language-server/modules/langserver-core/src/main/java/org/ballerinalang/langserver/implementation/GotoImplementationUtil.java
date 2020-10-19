@@ -88,8 +88,9 @@ public class GotoImplementationUtil {
         String cUnitName = bLangFunction.getPosition().lineRange().filePath();
         Location location = new Location();
         BLangDiagnosticLocation implPosition = CommonUtil.toZeroBasedPosition(bLangFunction.getPosition());
-        Range range = new Range(new Position(implPosition.getStartLine(), implPosition.getStartColumn()),
-                new Position(implPosition.getEndLine(), implPosition.getEndColumn()));
+        Range range = new Range(new Position(
+                implPosition.lineRange().startLine().line(), implPosition.lineRange().startLine().offset()),
+                new Position(implPosition.lineRange().endLine().line(), implPosition.lineRange().endLine().offset()));
         location.setRange(range);
         String uri = new File(sourceRoot).toPath().resolve(pkgName).resolve(cUnitName).toUri().toString();
         location.setUri(uri);
@@ -112,7 +113,8 @@ public class GotoImplementationUtil {
                     BLangDiagnosticLocation zeroBasedPosition = CommonUtil.toZeroBasedPosition(nodePosition);
                     return NodeKind.TYPE_DEFINITION.equals(node.getKind())
                             && NodeKind.OBJECT_TYPE.equals(((BLangTypeDefinition) node).typeNode.getKind())
-                            && zeroBasedPosition.getStartLine() <= line && zeroBasedPosition.getEndLine() >= line;
+                            && zeroBasedPosition.lineRange().startLine().line() <= line
+                            && zeroBasedPosition.lineRange().endLine().line() >= line;
                 })
                 .map(topLevelNode -> ((BLangObjectTypeNode) ((BLangTypeDefinition) topLevelNode).typeNode))
                 .findAny();

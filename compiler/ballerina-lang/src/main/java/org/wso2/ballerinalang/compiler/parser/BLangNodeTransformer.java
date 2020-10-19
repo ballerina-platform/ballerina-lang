@@ -4477,10 +4477,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     int offset = originalText.indexOf(hexStringWithBraces) + 1;
                     BLangDiagnosticLocation pos = getPosition(literal);
                     dlog.error(new BLangDiagnosticLocation(currentCompUnitName,
-                                    pos.getStartLine(),
-                                    pos.getEndLine(),
-                                    pos.getStartColumn() + offset,
-                                    pos.getStartColumn() + offset + hexStringWithBraces.length()),
+                                    pos.lineRange().startLine().line(),
+                                    pos.lineRange().endLine().line(),
+                                    pos.lineRange().startLine().offset() + offset,
+                                    pos.lineRange().startLine().offset() + offset + hexStringWithBraces.length()),
                                DiagnosticCode.INVALID_UNICODE, hexStringWithBraces);
                 }
                 text = matcher.replaceFirst("\\\\u" + fillWithZeros(hexStringVal));

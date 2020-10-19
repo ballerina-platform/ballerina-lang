@@ -1035,9 +1035,9 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;
         SymbolReferencesModel.Reference ref = this.getSymbolReference(zeroBasedPos, bSymbol, bLangNode);
-        if (this.currentCUnitMode && this.cursorLine == zeroBasedPos.getStartLine()
-                && this.cursorCol >= zeroBasedPos.getStartColumn()
-                && this.cursorCol <= zeroBasedPos.getEndColumn()) {
+        if (this.currentCUnitMode && this.cursorLine == zeroBasedPos.lineRange().startLine().line()
+                && this.cursorCol >= zeroBasedPos.lineRange().startLine().offset()
+                && this.cursorCol <= zeroBasedPos.lineRange().endLine().offset()) {
             // This is the symbol at current cursor position
             this.symbolReferences.setReferenceAtCursor(ref);
             if (isDefinition) {
@@ -1071,14 +1071,14 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.addSymbol(funcNode, symbol, isDefinition, pos);
     }
     
-    private Optional<BLangFunction> getWorkerFunctionFromPosition(BLangDiagnosticLocation position) {
+    private Optional<BLangFunction> getWorkerFunctionFromPosition(BLangDiagnosticLocation loc) {
         return this.workerLambdas.stream()
                 .filter(function -> {
-                    BLangDiagnosticLocation namePosition = function.defaultWorkerName.getPosition();
-                    return namePosition.getStartLine() == position.getStartLine()
-                            && namePosition.getEndLine() == position.getEndLine()
-                            && namePosition.getStartColumn() == position.getStartColumn()
-                            && namePosition.getEndColumn() == position.getEndColumn();
+                    BLangDiagnosticLocation nameLoc = function.defaultWorkerName.getPosition();
+                    return nameLoc.lineRange().startLine().line() == loc.lineRange().startLine().line()
+                            && nameLoc.lineRange().endLine().line() == loc.lineRange().endLine().line()
+                            && nameLoc.lineRange().startLine().offset() == loc.lineRange().startLine().offset()
+                            && nameLoc.lineRange().endLine().offset() == loc.lineRange().endLine().offset();
                 })
                 .findAny();
     }
@@ -1101,10 +1101,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         return this.workerVarDefMap.entrySet().stream()
                 .filter(workerPos -> {
                     BLangDiagnosticLocation posValue = workerPos.getValue();
-                    return posValue.getStartLine() == pos.getStartLine()
-                            && posValue.getEndLine() == pos.getEndLine()
-                            && posValue.getStartColumn() == pos.getStartColumn()
-                            && posValue.getEndColumn() == pos.getEndColumn();
+                    return posValue.lineRange().startLine().line() == pos.lineRange().startLine().line()
+                            && posValue.lineRange().endLine().line() == pos.lineRange().endLine().line()
+                            && posValue.lineRange().startLine().offset() == pos.lineRange().startLine().offset()
+                            && posValue.lineRange().endLine().offset() == pos.lineRange().endLine().offset();
                 })
                 .findAny()
                 .map(Map.Entry::getKey)
@@ -1126,10 +1126,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         BLangDiagnosticLocation diagnosticLocation = bLangType.pos;
         BObjectType objectType = (BObjectType) bLangType.type;
         BLangDiagnosticLocation pos = new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
-                                              diagnosticLocation.getStartLine(),
-                                              diagnosticLocation.getEndLine(),
-                                              diagnosticLocation.getStartColumn(),
-                                              diagnosticLocation.getEndColumn());
+                                              diagnosticLocation.lineRange().startLine().line(),
+                                              diagnosticLocation.lineRange().endLine().line(),
+                                              diagnosticLocation.lineRange().startLine().offset(),
+                                              diagnosticLocation.lineRange().endLine().offset());
         this.addSymbol(bLangType, objectType.tsymbol, false, pos);
     }
 }

@@ -29,10 +29,10 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 class PositionUtil {
 
     static boolean withinBlock(LinePosition cursorPos, BLangDiagnosticLocation symbolPosition) {
-        int startLine = symbolPosition.getStartLine();
-        int endLine = symbolPosition.getEndLine();
-        int startColumn = symbolPosition.getStartColumn();
-        int endColumn = symbolPosition.getEndColumn();
+        int startLine = symbolPosition.lineRange().startLine().line();
+        int endLine = symbolPosition.lineRange().endLine().line();
+        int startColumn = symbolPosition.lineRange().startLine().offset();
+        int endColumn = symbolPosition.lineRange().endLine().offset();
         int cursorLine = cursorPos.line();
         int cursorColumn = cursorPos.offset();
 

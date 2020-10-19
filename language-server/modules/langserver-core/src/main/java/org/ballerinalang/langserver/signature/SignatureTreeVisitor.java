@@ -304,10 +304,10 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         BLangDiagnosticLocation blockPosition = CommonUtil.toZeroBasedPosition(blockPositionStack.peek());
         int cursorLine = cursorPosition.getLine();
         int cursorColumn = cursorPosition.getCharacter();
-        int nodeStrtLine = blockPosition.getStartLine();
-        int nodeEndLine = blockPosition.getEndLine();
-        int nodeStrtColumn = blockPosition.getStartColumn();
-        int nodeEndColumn = blockPosition.getEndColumn();
+        int nodeStrtLine = blockPosition.lineRange().startLine().line();
+        int nodeEndLine = blockPosition.lineRange().endLine().line();
+        int nodeStrtColumn = blockPosition.lineRange().startLine().offset();
+        int nodeEndColumn = blockPosition.lineRange().endLine().offset();
         
         /*
           node Start ->{ <cursor_position> }<- node End.

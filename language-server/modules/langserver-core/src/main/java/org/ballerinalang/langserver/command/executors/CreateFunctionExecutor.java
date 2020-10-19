@@ -140,8 +140,8 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         BLangCompilationUnit cUnit = getCurrentCUnit(context, packageNode);
         for (TopLevelNode topLevelNode : cUnit.topLevelNodes) {
-            if (topLevelNode.getPosition().getEndLine() > eLine) {
-                eLine = topLevelNode.getPosition().getEndLine();
+            if (topLevelNode.getPosition().lineRange().endLine().line() > eLine) {
+                eLine = topLevelNode.getPosition().lineRange().endLine().line();
             }
         }
 
@@ -174,7 +174,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             if (!nodeLocation.getRight()) {
                 prependLineFeed = false;
             }
-            eLine = nodeLocation.getLeft().getEndLine() - 1;
+            eLine = nodeLocation.getLeft().lineRange().endLine().line() - 1;
             String cUnitName = nodeLocation.getLeft().lineRange().filePath();
             String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
             String pkgName = tSymbol.pkgID.name.value;

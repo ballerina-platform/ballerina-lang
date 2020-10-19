@@ -118,10 +118,12 @@ public class BallerinaTreeModifyUtil {
             Collection<BLangImportPackage> unusedImports, TextDocument textDocument) {
         List<TextEdit> edits = new ArrayList<>();
         for (BLangImportPackage importPackage : unusedImports) {
-            LinePosition startLinePos = LinePosition.from(importPackage.getPosition().getStartLine() - 1,
-                    importPackage.getPosition().getStartColumn() - 1);
-            LinePosition endLinePos = LinePosition.from(importPackage.getPosition().getEndLine() - 1,
-                    importPackage.getPosition().getEndColumn() - 1);
+            LinePosition startLinePos = LinePosition.from(importPackage.getPosition()
+                            .lineRange().startLine().line() - 1,
+                    importPackage.getPosition().lineRange().startLine().offset() - 1);
+            LinePosition endLinePos = LinePosition.from(importPackage.getPosition()
+                            .lineRange().endLine().line() - 1,
+                    importPackage.getPosition().lineRange().endLine().offset() - 1);
             int startOffset = textDocument.textPositionFrom(startLinePos);
             int endOffset = textDocument.textPositionFrom(endLinePos) + 1;
             edits.add(TextEdit.from(

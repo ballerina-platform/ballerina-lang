@@ -94,7 +94,7 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
         positions.put(position, placeHolders);
 
         //Compute position of the test function
-        computeFocusPosition(placeHolder, newContent, position.getEndLine());
+        computeFocusPosition(placeHolder, newContent, position.lineRange().endLine().line());
     }
 
     /**
@@ -124,7 +124,8 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
         //Calculate text-edits
         positions.forEach(
                 (pos, value) -> value.forEach((placeHolder, content) -> {
-                    Position position = new Position(pos.getEndLine(), pos.getEndColumn());
+                    Position position = new Position(
+                            pos.lineRange().endLine().line(), pos.lineRange().endLine().offset());
                     Range range = new Range(position, position);
                     TextEdit textEdit = new TextEdit(range, content);
                     edits.add(textEdit);

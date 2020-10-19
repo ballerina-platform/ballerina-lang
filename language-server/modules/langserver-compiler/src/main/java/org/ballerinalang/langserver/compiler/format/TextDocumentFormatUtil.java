@@ -172,10 +172,10 @@ public class TextDocumentFormatUtil {
         BLangDiagnosticLocation position = node.getPosition();
         if (position != null) {
             JsonObject positionJson = new JsonObject();
-            positionJson.addProperty("startColumn", position.getStartColumn());
-            positionJson.addProperty("startLine", position.getStartLine());
-            positionJson.addProperty("endColumn", position.getEndColumn());
-            positionJson.addProperty("endLine", position.getEndLine());
+            positionJson.addProperty("startColumn", position.lineRange().startLine().offset());
+            positionJson.addProperty("startLine", position.lineRange().startLine().line());
+            positionJson.addProperty("endColumn", position.lineRange().endLine().offset());
+            positionJson.addProperty("endLine", position.lineRange().endLine().line());
             nodeJson.add("position", positionJson);
         }
 

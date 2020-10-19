@@ -46,7 +46,8 @@ public enum PlaceHolder {
                     pos[0] = getMaximumPosition(((BLangNode) topLevelNode).getPosition(), pos[0]);
                 }
             });
-            pos[0] = new BLangDiagnosticLocation(null, pos[0].getEndLine(), pos[0].getEndLine() + 1, 0, 0);
+            pos[0] = new BLangDiagnosticLocation(null, pos[0].lineRange().endLine().line(),
+                    pos[0].lineRange().endLine().line() + 1, 0, 0);
             return zeroColumnPosition(pos[0]);
         }
     },
@@ -93,15 +94,15 @@ public enum PlaceHolder {
         } else if (location2 == null) {
             return location1;
         }
-        if (location1.getEndLine() > location2.getEndLine()) {
+        if (location1.lineRange().endLine().line() > location2.lineRange().endLine().line()) {
             // location1.Line > location2.Line
             return location1;
-        } else if (location1.getEndLine() < location2.getEndLine()) {
+        } else if (location1.lineRange().endLine().line() < location2.lineRange().endLine().line()) {
             // location1.Line < location2.Line
             return location2;
         } else {
             // location1.Line == location2.Line
-            if (location1.getEndColumn() > location2.getEndColumn()) {
+            if (location1.lineRange().endLine().offset() > location2.lineRange().endLine().offset()) {
                 // location1.Col > location2.Col
                 return location1;
             } else {

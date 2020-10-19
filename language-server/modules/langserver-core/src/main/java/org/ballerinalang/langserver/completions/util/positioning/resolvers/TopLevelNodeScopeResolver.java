@@ -38,8 +38,8 @@ public class TopLevelNodeScopeResolver extends CursorPositionResolver {
         int line = cursorPos.getLine();
         int col = cursorPos.getCharacter();
         BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
-        int nodeSLine = zeroBasedPos.getStartLine();
-        int nodeSCol = zeroBasedPos.getStartColumn();
+        int nodeSLine = zeroBasedPos.lineRange().startLine().line();
+        int nodeSCol = zeroBasedPos.lineRange().startLine().offset();
 
         if (line < nodeSLine || (line == nodeSLine && col <= nodeSCol)) {
             treeVisitor.forceTerminateVisitor();

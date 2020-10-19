@@ -57,12 +57,13 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
-        int nodeSLine = zeroBasedPos.getStartLine();
-        int nodeSCol = zeroBasedPos.getStartColumn();
+        int nodeSLine = zeroBasedPos.lineRange().startLine().line();
+        int nodeSCol = zeroBasedPos.lineRange().startLine().offset();
         // node endLine for the BLangIf node has to calculate by considering the else node. End line of the BLangIf
         // node is the endLine of the else node.
-        int nodeELine = node instanceof BLangIf ? getIfElseNodeEndLine((BLangIf) node) : zeroBasedPos.getEndLine();
-        int nodeECol = zeroBasedPos.getEndColumn();
+        int nodeELine = node instanceof BLangIf ?
+                getIfElseNodeEndLine((BLangIf) node) : zeroBasedPos.lineRange().endLine().line();
+        int nodeECol = zeroBasedPos.lineRange().endLine().offset();
 
         BlockNode bLangBlockStmt = treeVisitor.getBlockStmtStack().peek();
         Node blockOwner = treeVisitor.getBlockOwnerStack().peek();
@@ -139,11 +140,11 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         if (blockOwner == null) {
             // When the else node is evaluating, block owner is null and the block statement only present
             // This is because, else node is represented with a blocks statement only
-            return CommonUtil.toZeroBasedPosition((BLangDiagnosticLocation) blockNode.getPosition()).getEndLine();
+            return CommonUtil.toZeroBasedPosition(blockNode.getPosition()).lineRange().endLine().line();
         } else if (blockOwner instanceof BLangTransaction) {
             return this.getTransactionBlockComponentEndLine((BLangTransaction) blockOwner, blockNode);
         } else {
-            return CommonUtil.toZeroBasedPosition((BLangDiagnosticLocation) blockOwner.getPosition()).getEndLine();
+            return CommonUtil.toZeroBasedPosition(blockOwner.getPosition()).lineRange().endLine().line();
         }
     }
 
@@ -151,9 +152,9 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         if (blockOwner == null) {
             // When the else node is evaluating, block owner is null and the block statement only present
             // This is because, else node is represented with a blocks statement only
-            return CommonUtil.toZeroBasedPosition((BLangDiagnosticLocation) blockNode.getPosition()).getEndColumn();
+            return CommonUtil.toZeroBasedPosition(blockNode.getPosition()).lineRange().endLine().offset();
         } else {
-            return CommonUtil.toZeroBasedPosition((BLangDiagnosticLocation) blockOwner.getPosition()).getEndColumn();
+            return CommonUtil.toZeroBasedPosition(blockOwner.getPosition()).lineRange().endLine().offset();
         }
     }
 
@@ -169,7 +170,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
 //
 //        components.sort(Comparator.comparing(component -> {
 //            if (component != null) {
-//                return CommonUtil.toZeroBasedPosition(component.getPosition()).getEndLine();
+//                return CommonUtil.toZeroBasedPosition(component.getPosition()).lineRange().endLine().line();
 //            } else {
 //                return -1;
 //            }
@@ -196,11 +197,11 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         BLangIf ifNode = bLangIf;
         while (true) {
             if (ifNode.elseStmt == null) {
-                return CommonUtil.toZeroBasedPosition(ifNode.getPosition()).getEndLine();
+                return CommonUtil.toZeroBasedPosition(ifNode.getPosition()).lineRange().endLine().line();
             } else if (ifNode.elseStmt instanceof BLangIf) {
                 ifNode = (BLangIf) ifNode.elseStmt;
             } else {
-                return CommonUtil.toZeroBasedPosition(ifNode.elseStmt.getPosition()).getEndLine();
+                return CommonUtil.toZeroBasedPosition(ifNode.elseStmt.getPosition()).lineRange().endLine().line();
             }
         }
     }

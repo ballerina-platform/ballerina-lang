@@ -52,15 +52,16 @@ public class MatchExpressionScopeResolver extends CursorPositionResolver {
         List<BLangMatchExpression.BLangMatchExprPatternClause> patternClauseList = matchNode.getPatternClauses();
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        int nodeLine = nodePos.getStartLine();
-        int nodeCol = nodePos.getStartColumn();
+        int nodeLine = nodePos.lineRange().startLine().line();
+        int nodeCol = nodePos.lineRange().startLine().offset();
         boolean isBeforeNode = false;
         
         if ((line < nodeLine) || (line == nodeLine && col < nodeCol)) {
             isBeforeNode = true;
         } else if (patternClauseList.indexOf(node) == patternClauseList.size() - 1) {
-            isBeforeNode = (line < matchNodePos.getEndLine())
-                    || (line == matchNodePos.getEndLine() && col < matchNodePos.getEndColumn());
+            isBeforeNode = (line < matchNodePos.lineRange().endLine().line())
+                    || (line == matchNodePos.lineRange().endLine().line()
+                    && col < matchNodePos.lineRange().endLine().offset());
         }
         
         if (isBeforeNode) {

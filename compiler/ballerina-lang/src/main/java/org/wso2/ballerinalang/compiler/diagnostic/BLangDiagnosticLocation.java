@@ -50,22 +50,6 @@ public class BLangDiagnosticLocation implements Location {
         return textRange;
     }
 
-    public int getStartLine() {
-        return lineRange.startLine().line();
-    }
-
-    public int getEndLine() {
-        return lineRange.endLine().line();
-    }
-
-    public int getStartColumn() {
-        return lineRange.startLine().offset();
-    }
-
-    public int getEndColumn() {
-        return lineRange.endLine().offset();
-    }
-
     @Override
     public String toString() {
         return lineRange.toString() + textRange.toString();

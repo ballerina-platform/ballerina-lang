@@ -175,10 +175,10 @@ public class CommonUtil {
      * @return {@link BLangDiagnosticLocation} converted diagnostic position
      */
     public static BLangDiagnosticLocation toZeroBasedPosition(BLangDiagnosticLocation diagnosticLocation) {
-        int startLine = diagnosticLocation.getStartLine() - 1;
-        int endLine = diagnosticLocation.getEndLine() - 1;
-        int startColumn = diagnosticLocation.getStartColumn() - 1;
-        int endColumn = diagnosticLocation.getEndColumn() - 1;
+        int startLine = diagnosticLocation.lineRange().startLine().line() - 1;
+        int endLine = diagnosticLocation.lineRange().endLine().line() - 1;
+        int startColumn = diagnosticLocation.lineRange().startLine().offset() - 1;
+        int endColumn = diagnosticLocation.lineRange().endLine().offset() - 1;
         return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
                                            startLine, endLine, startColumn, endColumn);
     }
@@ -293,7 +293,7 @@ public class CommonUtil {
         Position start = new Position(0, 0);
         if (currentFileImports != null && !currentFileImports.isEmpty()) {
             BLangImportPackage last = CommonUtil.getLastItem(currentFileImports);
-            int endLine = last.getPosition().getEndLine();
+            int endLine = last.getPosition().lineRange().endLine().line();
             start = new Position(endLine, 0);
         }
         String pkgNameComponent;
@@ -1340,10 +1340,12 @@ public class CommonUtil {
         @Override
         public int compare(BLangNode node1, BLangNode node2) {
             // TODO: Fix?
-            if (node1.getPosition() == null || node2.getPosition() == null) {
+            BLangDiagnosticLocation node1Loc = node1.getPosition();
+            BLangDiagnosticLocation node2Loc = node2.getPosition();
+            if (node1Loc == null || node2Loc == null) {
                 return -1;
             }
-            return node1.getPosition().getStartLine() - node2.getPosition().getStartLine();
+            return node1Loc.lineRange().startLine().line() - node2Loc.lineRange().startLine().line();
         }
     }
 

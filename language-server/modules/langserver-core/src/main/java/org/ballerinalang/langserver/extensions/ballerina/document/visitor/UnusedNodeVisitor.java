@@ -224,10 +224,10 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     private BLangDiagnosticLocation getDeleteRange(BLangDiagnosticLocation position) {
         if (position != null) {
             for (BLangDiagnosticLocation aPosition : deleteRanges.keySet()) {
-                if (aPosition.getStartLine() <= position.getStartLine() &&
-                        aPosition.getEndLine() >= position.getEndLine() &&
-                        aPosition.getStartColumn() <= position.getStartColumn() &&
-                        aPosition.getEndColumn() >= position.getEndColumn()) {
+                if (aPosition.lineRange().startLine().line() <= position.lineRange().startLine().line() &&
+                        aPosition.lineRange().endLine().line() >= position.lineRange().endLine().line() &&
+                        aPosition.lineRange().startLine().offset() <= position.lineRange().startLine().offset() &&
+                        aPosition.lineRange().endLine().offset() >= position.lineRange().endLine().offset()) {
                     return aPosition;
                 }
             }

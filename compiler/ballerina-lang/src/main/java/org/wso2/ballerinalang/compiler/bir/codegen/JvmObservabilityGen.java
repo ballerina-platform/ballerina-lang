@@ -874,7 +874,8 @@ class JvmObservabilityGen {
      * @return The generated ID
      */
     private String generatePositionId(BLangDiagnosticLocation pos) {
-        return String.format("%s:%d:%d", pos.lineRange().filePath(), pos.getStartLine() + 1, pos.getStartColumn() + 1);
+        return String.format("%s:%d:%d", pos.lineRange().filePath(), pos.lineRange().startLine().line() + 1,
+                pos.lineRange().startLine().offset() + 1);
     }
 
     /**

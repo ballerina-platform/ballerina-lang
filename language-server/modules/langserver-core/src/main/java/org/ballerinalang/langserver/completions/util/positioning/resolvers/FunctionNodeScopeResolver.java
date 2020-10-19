@@ -44,10 +44,10 @@ public class FunctionNodeScopeResolver extends CursorPositionResolver {
         BLangInvokableNode bLangInvokableNode = (BLangInvokableNode) treeVisitor.getBlockOwnerStack().peek();
         BLangDiagnosticLocation invokeableNodePos = CommonUtil.toZeroBasedPosition(bLangInvokableNode.getPosition());
         BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
-        int nodeSLine = zeroBasedPos.getStartLine();
-        int nodeSCol = zeroBasedPos.getStartColumn();
-        int nodeELine = zeroBasedPos.getEndLine();
-        int invokeableNodeEndLine = invokeableNodePos.getEndLine();
+        int nodeSLine = zeroBasedPos.lineRange().startLine().line();
+        int nodeSCol = zeroBasedPos.lineRange().startLine().offset();
+        int nodeELine = zeroBasedPos.lineRange().endLine().line();
+        int invokeableNodeEndLine = invokeableNodePos.lineRange().endLine().line();
         
         boolean isLastWorker =
                 bLangInvokableNode.getWorkers().indexOf(node) == bLangInvokableNode.getWorkers().size() - 1;

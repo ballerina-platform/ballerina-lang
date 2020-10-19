@@ -72,8 +72,8 @@ public class CompletionVisitorUtil {
                                               LSContext lsContext, TreeVisitor treeVisitor) {
         BLangDiagnosticLocation zeroBasedPosition = CommonUtil.toZeroBasedPosition(nodePosition);
         int line = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
-        int nodeSLine = zeroBasedPosition.getStartLine();
-        int nodeELine = zeroBasedPosition.getEndLine();
+        int nodeSLine = zeroBasedPosition.lineRange().startLine().line();
+        int nodeELine = zeroBasedPosition.lineRange().endLine().line();
 
         if ((nodeSLine <= line && nodeELine >= line)) {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries = new HashMap<>();
@@ -112,11 +112,11 @@ public class CompletionVisitorUtil {
         BLangExpression firstExpr = attachedExprs.get(0);
         BLangExpression lastExpr = CommonUtil.getLastItem(attachedExprs);
         BLangDiagnosticLocation firstExprPos = CommonUtil.toZeroBasedPosition(firstExpr.pos);
-        int fSLine = firstExprPos.getStartLine();
-        int fSCol = firstExprPos.getStartColumn();
+        int fSLine = firstExprPos.lineRange().startLine().line();
+        int fSCol = firstExprPos.lineRange().startLine().offset();
         BLangDiagnosticLocation lastExprPos = CommonUtil.toZeroBasedPosition(lastExpr.pos);
-        int lSLine = lastExprPos.getStartLine();
-        int lECol = lastExprPos.getEndColumn();
+        int lSLine = lastExprPos.lineRange().startLine().line();
+        int lECol = lastExprPos.lineRange().endLine().offset();
 
         if (fSLine <= line && lSLine >= line && (fSCol <= col && lECol >= col)) {
             Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries = new HashMap<>();
@@ -147,8 +147,8 @@ public class CompletionVisitorUtil {
         ArrayList<Whitespace> whitespaces = new ArrayList<>(funcNode.getWS());
         int cursorLine = cursorPosition.getLine();
         int cursorCol = cursorPosition.getCharacter();
-        int sLine = position.getStartLine();
-        int sCol = position.getStartColumn();
+        int sLine = position.lineRange().startLine().line();
+        int sCol = position.lineRange().startLine().offset();
         int openBraceStart = cursorCol;
         int counter = 1;
         
@@ -204,10 +204,10 @@ public class CompletionVisitorUtil {
 
         int cursorLine = cursorPosition.getLine();
         int cursorCol = cursorPosition.getCharacter();
-        int sLine = exprPosition.getStartLine();
-        int eLine = exprPosition.getEndLine();
-        int sCol = exprPosition.getStartColumn();
-        int eCol = exprPosition.getEndColumn();
+        int sLine = exprPosition.lineRange().startLine().line();
+        int eLine = exprPosition.lineRange().endLine().line();
+        int sCol = exprPosition.lineRange().startLine().offset();
+        int eCol = exprPosition.lineRange().endLine().offset();
 
         if ((cursorLine > sLine && cursorLine < eLine)
                 || ((cursorLine == sLine || cursorLine == eLine) && cursorCol >= sCol && cursorCol <= eCol)) {
@@ -244,7 +244,7 @@ public class CompletionVisitorUtil {
             nodes.add(objectTypeNode.initFunction);
         }
 
-        nodes.sort(Comparator.comparing(node -> node.getPosition().getStartLine()));
+        nodes.sort(Comparator.comparing(node -> node.getPosition().lineRange().startLine().line()));
 
         return nodes;
     }
@@ -262,7 +262,7 @@ public class CompletionVisitorUtil {
         if (function.restParam != null) {
             nodes.add(function.restParam);
         }
-        nodes.sort(Comparator.comparing(node -> node.getPosition().getStartLine()));
+        nodes.sort(Comparator.comparing(node -> node.getPosition().lineRange().startLine().line()));
 
         return nodes;
     }
@@ -290,10 +290,10 @@ public class CompletionVisitorUtil {
         }
 
         BLangDiagnosticLocation nodePos = CommonUtil.toZeroBasedPosition(node.pos);
-        int sLine = nodePos.getStartLine();
-        int eLine = nodePos.getEndLine();
-        int sCol = nodePos.getStartColumn();
-        int eCol = nodePos.getEndColumn();
+        int sLine = nodePos.lineRange().startLine().line();
+        int eLine = nodePos.lineRange().endLine().line();
+        int sCol = nodePos.lineRange().startLine().offset();
+        int eCol = nodePos.lineRange().endLine().offset();
 
         if ((cursorLine > sLine && cursorLine < eLine)
                 || (cursorLine == sLine && sCol < cursorCol && eCol > cursorCol)) {
@@ -317,8 +317,8 @@ public class CompletionVisitorUtil {
         int cursorLine = position.getLine();
         int cursorCol = position.getCharacter();
         BLangDiagnosticLocation nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
-        int endLine = nodePos.getEndLine();
-        int endCol = nodePos.getEndColumn();
+        int endLine = nodePos.lineRange().endLine().line();
+        int endCol = nodePos.lineRange().endLine().offset();
 
         return cursorLine < endLine || (cursorLine == endLine && cursorCol < endCol);
     }

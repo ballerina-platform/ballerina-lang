@@ -51,12 +51,12 @@ public class RecordLiteralScopeResolver extends CursorPositionResolver {
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         BLangDiagnosticLocation nodePos = CommonUtil.toZeroBasedPosition(nodePosition);
         BLangDiagnosticLocation ownerPos = CommonUtil.toZeroBasedPosition(recordLiteral.getPosition());
-        int ownerEndLine = ownerPos.getEndLine();
-        int ownerEndCol = ownerPos.getEndColumn();
-        int nodeStartLine = nodePos.getStartLine();
-        int nodeStartCol = nodePos.getStartColumn();
-        int nodeEndCol = nodePos.getEndColumn();
-        int nodeEndLine = nodePos.getEndLine();
+        int ownerEndLine = ownerPos.lineRange().endLine().line();
+        int ownerEndCol = ownerPos.lineRange().endLine().offset();
+        int nodeStartLine = nodePos.lineRange().startLine().line();
+        int nodeStartCol = nodePos.lineRange().startLine().offset();
+        int nodeEndCol = nodePos.lineRange().endLine().offset();
+        int nodeEndLine = nodePos.lineRange().endLine().line();
         List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
         boolean isLastField = fields.indexOf(node) == fields.size() - 1;
         boolean isCursorBefore = ((nodeStartLine > line) || (nodeStartLine == line && col < nodeStartCol)) ||

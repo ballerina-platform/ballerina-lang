@@ -51,10 +51,10 @@ public class RecordScopeResolver extends CursorPositionResolver {
         BLangDiagnosticLocation nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
         BLangDiagnosticLocation ownerPos = CommonUtil
                 .toZeroBasedPosition(((BLangRecordTypeNode) recordNode).parent.getPosition());
-        int ownerEndLine = ownerPos.getEndLine();
-        int nodeStartLine = nodePos.getStartLine();
-        int nodeEndLine = nodePos.getEndLine();
-        int nodeStartCol = nodePos.getStartColumn();
+        int ownerEndLine = ownerPos.lineRange().endLine().line();
+        int nodeStartLine = nodePos.lineRange().startLine().line();
+        int nodeEndLine = nodePos.lineRange().endLine().line();
+        int nodeStartCol = nodePos.lineRange().startLine().offset();
         BLangRecordTypeNode bLangRecord = (BLangRecordTypeNode) recordNode;
         List<BLangSimpleVariable> fields = bLangRecord.fields;
         boolean isLastField = fields.indexOf(node) == fields.size() - 1;

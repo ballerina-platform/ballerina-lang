@@ -1037,9 +1037,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (typeDefinitions.isEmpty()) {
                 // If a type is declared, it should either get defined successfully or added to the unresolved
                 // types list. If a type is not in either one of them, that means it is an undefined type.
-                LocationData locationData = new LocationData(currentTypeNodeName,
-                                                             currentTypeOrClassNode.pos.getStartLine(),
-                                                             currentTypeOrClassNode.pos.getStartColumn());
+                LocationData locationData = new LocationData(
+                        currentTypeNodeName, currentTypeOrClassNode.pos.lineRange().startLine().line(),
+                        currentTypeOrClassNode.pos.lineRange().startLine().offset());
                 if (unknownTypeRefs.add(locationData)) {
                     dlog.error(currentTypeOrClassNode.pos, DiagnosticCode.UNKNOWN_TYPE, currentTypeNodeName);
                 }
@@ -1075,7 +1075,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public boolean isUnknownTypeRef(BLangUserDefinedType bLangUserDefinedType) {
         LocationData locationData = new LocationData(bLangUserDefinedType.typeName.value,
-                bLangUserDefinedType.pos.getStartLine(), bLangUserDefinedType.pos.getStartColumn());
+                bLangUserDefinedType.pos.lineRange().startLine().line(),
+                bLangUserDefinedType.pos.lineRange().startLine().offset());
         return unknownTypeRefs.contains(locationData);
     }
 

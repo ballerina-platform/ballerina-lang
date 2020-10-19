@@ -174,17 +174,17 @@ public class BallerinaSemanticModel implements SemanticModel {
 
         if (value == 0) {
             // If the package detail strings are same, then compare the start line.
-            if (cursorPos.getStartLine() < location.getStartLine()) {
+            if (cursorPos.lineRange().startLine().line() < location.lineRange().startLine().line()) {
                 value = -1;
-            } else if (cursorPos.getStartLine() > location.getStartLine()) {
+            } else if (cursorPos.lineRange().startLine().line() > location.lineRange().startLine().line()) {
                 value = 1;
             }
 
             if (value == 0) {
                 // If the start line is the same, then compare the start column.
-                if (cursorPos.getStartColumn() < location.getStartColumn()) {
+                if (cursorPos.lineRange().startLine().offset() < location.lineRange().startLine().offset()) {
                     value = -1;
-                } else if (cursorPos.getStartColumn() > location.getStartColumn()) {
+                } else if (cursorPos.lineRange().startLine().offset() > location.lineRange().startLine().offset()) {
                     value = 1;
                 }
             }

@@ -107,47 +107,48 @@ public class CodeActionUtil {
                 BLangDiagnosticLocation diagnosticLocation =
                         CommonUtil.toZeroBasedPosition(((BLangNode) topLevelNode).pos);
                 if (topLevelNode instanceof BLangService) {
-                    if (diagnosticLocation.getStartLine() == cursorLine) {
+                    if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
                         return CodeActionNodeType.SERVICE;
                     }
-                    if (cursorLine > diagnosticLocation.getStartLine()
-                            && cursorLine < diagnosticLocation.getEndLine()) {
+                    if (cursorLine > diagnosticLocation.lineRange().startLine().line()
+                            && cursorLine < diagnosticLocation.lineRange().endLine().line()) {
                         // Cursor within the service
                         for (BLangFunction resourceFunction : ((BLangService) topLevelNode).resourceFunctions) {
                             diagnosticLocation = CommonUtil.toZeroBasedPosition(resourceFunction.getName().pos);
-                            if (diagnosticLocation.getStartLine() == cursorLine) {
+                            if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
                                 return CodeActionNodeType.RESOURCE;
                             }
                         }
                     }
                 }
 
-                if (topLevelNode instanceof BLangImportPackage && cursorLine == diagnosticLocation.getStartLine()) {
+                if (topLevelNode instanceof BLangImportPackage &&
+                        cursorLine == diagnosticLocation.lineRange().startLine().line()) {
                     return CodeActionNodeType.IMPORTS;
                 }
 
                 if (topLevelNode instanceof BLangFunction
                         && !((BLangFunction) topLevelNode).flagSet.contains(Flag.ANONYMOUS)
-                        && cursorLine == diagnosticLocation.getStartLine()) {
+                        && cursorLine == diagnosticLocation.lineRange().startLine().line()) {
                     return CodeActionNodeType.FUNCTION;
                 }
 
                 if (topLevelNode instanceof BLangTypeDefinition
                         && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangRecordTypeNode
-                        && cursorLine == diagnosticLocation.getStartLine()) {
+                        && cursorLine == diagnosticLocation.lineRange().startLine().line()) {
                     return CodeActionNodeType.RECORD;
                 }
 
                 if (topLevelNode instanceof BLangClassDefinition) {
-                    if (diagnosticLocation.getStartLine() == cursorLine) {
+                    if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
                         return CodeActionNodeType.CLASS;
                     }
-                    if (cursorLine > diagnosticLocation.getStartLine()
-                            && cursorLine < diagnosticLocation.getEndLine()) {
+                    if (cursorLine > diagnosticLocation.lineRange().startLine().line()
+                            && cursorLine < diagnosticLocation.lineRange().endLine().line()) {
                         // Cursor within the class
                         for (BLangFunction function : ((BLangClassDefinition) topLevelNode).functions) {
                             diagnosticLocation = CommonUtil.toZeroBasedPosition(function.getName().pos);
-                            if (diagnosticLocation.getStartLine() == cursorLine) {
+                            if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
                                 return CodeActionNodeType.CLASS_FUNCTION;
                             }
                         }
@@ -156,16 +157,16 @@ public class CodeActionUtil {
 
                 if (topLevelNode instanceof BLangTypeDefinition
                         && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangObjectTypeNode) {
-                    if (diagnosticLocation.getStartLine() == cursorLine) {
+                    if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
                         return CodeActionNodeType.OBJECT;
                     }
-                    if (cursorLine > diagnosticLocation.getStartLine()
-                            && cursorLine < diagnosticLocation.getEndLine()) {
+                    if (cursorLine > diagnosticLocation.lineRange().startLine().line()
+                            && cursorLine < diagnosticLocation.lineRange().endLine().line()) {
                         // Cursor within the object
                         for (BLangFunction resourceFunction
                                 : ((BLangObjectTypeNode) ((BLangTypeDefinition) topLevelNode).typeNode).functions) {
                             diagnosticLocation = CommonUtil.toZeroBasedPosition(resourceFunction.getName().pos);
-                            if (diagnosticLocation.getStartLine() == cursorLine) {
+                            if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
                                 return CodeActionNodeType.OBJECT_FUNCTION;
                             }
                         }

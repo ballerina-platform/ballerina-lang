@@ -81,12 +81,14 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
         this.currentCUnitMode = currentCUnitMode;
         this.pkgName = pkgName;
         this.isWithinNode = zeroBasedPos ->
-                ((cursorLine == zeroBasedPos.getStartLine() && cursorCol >= zeroBasedPos.getStartColumn()
-                        && cursorCol <= zeroBasedPos.getEndColumn())
-                        || (zeroBasedPos.getStartLine() == zeroBasedPos.getEndLine()
-                        && cursorLine == zeroBasedPos.getEndLine() &&
-                        cursorCol <= zeroBasedPos.getEndColumn())
-                        || (cursorLine > zeroBasedPos.getStartLine() && cursorLine < zeroBasedPos.getEndLine()));
+                ((cursorLine == zeroBasedPos.lineRange().startLine().line()
+                        && cursorCol >= zeroBasedPos.lineRange().startLine().offset()
+                        && cursorCol <= zeroBasedPos.lineRange().endLine().offset())
+                        || (zeroBasedPos.lineRange().startLine().line() == zeroBasedPos.lineRange().endLine().line()
+                        && cursorLine == zeroBasedPos.lineRange().endLine().line() &&
+                        cursorCol <= zeroBasedPos.lineRange().endLine().offset())
+                        || (cursorLine > zeroBasedPos.lineRange().startLine().line()
+                        && cursorLine < zeroBasedPos.lineRange().endLine().line()));
     }
 
     @Override
@@ -106,8 +108,9 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;
         SymbolReferencesModel.Reference ref = this.getSymbolReference(zeroBasedPos, bSymbol, bLangNode);
-        if (this.cursorLine == zeroBasedPos.getStartLine() && this.cursorCol >= zeroBasedPos.getStartColumn()
-                && this.cursorCol <= zeroBasedPos.getEndColumn()) {
+        if (this.cursorLine == zeroBasedPos.lineRange().startLine().line()
+                && this.cursorCol >= zeroBasedPos.lineRange().startLine().offset()
+                && this.cursorCol <= zeroBasedPos.lineRange().endLine().offset()) {
             // This is the symbol at current cursor position
             this.symbolReferences.setReferenceAtCursor(ref);
         }
@@ -128,10 +131,10 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
         List<TopLevelNode> filteredNodes = topLevelNodes.stream().filter(topLevelNode -> {
             BLangDiagnosticLocation position = topLevelNode.getPosition();
             BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(
-                    new BLangDiagnosticLocation(null, position.getStartLine(),
-                                                        position.getEndLine(),
-                                                        position.getStartColumn(),
-                                                        position.getEndColumn()));
+                    new BLangDiagnosticLocation(null, position.lineRange().startLine().line(),
+                                                        position.lineRange().endLine().line(),
+                                                        position.lineRange().startLine().offset(),
+                                                        position.lineRange().endLine().offset()));
             boolean isLambda = false;
             if (topLevelNode instanceof BLangFunction) {
                 BLangFunction func = (BLangFunction) topLevelNode;

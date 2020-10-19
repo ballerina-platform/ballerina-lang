@@ -38,10 +38,10 @@ public class BIRWriterUtils {
         int eCol = Integer.MIN_VALUE;
         String sourceFileName = "";
         if (pos != null) {
-            sLine = pos.getStartLine();
-            eLine = pos.getEndLine();
-            sCol = pos.getStartColumn();
-            eCol = pos.getEndColumn();
+            sLine = pos.lineRange().startLine().line();
+            eLine = pos.lineRange().endLine().line();
+            sCol = pos.lineRange().startLine().offset();
+            eCol = pos.lineRange().endLine().offset();
             if (pos.lineRange().filePath() != null) {
                 sourceFileName = pos.lineRange().filePath();
             }

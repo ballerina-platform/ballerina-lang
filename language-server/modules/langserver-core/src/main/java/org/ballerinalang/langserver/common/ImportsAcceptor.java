@@ -105,7 +105,7 @@ public class ImportsAcceptor {
         }
 
         int endCol = 0;
-        int endLine = pos == null ? 0 : pos.getEndLine();
+        int endLine = pos == null ? 0 : pos.lineRange().endLine().line();
 
         String editText = "import " + pkgName + ";\n";
         Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));

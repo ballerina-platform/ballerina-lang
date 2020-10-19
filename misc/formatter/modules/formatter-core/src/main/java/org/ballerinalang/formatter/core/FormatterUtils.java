@@ -565,7 +565,7 @@ class FormatterUtils {
             if (addSpaces) {
                 indentation = (FormatterUtils.getIndentation(node, 0, formattingOptions));
             }
-            return getPosition(parent).getStartColumn() + indentation;
+            return getPosition(parent).lineRange().startLine().offset() + indentation;
         }
         return 0;
     }
