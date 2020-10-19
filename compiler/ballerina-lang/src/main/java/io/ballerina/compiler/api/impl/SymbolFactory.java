@@ -69,6 +69,11 @@ public class SymbolFactory {
      * @return generated compiled symbol
      */
     public static Symbol getBCompiledSymbol(BSymbol symbol, String name) {
+
+        if (symbol == null) {
+            throw new IllegalArgumentException("Symbol is 'null'");
+        }
+        
         if (symbol instanceof BVarSymbol) {
             if (symbol.kind == SymbolKind.FUNCTION) {
                 if (Symbols.isFlagOn(symbol.flags, Flags.ATTACHED)) {
@@ -105,10 +110,6 @@ public class SymbolFactory {
 
         if (symbol.kind == SymbolKind.XMLNS) {
             return createXMLNamespaceSymbol((BXMLNSSymbol) symbol);
-        }
-
-        if (symbol == null) {
-            throw new IllegalArgumentException("Symbol is 'null'");
         }
 
         throw new IllegalArgumentException("Unsupported symbol type: " + symbol.getClass().getName());
