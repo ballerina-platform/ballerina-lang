@@ -98,24 +98,38 @@ public class MatchStmtListMatchPatternTest {
     }
 
     @Test
-    public void testListMatchPatter11() {
+    public void testListMatchPattern11() {
         BRunUtil.invoke(result, "testListMatchPattern11");
     }
 
     @Test
-    public void testListMatchPatter12() {
+    public void testListMatchPattern12() {
         BRunUtil.invoke(result, "testListMatchPattern12");
     }
 
     @Test
-    public void testListMatchPatter13() {
+    public void testListMatchPattern13() {
         BRunUtil.invoke(result, "testListMatchPattern13");
     }
 
     @Test
-    public void testRestMatchPattern() {
-        Assert.assertEquals(restMatchPatternResult.getErrorCount(), 1);
-        BAssertUtil.validateError(restMatchPatternResult, 0, "rest match pattern is not yet supported", 19, 13);
+    public void testRestMatchPattern1() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest1");
+    }
+
+    @Test
+    public void testRestMatchPattern2() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest2");
+    }
+
+    @Test
+    public void testRestMatchPattern3() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest3");
+    }
+
+    @Test
+    public void testRestMatchPattern4() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest4");
     }
 
     @Test(description = "invalid match patterns")

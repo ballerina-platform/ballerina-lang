@@ -193,6 +193,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -3091,10 +3092,11 @@ public class Desugar extends BLangNodeVisitor {
                         captureBindingPatternVarRef, matchExprVarRef));
 
                 return ASTBuilderUtil.createLiteral(captureBindingPattern.pos, symTable.booleanType, true);
+            default:
+                // If some patterns are not implemented, those should be detected before this phase
+                // TODO : Remove this after all patterns are implemented
+                return null;
         }
-        // If some patterns are not implemented, those should be detected before this phase
-        // TODO : Remove this after all patterns are implemented
-        return null;
     }
 
     private BLangExpression createConditionForListMatchPattern(BLangListMatchPattern listMatchPattern,
@@ -3136,13 +3138,11 @@ public class Desugar extends BLangNodeVisitor {
         for (int i = 1; i < matchPatterns.size(); i++) {
             BLangExpression memberPatternCondition = createConditionForListMemberPattern(i, matchPatterns.get(i),
                     tempCastVarDef, ifBlock, memberTupleTypes.get(i), pos);
-
             if (memberPatternCondition.getKind() == NodeKind.LITERAL) {
                 if ((Boolean) ((BLangLiteral) memberPatternCondition).value) {
                     continue;
                 }
             }
-
             condition = ASTBuilderUtil.createBinaryExpr(pos, condition, memberPatternCondition,
                     symTable.booleanType, OperatorKind.AND, (BOperatorSymbol) symResolver
                             .resolveBinaryOperator(OperatorKind.AND, symTable.booleanType,
@@ -3151,6 +3151,19 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangBlockStmt tempBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         tempBlockStmt.addStatement(successResult);
+        if (listMatchPattern.restMatchPattern != null) {
+            BLangRestMatchPattern restMatchPattern = listMatchPattern.restMatchPattern;
+            BLangListConstructorExpr listConstructorExpr = ASTBuilderUtil.createListConstructorExpr(pos,
+                    restMatchPattern.type);
+            for (int i = matchPatterns.size(); i < memberTupleTypes.size(); i++) {
+                listConstructorExpr.exprs.add(createIndexBasedAccessExpr(memberTupleTypes.get(i), pos,
+                        new BLangLiteral((long) i, symTable.intType), tempCastVarDef.var.symbol, null));
+            }
+            BLangSimpleVarRef restMatchPatternVarRef = declaredVarDef.get(restMatchPattern.getIdentifier().getValue());
+            matchStmtsForPattern.add(ASTBuilderUtil.createAssignmentStmt(pos, restMatchPatternVarRef,
+                    listConstructorExpr));
+        }
+
         BLangIf ifStmtForMatchPatterns = ASTBuilderUtil.createIfElseStmt(pos, condition, tempBlockStmt, null);
         ifBlock.addStatement(ifStmtForMatchPatterns);
 
@@ -3231,10 +3244,11 @@ public class Desugar extends BLangNodeVisitor {
                         resultVarRef);
                 statementExpression.type = symTable.booleanType;
                 return statementExpression;
+            default:
+                // If some patterns are not implemented, those should be detected before this phase
+                // TODO : Remove this after all patterns are implemented
+                return null;
         }
-        // If some patterns are not implemented, those should be detected before this phase
-        // TODO : Remove this after all patterns are implemented
-        return null;
     }
 
     private BLangExpression createConditionForMatchPattern(BLangMatchPattern matchPattern,
@@ -3251,10 +3265,11 @@ public class Desugar extends BLangNodeVisitor {
                         (BLangVarBindingPatternMatchPattern) matchPattern, matchExprVarRef);
             case LIST_MATCH_PATTERN:
                 return createConditionForListMatchPattern((BLangListMatchPattern) matchPattern, matchExprVarRef);
+            default:
+                // If some patterns are not implemented, those should be detected before this phase
+                // TODO : Remove this after all patterns are implemented
+                return null;
         }
-        // If some patterns are not implemented, those should be detected before this phase
-        // TODO : Remove this after all patterns are implemented
-        return null;
     }
 
     @Override

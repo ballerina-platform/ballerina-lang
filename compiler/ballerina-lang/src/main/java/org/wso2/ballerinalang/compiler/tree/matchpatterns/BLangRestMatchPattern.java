@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.matchpatterns.RestMatchPattern;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -30,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangRestMatchPattern extends BLangMatchPattern implements RestMatchPattern {
     public BLangIdentifier variableName;
+    public BVarSymbol symbol;
 
     @Override
     public IdentifierNode getIdentifier() {

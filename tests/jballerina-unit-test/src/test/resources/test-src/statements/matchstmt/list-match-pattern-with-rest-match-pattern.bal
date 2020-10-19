@@ -17,9 +17,62 @@
 function listMatchPattern1(any v) returns string {
     match v {
         [1, ...var a] => {
-            return "[1]";
+            return "match";
         }
     }
-
     return "No match";
+}
+
+function testListMatchPatternWithRest1() {
+    assertEquals("match", listMatchPattern1([1]));
+    assertEquals("match", listMatchPattern1([1, 2]));
+    assertEquals("match", listMatchPattern1([1, 2, 3]));
+}
+
+function listMatchPattern2([int, int] v) returns int {
+    match v {
+        [1, ...var a] => {
+            return a[0];
+        }
+    }
+    return -1;
+}
+
+function testListMatchPatternWithRest2() {
+    assertEquals(2, listMatchPattern2([1, 2]));
+}
+
+function listMatchPattern3([int, int, int] v) returns int {
+    match v {
+        [1, 2, ...var a] | [1, ...var a] => {
+            return a[0];
+        }
+    }
+    return -1;
+}
+
+function testListMatchPatternWithRest3() {
+    assertEquals(3, listMatchPattern3([1, 2, 3]));
+    assertEquals(4, listMatchPattern3([1, 4, 3]));
+}
+
+function listMatchPattern4([int, int, string] v) returns int|string {
+    match v {
+        [1, 2, ...var a] => {
+            return a[0];
+        }
+    }
+    return -1;
+}
+
+function testListMatchPatternWithRest4() {
+    assertEquals("str", listMatchPattern4([1, 2, "str"]));
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
