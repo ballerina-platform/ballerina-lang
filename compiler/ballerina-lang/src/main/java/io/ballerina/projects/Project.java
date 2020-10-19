@@ -63,14 +63,6 @@ public abstract class Project {
         return this.sourceRoot;
     }
 
-    public BuildOptions getBuildOptions() {
-        return buildOptions;
-    }
-
-    public void setBuildOptions(BuildOptions buildOptions) {
-        this.buildOptions = buildOptions;
-    }
-
     protected void setCurrentPackage(Package currentPackage) {
         // TODO Handle concurrent read/write to the currentPackage variable
         this.currentPackage = currentPackage;
