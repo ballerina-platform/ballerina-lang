@@ -135,20 +135,4 @@ public class Parser {
             dlog.logDiagnostic(pkgID, syntaxDiagnostic);
         }
     }
-
-//    private void reportSyntaxDiagnostics(String cUnitName, PackageID pkgID, SyntaxTree tree) {
-//        for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
-//            // This conversion is needed because the compiler diagnostic locations starting index
-//            // is 1, where as syntax diagnostics locations starting index is 0.
-//            Location syntaxLocation = syntaxDiagnostic.location();
-//            LineRange lineRange = syntaxLocation.lineRange();
-//            LinePosition startLine = lineRange.startLine();
-//            LinePosition endLine = lineRange.startLine();
-//            Location location = new BLangDiagnosticLocation(cUnitName, pkgID, startLine.line() + 1,
-//                    endLine.line() + 1, startLine.offset() + 1, endLine.offset() + 1);
-//            BLangDiagnostic diag =
-//                    new BLangDiagnostic(location, syntaxDiagnostic.message(), syntaxDiagnostic.diagnosticInfo());
-//            dlog.logDiagnostic(pkgID, diag);
-//        }
-//    }
 }
