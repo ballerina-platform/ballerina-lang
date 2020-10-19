@@ -62,87 +62,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "Float",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "readonly",
-      "kind": "Unit",
-      "detail": "type",
-      "insertText": "readonly",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "Xml",
-      "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "byte",
-      "kind": "Unit",
-      "detail": "Byte",
-      "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "handle",
-      "kind": "Unit",
-      "detail": "Handle",
-      "insertText": "handle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "never",
-      "kind": "Unit",
-      "detail": "Never",
-      "insertText": "never",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "null",
-      "kind": "Unit",
-      "detail": "Nil",
-      "insertText": "null",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "$anonType$_0",
       "kind": "Interface",
       "detail": "Object",
       "insertText": "$anonType$_0",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "Decimal",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "String",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "Stream",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "json",
-      "kind": "Unit",
-      "detail": "Json",
-      "insertText": "json",
       "insertTextFormat": "Snippet"
     },
     {
@@ -156,6 +79,76 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "float",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "readonly",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "readonly",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "handle",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "handle",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "never",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "decimal",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "decimal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "table",
       "kind": "Unit",
       "detail": "type",
@@ -165,42 +158,35 @@
     {
       "label": "anydata",
       "kind": "Unit",
-      "detail": "Anydata",
+      "detail": "type",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "any",
       "kind": "Unit",
-      "detail": "Any",
+      "detail": "type",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "int",
       "kind": "Unit",
-      "detail": "Int",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "Unit",
       "detail": "type",
-      "insertText": "Thread",
+      "insertText": "int",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "boolean",
       "kind": "Unit",
-      "detail": "Boolean",
+      "detail": "type",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "future",
       "kind": "Unit",
-      "detail": "Future",
+      "detail": "type",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -214,7 +200,7 @@
     {
       "label": "typedesc",
       "kind": "Unit",
-      "detail": "Typedesc",
+      "detail": "type",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },

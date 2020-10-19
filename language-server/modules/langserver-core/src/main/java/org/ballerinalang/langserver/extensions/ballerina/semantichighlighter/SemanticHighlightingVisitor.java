@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 
 import org.ballerinalang.langserver.common.LSNodeVisitor;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;

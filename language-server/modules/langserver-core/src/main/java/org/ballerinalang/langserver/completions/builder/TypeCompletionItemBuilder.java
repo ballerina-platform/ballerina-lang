@@ -58,6 +58,11 @@ public class TypeCompletionItemBuilder {
     }
 
     private static void setMeta(CompletionItem item, Symbol bSymbol) {
+        if (bSymbol == null) {
+            item.setKind(CompletionItemKind.Unit);
+            item.setDetail("type");
+            return;
+        }
         if (bSymbol.kind() == SymbolKind.MODULE) {
             // package
             item.setKind(CompletionItemKind.Module);

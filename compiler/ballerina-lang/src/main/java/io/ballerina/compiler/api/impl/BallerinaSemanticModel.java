@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -43,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 
@@ -89,8 +87,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
                 BSymbol symbol = scopeEntry.symbol;
 
-                if (isSymbolInUserProject(symbol, cursorPos) || isImportedSymbol(symbol)
-                        || isBuiltinTypeSymbol(symbol)) {
+                if (isSymbolInUserProject(symbol, cursorPos) || isImportedSymbol(symbol)) {
                     compiledSymbols.add(SymbolFactory.getBCompiledSymbol(symbol, name.getValue()));
                 }
             }
@@ -173,11 +170,6 @@ public class BallerinaSemanticModel implements SemanticModel {
     private boolean isImportedSymbol(BSymbol symbol) {
         return symbol.origin == COMPILED_SOURCE &&
                 (Symbols.isFlagOn(symbol.flags, Flags.PUBLIC) || symbol.getKind() == SymbolKind.PACKAGE);
-    }
-
-    private boolean isBuiltinTypeSymbol(BSymbol symbol) {
-        return symbol.origin == BUILTIN &&
-                Symbols.isFlagOn(symbol.flags, Flags.PUBLIC) && symbol instanceof BTypeSymbol;
     }
 
     private BLangCompilationUnit getCompilationUnit(String srcFile) {

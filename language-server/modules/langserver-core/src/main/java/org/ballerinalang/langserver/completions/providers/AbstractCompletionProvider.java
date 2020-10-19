@@ -195,6 +195,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
             }
         });
 
+        completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         completionItems.add(new TypeCompletionItem(context, null, Snippet.TYPE_MAP.get().build(context)));
 
         completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
@@ -495,6 +496,19 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         // TODO: anon function expressions, 
+        return completionItems;
+    }
+    
+    private List<LSCompletionItem> getBasicAndOtherTypeCompletions(LSContext context) {
+        List<String> types = Arrays.asList("float", "xml", "readonly", "handle", "never", "decimal", "string", "stream",
+                "json", "table", "anydata", "any", "int", "boolean", "future", "service", "typedesc");
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        types.forEach(type -> {
+
+            CompletionItem cItem = TypeCompletionItemBuilder.build(null, type);
+            completionItems.add(new SymbolCompletionItem(context, null, cItem));
+        });
+        
         return completionItems;
     }
 

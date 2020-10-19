@@ -266,11 +266,38 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "B",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "B",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "float",
       "kind": "Unit",
-      "detail": "Float",
+      "detail": "type",
       "sortText": "B",
       "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "B",
+      "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
@@ -282,25 +309,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "Xml",
-      "sortText": "B",
-      "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "byte",
-      "kind": "Unit",
-      "detail": "Byte",
-      "sortText": "B",
-      "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "handle",
       "kind": "Unit",
-      "detail": "Handle",
+      "detail": "type",
       "sortText": "B",
       "insertText": "handle",
       "insertTextFormat": "Snippet"
@@ -308,23 +319,15 @@
     {
       "label": "never",
       "kind": "Unit",
-      "detail": "Never",
+      "detail": "type",
       "sortText": "B",
       "insertText": "never",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "null",
-      "kind": "Unit",
-      "detail": "Nil",
-      "sortText": "B",
-      "insertText": "null",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "decimal",
       "kind": "Unit",
-      "detail": "Decimal",
+      "detail": "type",
       "sortText": "B",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
@@ -332,7 +335,7 @@
     {
       "label": "string",
       "kind": "Unit",
-      "detail": "String",
+      "detail": "type",
       "sortText": "B",
       "insertText": "string",
       "insertTextFormat": "Snippet"
@@ -340,7 +343,7 @@
     {
       "label": "stream",
       "kind": "Unit",
-      "detail": "Stream",
+      "detail": "type",
       "sortText": "B",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
@@ -348,20 +351,9 @@
     {
       "label": "json",
       "kind": "Unit",
-      "detail": "Json",
+      "detail": "type",
       "sortText": "B",
       "insertText": "json",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "B",
-      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -375,7 +367,7 @@
     {
       "label": "anydata",
       "kind": "Unit",
-      "detail": "Anydata",
+      "detail": "type",
       "sortText": "B",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
@@ -383,7 +375,7 @@
     {
       "label": "any",
       "kind": "Unit",
-      "detail": "Any",
+      "detail": "type",
       "sortText": "B",
       "insertText": "any",
       "insertTextFormat": "Snippet"
@@ -391,23 +383,15 @@
     {
       "label": "int",
       "kind": "Unit",
-      "detail": "Int",
+      "detail": "type",
       "sortText": "B",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "B",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "boolean",
       "kind": "Unit",
-      "detail": "Boolean",
+      "detail": "type",
       "sortText": "B",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
@@ -415,7 +399,7 @@
     {
       "label": "future",
       "kind": "Unit",
-      "detail": "Future",
+      "detail": "type",
       "sortText": "B",
       "insertText": "future",
       "insertTextFormat": "Snippet"
@@ -431,7 +415,7 @@
     {
       "label": "typedesc",
       "kind": "Unit",
-      "detail": "Typedesc",
+      "detail": "type",
       "sortText": "B",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"

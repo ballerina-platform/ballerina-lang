@@ -6,10 +6,41 @@
   "source": "function_def/source/source11.bal",
   "items": [
     {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "float",
       "kind": "Unit",
-      "detail": "Float",
+      "detail": "type",
       "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
@@ -20,76 +51,45 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "Xml",
-      "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "byte",
-      "kind": "Unit",
-      "detail": "Byte",
-      "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "handle",
       "kind": "Unit",
-      "detail": "Handle",
+      "detail": "type",
       "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "never",
       "kind": "Unit",
-      "detail": "Never",
+      "detail": "type",
       "insertText": "never",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "null",
-      "kind": "Unit",
-      "detail": "Nil",
-      "insertText": "null",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "decimal",
       "kind": "Unit",
-      "detail": "Decimal",
+      "detail": "type",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "string",
       "kind": "Unit",
-      "detail": "String",
+      "detail": "type",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "stream",
       "kind": "Unit",
-      "detail": "Stream",
+      "detail": "type",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "json",
       "kind": "Unit",
-      "detail": "Json",
+      "detail": "type",
       "insertText": "json",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -102,49 +102,35 @@
     {
       "label": "anydata",
       "kind": "Unit",
-      "detail": "Anydata",
+      "detail": "type",
       "insertText": "anydata",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "any",
       "kind": "Unit",
-      "detail": "Any",
+      "detail": "type",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "int",
       "kind": "Unit",
-      "detail": "Int",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "Unit",
       "detail": "type",
-      "insertText": "Thread",
+      "insertText": "int",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "boolean",
       "kind": "Unit",
-      "detail": "Boolean",
+      "detail": "type",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "future",
       "kind": "Unit",
-      "detail": "Future",
+      "detail": "type",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -158,7 +144,7 @@
     {
       "label": "typedesc",
       "kind": "Unit",
-      "detail": "Typedesc",
+      "detail": "type",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },

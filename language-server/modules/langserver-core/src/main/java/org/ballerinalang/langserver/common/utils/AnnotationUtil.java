@@ -36,11 +36,12 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.annotation.Nonnull;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getRecordFieldCompletionInsertText;
