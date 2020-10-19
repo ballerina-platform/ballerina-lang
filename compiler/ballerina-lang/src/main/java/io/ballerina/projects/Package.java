@@ -127,14 +127,14 @@ public class Package {
         return packageContext.packageDependencies();
     }
 
-//    public BallerinaToml ballerinaToml() {
-//        return this.packageContext.ballerinaToml();
-//    }
+    public CompilationOptions compilationOptions() {
+        return packageContext.compilationOptions();
+    }
 
-
-    /** Returns an instance of the Package.Modifier.
+    /**
+     * Returns an instance of the Package.Modifier.
      *
-     * @return  module modifier
+     * @return module modifier
      */
     public Modifier modify() {
         return new Modifier(this);
