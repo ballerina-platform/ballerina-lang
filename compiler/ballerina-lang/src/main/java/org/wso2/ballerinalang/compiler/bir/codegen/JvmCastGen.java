@@ -66,12 +66,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TO_DE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TO_FLOAT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TO_INT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BHANDLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_HANDLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE_OF_J_METHOD;
@@ -89,12 +89,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NUMBER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SIMPLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CONVERTER;
@@ -380,7 +380,7 @@ public class JvmCastGen {
         if (sourceType.tag == TypeTags.HANDLE) {
             if (targetType.jTag == JTypeTags.JREF) {
                 JType.JRefType jRefType = (JType.JRefType) targetType;
-                if (jRefType.typeValue.equals(HANDLE_VALUE) || jRefType.typeValue.equals(BHANDLE)) {
+                if (jRefType.typeValue.equals(HANDLE_VALUE) || jRefType.typeValue.equals(B_HANDLE)) {
                     return;
                 }
             }
@@ -614,7 +614,7 @@ public class JvmCastGen {
         LabelGenerator labelGen = new LabelGenerator();
         Label afterHandle = labelGen.getLabel("after_handle");
         mv.visitInsn(DUP);
-        mv.visitTypeInsn(INSTANCEOF, BHANDLE);
+        mv.visitTypeInsn(INSTANCEOF, B_HANDLE);
         mv.visitJumpInsn(IFNE, afterHandle);
 
         // Otherwise wrap it with a HandleValue
@@ -659,7 +659,7 @@ public class JvmCastGen {
                 Label afterHandle = new Label();
                 if (((JType.JRefType) sourceType).typeValue.equals(OBJECT)) {
                     mv.visitInsn(DUP);
-                    mv.visitTypeInsn(INSTANCEOF, B_ERROR);
+                    mv.visitTypeInsn(INSTANCEOF, BERROR);
                     mv.visitJumpInsn(IFNE, afterHandle);
 
                     mv.visitInsn(DUP);
@@ -1187,7 +1187,7 @@ public class JvmCastGen {
 
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "stringToChar",
-                    String.format("(L%s;)L%s;", OBJECT, B_STRING_VALUE), false);
+                               String.format("(L%s;)L%s;", OBJECT, B_STRING_VALUE), false);
         } else if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
@@ -1199,7 +1199,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.BOOLEAN ||
                 sourceType.tag == TypeTags.DECIMAL) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "anyToChar",
-                    String.format("(L%s;)L%s;", OBJECT, B_STRING_VALUE), false);
+                               String.format("(L%s;)L%s;", OBJECT, B_STRING_VALUE), false);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'char'",
                     sourceType));
@@ -1291,7 +1291,7 @@ public class JvmCastGen {
 
         loadType(mv, targetType);
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkCast",
-                String.format("(L%s;L%s;)L%s;", OBJECT, BTYPE, OBJECT), false);
+                           String.format("(L%s;L%s;)L%s;", OBJECT, TYPE, OBJECT), false);
     }
 
     static String getTargetClass(BType targetType) {
@@ -1317,7 +1317,7 @@ public class JvmCastGen {
                 targetTypeClass = STREAM_VALUE;
                 break;
             case TypeTags.OBJECT:
-                targetTypeClass = OBJECT_VALUE;
+                targetTypeClass = B_OBJECT;
                 break;
             case TypeTags.ERROR:
                 targetTypeClass = ERROR_VALUE;

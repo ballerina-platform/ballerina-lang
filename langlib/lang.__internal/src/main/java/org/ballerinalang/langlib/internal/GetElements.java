@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.XMLNodeType;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXMLSequence;
 
 import java.util.ArrayList;
 
@@ -33,7 +33,7 @@ import java.util.ArrayList;
 //@BallerinaFunction(
 //        orgName = "ballerina", packageName = "lang.__internal",
 //        functionName = "getElements",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML),
+//        args = {@Argument(name = "BXML", type = TypeKind.XML),
 //                @Argument(name = "elemNames", type = TypeKind.ARRAY)},
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
@@ -52,7 +52,7 @@ public class GetElements {
      * @param elemNames element names to select
      * @return sequence of elements matching given element names
      */
-    public static XMLValue getElements(XMLValue xmlVal, BString[] elemNames) {
+    public static BXML getElements(BXML xmlVal, BString[] elemNames) {
 
         ArrayList<String> nsList = new ArrayList<>();
         ArrayList<String> localNameList = new ArrayList<>();
@@ -63,12 +63,12 @@ public class GetElements {
             if (matchFilters(elemNames, nsList, localNameList, xmlVal.getElementName())) {
                 return xmlVal;
             }
-            return new XMLSequence();
+            return ValueCreator.createXMLSequence();
         }
 
         ArrayList<BXML> selectedElements = new ArrayList<>();
         if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
-            XMLSequence sequence = (XMLSequence) xmlVal;
+            BXMLSequence sequence = (BXMLSequence) xmlVal;
             for (BXML child : sequence.getChildrenList()) {
                 if (child.getNodeType() != XMLNodeType.ELEMENT) {
                     continue;
@@ -79,7 +79,7 @@ public class GetElements {
             }
         }
 
-        return new XMLSequence(selectedElements);
+        return ValueCreator.createXMLSequence(selectedElements);
     }
 
     public static void destructureFilters(BString[] elemNames,

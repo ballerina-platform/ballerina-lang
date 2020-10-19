@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.values.BArray;
 
 /**
  * Native implementation of lang.array:reverse((any|error)[]).
@@ -35,8 +35,8 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 //)
 public class Reverse {
 
-    public static ArrayValue reverse(ArrayValue arr) {
-        ArrayValue reversedArr = new ArrayValueImpl((BArrayType) arr.getType());
+    public static BArray reverse(BArray arr) {
+        BArray reversedArr = ValueCreator.createArrayValue((ArrayType) arr.getType());
         int elemTypeTag = reversedArr.getElementType().getTag();
         int size = arr.size();
 

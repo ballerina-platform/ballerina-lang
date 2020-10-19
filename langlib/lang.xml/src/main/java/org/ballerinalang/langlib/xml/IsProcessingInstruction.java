@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.XMLNodeType;
+import io.ballerina.runtime.api.values.BXML;
 
 /**
  * Test xml to be processing instruction.
@@ -34,7 +34,7 @@ import org.ballerinalang.jvm.values.XMLValue;
 //)
 public class IsProcessingInstruction {
 
-    public static boolean isProcessingInstruction(XMLValue xmlValue) {
+    public static boolean isProcessingInstruction(BXML xmlValue) {
         return xmlValue.getNodeType() == XMLNodeType.PI;
     }
 }
