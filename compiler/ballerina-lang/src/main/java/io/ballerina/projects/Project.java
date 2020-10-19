@@ -30,7 +30,6 @@ import java.nio.file.Path;
 public abstract class Project {
     protected Path sourceRoot;
     private Package currentPackage;
-    private BuildOptions buildOptions;
     private final ProjectEnvironmentContext projectEnvironmentContext;
 
     protected Project(EnvironmentContext environmentContext) {
@@ -49,14 +48,6 @@ public abstract class Project {
 
     public Path sourceRoot() {
         return this.sourceRoot;
-    }
-
-    public BuildOptions getBuildOptions() {
-        return buildOptions;
-    }
-
-    public void setBuildOptions(BuildOptions buildOptions) {
-        this.buildOptions = buildOptions;
     }
 
     protected void setCurrentPackage(Package currentPackage) {

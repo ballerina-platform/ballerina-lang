@@ -149,10 +149,6 @@ class PackageContext {
         return packageDependencies;
     }
 
-    CompilationOptions compilationOptions() {
-        return null;
-    }
-
     Project project() {
         return this.project;
     }

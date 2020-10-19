@@ -73,10 +73,6 @@ public class PackageConfig {
         return packageDescriptor;
     }
 
-    public CompilationOptions compilationOptions() {
-        return null;
-    }
-
     // TODO Check whether it makes sense to expose Java Path in the API
     // TODO Should I use a String here
     public Path packagePath() {

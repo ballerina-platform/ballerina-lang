@@ -127,10 +127,6 @@ public class Package {
         return packageContext.packageDependencies();
     }
 
-    public CompilationOptions compilationOptions() {
-        return packageContext.compilationOptions();
-    }
-
     /**
      * Returns an instance of the Package.Modifier.
      *

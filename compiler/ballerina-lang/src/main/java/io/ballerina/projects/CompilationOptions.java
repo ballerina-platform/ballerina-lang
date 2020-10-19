@@ -48,4 +48,5 @@ public class CompilationOptions {
     public CompilationOptions mergeWithTheirs(CompilationOptions theirOptions) {
         return null;
     }
+
 }

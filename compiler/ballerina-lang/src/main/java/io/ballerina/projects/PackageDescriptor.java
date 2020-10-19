@@ -31,15 +31,25 @@ public class PackageDescriptor {
     private final PackageVersion packageVersion;
 
     private final List<Dependency> dependencies;
+    private final CompilationOptions compilationOptions;
 
-    public PackageDescriptor(PackageName packageName,
-                             PackageOrg packageOrg,
-                             PackageVersion packageVersion,
-                             List<Dependency> dependencies) {
+    private PackageDescriptor(PackageName packageName,
+                              PackageOrg packageOrg,
+                              PackageVersion packageVersion,
+                              List<Dependency> dependencies,
+                              CompilationOptions compilationOptions) {
         this.packageName = packageName;
         this.packageOrg = packageOrg;
         this.packageVersion = packageVersion;
         this.dependencies = Collections.unmodifiableList(dependencies);
+        this.compilationOptions = compilationOptions;
+    }
+
+    public static PackageDescriptor from(PackageName packageName,
+                                         PackageOrg packageOrg,
+                                         PackageVersion packageVersion) {
+        return new PackageDescriptor(packageName, packageOrg, packageVersion,
+                Collections.emptyList(), new CompilationOptionsBuilder().build());
     }
 
     public PackageName name() {
@@ -56,6 +66,10 @@ public class PackageDescriptor {
 
     public List<Dependency> dependencies() {
         return dependencies;
+    }
+
+    public CompilationOptions compilationOptions() {
+        return compilationOptions;
     }
 
     /**
