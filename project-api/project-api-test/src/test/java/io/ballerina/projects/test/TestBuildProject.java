@@ -20,6 +20,7 @@ package io.ballerina.projects.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.BallerinaToml;
+import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
@@ -251,6 +252,23 @@ public class TestBuildProject {
             Assert.assertTrue(e.getMessage().contains("Provided path is already within a Ballerina package: " +
                     projectPath));
         }
+    }
+
+    @Test(enabled = false, description = "tests loading a valid build project with build options from toml")
+    public void testLoadingBuildOptionsFromToml() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        Package currentPackage = project.currentPackage();
+        CompilationOptions compilationOptions = currentPackage.packageDescriptor().compilationOptions();
+
+        // Verify expected default buildOptions
+        Assert.assertFalse(compilationOptions.skipTests());
     }
 
     @Test

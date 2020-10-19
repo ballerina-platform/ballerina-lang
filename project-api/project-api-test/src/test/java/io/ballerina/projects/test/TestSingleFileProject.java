@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -79,6 +80,23 @@ public class TestSingleFileProject {
             Assert.assertTrue(e.getMessage().contains("The source file '" + projectPath +
                     "' belongs to a Ballerina package."));
         }
+    }
+
+    @Test(description = "tests setting build options to the project")
+    public void testCompilationOptions() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single-file").resolve("main.bal");
+        SingleFileProject project = null;
+        try {
+            project = SingleFileProject.loadProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        Package currentPackage = project.currentPackage();
+        CompilationOptions compilationOptions = currentPackage.packageDescriptor().compilationOptions();
+
+        // Verify expected default buildOptions
+        Assert.assertFalse(compilationOptions.skipTests());
     }
 
     @Test
