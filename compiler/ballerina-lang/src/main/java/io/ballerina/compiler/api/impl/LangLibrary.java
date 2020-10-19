@@ -52,6 +52,7 @@ import static io.ballerina.compiler.api.types.util.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.types.util.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.types.util.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.types.util.TypeDescKind.STRING;
+import static io.ballerina.compiler.api.types.util.TypeDescKind.TABLE;
 import static io.ballerina.compiler.api.types.util.TypeDescKind.TYPEDESC;
 import static io.ballerina.compiler.api.types.util.TypeDescKind.XML;
 
@@ -169,6 +170,8 @@ public class LangLibrary {
                 return TYPEDESC.getName();
             case XML:
                 return XML.getName();
+            case TABLE:
+                return TABLE.getName();
             default:
                 return "value";
         }
