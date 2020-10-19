@@ -245,10 +245,11 @@ public class MappingConstructorExpressionNodeContext extends
             Optional<FieldDescriptor> fieldDesc = recordType.fieldDescriptors().stream()
                     .filter(fieldDescriptor -> fieldDescriptor.name().equals(fieldName))
                     .findAny();
-            if (fieldDesc.isEmpty() || fieldDesc.get().typeDescriptor().kind() != TypeDescKind.RECORD) {
+            if (fieldDesc.isEmpty()
+                    || CommonUtil.getRawType(fieldDesc.get().typeDescriptor()).kind() != TypeDescKind.RECORD) {
                 return Optional.empty();
             }
-            recordType = (RecordTypeDescriptor) fieldDesc.get().typeDescriptor();
+            recordType = (RecordTypeDescriptor) CommonUtil.getRawType(fieldDesc.get().typeDescriptor());
         }
 
         return Optional.ofNullable(recordType);

@@ -558,7 +558,7 @@
     {
       "label": "l1",
       "kind": "Variable",
-      "detail": " object {int portfunction () returns |() function () returns |() function () returns |() function (service s) returns |() function (service s) returns |() function () returns |() function (service s,string|() name) returns |() function () returns |() function () returns |() function (service s) returns |()}",
+      "detail": "module1:Listener",
       "insertText": "l1",
       "insertTextFormat": "Snippet"
     },

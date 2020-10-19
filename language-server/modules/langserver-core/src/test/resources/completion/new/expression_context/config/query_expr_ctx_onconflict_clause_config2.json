@@ -516,7 +516,7 @@
     {
       "label": "outputPersonList",
       "kind": "Variable",
-      "detail": "{| string firstName; string lastName; int age |}[]",
+      "detail": "Person[]",
       "insertText": "outputPersonList",
       "insertTextFormat": "Snippet"
     },
@@ -530,21 +530,21 @@
     {
       "label": "p1",
       "kind": "Variable",
-      "detail": "{| string firstName; string lastName; int age |}",
+      "detail": "Person",
       "insertText": "p1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "p2",
       "kind": "Variable",
-      "detail": "{| string firstName; string lastName; int age |}",
+      "detail": "Person",
       "insertText": "p2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "p3",
       "kind": "Variable",
-      "detail": "{| string firstName; string lastName; int age |}",
+      "detail": "Person",
       "insertText": "p3",
       "insertTextFormat": "Snippet"
     },
@@ -564,7 +564,7 @@
     {
       "label": "personList",
       "kind": "Variable",
-      "detail": "{| string firstName; string lastName; int age |}[]",
+      "detail": "Person[]",
       "insertText": "personList",
       "insertTextFormat": "Snippet"
     }

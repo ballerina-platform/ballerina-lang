@@ -270,7 +270,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                     .findAny();
         }
 
-        return typeSymbol.map(symbol -> (ObjectTypeDescriptor) symbol.typeDescriptor());
+        return typeSymbol.map(symbol -> (ObjectTypeDescriptor) CommonUtil.getRawType(symbol.typeDescriptor()));
     }
 
     private enum ContextScope {

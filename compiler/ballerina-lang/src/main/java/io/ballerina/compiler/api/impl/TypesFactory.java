@@ -80,6 +80,10 @@ public class TypesFactory {
 
         ModuleID moduleID = bType.tsymbol == null ? null : new BallerinaModuleID(bType.tsymbol.pkgID);
 
+        if (isTypeReference(bType, rawTypeOnly)) {
+            return new BallerinaTypeReferenceTypeDescriptor(moduleID, bType, bType.tsymbol.getName().getValue());
+        }
+
         switch (bType.getKind()) {
             case OBJECT:
                 return new BallerinaObjectTypeDescriptor(moduleID, (BObjectType) bType);
@@ -109,10 +113,6 @@ public class TypesFactory {
                 }
                 // fall through
             default:
-                if (isTypeReference(bType, rawTypeOnly)) {
-                    return new BallerinaTypeReferenceTypeDescriptor(moduleID, bType,
-                            bType.tsymbol.getName().getValue());
-                }
                 return new BallerinaSimpleTypeDescriptor(moduleID, bType);
         }
     }

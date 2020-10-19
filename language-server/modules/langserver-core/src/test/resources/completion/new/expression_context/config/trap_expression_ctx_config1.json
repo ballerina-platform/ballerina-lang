@@ -570,13 +570,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "functionWithReturn()({ { int rec1Field1; string rec1Field2; int optionalInt; anydata... } testField; int testOptional; anydata... })",
+      "label": "functionWithReturn()(Record1)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \nThis is a test function\n  \n  \n  \n**Returns** `{ { int rec1Field1; string rec1Field2; int optionalInt; anydata... } testField; int testOptional; anydata... }`   \n- Return Value Description  \n  \n"
+          "value": "**Package:** _._  \n  \nThis is a test function\n  \n  \n  \n**Returns** `Record1`   \n- Return Value Description  \n  \n"
         }
       },
       "insertText": "functionWithReturn()",

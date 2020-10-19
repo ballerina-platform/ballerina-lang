@@ -59,7 +59,7 @@ public class SymbolUtil {
                 return false;
         }
 
-        return typeDescriptor.kind() == TypeDescKind.OBJECT;
+        return CommonUtil.getRawType(typeDescriptor).kind() == TypeDescKind.OBJECT;
     }
 
     /**
@@ -81,7 +81,7 @@ public class SymbolUtil {
                 return false;
         }
 
-        return typeDescriptor.kind() == TypeDescKind.RECORD;
+        return CommonUtil.getRawType(typeDescriptor).kind() == TypeDescKind.RECORD;
     }
 
     /**
@@ -123,7 +123,7 @@ public class SymbolUtil {
             throw new UnsupportedOperationException("Cannot find a valid type descriptor");
         }
 
-        return (ObjectTypeDescriptor) typeDescriptor.get();
+        return (ObjectTypeDescriptor) CommonUtil.getRawType(typeDescriptor.get());
     }
 
     /**
@@ -138,7 +138,7 @@ public class SymbolUtil {
             throw new UnsupportedOperationException("Cannot find a valid type descriptor");
         }
 
-        return (RecordTypeDescriptor) typeDescriptor.get();
+        return (RecordTypeDescriptor) CommonUtil.getRawType(typeDescriptor.get());
     }
 
     /**
@@ -148,10 +148,11 @@ public class SymbolUtil {
      * @return {@link Boolean} status of the evaluation
      */
     public static boolean isListener(TypeSymbol symbol) {
-        if (symbol.typeDescriptor().kind() != TypeDescKind.OBJECT) {
+        if (CommonUtil.getRawType(symbol.typeDescriptor()).kind() != TypeDescKind.OBJECT) {
             return false;
         }
-        List<String> attachedMethods = ((ObjectTypeDescriptor) symbol.typeDescriptor()).methods().stream()
+        List<String> attachedMethods = ((ObjectTypeDescriptor) CommonUtil.getRawType(symbol.typeDescriptor())).methods()
+                .stream()
                 .map(Symbol::name)
                 .collect(Collectors.toList());
         return attachedMethods.contains("__start") && attachedMethods.contains("__immediateStop")

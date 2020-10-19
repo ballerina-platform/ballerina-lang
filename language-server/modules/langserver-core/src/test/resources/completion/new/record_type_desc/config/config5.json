@@ -584,7 +584,7 @@
     {
       "label": "c",
       "kind": "Variable",
-      "detail": "client object {string urlfunction (string path,string|xml|json|byte[] message) returns  object {int statusCode;string reasonPhrase}}",
+      "detail": "module1:Client",
       "insertText": "c",
       "insertTextFormat": "Snippet"
     },

@@ -516,21 +516,21 @@
     {
       "label": "c1",
       "kind": "Variable",
-      "detail": "{| int id; string name; int noOfItems |}",
+      "detail": "Customer",
       "insertText": "c1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "c2",
       "kind": "Variable",
-      "detail": "{| int id; string name; int noOfItems |}",
+      "detail": "Customer",
       "insertText": "c2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "c3",
       "kind": "Variable",
-      "detail": "{| int id; string name; int noOfItems |}",
+      "detail": "Customer",
       "insertText": "c3",
       "insertTextFormat": "Snippet"
     },
@@ -551,28 +551,28 @@
     {
       "label": "customerList",
       "kind": "Variable",
-      "detail": "{| int id; string name; int noOfItems |}[]",
+      "detail": "Customer[]",
       "insertText": "customerList",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "p1",
       "kind": "Variable",
-      "detail": "{| string firstName; string lastName; int age |}",
+      "detail": "Person",
       "insertText": "p1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "p2",
       "kind": "Variable",
-      "detail": "{| string firstName; string lastName; int age |}",
+      "detail": "Person",
       "insertText": "p2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "personList",
       "kind": "Variable",
-      "detail": "{| string firstName; string lastName; int age |}[]",
+      "detail": "Person[]",
       "insertText": "personList",
       "insertTextFormat": "Snippet"
     },

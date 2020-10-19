@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.RecordTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import io.ballerina.compiler.api.types.UnionTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -952,5 +953,17 @@ public class CommonUtil {
         } catch (URISyntaxException e) {
             return false;
         }
+    }
+
+    /**
+     * Get the raw type of the type descriptor. If the type descriptor is a type reference then return the associated 
+     * type descriptor.
+     * 
+     * @param typeDescriptor type descriptor to evaluate
+     * @return {@link BallerinaTypeDescriptor} extracted type descriptor
+     */
+    public static BallerinaTypeDescriptor getRawType(BallerinaTypeDescriptor typeDescriptor) {
+        return typeDescriptor.kind() == TypeDescKind.TYPE_REFERENCE
+                ? ((TypeReferenceTypeDescriptor) typeDescriptor).typeDescriptor() : typeDescriptor;
     }
 }

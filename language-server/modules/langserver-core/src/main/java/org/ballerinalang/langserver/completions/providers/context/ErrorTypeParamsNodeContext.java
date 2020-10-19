@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -65,7 +66,8 @@ public class ErrorTypeParamsNodeContext extends AbstractCompletionProvider<Error
                 return false;
             }
             BallerinaTypeDescriptor typeDesc = ((TypeSymbol) symbol).typeDescriptor();
-            return (typeDesc.kind() == TypeDescKind.MAP || typeDesc.kind() == TypeDescKind.RECORD);
+            return (CommonUtil.getRawType(typeDesc).kind() == TypeDescKind.MAP
+                    || CommonUtil.getRawType(typeDesc).kind() == TypeDescKind.RECORD);
         };
         List<Symbol> mappingTypes;
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {

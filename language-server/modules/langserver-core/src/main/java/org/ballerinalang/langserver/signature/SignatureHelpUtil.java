@@ -401,10 +401,12 @@ public class SignatureHelpUtil {
 
         List<FieldDescriptor> fieldDescriptors = new ArrayList<>();
 
-        if (typeDescriptor.get().kind() == TypeDescKind.OBJECT) {
-            fieldDescriptors.addAll(((ObjectTypeDescriptor) typeDescriptor.get()).fieldDescriptors());
-        } else if (typeDescriptor.get().kind() == TypeDescKind.RECORD) {
-            fieldDescriptors.addAll(((RecordTypeDescriptor) typeDescriptor.get()).fieldDescriptors());
+        if (CommonUtil.getRawType(typeDescriptor.get()).kind() == TypeDescKind.OBJECT) {
+            fieldDescriptors.addAll(((ObjectTypeDescriptor) CommonUtil
+                    .getRawType(typeDescriptor.get())).fieldDescriptors());
+        } else if (CommonUtil.getRawType(typeDescriptor.get()).kind() == TypeDescKind.RECORD) {
+            fieldDescriptors.addAll(((RecordTypeDescriptor) CommonUtil
+                    .getRawType(typeDescriptor.get())).fieldDescriptors());
         }
 
         return fieldDescriptors.stream()
@@ -456,8 +458,8 @@ public class SignatureHelpUtil {
         }
 
         List<MethodSymbol> visibleMethods = fieldTypeDesc.get().builtinMethods();
-        if (fieldTypeDesc.get().kind() == TypeDescKind.OBJECT) {
-            visibleMethods.addAll(((ObjectTypeDescriptor) fieldTypeDesc.get()).methods());
+        if (CommonUtil.getRawType(fieldTypeDesc.get()).kind() == TypeDescKind.OBJECT) {
+            visibleMethods.addAll(((ObjectTypeDescriptor) CommonUtil.getRawType(fieldTypeDesc.get())).methods());
         }
         Optional<MethodSymbol> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
@@ -472,8 +474,8 @@ public class SignatureHelpUtil {
 
     private static List<FunctionSymbol> getFunctionSymbolsForTypeDesc(BallerinaTypeDescriptor typeDescriptor) {
         List<FunctionSymbol> functionSymbols = new ArrayList<>();
-        if (typeDescriptor.kind() == TypeDescKind.OBJECT) {
-            ObjectTypeDescriptor objTypeDesc = (ObjectTypeDescriptor) typeDescriptor;
+        if (CommonUtil.getRawType(typeDescriptor).kind() == TypeDescKind.OBJECT) {
+            ObjectTypeDescriptor objTypeDesc = (ObjectTypeDescriptor) CommonUtil.getRawType(typeDescriptor);
             functionSymbols.addAll(objTypeDesc.methods());
         }
         functionSymbols.addAll(typeDescriptor.builtinMethods());

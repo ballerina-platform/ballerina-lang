@@ -173,7 +173,8 @@ public class AnnotationUtil {
         }
         if (annotationSymbol.typeDescriptor().isPresent()) {
             annotationStart.append(annotationSymbol.name());
-            Optional<BallerinaTypeDescriptor> attachedType = annotationSymbol.typeDescriptor();
+            Optional<BallerinaTypeDescriptor> attachedType
+                    = Optional.ofNullable(CommonUtil.getRawType(annotationSymbol.typeDescriptor().get()));
             Optional<BallerinaTypeDescriptor> resultType;
             if (attachedType.isPresent() && attachedType.get().kind() == TypeDescKind.ARRAY) {
                 resultType = Optional.of(((ArrayTypeDescriptor) attachedType.get()).memberTypeDescriptor());
