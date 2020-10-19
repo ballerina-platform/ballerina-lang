@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.Flag;
@@ -103,7 +104,7 @@ class JvmObservabilityGen {
     private static final String ANONYMOUS_SERVICE_IDENTIFIER = "$anonService$";
     private static final String INVOCATION_INSTRUMENTATION_TYPE = "invocation";
     private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "funcBody";
-    private static final BLangDiagnosticLocation COMPILE_TIME_CONST_POS =
+    private static final Location COMPILE_TIME_CONST_POS =
             new BLangDiagnosticLocation(null, -1, -1, -1, -1);
 
     private final PackageCache packageCache;
@@ -428,7 +429,7 @@ class JvmObservabilityGen {
             BIRBasicBlock currentBB = func.basicBlocks.get(i);
             if (currentBB.terminator.kind == InstructionKind.CALL && isObservable((Call) currentBB.terminator)) {
                 Call callIns = (Call) currentBB.terminator;
-                BLangDiagnosticLocation desugaredInsPosition = callIns.pos;
+                Location desugaredInsPosition = callIns.pos;
                 BIRBasicBlock observeStartBB = insertBasicBlock(func, i + 1);
                 int newCurrentIndex = i + 2;
                 BIRBasicBlock newCurrentBB = insertBasicBlock(func, newCurrentIndex);
@@ -453,7 +454,7 @@ class JvmObservabilityGen {
 
                     BIRBasicBlock observeEndBB;
                     boolean isRemote = callIns.calleeFlags.contains(Flag.REMOTE);
-                    BLangDiagnosticLocation originalInsPos = callIns.pos;
+                    Location originalInsPos = callIns.pos;
                     if (isErrorAssignable(callIns.lhsOp.variableDcl)) {
                         BIRBasicBlock errorCheckBB = insertBasicBlock(func, i + 3);
                         BIRBasicBlock errorReportBB = insertBasicBlock(func, i + 4);
@@ -498,7 +499,7 @@ class JvmObservabilityGen {
                     Optional<BIRErrorEntry> existingEE = func.errorTable.stream()
                             .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, func.basicBlocks, newCurrentBB))
                             .findAny();
-                    BLangDiagnosticLocation desugaredInsPos = callIns.pos;
+                    Location desugaredInsPos = callIns.pos;
                     if (existingEE.isPresent()) {
                         BIRErrorEntry errorEntry = existingEE.get();
                         int eeTargetIndex = func.basicBlocks.indexOf(errorEntry.targetBB);
@@ -567,7 +568,7 @@ class JvmObservabilityGen {
      * @param originalInsPosition The source code position of the invocation
      */
     private void injectStartResourceObservationCall(BIRBasicBlock observeStartBB, String serviceName, String resource,
-                                                    BIRPackage pkg, BLangDiagnosticLocation originalInsPosition) {
+                                                    BIRPackage pkg, Location originalInsPosition) {
         String pkgId = generatePackageId(pkg);
         String position = generatePositionId(originalInsPosition);
 
@@ -601,10 +602,10 @@ class JvmObservabilityGen {
      * @param originalInsPosition The source code position of the invocation
      */
     private void injectStartCallableObservationCall(BIRBasicBlock observeStartBB,
-                                                    BLangDiagnosticLocation desugaredInsLocation,
+                                                    Location desugaredInsLocation,
                                                     boolean isRemote, boolean isMainEntryPoint, boolean isWorker,
                                                     BIROperand objectOperand, String action, BIRPackage pkg,
-                                                    BLangDiagnosticLocation originalInsPosition) {
+                                                    Location originalInsPosition) {
         String pkgId = generatePackageId(pkg);
         String position = generatePositionId(originalInsPosition);
 
@@ -639,7 +640,7 @@ class JvmObservabilityGen {
      * @param uniqueId A unique ID to identify the check error call
      */
     private void injectCheckErrorCalls(BIRBasicBlock errorCheckBB, BIRBasicBlock isErrorBB, BIRBasicBlock noErrorBB,
-                                       Collection<BIRVariableDcl> scopeVarList, BLangDiagnosticLocation pos,
+                                       Collection<BIRVariableDcl> scopeVarList, Location pos,
                                        BIROperand valueOperand, String uniqueId) {
         BIRVariableDcl isErrorVariableDcl = new BIRVariableDcl(symbolTable.booleanType,
                 new Name(String.format("$%s$%s$isError", uniqueId, errorCheckBB.id.value)), VarScope.FUNCTION,
@@ -661,7 +662,7 @@ class JvmObservabilityGen {
      * @param uniqueId A unique ID to identify the check error call
      */
     private void injectReportErrorCall(BIRBasicBlock errorReportBB, Collection<BIRVariableDcl> scopeVarList,
-                                       BLangDiagnosticLocation pos, BIROperand errorOperand, String uniqueId) {
+                                       Location pos, BIROperand errorOperand, String uniqueId) {
         BIRVariableDcl castedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorType,
                 new Name(String.format("$%s$%s$castedError", uniqueId, errorReportBB.id.value)), VarScope.FUNCTION,
                 VarKind.TEMP);
@@ -686,7 +687,7 @@ class JvmObservabilityGen {
      * @param observeEndBB The basic block to which the stop observation call should be injected
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      */
-    private void injectStopObservationCall(BIRBasicBlock observeEndBB, BLangDiagnosticLocation pos) {
+    private void injectStopObservationCall(BIRBasicBlock observeEndBB, Location pos) {
         JIMethodCall observeEndCallTerminator = new JIMethodCall(pos);
         observeEndCallTerminator.invocationType = INVOKESTATIC;
         observeEndCallTerminator.jClassName = OBSERVE_UTILS;
@@ -873,7 +874,7 @@ class JvmObservabilityGen {
      * @param pos The position for which the ID should be generated
      * @return The generated ID
      */
-    private String generatePositionId(BLangDiagnosticLocation pos) {
+    private String generatePositionId(Location pos) {
         return String.format("%s:%d:%d", pos.lineRange().filePath(), pos.lineRange().startLine().line() + 1,
                 pos.lineRange().startLine().offset() + 1);
     }

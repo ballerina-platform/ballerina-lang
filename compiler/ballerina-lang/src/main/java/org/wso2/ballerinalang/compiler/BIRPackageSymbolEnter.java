@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -344,7 +345,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineFunction(DataInputStream dataInStream) throws IOException {
-        BLangDiagnosticLocation pos = readPosition(dataInStream);
+        Location pos = readPosition(dataInStream);
 
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
@@ -422,7 +423,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
-        BLangDiagnosticLocation pos = readPosition(dataInStream);
+        Location pos = readPosition(dataInStream);
         String typeDefName = getStringCPEntryValue(dataInStream);
 
         int flags = dataInStream.readInt();
@@ -575,7 +576,7 @@ public class BIRPackageSymbolEnter {
 
         int flags = dataInStream.readInt();
         byte origin = dataInStream.readByte();
-        BLangDiagnosticLocation pos = readPosition(dataInStream);
+        Location pos = readPosition(dataInStream);
 
         int attachPointCount = dataInStream.readInt();
         Set<AttachPoint> attachPoints = new HashSet<>(attachPointCount);
@@ -604,7 +605,7 @@ public class BIRPackageSymbolEnter {
         String constantName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
         byte origin = dataInStream.readByte();
-        BLangDiagnosticLocation pos = readPosition(dataInStream);
+        Location pos = readPosition(dataInStream);
 
         byte[] docBytes = readDocBytes(dataInStream);
 
@@ -856,7 +857,7 @@ public class BIRPackageSymbolEnter {
                 .filter(taintedStatus -> readByte == taintedStatus.getByteValue()).findFirst().get();
     }
 
-    private BLangDiagnosticLocation readPosition(DataInputStream dataInStream) throws IOException {
+    private Location readPosition(DataInputStream dataInStream) throws IOException {
         String cUnitName = getStringCPEntryValue(dataInStream);
         int sLine = dataInStream.readInt();
         int sCol = dataInStream.readInt();

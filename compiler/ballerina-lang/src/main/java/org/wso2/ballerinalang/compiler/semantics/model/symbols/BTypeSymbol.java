@@ -17,10 +17,10 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.symbols.TypeSymbol;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -33,7 +33,7 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
     public boolean isLabel;
 
     public BTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
-                       BLangDiagnosticLocation pos, SymbolOrigin origin) {
+                       Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, pkgID, type, owner, pos, origin);
         this.isLabel = false;
     }

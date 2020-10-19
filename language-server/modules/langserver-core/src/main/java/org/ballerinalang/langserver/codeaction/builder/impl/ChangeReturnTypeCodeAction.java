@@ -19,6 +19,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.CommonKeys;
@@ -39,7 +40,6 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -179,7 +179,7 @@ public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
         Iterator<TopLevelNode> nodeIterator = compilationUnit.getTopLevelNodes().iterator();
         BLangFunction result = null;
         TopLevelNode next = (nodeIterator.hasNext()) ? nodeIterator.next() : null;
-        Function<BLangDiagnosticLocation, Boolean> isWithinPosition =
+        Function<Location, Boolean> isWithinPosition =
                 diagnosticPosition -> {
                     int sLine = diagnosticPosition.lineRange().startLine().line();
                     int eLine = diagnosticPosition.lineRange().endLine().line();

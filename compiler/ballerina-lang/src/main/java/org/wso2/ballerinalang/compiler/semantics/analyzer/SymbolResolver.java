@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -26,7 +27,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
@@ -168,7 +168,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.typeBuilder = new ResolvedTypeBuilder();
     }
 
-    public boolean checkForUniqueSymbol(BLangDiagnosticLocation pos, SymbolEnv env, BSymbol symbol) {
+    public boolean checkForUniqueSymbol(Location pos, SymbolEnv env, BSymbol symbol) {
         //lookup symbol
         BSymbol foundSym = symTable.notFoundSymbol;
         int expSymTag = symbol.tag;
@@ -226,7 +226,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param expSymTag expected tag of the symbol for.
      * @return true if the symbol is unique, false otherwise.
      */
-    public boolean checkForUniqueSymbolInCurrentScope(BLangDiagnosticLocation pos, SymbolEnv env, BSymbol symbol,
+    public boolean checkForUniqueSymbolInCurrentScope(Location pos, SymbolEnv env, BSymbol symbol,
                                                       int expSymTag) {
         //lookup in current scope
         BSymbol foundSym = lookupSymbolInGivenScope(env, symbol.name, expSymTag);
@@ -249,7 +249,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param foundSym symbol that is found from the scope.
      * @return true if the symbol is unique, false otherwise.
      */
-    private boolean isDistinctSymbol(BLangDiagnosticLocation pos, BSymbol symbol, BSymbol foundSym) {
+    private boolean isDistinctSymbol(Location pos, BSymbol symbol, BSymbol foundSym) {
         // It is allowed to have a error constructor symbol with the same name as a type def.
         if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
             return false;
@@ -339,7 +339,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    public boolean checkForUniqueMemberSymbol(BLangDiagnosticLocation pos, SymbolEnv env, BSymbol symbol) {
+    public boolean checkForUniqueMemberSymbol(Location pos, SymbolEnv env, BSymbol symbol) {
         BSymbol foundSym = lookupMemberSymbol(pos, env.scope, env, symbol.name, symbol.tag);
         if (foundSym != symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
@@ -362,7 +362,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
-    public BSymbol resolveUnaryOperator(BLangDiagnosticLocation pos,
+    public BSymbol resolveUnaryOperator(Location pos,
                                         OperatorKind opKind,
                                         BType type) {
         return resolveOperator(names.fromString(opKind.value()), Lists.of(type));
@@ -373,7 +373,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveOperator(entry, types);
     }
 
-    public BSymbol resolvePkgSymbol(BLangDiagnosticLocation pos, SymbolEnv env, Name pkgAlias) {
+    public BSymbol resolvePkgSymbol(Location pos, SymbolEnv env, Name pkgAlias) {
         if (pkgAlias == Names.EMPTY) {
             // Return the current package symbol
             return env.enclPkg.symbol;
@@ -422,21 +422,21 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    public BSymbol resolveAnnotation(BLangDiagnosticLocation pos, SymbolEnv env, Name pkgAlias, Name annotationName) {
+    public BSymbol resolveAnnotation(Location pos, SymbolEnv env, Name pkgAlias, Name annotationName) {
         return this.lookupAnnotationSpaceSymbolInPackage(pos, env, pkgAlias, annotationName);
     }
 
-    public BSymbol resolveStructField(BLangDiagnosticLocation location, SymbolEnv env, Name fieldName,
+    public BSymbol resolveStructField(Location location, SymbolEnv env, Name fieldName,
                                       BTypeSymbol structSymbol) {
         return lookupMemberSymbol(location, structSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
 
-    public BSymbol resolveObjectField(BLangDiagnosticLocation location, SymbolEnv env, Name fieldName,
+    public BSymbol resolveObjectField(Location location, SymbolEnv env, Name fieldName,
                                       BTypeSymbol objectSymbol) {
         return lookupMemberSymbol(location, objectSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
 
-    public BSymbol resolveObjectMethod(BLangDiagnosticLocation pos, SymbolEnv env, Name fieldName,
+    public BSymbol resolveObjectMethod(Location pos, SymbolEnv env, Name fieldName,
                                        BObjectTypeSymbol objectSymbol) {
         return lookupMemberSymbol(pos, objectSymbol.methodScope, env, fieldName, SymTag.VARIABLE);
     }
@@ -684,7 +684,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupClosureVarSymbol(env.enclEnv, name, expSymTag);
     }
 
-    public BSymbol lookupMainSpaceSymbolInPackage(BLangDiagnosticLocation pos,
+    public BSymbol lookupMainSpaceSymbolInPackage(Location pos,
                                                   SymbolEnv env,
                                                   Name pkgAlias,
                                                   Name name) {
@@ -705,7 +705,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, SymTag.MAIN);
     }
 
-    public BSymbol lookupPrefixSpaceSymbolInPackage(BLangDiagnosticLocation pos,
+    public BSymbol lookupPrefixSpaceSymbolInPackage(Location pos,
                                                     SymbolEnv env,
                                                     Name pkgAlias,
                                                     Name name) {
@@ -726,7 +726,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, SymTag.IMPORT);
     }
 
-    public BSymbol lookupAnnotationSpaceSymbolInPackage(BLangDiagnosticLocation pos,
+    public BSymbol lookupAnnotationSpaceSymbolInPackage(Location pos,
                                                         SymbolEnv env,
                                                         Name pkgAlias,
                                                         Name name) {
@@ -747,7 +747,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, SymTag.ANNOTATION);
     }
 
-    public BSymbol lookupConstructorSpaceSymbolInPackage(BLangDiagnosticLocation pos,
+    public BSymbol lookupConstructorSpaceSymbolInPackage(Location pos,
                                                          SymbolEnv env,
                                                          Name pkgAlias,
                                                          Name name) {
@@ -796,7 +796,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param expSymTag expected symbol type/tag
      * @return resolved symbol
      */
-    public BSymbol lookupMemberSymbol(BLangDiagnosticLocation pos,
+    public BSymbol lookupMemberSymbol(Location pos,
                                       Scope scope,
                                       SymbolEnv env,
                                       Name name,
@@ -1225,7 +1225,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         resultType = constrainedType;
     }
 
-    private void validateXMLConstraintType(BType constraintType, BLangDiagnosticLocation pos) {
+    private void validateXMLConstraintType(BType constraintType, Location pos) {
         if (constraintType.tag == TypeTags.UNION) {
             checkUnionTypeForXMLSubTypes((BUnionType) constraintType, pos);
             return;
@@ -1236,7 +1236,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
     }
 
-    private void checkUnionTypeForXMLSubTypes(BUnionType constraintUnionType, BLangDiagnosticLocation pos) {
+    private void checkUnionTypeForXMLSubTypes(BUnionType constraintUnionType, Location pos) {
         for (BType memberType : constraintUnionType.getMemberTypes()) {
             if (memberType.tag == TypeTags.UNION) {
                 checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
@@ -1370,7 +1370,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                      BLangType retTypeVar,
                                      int flags,
                                      SymbolEnv env,
-                                     BLangDiagnosticLocation location) {
+                                     Location location) {
         List<BType> paramTypes = new ArrayList<>();
         List<BVarSymbol> params = new ArrayList<>();
 

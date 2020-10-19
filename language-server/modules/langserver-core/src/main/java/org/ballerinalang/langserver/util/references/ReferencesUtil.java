@@ -38,7 +38,6 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -250,7 +249,7 @@ public class ReferencesUtil {
     public static List<Location> getLocations(List<Reference> references, String sourceRoot) {
         return references.stream()
                 .map(reference -> {
-                    BLangDiagnosticLocation position = reference.getPosition();
+                    io.ballerina.tools.diagnostics.Location position = reference.getPosition();
                     Path baseRoot = reference.getSourcePkgName().equals(".")
                             ? Paths.get(sourceRoot)
                             : Paths.get(sourceRoot).resolve(ProjectDirConstants.SOURCE_DIR_NAME)
@@ -274,7 +273,7 @@ public class ReferencesUtil {
         LSDocumentIdentifier sourceDoc = context.get(DocumentServiceKeys.LS_DOCUMENT_KEY);
 
         references.forEach(reference -> {
-            BLangDiagnosticLocation referencePos = reference.getPosition();
+            io.ballerina.tools.diagnostics.Location referencePos = reference.getPosition();
             String pkgName = reference.getSourcePkgName();
             String cUnitName = reference.getCompilationUnit();
             String uri;
@@ -298,7 +297,7 @@ public class ReferencesUtil {
         return workspaceEdit;
     }
 
-    private static Range getRange(BLangDiagnosticLocation referencePos) {
+    private static Range getRange(io.ballerina.tools.diagnostics.Location referencePos) {
         Position start = new Position(
                 referencePos.lineRange().startLine().line(), referencePos.lineRange().startLine().offset());
         Position end = new Position(

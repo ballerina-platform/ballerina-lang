@@ -19,10 +19,10 @@
 
 package org.wso2.ballerinalang.compiler.bir.writer;
 
+import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 
 /**
  * Common functions used in BIR writers.
@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
  */
 public class BIRWriterUtils {
 
-    public static void writePosition(BLangDiagnosticLocation pos, ByteBuf buf, ConstantPool cp) {
+    public static void writePosition(Location pos, ByteBuf buf, ConstantPool cp) {
         int sLine = Integer.MIN_VALUE;
         int eLine = Integer.MIN_VALUE;
         int sCol = Integer.MIN_VALUE;

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
@@ -99,7 +100,7 @@ public class SymbolTable {
     public static final Integer UNSIGNED16_MAX_VALUE = 65535;
     public static final Integer UNSIGNED8_MAX_VALUE = 255;
 
-    public final BLangDiagnosticLocation builtinPos;
+    public final Location builtinPos;
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
     public final BSymbol notFoundSymbol;

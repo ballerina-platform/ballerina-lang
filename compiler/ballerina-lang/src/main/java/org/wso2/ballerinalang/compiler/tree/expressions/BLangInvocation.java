@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -24,7 +25,6 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -151,7 +151,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
      */
     public static class BFunctionPointerInvocation extends BLangInvocation {
 
-        public BFunctionPointerInvocation(BLangDiagnosticLocation location,
+        public BFunctionPointerInvocation(Location location,
                                           BLangExpression varRef,
                                           BSymbol bSymbol,
                                           BType retType) {
@@ -184,7 +184,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     public static class BLangAttachedFunctionInvocation extends BLangInvocation {
         public BLangExpression expr;
 
-        public BLangAttachedFunctionInvocation(BLangDiagnosticLocation pos,
+        public BLangAttachedFunctionInvocation(Location pos,
                                                List<BLangExpression> requiredArgs,
                                                List<BLangExpression> restArgs,
                                                BSymbol symbol,

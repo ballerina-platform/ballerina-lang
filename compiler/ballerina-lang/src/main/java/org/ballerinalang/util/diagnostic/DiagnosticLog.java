@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.util.diagnostic;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 /**
@@ -32,13 +32,13 @@ public interface DiagnosticLog {
 
 
     /**
-     * Logs a message of the specified {@link Diagnostic.Kind} at the {@link BLangDiagnosticLocation}.
+     * Logs a message of the specified {@link Diagnostic.Kind} at the {@link Location}.
      *
      * @param kind    the kind of the diagnostic
-     * @param pos     the position of the source code element.
+     * @param location  the location of the source code element.
      * @param message the message
      */
-    void logDiagnostic(Kind kind, BLangDiagnosticLocation pos, CharSequence message);
+    void logDiagnostic(Kind kind, Location location, CharSequence message);
 
     /**
      * Set the working package id for logging.

@@ -17,11 +17,11 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -69,7 +69,7 @@ public class Symbols {
                                                        PackageID pkgID,
                                                        BType type,
                                                        BSymbol owner,
-                                                       BLangDiagnosticLocation pos,
+                                                       Location pos,
                                                        SymbolOrigin origin) {
         BObjectTypeSymbol typeSymbol = new BObjectTypeSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner, pos,
                                                              origin);
@@ -82,7 +82,7 @@ public class Symbols {
                                                        PackageID pkgID,
                                                        BType type,
                                                        BSymbol owner,
-                                                       BLangDiagnosticLocation pos,
+                                                       Location pos,
                                                        SymbolOrigin origin) {
         BClassSymbol typeSymbol = new BClassSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner, pos, origin);
         typeSymbol.kind = SymbolKind.OBJECT;
@@ -94,7 +94,7 @@ public class Symbols {
                                                        PackageID pkgID,
                                                        BType type,
                                                        BSymbol owner,
-                                                       BLangDiagnosticLocation pos,
+                                                       Location pos,
                                                        SymbolOrigin origin) {
         BRecordTypeSymbol typeSymbol = new BRecordTypeSymbol(SymTag.RECORD, flags, name, pkgID, type, owner, pos,
                                                              origin);
@@ -103,7 +103,7 @@ public class Symbols {
     }
 
     public static BErrorTypeSymbol createErrorSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
-                                                     BLangDiagnosticLocation pos, SymbolOrigin origin) {
+                                                     Location pos, SymbolOrigin origin) {
         BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR, flags, name, pkgID, type, owner, pos, origin);
         typeSymbol.kind = SymbolKind.ERROR;
         return typeSymbol;
@@ -111,7 +111,7 @@ public class Symbols {
 
     public static BAnnotationSymbol createAnnotationSymbol(int flags, Set<AttachPoint> points, Name name,
                                                            PackageID pkgID, BType type, BSymbol owner,
-                                                           BLangDiagnosticLocation pos, SymbolOrigin origin) {
+                                                           Location pos, SymbolOrigin origin) {
         BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, points, pkgID, type, owner, pos,
                                                                    origin);
         annotationSymbol.kind = SymbolKind.ANNOTATION;
@@ -123,7 +123,7 @@ public class Symbols {
                                                       PackageID pkgID,
                                                       BType type,
                                                       BSymbol owner,
-                                                      BLangDiagnosticLocation pos,
+                                                      Location pos,
                                                       SymbolOrigin origin) {
         BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, pkgID, type, owner, pos, origin);
         symbol.kind = SymbolKind.WORKER;
@@ -135,7 +135,7 @@ public class Symbols {
                                                      PackageID pkgID,
                                                      BType type,
                                                      BSymbol owner,
-                                                     BLangDiagnosticLocation pos,
+                                                     Location pos,
                                                      SymbolOrigin origin) {
         BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner, pos, origin);
         serviceSymbol.kind = SymbolKind.SERVICE;
@@ -148,7 +148,7 @@ public class Symbols {
                                                         BType type,
                                                         BSymbol owner,
                                                         boolean bodyExist,
-                                                        BLangDiagnosticLocation pos,
+                                                        Location pos,
                                                         SymbolOrigin origin) {
         BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner, pos, origin);
         symbol.bodyExist = bodyExist;
@@ -162,7 +162,7 @@ public class Symbols {
                                                PackageID pkgID,
                                                BType type,
                                                BSymbol owner,
-                                               BLangDiagnosticLocation pos,
+                                               Location pos,
                                                SymbolOrigin origin) {
         if (type != null && type.tag == TypeTags.INVOKABLE) {
             return createInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos, origin);
@@ -175,7 +175,7 @@ public class Symbols {
                                                                  PackageID pkgID,
                                                                  BType type,
                                                                  BSymbol owner,
-                                                                 BLangDiagnosticLocation pos,
+                                                                 Location pos,
                                                                  SymbolOrigin origin) {
         return new BInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos, origin);
     }
@@ -186,7 +186,7 @@ public class Symbols {
                                                          PackageID pkgID,
                                                          BType type,
                                                          BSymbol owner,
-                                                         BLangDiagnosticLocation pos,
+                                                         Location pos,
                                                          SymbolOrigin origin) {
         return new BInvokableSymbol(kind, flags, name, pkgID, type, owner, pos, origin);
     }
@@ -195,7 +195,7 @@ public class Symbols {
                                                  String nsURI,
                                                  PackageID pkgID,
                                                  BSymbol owner,
-                                                 BLangDiagnosticLocation pos,
+                                                 Location pos,
                                                  SymbolOrigin origin) {
         return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos, origin);
     }

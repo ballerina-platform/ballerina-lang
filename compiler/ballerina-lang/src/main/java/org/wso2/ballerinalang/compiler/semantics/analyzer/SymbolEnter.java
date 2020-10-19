@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -37,7 +38,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
@@ -1007,7 +1007,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // `memberTypeNodeName` to the end of the list to complete the cyclic dependency when
             // printing the error.
             visitedNodes.push(currentTypeNodeName);
-            dlog.error((BLangDiagnosticLocation) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
+            dlog.error((Location) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
                     visitedNodes);
             // We need to remove the last occurrence since we use this list in a recursive call.
             // Otherwise, unwanted types will get printed in the cyclic dependency error.
@@ -1026,7 +1026,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             // Add the `currentTypeNodeName` to complete the cycle.
             dependencyList.add(currentTypeNodeName);
-            dlog.error((BLangDiagnosticLocation) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
+            dlog.error((Location) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
                     dependencyList);
         } else {
             // Check whether the current type node is in the unresolved list. If it is in the list, we need to
@@ -1210,7 +1210,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return definedObjType;
     }
 
-    private void validateUnionForDistinctType(BUnionType definedType, BLangDiagnosticLocation pos) {
+    private void validateUnionForDistinctType(BUnionType definedType, Location pos) {
         Set<BType> memberTypes = definedType.getMemberTypes();
         TypeKind firstTypeKind = null;
         for (BType type : memberTypes) {
@@ -1296,7 +1296,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineErrorConstructorSymbol(BLangDiagnosticLocation pos, BTypeSymbol typeDefSymbol) {
+    private void defineErrorConstructorSymbol(Location pos, BTypeSymbol typeDefSymbol) {
         BErrorType errorType = (BErrorType) typeDefSymbol.type;
         BConstructorSymbol symbol = new BConstructorSymbol(typeDefSymbol.flags, typeDefSymbol.name,
                                                            typeDefSymbol.pkgID, errorType, typeDefSymbol.owner, pos,
@@ -1358,7 +1358,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             funcNode.flagSet.add(Flag.LANG_LIB);
         }
 
-        BLangDiagnosticLocation symbolPos = funcNode.flagSet.contains(Flag.LAMBDA) ?
+        Location symbolPos = funcNode.flagSet.contains(Flag.LAMBDA) ?
                                                         symTable.builtinPos : funcNode.name.pos;
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                                                                    getFuncSymbolName(funcNode),
@@ -2208,7 +2208,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     continue;
                 }
 
-                BLangDiagnosticLocation pos = typeDef.pos;
+                Location pos = typeDef.pos;
                 // We reach here for `readonly object`s.
                 // We now validate if it is a valid `readonly object` - i.e., all the fields are compatible readonly
                 // types.
@@ -2272,7 +2272,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void setReadOnlynessOfClassDef(BLangClassDefinition classDef, SymbolEnv pkgEnv) {
         BObjectType objectType = (BObjectType) classDef.type;
-        BLangDiagnosticLocation pos = classDef.pos;
+        Location pos = classDef.pos;
 
         if (objectType instanceof BServiceType) {
             return;
@@ -2378,14 +2378,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         invokableSymbol.type.tsymbol = functionTypeSymbol;
     }
 
-    private void defineSymbol(BLangDiagnosticLocation pos, BSymbol symbol) {
+    private void defineSymbol(Location pos, BSymbol symbol) {
         symbol.scope = new Scope(symbol);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
     }
 
-    public void defineSymbol(BLangDiagnosticLocation pos, BSymbol symbol, SymbolEnv env) {
+    public void defineSymbol(Location pos, BSymbol symbol, SymbolEnv env) {
         symbol.scope = new Scope(symbol);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
@@ -2399,14 +2399,14 @@ public class SymbolEnter extends BLangNodeVisitor {
      * @param symbol Symbol to be defines
      * @param env Environment to define the symbol
      */
-    public void defineShadowedSymbol(BLangDiagnosticLocation pos, BSymbol symbol, SymbolEnv env) {
+    public void defineShadowedSymbol(Location pos, BSymbol symbol, SymbolEnv env) {
         symbol.scope = new Scope(symbol);
         if (symResolver.checkForUniqueSymbolInCurrentScope(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);
         }
     }
 
-    public void defineTypeNarrowedSymbol(BLangDiagnosticLocation location, SymbolEnv targetEnv, BVarSymbol symbol,
+    public void defineTypeNarrowedSymbol(Location location, SymbolEnv targetEnv, BVarSymbol symbol,
                                          BType type, boolean isInternal) {
         if (symbol.owner.tag == SymTag.PACKAGE) {
             // Avoid defining shadowed symbol for global vars, since the type is not narrowed.
@@ -2427,14 +2427,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineShadowedSymbol(location, varSymbol, targetEnv);
     }
 
-    private void defineSymbolWithCurrentEnvOwner(BLangDiagnosticLocation pos, BSymbol symbol) {
+    private void defineSymbolWithCurrentEnvOwner(Location pos, BSymbol symbol) {
         symbol.scope = new Scope(env.scope.owner);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
     }
 
-    public BVarSymbol defineVarSymbol(BLangDiagnosticLocation pos, Set<Flag> flagSet, BType varType, Name varName,
+    public BVarSymbol defineVarSymbol(Location pos, Set<Flag> flagSet, BType varType, Name varName,
                                       SymbolEnv env, boolean isInternal) {
         // Create variable symbol
         Scope enclScope = env.scope;
@@ -2456,12 +2456,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env,
-                                      BLangDiagnosticLocation pos, boolean isInternal) {
+                                      Location pos, boolean isInternal) {
         return createVarSymbol(Flags.asMask(flagSet), varType, varName, env, pos, isInternal);
     }
 
     public BVarSymbol createVarSymbol(int flags, BType varType, Name varName, SymbolEnv env,
-                                      BLangDiagnosticLocation location, boolean isInternal) {
+                                      Location location, boolean isInternal) {
         BType safeType = types.getSafeType(varType, true, false);
         BVarSymbol varSymbol;
         if (safeType.tag == TypeTags.INVOKABLE) {
@@ -2741,7 +2741,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         structureTypeNode.typeRefs.removeAll(invalidTypeRefs);
     }
 
-    private void defineReferencedFunction(BLangDiagnosticLocation location, Set<Flag> flagSet, SymbolEnv objEnv,
+    private void defineReferencedFunction(Location location, Set<Flag> flagSet, SymbolEnv objEnv,
                                           BLangType typeRef, BAttachedFunction referencedFunc,
                                           Set<String> includedFunctionNames, BTypeSymbol typeDefSymbol,
                                           List<BLangFunction> declaredFunctions, boolean isInternal) {
@@ -2759,14 +2759,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (Symbols.isFunctionDeclaration(matchingObjFuncSym) && Symbols.isFunctionDeclaration(
                     referencedFunc.symbol)) {
                 BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
-                BLangDiagnosticLocation methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
+                Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
                 dlog.error(methodPos, DiagnosticCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE,
                            referencedFunc.funcName, typeRef);
             }
 
             if (!hasSameFunctionSignature((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
                 BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
-                BLangDiagnosticLocation methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
+                Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
                 dlog.error(methodPos, DiagnosticCode.REFERRED_FUNCTION_SIGNATURE_MISMATCH,
                            getCompleteFunctionSignature(referencedFunc.symbol),
                            getCompleteFunctionSignature((BInvokableSymbol) matchingObjFuncSym));

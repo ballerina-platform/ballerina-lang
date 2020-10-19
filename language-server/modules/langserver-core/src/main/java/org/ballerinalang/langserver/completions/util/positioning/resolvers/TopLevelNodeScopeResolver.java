@@ -15,12 +15,12 @@
  */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
@@ -32,12 +32,12 @@ public class TopLevelNodeScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+    public boolean isCursorBeforeNode(Location nodePosition, TreeVisitor treeVisitor,
                                       LSContext completionContext, BLangNode node, BSymbol bSymbol) {
         Position cursorPos = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int line = cursorPos.getLine();
         int col = cursorPos.getCharacter();
-        BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
+        Location zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.lineRange().startLine().line();
         int nodeSCol = zeroBasedPos.lineRange().startLine().offset();
 

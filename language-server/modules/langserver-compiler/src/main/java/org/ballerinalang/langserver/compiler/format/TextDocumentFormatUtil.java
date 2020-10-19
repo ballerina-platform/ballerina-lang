@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +44,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -169,7 +169,7 @@ public class TextDocumentFormatUtil {
             }
             nodeJson.add("ws", wsJsonArray);
         }
-        BLangDiagnosticLocation position = node.getPosition();
+        Location position = node.getPosition();
         if (position != null) {
             JsonObject positionJson = new JsonObject();
             positionJson.addProperty("startColumn", position.lineRange().startLine().offset());

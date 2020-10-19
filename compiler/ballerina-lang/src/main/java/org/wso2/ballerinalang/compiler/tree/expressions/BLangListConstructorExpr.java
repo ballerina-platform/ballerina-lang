@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ListConstructorExprNode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -73,7 +73,7 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
             this.exprs = new ArrayList<>();
         }
 
-        public BLangArrayLiteral(BLangDiagnosticLocation pos, List<BLangExpression> exprs, BType tupleType) {
+        public BLangArrayLiteral(Location pos, List<BLangExpression> exprs, BType tupleType) {
             this.pos = pos;
             this.exprs = exprs;
             this.type = tupleType;
@@ -102,7 +102,7 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
             this.exprs = new ArrayList<>();
         }
 
-        public BLangTupleLiteral(BLangDiagnosticLocation pos, List<BLangExpression> exprs, BType tupleType) {
+        public BLangTupleLiteral(Location pos, List<BLangExpression> exprs, BType tupleType) {
             this.pos = pos;
             this.exprs = exprs;
             this.type = tupleType;

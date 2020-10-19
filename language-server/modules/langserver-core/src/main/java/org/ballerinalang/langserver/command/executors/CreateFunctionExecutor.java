@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
+import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
@@ -47,7 +48,6 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -169,7 +169,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         if (functionNode.expr != null) {
             padding = StringUtils.repeat(' ', 4);
             BTypeSymbol tSymbol = functionNode.expr.type.tsymbol;
-            Triple<BLangDiagnosticLocation, PackageID, Boolean> nodeLocation =
+            Triple<Location, PackageID, Boolean> nodeLocation =
                     getNodeLocationAndHasFunctions(tSymbol.name.value, context);
             if (!nodeLocation.getRight()) {
                 prependLineFeed = false;
@@ -211,10 +211,10 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         return currentCUnit.get();
     }
 
-    private Triple<BLangDiagnosticLocation, PackageID, Boolean> getNodeLocationAndHasFunctions(String name,
+    private Triple<Location, PackageID, Boolean> getNodeLocationAndHasFunctions(String name,
                                                                                                LSContext context) {
         List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
-        BLangDiagnosticLocation pos;
+        Location pos;
         PackageID pkgId;
         boolean hasFunctions = false;
         for (BLangPackage bLangPackage : bLangPackages) {

@@ -15,13 +15,13 @@
  */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
@@ -43,10 +43,10 @@ public class ServiceScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+    public boolean isCursorBeforeNode(Location nodePosition, TreeVisitor treeVisitor,
                                       LSContext completionContext, BLangNode node, BSymbol bSymbol) {
         Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        BLangDiagnosticLocation zeroBasedPo = CommonUtil.toZeroBasedPosition(nodePosition);
+        Location zeroBasedPo = CommonUtil.toZeroBasedPosition(nodePosition);
         int line = position.getLine();
         int col = position.getCharacter();
         int nodeSLine = zeroBasedPo.lineRange().startLine().line();
@@ -81,8 +81,8 @@ public class ServiceScopeResolver extends CursorPositionResolver {
             return false;
         }
         BLangClassDefinition classDefinition = enclosingClassDef.get();
-        BLangDiagnosticLocation classNodePos = CommonUtil.toZeroBasedPosition(classDefinition.getPosition());
-        BLangDiagnosticLocation nodePos = CommonUtil.toZeroBasedPosition((BLangDiagnosticLocation) node.getPosition());
+        Location classNodePos = CommonUtil.toZeroBasedPosition(classDefinition.getPosition());
+        Location nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
         List<BLangFunction> serviceFunctions = classDefinition.getFunctions();
         List<BLangNode> serviceContent = new ArrayList<>(serviceFunctions);
         serviceContent.sort(new CommonUtil.BLangNodeComparator());

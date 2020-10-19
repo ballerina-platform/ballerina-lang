@@ -24,7 +24,6 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -87,7 +86,7 @@ public class GotoImplementationUtil {
     private static Location getLocation(String sourceRoot, String pkgName, BLangFunction bLangFunction) {
         String cUnitName = bLangFunction.getPosition().lineRange().filePath();
         Location location = new Location();
-        BLangDiagnosticLocation implPosition = CommonUtil.toZeroBasedPosition(bLangFunction.getPosition());
+        io.ballerina.tools.diagnostics.Location implPosition = CommonUtil.toZeroBasedPosition(bLangFunction.getPosition());
         Range range = new Range(new Position(
                 implPosition.lineRange().startLine().line(), implPosition.lineRange().startLine().offset()),
                 new Position(implPosition.lineRange().endLine().line(), implPosition.lineRange().endLine().offset()));
@@ -109,8 +108,9 @@ public class GotoImplementationUtil {
     private static Optional<BLangObjectTypeNode> getObjectTypeNode(List<TopLevelNode> topLevelNodes, int line) {
         return topLevelNodes.stream()
                 .filter(node -> {
-                    BLangDiagnosticLocation nodePosition = (BLangDiagnosticLocation) node.getPosition();
-                    BLangDiagnosticLocation zeroBasedPosition = CommonUtil.toZeroBasedPosition(nodePosition);
+                    io.ballerina.tools.diagnostics.Location nodePosition = node.getPosition();
+                    io.ballerina.tools.diagnostics.Location zeroBasedPosition =
+                            CommonUtil.toZeroBasedPosition(nodePosition);
                     return NodeKind.TYPE_DEFINITION.equals(node.getKind())
                             && NodeKind.OBJECT_TYPE.equals(((BLangTypeDefinition) node).typeNode.getKind())
                             && zeroBasedPosition.lineRange().startLine().line() <= line

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.signature;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -26,7 +27,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -73,7 +73,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     private SymbolTable symTable;
     private Position cursorPosition;
     private LSContext lsContext;
-    private Deque<BLangDiagnosticLocation> blockPositionStack;
+    private Deque<Location> blockPositionStack;
 
     /**
      * Public constructor.
@@ -301,7 +301,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         if (blockPositionStack.isEmpty()) {
             return false;
         }
-        BLangDiagnosticLocation blockPosition = CommonUtil.toZeroBasedPosition(blockPositionStack.peek());
+        Location blockPosition = CommonUtil.toZeroBasedPosition(blockPositionStack.peek());
         int cursorLine = cursorPosition.getLine();
         int cursorColumn = cursorPosition.getCharacter();
         int nodeStrtLine = blockPosition.lineRange().startLine().line();

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.completions;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -47,7 +48,6 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -242,7 +242,7 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.symbolEnv);
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver);
-        BLangDiagnosticLocation functionPos = CommonUtil.clonePosition(funcNode.getPosition());
+        Location functionPos = CommonUtil.clonePosition(funcNode.getPosition());
 
         if (!funcNode.flagSet.contains(Flag.WORKER)) {
             // Set the current symbol environment instead of the function environment since the annotation is not
@@ -393,7 +393,7 @@ public class TreeVisitor extends LSNodeVisitor {
                 .collect(Collectors.toList());
 
         if (statements.isEmpty() && CompletionVisitorUtil
-                .isCursorWithinBlock((BLangDiagnosticLocation) (this.blockOwnerStack.peek()).getPosition(), blockEnv,
+                .isCursorWithinBlock((Location) (this.blockOwnerStack.peek()).getPosition(), blockEnv,
                         this.lsContext, this)) {
             return;
         }
@@ -420,7 +420,7 @@ public class TreeVisitor extends LSNodeVisitor {
                 .collect(Collectors.toList());
 
         if (statements.isEmpty() && CompletionVisitorUtil
-                .isCursorWithinBlock((BLangDiagnosticLocation) (this.blockOwnerStack.peek()).getPosition(), blockEnv,
+                .isCursorWithinBlock((Location) (this.blockOwnerStack.peek()).getPosition(), blockEnv,
                         this.lsContext, this)) {
             return;
         }
@@ -873,7 +873,7 @@ public class TreeVisitor extends LSNodeVisitor {
         if (literalExpr.getPosition() == null) {
             return;
         }
-        BLangDiagnosticLocation pos = CommonUtil.toZeroBasedPosition(literalExpr.getPosition());
+        Location pos = CommonUtil.toZeroBasedPosition(literalExpr.getPosition());
         Position position = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int cLine = position.getLine();
         int cCol = position.getCharacter();

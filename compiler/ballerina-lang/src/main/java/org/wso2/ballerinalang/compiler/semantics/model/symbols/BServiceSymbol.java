@@ -16,9 +16,9 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class BServiceSymbol extends BVarSymbol {
 
-    public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, BLangDiagnosticLocation pos,
+    public BServiceSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner, Location pos,
                           SymbolOrigin origin) {
         super(flags, name, pkgID, type, owner, pos, origin);
         this.tag = SymTag.SERVICE;

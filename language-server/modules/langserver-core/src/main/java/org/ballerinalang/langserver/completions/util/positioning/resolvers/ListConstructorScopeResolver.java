@@ -15,10 +15,10 @@
  */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.util.CompletionVisitorUtil;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 
@@ -32,7 +32,7 @@ public class ListConstructorScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation position, TreeVisitor treeVisitor, LSContext ctx,
+    public boolean isCursorBeforeNode(Location position, TreeVisitor treeVisitor, LSContext ctx,
                                       BLangNode node) {
         if (!(node.parent instanceof BLangListConstructorExpr)) {
             return false;

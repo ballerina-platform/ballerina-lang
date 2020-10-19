@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
@@ -28,7 +29,6 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -1642,7 +1642,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeExportableTypeRef(BSymbol owner, BTypeSymbol symbol, boolean inFuncSignature,
-                                          BLangDiagnosticLocation pos) {
+                                          Location pos) {
 
         if (!inFuncSignature && Symbols.isFlagOn(owner.flags, Flags.ANONYMOUS)) {
             // Specially validate function signatures.
@@ -1653,7 +1653,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void checkForExportableType(BTypeSymbol symbol, BLangDiagnosticLocation pos) {
+    private void checkForExportableType(BTypeSymbol symbol, Location pos) {
 
         if (symbol == null || symbol.type == null || Symbols.isFlagOn(symbol.flags, Flags.TYPE_PARAM)) {
             // This is a built-in symbol or a type Param.
@@ -1764,7 +1764,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
-    private void checkWorkerPeerWorkerUsageInsideWorker(BLangDiagnosticLocation pos, BSymbol symbol, SymbolEnv env) {
+    private void checkWorkerPeerWorkerUsageInsideWorker(Location pos, BSymbol symbol, SymbolEnv env) {
         if ((symbol.flags & Flags.WORKER) == Flags.WORKER) {
             if (isCurrentPositionInWorker(env) && env.scope.lookup(symbol.name).symbol == null) {
                 if (referingForkedWorkerOutOfFork(symbol, env)) {
@@ -2100,7 +2100,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         validateActionParentNode(workerSendNode.pos, workerSendNode.expr);
     }
 
-    private BType createAccumulatedErrorTypeForMatchingRecive(BLangDiagnosticLocation pos, BType exprType) {
+    private BType createAccumulatedErrorTypeForMatchingRecive(Location pos, BType exprType) {
         Set<BType> returnTypesUpToNow = this.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<BType>() {
             {
@@ -2185,7 +2185,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         was.addWorkerAction(workerReceiveNode);
     }
 
-    private void verifyPeerCommunication(BLangDiagnosticLocation pos, BSymbol otherWorker, String otherWorkerName) {
+    private void verifyPeerCommunication(Location pos, BSymbol otherWorker, String otherWorkerName) {
         if (env.enclEnv.node.getKind() != NodeKind.FUNCTION) {
             return;
         }
@@ -2460,7 +2460,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         validateActionInvocation(actionInvocation.pos, actionInvocation);
     }
 
-    private void validateActionInvocation(BLangDiagnosticLocation pos, BLangInvocation iExpr) {
+    private void validateActionInvocation(Location pos, BLangInvocation iExpr) {
         if (iExpr.expr != null) {
             final NodeKind clientNodeKind = iExpr.expr.getKind();
             // Validation against node kind.
@@ -2484,7 +2484,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     /**
      * Actions can only occur as part of a statement or nested inside other actions.
      */
-    private void validateActionParentNode(BLangDiagnosticLocation pos, BLangNode node) {
+    private void validateActionParentNode(Location pos, BLangNode node) {
         // Validate for parent nodes.
         BLangNode parent = node.parent;
 
@@ -3175,7 +3175,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void checkAccessSymbol(BSymbol symbol, BLangDiagnosticLocation position) {
+    private void checkAccessSymbol(BSymbol symbol, Location position) {
         if (symbol == null) {
             return;
         }
@@ -3407,7 +3407,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         private boolean hasErrors = false;
 
 
-        public void startWorkerActionStateMachine(String workerId, BLangDiagnosticLocation pos, BLangFunction node) {
+        public void startWorkerActionStateMachine(String workerId, Location pos, BLangFunction node) {
             workerActionStateMachines.push(new WorkerActionStateMachine(pos, workerId, node));
         }
 
@@ -3432,7 +3432,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return this.finshedWorkers.stream().allMatch(WorkerActionStateMachine::done);
         }
 
-        public BLangDiagnosticLocation getRootPosition() {
+        public Location getRootPosition() {
             return this.finshedWorkers.iterator().next().pos;
         }
 
@@ -3458,11 +3458,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         public List<BLangNode> actions = new ArrayList<>();
 
-        public BLangDiagnosticLocation pos;
+        public Location pos;
         public String workerId;
         public BLangFunction node;
 
-        public WorkerActionStateMachine(BLangDiagnosticLocation pos, String workerId, BLangFunction node) {
+        public WorkerActionStateMachine(Location pos, String workerId, BLangFunction node) {
             this.pos = pos;
             this.workerId = workerId;
             this.node = node;
@@ -3506,7 +3506,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void checkExperimentalFeatureValidity(ExperimentalFeatures constructName, BLangDiagnosticLocation pos) {
+    private void checkExperimentalFeatureValidity(ExperimentalFeatures constructName, Location pos) {
 
         if (enableExperimentalFeatures) {
             return;

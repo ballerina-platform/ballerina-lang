@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -58,7 +59,7 @@ import java.util.stream.Collectors;
  */
 public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
 
-    private Predicate<BLangDiagnosticLocation> isWithinNode;
+    private Predicate<Location> isWithinNode;
 
     public CursorSymbolFindingVisitor(Token tokenAtCursor,
                                       LSContext lsContext, String pkgName, boolean currentCUnitMode) {
@@ -93,7 +94,7 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
 
     @Override
     protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition,
-                             BLangDiagnosticLocation location) {
+                             Location location) {
         SymbolReferencesModel.Reference symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
@@ -103,7 +104,7 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
         if (symbolAtCursor != null) {
             return;
         }
-        BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(location);
+        Location zeroBasedPos = CommonUtil.toZeroBasedPosition(location);
         bSymbol = (bSymbol instanceof BVarSymbol && ((BVarSymbol) bSymbol).originalSymbol != null)
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;
@@ -129,8 +130,8 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
 
 
         List<TopLevelNode> filteredNodes = topLevelNodes.stream().filter(topLevelNode -> {
-            BLangDiagnosticLocation position = topLevelNode.getPosition();
-            BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(
+            Location position = topLevelNode.getPosition();
+            Location zeroBasedPos = CommonUtil.toZeroBasedPosition(
                     new BLangDiagnosticLocation(null, position.lineRange().startLine().line(),
                                                         position.lineRange().endLine().line(),
                                                         position.lineRange().startLine().offset(),

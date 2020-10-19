@@ -18,13 +18,13 @@
 
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -1322,7 +1322,7 @@ class SymbolFinder extends BLangNodeVisitor {
         lookupNodes(xmlNavigation.filters);
     }
 
-    private boolean setEnclosingNode(BSymbol symbol, BLangDiagnosticLocation pos) {
+    private boolean setEnclosingNode(BSymbol symbol, Location pos) {
         if (PositionUtil.withinBlock(this.cursorPos, pos)) {
             this.symbolAtCursor = symbol;
             return true;

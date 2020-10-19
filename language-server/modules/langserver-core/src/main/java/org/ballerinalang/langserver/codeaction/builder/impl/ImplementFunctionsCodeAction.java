@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.builder.impl;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
@@ -29,7 +30,6 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -66,8 +66,7 @@ public class ImplementFunctionsCodeAction implements DiagBasedCodeAction {
         Optional<BLangTypeDefinition> objType = bLangPackage.topLevelNodes.stream()
                 .filter(topLevelNode -> {
                     if (topLevelNode instanceof BLangTypeDefinition) {
-                        BLangDiagnosticLocation pos =
-                                topLevelNode.getPosition();
+                        Location pos = topLevelNode.getPosition();
                         return ((pos.lineRange().startLine().line() == line || pos.lineRange().endLine().line() == line
                                 || (pos.lineRange().startLine().line() < line
                                 && pos.lineRange().endLine().line() > line))

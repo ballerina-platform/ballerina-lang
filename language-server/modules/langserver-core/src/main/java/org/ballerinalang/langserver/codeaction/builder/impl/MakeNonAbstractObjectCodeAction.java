@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.builder.impl;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -26,7 +27,6 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 
@@ -113,7 +113,7 @@ public class MakeNonAbstractObjectCodeAction implements DiagBasedCodeAction {
         return bLangPackage.topLevelNodes.stream()
                 .filter(topLevelNode -> {
                     if (topLevelNode instanceof BLangTypeDefinition) {
-                        BLangDiagnosticLocation pos =
+                        Location pos =
                                 topLevelNode.getPosition();
                         return ((pos.lineRange().startLine().line() == line ||
                                 pos.lineRange().endLine().line() == line ||

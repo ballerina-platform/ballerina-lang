@@ -15,11 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -37,13 +37,13 @@ public class FunctionNodeScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+    public boolean isCursorBeforeNode(Location nodePosition, TreeVisitor treeVisitor,
                                       LSContext completionContext, BLangNode node, BSymbol bSymbol) {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         BLangInvokableNode bLangInvokableNode = (BLangInvokableNode) treeVisitor.getBlockOwnerStack().peek();
-        BLangDiagnosticLocation invokeableNodePos = CommonUtil.toZeroBasedPosition(bLangInvokableNode.getPosition());
-        BLangDiagnosticLocation zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
+        Location invokeableNodePos = CommonUtil.toZeroBasedPosition(bLangInvokableNode.getPosition());
+        Location zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.lineRange().startLine().line();
         int nodeSCol = zeroBasedPos.lineRange().startLine().offset();
         int nodeELine = zeroBasedPos.lineRange().endLine().line();

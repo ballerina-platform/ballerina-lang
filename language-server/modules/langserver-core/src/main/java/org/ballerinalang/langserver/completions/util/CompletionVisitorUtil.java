@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -23,7 +24,6 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.Whitespace;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -68,9 +68,9 @@ public class CompletionVisitorUtil {
      * @param treeVisitor  Completion tree visitor instance
      * @return {@link Boolean}  Whether the cursor within the block scope
      */
-    public static boolean isCursorWithinBlock(BLangDiagnosticLocation nodePosition, @Nonnull SymbolEnv symbolEnv,
+    public static boolean isCursorWithinBlock(Location nodePosition, @Nonnull SymbolEnv symbolEnv,
                                               LSContext lsContext, TreeVisitor treeVisitor) {
-        BLangDiagnosticLocation zeroBasedPosition = CommonUtil.toZeroBasedPosition(nodePosition);
+        Location zeroBasedPosition = CommonUtil.toZeroBasedPosition(nodePosition);
         int line = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int nodeSLine = zeroBasedPosition.lineRange().startLine().line();
         int nodeELine = zeroBasedPosition.lineRange().endLine().line();
@@ -111,10 +111,10 @@ public class CompletionVisitorUtil {
          */
         BLangExpression firstExpr = attachedExprs.get(0);
         BLangExpression lastExpr = CommonUtil.getLastItem(attachedExprs);
-        BLangDiagnosticLocation firstExprPos = CommonUtil.toZeroBasedPosition(firstExpr.pos);
+        Location firstExprPos = CommonUtil.toZeroBasedPosition(firstExpr.pos);
         int fSLine = firstExprPos.lineRange().startLine().line();
         int fSCol = firstExprPos.lineRange().startLine().offset();
-        BLangDiagnosticLocation lastExprPos = CommonUtil.toZeroBasedPosition(lastExpr.pos);
+        Location lastExprPos = CommonUtil.toZeroBasedPosition(lastExpr.pos);
         int lSLine = lastExprPos.lineRange().startLine().line();
         int lECol = lastExprPos.lineRange().endLine().offset();
 
@@ -143,7 +143,7 @@ public class CompletionVisitorUtil {
     public static boolean isWithinWorkerReturnContext(SymbolEnv env, LSContext lsContext, TreeVisitor treeVisitor,
                                                       BLangFunction funcNode) {
         Position cursorPosition = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        BLangDiagnosticLocation position = CommonUtil.toZeroBasedPosition(funcNode.getPosition());
+        Location position = CommonUtil.toZeroBasedPosition(funcNode.getPosition());
         ArrayList<Whitespace> whitespaces = new ArrayList<>(funcNode.getWS());
         int cursorLine = cursorPosition.getLine();
         int cursorCol = cursorPosition.getCharacter();
@@ -200,7 +200,7 @@ public class CompletionVisitorUtil {
         if (expressionNode == null) {
             return false;
         }
-        BLangDiagnosticLocation exprPosition = CommonUtil.toZeroBasedPosition(expressionNode.pos);
+        Location exprPosition = CommonUtil.toZeroBasedPosition(expressionNode.pos);
 
         int cursorLine = cursorPosition.getLine();
         int cursorCol = cursorPosition.getCharacter();
@@ -289,7 +289,7 @@ public class CompletionVisitorUtil {
             return false;
         }
 
-        BLangDiagnosticLocation nodePos = CommonUtil.toZeroBasedPosition(node.pos);
+        Location nodePos = CommonUtil.toZeroBasedPosition(node.pos);
         int sLine = nodePos.lineRange().startLine().line();
         int eLine = nodePos.lineRange().endLine().line();
         int sCol = nodePos.lineRange().startLine().offset();
@@ -316,7 +316,7 @@ public class CompletionVisitorUtil {
         Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int cursorLine = position.getLine();
         int cursorCol = position.getCharacter();
-        BLangDiagnosticLocation nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
+        Location nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
         int endLine = nodePos.lineRange().endLine().line();
         int endCol = nodePos.lineRange().endLine().offset();
 

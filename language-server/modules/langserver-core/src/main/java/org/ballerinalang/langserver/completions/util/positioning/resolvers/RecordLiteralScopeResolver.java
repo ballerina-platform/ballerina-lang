@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -40,7 +40,7 @@ public class RecordLiteralScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+    public boolean isCursorBeforeNode(Location nodePosition, TreeVisitor treeVisitor,
                                       LSContext completionContext, BLangNode node) {
         Node recordNode = treeVisitor.getBlockOwnerStack().peek();
         if (!(recordNode instanceof BLangRecordLiteral)) {
@@ -49,8 +49,8 @@ public class RecordLiteralScopeResolver extends CursorPositionResolver {
         BLangRecordLiteral recordLiteral = (BLangRecordLiteral) recordNode;
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        BLangDiagnosticLocation nodePos = CommonUtil.toZeroBasedPosition(nodePosition);
-        BLangDiagnosticLocation ownerPos = CommonUtil.toZeroBasedPosition(recordLiteral.getPosition());
+        Location nodePos = CommonUtil.toZeroBasedPosition(nodePosition);
+        Location ownerPos = CommonUtil.toZeroBasedPosition(recordLiteral.getPosition());
         int ownerEndLine = ownerPos.lineRange().endLine().line();
         int ownerEndCol = ownerPos.lineRange().endLine().offset();
         int nodeStartLine = nodePos.lineRange().startLine().line();

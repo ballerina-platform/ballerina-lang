@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.builder.impl;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.codeaction.builder.NodeBasedCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -27,7 +28,6 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
@@ -98,7 +98,7 @@ public class OptimizeImportsCodeAction implements NodeBasedCodeAction {
         List<Range> importLines = new ArrayList<>();
         for (int i = 0; i < fileImports.size(); i++) {
             BLangImportPackage importPkg = fileImports.get(i);
-            BLangDiagnosticLocation pos = importPkg.getPosition();
+            Location pos = importPkg.getPosition();
             String orgName = importPkg.orgName.value;
             String pkgName = importPkg.pkgNameComps.stream().map(s -> s.value).collect(Collectors.joining("."));
             String alias = (pkgName.equals(importPkg.alias.value)) ? "" : importPkg.alias.value;

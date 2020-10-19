@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.util;
 
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 /**
@@ -28,9 +28,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
  */
 public class ClosureVarSymbol {
     public BSymbol bSymbol;
-    public BLangDiagnosticLocation diagnosticLocation;
+    public Location diagnosticLocation;
 
-    public ClosureVarSymbol(BSymbol bSymbol, BLangDiagnosticLocation diagnosticLocation) {
+    public ClosureVarSymbol(BSymbol bSymbol, Location diagnosticLocation) {
         this.bSymbol = bSymbol;
         this.diagnosticLocation = diagnosticLocation;
     }

@@ -17,10 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -106,7 +106,7 @@ public class ServiceDesugar {
         //  _ = [check] var.__start/__stop();
         //
 
-        final BLangDiagnosticLocation pos = variable.pos;
+        final Location pos = variable.pos;
 
         // Find correct symbol.
         final Name functionName = names
@@ -138,7 +138,7 @@ public class ServiceDesugar {
         if (service.isAnonymousService()) {
             return;
         }
-        final BLangDiagnosticLocation pos = service.pos;
+        final Location pos = service.pos;
 
         int count = 0;
         for (BLangExpression attachExpr : service.attachedExprs) {
@@ -178,7 +178,7 @@ public class ServiceDesugar {
         }
     }
 
-    private void addMethodInvocation(BLangDiagnosticLocation pos,
+    private void addMethodInvocation(Location pos,
                                      BLangSimpleVarRef varRef,
                                      BInvokableSymbol methodRefSymbol,
                                      List<BLangExpression> args,

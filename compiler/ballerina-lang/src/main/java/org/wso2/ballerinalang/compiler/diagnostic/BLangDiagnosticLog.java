@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.diagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -90,7 +91,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      * @param code Error code
      * @param args Parameters associated with the error
      */
-    public void error(BLangDiagnosticLocation location, DiagnosticCode code, Object... args) {
+    public void error(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(ERROR_PREFIX, code, args);
         reportDiagnostic(code, location, msg, DiagnosticSeverity.ERROR);
     }
@@ -102,7 +103,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      * @param code Error code
      * @param args Parameters associated with the error
      */
-    public void warning(BLangDiagnosticLocation location, DiagnosticCode code, Object... args) {
+    public void warning(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(WARNING_PREFIX, code, args);
         reportDiagnostic(code, location, msg, DiagnosticSeverity.WARNING);
     }
@@ -114,7 +115,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
      * @param code Error code
      * @param args Parameters associated with the info
      */
-    public void note(BLangDiagnosticLocation location, DiagnosticCode code, Object... args) {
+    public void note(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(NOTE_PREFIX, code, args);
         reportDiagnostic(code, location, msg, DiagnosticSeverity.INFO);
     }
@@ -160,7 +161,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     }
 
     @Override
-    public void logDiagnostic(Kind kind, BLangDiagnosticLocation pos, CharSequence message) {
+    public void logDiagnostic(Kind kind, Location location, CharSequence message) {
         DiagnosticSeverity severity;
         switch (kind) {
             case ERROR:
@@ -175,7 +176,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
                 break;
         }
 
-        reportDiagnostic(null, (BLangDiagnosticLocation) pos, message.toString(), severity);
+        reportDiagnostic(null, location, message.toString(), severity);
     }
 
     /**
@@ -199,7 +200,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         return MessageFormat.format(msgKey, args);
     }
 
-    private void reportDiagnostic(DiagnosticCode diagnosticCode, BLangDiagnosticLocation location, String msg,
+    private void reportDiagnostic(DiagnosticCode diagnosticCode, Location location, String msg,
                                   DiagnosticSeverity severity) {
         if (severity == DiagnosticSeverity.ERROR) {
             this.errorCount++;

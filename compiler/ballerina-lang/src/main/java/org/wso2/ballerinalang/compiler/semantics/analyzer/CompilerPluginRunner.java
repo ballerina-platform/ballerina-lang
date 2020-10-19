@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
@@ -27,7 +28,6 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -88,7 +88,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private final Types types;
     private BLangDiagnosticLog dlog;
 
-    private BLangDiagnosticLocation defaultPos;
+    private Location defaultPos;
     private CompilerContext context;
     private List<CompilerPlugin> pluginList;
     private Map<DefinitionID, Set<CompilerPlugin>> processorMap;
@@ -326,7 +326,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             try {
                 notifier.accept(processor, Collections.unmodifiableList(list));
             } catch (Throwable e) {
-                dlog.warning((BLangDiagnosticLocation) list.get(0).getPosition(), DiagnosticCode.COMPILER_PLUGIN_ERROR);
+                dlog.warning(list.get(0).getPosition(), DiagnosticCode.COMPILER_PLUGIN_ERROR);
                 printErrorLog(e);
                 failedPlugins.add(processor);
             }

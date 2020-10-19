@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
@@ -35,7 +35,7 @@ public abstract class CursorPositionResolver {
      * @param bSymbol               Node's Symbol
      * @return {@link Boolean}      Whether the cursor is before the node start or not
      */
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+    public boolean isCursorBeforeNode(Location nodePosition, TreeVisitor treeVisitor,
                                       LSContext completionContext, BLangNode node, BSymbol bSymbol) {
         return false;
     }
@@ -48,7 +48,7 @@ public abstract class CursorPositionResolver {
      * @param node                  Node
      * @return {@link Boolean}      Whether the cursor is before the node start or not
      */
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+    public boolean isCursorBeforeNode(Location nodePosition, TreeVisitor treeVisitor,
                                       LSContext completionContext, BLangNode node) {
         return false;
     }

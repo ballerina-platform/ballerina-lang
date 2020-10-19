@@ -18,8 +18,8 @@
 package org.wso2.ballerinalang.compiler.util;
 
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -45,10 +45,10 @@ public class FunctionalConstructorBuilder {
     private String name;
     private BPackageSymbol langlibPkg;
     private BType constructedType;
-    private BLangDiagnosticLocation pos;
+    private Location pos;
 
     private FunctionalConstructorBuilder(String name, BPackageSymbol langlibPkg, BType constructedType,
-                                         BLangDiagnosticLocation pos) {
+                                         Location pos) {
         this.name = name;
         this.langlibPkg = langlibPkg;
         this.constructedType = constructedType;
@@ -59,7 +59,7 @@ public class FunctionalConstructorBuilder {
     public static FunctionalConstructorBuilder newConstructor(String name,
                                                               BPackageSymbol langlibModule,
                                                               BType constructedType,
-                                                              BLangDiagnosticLocation pos) {
+                                                              Location pos) {
         return new FunctionalConstructorBuilder(name, langlibModule, constructedType, pos);
     }
 

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
@@ -24,7 +25,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -1104,7 +1104,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isFieldsInitializedForSelfInvocation(List<BLangExpression> argExpressions,
-                                                         BLangDiagnosticLocation location) {
+                                                         Location location) {
 
         for (BLangExpression expr : argExpressions) {
             if (isSelfKeyWordExpr(expr)) {
@@ -1120,7 +1120,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean isGlobalVarsInitialized(BLangDiagnosticLocation pos) {
+    private boolean isGlobalVarsInitialized(Location pos) {
         if (env.isModuleInit) {
             boolean isFirstUninitializedField = true;
             StringBuilder uninitializedFields = new StringBuilder();
@@ -1751,7 +1751,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                         }));
     }
 
-    private void checkVarRef(BSymbol symbol, BLangDiagnosticLocation pos) {
+    private void checkVarRef(BSymbol symbol, Location pos) {
         recordGlobalVariableReferenceRelationship(symbol);
 
         InitStatus initStatus = this.uninitializedVars.get(symbol);
@@ -1902,7 +1902,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private void checkFinalEntityUpdate(BLangDiagnosticLocation pos, Object field, BSymbol symbol) {
+    private void checkFinalEntityUpdate(Location pos, Object field, BSymbol symbol) {
         if (symbol == null || !Symbols.isFlagOn(symbol.flags, Flags.FINAL)) {
             return;
         }

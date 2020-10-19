@@ -17,12 +17,12 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -533,7 +533,7 @@ public class HttpFiltersDesugar {
         if (!checkForPathParam(resourceNode.getParameters(), value)) {
             return;
         }
-        BLangDiagnosticLocation location = resourceNode.pos;
+        Location location = resourceNode.pos;
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         resourceNode.addAnnotationAttachment(annoAttachment);
         BSymbol annSymbol = lookupAnnotationSpaceSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
@@ -622,7 +622,7 @@ public class HttpFiltersDesugar {
         return mapper;
     }
 
-    private BSymbol lookupMainSpaceSymbolInPackage(SymbolResolver symResolver, BLangDiagnosticLocation pos,
+    private BSymbol lookupMainSpaceSymbolInPackage(SymbolResolver symResolver, Location pos,
                                                    SymbolEnv env,
                                                    Name pkgAlias,
                                                    Name name) {
@@ -648,7 +648,7 @@ public class HttpFiltersDesugar {
         return symTable.notFoundSymbol;
     }
 
-    private BSymbol lookupAnnotationSpaceSymbolInPackage(SymbolResolver symResolver, BLangDiagnosticLocation location,
+    private BSymbol lookupAnnotationSpaceSymbolInPackage(SymbolResolver symResolver, Location location,
                                                          SymbolEnv env,
                                                          Name pkgAlias,
                                                          Name name) {

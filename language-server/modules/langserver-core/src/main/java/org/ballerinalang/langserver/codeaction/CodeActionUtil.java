@@ -43,7 +43,6 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -104,7 +103,7 @@ public class CodeActionUtil {
             }
 
             for (TopLevelNode topLevelNode : filteredCUnit.get().getTopLevelNodes()) {
-                BLangDiagnosticLocation diagnosticLocation =
+                Location diagnosticLocation =
                         CommonUtil.toZeroBasedPosition(((BLangNode) topLevelNode).pos);
                 if (topLevelNode instanceof BLangService) {
                     if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {

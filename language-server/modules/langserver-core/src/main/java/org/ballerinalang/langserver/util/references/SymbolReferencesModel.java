@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.util.references;
 
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -62,14 +62,14 @@ public class SymbolReferencesModel {
      * Represents a found reference.
      */
     public static class Reference {
-        private BLangDiagnosticLocation position;
+        private Location position;
         private BSymbol symbol;
         private BLangNode bLangNode;
         private String compilationUnit;
         private String symbolPkgName;
         private String sourcePkgName;
 
-        public Reference(BLangDiagnosticLocation position, BSymbol symbol, BLangNode bLangNode) {
+        public Reference(Location position, BSymbol symbol, BLangNode bLangNode) {
             this.position = position;
             this.symbol = symbol;
             this.bLangNode = bLangNode;
@@ -81,7 +81,7 @@ public class SymbolReferencesModel {
             this.sourcePkgName = symbol.pkgID.name.value;
         }
 
-        public BLangDiagnosticLocation getPosition() {
+        public Location getPosition() {
             return position;
         }
 

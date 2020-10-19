@@ -17,8 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.types.Field;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -35,9 +35,9 @@ public class BField implements Field, NamedNode {
     public BVarSymbol symbol;
 
     //Position for BIR model
-    public BLangDiagnosticLocation pos;
+    public Location pos;
 
-    public BField(Name name, BLangDiagnosticLocation pos, BVarSymbol symbol) {
+    public BField(Name name, Location pos, BVarSymbol symbol) {
         this.name = name;
         this.pos = pos;
         this.symbol = symbol;

@@ -18,12 +18,12 @@
 
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
@@ -41,7 +41,7 @@ public class BLangCompoundAssignment extends BLangStatement implements CompoundA
     public BLangCompoundAssignment() {
     }
 
-    public BLangCompoundAssignment(BLangDiagnosticLocation pos, BLangVariableReference varRef,
+    public BLangCompoundAssignment(Location pos, BLangVariableReference varRef,
                                    BLangExpression expr) {
         this.pos = pos;
         this.varRef = varRef;

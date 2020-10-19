@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -31,9 +31,9 @@ public class BAttachedFunction {
     public Name funcName;
     public BInvokableType type;
     public BInvokableSymbol symbol;
-    public BLangDiagnosticLocation pos;
+    public Location pos;
 
-    public BAttachedFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type, BLangDiagnosticLocation pos) {
+    public BAttachedFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type, Location pos) {
         this.funcName = funcName;
         this.type = type;
         this.symbol = symbol;

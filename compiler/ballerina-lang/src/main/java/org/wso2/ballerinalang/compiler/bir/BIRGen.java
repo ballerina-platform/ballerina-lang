@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -55,7 +56,6 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -704,7 +704,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.currentBlock = prevBlock;
     }
 
-    private BIRBasicBlock beginBreakableBlock(BLangDiagnosticLocation pos) {
+    private BIRBasicBlock beginBreakableBlock(Location pos) {
         BIRBasicBlock blockBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(blockBB);
         this.env.enclBasicBlocks.add(blockBB);
@@ -990,12 +990,12 @@ public class BIRGen extends BLangNodeVisitor {
         addParam(birFunc, functionParam.symbol, functionParam.expr, functionParam.pos);
     }
 
-    private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, BLangDiagnosticLocation pos) {
+    private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
         addParam(birFunc, paramSymbol, null, pos);
     }
 
     private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, BLangExpression defaultValExpr,
-                          BLangDiagnosticLocation pos) {
+                          Location pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG,
                 paramSymbol.name.value, defaultValExpr != null);
@@ -1026,7 +1026,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.symbolVarMap.put(paramSymbol, birVarDcl);
     }
 
-    private void addRestParam(BIRFunction birFunc, BVarSymbol paramSymbol, BLangDiagnosticLocation pos) {
+    private void addRestParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
         birFunc.parameters.put(birVarDcl, new ArrayList<>());
@@ -1039,7 +1039,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.symbolVarMap.put(paramSymbol, birVarDcl);
     }
 
-    private void addRequiredParam(BIRFunction birFunc, BVarSymbol paramSymbol, BLangDiagnosticLocation pos) {
+    private void addRequiredParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
         birFunc.parameters.put(birVarDcl, new ArrayList<>());
@@ -2263,7 +2263,7 @@ public class BIRGen extends BLangNodeVisitor {
         visitTypedesc(typeLoad.pos, typeLoad.symbol.type, Collections.emptyList());
     }
 
-    private void visitTypedesc(BLangDiagnosticLocation pos, BType type, List<BIROperand> varDcls) {
+    private void visitTypedesc(Location pos, BType type, List<BIROperand> varDcls) {
         BIRVariableDcl tempVarDcl =
                 new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind
                         .TEMP);
@@ -2633,7 +2633,7 @@ public class BIRGen extends BLangNodeVisitor {
         setScopeAndEmit(new Move(xmlnsNode.pos, this.env.targetOperand, varRef));
     }
 
-    private BIROperand generateNamespaceRef(BXMLNSSymbol nsSymbol, BLangDiagnosticLocation pos) {
+    private BIROperand generateNamespaceRef(BXMLNSSymbol nsSymbol, Location pos) {
         if (nsSymbol == null) {
             return generateStringLiteral(null);
         }

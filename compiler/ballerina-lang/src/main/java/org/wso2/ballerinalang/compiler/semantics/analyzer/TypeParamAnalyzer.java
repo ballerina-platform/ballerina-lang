@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -121,7 +121,7 @@ public class TypeParamAnalyzer {
         return containsTypeParam(type, new HashSet<>());
     }
 
-    void checkForTypeParamsInArg(BLangDiagnosticLocation loc, BType actualType, SymbolEnv env, BType expType) {
+    void checkForTypeParamsInArg(Location loc, BType actualType, SymbolEnv env, BType expType) {
 
         // Not a langlib module invocation
         if (notRequireTypeParams(env)) {
@@ -269,12 +269,12 @@ public class TypeParamAnalyzer {
         return type;
     }
 
-    private void findTypeParam(BLangDiagnosticLocation loc, BType expType, BType actualType, SymbolEnv env,
+    private void findTypeParam(Location loc, BType expType, BType actualType, SymbolEnv env,
                                HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         findTypeParam(loc, expType, actualType, env, resolvedTypes, result, false);
     }
 
-    private void findTypeParam(BLangDiagnosticLocation loc, BType expType, BType actualType, SymbolEnv env,
+    private void findTypeParam(Location loc, BType expType, BType actualType, SymbolEnv env,
                                HashSet<BType> resolvedTypes, FindTypeParamResult result, boolean checkContravariance) {
 
         if (resolvedTypes.contains(expType)) {
@@ -392,7 +392,7 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private void updateTypeParamAndBoundType(BLangDiagnosticLocation location, SymbolEnv env, BType typeParamType,
+    private void updateTypeParamAndBoundType(Location location, SymbolEnv env, BType typeParamType,
                                              BType boundType) {
 
         for (SymbolEnv.TypeParamEntry entry : env.typeParamsEntries) {
@@ -415,7 +415,7 @@ public class TypeParamAnalyzer {
         return source.pkgID.equals(target.pkgID) && source.name.equals(target.name);
     }
 
-    private void findTypeParamInTuple(BLangDiagnosticLocation loc, BTupleType expType, BTupleType actualType,
+    private void findTypeParamInTuple(Location loc, BTupleType expType, BTupleType actualType,
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
         for (int i = 0; i < expType.tupleTypes.size() && i < actualType.tupleTypes.size(); i++) {
@@ -423,14 +423,14 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private void findTypeParamInStream(BLangDiagnosticLocation loc, BStreamType expType, BStreamType actualType,
+    private void findTypeParamInStream(Location loc, BStreamType expType, BStreamType actualType,
                                        SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         findTypeParam(loc, expType.constraint, actualType.constraint, env, resolvedTypes, result);
         findTypeParam(loc, expType.error, (actualType.error != null) ? actualType.error : symTable.nilType, env,
                       resolvedTypes, result);
     }
 
-    private void findTypeParamInTable(BLangDiagnosticLocation loc, BTableType expType, BTableType actualType,
+    private void findTypeParamInTable(Location loc, BTableType expType, BTableType actualType,
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         findTypeParam(loc, expType.constraint, actualType.constraint, env, resolvedTypes, result);
         if (expType.keyTypeConstraint != null) {
@@ -450,7 +450,7 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private void findTypeParamInTupleForArray(BLangDiagnosticLocation loc, BArrayType expType, BTupleType actualType,
+    private void findTypeParamInTupleForArray(Location loc, BArrayType expType, BTupleType actualType,
                                               SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(actualType.tupleTypes);
         if (actualType.restType != null) {
@@ -460,7 +460,7 @@ public class TypeParamAnalyzer {
         findTypeParam(loc, expType.eType, tupleElementType, env, resolvedTypes, result);
     }
 
-    private void findTypeParamInUnion(BLangDiagnosticLocation loc, BType expType, BUnionType actualType,
+    private void findTypeParamInUnion(Location loc, BType expType, BUnionType actualType,
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         LinkedHashSet<BType> members = new LinkedHashSet<>();
         for (BType type : actualType.getMemberTypes()) {
@@ -484,7 +484,7 @@ public class TypeParamAnalyzer {
     }
 
 
-    private void findTypeParamInRecord(BLangDiagnosticLocation loc, BRecordType expType, BRecordType actualType,
+    private void findTypeParamInRecord(Location loc, BRecordType expType, BRecordType actualType,
                                        SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
         for (BField exField : expType.fields.values()) {
@@ -495,7 +495,7 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private void findTypeParamInMapForRecord(BLangDiagnosticLocation loc, BMapType expType, BRecordType actualType,
+    private void findTypeParamInMapForRecord(Location loc, BMapType expType, BRecordType actualType,
                                              SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         LinkedHashSet<BType> fields = actualType.fields.values().stream().map(f -> f.type)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -525,7 +525,7 @@ public class TypeParamAnalyzer {
         findTypeParam(loc, expType.constraint, commonFieldType, env, resolvedTypes, result);
     }
 
-    private void findTypeParamInInvokableType(BLangDiagnosticLocation loc, BInvokableType expType,
+    private void findTypeParamInInvokableType(Location loc, BInvokableType expType,
                                               BInvokableType actualType, SymbolEnv env, HashSet<BType> resolvedTypes,
                                               FindTypeParamResult result) {
 
@@ -536,7 +536,7 @@ public class TypeParamAnalyzer {
         findTypeParam(loc, expType.retType, actualType.retType, env, resolvedTypes, result);
     }
 
-    private void findTypeParamInObject(BLangDiagnosticLocation loc, BObjectType expType, BObjectType actualType,
+    private void findTypeParamInObject(Location loc, BObjectType expType, BObjectType actualType,
                                        SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
         // Not needed now.
@@ -561,7 +561,7 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private void findTypeParamInUnion(BLangDiagnosticLocation loc, BUnionType expType, BUnionType actualType,
+    private void findTypeParamInUnion(Location loc, BUnionType expType, BUnionType actualType,
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         // Limitation : supports only optional types and depends to given order.
         if ((expType.getMemberTypes().size() != 2) || !expType.isNullable()
@@ -575,7 +575,7 @@ public class TypeParamAnalyzer {
         findTypeParam(loc, exp, act, env, resolvedTypes, result);
     }
 
-    private void findTypeParamInError(BLangDiagnosticLocation loc, BErrorType expType, BErrorType actualType,
+    private void findTypeParamInError(Location loc, BErrorType expType, BErrorType actualType,
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
         if (expType == symTable.errorType) {

@@ -16,11 +16,11 @@
  */
 package org.wso2.ballerinalang.compiler.util;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -64,7 +64,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 public class TypeDefBuilderHelper {
 
     public static BLangRecordTypeNode createRecordTypeNode(BRecordType recordType, PackageID packageID,
-                                                           SymbolTable symTable, BLangDiagnosticLocation pos) {
+                                                           SymbolTable symTable, Location pos) {
         List<BLangSimpleVariable> fieldList = new ArrayList<>();
         for (BField field : recordType.fields.values()) {
             BVarSymbol symbol = field.symbol;
@@ -80,7 +80,7 @@ public class TypeDefBuilderHelper {
         return createRecordTypeNode(fieldList, recordType, pos);
     }
 
-    public static BLangObjectTypeNode createObjectTypeNode(BObjectType objectType, BLangDiagnosticLocation pos) {
+    public static BLangObjectTypeNode createObjectTypeNode(BObjectType objectType, Location pos) {
         List<BLangSimpleVariable> fieldList = new ArrayList<>();
         for (BField field : objectType.fields.values()) {
             BVarSymbol symbol = field.symbol;
@@ -92,7 +92,7 @@ public class TypeDefBuilderHelper {
     }
 
     public static BLangRecordTypeNode createRecordTypeNode(List<BLangSimpleVariable> typeDefFields,
-                                                           BRecordType recordType, BLangDiagnosticLocation pos) {
+                                                           BRecordType recordType, Location pos) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
         recordTypeNode.type = recordType;
         recordTypeNode.fields = typeDefFields;
@@ -103,7 +103,7 @@ public class TypeDefBuilderHelper {
     }
 
     public static BLangObjectTypeNode createObjectTypeNode(List<BLangSimpleVariable> typeDefFields,
-                                                           BObjectType objectType, BLangDiagnosticLocation pos) {
+                                                           BObjectType objectType, Location pos) {
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
         objectTypeNode.type = objectType;
         objectTypeNode.fields = typeDefFields;
@@ -126,7 +126,7 @@ public class TypeDefBuilderHelper {
         return initFunction;
     }
 
-    public static BLangFunction createInitFunctionForStructureType(BLangDiagnosticLocation location,
+    public static BLangFunction createInitFunctionForStructureType(Location location,
                                                                    BSymbol symbol,
                                                                    SymbolEnv env,
                                                                    Names names,
@@ -194,7 +194,7 @@ public class TypeDefBuilderHelper {
         return typeDefinition;
     }
 
-    public static BLangClassDefinition createClassDef(BLangDiagnosticLocation pos, BObjectTypeSymbol classTSymbol,
+    public static BLangClassDefinition createClassDef(Location pos, BObjectTypeSymbol classTSymbol,
                                                       SymbolEnv env) {
         BObjectType objType = (BObjectType) classTSymbol.type;
         List<BLangSimpleVariable> fieldList = new ArrayList<>();

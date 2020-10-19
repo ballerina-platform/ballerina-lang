@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -32,7 +33,6 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -1840,8 +1840,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * @param rhsType   the type on the rhs
      * @param rhsPos    position of the rhs expression
      */
-    private void checkRecordVarRefEquivalency(BLangDiagnosticLocation pos, BLangRecordVarRef lhsVarRef, BType rhsType,
-                                              BLangDiagnosticLocation rhsPos) {
+    private void checkRecordVarRefEquivalency(Location pos, BLangRecordVarRef lhsVarRef, BType rhsType,
+                                              Location rhsPos) {
         if (rhsType.tag == TypeTags.MAP) {
             BMapType rhsMapType = (BMapType) rhsType;
             BType expectedType;
@@ -1993,8 +1993,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * @param source source type.
      * @param rhsPos position of source expression.
      */
-    private void checkArrayVarRefEquivalency(BLangDiagnosticLocation pos, BLangTupleVarRef target, BType source,
-                                             BLangDiagnosticLocation rhsPos) {
+    private void checkArrayVarRefEquivalency(Location pos, BLangTupleVarRef target, BType source,
+                                             Location rhsPos) {
         BArrayType arraySource = (BArrayType) source;
 
         // For unsealed
@@ -2033,8 +2033,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void checkTupleVarRefEquivalency(BLangDiagnosticLocation pos, BLangTupleVarRef target, BType source,
-                                             BLangDiagnosticLocation rhsPos) {
+    private void checkTupleVarRefEquivalency(Location pos, BLangTupleVarRef target, BType source,
+                                             Location rhsPos) {
         if (source.tag == TypeTags.ARRAY) {
             checkArrayVarRefEquivalency(pos, target, source, rhsPos);
             return;
@@ -2105,7 +2105,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkErrorVarRefEquivalency(BLangErrorVarRef lhsRef, BType rhsType,
-                                             BLangDiagnosticLocation rhsPos) {
+                                             Location rhsPos) {
         if (rhsType.tag != TypeTags.ERROR) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, rhsType);
             return;
@@ -2184,8 +2184,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
-    private void checkErrorDetailRefItem(BLangDiagnosticLocation location,
-                                         BLangDiagnosticLocation rhsLocation,
+    private void checkErrorDetailRefItem(Location location,
+                                         Location rhsLocation,
                                          BLangNamedArgsExpression detailItem,
                                          BType expectedType) {
         if (detailItem.expr.getKind() == NodeKind.RECORD_VARIABLE_REF) {
@@ -3165,7 +3165,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void validateReferencedFunction(BLangDiagnosticLocation pos, BAttachedFunction func, SymbolEnv env) {
+    private void validateReferencedFunction(Location pos, BAttachedFunction func, SymbolEnv env) {
         if (!Symbols.isFlagOn(func.symbol.receiverSymbol.type.tsymbol.flags, Flags.CLASS)) {
             return;
         }

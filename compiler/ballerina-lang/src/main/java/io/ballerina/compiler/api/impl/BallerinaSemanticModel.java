@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.SymbolFactory;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -76,7 +77,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols =
                 symbolResolver.getAllVisibleInScopeSymbols(this.envResolver.lookUp(compilationUnit, linePosition));
 
-        BLangDiagnosticLocation cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
+        Location cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
                                                     linePosition.line(), linePosition.line(),
                                                     linePosition.offset(), linePosition.offset());
 
@@ -160,7 +161,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     // Private helper methods for the public APIs above.
 
-    private boolean isSymbolInUserProject(BSymbol symbol, BLangDiagnosticLocation cursorPos) {
+    private boolean isSymbolInUserProject(BSymbol symbol, Location cursorPos) {
         String packageDetailsString = bLangPackage.packageID.name.value
                 + bLangPackage.packageID.getPackageVersion().value
                 + cursorPos.lineRange().filePath();
@@ -170,7 +171,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
         int value = packageDetailsString.compareTo(symbolPackageDetailsString);
 
-        BLangDiagnosticLocation location = symbol.pos;
+        Location location = symbol.pos;
 
         if (value == 0) {
             // If the package detail strings are same, then compare the start line.

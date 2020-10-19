@@ -18,12 +18,12 @@
 
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -56,7 +56,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private BConstantSymbol currentConstSymbol;
     private BLangConstantValue result;
     private BLangDiagnosticLog dlog;
-    private BLangDiagnosticLocation currentPos;
+    private Location currentPos;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
 
     private ConstantValueResolver(CompilerContext context) {
@@ -327,7 +327,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case BINARY_EXPR:
             case GROUP_EXPR:
                 BLangConstantValue prevResult = this.result;
-                BLangDiagnosticLocation prevPos = this.currentPos;
+                Location prevPos = this.currentPos;
                 this.currentPos = node.pos;
                 this.result = null;
                 node.accept(this);

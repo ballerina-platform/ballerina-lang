@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -172,9 +173,9 @@ public class CommonUtil {
      * Convert the diagnostic position to a zero based positioning diagnostic position.
      *
      * @param diagnosticLocation - diagnostic position to be cloned
-     * @return {@link BLangDiagnosticLocation} converted diagnostic position
+     * @return {@link Location} converted diagnostic position
      */
-    public static BLangDiagnosticLocation toZeroBasedPosition(BLangDiagnosticLocation diagnosticLocation) {
+    public static Location toZeroBasedPosition(Location diagnosticLocation) {
         int startLine = diagnosticLocation.lineRange().startLine().line() - 1;
         int endLine = diagnosticLocation.lineRange().endLine().line() - 1;
         int startColumn = diagnosticLocation.lineRange().startLine().offset() - 1;
@@ -187,7 +188,7 @@ public class CommonUtil {
      * Convert the diagnostic position to a zero based positioning diagnostic position.
      *
      * @param linePosition - diagnostic position to be cloned
-     * @return {@link BLangDiagnosticLocation} converted diagnostic position
+     * @return {@link Range} converted diagnostic position
      */
     public static Range toRange(LineRange linePosition) {
         int startLine = linePosition.startLine().line();
@@ -201,9 +202,9 @@ public class CommonUtil {
      * Clone the diagnostic position given.
      *
      * @param diagnosticLocation - diagnostic position to be cloned
-     * @return {@link BLangDiagnosticLocation} cloned diagnostic position
+     * @return {@link Location} cloned diagnostic position
      */
-    public static BLangDiagnosticLocation clonePosition(BLangDiagnosticLocation diagnosticLocation) {
+    public static Location clonePosition(Location diagnosticLocation) {
         return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
                                            diagnosticLocation.lineRange().startLine().line(),
                                            diagnosticLocation.lineRange().endLine().line(),
@@ -1340,8 +1341,8 @@ public class CommonUtil {
         @Override
         public int compare(BLangNode node1, BLangNode node2) {
             // TODO: Fix?
-            BLangDiagnosticLocation node1Loc = node1.getPosition();
-            BLangDiagnosticLocation node2Loc = node2.getPosition();
+            Location node1Loc = node1.getPosition();
+            Location node2Loc = node2.getPosition();
             if (node1Loc == null || node2Loc == null) {
                 return -1;
             }

@@ -18,10 +18,10 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -43,7 +43,7 @@ public class BInvokableTypeSymbol extends BTypeSymbol {
     public Map<String, BType> paramDefaultValTypes;
 
     public BInvokableTypeSymbol(int symTag, int flags, PackageID pkgID, BType type, BSymbol owner,
-                                BLangDiagnosticLocation location,
+                                Location location,
                                 SymbolOrigin origin) {
         super(symTag, flags, Names.EMPTY, pkgID, type, owner, location, origin);
         this.params = new ArrayList<>();

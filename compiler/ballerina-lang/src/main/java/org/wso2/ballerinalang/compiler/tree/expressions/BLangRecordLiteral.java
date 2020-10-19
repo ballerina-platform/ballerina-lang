@@ -17,10 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -51,12 +51,12 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         fields = new ArrayList<>();
     }
 
-    public BLangRecordLiteral(BLangDiagnosticLocation pos) {
+    public BLangRecordLiteral(Location pos) {
         this();
         this.pos = pos;
     }
 
-    public BLangRecordLiteral(BLangDiagnosticLocation pos, BType type) {
+    public BLangRecordLiteral(Location pos, BType type) {
         this.pos = pos;
         fields = new ArrayList<>();
         this.type = type;
@@ -233,7 +233,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         public BAttachedFunction initializer;
         public TreeMap<Integer, BVarSymbol> enclMapSymbols;
 
-        public BLangStructLiteral(BLangDiagnosticLocation pos, BType structType, List<RecordField> fields) {
+        public BLangStructLiteral(Location pos, BType structType, List<RecordField> fields) {
             super(pos);
             this.type = structType;
             this.initializer = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
@@ -253,7 +253,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangMapLiteral extends BLangRecordLiteral {
 
-        public BLangMapLiteral(BLangDiagnosticLocation pos, BType mapType, List<RecordField> fields) {
+        public BLangMapLiteral(Location pos, BType mapType, List<RecordField> fields) {
             super(pos);
             this.type = mapType;
             this.fields = fields;
@@ -274,7 +274,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
         public String channelName;
 
-        public BLangChannelLiteral(BLangDiagnosticLocation pos, BType channelType, String channelName) {
+        public BLangChannelLiteral(Location pos, BType channelType, String channelName) {
             super(pos);
             this.type = channelType;
             this.channelName = channelName;

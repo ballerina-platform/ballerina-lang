@@ -15,12 +15,12 @@
  */
 package org.ballerinalang.langserver.command.testgen.renderer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
     /**
      * List of placeholders to keep track of placeholder content.
      */
-    private Map<BLangDiagnosticLocation, Map<String, String>> positions = new HashMap<>();
+    private Map<Location, Map<String, String>> positions = new HashMap<>();
     /**
      * Need to track focus line.
      */
@@ -85,7 +85,7 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
     }
 
     private void merge(PlaceHolder placeHolder, Function<String, String> merger) {
-        BLangDiagnosticLocation position = placeHolder.getPosition(bLangPackageOfTestFile);
+        Location position = placeHolder.getPosition(bLangPackageOfTestFile);
         Map<String, String> placeHolders = positions.get(position);
         placeHolders = (placeHolders == null) ? new HashMap<>() : placeHolders;
         String oldContent = placeHolders.get(placeHolder.getName());
@@ -105,7 +105,7 @@ public class BLangPkgBasedRendererOutput implements RendererOutput {
      */
     @Override
     public void put(PlaceHolder placeHolder, String content) {
-        BLangDiagnosticLocation position = placeHolder.getPosition(bLangPackageOfTestFile);
+        Location position = placeHolder.getPosition(bLangPackageOfTestFile);
         Map<String, String> placeHolders = positions.get(position);
         placeHolders = (placeHolders == null) ? new HashMap<>() : placeHolders;
         placeHolders.put(placeHolder.getName(), content);

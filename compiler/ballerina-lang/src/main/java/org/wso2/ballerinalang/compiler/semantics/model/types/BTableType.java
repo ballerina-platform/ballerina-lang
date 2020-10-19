@@ -18,9 +18,9 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.types.TableType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -38,8 +38,8 @@ public class BTableType extends BType implements TableType {
     public BType constraint;
     public BType keyTypeConstraint;
     public List<String> fieldNameList;
-    public BLangDiagnosticLocation keyPos;
-    public BLangDiagnosticLocation constraintPos;
+    public Location keyPos;
+    public Location constraintPos;
     public BIntersectionType immutableType;
 
     public BTableType(int tag, BType constraint, BTypeSymbol tSymbol) {

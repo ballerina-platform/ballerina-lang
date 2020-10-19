@@ -17,13 +17,13 @@
 */
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -40,7 +40,7 @@ public class RecordScopeResolver extends CursorPositionResolver {
      * {@inheritDoc}
      */
     @Override
-    public boolean isCursorBeforeNode(BLangDiagnosticLocation nodePosition, TreeVisitor treeVisitor,
+    public boolean isCursorBeforeNode(Location nodePosition, TreeVisitor treeVisitor,
                                       LSContext completionContext, BLangNode node, BSymbol bSymbol) {
         Node recordNode = treeVisitor.getBlockOwnerStack().peek();
         if (!recordNode.getKind().equals(NodeKind.RECORD_TYPE)) {
@@ -48,8 +48,8 @@ public class RecordScopeResolver extends CursorPositionResolver {
         }
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        BLangDiagnosticLocation nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
-        BLangDiagnosticLocation ownerPos = CommonUtil
+        Location nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
+        Location ownerPos = CommonUtil
                 .toZeroBasedPosition(((BLangRecordTypeNode) recordNode).parent.getPosition());
         int ownerEndLine = ownerPos.lineRange().endLine().line();
         int nodeStartLine = nodePos.lineRange().startLine().line();

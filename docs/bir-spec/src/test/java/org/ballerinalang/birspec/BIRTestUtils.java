@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.birspec;
 
+import io.ballerina.tools.diagnostics.Location;
 import io.kaitai.struct.ByteBufferKaitaiStream;
 import io.kaitai.struct.KaitaiStruct;
 import org.ballerinalang.build.kaitai.Bir;
@@ -34,7 +35,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -461,7 +461,7 @@ class BIRTestUtils {
         }
     }
 
-    private static void assertPosition(Bir.Position actualPosition, BLangDiagnosticLocation expectedPosition) {
+    private static void assertPosition(Bir.Position actualPosition, Location expectedPosition) {
         Assert.assertEquals(actualPosition.sLine(), expectedPosition.lineRange().startLine().line());
         Assert.assertEquals(actualPosition.eLine(), expectedPosition.lineRange().endLine().line());
         Assert.assertEquals(actualPosition.sCol(), expectedPosition.lineRange().startLine().offset());

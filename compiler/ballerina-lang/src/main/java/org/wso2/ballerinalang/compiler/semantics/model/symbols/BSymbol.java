@@ -17,13 +17,13 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -48,7 +48,7 @@ public class BSymbol implements Symbol {
     public boolean tainted;
     public boolean closure;
     public MarkdownDocAttachment markdownDocumentation;
-    public BLangDiagnosticLocation pos;
+    public Location pos;
     public SymbolOrigin origin;
 
     /**
@@ -57,7 +57,7 @@ public class BSymbol implements Symbol {
     public Scope scope;
 
     public BSymbol(int tag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner,
-                   BLangDiagnosticLocation location,
+                   Location location,
                    SymbolOrigin origin) {
         this.tag = tag;
         this.flags = flags;
@@ -104,7 +104,7 @@ public class BSymbol implements Symbol {
     }
 
     @Override
-    public BLangDiagnosticLocation getPosition() {
+    public Location getPosition() {
         return this.pos;
     }
 

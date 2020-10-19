@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.command.testgen.template;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -28,8 +29,8 @@ public enum PlaceHolder {
 
     DECLARATIONS("declarations") {
         @Override
-        public BLangDiagnosticLocation getPosition(BLangPackage bLangPackage) {
-            final BLangDiagnosticLocation[] pos = {new BLangDiagnosticLocation(null, 0, 0, 0, 0)};
+        public Location getPosition(BLangPackage bLangPackage) {
+            final Location[] pos = {new BLangDiagnosticLocation(null, 0, 0, 0, 0)};
             //after imports
             bLangPackage.getImports().forEach(imp -> pos[0] = getMaximumPosition(imp.getPosition(), pos[0]));
             bLangPackage.getGlobalVariables().forEach(var -> pos[0] = getMaximumPosition(var.getPosition(), pos[0]));
@@ -39,8 +40,8 @@ public enum PlaceHolder {
 
     CONTENT("content") {
         @Override
-        public BLangDiagnosticLocation getPosition(BLangPackage bLangPackage) {
-            final BLangDiagnosticLocation[] pos = {new BLangDiagnosticLocation(null, 0, 0, 0, 0)};
+        public Location getPosition(BLangPackage bLangPackage) {
+            final Location[] pos = {new BLangDiagnosticLocation(null, 0, 0, 0, 0)};
             bLangPackage.topLevelNodes.forEach(topLevelNode -> {
                 if (topLevelNode instanceof BLangNode) {
                     pos[0] = getMaximumPosition(((BLangNode) topLevelNode).getPosition(), pos[0]);
@@ -54,8 +55,8 @@ public enum PlaceHolder {
 
     IMPORTS("imports") {
         @Override
-        public BLangDiagnosticLocation getPosition(BLangPackage bLangPackage) {
-            final BLangDiagnosticLocation[] pos = {new BLangDiagnosticLocation(null, 0, 0, 0, 0)};
+        public Location getPosition(BLangPackage bLangPackage) {
+            final Location[] pos = {new BLangDiagnosticLocation(null, 0, 0, 0, 0)};
             bLangPackage.getImports().forEach(pkg -> pos[0] = getMaximumPosition(pkg.getPosition(), pos[0]));
             return zeroColumnPosition(pos[0]);
         }
@@ -63,7 +64,7 @@ public enum PlaceHolder {
 
     OTHER("_other_") {
         @Override
-        public BLangDiagnosticLocation getPosition(BLangPackage bLangPackage) {
+        public Location getPosition(BLangPackage bLangPackage) {
             throw new UnsupportedOperationException("Not supported!");
         }
 
@@ -80,14 +81,14 @@ public enum PlaceHolder {
         this.name = name;
     }
 
-    private static BLangDiagnosticLocation zeroColumnPosition(BLangDiagnosticLocation pos) {
+    private static Location zeroColumnPosition(Location pos) {
         return new BLangDiagnosticLocation(pos.lineRange().filePath(),
                                            pos.lineRange().startLine().line(),
                                            pos.lineRange().endLine().line(), 0, 0);
     }
 
-    private static BLangDiagnosticLocation getMaximumPosition(BLangDiagnosticLocation location1,
-                                                              BLangDiagnosticLocation location2) {
+    private static Location getMaximumPosition(Location location1,
+                                                              Location location2) {
         // handle null
         if (location1 == null) {
             return location2;
@@ -112,7 +113,7 @@ public enum PlaceHolder {
         }
     }
 
-    public abstract BLangDiagnosticLocation getPosition(BLangPackage bLangPackage);
+    public abstract Location getPosition(BLangPackage bLangPackage);
 
     public String getName() {
         return this.name;

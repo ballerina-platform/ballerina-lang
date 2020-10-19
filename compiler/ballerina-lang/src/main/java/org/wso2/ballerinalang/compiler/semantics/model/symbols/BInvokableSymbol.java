@@ -17,11 +17,11 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.InvokableSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -65,7 +65,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
                             PackageID pkgID,
                             BType type,
                             BSymbol owner,
-                            BLangDiagnosticLocation pos,
+                            Location pos,
                             SymbolOrigin origin) {
         super(flags, name, pkgID, type, owner, pos, origin);
         this.tag = tag;
