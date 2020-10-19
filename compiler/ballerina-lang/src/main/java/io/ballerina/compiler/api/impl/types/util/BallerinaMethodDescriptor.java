@@ -20,7 +20,7 @@ package io.ballerina.compiler.api.impl.types.util;
 
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
-import io.ballerina.compiler.api.types.util.MethodDeclaration;
+import io.ballerina.compiler.api.types.util.MethodDescriptor;
 
 import java.util.Set;
 
@@ -29,13 +29,13 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class BallerinaMethodDeclaration implements MethodDeclaration {
+public class BallerinaMethodDescriptor implements MethodDescriptor {
 
     private final String name;
     private final Set<Qualifier> qualifiers;
     private final FunctionTypeDescriptor typeDescriptor;
 
-    public BallerinaMethodDeclaration(String name, Set<Qualifier> qualifiers, FunctionTypeDescriptor typeDescriptor) {
+    public BallerinaMethodDescriptor(String name, Set<Qualifier> qualifiers, FunctionTypeDescriptor typeDescriptor) {
         this.name = name;
         this.qualifiers = qualifiers;
         this.typeDescriptor = typeDescriptor;

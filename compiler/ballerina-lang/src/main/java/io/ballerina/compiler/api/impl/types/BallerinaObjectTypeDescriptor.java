@@ -21,7 +21,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.util.MethodDeclaration;
+import io.ballerina.compiler.api.types.util.MethodDescriptor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -39,7 +39,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     private List<TypeQualifier> typeQualifiers;
     // private TypeDescriptor objectTypeReference;
     private List<FieldDescriptor> objectFields;
-    private List<MethodDeclaration> methods;
+    private List<MethodDescriptor> methods;
 
     public BallerinaObjectTypeDescriptor(ModuleID moduleID, BObjectType objectType) {
         super(TypeDescKind.OBJECT, moduleID, objectType);
@@ -48,7 +48,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     }
 
     public BallerinaObjectTypeDescriptor(ModuleID moduleID, List<FieldDescriptor> fields,
-                                         List<MethodDeclaration> methods, BObjectType objectType) {
+                                         List<MethodDescriptor> methods, BObjectType objectType) {
         super(TypeDescKind.OBJECT, moduleID, objectType);
         this.objectFields = fields;
         this.methods = methods;
@@ -84,7 +84,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
      *
      * @return {@link List} of object methods
      */
-    public List<MethodDeclaration> methods() {
+    public List<MethodDescriptor> methods() {
         return this.methods;
     }
 
@@ -117,7 +117,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
         this.objectFields = fields;
     }
 
-    void setMethods(List<MethodDeclaration> methods) {
+    void setMethods(List<MethodDescriptor> methods) {
         this.methods = methods;
     }
 }

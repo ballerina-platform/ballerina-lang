@@ -40,7 +40,7 @@ import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeDescTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import io.ballerina.compiler.api.types.UnionTypeDescriptor;
-import io.ballerina.compiler.api.types.util.MethodDeclaration;
+import io.ballerina.compiler.api.types.util.MethodDescriptor;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -173,10 +173,10 @@ public class TypedescriptorTest {
         assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().kind(), STRING);
 
-        List<MethodDeclaration> methods = type.methods();
+        List<MethodDescriptor> methods = type.methods();
         assertEquals(fields.size(), 1);
 
-        MethodDeclaration method = methods.get(0);
+        MethodDescriptor method = methods.get(0);
         assertEquals(method.name(), "getName");
     }
 
@@ -193,10 +193,10 @@ public class TypedescriptorTest {
         assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().kind(), STRING);
 
-        List<MethodDeclaration> methods = type.methods();
+        List<MethodDescriptor> methods = type.methods();
         assertEquals(fields.size(), 1);
 
-        MethodDeclaration method = methods.get(0);
+        MethodDescriptor method = methods.get(0);
         assertEquals(method.name(), "getName");
 
         FunctionTypeDescriptor methodSig = method.typeDescriptor();

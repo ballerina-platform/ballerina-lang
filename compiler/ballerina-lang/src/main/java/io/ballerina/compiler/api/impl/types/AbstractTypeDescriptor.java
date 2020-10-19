@@ -20,7 +20,7 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
-import io.ballerina.compiler.api.types.util.MethodDeclaration;
+import io.ballerina.compiler.api.types.util.MethodDescriptor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.List;
 public abstract class AbstractTypeDescriptor implements BallerinaTypeDescriptor {
     private TypeDescKind typeDescKind;
     private ModuleID moduleID;
-    private List<MethodDeclaration> langLibMethods;
+    private List<MethodDescriptor> langLibMethods;
     private BType bType;
 
     public AbstractTypeDescriptor(TypeDescKind typeDescKind, ModuleID moduleID, BType bType) {
@@ -56,7 +56,7 @@ public abstract class AbstractTypeDescriptor implements BallerinaTypeDescriptor 
     public abstract String signature();
 
     @Override
-    public List<MethodDeclaration> langLibMethods() {
+    public List<MethodDescriptor> langLibMethods() {
         return langLibMethods;
     }
 
@@ -70,7 +70,7 @@ public abstract class AbstractTypeDescriptor implements BallerinaTypeDescriptor 
     }
 
     // Setters. Only to be used by the type builder
-    void setLangLibMethods(List<MethodDeclaration> langLibMethods) {
+    void setLangLibMethods(List<MethodDescriptor> langLibMethods) {
         this.langLibMethods = langLibMethods;
     }
 }

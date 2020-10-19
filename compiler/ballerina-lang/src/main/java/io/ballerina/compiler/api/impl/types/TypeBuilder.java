@@ -21,14 +21,14 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.impl.LangLibrary;
-import io.ballerina.compiler.api.impl.types.util.BallerinaMethodDeclaration;
+import io.ballerina.compiler.api.impl.types.util.BallerinaMethodDescriptor;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
 import io.ballerina.compiler.api.types.ParameterKind;
-import io.ballerina.compiler.api.types.util.MethodDeclaration;
+import io.ballerina.compiler.api.types.util.MethodDescriptor;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -113,7 +113,7 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
         BallerinaTypeDescriptor publicType = internalType.accept(this, null);
 
         if (publicType != null) {
-            List<MethodDeclaration> langLibMethods = langLibrary.getMethods(publicType.kind());
+            List<MethodDescriptor> langLibMethods = langLibrary.getMethods(publicType.kind());
             langLibMethods = filterMethods(langLibMethods, internalType);
             ((AbstractTypeDescriptor) publicType).setLangLibMethods(unmodifiableList(langLibMethods));
         }
@@ -194,11 +194,11 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
         List<FieldDescriptor> fields = createFields(internalType);
         BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) internalType.tsymbol;
 
-        List<MethodDeclaration> methods = new ArrayList<>();
+        List<MethodDescriptor> methods = new ArrayList<>();
         for (BAttachedFunction func : typeSymbol.attachedFuncs) {
             BallerinaFunctionTypeDescriptor methodType = (BallerinaFunctionTypeDescriptor) build(func.type);
-            BallerinaMethodDeclaration methodDecl = new BallerinaMethodDeclaration(func.funcName.value, new HashSet<>(),
-                                                                                   methodType);
+            BallerinaMethodDescriptor methodDecl = new BallerinaMethodDescriptor(func.funcName.value, new HashSet<>(),
+                                                                                 methodType);
             methods.add(methodDecl);
         }
 
@@ -321,10 +321,10 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
     }
 
     // Private Methods
-    private List<MethodDeclaration> filterMethods(List<MethodDeclaration> methods, BType internalType) {
-        List<MethodDeclaration> filteredMethods = new ArrayList<>();
+    private List<MethodDescriptor> filterMethods(List<MethodDescriptor> methods, BType internalType) {
+        List<MethodDescriptor> filteredMethods = new ArrayList<>();
 
-        for (MethodDeclaration method : methods) {
+        for (MethodDescriptor method : methods) {
             BType firstParamType = getFirstParamType(method.typeDescriptor());
             if (types.isAssignable(internalType, firstParamType)) {
                 filteredMethods.add(method);

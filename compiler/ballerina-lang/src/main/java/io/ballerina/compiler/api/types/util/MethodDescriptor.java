@@ -24,11 +24,11 @@ import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import java.util.Set;
 
 /**
- * Represents a method declaration in an object type descriptor.
+ * Represents a method declaration in an object type descriptor or a lang lib method.
  *
  * @since 2.0.0
  */
-public interface MethodDeclaration {
+public interface MethodDescriptor {
 
     /**
      * Get the set of qualifiers added to the method.

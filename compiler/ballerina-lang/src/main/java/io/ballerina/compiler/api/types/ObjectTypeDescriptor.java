@@ -17,7 +17,7 @@
  */
 package io.ballerina.compiler.api.types;
 
-import io.ballerina.compiler.api.types.util.MethodDeclaration;
+import io.ballerina.compiler.api.types.util.MethodDescriptor;
 
 import java.util.List;
 
@@ -47,7 +47,7 @@ public interface ObjectTypeDescriptor extends BallerinaTypeDescriptor {
      *
      * @return {@link List} of object methods
      */
-    List<MethodDeclaration> methods();
+    List<MethodDescriptor> methods();
 
     /**
      * Represents the object type qualifier.
