@@ -1682,7 +1682,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         NodeList<Node> documentElements = formatNodeList(markdownDocumentationLineNode.documentElements(),
-                1, 0, env.trailingWS, env.trailingNL);
+                0, 0, env.trailingWS, env.trailingNL);
 
         return markdownDocumentationLineNode.modify()
                 .withDocumentElements(documentElements)
@@ -3570,7 +3570,7 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<StatementNode> workerInitStatements = formatNodeList(namedWorkerDeclarator.workerInitStatements(), 0,
                 1, 0, 1, true);
         NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations =
-                formatNodeList(namedWorkerDeclarator.namedWorkerDeclarations(), 0, 1, 0, 1);
+                formatNodeList(namedWorkerDeclarator.namedWorkerDeclarations(), 0, 1, 0, 1, true);
         return namedWorkerDeclarator.modify()
                 .withWorkerInitStatements(workerInitStatements)
                 .withNamedWorkerDeclarations(namedWorkerDeclarations)
@@ -3737,6 +3737,7 @@ public class FormattingTreeModifier extends TreeModifier {
             env.trailingNL = prevTrailingNL;
             env.trailingWS = prevTrailingWS;
         } catch (Exception e) {
+            checkForNewline(node);
             LOGGER.error(String.format("Error while formatting [node: %s] [line: %s] [column:%s]: %s",
                 node.kind().name(), node.lineRange().startLine().line() + 1, node.lineRange().startLine().offset(), e));
         }
