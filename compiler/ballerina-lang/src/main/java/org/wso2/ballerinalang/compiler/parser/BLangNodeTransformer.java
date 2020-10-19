@@ -1655,11 +1655,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         annotationDecl.pos = pos;
         annotationDecl.name = createIdentifier(annotationDeclarationNode.annotationTag());
 
-        if (annotationDeclarationNode.visibilityQualifier() != null) {
+        if (annotationDeclarationNode.visibilityQualifier().isPresent()) {
             annotationDecl.addFlag(Flag.PUBLIC);
         }
 
-        if (annotationDeclarationNode.constKeyword() != null) {
+        if (annotationDeclarationNode.constKeyword().isPresent()) {
             annotationDecl.addFlag(Flag.CONSTANT);
         }
 
@@ -1668,22 +1668,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         annotationDecl.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(getDocumentationString(annotationDeclarationNode.metadata()));
 
-        Node typedesc = annotationDeclarationNode.typeDescriptor();
-        if (typedesc != null) {
-            annotationDecl.typeNode = createTypeNode(typedesc);
+        Optional<Node> typedesc = annotationDeclarationNode.typeDescriptor();
+        if (typedesc.isPresent()) {
+            annotationDecl.typeNode = createTypeNode(typedesc.get());
         }
 
         SeparatedNodeList<Node> paramList = annotationDeclarationNode.attachPoints();
 
         for (Node child : paramList) {
             AnnotationAttachPointNode attachPoint = (AnnotationAttachPointNode) child;
-            boolean source = attachPoint.sourceKeyword() != null;
+            boolean source = attachPoint.sourceKeyword().isPresent();
             AttachPoint bLAttachPoint;
             Token firstIndent =  attachPoint.firstIdent();
 
             switch (firstIndent.kind()) {
                 case OBJECT_KEYWORD:
-                    Token secondIndent = attachPoint.secondIdent();
+                    Token secondIndent = attachPoint.secondIdent().get();
                     switch (secondIndent.kind()) {
                         case FUNCTION_KEYWORD:
                             bLAttachPoint =
@@ -2130,8 +2130,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (BLangTableConstructorExpr) TreeBuilder.createTableConstructorExpressionNode();
         tableConstructorExpr.pos = getPosition(tableConstructorExpressionNode);
 
-        for (Node node : tableConstructorExpressionNode.mappingConstructors()) {
-            tableConstructorExpr.addRecordLiteral((BLangRecordLiteral) node.apply(this));
+        for (Node row : tableConstructorExpressionNode.rows()) {
+            tableConstructorExpr.addRecordLiteral((BLangRecordLiteral) row.apply(this));
         }
         if (tableConstructorExpressionNode.keySpecifier().isPresent()) {
             tableConstructorExpr.tableKeySpecifier =
@@ -3031,8 +3031,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         tableTypeNode.pos = getPosition(tableTypeDescriptorNode);
         tableTypeNode.type = refType;
         tableTypeNode.constraint = createTypeNode(tableTypeDescriptorNode.rowTypeParameterNode());
-        if (tableTypeDescriptorNode.keyConstraintNode() != null) {
-            Node constraintNode = tableTypeDescriptorNode.keyConstraintNode();
+        if (tableTypeDescriptorNode.keyConstraintNode().isPresent()) {
+            Node constraintNode = tableTypeDescriptorNode.keyConstraintNode().get();
             if (constraintNode.kind() == SyntaxKind.KEY_TYPE_CONSTRAINT) {
                 tableTypeNode.tableKeyTypeConstraint = (BLangTableKeyTypeConstraint) constraintNode.apply(this);
             } else if (constraintNode.kind() == SyntaxKind.KEY_SPECIFIER) {
@@ -3221,7 +3221,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ModuleXMLNamespaceDeclarationNode xmlnsDeclNode) {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
-        BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
+        BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix().orElse(null));
         BLangExpression namespaceUri = createExpression(xmlnsDeclNode.namespaceuri());
         xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
