@@ -20,7 +20,7 @@ package org.ballerinalang.observe.nativeimpl;
 
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
@@ -91,7 +91,8 @@ public class GetAllMetrics {
     }
 
     private static BMap<BString, Object> getTags(MetricId metricId) {
-        BMap<BString, Object> bTags = ValueCreator.createMapValue(TypeCreator.createMapType(Types.TYPE_STRING));
+        BMap<BString, Object> bTags = ValueCreator.createMapValue(TypeCreator.createMapType(
+                PredefinedTypes.TYPE_STRING));
         Set<Tag> tags = metricId.getTags();
         for (Tag tag : tags) {
             bTags.put(StringUtils.fromString(tag.getKey()), StringUtils.fromString(tag.getValue()));

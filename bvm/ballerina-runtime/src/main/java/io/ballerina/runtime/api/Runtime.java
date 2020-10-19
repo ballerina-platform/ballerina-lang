@@ -16,7 +16,7 @@
  */
 package io.ballerina.runtime.api;
 
-import io.ballerina.runtime.api.async.CallableUnitCallback;
+import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.observability.ObservabilityConstants;
@@ -44,7 +44,7 @@ public class Runtime {
     /**
      * Gets the instance of ballerina runtime.
      *
-     * @deprecated use {@link Env#getRuntime()} instead.
+     * @deprecated use {@link Environment#getRuntime()} instead.
      * @return Ballerina runtime instance.
      */
     @Deprecated
@@ -67,7 +67,7 @@ public class Runtime {
       * @return the result of the function invocation
       */
      public Object invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
-                                     CallableUnitCallback callback, Object... args) {
+                                     Callback callback, Object... args) {
          Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
          return scheduler.schedule(new Object[1], func, null, callback, strandName, metadata).result;
      }
@@ -85,7 +85,7 @@ public class Runtime {
      * @param args       Ballerina function arguments.
      */
     public void invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
-                                  CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
+                                  Callback callback, Map<String, Object> properties, Object... args) {
         Function<Object[], Object> func = objects -> {
             Strand strand = (Strand) objects[0];
             if (ObserveUtils.isObservabilityEnabled() && properties != null &&
@@ -95,6 +95,6 @@ public class Runtime {
             }
             return object.call(strand, methodName, args);
         };
-        scheduler.schedule(new Object[1], func, null, callback, properties, Types.TYPE_NULL, strandName, metadata);
+        scheduler.schedule(new Object[1], func, null, callback, properties, PredefinedTypes.TYPE_NULL, strandName, metadata);
     }
 }

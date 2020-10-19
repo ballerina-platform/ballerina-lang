@@ -18,10 +18,10 @@
 
 package io.ballerina.runtime.types;
 
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.values.TypedescValue;
@@ -46,7 +46,7 @@ public class BTypedescType extends BType implements TypedescType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) new TypedescValueImpl(Types.TYPE_NULL);
+        return (V) new TypedescValueImpl(PredefinedTypes.TYPE_NULL);
     }
 
     @Override

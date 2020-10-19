@@ -17,10 +17,10 @@
  */
 package io.ballerina.runtime.values;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;

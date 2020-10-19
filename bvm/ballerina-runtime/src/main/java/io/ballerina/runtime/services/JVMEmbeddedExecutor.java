@@ -18,7 +18,7 @@
 package io.ballerina.runtime.services;
 
 import io.ballerina.runtime.annotation.JavaSPIService;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
@@ -112,7 +112,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                                                       Types.TYPE_NULL, strandName, metaData);
+                                                       PredefinedTypes.TYPE_NULL, strandName, metaData);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
@@ -156,7 +156,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                     ArgumentParser.extractEntryFuncArgs(new RuntimeUtils.ParamInfo[]{
                             new RuntimeUtils.ParamInfo(false,
                                     "%1",
-                                    new BArrayType(Types.TYPE_STRING, stringArgs.length))
+                                    new BArrayType(PredefinedTypes.TYPE_STRING, stringArgs.length))
                     }, stringArgs, true);
             
             //TODO fix following method invoke to scheduler.schedule()
@@ -171,7 +171,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final FutureValue out = scheduler.schedule(entryFuncArgs, func, null, null, null,
-                                                       Types.TYPE_NULL, strandName, metaData);
+                                                       PredefinedTypes.TYPE_NULL, strandName, metaData);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
@@ -221,7 +221,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                                                       Types.TYPE_NULL, strandName, metaData);
+                                                       PredefinedTypes.TYPE_NULL, strandName, metaData);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {

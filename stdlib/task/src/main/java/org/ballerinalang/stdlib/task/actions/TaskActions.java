@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.stdlib.task.actions;
 
-import io.ballerina.runtime.api.Env;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -97,7 +97,7 @@ public class TaskActions {
         return null;
     }
 
-    public static Object attach(Env env, BObject taskListener, BObject service, Object... attachments) {
+    public static Object attach(Environment env, BObject taskListener, BObject service, Object... attachments) {
         ServiceInformation serviceInformation;
         Runtime runtime = env.getRuntime();
         if (attachments == null) {

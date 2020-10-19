@@ -19,7 +19,6 @@ package io.ballerina.runtime.types;
 
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.commons.ArrayState;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;

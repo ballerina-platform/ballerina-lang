@@ -21,7 +21,7 @@ package org.ballerina.testobserve.listenerendpoint;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.ValueCreator;
-import io.ballerina.runtime.api.async.CallableUnitCallback;
+import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.values.BError;
@@ -246,7 +246,7 @@ public class WebServer {
         /**
          * Callable unit used in executing ballerina resource function.
          */
-        public static class WebServerCallableUnitCallback implements CallableUnitCallback {
+        public static class WebServerCallableUnitCallback implements Callback {
             private final ChannelHandlerContext ctx;
             private final String resourceName;
 

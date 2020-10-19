@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.io.utils;
 
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.values.BMap;
@@ -44,7 +44,7 @@ import java.util.Set;
  */
 public class PropertyUtils {
     private static final Logger log = LoggerFactory.getLogger(PropertyUtils.class);
-    private static final MapType mapType = TypeCreator.createMapType(Types.TYPE_STRING);
+    private static final MapType mapType = TypeCreator.createMapType(PredefinedTypes.TYPE_STRING);
     private static Map<String, Properties> propertiesMap = new HashMap<>();
 
     // Read a property related to a given key and return the BString value.

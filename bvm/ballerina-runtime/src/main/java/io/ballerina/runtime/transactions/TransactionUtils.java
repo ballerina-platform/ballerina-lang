@@ -17,8 +17,8 @@
 */
 package io.ballerina.runtime.transactions;
 
-import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.async.CallableUnitCallback;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.scheduling.Scheduler;
@@ -96,7 +96,7 @@ public class TransactionUtils {
                 }
             };
             CountDownLatch completeFunction = new CountDownLatch(1);
-            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, new CallableUnitCallback() {
+            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, new Callback() {
                 @Override
                 public void notifySuccess() {
                     completeFunction.countDown();
@@ -106,7 +106,7 @@ public class TransactionUtils {
                 public void notifyFailure(BError error) {
                     completeFunction.countDown();
                 }
-            }, new HashMap<>(), Types.TYPE_ANY, strandName, metaData);
+            }, new HashMap<>(), PredefinedTypes.TYPE_ANY, strandName, metaData);
             completeFunction.await();
             return futureValue.result;
         } catch (NoSuchMethodException | ClassNotFoundException | InterruptedException e) {

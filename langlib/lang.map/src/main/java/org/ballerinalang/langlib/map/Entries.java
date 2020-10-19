@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.map;
 
 import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.TupleType;
@@ -48,7 +48,7 @@ public class Entries {
 
     public static BMap<?, ?> entries(BMap<?, ?> m) {
         Type newFieldType = getFieldType(m.getType(), "entries()");
-        TupleType entryType = TypeCreator.createTupleType(Arrays.asList(Types.TYPE_STRING, newFieldType));
+        TupleType entryType = TypeCreator.createTupleType(Arrays.asList(PredefinedTypes.TYPE_STRING, newFieldType));
         MapType entryMapConstraint = TypeCreator.createMapType(entryType);
         BMap<BString, Object> entries = ValueCreator.createMapValue(entryMapConstraint);
 

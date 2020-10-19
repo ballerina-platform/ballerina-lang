@@ -21,7 +21,7 @@ package org.ballerinalang.observe.nativeimpl;
 
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
@@ -103,7 +103,8 @@ public class Utils {
             BArray bStatsConfig = ValueCreator.createArrayValue(TypeCreator.createArrayType(STATISTIC_CONFIG_TYPE));
             int index = 0;
             for (StatisticConfig config : configs) {
-                BArray bPercentiles = ValueCreator.createArrayValue(TypeCreator.createArrayType(Types.TYPE_FLOAT));
+                BArray bPercentiles = ValueCreator.createArrayValue(TypeCreator.createArrayType(
+                        PredefinedTypes.TYPE_FLOAT));
                 int percentileIndex = 0;
                 for (Double percentile : config.getPercentiles()) {
                     bPercentiles.add(percentileIndex, percentile);

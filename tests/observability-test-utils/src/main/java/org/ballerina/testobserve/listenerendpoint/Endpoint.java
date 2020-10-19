@@ -18,7 +18,7 @@
 
 package org.ballerina.testobserve.listenerendpoint;
 
-import io.ballerina.runtime.api.Env;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -33,7 +33,7 @@ import static org.ballerina.testobserve.listenerendpoint.Constants.WEB_SERVER_NA
  */
 public class Endpoint {
 
-    public static void initEndpoint(Env env, BObject listenerEndpoint, int port) {
+    public static void initEndpoint(Environment env, BObject listenerEndpoint, int port) {
         WebServer webServer = new WebServer(port, env.getRuntime());
         listenerEndpoint.addNativeData(WEB_SERVER_NATIVE_DATA_KEY, webServer);
         Utils.logInfo("Initialized Web Server with port " + port);

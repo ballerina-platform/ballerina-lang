@@ -17,8 +17,6 @@
  */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.values.ArrayValue;
-
 import java.io.PrintWriter;
 
 /**
@@ -28,7 +26,7 @@ import java.io.PrintWriter;
  *
  * @since 1.1.0
  */
-public abstract class BError extends RuntimeException implements BRefValue {
+public abstract class BError extends RuntimeException implements BValue {
 
     public static final String ERROR_PRINT_PREFIX = "error: ";
 
@@ -84,6 +82,6 @@ public abstract class BError extends RuntimeException implements BRefValue {
      *
      * @return ballerina error stacktrace
      */
-    public abstract ArrayValue getCallStack();
+    public abstract BArray getCallStack();
 
 }

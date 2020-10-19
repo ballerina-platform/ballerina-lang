@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 
@@ -40,7 +40,7 @@ public class GetMapFunc {
     public static BFunctionPointer getMapFunc(Object obj) {
         BFunctionPointer functionPointer = (BFunctionPointer) obj;
         FunctionType functionType = (FunctionType) functionPointer.getType();
-        functionType.getParameterTypes()[0] = TypeCreator.createUnionType(List.of(Types.TYPE_ANY, Types.TYPE_ERROR), 0);
+        functionType.getParameterTypes()[0] = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_ANY, PredefinedTypes.TYPE_ERROR), 0);
         return functionPointer;
     }
 }

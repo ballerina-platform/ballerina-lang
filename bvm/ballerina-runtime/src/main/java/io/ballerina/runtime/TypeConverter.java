@@ -18,9 +18,9 @@
 package io.ballerina.runtime;
 
 import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
@@ -83,21 +83,21 @@ public class TypeConverter {
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
                 return anyToInt(inputValue, () ->
-                        ErrorUtils.createNumericConversionError(inputValue, Types.TYPE_INT));
+                        ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_INT));
             case TypeTags.DECIMAL_TAG:
                 return anyToDecimal(inputValue, () ->
-                        ErrorUtils.createNumericConversionError(inputValue, Types.TYPE_DECIMAL));
+                        ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_DECIMAL));
             case TypeTags.FLOAT_TAG:
                 return anyToFloat(inputValue, () ->
-                        ErrorUtils.createNumericConversionError(inputValue, Types.TYPE_FLOAT));
+                        ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_FLOAT));
             case TypeTags.STRING_TAG:
                 return StringUtils.fromString(anyToString(inputValue));
             case TypeTags.BOOLEAN_TAG:
                 return anyToBoolean(inputValue, () ->
-                        ErrorUtils.createNumericConversionError(inputValue, Types.TYPE_BOOLEAN));
+                        ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BOOLEAN));
             case TypeTags.BYTE_TAG:
                 return anyToByte(inputValue, () ->
-                        ErrorUtils.createNumericConversionError(inputValue, Types.TYPE_BYTE));
+                        ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BYTE));
             default:
                 throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                                                BLangExceptionHelper.getErrorMessage(
@@ -116,22 +116,22 @@ public class TypeConverter {
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
                 return anyToIntCast(inputValue, () ->
-                        ErrorUtils.createTypeCastError(inputValue, Types.TYPE_INT));
+                        ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_INT));
             case TypeTags.DECIMAL_TAG:
                 return anyToDecimal(inputValue, () ->
-                        ErrorUtils.createTypeCastError(inputValue, Types.TYPE_DECIMAL));
+                        ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_DECIMAL));
             case TypeTags.FLOAT_TAG:
                 return anyToFloatCast(inputValue, () ->
-                        ErrorUtils.createTypeCastError(inputValue, Types.TYPE_FLOAT));
+                        ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_FLOAT));
             case TypeTags.STRING_TAG:
                 return anyToStringCast(inputValue, () ->
-                        ErrorUtils.createTypeCastError(inputValue, Types.TYPE_STRING));
+                        ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_STRING));
             case TypeTags.BOOLEAN_TAG:
                 return anyToBooleanCast(inputValue, () ->
-                        ErrorUtils.createTypeCastError(inputValue, Types.TYPE_BOOLEAN));
+                        ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BOOLEAN));
             case TypeTags.BYTE_TAG:
                 return anyToByteCast(inputValue, () ->
-                        ErrorUtils.createTypeCastError(inputValue, Types.TYPE_BYTE));
+                        ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_BYTE));
             default:
                 throw ErrorUtils.createTypeCastError(inputValue, targetType);
         }
@@ -410,17 +410,17 @@ public class TypeConverter {
 
     static long anyToIntSubTypeCast(Object sourceVal, Type type, Supplier<BError> errorFunc) {
         long value = anyToIntCast(sourceVal, errorFunc);
-        if (type == Types.TYPE_INT_SIGNED_32 && isSigned32LiteralValue(value)) {
+        if (type == PredefinedTypes.TYPE_INT_SIGNED_32 && isSigned32LiteralValue(value)) {
             return value;
-        } else if (type == Types.TYPE_INT_SIGNED_16 && isSigned16LiteralValue(value)) {
+        } else if (type == PredefinedTypes.TYPE_INT_SIGNED_16 && isSigned16LiteralValue(value)) {
             return value;
-        } else if (type == Types.TYPE_INT_SIGNED_8 && isSigned8LiteralValue(value)) {
+        } else if (type == PredefinedTypes.TYPE_INT_SIGNED_8 && isSigned8LiteralValue(value)) {
             return value;
-        } else if (type == Types.TYPE_INT_UNSIGNED_32 && isUnsigned32LiteralValue(value)) {
+        } else if (type == PredefinedTypes.TYPE_INT_UNSIGNED_32 && isUnsigned32LiteralValue(value)) {
             return value;
-        } else if (type == Types.TYPE_INT_UNSIGNED_16 && isUnsigned16LiteralValue(value)) {
+        } else if (type == PredefinedTypes.TYPE_INT_UNSIGNED_16 && isUnsigned16LiteralValue(value)) {
             return value;
-        } else if (type == Types.TYPE_INT_UNSIGNED_8 && isUnsigned8LiteralValue(value)) {
+        } else if (type == PredefinedTypes.TYPE_INT_UNSIGNED_8 && isUnsigned8LiteralValue(value)) {
             return value;
         }
         throw errorFunc.get();
@@ -496,49 +496,49 @@ public class TypeConverter {
 
     public static int intToByte(long sourceVal) {
         if (!TypeChecker.isByteLiteral(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_BYTE);
+            throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_BYTE);
         }
         return ((Long) sourceVal).intValue();
     }
 
     public static long intToSigned32(long sourceVal) {
         if (!TypeChecker.isSigned32LiteralValue(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_INT_SIGNED_32);
+            throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_INT_SIGNED_32);
         }
         return sourceVal;
     }
 
     public static long intToSigned16(long sourceVal) {
         if (!isSigned16LiteralValue(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_INT_SIGNED_16);
+            throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_INT_SIGNED_16);
         }
         return sourceVal;
     }
 
     public static long intToSigned8(long sourceVal) {
         if (!isSigned8LiteralValue(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_INT_SIGNED_8);
+            throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_INT_SIGNED_8);
         }
         return sourceVal;
     }
 
     public static long intToUnsigned32(long sourceVal) {
         if (!isUnsigned32LiteralValue(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_INT_UNSIGNED_32);
+            throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_INT_UNSIGNED_32);
         }
         return sourceVal;
     }
 
     public static long intToUnsigned16(long sourceVal) {
         if (!isUnsigned16LiteralValue(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_INT_UNSIGNED_16);
+            throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_INT_UNSIGNED_16);
         }
         return sourceVal;
     }
 
     public static long intToUnsigned8(long sourceVal) {
         if (!isUnsigned8LiteralValue(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_INT_UNSIGNED_8);
+            throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_INT_UNSIGNED_8);
         }
         return sourceVal;
     }
@@ -569,7 +569,7 @@ public class TypeConverter {
 
     public static BString stringToChar(Object sourceVal) {
         if (!isCharLiteralValue(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_STRING_CHAR);
+            throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_STRING_CHAR);
         }
         return StringUtils.fromString(Objects.toString(sourceVal));
     }
@@ -581,21 +581,21 @@ public class TypeConverter {
 
 
     public static int floatToByte(double sourceVal) {
-        checkIsValidFloat(sourceVal, Types.TYPE_BYTE);
+        checkIsValidFloat(sourceVal, PredefinedTypes.TYPE_BYTE);
 
         long intVal = Math.round(sourceVal);
         if (!TypeChecker.isByteLiteral(intVal)) {
-            throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_BYTE);
+            throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_BYTE);
         }
 
         return (int) intVal;
     }
 
     public static long floatToInt(double sourceVal) {
-        checkIsValidFloat(sourceVal, Types.TYPE_INT);
+        checkIsValidFloat(sourceVal, PredefinedTypes.TYPE_INT);
 
         if (!isFloatWithinIntRange(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_INT);
+            throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_INT);
         }
 
         return (long) Math.rint(sourceVal);
@@ -603,12 +603,12 @@ public class TypeConverter {
 
     private static void checkIsValidFloat(double sourceVal, Type targetType) {
         if (Double.isNaN(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(NaN, Types.TYPE_FLOAT, targetType);
+            throw ErrorUtils.createNumericConversionError(NaN, PredefinedTypes.TYPE_FLOAT, targetType);
         }
 
         if (Double.isInfinite(sourceVal)) {
             String value = sourceVal > 0 ? POSITIVE_INFINITY : NEGATIVE_INFINITY;
-            throw ErrorUtils.createNumericConversionError(value, Types.TYPE_FLOAT, targetType);
+            throw ErrorUtils.createNumericConversionError(value, PredefinedTypes.TYPE_FLOAT, targetType);
         }
     }
 
@@ -670,7 +670,7 @@ public class TypeConverter {
             return "()";
         }
 
-        throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_STRING);
+        throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_STRING);
     }
 
     private static String anyToStringCast(Object sourceVal, Supplier<BError> errorFunc) {
@@ -765,20 +765,20 @@ public class TypeConverter {
     }
 
     public static long jFloatToBInt(float sourceVal) {
-        checkIsValidFloat(sourceVal, Types.TYPE_INT);
+        checkIsValidFloat(sourceVal, PredefinedTypes.TYPE_INT);
 
         if (!isFloatWithinIntRange(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_INT);
+            throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_INT);
         }
 
         return (long) Math.rint(sourceVal);
     }
 
     public static long jDoubleToBInt(double sourceVal) {
-        checkIsValidFloat(sourceVal, Types.TYPE_INT);
+        checkIsValidFloat(sourceVal, PredefinedTypes.TYPE_INT);
 
         if (!isFloatWithinIntRange(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(sourceVal, Types.TYPE_INT);
+            throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_INT);
         }
 
         return (long) Math.rint(sourceVal);
@@ -801,27 +801,27 @@ public class TypeConverter {
         }
 
         if (value == null && type.isNilable()) {
-            return Types.TYPE_NULL;
+            return PredefinedTypes.TYPE_NULL;
         }
 
-        if (checkIsLikeType(value, Types.TYPE_INT)) {
-            return Types.TYPE_INT;
+        if (checkIsLikeType(value, PredefinedTypes.TYPE_INT)) {
+            return PredefinedTypes.TYPE_INT;
         }
 
-        if (checkIsLikeType(value, Types.TYPE_FLOAT)) {
-            return Types.TYPE_FLOAT;
+        if (checkIsLikeType(value, PredefinedTypes.TYPE_FLOAT)) {
+            return PredefinedTypes.TYPE_FLOAT;
         }
 
-        if (checkIsLikeType(value, Types.TYPE_STRING)) {
-            return Types.TYPE_STRING;
+        if (checkIsLikeType(value, PredefinedTypes.TYPE_STRING)) {
+            return PredefinedTypes.TYPE_STRING;
         }
 
-        if (checkIsLikeType(value, Types.TYPE_BOOLEAN)) {
-            return Types.TYPE_BOOLEAN;
+        if (checkIsLikeType(value, PredefinedTypes.TYPE_BOOLEAN)) {
+            return PredefinedTypes.TYPE_BOOLEAN;
         }
 
-        if (checkIsLikeType(value, Types.TYPE_BYTE)) {
-            return Types.TYPE_BYTE;
+        if (checkIsLikeType(value, PredefinedTypes.TYPE_BYTE)) {
+            return PredefinedTypes.TYPE_BYTE;
         }
 
         Type anydataArrayType = new BArrayType(type);
@@ -829,8 +829,8 @@ public class TypeConverter {
             return anydataArrayType;
         }
 
-        if (checkIsLikeType(value, Types.TYPE_XML)) {
-            return Types.TYPE_XML;
+        if (checkIsLikeType(value, PredefinedTypes.TYPE_XML)) {
+            return PredefinedTypes.TYPE_XML;
         }
 
         Type anydataMapType = new BMapType(type);
@@ -846,7 +846,7 @@ public class TypeConverter {
         Type elementType = ((BArrayType) sourceType).getElementType();
 
         if (elementType != null) {
-            if (Types.isValueType(elementType)) {
+            if (PredefinedTypes.isValueType(elementType)) {
                 return false;
             } else if (elementType instanceof BArrayType) {
                 return isDeepStampingRequiredForArray(elementType);
@@ -860,7 +860,7 @@ public class TypeConverter {
         Type constrainedType = ((BMapType) sourceType).getConstrainedType();
 
         if (constrainedType != null) {
-            if (Types.isValueType(constrainedType)) {
+            if (PredefinedTypes.isValueType(constrainedType)) {
                 return false;
             } else if (constrainedType instanceof BMapType) {
                 return isDeepStampingRequiredForMap(constrainedType);

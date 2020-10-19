@@ -17,9 +17,11 @@
  */
 package io.ballerina.runtime.values;
 
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BString;
+
+import java.util.Map;
 
 /**
  * Class representing ballerina strings.
@@ -30,6 +32,16 @@ public interface StringValue extends BString, SimpleValue {
 
     @Override
     default Type getType() {
-        return Types.TYPE_STRING;
+        return PredefinedTypes.TYPE_STRING;
+    }
+
+    @Override
+    default Object copy(Map<Object, Object> refs) {
+        return this;
+    }
+
+    @Override
+    default Object frozenCopy(Map<Object, Object> refs) {
+        return this;
     }
 }

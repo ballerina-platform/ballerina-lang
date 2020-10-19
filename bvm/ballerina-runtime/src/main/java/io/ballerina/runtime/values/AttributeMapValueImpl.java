@@ -19,8 +19,8 @@ package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.XMLValidator;
 import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.types.BMapType;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
@@ -41,11 +41,11 @@ import static io.ballerina.runtime.values.XMLItem.XMLNS_URL_PREFIX;
 class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
 
     public AttributeMapValueImpl() {
-        super(new BMapType(Types.TYPE_STRING));
+        super(new BMapType(PredefinedTypes.TYPE_STRING));
     }
 
     public AttributeMapValueImpl(boolean readonly) {
-        super(new BMapType(Types.TYPE_STRING));
+        super(new BMapType(PredefinedTypes.TYPE_STRING));
 
         if (readonly) {
             this.freezeDirect();

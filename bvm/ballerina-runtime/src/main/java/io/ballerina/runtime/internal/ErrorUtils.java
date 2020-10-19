@@ -18,8 +18,8 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -51,7 +51,7 @@ public class ErrorUtils {
      * @return ballerina error
      */
     public static ErrorValue createInteropError(Throwable e) {
-        BMap<BString, Object> detailMap = new MapValueImpl<>(Types.TYPE_ERROR_DETAIL);
+        BMap<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
         if (e.getMessage() != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, StringUtils.fromString(e.getMessage()));
         }

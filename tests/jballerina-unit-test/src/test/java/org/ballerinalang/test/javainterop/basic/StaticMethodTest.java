@@ -18,8 +18,8 @@
 package org.ballerinalang.test.javainterop.basic;
 
 import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.values.MapValueImpl;
 import org.ballerinalang.core.model.values.BDecimal;
 import org.ballerinalang.core.model.values.BError;
@@ -142,7 +142,7 @@ public class StaticMethodTest {
 
     public static Object returnObjectOrError() {
         return ErrorCreator.createError(StringUtils.fromString("some reason"),
-                                        new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
+                                        new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
     @Test(description = "Test tuple return with null values")

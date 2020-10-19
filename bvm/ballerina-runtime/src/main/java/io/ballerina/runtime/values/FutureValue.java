@@ -17,7 +17,7 @@
   */
 package io.ballerina.runtime.values;
 
- import io.ballerina.runtime.api.async.CallableUnitCallback;
+ import io.ballerina.runtime.api.async.Callback;
  import io.ballerina.runtime.api.types.Type;
  import io.ballerina.runtime.api.values.BFuture;
  import io.ballerina.runtime.api.values.BLink;
@@ -47,12 +47,12 @@ package io.ballerina.runtime.values;
 
      public Throwable panic;
 
-     public CallableUnitCallback callback;
+     public Callback callback;
 
      Type type;
 
      @Deprecated
-     public FutureValue(Strand strand, CallableUnitCallback callback, Type constraint) {
+     public FutureValue(Strand strand, Callback callback, Type constraint) {
          this.strand = strand;
          this.callback = callback;
          this.type = new BFutureType(constraint);
@@ -131,7 +131,7 @@ package io.ballerina.runtime.values;
      * {@code CallableUnitCallback} listening on the completion of this future.
      * @return registered {@code CallableUnitCallback}
      */
-    public CallableUnitCallback getCallback() {
+    public Callback getCallback() {
         return this.callback;
     }
 

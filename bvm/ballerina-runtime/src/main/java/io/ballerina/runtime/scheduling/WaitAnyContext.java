@@ -18,7 +18,7 @@
  package io.ballerina.runtime.scheduling;
 
  import io.ballerina.runtime.TypeChecker;
- import io.ballerina.runtime.api.Types;
+ import io.ballerina.runtime.api.PredefinedTypes;
 
  /**
   * WaitContext for Wait for any action.
@@ -39,7 +39,7 @@
 
      @Override
      boolean waitCompleted(Object result) {
-         if (TypeChecker.checkIsType(result, Types.TYPE_ERROR)) {
+         if (TypeChecker.checkIsType(result, PredefinedTypes.TYPE_ERROR)) {
              return waitCount.decrementAndGet() == 0;
          }
          return true;

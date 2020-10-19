@@ -19,8 +19,8 @@
 package org.ballerinalang.langlib.test;
 
 import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
@@ -76,7 +76,8 @@ public class LangLibBooleanTest {
     private BError getError(String value) {
         BString reason = getModulePrefixedReason(BOOLEAN_LANG_LIB, BOOLEAN_PARSING_ERROR_IDENTIFIER);
         BString msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                                           Types.TYPE_STRING, value, Types.TYPE_BOOLEAN);
+                                                           PredefinedTypes.TYPE_STRING, value,
+                                                           PredefinedTypes.TYPE_BOOLEAN);
         return ErrorCreator.createError(reason, msg);
     }
 }

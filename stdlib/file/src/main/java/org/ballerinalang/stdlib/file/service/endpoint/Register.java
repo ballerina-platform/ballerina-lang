@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.file.service.endpoint;
 
-import io.ballerina.runtime.api.Env;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.values.BMap;
@@ -44,7 +44,7 @@ import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.F
 
 public class Register {
 
-    public static Object register(Env env, BObject listener, BObject service, Object name) {
+    public static Object register(Environment env, BObject listener, BObject service, Object name) {
         BMap serviceEndpointConfig = listener.getMapValue(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG);
         try {
             final Map<String, AttachedFunctionType> resourceRegistry = getResourceRegistry(service);

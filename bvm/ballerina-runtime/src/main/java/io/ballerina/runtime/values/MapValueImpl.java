@@ -24,9 +24,9 @@ import io.ballerina.runtime.JSONUtils;
 import io.ballerina.runtime.MapUtils;
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
@@ -111,7 +111,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     public MapValueImpl() {
         super();
-        type = Types.TYPE_MAP;
+        type = PredefinedTypes.TYPE_MAP;
     }
 
     public Long getIntValue(BString key) {
@@ -522,7 +522,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             Object value = next.getValue();
 
             List<Type> types = new LinkedList<>();
-            types.add(Types.TYPE_STRING);
+            types.add(PredefinedTypes.TYPE_STRING);
             types.add(TypeChecker.getType(value));
             BTupleType tupleType = new BTupleType(types);
 
@@ -573,7 +573,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     private void initializeIteratorNextReturnType() {
         Type type;
-        if (this.type.getTag() == Types.TYPE_MAP.getTag()) {
+        if (this.type.getTag() == PredefinedTypes.TYPE_MAP.getTag()) {
             BMapType mapType = (BMapType) this.type;
             type = mapType.getConstrainedType();
         } else {

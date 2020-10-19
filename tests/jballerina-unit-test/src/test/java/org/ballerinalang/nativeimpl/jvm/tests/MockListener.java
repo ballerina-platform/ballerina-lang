@@ -17,9 +17,9 @@
 
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import io.ballerina.runtime.api.Env;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Runtime;
-import io.ballerina.runtime.api.async.CallableUnitCallback;
+import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -40,12 +40,12 @@ public class MockListener {
         return null;
     }
 
-    public static Object invokeResource(Env env, BString name) throws InterruptedException {
+    public static Object invokeResource(Environment env, BString name) throws InterruptedException {
         if (service != null) {
             CountDownLatch latch = new CountDownLatch(1);
             Runtime runtime = env.getRuntime();
             runtime.invokeMethodAsync(service, name.getValue(), null, null,
-                                      new CallableUnitCallback() {
+                                      new Callback() {
                                           @Override
                                           public void notifySuccess() {
                                               latch.countDown();

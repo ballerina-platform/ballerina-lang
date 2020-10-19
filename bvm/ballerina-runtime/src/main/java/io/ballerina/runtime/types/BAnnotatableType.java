@@ -17,13 +17,12 @@
  */
 package io.ballerina.runtime.types;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.ValueCreator;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.values.MapValue;
 
 /**
  * {@code AnnotatableType} represents a type description which contains annotations.
@@ -38,7 +37,7 @@ public abstract class BAnnotatableType extends BType implements AnnotatableType 
         super(typeName, pkg, valueClass);
     }
 
-    public void setAnnotations(MapValue<BString, Object> annotations) {
+    public void setAnnotations(BMap<BString, Object> annotations) {
         this.annotations = annotations;
     }
 

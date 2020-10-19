@@ -31,7 +31,7 @@ import io.ballerina.runtime.scheduling.Strand;
  *
  * @since 1.1.0
  */
-public interface BTypedesc extends BRefValue {
+public interface BTypedesc extends BValue {
 
     /**
      * Returns the {@code BType} of the value describe by this type descriptor.

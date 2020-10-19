@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.values.ErrorValue;
@@ -394,7 +394,7 @@ public class RefTypeTests {
     }
 
     public static TypedescValue getTypeDesc() {
-        return new TypedescValueImpl(Types.TYPE_XML);
+        return new TypedescValueImpl(PredefinedTypes.TYPE_XML);
     }
 
     public static Object useFuture(FutureValue future) {

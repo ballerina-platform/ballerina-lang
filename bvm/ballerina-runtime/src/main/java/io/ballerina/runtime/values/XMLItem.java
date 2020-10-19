@@ -21,8 +21,8 @@ import io.ballerina.runtime.XMLFactory;
 import io.ballerina.runtime.XMLNodeType;
 import io.ballerina.runtime.XMLValidator;
 import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -82,7 +82,7 @@ public final class XMLItem extends XMLValue implements BXMLItem {
         attributes = new AttributeMapValueImpl(false);
         addDefaultNamespaceAttribute(name, attributes);
         probableParents = new ArrayList<>();
-        this.type = Types.TYPE_ELEMENT;
+        this.type = PredefinedTypes.TYPE_ELEMENT;
     }
 
     /**
@@ -92,7 +92,7 @@ public final class XMLItem extends XMLValue implements BXMLItem {
      */
     public XMLItem(QName name) {
         this(name, new XMLSequence(new ArrayList<>()));
-        this.type = Types.TYPE_ELEMENT;
+        this.type = PredefinedTypes.TYPE_ELEMENT;
     }
 
     public XMLItem(QName name, boolean readonly) {
@@ -106,7 +106,7 @@ public final class XMLItem extends XMLValue implements BXMLItem {
         addDefaultNamespaceAttribute(name, attributes);
         probableParents = new ArrayList<>();
 
-        this.type = readonly ? Types.TYPE_READONLY_ELEMENT : Types.TYPE_ELEMENT;
+        this.type = readonly ? PredefinedTypes.TYPE_READONLY_ELEMENT : PredefinedTypes.TYPE_ELEMENT;
     }
 
     private void addDefaultNamespaceAttribute(QName name, AttributeMapValueImpl attributes) {

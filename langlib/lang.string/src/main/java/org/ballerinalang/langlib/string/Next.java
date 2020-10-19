@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -48,7 +48,8 @@ public class Next {
             char character = stringCharacterIterator.current();
             stringCharacterIterator.next();
             Object charAsStr = StringUtils.fromString(String.valueOf(character));
-            return ValueCreator.createRecordValue(ValueCreator.createMapValue(Types.STRING_ITR_NEXT_RETURN_TYPE),
+            return ValueCreator.createRecordValue(ValueCreator.createMapValue(
+                    PredefinedTypes.STRING_ITR_NEXT_RETURN_TYPE),
                                                   charAsStr);
         }
 

@@ -82,11 +82,12 @@ public class JvmConstants {
 
     // types related classes
     public static final String TYPE = "io/ballerina/runtime/api/types/Type";
-    public static final String TYPES = "io/ballerina/runtime/api/Types";
+    public static final String PREDEFINED_TYPES = "io/ballerina/runtime/api/PredefinedTypes";
 
     public static final String ARRAY_TYPE = "io/ballerina/runtime/api/types/ArrayType";
     public static final String MAP_TYPE = "io/ballerina/runtime/api/types/MapType";
-    public static final String B_XML_TYPE = "io/ballerina/runtime/api/types/XMLType";
+    public static final String XML_TYPE = "io/ballerina/runtime/api/types/XMLType";
+    public static final String JSON_TYPE = "io/ballerina/runtime/api/types/JSONType";
     public static final String STREAM_TYPE = "io/ballerina/runtime/api/types/StreamType";
     public static final String TABLE_TYPE = "io/ballerina/runtime/api/types/TableType";
     public static final String UNION_TYPE = "io/ballerina/runtime/api/types/UnionType";
@@ -98,10 +99,22 @@ public class JvmConstants {
     public static final String TUPLE_TYPE = "io/ballerina/runtime/api/types/TupleType";
     public static final String FUNCTION_TYPE = "io/ballerina/runtime/api/types/FunctionType";
     public static final String TYPEDESC_TYPE = "io/ballerina/runtime/api/types/TypedescType";
-    public static final String BFIELD = "io/ballerina/runtime/api/types/Field";
+    public static final String FIELD = "io/ballerina/runtime/api/types/Field";
     public static final String ATTACHED_FUNCTION = "io/ballerina/runtime/api/types/AttachedFunctionType";
     public static final String FINITE_TYPE = "io/ballerina/runtime/api/types/FiniteType";
     public static final String FUTURE_TYPE = "io/ballerina/runtime/api/types/FutureType";
+    public static final String INTEGER_TYPE = "io/ballerina/runtime/api/types/IntegerType";
+    public static final String BYTE_TYPE = "io/ballerina/runtime/api/types/ByteType";
+    public static final String FLOAT_TYPE = "io/ballerina/runtime/api/types/FloatType";
+    public static final String STRING_TYPE = "io/ballerina/runtime/api/types/StringType";
+    public static final String BOOLEAN_TYPE = "io/ballerina/runtime/api/types/BooleanType";
+    public static final String DECIMAL_TYPE = "io/ballerina/runtime/api/types/DecimalType";
+    public static final String READONLY_TYPE = "io/ballerina/runtime/api/types/ReadonlyType";
+    public static final String ANY_TYPE = "io/ballerina/runtime/api/types/AnyType";
+    public static final String ANYDATA_TYPE = "io/ballerina/runtime/api/types/AnydataType";
+    public static final String NEVER_TYPE = "io/ballerina/runtime/api/types/NeverType";
+    public static final String NULL_TYPE = "io/ballerina/runtime/api/types/NullType";
+    public static final String HANDLE_TYPE = "io/ballerina/runtime/api/types/HandleType";
 
 
     public static final String TYPE_IMPL = "io/ballerina/runtime/types/BType";
@@ -123,7 +136,7 @@ public class JvmConstants {
     public static final String ATTACHED_FUNCTION_IMPL = "io/ballerina/runtime/types/AttachedFunction";
     public static final String FINITE_TYPE_IMPL = "io/ballerina/runtime/types/BFiniteType";
     public static final String FUTURE_TYPE_IMPL = "io/ballerina/runtime/types/BFutureType";
-    public static final String MODULE = "io/ballerina/runtime/api/async/Module";
+    public static final String MODULE = "io/ballerina/runtime/api/Module";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/types/BTypeIdSet";
     public static final String TYPE_ID = "io/ballerina/runtime/types/BTypeIdSet$TypeId";
 
@@ -133,8 +146,8 @@ public class JvmConstants {
     public static final String JSON_UTILS = "io/ballerina/runtime/JSONUtils";
     public static final String STRAND_CLASS = "io/ballerina/runtime/scheduling/Strand";
     public static final String STRAND_METADATA = "io/ballerina/runtime/api/async/StrandMetadata";
-    public static final String BAL_ENV = "io/ballerina/runtime/api/Env";
-    public static final String BAL_FUTURE = "io/ballerina/runtime/api/async/Future";
+    public static final String BAL_ENV = "io/ballerina/runtime/api/Environment";
+    public static final String BAL_FUTURE = "io/ballerina/runtime/api/Future";
     public static final String TYPE_CONVERTER = "io/ballerina/runtime/TypeConverter";
     public static final String STRAND_STATE = "io/ballerina/runtime/scheduling/State";
     public static final String VALUE_CREATOR = "io/ballerina/runtime/values/ValueCreator";

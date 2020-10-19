@@ -23,7 +23,7 @@ import io.ballerina.runtime.TypeConverter;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
@@ -266,9 +266,9 @@ public class CloneWithType {
                 }
                 return newTuple;
             case TypeTags.JSON_TAG:
-                newArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(Types.TYPE_JSON));
+                newArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_JSON));
                 for (int i = 0; i < array.size(); i++) {
-                    Object newValue = convert(array.get(i), Types.TYPE_JSON, unresolvedValues, t, strand);
+                    Object newValue = convert(array.get(i), PredefinedTypes.TYPE_JSON, unresolvedValues, t, strand);
                     newArray.add(i, newValue);
                 }
                 return newArray;

@@ -18,7 +18,7 @@
 package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BLink;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
@@ -39,13 +39,13 @@ public class XMLPi extends XMLNonElementItem {
     public XMLPi(String data, String target) {
         this.data = data;
         this.target = target;
-        this.type = Types.TYPE_PROCESSING_INSTRUCTION;
+        this.type = PredefinedTypes.TYPE_PROCESSING_INSTRUCTION;
     }
 
     public XMLPi(String data, String target, boolean readonly) {
         this.data = data;
         this.target = target;
-        this.type = readonly ? Types.TYPE_READONLY_PROCESSING_INSTRUCTION : Types.TYPE_PROCESSING_INSTRUCTION;
+        this.type = readonly ? PredefinedTypes.TYPE_READONLY_PROCESSING_INSTRUCTION : PredefinedTypes.TYPE_PROCESSING_INSTRUCTION;
     }
 
     @Override

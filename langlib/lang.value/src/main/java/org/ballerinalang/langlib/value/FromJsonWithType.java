@@ -22,7 +22,7 @@ import io.ballerina.runtime.TypeConverter;
 import io.ballerina.runtime.XMLFactory;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
@@ -203,7 +203,7 @@ public class FromJsonWithType {
                 }
                 return newTuple;
             case TypeTags.JSON_TAG:
-                newArray = ValueCreator.createArrayValue((ArrayType) Types.TYPE_JSON_ARRAY);
+                newArray = ValueCreator.createArrayValue((ArrayType) PredefinedTypes.TYPE_JSON_ARRAY);
                 for (int i = 0; i < array.size(); i++) {
                     Object newValue = convert(array.get(i), targetType, unresolvedValues, t);
                     newArray.add(i, newValue);

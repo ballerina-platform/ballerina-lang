@@ -58,23 +58,6 @@ public class StringUtils {
     private static final String STR_CYCLE = "...";
 
     /**
-     * Check whether two strings are equal in value.
-     * 
-     * @param s1 First string
-     * @param s2 Second string
-     * @return flag indicating whether the two string values are equal
-     */
-    public static boolean isEqual(String s1, String s2) {
-        if (s1 == s2) {
-            return true;
-        } else if (s1 == null || s2 == null) {
-            return false;
-        } else {
-            return s1.equals(s2);
-        }
-    }
-
-    /**
      * Convert input stream to String.
      *
      * @param in Input stream to be converted to string
@@ -112,17 +95,6 @@ public class StringUtils {
             throw new BallerinaException("Error occurred when reading input stream with the charset" + charset, e);
         }
         return StringUtils.fromString(textBuilder.toString());
-    }
-
-    public static String getStringAt(String s, long index) {
-        if (index < 0 || index >= s.length()) {
-            throw ErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
-                                                                   INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                                           fromString("string index out of range: index: " + index + ", size: " +
-                                                               s.length()));
-        }
-
-        return String.valueOf(s.charAt((int) index));
     }
 
     public static BString getStringAt(BString s, long index) {

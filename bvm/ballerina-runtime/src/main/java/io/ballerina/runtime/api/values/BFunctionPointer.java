@@ -18,7 +18,6 @@
 package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
-import io.ballerina.runtime.values.FutureValue;
 
 import java.util.function.Function;
 
@@ -32,7 +31,7 @@ import java.util.function.Function;
  *
  * @since 1.1.0
  */
-public interface BFunctionPointer<T, R> extends BRefValue {
+public interface BFunctionPointer<T, R> extends BValue {
 
     /**
      * Execute the {@code Function} with given parameter array. Method can be used to call function pointer from
@@ -52,7 +51,7 @@ public interface BFunctionPointer<T, R> extends BRefValue {
      * @param metaData  meta data for newly creating strand which is used to execute the function pointer.
      * @return Future value received from invoking asynchronous function.
      */
-    FutureValue asyncCall(Object[] args, StrandMetadata metaData);
+    BFuture asyncCall(Object[] args, StrandMetadata metaData);
 
     /**
      * Schedule and asynchronously execute the {@code Function} with given parameter array. Method can be used to
@@ -63,7 +62,7 @@ public interface BFunctionPointer<T, R> extends BRefValue {
      * @param metaData             meta data for newly creating strand which is used to execute the function pointer.
      * @return Future value received from invoking asynchronous function.
      */
-    FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction, StrandMetadata metaData);
+    BFuture asyncCall(Object[] args, Function<Object, Object> resultHandleFunction, StrandMetadata metaData);
 
     /**
      * Returns the {@code Function} the FP is pointed to.

@@ -21,9 +21,9 @@ import io.ballerina.runtime.JSONParser;
 import io.ballerina.runtime.JSONUtils;
 import io.ballerina.runtime.XMLFactory;
 import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.types.BMapType;
@@ -322,31 +322,31 @@ public class ArgumentParser {
             switch (elementType.getTag()) {
                 case TypeTags.ANY_TAG:
                 case TypeTags.STRING_TAG:
-                    ArrayValue stringArrayArgs = new ArrayValueImpl(new BArrayType(Types.TYPE_STRING));
+                    ArrayValue stringArrayArgs = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_STRING));
                     for (int i = 0; i < args.size(); i++) {
                         stringArrayArgs.add(i, args.get(i));
                     }
                     return stringArrayArgs;
                 case TypeTags.INT_TAG:
-                    ArrayValue intArrayArgs = new ArrayValueImpl(new BArrayType(Types.TYPE_INT));
+                    ArrayValue intArrayArgs = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_INT));
                     for (int i = 0; i < args.size(); i++) {
                         intArrayArgs.add(i, getIntegerValue(args.get(i)));
                     }
                     return intArrayArgs;
                 case TypeTags.FLOAT_TAG:
-                    ArrayValue floatArrayArgs = new ArrayValueImpl(new BArrayType(Types.TYPE_FLOAT));
+                    ArrayValue floatArrayArgs = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_FLOAT));
                     for (int i = 0; i < args.size(); i++) {
                         floatArrayArgs.add(i, getFloatValue(args.get(i)));
                     }
                     return floatArrayArgs;
                 case TypeTags.BOOLEAN_TAG:
-                    ArrayValue booleanArrayArgs = new ArrayValueImpl(new BArrayType(Types.TYPE_BOOLEAN));
+                    ArrayValue booleanArrayArgs = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_BOOLEAN));
                     for (int i = 0; i < args.size(); i++) {
                         booleanArrayArgs.add(i, getBooleanValue(args.get(i)) ? 1 : 0);
                     }
                     return booleanArrayArgs;
                 case TypeTags.BYTE_TAG:
-                    ArrayValue byteArrayArgs = new ArrayValueImpl(new BArrayType(Types.TYPE_BYTE));
+                    ArrayValue byteArrayArgs = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_BYTE));
                     for (int i = 0; i < args.size(); i++) {
                         byteArrayArgs.add(i, (byte) getByteValue(args.get(i)));
                     }
@@ -415,12 +415,12 @@ public class ArgumentParser {
     private static Object parseUnionArg(BUnionType type, String unionArg) {
         List<Type> unionMemberTypes = type.getMemberTypes();
 
-        if (unionMemberTypes.contains(Types.TYPE_NULL) && NIL.equals(unionArg)) {
+        if (unionMemberTypes.contains(PredefinedTypes.TYPE_NULL) && NIL.equals(unionArg)) {
             return null;
         }
 
-        if (unionMemberTypes.contains(Types.TYPE_STRING)) {
-            return getBValue(Types.TYPE_STRING, unionArg);
+        if (unionMemberTypes.contains(PredefinedTypes.TYPE_STRING)) {
+            return getBValue(PredefinedTypes.TYPE_STRING, unionArg);
         }
 
         for (int memberTypeIndex = 0; memberTypeIndex < unionMemberTypes.size(); ) {

@@ -17,11 +17,11 @@
 */
 package io.ballerina.runtime.types;
 
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeFlags;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.AnyType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
@@ -48,7 +48,7 @@ public class BAnyType extends BType implements AnyType {
 
         if (!readonly) {
             BAnyType immutableAnyType = new BAnyType(TypeConstants.READONLY_ANY_TNAME, pkg, true);
-            this.immutableType = new BIntersectionType(pkg, new Type[]{ this, Types.TYPE_READONLY}, immutableAnyType,
+            this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY}, immutableAnyType,
                                                        TypeFlags.asMask(TypeFlags.NILABLE), true);
         }
     }

@@ -20,9 +20,9 @@ package org.ballerinalang.langlib.error;
 import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
-import io.ballerina.runtime.api.async.Module;
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
@@ -56,7 +56,8 @@ public class StackTrace {
         callStackObjType.setAttachedFunctions(new AttachedFunctionType[]{});
         callStackObjType
                 .setFields(Collections.singletonMap("callStack",
-                                                    TypeCreator.createField(TypeCreator.createArrayType(Types.TYPE_ANY),
+                                                    TypeCreator.createField(TypeCreator.createArrayType(
+                                                            PredefinedTypes.TYPE_ANY),
                                                                             null, 0)));
 
         CallStack callStack = new CallStack(callStackObjType);

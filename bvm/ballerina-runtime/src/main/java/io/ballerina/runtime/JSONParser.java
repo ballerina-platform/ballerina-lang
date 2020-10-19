@@ -18,9 +18,9 @@
 package io.ballerina.runtime;
 
 import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.types.BArrayType;
 import io.ballerina.runtime.types.BMapType;
@@ -330,7 +330,7 @@ public class JSONParser {
             if (currentJsonNode != null) {
                 this.nodesStack.push(currentJsonNode);
             }
-            currentJsonNode = new MapValueImpl<>(new BMapType(Types.TYPE_JSON));
+            currentJsonNode = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
             return FIRST_FIELD_READY_STATE;
         }
 
@@ -338,7 +338,7 @@ public class JSONParser {
             if (currentJsonNode != null) {
                 this.nodesStack.push(currentJsonNode);
             }
-            currentJsonNode = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
+            currentJsonNode = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
             return FIRST_ARRAY_ELEMENT_READY_STATE;
         }
 

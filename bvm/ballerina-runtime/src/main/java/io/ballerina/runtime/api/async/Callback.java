@@ -25,8 +25,7 @@ import io.ballerina.runtime.api.values.BError;
  *
  * @since 0.995.0
  */
-//TODO: -> Callback
-public interface CallableUnitCallback {
+public interface Callback {
 
     /**
      * This should be called when you want to notify that your operation

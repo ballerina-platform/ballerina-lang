@@ -17,9 +17,9 @@
  */
 package io.ballerina.runtime;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
@@ -84,7 +84,7 @@ public class TableJSONDataSource implements JSONDataSource {
 
     @Override
     public Object build() {
-        ArrayValue values = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
+        ArrayValue values = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
         BIterator itr = this.tableValue.getIterator();
         while (itr.hasNext()) {
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
@@ -106,7 +106,7 @@ public class TableJSONDataSource implements JSONDataSource {
 
         @Override
         public Object transform(MapValueImpl record) {
-            MapValue<BString, Object> objNode = new MapValueImpl<>(new BMapType(Types.TYPE_JSON));
+            MapValue<BString, Object> objNode = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
             BStructureType structType = (BStructureType) record.getType();
             BField[] structFields = null;
             if (structType != null) {
@@ -174,7 +174,7 @@ public class TableJSONDataSource implements JSONDataSource {
 
     private static Object getStructData(BMap data, BField[] structFields, int index, BString key) {
         if (structFields == null) {
-            ArrayValue jsonArray = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
+            ArrayValue jsonArray = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
             if (data != null) {
                 BArray dataArray = data.getArrayValue(key);
                 for (int i = 0; i < dataArray.size(); i++) {
@@ -198,7 +198,7 @@ public class TableJSONDataSource implements JSONDataSource {
             }
             return jsonArray;
         } else {
-            MapValue<BString, Object> jsonData = new MapValueImpl<>(new BMapType(Types.TYPE_JSON));
+            MapValue<BString, Object> jsonData = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
             boolean structError = true;
             if (data != null) {
                 Type internalType = structFields[index].type;
@@ -231,7 +231,7 @@ public class TableJSONDataSource implements JSONDataSource {
 
     private static Object getDataArray(MapValue df, BString key) {
         BArray dataArray = df.getArrayValue(key);
-        ArrayValue jsonArray = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
+        ArrayValue jsonArray = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
         for (int i = 0; i < dataArray.size(); i++) {
             jsonArray.append(dataArray.get(i));
         }

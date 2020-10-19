@@ -25,7 +25,7 @@ package io.ballerina.runtime.api.values;
  * @param <T> The type of elements returned by this iterator
  * @since 1.1.0
  */
-public interface BIterator<T> extends BRefValue {
+public interface BIterator<T> extends BValue {
 
     /**
      * Returns {@code true} if the iteration has more elements.

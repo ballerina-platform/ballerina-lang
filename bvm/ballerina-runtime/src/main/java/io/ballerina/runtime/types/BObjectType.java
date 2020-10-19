@@ -17,9 +17,9 @@
  */
 package io.ballerina.runtime.types;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.ValueCreator;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;

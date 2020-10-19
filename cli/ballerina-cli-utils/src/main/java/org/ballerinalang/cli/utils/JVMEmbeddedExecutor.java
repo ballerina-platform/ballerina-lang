@@ -19,7 +19,7 @@
 package org.ballerinalang.cli.utils;
 
 import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -113,7 +113,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final BFuture out = scheduler.schedule(new Object[1], func, null, null, null,
-                                                   Types.TYPE_NULL, strandName, metaData);
+                                                   PredefinedTypes.TYPE_NULL, strandName, metaData);
             scheduler.start();
             final Throwable t = out.getPanic();
             if (t != null) {
@@ -156,7 +156,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
             Object[] entryFuncArgs =
                     ArgumentParser.extractEntryFuncArgs(new RuntimeUtils.ParamInfo[]{
                             new RuntimeUtils.ParamInfo(false, "%1", TypeCreator
-                                                               .createArrayType(Types.TYPE_STRING, stringArgs.length))
+                                                               .createArrayType(PredefinedTypes.TYPE_STRING, stringArgs.length))
                     }, stringArgs, true);
 
             //TODO fix following method invoke to scheduler.schedule()
@@ -171,7 +171,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final BFuture out = scheduler.schedule(entryFuncArgs, func, null, null, null,
-                                                       Types.TYPE_NULL, strandName, metaData);
+                                                   PredefinedTypes.TYPE_NULL, strandName, metaData);
             scheduler.start();
             final Throwable t = out.getPanic();
             if (t != null) {
@@ -221,7 +221,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final BFuture out = scheduler.schedule(new Object[1], func, null, null, null,
-                                                       Types.TYPE_NULL, strandName, metaData);
+                                                   PredefinedTypes.TYPE_NULL, strandName, metaData);
             scheduler.start();
             final Throwable t = out.getPanic();
             if (t != null) {

@@ -18,7 +18,7 @@
 package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BLink;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMCommentImpl;
@@ -37,12 +37,12 @@ public class XMLComment extends XMLNonElementItem {
 
     public XMLComment(String data) {
         this.data = data;
-        this.type = Types.TYPE_COMMENT;
+        this.type = PredefinedTypes.TYPE_COMMENT;
     }
 
     public XMLComment(String data, boolean readonly) {
         this.data = data;
-        this.type = readonly ? Types.TYPE_READONLY_COMMENT : Types.TYPE_COMMENT;
+        this.type = readonly ? PredefinedTypes.TYPE_READONLY_COMMENT : PredefinedTypes.TYPE_COMMENT;
     }
 
     @Override

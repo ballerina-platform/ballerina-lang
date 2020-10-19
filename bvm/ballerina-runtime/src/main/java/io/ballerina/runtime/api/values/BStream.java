@@ -27,7 +27,7 @@ import io.ballerina.runtime.api.types.Type;
  *
  * @since 1.2.0
  */
-public interface BStream extends BRefValue {
+public interface BStream extends BValue {
     /**
      * Returns the constrained {@code BType} of the stream.
      *

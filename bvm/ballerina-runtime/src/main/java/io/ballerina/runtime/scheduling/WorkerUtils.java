@@ -18,7 +18,7 @@
  package io.ballerina.runtime.scheduling;
 
  import io.ballerina.runtime.TypeChecker;
- import io.ballerina.runtime.api.Types;
+ import io.ballerina.runtime.api.PredefinedTypes;
  import io.ballerina.runtime.values.ChannelDetails;
  import io.ballerina.runtime.values.ErrorValue;
  import io.ballerina.runtime.values.RefValue;
@@ -37,7 +37,7 @@
       * @param channels worker date channels that current worker interacts
       */
      public static void handleWorkerError(RefValue value, Strand strand, ChannelDetails[] channels) {
-         if (TypeChecker.checkIsType(value, Types.TYPE_ERROR)) {
+         if (TypeChecker.checkIsType(value, PredefinedTypes.TYPE_ERROR)) {
              strand.handleChannelError(channels, (ErrorValue) value);
          }
      }

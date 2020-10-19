@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.values;
 
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
@@ -40,7 +40,7 @@ public interface IteratorValue extends RefValue, BIterator {
 
     @Override
     default Type getType() {
-        return Types.TYPE_ITERATOR;
+        return PredefinedTypes.TYPE_ITERATOR;
     }
 
     @Override

@@ -103,6 +103,8 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANYDATA_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
@@ -110,14 +112,17 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ATTACHED_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ATTACHED_FUNCTION_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPE_INSTANCES_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE;
@@ -125,14 +130,18 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FINITE_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FLOAT_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTEGER_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
@@ -143,10 +152,16 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_TYPE_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NEVER_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NULL_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_DETAIL_TYPE_METHOD;
@@ -156,6 +171,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
@@ -163,11 +179,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
@@ -1196,7 +1212,68 @@ class JvmTypeGen {
             }
         }
 
-        mv.visitFieldInsn(GETSTATIC, TYPES, typeFieldName, String.format("L%s;", TYPE));
+        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, typeFieldName, String.format("L%s;", loadTypeClass(bType)));
+    }
+
+    private static String loadTypeClass(BType bType) {
+        if (bType == null || bType.tag == TypeTags.NIL) {
+            return NULL_TYPE;
+        } else {
+            switch (bType.tag) {
+                case TypeTags.NEVER:
+                    return NEVER_TYPE;
+                case TypeTags.INT:
+                    return INTEGER_TYPE;
+                case TypeTags.SIGNED32_INT:
+                    return INTEGER_TYPE;
+                case TypeTags.SIGNED16_INT:
+                    return INTEGER_TYPE;
+                case TypeTags.SIGNED8_INT:
+                    return INTEGER_TYPE;
+                case TypeTags.UNSIGNED32_INT:
+                    return INTEGER_TYPE;
+                case TypeTags.UNSIGNED16_INT:
+                    return INTEGER_TYPE;
+                case TypeTags.UNSIGNED8_INT:
+                    return INTEGER_TYPE;
+                case TypeTags.FLOAT:
+                    return FLOAT_TYPE;
+                case TypeTags.STRING:
+                    return STRING_TYPE;
+                case TypeTags.CHAR_STRING:
+                    return STRING_TYPE;
+                case TypeTags.DECIMAL:
+                    return DECIMAL_TYPE;
+                case TypeTags.BOOLEAN:
+                    return BOOLEAN_TYPE;
+                case TypeTags.BYTE:
+                    return BYTE_TYPE;
+                case TypeTags.ANY:
+                    return ANY_TYPE;
+                case TypeTags.ANYDATA:
+                    return ANYDATA_TYPE;
+                case TypeTags.JSON:
+                    return JSON_TYPE;
+                case TypeTags.XML:
+                    return XML_TYPE;
+                case TypeTags.XML_ELEMENT:
+                    return Symbols.isFlagOn(bType.flags, Flags.READONLY) ? TYPE : XML_TYPE;
+                case TypeTags.XML_PI:
+                    return Symbols.isFlagOn(bType.flags, Flags.READONLY) ? TYPE : XML_TYPE;
+                case TypeTags.XML_COMMENT:
+                    return Symbols.isFlagOn(bType.flags, Flags.READONLY) ? TYPE : XML_TYPE;
+                case TypeTags.XML_TEXT:
+                    return XML_TYPE;
+                case TypeTags.OBJECT:
+                    return (bType instanceof BServiceType) ? SERVICE_TYPE : OBJECT_TYPE;
+                case TypeTags.HANDLE:
+                    return HANDLE_TYPE;
+                case TypeTags.READONLY:
+                    return READONLY_TYPE;
+                default:
+                    return TYPE;
+            }
+        }
     }
 
     /**
@@ -1361,7 +1438,7 @@ class JvmTypeGen {
         PackageID packageID = errorType.tsymbol.pkgID;
         // TODO: Builtin error type will be loaded from BTypes java class. Need to handle this properly.
         if (packageID.orgName.value.equals(BALLERINA) && packageID.name.value.equals(BUILT_IN_PACKAGE_NAME)) {
-            mv.visitFieldInsn(GETSTATIC, TYPES, TYPES_ERROR, String.format("L%s;", ERROR_TYPE));
+            mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPES_ERROR, String.format("L%s;", ERROR_TYPE));
             return;
         }
         String typeOwner =

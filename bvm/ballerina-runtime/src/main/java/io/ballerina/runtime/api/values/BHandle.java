@@ -24,7 +24,7 @@ package io.ballerina.runtime.api.values;
  *  
  * @since 1.1.0
  */
-public interface BHandle extends BRefValue {
+public interface BHandle extends BValue {
 
     /**
      * Returns the internal value of the handle.

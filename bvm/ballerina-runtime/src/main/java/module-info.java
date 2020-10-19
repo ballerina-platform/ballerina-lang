@@ -20,7 +20,6 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.api.async;
     exports io.ballerina.runtime.api.values;
     exports io.ballerina.runtime.api.types;
-    exports io.ballerina.runtime.api.commons;
 
     exports io.ballerina.runtime.util;
     exports io.ballerina.runtime.util.exceptions;

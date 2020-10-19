@@ -18,9 +18,10 @@
 package org.ballerinalang.test.javainterop;
 
 import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.types.BArrayType;
@@ -290,7 +291,7 @@ public class RefTypeWithBValueAPITests {
     // This scenario is for map value to be passed to interop and return array value.
     public static io.ballerina.runtime.api.values.BArray
     getArrayValueFromMap(io.ballerina.runtime.api.values.BString key, io.ballerina.runtime.api.values.BMap mapValue) {
-        io.ballerina.runtime.api.values.BArray arrayValue = new ArrayValueImpl(new BArrayType(Types.TYPE_INT));
+        BArray arrayValue = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_INT));
         arrayValue.add(0, 1);
         long fromMap = (long) mapValue.get(key);
         arrayValue.add(1, fromMap);
@@ -383,14 +384,13 @@ public class RefTypeWithBValueAPITests {
     public static BError acceptStringErrorReturnWhichThrowsCheckedException(
             io.ballerina.runtime.api.values.BString msg)
             throws JavaInteropTestCheckedException {
-        return ErrorCreator.createError(msg, new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
+        return ErrorCreator.createError(msg, new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
-    public static io.ballerina.runtime.api.values.BArray
-    getArrayValueFromMapWhichThrowsCheckedException(
-            io.ballerina.runtime.api.values.BString key, io.ballerina.runtime.api.values.BMap mapValue)
+    public static BArray getArrayValueFromMapWhichThrowsCheckedException(io.ballerina.runtime.api.values.BString key,
+                                                                         io.ballerina.runtime.api.values.BMap mapValue)
             throws JavaInteropTestCheckedException {
-        io.ballerina.runtime.api.values.BArray arrayValue = new ArrayValueImpl(new BArrayType(Types.TYPE_INT));
+        BArray arrayValue = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_INT));
         arrayValue.add(0, 1);
         long fromMap = (long) mapValue.get(key);
         arrayValue.add(1, fromMap);
@@ -407,7 +407,7 @@ public class RefTypeWithBValueAPITests {
 
     public static Object getJson() {
         MapValueImpl<io.ballerina.runtime.api.values.BString, io.ballerina.runtime.api.values.BString> map =
-                new MapValueImpl<>(Types.TYPE_JSON);
+                new MapValueImpl<>(PredefinedTypes.TYPE_JSON);
         map.put(StringUtils.fromString("name"), StringUtils.fromString("John"));
         return map;
     }
@@ -416,13 +416,13 @@ public class RefTypeWithBValueAPITests {
             io.ballerina.runtime.api.values.BString> getJsonObject() {
         io.ballerina.runtime.api.values.BMap<io.ballerina.runtime.api.values.BString,
                 io.ballerina.runtime.api.values.BString>
-                map = new MapValueImpl<>(Types.TYPE_JSON);
+                map = new MapValueImpl<>(PredefinedTypes.TYPE_JSON);
         map.put(StringUtils.fromString("name"), StringUtils.fromString("Doe"));
         return map;
     }
 
     public static io.ballerina.runtime.api.values.BArray getJsonArray() {
-        io.ballerina.runtime.api.values.BArray array = new ArrayValueImpl(new BArrayType(Types.TYPE_JSON));
+        io.ballerina.runtime.api.values.BArray array = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
         array.add(0, (Object) "John");
         return array;
     }
@@ -493,7 +493,7 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static io.ballerina.runtime.api.values.BTypedesc getTypeDesc() {
-        return new TypedescValueImpl(Types.TYPE_XML);
+        return new TypedescValueImpl(PredefinedTypes.TYPE_XML);
     }
 
     public static Object useFuture(io.ballerina.runtime.api.values.BFuture future) {

@@ -17,8 +17,8 @@
 package io.ballerina.runtime.scheduling;
 
 import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.async.CallableUnitCallback;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
@@ -162,7 +162,7 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
+    public FutureValue schedule(Object[] params, Function function, Strand parent, Callback callback,
                                 Map<String, Object> properties, Type returnType, String strandName,
                                 StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
@@ -180,9 +180,9 @@ public class Scheduler {
      * @param metadata   meta data of new strand
      * @return Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
+    public FutureValue schedule(Object[] params, Function function, Strand parent, Callback callback,
                                 String strandName, StrandMetadata metadata) {
-        FutureValue future = createFuture(parent, callback, null, Types.TYPE_NULL, strandName, metadata);
+        FutureValue future = createFuture(parent, callback, null, PredefinedTypes.TYPE_NULL, strandName, metadata);
         return schedule(params, function, future);
     }
 
@@ -210,9 +210,9 @@ public class Scheduler {
      * @return Reference to the scheduled task
      */
     @Deprecated
-    public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, CallableUnitCallback callback,
+    public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, Callback callback,
                                 String strandName, StrandMetadata metadata) {
-        FutureValue future = createFuture(parent, callback, null, Types.TYPE_NULL, strandName, metadata);
+        FutureValue future = createFuture(parent, callback, null, PredefinedTypes.TYPE_NULL, strandName, metadata);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         future.strand.schedulerItem = item;
@@ -448,13 +448,13 @@ public class Scheduler {
         }
     }
 
-    public FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties,
+    public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
                                     Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
-    private FutureValue createFuture(Strand parent, CallableUnitCallback callback, Type constraint, Strand newStrand) {
+    private FutureValue createFuture(Strand parent, Callback callback, Type constraint, Strand newStrand) {
         if (parent != null) {
             newStrand.observerContext = parent.observerContext;
         }

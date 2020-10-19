@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.scheduling;
 
-import io.ballerina.runtime.api.async.CallableUnitCallback;
+import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.values.FutureValue;
 
@@ -28,7 +28,7 @@ import io.ballerina.runtime.values.FutureValue;
  * @since 2.0.0
  */
 
-public abstract class AsyncFunctionCallback implements CallableUnitCallback {
+public abstract class AsyncFunctionCallback implements Callback {
 
     private FutureValue future;
     private Strand strand;

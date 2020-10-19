@@ -20,10 +20,9 @@ package io.ballerina.runtime.values;
 import io.ballerina.runtime.CycleUtils;
 import io.ballerina.runtime.TypeChecker;
 import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.commons.ArrayState;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
@@ -87,28 +86,28 @@ public class ArrayValueImpl extends AbstractArrayValue {
     public ArrayValueImpl(long[] values) {
         this.intValues = values;
         this.size = values.length;
-        setArrayType(Types.TYPE_INT);
+        setArrayType(PredefinedTypes.TYPE_INT);
     }
 
     @Deprecated
     public ArrayValueImpl(boolean[] values) {
         this.booleanValues = values;
         this.size = values.length;
-        setArrayType(Types.TYPE_BOOLEAN);
+        setArrayType(PredefinedTypes.TYPE_BOOLEAN);
     }
 
     @Deprecated
     public ArrayValueImpl(byte[] values) {
         this.byteValues = values;
         this.size = values.length;
-        setArrayType(Types.TYPE_BYTE);
+        setArrayType(PredefinedTypes.TYPE_BYTE);
     }
 
     @Deprecated
     public ArrayValueImpl(double[] values) {
         this.floatValues = values;
         this.size = values.length;
-        setArrayType(Types.TYPE_FLOAT);
+        setArrayType(PredefinedTypes.TYPE_FLOAT);
     }
 
     @Deprecated
@@ -118,14 +117,14 @@ public class ArrayValueImpl extends AbstractArrayValue {
         for (int i = 0; i < size; i++) {
             bStringValues[i] = StringUtils.fromString(values[i]);
         }
-        setArrayType(Types.TYPE_STRING);
+        setArrayType(PredefinedTypes.TYPE_STRING);
     }
 
     @Deprecated
     public ArrayValueImpl(BString[] values) {
         this.bStringValues = values;
         this.size = values.length;
-        setArrayType(Types.TYPE_STRING);
+        setArrayType(PredefinedTypes.TYPE_STRING);
     }
 
     @Deprecated
@@ -134,7 +133,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         ArrayType arrayType = type;
         this.elementType = arrayType.getElementType();
         initArrayValues(elementType);
-        if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
+        if (arrayType.getState() == ArrayType.ArrayState.CLOSED_SEALED) {
             this.size = maxSize = arrayType.getSize();
         }
     }
@@ -166,7 +165,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             default:
                 this.refValues = new Object[initialArraySize];
-                if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
+                if (arrayType.getState() == ArrayType.ArrayState.CLOSED_SEALED) {
                     fillerValueCheck(initialArraySize, initialArraySize);
                     fillValues(initialArraySize);
                 }
@@ -477,7 +476,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     public void addInt(long index, long value) {
         if (intValues != null) {
-            prepareForAdd(index, value, Types.TYPE_INT, intValues.length);
+            prepareForAdd(index, value, PredefinedTypes.TYPE_INT, intValues.length);
             intValues[(int) index] = value;
             return;
         }
@@ -487,17 +486,17 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void addBoolean(long index, boolean value) {
-        prepareForAdd(index, value, Types.TYPE_BOOLEAN, booleanValues.length);
+        prepareForAdd(index, value, PredefinedTypes.TYPE_BOOLEAN, booleanValues.length);
         booleanValues[(int) index] = value;
     }
 
     private void addByte(long index, byte value) {
-        prepareForAdd(index, value, Types.TYPE_BYTE, byteValues.length);
+        prepareForAdd(index, value, PredefinedTypes.TYPE_BYTE, byteValues.length);
         byteValues[(int) index] = value;
     }
 
     private void addFloat(long index, double value) {
-        prepareForAdd(index, value, Types.TYPE_FLOAT, floatValues.length);
+        prepareForAdd(index, value, PredefinedTypes.TYPE_FLOAT, floatValues.length);
         floatValues[(int) index] = value;
     }
 
@@ -507,7 +506,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void addBString(long index, BString value) {
-        prepareForAdd(index, value, Types.TYPE_STRING, bStringValues.length);
+        prepareForAdd(index, value, PredefinedTypes.TYPE_STRING, bStringValues.length);
         bStringValues[(int) index] = value;
     }
 
@@ -1004,7 +1003,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return;
         }
 
-        if (this.arrayType.getState() != ArrayState.UNSEALED) {
+        if (this.arrayType.getState() != ArrayType.ArrayState.UNSEALED) {
             return;
         }
 
@@ -1021,7 +1020,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     protected void checkFixedLength(long length) {
-        if (this.arrayType.getState() == ArrayState.CLOSED_SEALED) {
+        if (this.arrayType.getState() == ArrayType.ArrayState.CLOSED_SEALED) {
             throw BLangExceptionHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     RuntimeErrors.ILLEGAL_ARRAY_SIZE, size, length);

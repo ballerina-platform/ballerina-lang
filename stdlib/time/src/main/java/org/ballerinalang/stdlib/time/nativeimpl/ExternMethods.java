@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.time.nativeimpl;
 
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.values.BArray;
@@ -56,9 +56,9 @@ public class ExternMethods {
     private ExternMethods() {}
 
     private static final TupleType getDateTupleType = TypeCreator.createTupleType(
-            Arrays.asList(Types.TYPE_INT, Types.TYPE_INT, Types.TYPE_INT));
+            Arrays.asList(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_INT));
     private static final TupleType getTimeTupleType = TypeCreator.createTupleType(
-            Arrays.asList(Types.TYPE_INT, Types.TYPE_INT, Types.TYPE_INT, Types.TYPE_INT));
+            Arrays.asList(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_INT));
 
     public static BString toString(BMap<BString, Object> timeRecord) {
         return getDefaultString(timeRecord);

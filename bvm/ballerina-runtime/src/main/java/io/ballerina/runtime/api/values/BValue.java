@@ -19,6 +19,8 @@ package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
 
+import java.util.Map;
+
 /**
  * <p>
  * Represents all the ballerina values.
@@ -27,6 +29,25 @@ import io.ballerina.runtime.api.types.Type;
  * @since 1.1.0
  */
 public interface BValue {
+
+    /**
+     * Method to perform a deep copy, recursively copying all structural values and their members.
+     *
+     * @param refs The map which keep track of the references of already cloned values in cycles
+     *
+     * @return  A new copy of the value
+     */
+    Object copy(Map<Object, Object> refs);
+
+    /**
+     * Method to performs a deep copy, recursively copying all structural values and their members but the created
+     * clone is a read-only value.
+     *
+     * @param refs The map which keep track of the references of already cloned values in cycles
+     *
+     * @return  A new copy of the value
+     */
+    Object frozenCopy(Map<Object, Object> refs);
 
     String stringValue(BLink parent);
 

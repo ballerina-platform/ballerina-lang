@@ -18,14 +18,14 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.TypeChecker;
-import io.ballerina.runtime.api.Env;
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.Future;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.ValueCreator;
-import io.ballerina.runtime.api.async.Future;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
@@ -70,10 +70,11 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class StaticMethods {
 
-    private static final BArrayType intArrayType = new BArrayType(Types.TYPE_INT);
-    private static final BArrayType jsonArrayType = new BArrayType(Types.TYPE_JSON);
+    private static final BArrayType intArrayType = new BArrayType(PredefinedTypes.TYPE_INT);
+    private static final BArrayType jsonArrayType = new BArrayType(PredefinedTypes.TYPE_JSON);
     private static final BTupleType tupleType = new BTupleType(
-            Arrays.asList(Types.TYPE_INT, Types.TYPE_FLOAT, Types.TYPE_STRING, Types.TYPE_INT, Types.TYPE_STRING));
+            Arrays.asList(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT, PredefinedTypes.TYPE_STRING,
+                          PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
 
     private StaticMethods() {
     }
@@ -132,7 +133,7 @@ public class StaticMethods {
     }
 
     public static BError acceptStringErrorReturn(BString msg) {
-        return ErrorCreator.createError(msg, new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
+        return ErrorCreator.createError(msg, new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
     public static Object acceptIntUnionReturn(int flag) {
@@ -254,7 +255,7 @@ public class StaticMethods {
 
     public static BError acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
             throws JavaInteropTestCheckedException {
-        return ErrorCreator.createError(msg, new MapValueImpl<>(Types.TYPE_ERROR_DETAIL));
+        return ErrorCreator.createError(msg, new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
@@ -306,8 +307,8 @@ public class StaticMethods {
         try {
             return new TupleValueImpl(new String[]{name, type}, new BTupleType(new ArrayList<Type>() {
                 {
-                    add(Types.TYPE_STRING);
-                    add(Types.TYPE_STRING);
+                    add(PredefinedTypes.TYPE_STRING);
+                    add(PredefinedTypes.TYPE_STRING);
                 }
             }));
         } catch (BallerinaException e) {
@@ -362,13 +363,13 @@ public class StaticMethods {
     }
 
     public static Object getJson() {
-        MapValueImpl<BString, Object> map = new MapValueImpl<>(Types.TYPE_JSON);
+        MapValueImpl<BString, Object> map = new MapValueImpl<>(PredefinedTypes.TYPE_JSON);
         map.put(StringUtils.fromString("name"), StringUtils.fromString("John"));
         return map;
     }
 
     public static MapValueImpl<BString, Object> getJsonObject() {
-        MapValueImpl<BString, Object> map = new MapValueImpl<>(Types.TYPE_JSON);
+        MapValueImpl<BString, Object> map = new MapValueImpl<>(PredefinedTypes.TYPE_JSON);
         map.put(StringUtils.fromString("name"), StringUtils.fromString("Doe"));
         return map;
     }
@@ -426,8 +427,8 @@ public class StaticMethods {
         }
 
         return new ArrayValueImpl(new BArrayType(new BUnionType(new ArrayList(2) {{
-            add(Types.TYPE_INT);
-            add(Types.TYPE_STRING);
+            add(PredefinedTypes.TYPE_INT);
+            add(PredefinedTypes.TYPE_STRING);
         }}), length, true), length, entries);
     }
 
@@ -443,7 +444,7 @@ public class StaticMethods {
         return value.getBooleanValue(key);
     }
 
-    public static void addTwoNumbersSlowAsyncVoidSig(Env env, long a, long b) {
+    public static void addTwoNumbersSlowAsyncVoidSig(Environment env, long a, long b) {
         Future balFuture = env.markAsync();
         new Thread(() -> {
             sleep();
@@ -451,13 +452,13 @@ public class StaticMethods {
         }).start();
     }
 
-    public static void addTwoNumbersFastAsyncVoidSig(Env env, long a, long b) {
+    public static void addTwoNumbersFastAsyncVoidSig(Environment env, long a, long b) {
         Future balFuture = env.markAsync();
         balFuture.complete(a + b);
     }
 
 
-    public static long addTwoNumbersSlowAsync(Env env, long a, long b) {
+    public static long addTwoNumbersSlowAsync(Environment env, long a, long b) {
         Future balFuture = env.markAsync();
         new Thread(() -> {
             sleep();
@@ -467,14 +468,14 @@ public class StaticMethods {
         return -38263;
     }
 
-    public static long addTwoNumbersFastAsync(Env env, long a, long b) {
+    public static long addTwoNumbersFastAsync(Environment env, long a, long b) {
         Future balFuture = env.markAsync();
         balFuture.complete(a + b);
 
         return -282619;
     }
 
-    public static void addTwoNumbersBuggy(Env env, long a, long b) {
+    public static void addTwoNumbersBuggy(Environment env, long a, long b) {
         // Buggy because env.markAsync() is not called
         // TODO: see if we can verify this
     }

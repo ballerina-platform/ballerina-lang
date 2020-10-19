@@ -17,7 +17,7 @@
 */
 package io.ballerina.runtime.values;
 
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
@@ -106,7 +106,7 @@ public final class XMLQName implements RefValue, BXMLQName {
 
     @Override
     public Type getType() {
-        return Types.TYPE_XML_ATTRIBUTES;
+        return PredefinedTypes.TYPE_XML_ATTRIBUTES;
     }
 
     @Override

@@ -18,7 +18,7 @@ package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.BallerinaXMLSerializer;
 import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
@@ -50,7 +50,7 @@ import javax.xml.namespace.QName;
  */
 public abstract class XMLValue implements RefValue, BXML, CollectionValue {
 
-    Type type = Types.TYPE_XML;
+    Type type = PredefinedTypes.TYPE_XML;
 
     public abstract int size();
 

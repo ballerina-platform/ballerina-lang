@@ -18,7 +18,7 @@
 package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.XMLNodeType;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BXML;
@@ -142,6 +142,6 @@ public class XMLText extends XMLNonElementItem {
 
     @Override
     public Type getType() {
-        return Types.TYPE_TEXT;
+        return PredefinedTypes.TYPE_TEXT;
     }
 }

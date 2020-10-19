@@ -85,12 +85,11 @@ import static io.ballerina.runtime.util.BLangConstants.XML_LANG_LIB;
  *
  * @since 2.0.0
  */
-//TODO : Predefined types
-// TODO: create a issue to return correct type
-public class PreDefinedTypes {
+public class PredefinedTypes {
 
-    public static final IntegerType TYPE_INT
-            = new BIntegerType(TypeConstants.INT_TNAME, new Module(null, null, null));
+    private static final Module EMPTY_MODULE = new Module(null, null, null);
+
+    public static final IntegerType TYPE_INT = new BIntegerType(TypeConstants.INT_TNAME, EMPTY_MODULE);
     public static final IntegerType TYPE_INT_SIGNED_8 =
             new BIntegerType(TypeConstants.SIGNED8, new Module(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null),
                              TypeTags.SIGNED8_INT_TAG);
@@ -107,19 +106,28 @@ public class PreDefinedTypes {
             new BIntegerType(TypeConstants.UNSIGNED16, new Module(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null),
                              TypeTags.UNSIGNED16_INT_TAG);
     public static final IntegerType TYPE_INT_UNSIGNED_32 =
-            new BIntegerType(TypeConstants.UNSIGNED32, new Module(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null)
-                    , TypeTags.UNSIGNED32_INT_TAG);
+            new BIntegerType(TypeConstants.UNSIGNED32, new Module(BALLERINA_BUILTIN_PKG_PREFIX, INT_LANG_LIB, null),
+                             TypeTags.UNSIGNED32_INT_TAG);
+    public static final BooleanType TYPE_BOOLEAN = new BBooleanType(TypeConstants.BOOLEAN_TNAME, EMPTY_MODULE);
+    public static final ByteType TYPE_BYTE = new BByteType(TypeConstants.BYTE_TNAME, EMPTY_MODULE);
+    public static final FloatType TYPE_FLOAT = new BFloatType(TypeConstants.FLOAT_TNAME, EMPTY_MODULE);
+    public static final DecimalType TYPE_DECIMAL = new BDecimalType(TypeConstants.DECIMAL_TNAME, EMPTY_MODULE);
+    public static final StringType TYPE_STRING = new BStringType(TypeConstants.STRING_TNAME, EMPTY_MODULE);
+    public static final StringType TYPE_STRING_CHAR = new BStringType(TypeConstants.CHAR,
+                                                                      new Module(BALLERINA_BUILTIN_PKG_PREFIX,
+                                                                                 STRING_LANG_LIB, null),
+                                                                      TypeTags.CHAR_STRING_TAG);
 
-    public static final ReadonlyType TYPE_READONLY =
-            new BReadonlyType(TypeConstants.READONLY_TNAME, new Module(null, null, null));
-    public static final XMLType TYPE_ELEMENT =
-            new BXMLType(TypeConstants.XML_ELEMENT, new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
-                         TypeTags.XML_ELEMENT_TAG, false);
+    public static final ReadonlyType TYPE_READONLY = new BReadonlyType(TypeConstants.READONLY_TNAME, EMPTY_MODULE);
+    public static final XMLType TYPE_ELEMENT = new BXMLType(TypeConstants.XML_ELEMENT,
+                                                            new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
+                                                                       null), TypeTags.XML_ELEMENT_TAG, false);
     public static final Type TYPE_READONLY_ELEMENT = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_ELEMENT);
 
-    public static final XMLType TYPE_PROCESSING_INSTRUCTION =
-            new BXMLType(TypeConstants.XML_PI, new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
-                         TypeTags.XML_PI_TAG, false);
+    public static final XMLType TYPE_PROCESSING_INSTRUCTION = new BXMLType(TypeConstants.XML_PI,
+                                                                           new Module(BALLERINA_BUILTIN_PKG_PREFIX,
+                                                                                      XML_LANG_LIB, null),
+                                                                           TypeTags.XML_PI_TAG, false);
     public static final Type TYPE_READONLY_PROCESSING_INSTRUCTION =
             ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_PROCESSING_INSTRUCTION);
 
@@ -132,74 +140,50 @@ public class PreDefinedTypes {
                                                          new Module(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB, null),
                                                          TypeTags.XML_TEXT_TAG, true);
 
-    public static final ByteType TYPE_BYTE = new BByteType(TypeConstants.BYTE_TNAME, new Module(null, null, null));
-    public static final FloatType TYPE_FLOAT = new BFloatType(TypeConstants.FLOAT_TNAME, new Module(null, null, null));
-    public static final DecimalType TYPE_DECIMAL =
-            new BDecimalType(TypeConstants.DECIMAL_TNAME, new Module(null, null, null));
-    public static final StringType TYPE_STRING =
-            new BStringType(TypeConstants.STRING_TNAME, new Module(null, null, null));
-    public static final StringType TYPE_STRING_CHAR = new BStringType(TypeConstants.CHAR,
-                                                                      new Module(BALLERINA_BUILTIN_PKG_PREFIX,
-                                                                                 STRING_LANG_LIB, null),
-                                                                      TypeTags.CHAR_STRING_TAG);
-    public static final BooleanType TYPE_BOOLEAN =
-            new BBooleanType(TypeConstants.BOOLEAN_TNAME, new Module(null, null, null));
     public static final Type TYPE_XML = new BXMLType(TypeConstants.XML_TNAME,
                                                      new BUnionType(Arrays.asList(TYPE_ELEMENT, TYPE_COMMENT,
                                                                                   TYPE_PROCESSING_INSTRUCTION,
-                                                                                  TYPE_TEXT)),
-                                                     new Module(null, null, null));
-    public static final JSONType TYPE_JSON =
-            new BJSONType(TypeConstants.JSON_TNAME, new Module(null, null, null), false);
+                                                                                  TYPE_TEXT)), EMPTY_MODULE);
+    public static final JSONType TYPE_JSON = new BJSONType(TypeConstants.JSON_TNAME, EMPTY_MODULE, false);
     public static final ArrayType TYPE_JSON_ARRAY = new BArrayType(TYPE_JSON);
-    public static final JSONType TYPE_READONLY_JSON = new BJSONType(TypeConstants.READONLY_JSON_TNAME,
-                                                                    new Module(null, null, null), true);
-    public static final AnyType TYPE_ANY = new BAnyType(TypeConstants.ANY_TNAME, new Module(null, null, null), false);
-    public static final AnyType TYPE_READONLY_ANY = new BAnyType(TypeConstants.READONLY_ANY_TNAME,
-                                                                 new Module(null, null, null), true);
+    public static final JSONType TYPE_READONLY_JSON = new BJSONType(TypeConstants.READONLY_JSON_TNAME, EMPTY_MODULE,
+                                                                    true);
+    public static final AnyType TYPE_ANY = new BAnyType(TypeConstants.ANY_TNAME, EMPTY_MODULE, false);
+    public static final AnyType TYPE_READONLY_ANY = new BAnyType(TypeConstants.READONLY_ANY_TNAME, EMPTY_MODULE, true);
     public static final AnydataType TYPE_ANYDATA =
-            new BAnydataType(TypeConstants.ANYDATA_TNAME, new Module(null, null, null), false);
+            new BAnydataType(TypeConstants.ANYDATA_TNAME, EMPTY_MODULE, false);
     public static final AnydataType TYPE_READONLY_ANYDATA = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME,
-                                                                             new Module(null, null, null), true);
-    public static final StreamType TYPE_STREAM = new BStreamType(TypeConstants.STREAM_TNAME, TYPE_ANY,
-                                                                 new Module(null, null, null));
-    public static final TypedescType TYPE_TYPEDESC = new BTypedescType(TypeConstants.TYPEDESC_TNAME,
-                                                                       new Module(null, null, null));
-    public static final MapType TYPE_MAP =
-            new BMapType(TypeConstants.MAP_TNAME, TYPE_ANY, new Module(null, null, null));
-    public static final FutureType TYPE_FUTURE =
-            new BFutureType(TypeConstants.FUTURE_TNAME, new Module(null, null, null));
-    public static final NullType TYPE_NULL = new BNullType(TypeConstants.NULL_TNAME, new Module(null, null, null));
-    public static final NeverType TYPE_NEVER = new BNeverType(new Module(null, null, null));
+                                                                             EMPTY_MODULE, true);
+    public static final StreamType TYPE_STREAM = new BStreamType(TypeConstants.STREAM_TNAME, TYPE_ANY, EMPTY_MODULE);
+    public static final TypedescType TYPE_TYPEDESC = new BTypedescType(TypeConstants.TYPEDESC_TNAME, EMPTY_MODULE);
+    public static final MapType TYPE_MAP = new BMapType(TypeConstants.MAP_TNAME, TYPE_ANY, EMPTY_MODULE);
+    public static final FutureType TYPE_FUTURE = new BFutureType(TypeConstants.FUTURE_TNAME, EMPTY_MODULE);
+    public static final NullType TYPE_NULL = new BNullType(TypeConstants.NULL_TNAME, EMPTY_MODULE);
+    public static final NeverType TYPE_NEVER = new BNeverType(EMPTY_MODULE);
     public static final XMLAttributesType TYPE_XML_ATTRIBUTES =
-            new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME,
-                                   new Module(null, null, null));
-    public static final IteratorType TYPE_ITERATOR = new BIteratorType(TypeConstants.ITERATOR_TNAME,
-                                                                       new Module(null, null, null));
-    public static final ServiceType TYPE_ANY_SERVICE =
-            new BServiceType(TypeConstants.SERVICE, new Module(null, null, null), 0);
-    public static final HandleType TYPE_HANDLE =
-            new BHandleType(TypeConstants.HANDLE_TNAME, new Module(null, null, null));
+            new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, EMPTY_MODULE);
+    public static final IteratorType TYPE_ITERATOR = new BIteratorType(TypeConstants.ITERATOR_TNAME, EMPTY_MODULE);
+    public static final ServiceType TYPE_ANY_SERVICE = new BServiceType(TypeConstants.SERVICE, EMPTY_MODULE, 0);
+    public static final HandleType TYPE_HANDLE = new BHandleType(TypeConstants.HANDLE_TNAME, EMPTY_MODULE);
     public static final UnionType ANYDATA_OR_READONLY = new BUnionType(Arrays.asList(TYPE_ANYDATA, TYPE_READONLY));
     public static final MapType TYPE_ERROR_DETAIL = new BMapType(TypeConstants.MAP_TNAME, ANYDATA_OR_READONLY,
-                                                                 new Module(null, null, null));
-    public static final ErrorType TYPE_ERROR = new BErrorType(TypeConstants.ERROR,
-                                                              new Module(null, null, null), TYPE_ERROR_DETAIL);
+                                                                 EMPTY_MODULE);
+    public static final ErrorType TYPE_ERROR = new BErrorType(TypeConstants.ERROR, EMPTY_MODULE, TYPE_ERROR_DETAIL);
 
     public static final RecordType STRING_ITR_NEXT_RETURN_TYPE =
-            IteratorUtils.createIteratorNextReturnType(PreDefinedTypes.TYPE_STRING);
+            IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING);
     public static final RecordType XML_ITR_NEXT_RETURN_TYPE = IteratorUtils
             .createIteratorNextReturnType(
-                    new BUnionType(Arrays.asList(PreDefinedTypes.TYPE_STRING, PreDefinedTypes.TYPE_XML)));
+                    new BUnionType(Arrays.asList(PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_XML)));
 
-    private PreDefinedTypes() {
+    private PredefinedTypes() {
     }
 
     public static boolean isValueType(Type type) {
-        if (type == PreDefinedTypes.TYPE_INT || type == PreDefinedTypes.TYPE_BYTE ||
-                type == PreDefinedTypes.TYPE_FLOAT ||
-                type == PreDefinedTypes.TYPE_DECIMAL || type == PreDefinedTypes.TYPE_STRING ||
-                type == PreDefinedTypes.TYPE_BOOLEAN) {
+        if (type == PredefinedTypes.TYPE_INT || type == PredefinedTypes.TYPE_BYTE ||
+                type == PredefinedTypes.TYPE_FLOAT ||
+                type == PredefinedTypes.TYPE_DECIMAL || type == PredefinedTypes.TYPE_STRING ||
+                type == PredefinedTypes.TYPE_BOOLEAN) {
             return true;
         }
 

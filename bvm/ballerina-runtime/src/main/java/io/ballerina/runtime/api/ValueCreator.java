@@ -20,7 +20,6 @@ package io.ballerina.runtime.api;
 import io.ballerina.runtime.DecimalValueKind;
 import io.ballerina.runtime.JSONDataSource;
 import io.ballerina.runtime.XMLFactory;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;

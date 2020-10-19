@@ -17,10 +17,10 @@
  */
 package io.ballerina.runtime.types;
 
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.Type;
@@ -112,7 +112,7 @@ public class BMapType extends BType implements MapType {
     public String toString() {
         String stringRep;
 
-        if (constraint == Types.TYPE_ANY) {
+        if (constraint == PredefinedTypes.TYPE_ANY) {
             stringRep = super.toString();
         } else {
             stringRep = "map" + "<" + constraint.toString() + ">";

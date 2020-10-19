@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.file.service;
 
-import io.ballerina.runtime.api.async.CallableUnitCallback;
+import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  * {@code DirectoryCallback} is the responsible for acting on notifications received from Ballerina side.
  */
-public class DirectoryCallback implements CallableUnitCallback {
+public class DirectoryCallback implements Callback {
 
     private static final Logger log = LoggerFactory.getLogger(DirectoryCallback.class);
 

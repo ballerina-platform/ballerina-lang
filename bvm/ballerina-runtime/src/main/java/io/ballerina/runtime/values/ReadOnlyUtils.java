@@ -17,12 +17,12 @@
  */
 package io.ballerina.runtime.values;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeFlags;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.types.BArrayType;
@@ -276,7 +276,7 @@ public class ReadOnlyUtils {
 
         BIntersectionType intersectionType = new BIntersectionType(pkg, // TODO: 6/3/20 Fix to use current package
                                                                    // for records and objects
-                                                                   new Type []{ originalType, Types.TYPE_READONLY},
+                                                                   new Type []{ originalType, PredefinedTypes.TYPE_READONLY},
                                                                    effectiveType, typeFlags, true);
         originalType.setImmutableType(intersectionType);
         return intersectionType;

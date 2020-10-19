@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.StreamType;
@@ -45,6 +45,6 @@ public class GetElementType {
             return ValueCreator.createTypedescValue(((TableType) type).getConstrainedType());
         }
 
-        return ValueCreator.createTypedescValue(Types.TYPE_NULL);
+        return ValueCreator.createTypedescValue(PredefinedTypes.TYPE_NULL);
     }
 }

@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.bool;
 
 import io.ballerina.runtime.api.ErrorCreator;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.util.exceptions.RuntimeErrors;
@@ -50,7 +50,7 @@ public class FromString {
         } else {
             BString reason = getModulePrefixedReason(BOOLEAN_LANG_LIB, BOOLEAN_PARSING_ERROR_IDENTIFIER);
             BString msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                                               Types.TYPE_STRING, s, Types.TYPE_BOOLEAN);
+                                                               PredefinedTypes.TYPE_STRING, s, PredefinedTypes.TYPE_BOOLEAN);
             return ErrorCreator.createError(reason, msg);
         }
     }

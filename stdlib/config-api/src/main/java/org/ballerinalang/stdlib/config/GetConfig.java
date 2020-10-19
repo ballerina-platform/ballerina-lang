@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.config;
 import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeCreator;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.MapType;
@@ -41,8 +41,8 @@ import java.util.Map;
  */
 public class GetConfig {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    private static final MapType mapType = TypeCreator.createMapType(Types.TYPE_ANYDATA, true);
-    private static final ArrayType arrayType = TypeCreator.createArrayType(Types.TYPE_ANYDATA, -1, true);
+    private static final MapType mapType = TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA, true);
+    private static final ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_ANYDATA, -1, true);
 
     public static Object get(BString configKey, BString type) {
         try {

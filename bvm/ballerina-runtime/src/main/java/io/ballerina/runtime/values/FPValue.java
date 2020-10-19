@@ -20,6 +20,7 @@ package io.ballerina.runtime.values;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.scheduling.AsyncUtils;
 import io.ballerina.runtime.scheduling.Scheduler;
@@ -61,11 +62,11 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
         return this.function.apply(t);
     }
 
-    public FutureValue asyncCall(Object[] args, StrandMetadata metaData) {
+    public BFuture asyncCall(Object[] args, StrandMetadata metaData) {
         return this.asyncCall(args, o -> o, metaData);
     }
 
-    public FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction,
+    public BFuture asyncCall(Object[] args, Function<Object, Object> resultHandleFunction,
                                  StrandMetadata metaData) {
         return AsyncUtils.invokeFunctionPointerAsync(this, this.strandName, metaData,
                                                      args, resultHandleFunction, Scheduler.getStrand().scheduler);

@@ -17,8 +17,8 @@
  */
 package io.ballerina.runtime.types;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.util.Flags;
@@ -40,7 +40,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     public BFunctionType() {
         super("function ()", null, Object.class);
         this.paramTypes = new Type[0];
-        this.retType = Types.TYPE_NULL;
+        this.retType = PredefinedTypes.TYPE_NULL;
         this.flags = 0;
     }
 

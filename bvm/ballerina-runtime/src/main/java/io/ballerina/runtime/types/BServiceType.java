@@ -17,8 +17,8 @@
 package io.ballerina.runtime.types;
 
 import io.ballerina.runtime.AnnotationUtils;
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.values.MapValue;

@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime.api;
 
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.Field;
@@ -51,7 +50,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Class @{@link TypeCreator} provides apis to create ballerina type instances.
+ * Class @{@link TypeCreator} provides APIs to create ballerina type instances.
  *
  * @since 2.0.0
  */

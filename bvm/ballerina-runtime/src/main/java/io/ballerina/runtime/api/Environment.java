@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime.api;
 
-import io.ballerina.runtime.api.async.Future;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.State;
 import io.ballerina.runtime.scheduling.Strand;
@@ -29,11 +28,10 @@ import io.ballerina.runtime.scheduling.Strand;
  *
  * @since 2.0.0
  */
-// TODO : Env -> Environment
-public class Env {
+public class Environment {
     private Strand strand;
 
-    public Env(Strand strand) {
+    public Environment(Strand strand) {
         this.strand = strand;
     }
 

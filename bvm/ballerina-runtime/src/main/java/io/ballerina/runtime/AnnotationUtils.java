@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.AttachedFunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.types.AttachedFunction;
 import io.ballerina.runtime.types.BAnnotatableType;
 import io.ballerina.runtime.types.BObjectType;
 import io.ballerina.runtime.types.BServiceType;
@@ -60,8 +61,8 @@ public class AnnotationUtils {
         for (AttachedFunctionType attachedFunction : objectType.getAttachedFunctions()) {
             annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
             if (globalAnnotMap.containsKey(annotationKey)) {
-                attachedFunction.setAnnotations((MapValue<BString, Object>)
-                                                        globalAnnotMap.get(annotationKey));
+                ((AttachedFunction) attachedFunction).setAnnotations((MapValue<BString, Object>)
+                                                                             globalAnnotMap.get(annotationKey));
             }
         }
     }
@@ -77,8 +78,9 @@ public class AnnotationUtils {
             annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
 
             if (globalAnnotMap.containsKey(annotationKey)) {
-                attachedFunction.setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(
-                        annotationKey)).call(new Object[]{strand}));
+                ((AttachedFunction) attachedFunction)
+                        .setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
+                                .call(new Object[]{strand}));
             }
         }
     }

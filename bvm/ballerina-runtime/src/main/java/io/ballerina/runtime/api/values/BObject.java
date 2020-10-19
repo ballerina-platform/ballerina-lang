@@ -29,7 +29,7 @@ import java.util.HashMap;
  *
  * @since 1.1.0
  */
-public interface BObject extends BRefValue {
+public interface BObject extends BValue {
 
     Object call(Strand strand, String funcName, Object... args);
 

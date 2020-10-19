@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.ErrorCreator;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.MapType;
@@ -192,7 +192,7 @@ public class MimeUtil {
     public static BObject parseMediaType(BObject mediaType, String contentType) {
         try {
             BMap<BString, Object> parameterMap =
-                   ValueCreator.createMapValue(TypeCreator.createMapType(Types.TYPE_STRING));
+                   ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_STRING));
             BString suffix, primaryType, subType;
 
             if (contentType != null) {
@@ -205,7 +205,7 @@ public class MimeUtil {
                     suffix = StringUtils.fromString(
                             subTypeStr.substring(subTypeStr.lastIndexOf(SUFFIX_ATTACHMENT) + 1));
                 } else {
-                    suffix = Types.TYPE_STRING.getZeroValue();
+                    suffix = PredefinedTypes.TYPE_STRING.getZeroValue();
                 }
 
                 MimeTypeParameterList parameterList = mimeType.getParameters();
@@ -217,7 +217,7 @@ public class MimeUtil {
                     parameterMap.put(StringUtils.fromString(key), value);
                 }
             } else {
-                primaryType = suffix = subType = Types.TYPE_STRING.getZeroValue();
+                primaryType = suffix = subType = PredefinedTypes.TYPE_STRING.getZeroValue();
             }
 
             mediaType.set(PRIMARY_TYPE_FIELD, primaryType);

@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.testerina.natives;
 
-import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.async.CallableUnitCallback;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
@@ -90,7 +90,7 @@ public class Executor {
                 }
             };
             CountDownLatch completeFunction = new CountDownLatch(1);
-            BFuture futureValue = scheduler.schedule(jvmArgs, func, null, new CallableUnitCallback() {
+            BFuture futureValue = scheduler.schedule(jvmArgs, func, null, new Callback() {
                 @Override
                 public void notifySuccess() {
                     completeFunction.countDown();
@@ -100,7 +100,7 @@ public class Executor {
                 public void notifyFailure(BError error) {
                     completeFunction.countDown();
                 }
-            }, new HashMap<>(), Types.TYPE_NULL, strandName, metaData);
+            }, new HashMap<>(), PredefinedTypes.TYPE_NULL, strandName, metaData);
             completeFunction.await();
             return futureValue.getResult();
         } catch (NoSuchMethodException | ClassNotFoundException | InterruptedException e) {

@@ -223,9 +223,9 @@ public class XMLFactory {
      */
     @Deprecated
     public static XMLValue createXMLElement(BXMLQName startTagName, BXMLQName endTagName, String defaultNsUri) {
-        if (!StringUtils.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
-                !StringUtils.isEqual(startTagName.getUri(), endTagName.getUri()) ||
-                !StringUtils.isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
+        if (!isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
+                !isEqual(startTagName.getUri(), endTagName.getUri()) ||
+                !isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
             throw ErrorCreator
                     .createError(StringUtils.fromString(("start and end tag names mismatch: '" + startTagName + "' " +
                             "and '" + endTagName + "'")));
@@ -494,6 +494,16 @@ public class XMLFactory {
             }
 
             return new String(target, 0, len);
+        }
+    }
+
+    public static boolean isEqual(String s1, String s2) {
+        if (s1 == s2) {
+            return true;
+        } else if (s1 == null || s2 == null) {
+            return false;
+        } else {
+            return s1.equals(s2);
         }
     }
 }

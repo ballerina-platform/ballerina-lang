@@ -18,8 +18,8 @@
 package io.ballerina.runtime.scheduling;
 
 import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.observability.ObserverContext;
@@ -249,7 +249,7 @@ public class Strand {
                         throw future.panic;
                     }
 
-                    if (TypeChecker.checkIsType(future.result, Types.TYPE_ERROR)) {
+                    if (TypeChecker.checkIsType(future.result, PredefinedTypes.TYPE_ERROR)) {
                         ctx.waitCount.decrementAndGet();
                         // if error, should wait for other futures as well
                         error = future.result;

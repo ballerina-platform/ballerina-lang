@@ -17,7 +17,7 @@
   */
  package io.ballerina.runtime.api.values;
 
- import io.ballerina.runtime.api.async.CallableUnitCallback;
+ import io.ballerina.runtime.api.async.Callback;
  import io.ballerina.runtime.scheduling.Strand;
 
  /**
@@ -27,7 +27,7 @@
   *
   * @since 1.1.0
   */
-  public interface BFuture extends BRefValue {
+  public interface BFuture extends BValue {
 
      /**
       * Abort execution of the {@code Strand} that the future is attached.
@@ -68,5 +68,5 @@
       *
       * @return registered {@code CallableUnitCallback}
       */
-     CallableUnitCallback getCallback();
+     Callback getCallback();
  }

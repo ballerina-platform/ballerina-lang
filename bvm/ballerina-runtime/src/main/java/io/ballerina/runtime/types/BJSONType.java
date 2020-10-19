@@ -17,11 +17,11 @@
 */
 package io.ballerina.runtime.types;
 
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeFlags;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.JSONType;
 import io.ballerina.runtime.api.types.Type;
@@ -51,7 +51,7 @@ public class BJSONType extends BType implements JSONType {
 
         if (!readonly) {
             BJSONType immutableJsonType = new BJSONType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
-            this.immutableType = new BIntersectionType(pkg, new Type[]{ this, Types.TYPE_READONLY}, immutableJsonType,
+            this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY}, immutableJsonType,
                                                        TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                         TypeFlags.PURETYPE), true);
         }
@@ -61,7 +61,7 @@ public class BJSONType extends BType implements JSONType {
         super(TypeConstants.JSON_TNAME, null, MapValueImpl.class);
         this.readonly = false;
         BJSONType immutableJsonType = new BJSONType(TypeConstants.READONLY_JSON_TNAME, pkg, true);
-        this.immutableType = new BIntersectionType(pkg, new Type[]{ this, Types.TYPE_READONLY}, immutableJsonType,
+        this.immutableType = new BIntersectionType(pkg, new Type[]{ this, PredefinedTypes.TYPE_READONLY}, immutableJsonType,
                                                    TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.ANYDATA,
                                                                     TypeFlags.PURETYPE), true);
     }

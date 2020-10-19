@@ -18,14 +18,15 @@
 package io.ballerina.runtime.values;
 
 import io.ballerina.runtime.CycleUtils;
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
 import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.ValueCreator;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
@@ -76,7 +77,7 @@ public class ErrorValue extends BError implements RefValue {
     public static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
 
     public ErrorValue(BString message, Object details) {
-        this(new BErrorType(TypeConstants.ERROR, Types.TYPE_ERROR.getPackage(), TypeChecker.getType(details)),
+        this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TypeChecker.getType(details)),
                 message, null, details);
     }
 
@@ -289,7 +290,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     @Override
-    public ArrayValue getCallStack() {
+    public BArray getCallStack() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         List<StackTraceElement> filteredStack = new LinkedList<>();
         int index = 0;

@@ -17,8 +17,6 @@
  */
 package io.ballerina.runtime.api.types;
 
-import io.ballerina.runtime.api.commons.ArrayState;
-
 /**
  * {@code BArrayType} represents a type of an arrays in Ballerina.
  * <p>
@@ -39,4 +37,26 @@ public interface ArrayType extends Type {
     ArrayState getState();
 
     int getSize();
+
+    /**
+     * Enum to hold the state of an array.
+     *
+     * @since 2.0.0
+     */
+    enum ArrayState {
+        CLOSED_SEALED((byte) 1),
+        OPEN_SEALED((byte) 2),
+        UNSEALED((byte) 3);
+
+        byte value;
+
+        ArrayState(byte value) {
+            this.value = value;
+        }
+
+        public byte getValue() {
+            return this.value;
+        }
+
+    }
 }

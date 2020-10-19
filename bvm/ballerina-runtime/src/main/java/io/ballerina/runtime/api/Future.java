@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.api.async;
+package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.scheduling.Strand;
 
@@ -24,7 +24,6 @@ import io.ballerina.runtime.scheduling.Strand;
  *
  * @since 2.0.0
  */
-// TODO: move to outside
 public class Future {
     private final Strand strand;
 

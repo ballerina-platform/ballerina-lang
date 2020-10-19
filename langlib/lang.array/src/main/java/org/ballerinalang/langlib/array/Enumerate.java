@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.array;
 
 import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.TupleType;
@@ -54,14 +54,14 @@ public class Enumerate {
 
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                elemType = TypeCreator.createTupleType(Arrays.asList(Types.TYPE_INT, arr.getElementType()));
+                elemType = TypeCreator.createTupleType(Arrays.asList(PredefinedTypes.TYPE_INT, arr.getElementType()));
                 getFn = BArray::get;
                 break;
             case TypeTags.TUPLE_TAG:
                 TupleType tupleType = (TupleType) arrType;
                 UnionType tupElemType = TypeCreator.createUnionType(tupleType.getTupleTypes(),
                                                                     tupleType.getTypeFlags());
-                elemType = TypeCreator.createTupleType(Arrays.asList(Types.TYPE_INT, tupElemType));
+                elemType = TypeCreator.createTupleType(Arrays.asList(PredefinedTypes.TYPE_INT, tupElemType));
                 getFn = BArray::getRefValue;
                 break;
             default:

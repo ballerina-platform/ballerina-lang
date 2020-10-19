@@ -17,8 +17,8 @@
 */
 package io.ballerina.runtime.transactions;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.util.BLangConstants;
 

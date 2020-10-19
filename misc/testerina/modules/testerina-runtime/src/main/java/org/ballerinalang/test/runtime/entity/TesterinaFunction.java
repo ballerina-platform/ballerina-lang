@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.scheduling.Scheduler;
@@ -113,7 +113,7 @@ public class TesterinaFunction {
                     throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
                 }
             };
-            final BFuture out = scheduler.schedule(params, func, null, null, null, Types.TYPE_ANY,
+            final BFuture out = scheduler.schedule(params, func, null, null, null, PredefinedTypes.TYPE_ANY,
                                                    null, null);
             scheduler.start();
             final Throwable t = out.getPanic();

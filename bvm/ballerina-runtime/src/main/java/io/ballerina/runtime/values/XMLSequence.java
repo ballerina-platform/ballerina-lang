@@ -19,8 +19,8 @@ package io.ballerina.runtime.values;
 import io.ballerina.runtime.CycleUtils;
 import io.ballerina.runtime.XMLNodeType;
 import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.StringUtils;
-import io.ballerina.runtime.api.Types;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -397,7 +397,7 @@ public final class XMLSequence extends XMLValue implements BXMLSequence {
      */
     @Override
     public Object value() {
-        BArrayType bArrayType = new BArrayType(Types.TYPE_XML);
+        BArrayType bArrayType = new BArrayType(PredefinedTypes.TYPE_XML);
         return new ArrayValueImpl(children.toArray(), bArrayType);
     }
 

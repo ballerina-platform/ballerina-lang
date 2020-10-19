@@ -17,7 +17,7 @@
 
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -126,7 +126,7 @@ public class VariableReturnType {
             map.put(NAME, new BmpStringValue("Pubudu"));
             map.put(CITY, new BmpStringValue("Panadura"));
         } else {
-            map = new MapValueImpl(new BMapType(Types.TYPE_ANY));
+            map = new MapValueImpl(new BMapType(PredefinedTypes.TYPE_ANY));
         }
 
         return map;

@@ -18,10 +18,10 @@
 
 package io.ballerina.runtime.types;
 
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeConstants;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.Types;
-import io.ballerina.runtime.api.async.Module;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.values.StreamValue;
@@ -73,7 +73,7 @@ public class BStreamType extends BType implements StreamType {
 
     @Override
     public String toString() {
-        if (constraint == Types.TYPE_ANY) {
+        if (constraint == PredefinedTypes.TYPE_ANY) {
             return super.toString();
         } else {
             return "stream" + "<" + constraint.getName() + ">";

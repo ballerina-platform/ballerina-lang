@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.runtime;
+package io.ballerina.runtime.api;
 
 import java.util.Objects;
 
@@ -30,7 +30,6 @@ import static io.ballerina.runtime.util.BLangConstants.VERSION_SEPARATOR;
  *
  * @since 0.995.0
  */
-// TODo: move outside
 public class Module {
 
     private String org;

@@ -20,7 +20,7 @@ package io.ballerina.runtime.values;
 import io.ballerina.runtime.JSONDataSource;
 import io.ballerina.runtime.JSONGenerator;
 import io.ballerina.runtime.JSONUtils;
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BStreamingJson;
 import io.ballerina.runtime.types.BArrayType;
@@ -47,7 +47,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
 
     @Deprecated
     public StreamingJsonValue(JSONDataSource datasource) {
-        super(new BArrayType(new BMapType(Types.TYPE_JSON)));
+        super(new BArrayType(new BMapType(PredefinedTypes.TYPE_JSON)));
         this.datasource = datasource;
     }
 

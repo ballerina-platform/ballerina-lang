@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.test.util;
 
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.scheduling.Scheduler;
 import io.ballerina.runtime.scheduling.Strand;
 import io.ballerina.runtime.values.ErrorValue;
@@ -201,7 +201,7 @@ public class BCompileUtil {
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                                                       Types.TYPE_ANY, null, null);
+                                                       PredefinedTypes.TYPE_ANY, null, null);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {

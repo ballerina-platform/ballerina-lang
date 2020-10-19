@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.values;
 
-import io.ballerina.runtime.api.Types;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BLink;
@@ -68,7 +68,7 @@ public class HandleValue implements BHandle, RefValue {
 
     @Override
     public Type getType() {
-        return Types.TYPE_HANDLE;
+        return PredefinedTypes.TYPE_HANDLE;
     }
 
     @Override
