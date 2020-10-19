@@ -127,14 +127,26 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
+                              "value": "c",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
                       ]
                     },
                     {
-                      "kind": "RIGHT_ARROW_TOKEN"
+                      "kind": "RIGHT_ARROW_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
