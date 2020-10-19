@@ -17,28 +17,26 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.api.symbols.Documentation;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
+import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
+import io.ballerina.compiler.api.types.Parameter;
+import io.ballerina.compiler.api.types.ParameterKind;
+import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,41 +51,41 @@ import java.util.stream.Collectors;
  *
  * @since 0.983.0
  */
-public final class BFunctionCompletionItemBuilder {
-    private BFunctionCompletionItemBuilder() {
+public final class FunctionCompletionItemBuilder {
+    private FunctionCompletionItemBuilder() {
     }
 
     /**
      * Creates and returns a completion item.
      *
-     * @param bSymbol    BSymbol or null
+     * @param funcSymbol BSymbol or null
      * @param label      label
      * @param insertText insert text
      * @param context    {@link LSContext}
      * @return {@link CompletionItem}
      */
-    public static CompletionItem build(BInvokableSymbol bSymbol, String label, String insertText, LSContext context) {
+    public static CompletionItem build(FunctionSymbol funcSymbol, String label, String insertText, LSContext context) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);
-        setMeta(item, bSymbol, context);
+        setMeta(item, funcSymbol, context);
         return item;
     }
 
     /**
      * Creates and returns a completion item.
      *
-     * @param bSymbol BSymbol
-     * @param context LS context
+     * @param functionSymbol BSymbol
+     * @param context        LS context
      * @return {@link CompletionItem}
      */
-    public static CompletionItem build(BInvokableSymbol bSymbol, LSContext context) {
+    public static CompletionItem build(FunctionSymbol functionSymbol, LSContext context) {
         CompletionItem item = new CompletionItem();
-        setMeta(item, bSymbol, context);
-        if (bSymbol != null) {
+        setMeta(item, functionSymbol, context);
+        if (functionSymbol != null) {
             // Override function signature
-            String functionName = CommonUtil.getFunctionNameFromSymbol(bSymbol);
-            Pair<String, String> functionSignature = CommonUtil.getFunctionInvocationSignature(bSymbol,
+            String functionName = functionSymbol.name();
+            Pair<String, String> functionSignature = CommonUtil.getFunctionInvocationSignature(functionSymbol,
                     functionName, context);
             item.setInsertText(functionSignature.getLeft());
             item.setLabel(functionSignature.getRight());
@@ -95,32 +93,31 @@ public final class BFunctionCompletionItemBuilder {
         return item;
     }
 
-    public static CompletionItem build(BObjectTypeSymbol objectTypeSymbol, InitializerBuildMode mode, LSContext ctx) {
-        BInvokableSymbol invokableSymbol = objectTypeSymbol.initializerFunc == null
-                ? null : objectTypeSymbol.initializerFunc.symbol;
+    public static CompletionItem build(ObjectTypeDescriptor typeDesc, InitializerBuildMode mode, LSContext ctx) {
+        MethodSymbol initMethod = typeDesc.initMethod().isEmpty() ? null : typeDesc.initMethod().get();
         CompletionItem item = new CompletionItem();
-        setMeta(item, invokableSymbol, ctx);
+        setMeta(item, initMethod, ctx);
         String functionName;
-        if (mode == InitializerBuildMode.EXPLICIT) {
-            NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-            functionName = objectTypeSymbol.name.value;
-            // null check added in the filter, in order to avoid 
-            Optional<BLangIdentifier> moduleAlias = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
-                    .filter(pkg -> pkg.symbol != null && pkg.symbol.pkgID == objectTypeSymbol.pkgID)
-                    .map(BLangImportPackage::getAlias)
-                    .findAny();
-            if (nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE && moduleAlias.isPresent()) {
-                /*
-                Handles the following case
-                (1) ... = new <cursor>
-                (1) ... = new m<cursor> // blocked by #25210
-                 */
-                functionName = moduleAlias.get().getValue() + ":" + functionName;
-            }
+        if (mode == InitializerBuildMode.EXPLICIT && typeDesc.kind() == TypeDescKind.TYPE_REFERENCE) {
+            functionName = ((TypeReferenceTypeDescriptor) typeDesc).name();
+            // TODO: Following is blocked due to the Type Referencing issue in Semantic Model
+//            Optional<BLangIdentifier> moduleAlias = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
+//                    .filter(pkg -> pkg.symbol != null && pkg.symbol.pkgID == typeDesc.pkgID)
+//                    .map(BLangImportPackage::getAlias)
+//                    .findAny();
+//            String moduleAlias = typeDesc.moduleID().modulePrefix()
+//            if (nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE && moduleAlias.isPresent()) {
+//                /*
+//                Handles the following case
+//                (1) ... = new <cursor>
+//                (1) ... = new m<cursor> // blocked by #25210
+//                 */
+//                functionName = moduleAlias.get().getValue() + ":" + functionName;
+//            }
         } else {
             functionName = "new";
         }
-        Pair<String, String> functionSignature = CommonUtil.getFunctionInvocationSignature(invokableSymbol,
+        Pair<String, String> functionSignature = CommonUtil.getFunctionInvocationSignature(initMethod,
                 functionName, ctx);
         item.setInsertText(functionSignature.getLeft());
         item.setLabel(functionSignature.getRight());
@@ -128,7 +125,7 @@ public final class BFunctionCompletionItemBuilder {
         return item;
     }
 
-    private static void setMeta(CompletionItem item, BInvokableSymbol bSymbol, LSContext ctx) {
+    private static void setMeta(CompletionItem item, FunctionSymbol bSymbol, LSContext ctx) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         item.setKind(CompletionItemKind.Function);
@@ -139,47 +136,49 @@ public final class BFunctionCompletionItemBuilder {
                 item.setCommand(cmd);
             }
             boolean skipFirstParam = CommonUtil.skipFirstParam(ctx, bSymbol);
-            if (bSymbol.markdownDocumentation != null) {
+            if (bSymbol.docAttachment().isPresent()) {
                 item.setDocumentation(getDocumentation(bSymbol, skipFirstParam, ctx));
             }
         }
     }
 
-    private static Either<String, MarkupContent> getDocumentation(BInvokableSymbol bInvokableSymbol,
+    private static Either<String, MarkupContent> getDocumentation(FunctionSymbol functionSymbol,
                                                                   boolean skipFirstParam, LSContext ctx) {
-        String pkgID = bInvokableSymbol.pkgID.toString();
+        String pkgID = functionSymbol.moduleID().toString();
+        FunctionTypeDescriptor functionTypeDesc = functionSymbol.typeDescriptor();
 
-        MarkdownDocAttachment docAttachment = bInvokableSymbol.getMarkdownDocAttachment();
-        String description = docAttachment.description == null ? "" : docAttachment.description;
+        Optional<Documentation> docAttachment = functionSymbol.docAttachment();
+        String description = docAttachment.isEmpty() || docAttachment.get().description().isEmpty()
+                ? "" : docAttachment.get().description().get();
         Map<String, String> docParamsMap = new HashMap<>();
-        for (MarkdownDocAttachment.Parameter parameter : docAttachment.parameters) {
-            docParamsMap.put(parameter.name, parameter.description);
-        }
-        List<BVarSymbol> defaultParams = bInvokableSymbol.getParameters().stream()
-                .filter(varSymbol -> varSymbol.defaultableParam).collect(Collectors.toList());
+        docAttachment.ifPresent(documentation -> documentation.parameterMap().forEach(docParamsMap::put));
+
+        List<Parameter> defaultParams = functionTypeDesc.requiredParams().stream()
+                .filter(parameter -> parameter.kind() == ParameterKind.DEFAULTABLE)
+                .collect(Collectors.toList());
 
         MarkupContent docMarkupContent = new MarkupContent();
         docMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
         String documentation = "**Package:** " + "_" + pkgID + "_" + CommonUtil.MD_LINE_SEPARATOR
                 + CommonUtil.MD_LINE_SEPARATOR + description + CommonUtil.MD_LINE_SEPARATOR;
         StringJoiner joiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
-        List<BVarSymbol> functionParameters = new ArrayList<>(bInvokableSymbol.params);
-        if (bInvokableSymbol.restParam != null) {
-            functionParameters.add(bInvokableSymbol.restParam);
+        List<Parameter> functionParameters = new ArrayList<>(functionTypeDesc.requiredParams());
+        if (functionTypeDesc.restParam().isPresent()) {
+            functionParameters.add(functionTypeDesc.restParam().get());
         }
         for (int i = 0; i < functionParameters.size(); i++) {
-            BVarSymbol paramSymbol = functionParameters.get(i);
-            String paramType = CommonUtil.getBTypeName(paramSymbol.type, ctx, false);
+            Parameter param = functionParameters.get(i);
+            String paramType = param.typeDescriptor().signature();
             if (i == 0 && skipFirstParam) {
                 continue;
             }
 
-            Optional<BVarSymbol> defaultVal = defaultParams.stream()
-                    .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(paramSymbol.name.value))
+            Optional<Parameter> defaultVal = defaultParams.stream()
+                    .filter(parameter -> parameter.name().get().equals(param.name().get()))
                     .findFirst();
-            String paramDescription = "- " + "`" + paramType + "` " + paramSymbol.getName().getValue();
-            if (docParamsMap.containsKey(paramSymbol.name.value)) {
-                paramDescription += ": " + docParamsMap.get(paramSymbol.name.value);
+            String paramDescription = "- " + "`" + paramType + "` " + param.name().get();
+            if (param.name().isPresent() && docParamsMap.containsKey(param.name().get())) {
+                paramDescription += ": " + docParamsMap.get(param.name().get());
             }
             if (defaultVal.isPresent()) {
                 joiner.add(paramDescription + "(Defaultable)");
@@ -191,16 +190,15 @@ public final class BFunctionCompletionItemBuilder {
         if (!paramsStr.isEmpty()) {
             documentation += "**Params**" + CommonUtil.MD_LINE_SEPARATOR + paramsStr;
         }
-        if (!(bInvokableSymbol.retType instanceof BNilType)
-                && bInvokableSymbol.retType != null
-                && bInvokableSymbol.retType.tsymbol != null) {
+        if (functionTypeDesc.kind() != TypeDescKind.NIL) {
             String desc = "";
-            if (docAttachment.returnValueDescription != null && !docAttachment.returnValueDescription.isEmpty()) {
-                desc = "- " + CommonUtil.MD_NEW_LINE_PATTERN.matcher(docAttachment.returnValueDescription).replaceAll(
-                        CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
+            if (docAttachment.isPresent() && docAttachment.get().returnDescription().isPresent()
+                    && !docAttachment.get().returnDescription().get().isEmpty()) {
+                desc = "- " + CommonUtil.MD_NEW_LINE_PATTERN.matcher(docAttachment.get().returnDescription().get())
+                        .replaceAll(CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
             }
             documentation += CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "**Returns**"
-                    + " `" + CommonUtil.getBTypeName(bInvokableSymbol.retType, ctx, false) + "` " +
+                    + " `" + functionTypeDesc.returnTypeDescriptor().get().signature() + "` " +
                     CommonUtil.MD_LINE_SEPARATOR + desc + CommonUtil.MD_LINE_SEPARATOR;
         }
         docMarkupContent.setValue(documentation);

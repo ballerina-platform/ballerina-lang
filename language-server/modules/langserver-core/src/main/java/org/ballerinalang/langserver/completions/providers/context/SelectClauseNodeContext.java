@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SelectClauseNode;
@@ -25,7 +26,6 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Scope.ScopeEntry> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
             return this.getCompletionItemList(exprEntries, context);
         }
 
