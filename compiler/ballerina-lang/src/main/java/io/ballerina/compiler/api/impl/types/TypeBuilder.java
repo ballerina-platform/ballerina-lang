@@ -31,6 +31,7 @@ import io.ballerina.compiler.api.types.util.ParameterKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -72,6 +73,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.types.util.ParameterKind.DEFAULTABLE;
@@ -95,13 +97,15 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
     private final Types types;
     private final LangLibrary langLibrary;
     private final Map<BType, BallerinaTypeDescriptor> typeCache;
+    private Set<BType> currentlyProcessingTypes;
 
     private TypeBuilder(CompilerContext context) {
         context.put(TYPE_BUILDER_KEY, this);
 
         this.types = Types.getInstance(context);
-        this.langLibrary = LangLibrary.getInstance(context);
         this.typeCache = new HashMap<>();
+        this.langLibrary = LangLibrary.getInstance(context);
+        this.currentlyProcessingTypes = new HashSet<>();
     }
 
     public static TypeBuilder getInstance(CompilerContext context) {
@@ -122,14 +126,22 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
             return typeCache.get(internalType);
         }
 
+        // To prevent infinitely recursing when building the function types for lang lib functions.
+        if (currentlyProcessingTypes.contains(internalType)) {
+            return null;
+        }
+        currentlyProcessingTypes.add(internalType);
+
         moduleID = internalType.tsymbol == null ? null : new BallerinaModuleID(internalType.tsymbol.pkgID);
         BallerinaTypeDescriptor publicType = internalType.accept(this, null);
 
         if (publicType != null) {
             List<MethodDescriptor> langLibMethods = langLibrary.getMethods(publicType.kind());
-            langLibMethods = filterMethods(langLibMethods, internalType);
-            ((AbstractTypeDescriptor) publicType).setLangLibMethods(unmodifiableList(langLibMethods));
+            langLibMethods = filterLangLibMethods(langLibMethods, internalType);
+            ((AbstractTypeDescriptor) publicType).setLangLibMethods(langLibMethods);
         }
+
+        currentlyProcessingTypes.remove(internalType);
 
         if (isTypeReference(internalType)) {
             BallerinaTypeDescriptor refType =
@@ -334,23 +346,26 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
     }
 
     // Private Methods
-    private List<MethodDescriptor> filterMethods(List<MethodDescriptor> methods, BType internalType) {
+    private List<MethodDescriptor> filterLangLibMethods(List<MethodDescriptor> methods, BType internalType) {
         List<MethodDescriptor> filteredMethods = new ArrayList<>();
 
         for (MethodDescriptor method : methods) {
-            BType firstParamType = getFirstParamType(method.typeDescriptor());
+            FunctionTypeDescriptor methodType = method.typeDescriptor();
+            BallerinaMethodDescriptor bMethodDesc = (BallerinaMethodDescriptor) method;
+            BInvokableSymbol internalSymbol = bMethodDesc.getInternalSymbol();
+
+            if (methodType == null) {
+                methodType = (FunctionTypeDescriptor) build(internalSymbol.type);
+                bMethodDesc.setTypeDescriptor(methodType);
+            }
+
+            BType firstParamType = internalSymbol.params.get(0).type;
             if (types.isAssignable(internalType, firstParamType)) {
                 filteredMethods.add(method);
             }
         }
 
         return filteredMethods;
-    }
-
-    private BType getFirstParamType(FunctionTypeDescriptor functionTypeDescriptor) {
-        BInvokableType funcType =
-                (BInvokableType) ((BallerinaFunctionTypeDescriptor) functionTypeDescriptor).getBType();
-        return funcType.paramTypes.get(0);
     }
 
     private List<FieldDescriptor> createFields(BStructureType internalType) {

@@ -21,6 +21,7 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.MethodDescriptor;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 
 import java.util.Set;
 
@@ -33,12 +34,21 @@ public class BallerinaMethodDescriptor implements MethodDescriptor {
 
     private final String name;
     private final Set<Qualifier> qualifiers;
-    private final FunctionTypeDescriptor typeDescriptor;
+    private FunctionTypeDescriptor typeDescriptor;
+    private BInvokableSymbol internalSymbol;
 
     public BallerinaMethodDescriptor(String name, Set<Qualifier> qualifiers, FunctionTypeDescriptor typeDescriptor) {
         this.name = name;
         this.qualifiers = qualifiers;
         this.typeDescriptor = typeDescriptor;
+    }
+
+    public BallerinaMethodDescriptor(String name, Set<Qualifier> qualifiers, FunctionTypeDescriptor typeDescriptor,
+                                     BInvokableSymbol symbol) {
+        this.name = name;
+        this.qualifiers = qualifiers;
+        this.typeDescriptor = typeDescriptor;
+        this.internalSymbol = symbol;
     }
 
     @Override
@@ -54,5 +64,17 @@ public class BallerinaMethodDescriptor implements MethodDescriptor {
     @Override
     public FunctionTypeDescriptor typeDescriptor() {
         return this.typeDescriptor;
+    }
+
+    // Setters and getters. Only to be used in the type builder.
+
+    void setTypeDescriptor(FunctionTypeDescriptor typeDescriptor) {
+        if (this.typeDescriptor == null) {
+            this.typeDescriptor = typeDescriptor;
+        }
+    }
+
+    BInvokableSymbol getInternalSymbol() {
+        return this.internalSymbol;
     }
 }

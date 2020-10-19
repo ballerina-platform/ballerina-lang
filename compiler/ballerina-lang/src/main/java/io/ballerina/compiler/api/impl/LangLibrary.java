@@ -19,8 +19,6 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.impl.types.BallerinaMethodDescriptor;
-import io.ballerina.compiler.api.impl.types.TypeBuilder;
-import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.util.TypeDescKind;
 import org.ballerinalang.model.elements.PackageID;
@@ -65,18 +63,16 @@ import static io.ballerina.compiler.api.types.util.TypeDescKind.XML;
 public class LangLibrary {
 
     private static final CompilerContext.Key<LangLibrary> LANG_LIB_KEY = new CompilerContext.Key<>();
-
     private static final String LANG_VALUE = "value";
-    private Map<String, BPackageSymbol> langLibs;
-    private Map<String, Map<String, BInvokableSymbol>> langLibMethods;
-    private Map<String, List<MethodDescriptor>> wrappedLangLibMethods;
-    private TypeBuilder typeBuilder;
+
+    private final Map<String, BPackageSymbol> langLibs;
+    private final Map<String, Map<String, BInvokableSymbol>> langLibMethods;
+    private final Map<String, List<MethodDescriptor>> wrappedLangLibMethods;
 
     private LangLibrary(CompilerContext context) {
         context.put(LANG_LIB_KEY, this);
 
         SymbolTable symbolTable = SymbolTable.getInstance(context);
-        typeBuilder = TypeBuilder.getInstance(context);
         langLibs = new HashMap<>();
         wrappedLangLibMethods = new HashMap<>();
 
@@ -102,6 +98,13 @@ public class LangLibrary {
         return langLib;
     }
 
+    /**
+     * Given a type descriptor kind, return the list of lang library functions that can be called using a method call
+     * expr, on an expression of that type.
+     *
+     * @param typeDescKind A type descriptor kind
+     * @return The associated list of lang library functions
+     */
     public List<MethodDescriptor> getMethods(TypeDescKind typeDescKind) {
         String langLibName = getAssociatedLangLibName(typeDescKind);
 
@@ -109,9 +112,9 @@ public class LangLibrary {
             return wrappedLangLibMethods.get(langLibName);
         }
 
-        List<MethodDescriptor> wrappedMethods = new ArrayList<>();
         Map<String, BInvokableSymbol> methods = langLibMethods.get(langLibName);
 
+        List<MethodDescriptor> wrappedMethods = new ArrayList<>();
         wrappedLangLibMethods.put(langLibName, wrappedMethods);
         populateMethodList(wrappedMethods, methods);
 
@@ -130,8 +133,7 @@ public class LangLibrary {
             String name = entry.getKey();
             BInvokableSymbol methodSymbol = entry.getValue();
             BallerinaMethodDescriptor method =
-                    new BallerinaMethodDescriptor(name, new HashSet<>(),
-                                                  (FunctionTypeDescriptor) typeBuilder.build(methodSymbol.type));
+                    new BallerinaMethodDescriptor(name, new HashSet<>(), null, methodSymbol);
             list.add(method);
         }
     }
