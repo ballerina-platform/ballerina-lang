@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.java;
 
-import org.ballerinalang.jvm.values.HandleValue;
+import io.ballerina.runtime.api.values.BHandle;
 
 /**
  * This class contains the implementation of the "getArrayLength" ballerina function in ballerina/java module.
@@ -27,8 +27,8 @@ import org.ballerinalang.jvm.values.HandleValue;
 
 public class GetArrayLength {
 
-    public static long getArrayLength(HandleValue arrayValue) {
-        Object[] arr = (Object[]) arrayValue.getValue();
+    public static long getArrayLength(BHandle bHandle) {
+        Object[] arr = (Object[]) bHandle.getValue();
         if (arr == null) {
             throw JValues.getJavaNullReferenceError();
         }

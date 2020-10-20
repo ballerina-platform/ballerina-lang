@@ -65,7 +65,7 @@ public class DiagnosticsTest {
         BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
 
         LineRange range = LineRange.from("type_checking_errors.bal", LinePosition.from(1, 0),
-                                         LinePosition.from(19, 20));
+                                         LinePosition.from(18, 19));
         List<Diagnostic> diagnostics = model.diagnostics(range);
 
         assertEquals(diagnostics.size(), 1);
@@ -76,11 +76,11 @@ public class DiagnosticsTest {
 
     private Object[][] getExpectedErrors() {
         return new Object[][]{
-                {"missing semicolon token", 19, 1},
-                {"missing identifier", 22, 9},
-                {"invalid token 'string'", 22, 16},
-                {"incompatible types: expected 'int', found 'string'", 18, 13},
-                {"incompatible types: 'int' cannot be cast to 'string'", 20, 16}
+                {"missing semicolon token", 18, 0},
+                {"missing identifier", 21, 8},
+                {"invalid token 'string'", 21, 15},
+                {"incompatible types: expected 'int', found 'string'", 17, 12},
+                {"incompatible types: 'int' cannot be cast to 'string'", 19, 15}
         };
     }
 

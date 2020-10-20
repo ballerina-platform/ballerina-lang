@@ -18,11 +18,11 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.array:push((any|error)[], (any|error)...).
@@ -39,8 +39,8 @@ public class Push {
 
     private static final String FUNCTION_SIGNATURE = "push()";
 
-    public static void push(ArrayValue arr, Object... vals) {
-        BType arrType = arr.getType();
+    public static void push(BArray arr, Object... vals) {
+        Type arrType = arr.getType();
         int nVals = vals.length;
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:

@@ -49,7 +49,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.ballerinalang.jvm.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
 
 /**
  * Service De-sugar.
@@ -201,5 +201,6 @@ public class ServiceDesugar {
 
     private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env) {
         httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
+        httpFiltersDesugar.addCustomAnnotationToResource(functionNode, env);
     }
 }

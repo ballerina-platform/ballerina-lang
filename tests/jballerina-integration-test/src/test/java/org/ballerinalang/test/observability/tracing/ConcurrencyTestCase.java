@@ -38,10 +38,10 @@ import java.util.stream.Collectors;
  * Test cases for concurrency related functionality.
  */
 @Test(groups = "tracing-test")
-public class ConcurrencyTestCase extends BaseTestCase {
+public class ConcurrencyTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "05_concurrency.bal";
     private static final String SERVICE_NAME = "testServiceFour";
-    private static final String BASE_URL = "http://localhost:9093";
+    private static final String BASE_URL = "http://localhost:9094";
 
     @DataProvider(name = "async-call-data-provider")
     public Object[][] getAsyncCallData() {

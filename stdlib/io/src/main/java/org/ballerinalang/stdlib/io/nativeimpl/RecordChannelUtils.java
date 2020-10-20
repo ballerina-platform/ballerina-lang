@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.csv.Format;
@@ -99,7 +99,7 @@ public class RecordChannelUtils {
         } else {
             try {
                 String[] records = textRecordChannel.read();
-                return BValueCreator.createArrayValue(BStringUtils.fromStringArray(records));
+                return ValueCreator.createArrayValue(StringUtils.fromStringArray(records));
             } catch (BallerinaIOException e) {
                 log.error("error occurred while reading next text record from ReadableTextRecordChannel", e);
                 return IOUtils.createError(e);
@@ -107,7 +107,7 @@ public class RecordChannelUtils {
         }
     }
 
-    public static Object write(BObject channel, ArrayValue content) {
+    public static Object write(BObject channel, BArray content) {
         DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel
                 .getNativeData(TXT_RECORD_CHANNEL_NAME);
         try {

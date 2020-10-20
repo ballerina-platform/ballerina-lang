@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
@@ -146,7 +146,7 @@ public class DataChannelUtils {
             return IOUtils.createEoFError();
         } else {
             try {
-                return BStringUtils.fromString(channel.readString((int) nBytes, encoding.getValue()));
+                return StringUtils.fromString(channel.readString((int) nBytes, encoding.getValue()));
             } catch (IOException e) {
                 String msg = "Error occurred while reading string: " + e.getMessage();
                 log.error(msg, e);
