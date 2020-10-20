@@ -21,6 +21,7 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.impl.LangLibrary;
+import io.ballerina.compiler.api.impl.Qualifiers;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
@@ -222,7 +223,8 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
         List<MethodDescriptor> methods = new ArrayList<>();
         for (BAttachedFunction func : typeSymbol.attachedFuncs) {
             BallerinaFunctionTypeDescriptor methodType = (BallerinaFunctionTypeDescriptor) build(func.type);
-            BallerinaMethodDescriptor methodDecl = new BallerinaMethodDescriptor(func.funcName.value, new HashSet<>(),
+            Set<Qualifier> qualifiers = Qualifiers.getMethodQualifiers(func.symbol.flags);
+            BallerinaMethodDescriptor methodDecl = new BallerinaMethodDescriptor(func.funcName.value, qualifiers,
                                                                                  methodType);
             methods.add(methodDecl);
         }

@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.MethodDescriptor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -39,14 +40,14 @@ public class BallerinaMethodDescriptor implements MethodDescriptor {
 
     public BallerinaMethodDescriptor(String name, Set<Qualifier> qualifiers, FunctionTypeDescriptor typeDescriptor) {
         this.name = name;
-        this.qualifiers = qualifiers;
+        this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptor = typeDescriptor;
     }
 
     public BallerinaMethodDescriptor(String name, Set<Qualifier> qualifiers, FunctionTypeDescriptor typeDescriptor,
                                      BInvokableSymbol symbol) {
         this.name = name;
-        this.qualifiers = qualifiers;
+        this.qualifiers = Collections.unmodifiableSet(qualifiers);
         this.typeDescriptor = typeDescriptor;
         this.internalSymbol = symbol;
     }

@@ -19,6 +19,7 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.impl.types.BallerinaMethodDescriptor;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.util.TypeDescKind;
 import org.ballerinalang.model.elements.PackageID;
@@ -37,9 +38,9 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.ballerina.compiler.api.types.util.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.types.util.TypeDescKind.BOOLEAN;
@@ -133,8 +134,8 @@ public class LangLibrary {
         for (Map.Entry<String, BInvokableSymbol> entry : langLib.entrySet()) {
             String name = entry.getKey();
             BInvokableSymbol methodSymbol = entry.getValue();
-            BallerinaMethodDescriptor method =
-                    new BallerinaMethodDescriptor(name, new HashSet<>(), null, methodSymbol);
+            Set<Qualifier> qualifiers = Qualifiers.getMethodQualifiers(methodSymbol.flags);
+            BallerinaMethodDescriptor method = new BallerinaMethodDescriptor(name, qualifiers, null, methodSymbol);
             list.add(method);
         }
     }
