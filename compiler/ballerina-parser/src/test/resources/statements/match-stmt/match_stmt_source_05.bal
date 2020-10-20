@@ -1,12 +1,12 @@
-function foo () {
+function foo() {
     match bar {
         var _ => {}
         var a => {}
-        var [a, b, ...c]=> {}
+        var [a, b, ...c] => {}
         var [] => {}
         () => {}
-        var {a:b} => {}
+        var { a:b } => {}
         "east" => {}
-        "west"  if getX() | getY() => {}
+        "west" if getX() | getY() => {}
     }
 }
