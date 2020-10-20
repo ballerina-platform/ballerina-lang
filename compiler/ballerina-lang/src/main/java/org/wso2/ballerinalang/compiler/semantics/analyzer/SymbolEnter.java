@@ -820,11 +820,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             for (int i = index; i < compUnits.size(); i++) {
                 boolean isUndefinedModule = true;
-                if (((BPackageSymbol) entry.symbol).compUnit.value.equals(compUnits.get(i).name)) {
+                String compUnitName = compUnits.get(i).name;
+                if (((BPackageSymbol) entry.symbol).compUnit.value.equals(compUnitName)) {
                     isUndefinedModule = false;
                 }
                 while (entry.next != NOT_FOUND_ENTRY) {
-                    if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnits.get(i).name)) {
+                    if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnitName)) {
                         isUndefinedModule = false;
                         break;
                     }
@@ -832,7 +833,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
                 if (isUndefinedModule) {
                     entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
-                            new Name(compUnits.get(i).name)), NOT_FOUND_ENTRY);
+                            new Name(compUnitName)), NOT_FOUND_ENTRY);
                 }
             }
         }
