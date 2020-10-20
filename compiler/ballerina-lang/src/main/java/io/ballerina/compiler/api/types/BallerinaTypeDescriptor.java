@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.types;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.types.util.TypeDescKind;
 
 import java.util.List;
@@ -55,5 +56,5 @@ public interface BallerinaTypeDescriptor {
      *
      * @return {@link List} of visible members
      */
-    List<MethodDescriptor> langLibMethods();
+    List<MethodSymbol> langLibMethods();
 }

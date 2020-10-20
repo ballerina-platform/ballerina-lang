@@ -22,12 +22,12 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.impl.LangLibrary;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
-import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
 import io.ballerina.compiler.api.types.util.ParameterKind;
 import org.ballerinalang.model.types.TypeKind;
@@ -140,7 +140,7 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
         BallerinaTypeDescriptor publicType = internalType.accept(this, null);
 
         if (publicType != null) {
-            List<MethodDescriptor> langLibMethods = langLibrary.getMethods(publicType.kind());
+            List<MethodSymbol> langLibMethods = langLibrary.getMethods(publicType.kind());
             langLibMethods = filterLangLibMethods(langLibMethods, internalType);
             ((AbstractTypeDescriptor) publicType).setLangLibMethods(langLibMethods);
         }
@@ -348,17 +348,17 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
     }
 
     // Private Methods
-    private List<MethodDescriptor> filterLangLibMethods(List<MethodDescriptor> methods, BType internalType) {
-        List<MethodDescriptor> filteredMethods = new ArrayList<>();
+    private List<MethodSymbol> filterLangLibMethods(List<MethodSymbol> methods, BType internalType) {
+        List<MethodSymbol> filteredMethods = new ArrayList<>();
 
-        for (MethodDescriptor method : methods) {
+        for (MethodSymbol method : methods) {
             FunctionTypeDescriptor methodType = method.typeDescriptor();
-            BallerinaMethodDescriptor bMethodDesc = (BallerinaMethodDescriptor) method;
-            BInvokableSymbol internalSymbol = bMethodDesc.getInternalSymbol();
+            BallerinaMethodSymbol methodSymbol = (BallerinaMethodSymbol) method;
+            BInvokableSymbol internalSymbol = methodSymbol.getInternalSymbol();
 
             if (methodType == null) {
                 methodType = (FunctionTypeDescriptor) build(internalSymbol.type);
-                bMethodDesc.setTypeDescriptor(methodType);
+                methodSymbol.setTypeDescriptor(methodType);
             }
 
             BType firstParamType = internalSymbol.params.get(0).type;

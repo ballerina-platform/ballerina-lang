@@ -38,10 +38,10 @@ import java.util.Set;
  */
 public class BallerinaFunctionSymbol extends BallerinaSymbol implements FunctionSymbol {
 
-    private final FunctionTypeDescriptor typeDescriptor;
     private final Set<Qualifier> qualifiers;
     private final boolean isExternal;
     private final boolean deprecated;
+    private FunctionTypeDescriptor typeDescriptor;
 
     protected BallerinaFunctionSymbol(String name,
                                       PackageID moduleID,
@@ -80,6 +80,12 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
         return this.deprecated;
     }
 
+    void setTypeDescriptor(FunctionTypeDescriptor typeDescriptor) {
+        if (this.typeDescriptor == null) {
+            this.typeDescriptor = typeDescriptor;
+        }
+    }
+
     /**
      * Represents Ballerina XML Namespace Symbol Builder.
      */
@@ -107,13 +113,18 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
             return this;
         }
 
+        public FunctionSymbolBuilder withQualifiers(Set<Qualifier> qualifiers) {
+            this.qualifiers.addAll(qualifiers);
+            return this;
+        }
+
         @Override
         public BallerinaFunctionSymbol build() {
             return new BallerinaFunctionSymbol(this.name,
-                    this.moduleID,
-                    this.qualifiers,
-                    this.typeDescriptor,
-                    (BInvokableSymbol) this.bSymbol);
+                                               this.moduleID,
+                                               this.qualifiers,
+                                               this.typeDescriptor,
+                                               (BInvokableSymbol) this.bSymbol);
         }
     }
 }

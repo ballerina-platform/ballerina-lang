@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.tools.diagnostics.Location;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 
 import java.util.Optional;
 import java.util.Set;
@@ -37,9 +38,15 @@ import java.util.Set;
 public class BallerinaMethodSymbol implements MethodSymbol {
 
     private final FunctionSymbol functionSymbol;
+    private BInvokableSymbol internalSymbol;
 
     public BallerinaMethodSymbol(FunctionSymbol functionSymbol) {
         this.functionSymbol = functionSymbol;
+    }
+
+    public BallerinaMethodSymbol(FunctionSymbol functionSymbol, BInvokableSymbol internalSymbol) {
+        this.functionSymbol = functionSymbol;
+        this.internalSymbol = internalSymbol;
     }
 
     @Override
@@ -85,5 +92,14 @@ public class BallerinaMethodSymbol implements MethodSymbol {
     @Override
     public Location location() {
         return this.functionSymbol.location();
+    }
+
+    // The following are only to be used with the type builder. Will most probably be removed later.
+    public BInvokableSymbol getInternalSymbol() {
+        return this.internalSymbol;
+    }
+
+    public void setTypeDescriptor(FunctionTypeDescriptor typeDescriptor) {
+        ((BallerinaFunctionSymbol) this.functionSymbol).setTypeDescriptor(typeDescriptor);
     }
 }

@@ -21,12 +21,12 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
-import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.RecordTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
@@ -333,8 +333,8 @@ public class LangLibFunctionTest {
         return model.symbol("langlib_test.bal", from(line, column)).get();
     }
 
-    private void assertLangLibList(List<MethodDescriptor> langLib, List<String> expFunctions) {
-        Set<String> langLibSet = langLib.stream().map(MethodDescriptor::name).collect(Collectors.toSet());
+    private void assertLangLibList(List<MethodSymbol> langLib, List<String> expFunctions) {
+        Set<String> langLibSet = langLib.stream().map(MethodSymbol::name).collect(Collectors.toSet());
 
         for (String expFunction : expFunctions) {
             assertTrue(langLibSet.contains(expFunction), "Expected function '" + expFunction + "' not found");

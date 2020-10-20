@@ -18,8 +18,8 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import io.ballerina.compiler.api.types.util.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -61,7 +61,7 @@ public class BallerinaTypeReferenceTypeDescriptor extends AbstractTypeDescriptor
     }
 
     @Override
-    public List<MethodDescriptor> langLibMethods() {
+    public List<MethodSymbol> langLibMethods() {
         return typeDescriptorImpl.langLibMethods();
     }
 
