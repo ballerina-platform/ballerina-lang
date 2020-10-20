@@ -17,14 +17,25 @@
  */
 package org.ballerinalang.langserver.completion.latest;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
 
 /**
  * Expression Context tests.
- * 
+ *
  * @since 2.0.0
  */
 public class XMLTypeDescContextTest extends CompletionTestNew {
+
+    @Override
+    @Test(groups = {"broken"})
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
+    }
+
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {

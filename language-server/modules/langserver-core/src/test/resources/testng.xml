@@ -26,7 +26,7 @@ under the License.
                 <exclude name="broken"/>
             </run>
         </groups>
-        <classes>
+        <packages>
 <!--            <package name="org.ballerinalang.langserver.highlighting.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.definition.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.docsymbol.*"/>-->
@@ -35,31 +35,14 @@ under the License.
 <!--            <package name="org.ballerinalang.langserver.references.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.rename.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.completion.*"/>-->
-            <class name="org.ballerinalang.langserver.signature.ActionTest"/>
-            <class name="org.ballerinalang.langserver.signature.ExpressionsTest"/>
-            <class name="org.ballerinalang.langserver.signature.StatementTest"/>
+            <package name="org.ballerinalang.langserver.signature.*"/>
 <!--            <package name="org.ballerinalang.langserver.workspace.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.formatting.FormattingTest"/>-->
 <!--            <package name="org.ballerinalang.langserver.extensions.document.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.extensions.connector.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.codeaction.*"/>-->
-            <class name="org.ballerinalang.langserver.completion.latest.AnnotationTest" />
-            <class name="org.ballerinalang.langserver.completion.latest.ClassDefContextTest" />
-            <class name="org.ballerinalang.langserver.completion.latest.ExpressionContextTest" />
-            <class name="org.ballerinalang.langserver.completion.latest.FunctionBodyTest" />
-            <class name="org.ballerinalang.langserver.completion.latest.FunctionDefinitionTest" />
-            <class name="org.ballerinalang.langserver.completion.latest.ImportDeclarationTest" />
-            <class name="org.ballerinalang.langserver.completion.latest.ModulePartNodeContextTest" />
-<!--            <class name="org.ballerinalang.langserver.completion.latest.ModuleVariableContextTest" />-->
-            <class name="org.ballerinalang.langserver.completion.latest.ListenerDeclarationTest" />
-            <class name="org.ballerinalang.langserver.completion.latest.RecordTypeDescriptorTest" />
-<!--            <class name="org.ballerinalang.langserver.completion.latest.ServiceBodyTest" />-->
-            <class name="org.ballerinalang.langserver.completion.latest.ServiceDeclarationTest" />
-            <class name="org.ballerinalang.langserver.completion.latest.StatementContextTest" />
-            <class name="org.ballerinalang.langserver.completion.latest.TypeDefinitionTest" />
-            <class name="org.ballerinalang.langserver.completion.latest.TypeDescContextTest" />
-<!--            <class name="org.ballerinalang.langserver.completion.latest.XMLTypeDescContextTest" />-->
+            <package name="org.ballerinalang.langserver.completion.latest.*" />
 <!--            <package name="org.ballerinalang.langserver.command.*"/>-->
-        </classes>
+        </packages>
     </test>
 </suite>
