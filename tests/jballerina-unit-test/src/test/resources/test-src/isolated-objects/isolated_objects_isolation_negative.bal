@@ -104,29 +104,33 @@ function testInvalidIsolatedObjectConstructorAccessingMutableFieldsOutsideLock()
 int[] globIntArr = [1200, 12, 12345];
 int[] globIntArrCopy = globIntArr;
 int[] globIntArrCopy2 = globIntArrCopy;
-
+string globStr = "global string";
 map<boolean> globBoolMap = {a: true, b: false};
 
-function accessGlobBool() {
-    _ = globBoolMap;
+function accessGlobBoolMap(string s) {
+    _ = (globBoolMap["a"] ?: true) && (globStr == s);
 }
 
 isolated class InvalidIsolatedClassWithNonUniqueInitializerExprs {
     private int[][] a;
     private map<boolean> b = globBoolMap;
-    private record {} c;
-    final string d = "str";
+    private record {} c = {[globStr]: accessGlobBoolMap(globStr)};
+    final string d = globStr;
+    private table<record{ readonly int id; }> e = table key (id) [
+        {id: 1, "name": "foo"},
+        {id: 2, "name": string `str ${globStr}`}
+    ];
+    final readonly & xml[] f = [xml `hello ${globStr}`, xml `<!-- int: ${globIntArr[0]} -->`, xml `ok`,
+                                xml `?pi ${globBoolMap["a"] is boolean ? "true" : globStr}?`];
+    final int g = checkpanic trap <int> 'int:fromString(globStr);
+    private float h;
 
-    function init(int[][]? a) {
-        if a is int[][] {
-            self.a = a;
-        } else {
-            self.a = [globIntArr, globIntArr];
-        }
-
+    function init(int[][]? a) returns error? {
+        self.a = a ?: [globIntArr, globIntArr];
         record {} rec = {"a": 1, "b": 2.0};
         anydata ad = rec;
         self.c = rec;
+        self.h = check 'float:fromString(globStr);
     }
 }
 
@@ -134,13 +138,22 @@ function testInvalidIsolatedObjectWithNonUniqueInitializerExprs() {
     isolated object {} invalidIsolatedObjectWithNonUniqueInitializerExprs = object {
         private int[][] a = [globIntArr, globIntArr];
         private map<boolean> b = globBoolMap;
-        private record {} c;
-        final string d = "str";
+        private record {} c = {[globStr]: accessGlobBoolMap(globStr)};
+        final string d = globStr;
+        private table<record{ readonly int id; }> e = table key (id) [
+            {id: 1, "name": "foo"},
+            {id: 2, "name": string `str ${globStr}`}
+        ];
+        final readonly & xml[] f = [xml `hello ${globStr}`, xml `<!-- int: ${globIntArr[0]} -->`, xml `ok`,
+                                    xml `?pi ${globBoolMap["a"] is boolean ? "true" : globStr}?`];
+        final int g = checkpanic trap <int> 'int:fromString(globStr);
+        private float h;
 
         function init() {
             record {} rec = {"a": 1, "b": 2.0};
             anydata ad = rec;
             self.c = rec;
+            self.h = checkpanic 'float:fromString(globStr);
         }
     };
 }
