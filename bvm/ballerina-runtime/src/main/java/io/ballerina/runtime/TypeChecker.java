@@ -1248,9 +1248,6 @@ public class TypeChecker {
 
     private static boolean checkIsArrayType(BArrayType sourceType, BArrayType targetType,
                                             List<TypePair> unresolvedTypes) {
-        Type sourceElementType = sourceType.getElementType();
-        Type targetElementType = targetType.getElementType();
-
         switch (sourceType.getState()) {
             case OPEN:
                 if (targetType.getState() != ArrayState.OPEN) {
@@ -1264,12 +1261,12 @@ public class TypeChecker {
                 }
                 break;
         }
-        return checkIsType(sourceElementType, targetElementType, unresolvedTypes);
+        return checkIsType(sourceType.getElementType(), targetType.getElementType(), unresolvedTypes);
     }
 
     private static boolean checkIsArrayType(BTupleType sourceType, BArrayType targetType,
                                             List<TypePair> unresolvedTypes) {
-        Set<Type> tupleTypes = new HashSet<>(sourceType.getTupleTypes());
+        List<Type> tupleTypes = sourceType.getTupleTypes();
         Type sourceRestType = sourceType.getRestType();
         Type targetElementType = targetType.getElementType();
 
@@ -1365,9 +1362,9 @@ public class TypeChecker {
 
     private static boolean checkIsTupleType(BTupleType sourceType, BTupleType targetType,
                                             List<TypePair> unresolvedTypes) {
-        List<Type> sourceTypes = new ArrayList<>(sourceType.getTupleTypes());
+        List<Type> sourceTypes = sourceType.getTupleTypes();
         Type sourceRestType = sourceType.getRestType();
-        List<Type> targetTypes = new ArrayList<>(targetType.getTupleTypes());
+        List<Type> targetTypes = targetType.getTupleTypes();
         Type targetRestType = targetType.getRestType();
 
         if (sourceRestType != null && targetRestType == null) {
