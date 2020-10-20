@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.types.BErrorType;
 import io.ballerina.runtime.values.ErrorValue;
 import io.ballerina.runtime.values.MapValueImpl;
+import io.ballerina.runtime.values.MappingInitialValueEntry;
 
 /**
  * Class @{@link ErrorCreator} provides APIs to create ballerina error instances.
@@ -53,10 +54,11 @@ public class ErrorCreator {
      * @return new error.
      */
     public static BError createError(BString message, BString details) {
-        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
+        MappingInitialValueEntry[] initialValues = new MappingInitialValueEntry[1];
         if (details != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, details);
+            initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD, details);
         }
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return new ErrorValue(message, detailMap);
     }
 
