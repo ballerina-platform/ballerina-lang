@@ -65,4 +65,9 @@ public class FormattingEnv {
      * Reference to the next node that needs to be wrapped.
      */
     Node nodeToWrap = null;
+
+    /**
+     * Flag indicating whether the annotations should be in line.
+     */
+    boolean inLineAnnotation = false;
 }
