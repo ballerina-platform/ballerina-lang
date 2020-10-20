@@ -209,7 +209,7 @@ function createTransactionContext(string coordinationType, string transactionBlo
             registerAtURL:"http://" + coordinatorHost + ":" + coordinatorPort.toString() +
                 initiatorCoordinatorBasePath + "/" + transactionBlockId + registrationPath
         };
-        log:printInfo("Created transaction: " + txnId);
+        log:printDebug("Created transaction: " + txnId);
         return txnContext;
     }
 }

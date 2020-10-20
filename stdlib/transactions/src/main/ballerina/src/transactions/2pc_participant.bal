@@ -96,7 +96,7 @@ type RemoteParticipant object {
         // to prepare a participant
         boolean successful = true;
 
-        log:printInfo("Preparing remote participant: " + self.participantId);
+        log:printDebug("Preparing remote participant: " + self.participantId);
         // If a participant voted NO or failed then abort
         var result = participantEP->prepare(self.transactionId);
         if (result is error) {
@@ -104,19 +104,19 @@ type RemoteParticipant object {
             return result;
         } else {
             if (result == "aborted") {
-                log:printInfo("Remote participant: " + self.participantId + " aborted.");
+                log:printDebug("Remote participant: " + self.participantId + " aborted.");
                 return PREPARE_RESULT_ABORTED;
             } else if (result == "committed") {
-                log:printInfo("Remote participant: " + self.participantId + " committed");
+                log:printDebug("Remote participant: " + self.participantId + " committed");
                 return PREPARE_RESULT_COMMITTED;
             } else if (result == "read-only") {
-                log:printInfo("Remote participant: " + self.participantId + " read-only");
+                log:printDebug("Remote participant: " + self.participantId + " read-only");
                 return PREPARE_RESULT_READ_ONLY;
             } else if (result == "prepared") {
-                log:printInfo("Remote participant: " + self.participantId + " prepared");
+                log:printDebug("Remote participant: " + self.participantId + " prepared");
                 return PREPARE_RESULT_PREPARED;
             } else {
-                log:printInfo("Remote participant: " + self.participantId + ", outcome: " + result);
+                log:printDebug("Remote participant: " + self.participantId + ", outcome: " + result);
             }
         }
         error err = error("Remote participant:" + self.participantId + " replied with invalid outcome");
@@ -126,7 +126,7 @@ type RemoteParticipant object {
     function notifyMe(string protocolUrl, string action) returns @tainted NotifyResult|error {
         Participant2pcClientEP participantEP;
 
-        log:printInfo("Notify(" + action + ") remote participant: " + protocolUrl);
+        log:printDebug("Notify(" + action + ") remote participant: " + protocolUrl);
         participantEP = getParticipant2pcClient(protocolUrl);
         var result = participantEP->notify(self.transactionId, action);
         if (result is error) {
@@ -134,10 +134,10 @@ type RemoteParticipant object {
             return result;
         } else {
             if (result == NOTIFY_RESULT_ABORTED_STR) {
-                log:printInfo("Remote participant: " + self.participantId + " aborted");
+                log:printDebug("Remote participant: " + self.participantId + " aborted");
                 return NOTIFY_RESULT_ABORTED;
             } else if (result == NOTIFY_RESULT_COMMITTED_STR) {
-                log:printInfo("Remote participant: " + self.participantId + " committed");
+                log:printDebug("Remote participant: " + self.participantId + " committed");
                 return NOTIFY_RESULT_COMMITTED;
             }
         }
@@ -162,7 +162,7 @@ type LocalParticipant object {
     function prepare(string protocol) returns [(PrepareResult|error)?, Participant] {
         foreach var localProto in self.participantProtocols {
             if (localProto.name == protocol) {
-                log:printInfo("Preparing local participant: " + self.participantId);
+                log:printDebug("Preparing local participant: " + self.participantId);
                 return [self.prepareMe(self.participatedTxn.transactionId, self.participatedTxn.transactionBlockId),
                 self];
             }
@@ -178,7 +178,7 @@ type LocalParticipant object {
         }
         if (self.participatedTxn.state == TXN_STATE_ABORTED) {
             removeParticipatedTransaction(participatedTxnId);
-            log:printInfo("Local participant: " + self.participantId + " aborted");
+            log:printDebug("Local participant: " + self.participantId + " aborted");
             return PREPARE_RESULT_ABORTED;
         } else if (self.participatedTxn.state == TXN_STATE_COMMITTED) {
             removeParticipatedTransaction(participatedTxnId);
@@ -187,10 +187,10 @@ type LocalParticipant object {
             boolean successful = prepareResourceManagers(transactionId, transactionBlockId);
             if (successful) {
                 self.participatedTxn.state = TXN_STATE_PREPARED;
-                log:printInfo("Local participant: " + self.participantId + " prepared");
+                log:printDebug("Local participant: " + self.participantId + " prepared");
                 return PREPARE_RESULT_PREPARED;
             } else {
-                log:printInfo("Local participant: " + self.participantId + " aborted");
+                log:printDebug("Local participant: " + self.participantId + " aborted");
                 return PREPARE_RESULT_ABORTED;
             }
         }
@@ -200,7 +200,7 @@ type LocalParticipant object {
         if (protocolName is string) {
             foreach var localProto in self.participantProtocols {
                 if (protocolName == localProto.name) {
-                    log:printInfo("Notify(" + action + ") local participant: " + self.participantId);
+                    log:printDebug("Notify(" + action + ") local participant: " + self.participantId);
                     return self.notifyMe(action, self.participatedTxn.transactionBlockId);
                 }
             }
