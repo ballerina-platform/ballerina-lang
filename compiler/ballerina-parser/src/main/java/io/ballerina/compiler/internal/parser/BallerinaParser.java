@@ -325,7 +325,7 @@ public class BallerinaParser extends AbstractParser {
             case QUESTION_MARK_TOKEN: // Scenario foo? (Optional type descriptor with custom type)
             case PIPE_TOKEN: // Scenario foo | (Union type descriptor with custom type)
             case BITWISE_AND_TOKEN: // Scenario foo & (Intersection type descriptor with custom type)
-            case OPEN_BRACE_TOKEN: // Scenario foo[] (Array type descriptor with custom type)
+            case OPEN_BRACE_TOKEN: // Scenario foo{} (mapping-binding-pattern)
             case ERROR_KEYWORD: // Scenario foo error (error-binding-pattern)
             case EOF_TOKEN:
                 return true;
@@ -818,11 +818,6 @@ public class BallerinaParser extends AbstractParser {
                 if (isTopLevelQualifier(nextToken.kind)) {
                     // Top level qualifiers are present. Parse them first and then try to re-parse the method.
                     parseTopLevelQualifiers(qualifiers);
-                    // There could be invalid tokens in between qualifiers which could be a match in main switch case.
-                    // e.g. client invalidToken class { }
-                    // Hence go to recovery and let the error handler decide whether to keep, remove or insert token.
-//                    recover(peek(), ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER, metadata, publicQualifier,
-//                            qualifiers);
                     return parseTopLevelNode(metadata, publicQualifier, qualifiers);
                 }
 
@@ -1923,9 +1918,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseDistinctTypeDesc(distinctKeyword, context);
             default:
                 if (isTypeDescQualifier(nextToken.kind)) {
-                    // Type desc qualifiers are present. Parse them first and try to re-parse the method.
+                    // Type desc qualifiers are present. Parse them first and then try to re-parse the method.
                     parseTypeDescQualifiers(qualifiers);
-//                    recover(peek(), ParserRuleContext.TYPE_DESCRIPTOR, qualifiers, context, isInConditionalExpr);
                     return parseTypeDescriptorInternal(qualifiers, context, isInConditionalExpr);
                 }
 
@@ -3451,9 +3445,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseErrorTypeDescOrErrorBP(getAnnotations(annots));
             default:
                 if (isTypeDescQualifier(nextToken.kind)) {
-                    // Type desc qualifiers are present. Parse them first and try to re-parse the method.
+                    // Type desc qualifiers are present. Parse them first and then try to re-parse the method
                     parseTypeDescQualifiers(qualifiers);
-//                    recover(peek(), ParserRuleContext.STATEMENT_WITHOUT_ANNOTS, annots, qualifiers);
                     return parseStatement(annots, qualifiers);
                 }
 
@@ -4878,7 +4871,7 @@ public class BallerinaParser extends AbstractParser {
      * </p>
      * <code>(client | isolated)* object { object-member-descriptor* }</code>
      *
-     * @param qualifiers
+     * @param qualifiers Object type qualifiers
      * @return Parsed node
      */
     private STNode parseObjectTypeDescriptor(List<STNode> qualifiers) {
@@ -5151,14 +5144,13 @@ public class BallerinaParser extends AbstractParser {
                 break;
             default:
                 if (isObjectMemberQualifier(nextToken.kind)) {
-                    // Object member qualifiers are present. Parse them first and try to re-parse the method.
+                    // Object member qualifiers are present. Parse them first and then try to re-parse the method.
                     parseObjectMemberQualifiers(qualifiers);
-//                    recover(peek(), recoveryCtx, metadata, qualifiers, recoveryCtx, isObjectTypeDesc);
                     return parseObjectMemberWithoutMeta(metadata, qualifiers, recoveryCtx, isObjectTypeDesc);
                 }
 
                 if (nextToken.kind == SyntaxKind.FINAL_KEYWORD || isTypeStartingToken(nextToken.kind)) {
-                    member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), isObjectTypeDesc, qualifiers);
+                    member = parseObjectField(metadata, STNodeFactory.createEmptyNode(), qualifiers, isObjectTypeDesc);
                     break;
                 }
 
@@ -5201,20 +5193,18 @@ public class BallerinaParser extends AbstractParser {
                     // Here we try to catch the common user error of missing the function keyword.
                     // In such cases, lookahead for the open-parenthesis and figure out whether
                     // this is an object-method with missing name. If yes, then try to recover.
-                    return parseObjectField(metadata, visibilityQualifier, isObjectTypeDesc, qualifiers);
+                    return parseObjectField(metadata, visibilityQualifier, qualifiers, isObjectTypeDesc);
                 }
                 break;
             default:
                 if (isObjectMemberQualifier(nextToken.kind)) {
-                    // Object member qualifiers are present. Parse them first and try to re-parse the method.
+                    // Object member qualifiers are present. Parse them first and then try to re-parse the method.
                     parseObjectMemberQualifiers(qualifiers);
-//                    recover(peek(), ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY, metadata,
-//                            visibilityQualifier, qualifiers, isObjectTypeDesc);
                     return parseObjectMethodOrField(metadata, visibilityQualifier, qualifiers, isObjectTypeDesc);
                 }
 
                 if (nextToken.kind == SyntaxKind.FINAL_KEYWORD || isTypeStartingToken(nextToken.kind)) {
-                    return parseObjectField(metadata, visibilityQualifier, isObjectTypeDesc, qualifiers);
+                    return parseObjectField(metadata, visibilityQualifier, qualifiers, isObjectTypeDesc);
                 }
                 break;
         }
@@ -5309,12 +5299,12 @@ public class BallerinaParser extends AbstractParser {
      *
      * @param metadata Preceding metadata
      * @param visibilityQualifier Preceding visibility qualifier
+     * @param qualifiers Preceding type desc qualifiers
      * @param isObjectTypeDesc Whether object type or not
-     * @param qualifiers
      * @return Parsed node
      */
-    private STNode parseObjectField(STNode metadata, STNode visibilityQualifier, boolean isObjectTypeDesc,
-                                    List<STNode> qualifiers) {
+    private STNode parseObjectField(STNode metadata, STNode visibilityQualifier, List<STNode> qualifiers,
+                                    boolean isObjectTypeDesc) {
         STToken nextToken = peek();
         STNode finalQualifier = STNodeFactory.createEmptyNode();
         if (nextToken.kind == SyntaxKind.FINAL_KEYWORD) {
@@ -7824,11 +7814,12 @@ public class BallerinaParser extends AbstractParser {
      * </code>
      *
      * @param annots Annotations attached to the worker decl
+     * @param qualifiers Preceding transactional keyword in a list
      * @return Parsed node
      */
     private STNode parseNamedWorkerDeclaration(STNode annots, List<STNode> qualifiers) {
         startContext(ParserRuleContext.NAMED_WORKER_DECL);
-        STNode transactionalKeyword = parseOptionalTransactionalKeyword(qualifiers);
+        STNode transactionalKeyword = getTransactionalKeyword(qualifiers);
         STNode workerKeyword = parseWorkerKeyword();
         STNode workerName = parseWorkerName();
         STNode returnTypeDesc = parseReturnTypeDescriptor();
@@ -7838,7 +7829,7 @@ public class BallerinaParser extends AbstractParser {
                 returnTypeDesc, workerBody);
     }
 
-    private STNode parseOptionalTransactionalKeyword(List<STNode> qualifierList) {
+    private STNode getTransactionalKeyword(List<STNode> qualifierList) {
         for (int i = 0; i < qualifierList.size();) {
             STNode qualifier = qualifierList.get(i);
             if (qualifier.kind != SyntaxKind.TRANSACTIONAL_KEYWORD) {
@@ -9150,8 +9141,8 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>function-type-descriptor := [isolated] function function-signature</code>
      *
+     * @param qualifiers Preceding type descriptor qualifiers
      * @return Function type descriptor node
-     * @param qualifiers
      */
     private STNode parseFunctionTypeDesc(List<STNode> qualifiers) {
         startContext(ParserRuleContext.FUNC_TYPE_DESC);
@@ -12906,7 +12897,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypedBindingPatternOrExprRhs(basicLiteral, allowAssignment);
             default:
                 if (isTypeDescQualifier(nextToken.kind)) {
-                    // Type desc qualifiers are present. Parse them first and try to re-parse the method.
+                    // Type desc qualifiers are present. Parse them first and then try to re-parse the method.
                     parseTypeDescQualifiers(qualifiers);
                     return parseTypedBindingPatternOrExprWithoutQuals(qualifiers, allowAssignment);
                 }
@@ -13125,7 +13116,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypeDescOrExprRhs(basicLiteral);
             default:
                 if (isTypeDescQualifier(nextToken.kind)) {
-                    // Type desc qualifiers are present. Parse them first and try to re-parse the method.
+                    // Type desc qualifiers are present. Parse them first and then try to re-parse the method.
                     parseTypeDescQualifiers(qualifiers);
                     return parseTypeDescOrExpr(qualifiers);
                 }
@@ -13194,8 +13185,8 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse anon-func-expr or function-type-desc, by resolving the ambiguity.
      *
+     * @param qualifiers Preceding qualifiers
      * @return Anon-func-expr or function-type-desc
-     * @param qualifiers
      */
     private STNode parseAnonFuncExprOrFuncTypeDesc(List<STNode> qualifiers) {
         startContext(ParserRuleContext.FUNC_TYPE_DESC_OR_ANON_FUNC);
@@ -14691,9 +14682,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseAnonFuncExprOrFuncTypeDesc(qualifiers);
             default:
                 if (isTypeDescQualifier(nextToken.kind)) {
-                    // Type desc qualifiers are present. Parse them first and try to re-parse the method.
+                    // Type desc qualifiers are present. Parse them first and then try to re-parse the method.
                     parseTypeDescQualifiers(qualifiers);
-//                    recover(nextToken, ParserRuleContext.STMT_START_BRACKETED_LIST_MEMBER, qualifiers);
                     return parseStatementStartBracketedListMember(qualifiers);
                 }
 
@@ -14706,7 +14696,7 @@ public class BallerinaParser extends AbstractParser {
                     return parseTypeDescriptorWithoutQuals(qualifiers, ParserRuleContext.TYPE_DESC_IN_TUPLE);
                 }
 
-                recover(nextToken, ParserRuleContext.STMT_START_BRACKETED_LIST_MEMBER, qualifiers);
+                recover(peek(), ParserRuleContext.STMT_START_BRACKETED_LIST_MEMBER, qualifiers);
                 return parseStatementStartBracketedListMember(qualifiers);
         }
     }

@@ -2407,8 +2407,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_TYPE_QUALIFIER:
             case OBJECT_CONSTRUCTOR_QUALIFIER:
                 return ParserRuleContext.OBJECT_KEYWORD;
-            case CLASS_TYPE_QUALIFIER:
-                return ParserRuleContext.CLASS_KEYWORD;
             case OPEN_BRACKET:
                 return getNextRuleForOpenBracket();
             case CLOSE_BRACKET:
@@ -4840,6 +4838,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_TYPE_QUALIFIER:
             case OBJECT_CONSTRUCTOR_QUALIFIER:
                 return SyntaxKind.OBJECT_KEYWORD;
+            case CLASS_TYPE_QUALIFIER:
+                return SyntaxKind.CLASS_KEYWORD;
             case IF_KEYWORD:
                 return SyntaxKind.IF_KEYWORD;
             case ELSE_KEYWORD:
