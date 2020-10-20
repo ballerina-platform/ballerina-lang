@@ -161,35 +161,31 @@ public class BallerinaSemanticModel implements SemanticModel {
     // Private helper methods for the public APIs above.
 
     private boolean isSymbolInUserProject(BSymbol symbol, Location cursorPos) {
-        int value = 0;
-
-        LinePosition cursorPosStartLine = cursorPos.lineRange().startLine();
-        LinePosition symbolStartLine = symbol.pos.lineRange().startLine();
-
-        if (bLangPackage.packageID.equals(symbol.pkgID)) {
-            // If the package detail strings are same, then compare the start line.
-            if (cursorPosStartLine.line() < symbolStartLine.line()) {
-                value = -1;
-            } else if (cursorPosStartLine.line() > symbolStartLine.line()) {
-                value = 1;
-            }
-
-            if (value == 0) {
-                // If the start line is the same, then compare the start column.
-                if (cursorPosStartLine.offset() < symbolStartLine.offset()) {
-                    value = -1;
-                } else if (cursorPosStartLine.offset() > symbolStartLine.offset()) {
-                    value = 1;
-                }
-            }
-        } else {
-            value = -1;
+        if (symbol.origin != SOURCE) {
+            return false;
         }
 
-        return symbol.origin == SOURCE &&
-                (value > 0
-                        || symbol.owner.getKind() == SymbolKind.PACKAGE
-                        || Symbols.isFlagOn(symbol.flags, Flags.WORKER));
+        if (symbol.owner.getKind() == SymbolKind.PACKAGE || Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
+            return true;
+        }
+
+        if (bLangPackage.packageID.equals(symbol.pkgID)) {
+
+            LinePosition cursorPosStartLine = cursorPos.lineRange().startLine();
+            LinePosition symbolStartLine = symbol.pos.lineRange().startLine();
+
+            if (cursorPosStartLine.line() < symbolStartLine.line()) {
+                return false;
+            }
+
+            if (cursorPosStartLine.line() > symbolStartLine.line()) {
+                return true;
+            }
+
+            return cursorPosStartLine.offset() > symbolStartLine.offset();
+        }
+
+        return false;
     }
 
     private boolean isImportedSymbol(BSymbol symbol) {
