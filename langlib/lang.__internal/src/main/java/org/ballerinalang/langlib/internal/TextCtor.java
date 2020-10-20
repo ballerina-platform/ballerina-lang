@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
 
 /**
  * XML Text constructor function.
@@ -36,7 +36,7 @@ import org.ballerinalang.jvm.values.XMLValue;
 //)
 public class TextCtor {
 
-    public static XMLValue textCtor(BString characters) {
+    public static BXML textCtor(BString characters) {
         return XMLFactory.createXMLText(characters);
     }
 }

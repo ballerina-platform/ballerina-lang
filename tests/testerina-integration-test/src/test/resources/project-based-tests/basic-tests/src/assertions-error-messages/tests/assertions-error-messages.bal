@@ -118,7 +118,8 @@ function testAssertAnnonymousRecords() {
 
     error? err = trap test:assertEquals(address, address2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: <$anonType$1> '{\"newCity\":" + "\"London\",\"newCountry\":\"UK\"}'\nactual\t: <$anonType$0> '{\"city\":\"London\",\"country\":\"UK\"}'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\nexpected: <$anonType$_1> '{\"newCity\":" +
+    "\"London\",\"newCountry\":\"UK\"}'\nactual\t: <$anonType$_0> '{\"city\":\"London\",\"country\":\"UK\"}'");
 }
 
 @test:Config {}

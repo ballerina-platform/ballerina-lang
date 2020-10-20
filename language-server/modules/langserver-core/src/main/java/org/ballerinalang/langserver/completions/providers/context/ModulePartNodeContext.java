@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -29,8 +31,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +54,8 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
     public List<LSCompletionItem> getCompletions(LSContext context, ModulePartNode node) {
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            Predicate<Scope.ScopeEntry> predicate = scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol;
-            List<Scope.ScopeEntry> types = QNameReferenceUtil.getModuleContent(context,
+            Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.TYPE;
+            List<Symbol> types = QNameReferenceUtil.getModuleContent(context,
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
             return this.getCompletionItemList(types, context);
         }
@@ -92,13 +92,13 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             cItem.setSortText(genSortText(5));
         }
     }
-    
+
     private boolean isSnippetBlock(LSCompletionItem completionItem) {
         return completionItem instanceof SnippetCompletionItem
                 && (((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.SNIPPET
                 || ((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.STATEMENT);
     }
-    
+
     private boolean isKeyword(LSCompletionItem completionItem) {
         return completionItem instanceof SnippetCompletionItem
                 && ((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.KEYWORD;

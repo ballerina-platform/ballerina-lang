@@ -260,6 +260,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean matchClauseReturns;
     private boolean lastStatement;
     private boolean errorThrown;
+    private boolean failVisited;
     private boolean hasLastPatternInClause = false;
     private boolean withinLockBlock;
     private SymbolTable symTable;
@@ -1565,6 +1566,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFail failNode) {
         this.checkStatementExecutionValidity(failNode);
+        this.failVisited = true;
         this.errorThrown = true;
         analyzeExpr(failNode.expr);
         if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
@@ -2906,6 +2908,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
+        this.failVisited = true;
         analyzeExpr(checkedExpr.expr);
 
         if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
@@ -3027,6 +3030,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
+        boolean currentFailVisited = this.failVisited;
+        this.failVisited = false;
         this.resetLastStatement();
         this.resetErrorThrown();
         this.returnWithinLambdaWrappingCheckStack.push(false);
@@ -3038,8 +3043,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
         analyzeNode(onFailClause.body, env);
+        onFailClause.bodyContainsFail = this.failVisited;
         onFailClause.statementBlockReturns = this.returnWithinLambdaWrappingCheckStack.peek();
         this.returnWithinLambdaWrappingCheckStack.pop();
+        this.resetErrorThrown();
+        this.failVisited = currentFailVisited;
     }
 
     @Override

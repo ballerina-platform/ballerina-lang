@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.mock.nonlistening;
 
-import org.ballerinalang.jvm.api.values.BMap;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 
 import java.util.HashMap;

@@ -26,6 +26,7 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
+import io.ballerina.runtime.IdentifierUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
@@ -41,7 +42,6 @@ import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
-import org.ballerinalang.jvm.IdentifierUtils;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
@@ -98,7 +98,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
@@ -130,7 +129,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private final Map<Long, StackFrameProxyImpl> stackFramesMap = new HashMap<>();
     private final Map<Long, BCompoundVariable> loadedVariables = new HashMap<>();
     private final Map<Long, Long> variableToStackFrameMap = new HashMap<>();
-    private Map<Long, Long> scopeIdToFrameIdMap = new HashMap<>();
+    private final Map<Long, Long> scopeIdToFrameIdMap = new HashMap<>();
     private static int systemExit = 1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
@@ -513,7 +512,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         variableToStackFrameMap.put(child, rootNode);
     }
 
-    @Nullable
     private StackFrame toDapStackFrame(StackFrameProxyImpl stackFrame) {
         try {
             long variableReference = nextVarReference.getAndIncrement();

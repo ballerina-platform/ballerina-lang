@@ -29,7 +29,7 @@
 
 # ---------------------- Override JAVA_HOME for Installers -------------------
 DIR="$(cd "$(dirname "$0")" && pwd)"
-JAVA_PATH="$DIR/../../../../../../dependencies/jdk8u202-b08-jre"
+JAVA_PATH="$DIR/../../../../../../dependencies/jdk-11.0.8+10-jre"
 if test -d "$JAVA_PATH"; then
   JAVA_HOME=$JAVA_PATH
 fi
@@ -138,14 +138,14 @@ if [ -z "$JAVA_HOME" ]; then
 fi
 
 if [ $DEBUG_MODE = true ]; then
-  JAVA_DEBUG="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$DEBUG_PORT,quiet=y"
+  JAVA_DEBUG="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:$DEBUG_PORT"
 else
   JAVA_DEBUG=""
 fi
 
-JDK_18=`$JAVA_HOME/bin/java -version 2>&1 | grep -e "1.8."`
-if [ "$JDK_18" = "" ]; then
-    >&2 echo "Error: Ballerina is supported only on JDK 1.8"
+JDK_11=`$JAVA_HOME/bin/java -version 2>&1 | grep -e "11."`
+if [ "$JDK_11" = "" ]; then
+    >&2 echo "Error: Ballerina is supported only on JDK 11"
     exit 1
 fi
 

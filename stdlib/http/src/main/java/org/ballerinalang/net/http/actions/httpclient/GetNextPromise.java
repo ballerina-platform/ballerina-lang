@@ -16,13 +16,13 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;

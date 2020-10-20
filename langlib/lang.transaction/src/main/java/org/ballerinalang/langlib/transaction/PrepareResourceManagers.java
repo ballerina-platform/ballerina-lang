@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.transactions.TransactionResourceManager;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.transactions.TransactionResourceManager;
 
 /**
  * Extern function transaction:prepareResourceManagers.
