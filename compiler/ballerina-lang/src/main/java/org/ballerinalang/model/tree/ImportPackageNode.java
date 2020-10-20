@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public interface ImportPackageNode extends Node, TopLevelNode, IdentifiableNode {
+public interface ImportPackageNode extends Node, TopLevelNode {
 
     IdentifierNode getOrgName();
 

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Extern function lang.string:concat(string...).
@@ -36,6 +36,6 @@ public class Concat {
             stringBuilder.append(str[i]);
         }
 
-        return BStringUtils.fromString(stringBuilder.toString());
+        return StringUtils.fromString(stringBuilder.toString());
     }
 }

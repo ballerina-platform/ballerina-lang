@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.values.BXML;
 
 /**
  * Test xml to be single xml element.
@@ -33,7 +33,7 @@ import org.ballerinalang.jvm.values.XMLValue;
 //)
 public class IsElement {
 
-    public static boolean isElement(XMLValue xmlValue) {
+    public static boolean isElement(BXML xmlValue) {
         return org.ballerinalang.langlib.internal.IsElement.isElement(xmlValue);
     }
 }

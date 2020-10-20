@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.values.RefValue;
+import io.ballerina.runtime.api.values.BRefValue;
 
 /**
  * Check the read only status of a given value.
@@ -28,6 +28,6 @@ import org.ballerinalang.jvm.values.RefValue;
 public class IsReadOnly {
 
     public static boolean isReadOnly(Object value) {
-        return !(value instanceof RefValue) || ((RefValue) value).isFrozen();
+        return !(value instanceof BRefValue) || ((BRefValue) value).isFrozen();
     }
 }

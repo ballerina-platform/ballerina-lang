@@ -3,4 +3,4 @@ org-name = "foo"
 version = "2.0.0"
 
 [dependencies]
-"toml/toml4j" = { path = "../TestProject1/target/balo/toml4j-2020r2-java8-0.7.2.balo"}
+"toml/toml4j" = { path = "../TestProject1/target/balo/toml4j-2020r2-java11-0.7.2.balo"}
