@@ -26,8 +26,9 @@ import io.ballerina.cli.task.CreateBirTask;
 import io.ballerina.cli.task.CreateJarTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
 import io.ballerina.cli.task.RunExecutableTask;
+import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -134,8 +135,15 @@ public class RunCommand implements BLauncherCmd {
             this.projectPath = Paths.get(argList.get(0));
         }
 
-        Project project = ProjectLoader.loadProject(this.projectPath);
-        boolean isSingleFileBuild = project instanceof SingleFileProject;
+        // load project
+        Project project;
+        boolean isSingleFileBuild = false;
+        if (FileUtils.hasExtension(this.projectPath)) {
+            project = SingleFileProject.loadProject(this.projectPath);
+            isSingleFileBuild = true;
+        } else {
+            project = BuildProject.loadProject(this.projectPath);
+        }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)

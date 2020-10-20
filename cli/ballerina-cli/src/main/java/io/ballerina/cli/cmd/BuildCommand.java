@@ -25,8 +25,9 @@ import io.ballerina.cli.task.CreateBirTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.CreateJarTask;
 import io.ballerina.cli.task.CreateTargetDirTask;
+import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.env.BuildEnvContext;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -164,27 +165,30 @@ public class BuildCommand implements BLauncherCmd {
             this.projectPath = Paths.get(argList.get(0));
         }
 
-        Project project = ProjectLoader.loadProject(this.projectPath);
-        boolean isSingleFileBuild = project instanceof SingleFileProject;
-
-        if (isSingleFileBuild) {
+        // load project
+        Project project;
+        boolean isSingleFileBuild = false;
+        if (FileUtils.hasExtension(this.projectPath)) {
             if (this.compile) {
                 CommandUtil.printError(this.errStream,
-                                       "'-c' or '--compile' can only be used with modules.", null, false);
+                        "'-c' or '--compile' can only be used with modules.", null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+            project = SingleFileProject.loadProject(this.projectPath);
+            isSingleFileBuild = true;
         } else {
             // Check if the output flag is set when building all the modules.
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
-                                       "'-o' and '--output' are only supported when building a single Ballerina " +
-                                               "file.",
-                                       "ballerina build -o <output-file> <ballerina-file> ",
-                                       true);
+                        "'-o' and '--output' are only supported when building a single Ballerina " +
+                                "file.",
+                        "ballerina build -o <output-file> <ballerina-file> ",
+                        true);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+            project = BuildProject.loadProject(this.projectPath);
         }
 
         BuildEnvContext buildEnvContext = BuildEnvContext.getInstance();
