@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Native implementation of assertValueEqual(anydata expected, anydata actual).
@@ -31,10 +31,10 @@ import org.ballerinalang.jvm.api.values.BString;
 public class AssertValueEqual {
     public static void assertValueEqual(Object expected, Object actual) {
         if (!TypeChecker.isEqual(expected, actual)) {
-            BString reason = BStringUtils.fromString("{ballerina/lang.test}AssertionError");
-            BString msg = BStringUtils
+            BString reason = StringUtils.fromString("{ballerina/lang.test}AssertionError");
+            BString msg = StringUtils
                     .fromString("expected " + expected.toString() + " but found " + actual.toString());
-            throw BErrorCreator.createError(reason, msg);
+            throw ErrorCreator.createError(reason, msg);
         }
     }
 }

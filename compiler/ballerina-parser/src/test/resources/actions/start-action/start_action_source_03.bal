@@ -1,6 +1,6 @@
 function foo() {
-     f1 = @strand{thread:"any"} start add_1();
+     f1 = @strand { thread:"any" } start add_1();
 
-     @strand{thread:"any"}
+     @strand { thread:"any" }
      start add_2();
 }

@@ -112,10 +112,10 @@ public class DiagnosticsHelper {
             diagnosticsMap.putIfAbsent(fileURI, new ArrayList<>());
 
             LineRange lineRange = location.lineRange();
-            int startLine = lineRange.startLine().line() - 1; // LSP diagnostics range is 0 based
-            int startChar = lineRange.startLine().offset() - 1;
-            int endLine = lineRange.endLine().line() - 1;
-            int endChar = lineRange.endLine().offset() - 1;
+            int startLine = lineRange.startLine().line();
+            int startChar = lineRange.startLine().offset();
+            int endLine = lineRange.endLine().line();
+            int endChar = lineRange.endLine().offset();
 
             endLine = (endLine <= 0) ? startLine : endLine;
             endChar = (endChar <= 0) ? startChar + 1 : endChar;

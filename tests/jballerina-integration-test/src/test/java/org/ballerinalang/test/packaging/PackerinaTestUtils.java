@@ -162,4 +162,20 @@ public class PackerinaTestUtils {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
+
+    /**
+     * Modify the content of the file.
+     *
+     * @param filePath path to the file
+     * @param regex regex to be replaced
+     * @param replacedWith string to replaced with
+     * @throws IOException When modifying the content of the file
+     */
+    public static void modifyContent(Path filePath, String regex, String replacedWith) throws IOException {
+        Stream<String> lines = Files.lines(filePath);
+        List<String> replaced = lines.map(line -> line.replaceAll(regex, replacedWith))
+                .collect(Collectors.toList());
+        Files.write(filePath, replaced);
+        lines.close();
+    }
 }

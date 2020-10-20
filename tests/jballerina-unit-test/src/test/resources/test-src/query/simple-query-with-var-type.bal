@@ -263,7 +263,13 @@ public function testQueryWithStream() returns boolean {
     var oddNumberList = from var num in numberStream
                         where (num % 2 == 1)
                         select num;
-    return oddNumberList == [1, 3, 5];
+    int[] result = [];
+    record {| int value; |}|error? v = oddNumberList.next();
+    while (v is record {| int value; |}) {
+        result.push(v.value);
+        v = oddNumberList.next();
+    }
+    return result == [1, 3, 5];
 }
 
 function testSimpleSelectQueryReturnStream() returns boolean {

@@ -18,17 +18,17 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.runtime.AsyncUtils;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.scheduling.AsyncUtils;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.TABLE_LANG_LIB;
 import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
@@ -46,7 +46,7 @@ public class Foreach {
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
                                                                       TABLE_VERSION, "forEach");
 
-    public static void forEach(TableValueImpl tbl, FPValue<Object, Object> func) {
+    public static void forEach(BTable tbl, BFunctionPointer<Object, Object> func) {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
@@ -58,7 +58,7 @@ public class Foreach {
                         }, () -> null, Scheduler.getStrand().scheduler);
     }
 
-    public static void forEach_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
+    public static void forEach_bstring(Strand strand, BTable tbl, BFunctionPointer<Object, Object> func) {
         forEach(tbl, func);
     }
 }

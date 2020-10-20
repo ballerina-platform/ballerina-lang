@@ -74,7 +74,7 @@ public class FileSystemSourceInput implements CompilerInput {
         if (this.tree != null) {
             return this.tree;
         }
-        this.tree = SyntaxTree.from(TextDocuments.from(new String(getCode())));
+        this.tree = SyntaxTree.from(TextDocuments.from(new String(getCode())), this.path.getFileName().toString());
         return this.tree;
     }
 

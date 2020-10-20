@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
 
-import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
-import static org.ballerinalang.jvm.MapUtils.validateRecord;
+import static io.ballerina.runtime.MapUtils.checkIsMapOnlyOperation;
+import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRecord;
 
 /**
  * ENative implementation of lang.map:removeAll(map&lt;Type&gt;).
@@ -32,14 +32,14 @@ import static org.ballerinalang.jvm.MapUtils.validateRecord;
  */
 public class RemoveAll {
 
-    public static void removeAll(MapValue<?, ?> m) {
+    public static void removeAll(BMap<?, ?> m) {
         checkIsMapOnlyOperation(m.getType(), "removeAll()");
         validateRecord(m);
         try {
             m.clear();
-        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-            throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
-                                            BStringUtils.fromString("Failed to clear map: " + e.getDetail()));
+        } catch (io.ballerina.runtime.util.exceptions.BLangFreezeException e) {
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
+                                           StringUtils.fromString("Failed to clear map: " + e.getDetail()));
         }
     }
 }

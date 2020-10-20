@@ -13,26 +13,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Client",
-      "kind": "Interface",
-      "detail": "Object",
-      "documentation": {
-        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
-      },
-      "insertText": "Client",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Response",
-      "kind": "Interface",
-      "detail": "Object",
-      "documentation": {
-        "left": "Represents a response.\n"
-      },
-      "insertText": "Response",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ResponseMessage",
       "kind": "Enum",
       "detail": "Union",
@@ -53,13 +33,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Listener",
-      "kind": "Interface",
-      "detail": "Object",
-      "insertText": "Listener",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
@@ -74,20 +47,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord3",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "TestRecord3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap1",
-      "kind": "Unit",
-      "detail": "Map",
-      "insertText": "TestMap1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestMap2",
       "kind": "Unit",
       "detail": "Map",
@@ -99,6 +58,33 @@
       "kind": "Unit",
       "detail": "Map",
       "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Client",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+      },
+      "insertText": "Client",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Response",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a response.\n"
+      },
+      "insertText": "Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Object",
+      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
