@@ -2092,7 +2092,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         SyntaxKind kind = expressionNode.kind();
         switch (kind) {
             case XML_TEMPLATE_EXPRESSION:
-                SyntaxKind contentKind = expressionNode.content().get(0).kind();
+                SyntaxKind contentKind;
+                if (expressionNode.content().size() == 0) {
+                    contentKind = SyntaxKind.XML_TEXT;
+                } else {
+                    contentKind = expressionNode.content().get(0).kind();
+                }
                 switch (contentKind) {
                     case XML_COMMENT:
                     case XML_PI:
@@ -3180,7 +3185,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangNode createXMLLiteral(TemplateExpressionNode expressionNode) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
-        xmlTextLiteral.pos = getPosition(expressionNode.content().get(0));
+        if (expressionNode.content().size() == 0) {
+            xmlTextLiteral.pos = getPosition(expressionNode);
+        } else {
+            xmlTextLiteral.pos = getPosition(expressionNode.content().get(0));
+        }
         for (Node node : expressionNode.content()) {
             xmlTextLiteral.textFragments.add(createExpression(node));
         }
