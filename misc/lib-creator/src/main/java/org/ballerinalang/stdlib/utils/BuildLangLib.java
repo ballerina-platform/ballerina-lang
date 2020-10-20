@@ -23,8 +23,8 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.Target;
-import io.ballerina.projects.utils.ProjectUtils;
 import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.utils.ProjectUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -52,7 +52,7 @@ public class BuildLangLib {
         Target target = new Target(projectDir);
         Package pkg = project.currentPackage();
         PackageCompilation packageCompilation = pkg.getCompilation();
-        if ( packageCompilation.diagnostics().size() > 0) {
+        if (packageCompilation.diagnostics().size() > 0) {
             out.println("Error building module");
             packageCompilation.diagnostics().forEach(d -> out.println(d.toString()));
             System.exit(1);
