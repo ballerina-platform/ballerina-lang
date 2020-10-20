@@ -18,6 +18,8 @@
 
 package io.ballerina.cli.task;
 
+import io.ballerina.cli.utils.FileUtils;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
@@ -28,7 +30,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
+
+import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
+import static io.ballerina.projects.utils.ProjectConstants.USER_DIR;
 
 /**
  * Task for creating the executable jar file.
@@ -37,11 +41,11 @@ import java.util.Optional;
  */
 public class CreateExecutableTask implements Task {
     private final transient PrintStream out;
-    private final String outputPath;
+    private String output;
 
-    public CreateExecutableTask(PrintStream out, String outputPath) {
+    public CreateExecutableTask(PrintStream out, String output) {
         this.out = out;
-        this.outputPath = outputPath;
+        this.output = output;
     }
 
     @Override
@@ -49,26 +53,39 @@ public class CreateExecutableTask implements Task {
         this.out.println();
         this.out.println("Generating executables");
 
-        Path executablePath;
         Target target;
+        Path currentDir = Paths.get(System.getProperty(USER_DIR));
         try {
             target = new Target(project.sourceRoot());
-            if (outputPath != null) {
-                target.setOutputPath(project.currentPackage(), Paths.get(outputPath));
-            } else if (project instanceof SingleFileProject) {
-                String executableName = project.currentPackage().getDefaultModule().moduleName().moduleNamePart();
-                target.setOutputPath(project.currentPackage(),
-                        Paths.get(System.getProperty("user.dir")).resolve(executableName));
+            if (project instanceof SingleFileProject) {
+                Path outputPath;
+                DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
+                String documentName = project.currentPackage().getDefaultModule().document(documentId).name();
+                String executableName = FileUtils.geFileNameWithoutExtension(Paths.get(documentName));
+                if (executableName == null) {
+                    throw new RuntimeException("unable to determine executable name");
+                }
+                if (output != null) {
+                    if (!FileUtils.hasExtension(Paths.get(output))) {
+                        outputPath = Paths.get(output).resolve(executableName + BLANG_COMPILED_JAR_EXT);
+                    } else {
+                        outputPath = Paths.get(output);
+                    }
+                } else {
+                    outputPath = currentDir.resolve(executableName + BLANG_COMPILED_JAR_EXT);
+                }
+                target.setOutputPath(outputPath);
             }
         } catch (IOException e) {
             throw new RuntimeException("unable to set executable path: " + e.getMessage());
         }
-        executablePath = Optional.of(target.getExecutablePath(project.currentPackage())).get();
+
+        Path executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         packageCompilation.emit(PackageCompilation.OutputType.EXEC, executablePath);
 
         // Print the path of the executable
-        Path relativePathToExecutable = project.sourceRoot().relativize(executablePath);
+        Path relativePathToExecutable = currentDir.relativize(executablePath);
         if (relativePathToExecutable.toString().contains("..") ||
                 relativePathToExecutable.toString().contains("." + File.separator)) {
             this.out.println("\t" + executablePath.toString());
