@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
+import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
@@ -23,6 +24,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,7 +52,7 @@ public class StringTemplateEvaluator extends Evaluator {
         // which they occur, and converting the result of the each evaluation to a string using the ToString abstract
         // operation with the direct style.
         try {
-            StringBuilder resultString = new StringBuilder();
+            List<Value> templateMemberValues = new ArrayList<>();
             for (Evaluator evaluator : templateMemberEvaluators) {
                 BExpressionValue result = evaluator.evaluate();
                 switch (result.getType()) {
@@ -59,7 +61,7 @@ public class StringTemplateEvaluator extends Evaluator {
                     case DECIMAL:
                     case STRING:
                     case BOOLEAN:
-                        resultString.append(result.getStringValue());
+                        templateMemberValues.add(EvaluationUtils.getStringValue(context, result.getJdiValue()));
                         break;
                     default:
                         // Interpolation expression results can only be (int|float|decimal|string|boolean).
@@ -67,13 +69,13 @@ public class StringTemplateEvaluator extends Evaluator {
                                 "(int|float|decimal|string|boolean)", result.getType().getString(),
                                 result.getStringValue()));
                 }
-
             }
-            return EvaluationUtils.make(context, resultString.toString());
+            Value result = EvaluationUtils.concatBStrings(context, templateMemberValues.toArray(new Value[0]));
+            return new BExpressionValue(context, result);
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_EXECUTION_ERROR.getString(),
+            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
                     syntaxNode.toSourceCode().trim()));
         }
     }

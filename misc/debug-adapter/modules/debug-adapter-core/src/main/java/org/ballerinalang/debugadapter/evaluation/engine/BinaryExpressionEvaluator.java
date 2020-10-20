@@ -158,8 +158,8 @@ public class BinaryExpressionEvaluator extends Evaluator {
             throw createUnsupportedOperationException(lVar, rVar, SyntaxKind.PLUS_TOKEN);
         } else if (lVar.getBType() == BVariableType.STRING && rVar.getBType() == BVariableType.STRING) {
             // string + string
-            String result = lVar.computeValue() + rVar.computeValue();
-            return EvaluationUtils.make(context, result);
+            Value result = EvaluationUtils.concatBStrings(context, lVar.getJvmValue(), rVar.getJvmValue());
+            return new BExpressionValue(context, result);
         } else if (lVar.getBType() == BVariableType.XML && rVar.getBType() == BVariableType.XML) {
             // Prepares to invoke the JVM runtime util function which is responsible for XML concatenation.
             List<Value> argList = new ArrayList<>();

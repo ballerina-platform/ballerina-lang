@@ -32,21 +32,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Ballerina JVM generated static method representation.
+ * JVM generated static method representation of a ballerina function.
  *
  * @since 2.0.0
  */
-public class JvmStaticMethod extends JvmMethod {
+public class GeneratedStaticMethod extends JvmMethod {
 
     private final ReferenceType classRef;
 
-    public JvmStaticMethod(SuspendedContext context, ReferenceType classRef, Method methodRef) {
+    public GeneratedStaticMethod(SuspendedContext context, ReferenceType classRef, Method methodRef) {
         super(context, methodRef);
         this.classRef = classRef;
     }
 
-    public JvmStaticMethod(SuspendedContext context, ReferenceType classRef, Method methodRef,
-                           List<Evaluator> argEvaluators, List<Value> argsList) {
+    public GeneratedStaticMethod(SuspendedContext context, ReferenceType classRef, Method methodRef,
+                                 List<Evaluator> argEvaluators, List<Value> argsList) {
         super(context, methodRef, argEvaluators, argsList);
         this.classRef = classRef;
     }
@@ -98,9 +98,9 @@ public class JvmStaticMethod extends JvmMethod {
 
             // Todo - IMPORTANT: Add remaining steps to validate and match named, defaultable and rest args
             // Todo - verify
-            // Here we use the parent strand instance to execute the function invocation expression.
-            Value parentStrand = getParentStrand();
-            argValueList.add(0, parentStrand);
+            // Here we use the existing strand instance to execute the function invocation expression.
+            Value strand = getCurrentStrand();
+            argValueList.add(0, strand);
             return argValueList;
         } catch (ClassNotLoadedException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
