@@ -14,11 +14,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.api.BRuntime;
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.values.ObjectValue;
 
 /**
  * This class is used for Java interoperability tests.
@@ -29,8 +30,8 @@ import org.ballerinalang.jvm.values.ObjectValue;
  */
 public class Timer {
 
-    public static void startTimer(BalEnv env, int interval, int count, ObjectValue object) {
-        BRuntime runtime = env.getRuntime();
+    public static void startTimer(Environment env, int interval, int count, ObjectValue object) {
+        Runtime runtime = env.getRuntime();
 
         new Thread(() -> {
             for (int i = 0; i < count; i++) {

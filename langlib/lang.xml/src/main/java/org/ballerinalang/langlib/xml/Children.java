@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.XMLNodeType;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.api.values.BXMLItem;
+import io.ballerina.runtime.api.values.BXMLSequence;
 
 import java.util.ArrayList;
 
@@ -33,23 +33,23 @@ import java.util.ArrayList;
 //@BallerinaFunction(
 //        orgName = "ballerina", packageName = "lang.xml",
 //        functionName = "children",
-//        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
+//        args = {@Argument(name = "BXML", type = TypeKind.XML)},
 //        returnType = {@ReturnType(type = TypeKind.XML)},
 //        isPublic = true
 //)
 public class Children {
 
-    public static XMLValue children(XMLValue xmlVal) {
+    public static BXML children(BXML xmlVal) {
         if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
-            return ((XMLItem) xmlVal).children();
+            return xmlVal.children();
         } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
             ArrayList<BXML> liftedChildren = new ArrayList<>();
-            XMLSequence sequence = (XMLSequence) xmlVal.elements();
+            BXMLSequence sequence = (BXMLSequence) xmlVal.elements();
             for (BXML bxml : sequence.getChildrenList()) {
-                liftedChildren.addAll(((XMLItem) bxml).getChildrenSeq().getChildrenList());
+                liftedChildren.addAll(((BXMLItem) bxml).getChildrenSeq().getChildrenList());
             }
-            return new XMLSequence(liftedChildren);
+            return ValueCreator.createXMLSequence(liftedChildren);
         }
-        return new XMLSequence();
+        return ValueCreator.createXMLSequence();
     }
 }

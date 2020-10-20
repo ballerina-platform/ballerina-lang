@@ -54,7 +54,7 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol implements WorkerSymb
     /**
      * Represents Ballerina Worker Symbol Builder.
      */
-    static class WorkerSymbolBuilder extends SymbolBuilder<WorkerSymbolBuilder> {
+    public static class WorkerSymbolBuilder extends SymbolBuilder<WorkerSymbolBuilder> {
 
         protected BallerinaTypeDescriptor returnType;
 

@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
 
 /**
  * XML Comment constructor function.
@@ -29,7 +29,7 @@ import org.ballerinalang.jvm.values.XMLValue;
  */
 public class CommentCtor {
 
-    public static XMLValue commentCtor(BString content) {
+    public static BXML commentCtor(BString content) {
         return XMLFactory.createXMLComment(content);
     }
 }

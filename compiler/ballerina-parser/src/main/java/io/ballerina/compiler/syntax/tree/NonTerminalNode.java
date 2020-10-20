@@ -74,11 +74,11 @@ public abstract class NonTerminalNode extends Node {
     }
 
     public MinutiaeList leadingMinutiae() {
-        throw new UnsupportedOperationException("This method is not yet implemented. Please check again later.");
+        return this.internalNode.firstToken().createUnlinkedFacade().leadingMinutiae();
     }
 
     public MinutiaeList trailingMinutiae() {
-        throw new UnsupportedOperationException("This method is not yet implemented. Please check again later.");
+        return this.internalNode.lastToken().createUnlinkedFacade().trailingMinutiae();
     }
 
     // TODO Find an efficient implementation which uses the previous children positions
