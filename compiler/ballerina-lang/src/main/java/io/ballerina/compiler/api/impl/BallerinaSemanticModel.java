@@ -162,33 +162,29 @@ public class BallerinaSemanticModel implements SemanticModel {
     // Private helper methods for the public APIs above.
 
     private boolean isSymbolInUserProject(BSymbol symbol, Location cursorPos) {
-        String packageDetailsString = bLangPackage.packageID.name.value
-                + bLangPackage.packageID.getPackageVersion().value
-                + cursorPos.lineRange().filePath();
-        String symbolPackageDetailsString = symbol.pkgID.name.value
-                + symbol.pkgID.getPackageVersion().value
-                + symbol.pos.lineRange().filePath();
+        int value = 0;
 
-        int value = packageDetailsString.compareTo(symbolPackageDetailsString);
+        LinePosition cursorPosStartLine = cursorPos.lineRange().startLine();
+        LinePosition symbolStartLine = symbol.pos.lineRange().startLine();
 
-        Location location = symbol.pos;
-
-        if (value == 0) {
+        if (bLangPackage.packageID.equals(symbol.pkgID)) {
             // If the package detail strings are same, then compare the start line.
-            if (cursorPos.lineRange().startLine().line() < location.lineRange().startLine().line()) {
+            if (cursorPosStartLine.line() < symbolStartLine.line()) {
                 value = -1;
-            } else if (cursorPos.lineRange().startLine().line() > location.lineRange().startLine().line()) {
+            } else if (cursorPosStartLine.line() > symbolStartLine.line()) {
                 value = 1;
             }
 
             if (value == 0) {
                 // If the start line is the same, then compare the start column.
-                if (cursorPos.lineRange().startLine().offset() < location.lineRange().startLine().offset()) {
+                if (cursorPosStartLine.offset() < symbolStartLine.offset()) {
                     value = -1;
-                } else if (cursorPos.lineRange().startLine().offset() > location.lineRange().startLine().offset()) {
+                } else if (cursorPosStartLine.offset() > symbolStartLine.offset()) {
                     value = 1;
                 }
             }
+        } else {
+            value = -1;
         }
 
         return symbol.origin == SOURCE &&
