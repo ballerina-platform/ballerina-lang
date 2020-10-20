@@ -103,7 +103,7 @@ public isolated function add(table<Type> t, Type val) = @java:Method {
 # + t - the table
 # + func - a function to apply to each member
 # + return - new table containing result of applying `func` to each member
-public function 'map(table<Type> t, function(Type val) returns Type1 func)
+public isolated function 'map(table<Type> t, @isolatedParam function(Type val) returns Type1 func)
    returns table<Type1> key<never> = @java:Method {
     'class: "org.ballerinalang.langlib.table.Map",
     name: "map"
@@ -114,7 +114,7 @@ public function 'map(table<Type> t, function(Type val) returns Type1 func)
 #
 # + t - the table
 # + func - a function to apply to each member
-public function forEach(table<Type> t, function(Type val) returns () func) returns () = @java:Method {
+public isolated function forEach(table<Type> t, @isolatedParam function(Type val) returns () func) returns () = @java:Method {
     'class: "org.ballerinalang.langlib.table.Foreach",
     name: "forEach"
 } external;
@@ -124,7 +124,7 @@ public function forEach(table<Type> t, function(Type val) returns () func) retur
 # + t - the table
 # + func - a predicate to apply to each member to test whether it should be included
 # + return - new table containing members for which `func` evaluates to true
-public function filter(table<Type> key<KeyType> t, function(Type val) returns boolean func)
+public isolated function filter(table<Type> key<KeyType> t, @isolatedParam function(Type val) returns boolean func)
    returns table<Type> key<KeyType> = @java:Method {
     'class: "org.ballerinalang.langlib.table.Filter",
     name: "filter"
@@ -138,7 +138,7 @@ public function filter(table<Type> key<KeyType> t, function(Type val) returns bo
 # + func - combining function
 # + initial - initial value for the first argument of combining `func`
 # + return - result of combining the members of `t` using `func`
-public function reduce(table<Type> t, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = 
+public isolated function reduce(table<Type> t, @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 =
 @java:Method {
     'class: "org.ballerinalang.langlib.table.Reduce",
     name: "reduce"
