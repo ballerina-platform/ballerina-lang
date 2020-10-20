@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 
-import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
-import static org.ballerinalang.jvm.MapUtils.validateRequiredFieldForRecord;
+import static io.ballerina.runtime.MapUtils.checkIsMapOnlyOperation;
+import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
 
 /**
  * Extern function to remove element from the map if key exists.
@@ -34,16 +34,16 @@ import static org.ballerinalang.jvm.MapUtils.validateRequiredFieldForRecord;
  */
 public class RemoveIfHasKey {
 
-    public static Object removeIfHasKey(MapValue<?, ?> m, BString k) {
+    public static Object removeIfHasKey(BMap<?, ?> m, BString k) {
         String op = "removeIfHasKey()";
 
         checkIsMapOnlyOperation(m.getType(), op);
         validateRequiredFieldForRecord(m, k.getValue());
         try {
             return m.remove(k);
-        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-            throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
-                                            BStringUtils.fromString("Failed to remove element: " + e.getDetail()));
+        } catch (io.ballerina.runtime.util.exceptions.BLangFreezeException e) {
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
+                                           StringUtils.fromString("Failed to remove element: " + e.getDetail()));
         }
     }
 }

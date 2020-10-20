@@ -57,7 +57,7 @@ dependencies {
     implementation project(':ballerina-time')
     implementation project(':ballerina-observability')
     implementation project(':ballerina-stringutils')
-    implementation project(':ballerina-java')
+    implementation project(':ballerina-lang:java')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation 'io.netty:netty-tcnative-boringssl-static'
@@ -83,7 +83,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-runtime')

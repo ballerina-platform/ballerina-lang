@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -40,8 +41,8 @@ public class TableTypeDescriptorNode extends TypeDescriptorNode {
         return childInBucket(1);
     }
 
-    public Node keyConstraintNode() {
-        return childInBucket(2);
+    public Optional<Node> keyConstraintNode() {
+        return optionalChildInBucket(2);
     }
 
     @Override
@@ -98,7 +99,7 @@ public class TableTypeDescriptorNode extends TypeDescriptorNode {
             this.oldNode = oldNode;
             this.tableKeywordToken = oldNode.tableKeywordToken();
             this.rowTypeParameterNode = oldNode.rowTypeParameterNode();
-            this.keyConstraintNode = oldNode.keyConstraintNode();
+            this.keyConstraintNode = oldNode.keyConstraintNode().orElse(null);
         }
 
         public TableTypeDescriptorNodeModifier withTableKeywordToken(

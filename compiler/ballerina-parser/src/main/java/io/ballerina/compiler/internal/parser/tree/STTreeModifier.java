@@ -1147,13 +1147,13 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode tableKeyword = modifyNode(tableConstructorExpressionNode.tableKeyword);
         STNode keySpecifier = modifyNode(tableConstructorExpressionNode.keySpecifier);
         STNode openBracket = modifyNode(tableConstructorExpressionNode.openBracket);
-        STNode mappingConstructors = modifyNode(tableConstructorExpressionNode.mappingConstructors);
+        STNode rows = modifyNode(tableConstructorExpressionNode.rows);
         STNode closeBracket = modifyNode(tableConstructorExpressionNode.closeBracket);
         return tableConstructorExpressionNode.modify(
                 tableKeyword,
                 keySpecifier,
                 openBracket,
-                mappingConstructors,
+                rows,
                 closeBracket);
     }
 

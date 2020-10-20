@@ -18,14 +18,14 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +49,7 @@ import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
  */
 public class HeaderUtil {
 
-    private static final BMapType stringMapType = new BMapType(BTypes.typeString);
+    private static final MapType stringMapType = TypeCreator.createMapType(PredefinedTypes.TYPE_STRING);
 
     /**
      * Given a header value, get it's parameters.
@@ -113,11 +113,11 @@ public class HeaderUtil {
                 if (keyValuePair.length != 2 || keyValuePair[0].isEmpty() || keyValuePair[1].isEmpty()) {
                     throw MimeUtil.createError(INVALID_HEADER_PARAM_ERROR, "invalid header parameter: " + param);
                 }
-                paramMap.put(BStringUtils.fromString(keyValuePair[0].trim()),
-                             BStringUtils.fromString(keyValuePair[1].trim()));
+                paramMap.put(StringUtils.fromString(keyValuePair[0].trim()),
+                             StringUtils.fromString(keyValuePair[1].trim()));
             } else {
                 //handle when parameter value is optional
-                paramMap.put(BStringUtils.fromString(param.trim()), null);
+                paramMap.put(StringUtils.fromString(param.trim()), null);
             }
         }
         return paramMap;
@@ -134,7 +134,7 @@ public class HeaderUtil {
      * @param map         Represent a parameter map
      * @return Header value along with it's parameters as a string
      */
-    public static String appendHeaderParams(StringBuilder headerValue, MapValue<BString, BString> map) {
+    public static String appendHeaderParams(StringBuilder headerValue, BMap<BString, BString> map) {
         int index = 0;
         if (map != null && !map.isEmpty()) {
             BString[] keys = map.getKeys();
@@ -165,8 +165,8 @@ public class HeaderUtil {
      */
     public static String extractBoundaryParameter(String contentType) {
         BMap<BString, Object> paramMap = HeaderUtil.getParamMap(contentType);
-        return paramMap.get(BStringUtils.fromString(BOUNDARY)) != null ?
-                paramMap.getStringValue(BStringUtils.fromString(BOUNDARY)).getValue() : null;
+        return paramMap.get(StringUtils.fromString(BOUNDARY)) != null ?
+                paramMap.getStringValue(StringUtils.fromString(BOUNDARY)).getValue() : null;
     }
 
     public static void setHeaderToEntity(BObject entity, String key, String value) {
@@ -183,6 +183,6 @@ public class HeaderUtil {
     }
 
     private static BMap<BString, Object> getEmptyMap() {
-        return BValueCreator.createMapValue(stringMapType);
+        return ValueCreator.createMapValue(stringMapType);
     }
 }

@@ -17,18 +17,18 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
 
 /**
  * Create XML text value from string.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public class CreateText {
 
-    public static XMLValue createText(BString string) {
+    public static BXML createText(BString string) {
         return XMLFactory.createXMLText(string);
     }
 }

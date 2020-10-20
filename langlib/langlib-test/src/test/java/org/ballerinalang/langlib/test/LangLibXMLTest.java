@@ -18,13 +18,11 @@
 
 package org.ballerinalang.langlib.test;
 
-
 import org.ballerinalang.core.model.util.XMLNodeType;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BXML;
-import org.ballerinalang.core.model.values.BXMLSequence;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -238,11 +236,11 @@ public class LangLibXMLTest {
     public void testAsyncFpArgsWithXmls() {
         BValue[] results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithXmls");
         assertTrue(results[0] instanceof BInteger);
-        assertTrue(results[1] instanceof BXMLSequence);
+        assertTrue(results[1] instanceof BXML);
         assertEquals(((BInteger) results[0]).intValue(), 6021);
-        BXMLSequence bxmlSequence = (BXMLSequence) results[1];
-        assertEquals(bxmlSequence.getItem(0).children().getItem(1).getTextValue().stringValue(), "Harry Potter");
-        assertEquals(bxmlSequence.getItem(1).children().getItem(1).getTextValue().stringValue(), "Learning XML");
+        BXML bxml = (BXML) results[1];
+        assertEquals(bxml.getItem(0).children().getItem(1).getTextValue().stringValue(), "Harry Potter");
+        assertEquals(bxml.getItem(1).children().getItem(1).getTextValue().stringValue(), "Learning XML");
     }
 
     public void testChildren() {
