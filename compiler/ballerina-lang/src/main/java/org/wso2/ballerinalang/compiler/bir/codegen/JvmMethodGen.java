@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
+import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1385,6 +1386,10 @@ public class JvmMethodGen {
                             String.format("(%s[L%s;)L%s;", closureMapsDesc, OBJECT, OBJECT), null, null);
 
         mv.visitCode();
+
+        // generate diagnostic position when generating lambda method
+        JvmCodeGenUtil.generateDiagnosticPos(((BIRAbstractInstruction) ins).pos, mv);
+
         // load strand as first arg
         // strand and other args are in a object[] param. This param comes after closure maps.
         // hence the closureMapsCount is equal to the array's param index.

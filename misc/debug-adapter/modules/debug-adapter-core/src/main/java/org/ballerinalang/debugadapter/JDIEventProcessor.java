@@ -69,6 +69,7 @@ public class JDIEventProcessor {
     private final AtomicInteger nextVariableReference = new AtomicInteger();
     private final List<EventRequest> stepEventRequests = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
+    private static final String JBAL_STRAND_EXEC = "jbal-strand-exec";
 
     JDIEventProcessor(DebugContext context) {
         this.context = context;
@@ -159,8 +160,16 @@ public class JDIEventProcessor {
             return null;
         }
         List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
-        threadReferences.forEach(threadReference -> threadsMap.put(threadReference.uniqueID(), threadReference));
-        return threadsMap;
+        Map<Long, ThreadReference> breakPointThreads = new HashMap<>();
+
+        // Filter thread references which are at breakpoint, suspended and whose thread status is running.
+        for (ThreadReference threadReference : threadReferences) {
+            if (threadReference.isAtBreakpoint() && threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
+                    && threadReference.name().startsWith(JBAL_STRAND_EXEC) && threadReference.isSuspended()) {
+                breakPointThreads.put(threadReference.uniqueID(), threadReference);
+            }
+        }
+        return breakPointThreads;
     }
 
     void sendStepRequest(long threadId, int stepType) {
