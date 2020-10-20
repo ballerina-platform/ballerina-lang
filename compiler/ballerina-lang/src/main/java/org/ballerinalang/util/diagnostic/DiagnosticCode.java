@@ -603,6 +603,8 @@ public enum DiagnosticCode {
     INVALID_NON_PRIVATE_MUTABLE_FIELD_IN_ISOLATED_OBJECT("invalid.non.private.mutable.field.in.isolated.object"),
     INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK(
             "invalid.mutable.field.access.in.isolated.object.outside.lock"),
+    INVALID_REFERENCE_TO_SELF_IN_ISOLATED_OBJECT_OUTSIDE_LOCK(
+            "invalid.reference.to.self.in.isolated.object.outside.lock"),
     INVALID_NON_UNIQUE_EXPRESSION_AS_INITIAL_VALUE_IN_ISOLATED_OBJECT(
             "invalid.non.unique.expression.as.initial.value.in.isolated.object"),
     INVALID_COPY_OUT_OF_MUTABLE_VALUE_FROM_ISOLATED_OBJECT("invalid.copy.out.of.mutable.value.from.isolated.object"),

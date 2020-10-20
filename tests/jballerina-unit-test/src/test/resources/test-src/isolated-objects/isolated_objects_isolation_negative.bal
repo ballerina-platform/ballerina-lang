@@ -328,6 +328,33 @@ isolated object {} invalidIsolatedObjectWithNonIsolatedFunctionInvocation = obje
     }
 };
 
+isolated class InvalidIsolatedClassWithNonInvalidObjectFields {
+    IsolatedClass a = new; // Should be `final`
+    isolated object {} b = object { // Should be `final`
+        final int i = 1;
+        private map<int> j = {};
+    };
+    final object {} c = object {}; // should be an `isolated object`
+}
+
+isolated class InvalidIsolatedClassReferringSelfOutsideLock {
+    final int a = 1;
+    private int[] b = [];
+
+    function foo() {
+        bar(self);
+        self.baz();
+    }
+
+    function baz() {
+
+    }
+}
+
+function bar(InvalidIsolatedClassReferringSelfOutsideLock x) {
+
+}
+
 isolated class IsolatedClass {
     function nonIsolatedFunc() returns int => 1;
 }

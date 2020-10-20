@@ -409,18 +409,19 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangExpression expr = varNode.expr;
 
         BType fieldType = varNode.type;
-        if (isIsolatedClassField() && isMutableField(symbol, fieldType)) {
-            if (!Symbols.isFlagOn(flags, Flags.PRIVATE)) {
-                dlog.error(varNode.pos, DiagnosticCode.INVALID_NON_PRIVATE_MUTABLE_FIELD_IN_ISOLATED_OBJECT);
-            }
+        boolean isolatedClassField = isIsolatedClassField();
 
-            if (expr != null) {
-                validateIsolatedObjectFieldInitialValue(fieldType, expr);
-            }
+        if (isolatedClassField && isExpectedToBeAPrivateField(symbol, fieldType) &&
+                !Symbols.isFlagOn(flags, Flags.PRIVATE)) {
+            dlog.error(varNode.pos, DiagnosticCode.INVALID_NON_PRIVATE_MUTABLE_FIELD_IN_ISOLATED_OBJECT);
         }
 
         if (expr == null) {
             return;
+        }
+
+        if (isolatedClassField) {
+            validateIsolatedObjectFieldInitialValue(fieldType, expr);
         }
 
         analyzeNode(expr, env);
@@ -902,14 +903,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             varInfo.totalRefCount++;
         }
 
-
-        if (inLockStatement && isInIsolatedObjectMethod(env, true)) {
-            if ((!varRefExpr.lhsVar || varRefExpr.parent.getKind() != NodeKind.ASSIGNMENT)  &&
-                    !Names.SELF.value.equals(varRefExpr.variableName.value) && isInvalidCopyIn(varRefExpr, env)) {
-                copyInLockInfoStack.peek().copyInVarRefs.add(varRefExpr);
-            } else if (!varRefExpr.lhsVar &&
-                    isInvalidCopyingOfMutableValueInIsolatedObject(varRefExpr, true)) {
-                copyInLockInfoStack.peek().copyOutVarRefs.add(varRefExpr);
+        if (isInIsolatedObjectMethod(env, true)) {
+            if (inLockStatement) {
+                if ((!varRefExpr.lhsVar || varRefExpr.parent.getKind() != NodeKind.ASSIGNMENT)  &&
+                        !Names.SELF.value.equals(varRefExpr.variableName.value) && isInvalidCopyIn(varRefExpr, env)) {
+                    copyInLockInfoStack.peek().copyInVarRefs.add(varRefExpr);
+                } else if (!varRefExpr.lhsVar &&
+                        isInvalidCopyingOfMutableValueInIsolatedObject(varRefExpr, true)) {
+                    copyInLockInfoStack.peek().copyOutVarRefs.add(varRefExpr);
+                }
+            } else if (Names.SELF.value.equals(varRefExpr.variableName.value) &&
+                    varRefExpr.parent.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
             }
         }
 
@@ -972,7 +977,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         analyzeNode(fieldAccessExpr.expr, env);
 
-        if (!isIsolatedObjectMutableFieldAccessViaSelf(fieldAccessExpr, true)) {
+        if (!isValidIsolatedObjectFieldAccessViaSelfOutsideLock(fieldAccessExpr, true)) {
             return;
         }
 
@@ -1528,7 +1533,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         List<BLangExpression> args = new ArrayList<>(invocationExpr.requiredArgs);
 
         BLangExpression expr = invocationExpr.expr;
-        if (expr != null && !args.isEmpty() && args.get(0) != expr) {
+        if (expr != null && (args.isEmpty() || args.get(0) != expr)) {
             args.add(0, expr);
         }
 
@@ -1630,8 +1635,22 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return node.getKind() == NodeKind.CLASS_DEFN && ((BLangClassDefinition) node).flagSet.contains(Flag.ISOLATED);
     }
 
-    private boolean isMutableField(BVarSymbol symbol, BType type) {
-        return !Symbols.isFlagOn(symbol.flags, Flags.FINAL) || !Symbols.isFlagOn(type.flags, Flags.READONLY);
+    private boolean isExpectedToBeAPrivateField(BVarSymbol symbol, BType type) {
+        return !Symbols.isFlagOn(symbol.flags, Flags.FINAL) || isNotSubTypeOfReadOnlyOrIsolatedObject(type);
+    }
+
+    private boolean isNotSubTypeOfReadOnlyOrIsolatedObject(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (isNotSubTypeOfReadOnlyOrIsolatedObject(memberType)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        int flags = type.flags;
+        return !Symbols.isFlagOn(flags, Flags.READONLY) && !isIsolatedObjectTypes(type);
     }
 
     private boolean isIsolatedObjectFieldAccessViaSelf(BLangFieldBasedAccess fieldAccessExpr, boolean ignoreInit) {
@@ -1648,15 +1667,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return isInIsolatedObjectMethod(env, ignoreInit);
     }
 
-    private boolean isIsolatedObjectMutableFieldAccessViaSelf(BLangFieldBasedAccess fieldAccessExpr,
-                                                              boolean ignoreInit) {
+    private boolean isValidIsolatedObjectFieldAccessViaSelfOutsideLock(BLangFieldBasedAccess fieldAccessExpr,
+                                                                       boolean ignoreInit) {
         if (!isIsolatedObjectFieldAccessViaSelf(fieldAccessExpr, ignoreInit)) {
             return false;
         }
 
         BField field = ((BObjectType) env.enclInvokable.symbol.owner.type).fields.get(fieldAccessExpr.field.value);
 
-        return isMutableField(field.symbol, field.type);
+        return isExpectedToBeAPrivateField(field.symbol, field.type);
     }
 
     private void validateIsolatedObjectFieldInitialValue(BType fieldType, BLangExpression expression) {

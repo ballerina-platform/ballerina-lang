@@ -121,6 +121,13 @@ public class IsolatedObjectTest {
                 "field of an 'isolated' object", 324, 20);
         validateError(result, i++, "invalid invocation of a non-isolated function in a method accessing a mutable " +
                 "field of an 'isolated' object", 326, 17);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 332, 5);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 333, 5);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 337, 5);
+        validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
+                "statement", 345, 13);
+        validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
+                "statement", 346, 9);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
