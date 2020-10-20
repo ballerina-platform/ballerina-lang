@@ -33,7 +33,7 @@ public enum JVMValueType {
     J_OBJECT("java.lang.Object"),
     BMPSTRING("org.ballerinalang.jvm.values.BmpStringValue"),
     NONBMPSTRING("org.ballerinalang.jvm.values.NonBmpStringValue"),
-    DECIMAL("org.ballerinalang.jvm.values.DecimalValue"), // todo - parent var name
+    DECIMAL("org.ballerinalang.jvm.values.DecimalValue"),
     OBJECT_VALUE("org.ballerinalang.jvm.values.ObjectValue"),
     ARRAY_VALUE("org.ballerinalang.jvm.values.ArrayValue"),
     TUPLE_VALUE("org.ballerinalang.jvm.values.TupleValue"),
