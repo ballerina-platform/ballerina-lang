@@ -101,6 +101,10 @@ public class Main {
             cmdParser.getSubcommands().get("build").setStopAtPositional(true);
             cmdParser.getSubcommands().get("test").setStopAtPositional(true);
 
+            //TODO: remove and update the existing once the migration is done
+            cmdParser.getSubcommands().get("runNew").setUnmatchedArgumentsAllowed(true).setStopAtPositional(true);
+            cmdParser.getSubcommands().get("buildNew").setUnmatchedArgumentsAllowed(true).setStopAtPositional(true);
+
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();
             cmdParser.addSubcommand(BallerinaCliCommands.VERSION, versionCmd);
