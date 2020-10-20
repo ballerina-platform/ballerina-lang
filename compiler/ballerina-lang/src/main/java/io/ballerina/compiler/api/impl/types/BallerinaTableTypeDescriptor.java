@@ -23,6 +23,8 @@ import io.ballerina.compiler.api.types.TableTypeDescriptor;
 import io.ballerina.compiler.api.types.util.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -50,6 +52,11 @@ public class BallerinaTableTypeDescriptor extends AbstractTypeDescriptor impleme
     @Override
     public Optional<BallerinaTypeDescriptor> keyConstraintTypeParameter() {
         return Optional.ofNullable(this.keyConstraintTypeParameter);
+    }
+
+    @Override
+    public List<String> keySpecifiers() {
+        return Collections.emptyList();
     }
 
     @Override

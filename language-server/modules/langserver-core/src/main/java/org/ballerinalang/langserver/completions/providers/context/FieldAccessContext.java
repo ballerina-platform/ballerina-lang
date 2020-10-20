@@ -16,15 +16,15 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
+import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.RecordTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.util.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -194,11 +194,11 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             return Optional.empty();
         }
 
-        List<MethodSymbol> visibleMethods = fieldTypeDesc.get().builtinMethods();
+        List<MethodDescriptor> visibleMethods = fieldTypeDesc.get().langLibMethods();
         if (fieldTypeDesc.get().kind() == TypeDescKind.OBJECT) {
             visibleMethods.addAll(((ObjectTypeDescriptor) fieldTypeDesc.get()).methods());
         }
-        Optional<MethodSymbol> filteredMethod = visibleMethods.stream()
+        Optional<MethodDescriptor> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
                 .findFirst();
 
@@ -237,7 +237,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             default:
                 break;
         }
-        completionItems.addAll(this.getCompletionItemList(typeDescriptor.builtinMethods(), context));
+        completionItems.addAll(this.getCompletionItemList(typeDescriptor.langLibMethods(), context));
 
         return completionItems;
     }
@@ -251,7 +251,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         boolean symbolInCurrentModule = currentModule.equals(objectOwnerModule);
 
         // Extract the method entries
-        List<Symbol> methods = objectTypeDesc.methods().stream()
+        List<MethodDescriptor> methods = objectTypeDesc.methods().stream()
                 .filter(symbol -> {
                     boolean isPrivate = symbol.qualifiers().contains(Qualifier.PRIVATE);
                     boolean isPublic = symbol.qualifiers().contains(Qualifier.PUBLIC);

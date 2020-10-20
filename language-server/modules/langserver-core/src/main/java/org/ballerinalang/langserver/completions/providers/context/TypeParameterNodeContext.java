@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.util.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;

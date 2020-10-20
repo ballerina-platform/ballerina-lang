@@ -23,7 +23,7 @@ import io.ballerina.compiler.api.types.ArrayTypeDescriptor;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.RecordTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.util.TypeDescKind;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;

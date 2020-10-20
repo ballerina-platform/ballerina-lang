@@ -78,6 +78,7 @@ public class LSAnnotationCache {
     private static final List<PackageID> processedPackages = new ArrayList<>();
 
     private static LSAnnotationCache lsAnnotationCache = null;
+    private static SymbolFactory symbolFactory;
 
     private LSAnnotationCache() {
     }
@@ -90,6 +91,7 @@ public class LSAnnotationCache {
         if (lsAnnotationCache == null) {
             lsAnnotationCache = new LSAnnotationCache();
             CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
+            symbolFactory = SymbolFactory.getInstance(context);
             new Thread(() -> {
                 Map<String, BPackageSymbol> packages = loadPackagesMap(context);
                 loadAnnotations(new ArrayList<>(packages.values()));
@@ -337,7 +339,7 @@ public class LSAnnotationCache {
 
     private static void addAttachment(BAnnotationSymbol bAnnotationSymbol,
                                       Map<ModuleID, List<AnnotationSymbol>> map) {
-        AnnotationSymbol annotationSymbol = SymbolFactory.createAnnotationSymbol(bAnnotationSymbol);
+        AnnotationSymbol annotationSymbol = symbolFactory.createAnnotationSymbol(bAnnotationSymbol);
         // TODO: Check the map contains is valid
         if (map.containsKey(annotationSymbol.moduleID())) {
             map.get(annotationSymbol.moduleID()).add(annotationSymbol);

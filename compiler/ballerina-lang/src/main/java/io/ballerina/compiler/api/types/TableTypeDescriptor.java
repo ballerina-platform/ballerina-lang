@@ -39,7 +39,7 @@ public interface TableTypeDescriptor extends BallerinaTypeDescriptor {
      *
      * @return The type parameter
      */
-    Optional<TypeDescTypeDescriptor> keyConstraintTypeParameter();
+    Optional<BallerinaTypeDescriptor> keyConstraintTypeParameter();
 
     /**
      * Get the list of key specifiers.

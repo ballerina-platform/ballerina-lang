@@ -17,14 +17,14 @@ package org.ballerinalang.langserver.signature;
 
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
+import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.RecordTypeDescriptor;
-import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.util.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -318,7 +318,7 @@ public class SignatureHelpUtil {
         return leadingMinutiaeRange.endOffset() <= position;
     }
 
-    public static Optional<FunctionSymbol> getFunctionSymbol(LSContext context) throws WorkspaceDocumentException {
+    public static Optional<MethodDescriptor> getFunctionSymbol(LSContext context) throws WorkspaceDocumentException {
         Optional<NonTerminalNode> tokenAtCursor = getTokenInfoAtCursor(context);
         if (tokenAtCursor.isEmpty()) {
             return Optional.empty();
@@ -457,11 +457,11 @@ public class SignatureHelpUtil {
             return Optional.empty();
         }
 
-        List<MethodSymbol> visibleMethods = fieldTypeDesc.get().builtinMethods();
+        List<MethodDescriptor> visibleMethods = fieldTypeDesc.get().langLibMethods();
         if (CommonUtil.getRawType(fieldTypeDesc.get()).kind() == TypeDescKind.OBJECT) {
             visibleMethods.addAll(((ObjectTypeDescriptor) CommonUtil.getRawType(fieldTypeDesc.get())).methods());
         }
-        Optional<MethodSymbol> filteredMethod = visibleMethods.stream()
+        Optional<MethodDescriptor> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
                 .findFirst();
 
@@ -472,13 +472,13 @@ public class SignatureHelpUtil {
         return filteredMethod.get().typeDescriptor().returnTypeDescriptor();
     }
 
-    private static List<FunctionSymbol> getFunctionSymbolsForTypeDesc(BallerinaTypeDescriptor typeDescriptor) {
-        List<FunctionSymbol> functionSymbols = new ArrayList<>();
+    private static List<MethodDescriptor> getFunctionSymbolsForTypeDesc(BallerinaTypeDescriptor typeDescriptor) {
+        List<MethodDescriptor> functionSymbols = new ArrayList<>();
         if (CommonUtil.getRawType(typeDescriptor).kind() == TypeDescKind.OBJECT) {
             ObjectTypeDescriptor objTypeDesc = (ObjectTypeDescriptor) CommonUtil.getRawType(typeDescriptor);
             functionSymbols.addAll(objTypeDesc.methods());
         }
-        functionSymbols.addAll(typeDescriptor.builtinMethods());
+        functionSymbols.addAll(typeDescriptor.langLibMethods());
 
         return functionSymbols;
     }

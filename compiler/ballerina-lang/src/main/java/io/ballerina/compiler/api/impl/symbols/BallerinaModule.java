@@ -106,16 +106,6 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
                     .collect(Collectors.toUnmodifiableList());
         }
 
-            if (scopeEntry.symbol instanceof BTypeSymbol) {
-                String typeName = scopeEntry.symbol.getName().getValue();
-                typeDefs.add(symbolFactory.createTypeDefinition((BTypeSymbol) scopeEntry.symbol, typeName));
-            } else if (scopeEntry.symbol instanceof BConstructorSymbol) {
-                String typeName = scopeEntry.symbol.type.tsymbol.getName().getValue();
-                typeDefs.add(symbolFactory.createTypeDefinition(scopeEntry.symbol.type.tsymbol, typeName));
-            }
-        }
-
-        this.typeDefs = Collections.unmodifiableList(typeDefs);
         return this.typeDefs;
     }
 
@@ -179,8 +169,8 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
                 if (!isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC) || scopeEntry.symbol.origin != COMPILED_SOURCE) {
                     continue;
                 }
-                symbols.add(SymbolFactory.getBCompiledSymbol(scopeEntry.symbol,
-                        scopeEntry.symbol.getName().getValue()));
+                symbols.add(symbolFactory.getBCompiledSymbol(scopeEntry.symbol,
+                                                             scopeEntry.symbol.getName().getValue()));
             }
             this.allSymbols = Collections.unmodifiableList(symbols);
         }
