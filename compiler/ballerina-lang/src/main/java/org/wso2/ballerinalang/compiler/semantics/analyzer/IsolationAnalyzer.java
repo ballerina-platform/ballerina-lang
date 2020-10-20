@@ -285,8 +285,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         boolean prevInferredIsolated = this.inferredIsolated;
+        this.inferredIsolated = true;
 
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+
+        for (BLangSimpleVariable requiredParam : funcNode.requiredParams) {
+            if (!requiredParam.symbol.defaultableParam) {
+                continue;
+            }
+
+            analyzeNode(requiredParam.expr, funcEnv);
+        }
+
         analyzeNode(funcNode.body, funcEnv);
 
         if (isBallerinaModule(env.enclPkg) && !isIsolated(funcNode.symbol) &&
@@ -294,7 +304,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             dlog.warning(funcNode.pos, DiagnosticCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
         }
 
-        this.inferredIsolated = prevInferredIsolated;
+        this.inferredIsolated = this.inferredIsolated && prevInferredIsolated;
     }
 
     @Override
@@ -313,6 +323,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExternalFunctionBody body) {
+        inferredIsolated = false;
     }
 
     @Override
@@ -649,6 +660,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
+        inferredIsolated = false;
+
+        if (isInIsolatedFunction(env.enclInvokable)) {
+            dlog.error(forkJoin.pos, DiagnosticCode.INVALID_FORK_STATEMENT_IN_ISOLATED_FUNCTION);
+        }
     }
 
     @Override
@@ -1787,8 +1803,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean isDefinitionReference(BSymbol symbol) {
         return Symbols.isTagOn(symbol, SymTag.SERVICE) ||
                 Symbols.isTagOn(symbol, SymTag.TYPE_DEF) ||
-                Symbols.isTagOn(symbol, SymTag.FUNCTION) ||
-                Symbols.isFlagOn(symbol.flags, Flags.LISTENER);
+                Symbols.isTagOn(symbol, SymTag.FUNCTION);
     }
 
     private boolean isIsolated(BSymbol symbol) {

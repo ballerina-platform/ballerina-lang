@@ -606,6 +606,7 @@ public enum DiagnosticCode {
 
     INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION("invalid.async.invocation.in.isolated.function"),
     INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION("invalid.worker.declaration.in.isolated.function"),
+    INVALID_FORK_STATEMENT_IN_ISOLATED_FUNCTION("invalid.fork.statement.in.isolated.function"),
     FUNCTION_CAN_BE_MARKED_ISOLATED("function.can.be.marked.isolated"),
 
     COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
