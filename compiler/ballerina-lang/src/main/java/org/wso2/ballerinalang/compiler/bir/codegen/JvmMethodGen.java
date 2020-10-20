@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
+import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationArrayValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -75,7 +76,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
-import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
