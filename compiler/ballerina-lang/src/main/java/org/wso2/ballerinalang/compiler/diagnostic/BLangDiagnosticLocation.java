@@ -34,16 +34,10 @@ public class BLangDiagnosticLocation implements Location {
     private LineRange lineRange;
     private TextRange textRange;
 
-    @Deprecated
     public BLangDiagnosticLocation(String filePath, int startLine, int endLine, int startColumn, int endColumn) {
         this.lineRange = LineRange.from(filePath, LinePosition.from(startLine, startColumn),
                 LinePosition.from(endLine, endColumn));
         this.textRange = TextRange.from(0, 0);
-    }
-
-    public BLangDiagnosticLocation(LineRange lineRange, TextRange textRange) {
-        this.lineRange = lineRange;
-        this.textRange = textRange;
     }
 
     @Override
