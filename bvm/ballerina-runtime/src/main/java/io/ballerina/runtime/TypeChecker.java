@@ -1246,7 +1246,8 @@ public class TypeChecker {
                                                                                          Flags.READONLY);
     }
 
-    private static boolean checkIsArrayType(BArrayType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
+    private static boolean checkIsArrayType(BArrayType sourceType, BArrayType targetType,
+                                            List<TypePair> unresolvedTypes) {
         Type sourceElementType = sourceType.getElementType();
         Type targetElementType = targetType.getElementType();
 
@@ -1266,7 +1267,8 @@ public class TypeChecker {
         return checkIsType(sourceElementType, targetElementType, unresolvedTypes);
     }
 
-    private static boolean checkIsArrayType(BTupleType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
+    private static boolean checkIsArrayType(BTupleType sourceType, BArrayType targetType,
+                                            List<TypePair> unresolvedTypes) {
         Set<Type> tupleTypes = new HashSet<>(sourceType.getTupleTypes());
         Type sourceRestType = sourceType.getRestType();
         Type targetElementType = targetType.getElementType();
@@ -1277,7 +1279,7 @@ public class TypeChecker {
                     return false;
                 }
             }
-            if (sourceRestType != null){
+            if (sourceRestType != null) {
                 return checkIsType(sourceRestType, targetElementType, unresolvedTypes);
             }
             return true;
@@ -1318,7 +1320,8 @@ public class TypeChecker {
         return checkIsArrayType((BTupleType) sourceType, targetType, unresolvedTypes);
     }
 
-    private static boolean checkIsTupleType(BArrayType sourceType, BTupleType targetType, List<TypePair> unresolvedTypes) {
+    private static boolean checkIsTupleType(BArrayType sourceType, BTupleType targetType,
+                                            List<TypePair> unresolvedTypes) {
         Type sourceElementType = sourceType.getElementType();
         List<Type> targetTypes = new ArrayList<>(targetType.getTupleTypes());
         Type targetRestType = targetType.getRestType();
@@ -1360,7 +1363,8 @@ public class TypeChecker {
         }
     }
 
-    private static boolean checkIsTupleType(BTupleType sourceType, BTupleType targetType, List<TypePair> unresolvedTypes) {
+    private static boolean checkIsTupleType(BTupleType sourceType, BTupleType targetType,
+                                            List<TypePair> unresolvedTypes) {
         List<Type> sourceTypes = new ArrayList<>(sourceType.getTupleTypes());
         Type sourceRestType = sourceType.getRestType();
         List<Type> targetTypes = new ArrayList<>(targetType.getTupleTypes());
