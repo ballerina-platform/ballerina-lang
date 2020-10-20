@@ -95,7 +95,7 @@ public class BTableType extends BType implements TableType {
 
         StringBuilder keyStringBuilder = new StringBuilder();
         String stringRep;
-        if (keyType != null && fieldNames != null) {
+        if (fieldNames != null) {
             for (String fieldName : fieldNames) {
                 if (!keyStringBuilder.toString().equals("")) {
                     keyStringBuilder.append(", ");
