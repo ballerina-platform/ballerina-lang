@@ -816,7 +816,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public TypeDefinitionNode transform(TypeDefinitionNode typeDefinitionNode) {
         if (typeDefinitionNode.metadata().isPresent()) {
-            MetadataNode metadata = formatNode(typeDefinitionNode.metadata().get(), 1, 0);
+            MetadataNode metadata = formatNode(typeDefinitionNode.metadata().get(), 0, 1);
             typeDefinitionNode = typeDefinitionNode.modify().withMetadata(metadata).apply();
         }
         if (typeDefinitionNode.visibilityQualifier().isPresent()) {
@@ -1300,7 +1300,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ModuleVariableDeclarationNode transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         if (moduleVariableDeclarationNode.metadata().isPresent()) {
-            MetadataNode metadata = formatNode(moduleVariableDeclarationNode.metadata().get(), 1, 0);
+            MetadataNode metadata = formatNode(moduleVariableDeclarationNode.metadata().get(), 0, 1);
             moduleVariableDeclarationNode = moduleVariableDeclarationNode.modify().withMetadata(metadata).apply();
         }
 
@@ -1973,7 +1973,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public XMLComment transform(XMLComment xMLComment) {
         Token commentStart = formatToken(xMLComment.commentStart(), 0, 0);
-        NodeList<Node> content = formatNodeList(xMLComment.content(), 1, 0, 0, 0);
+        NodeList<Node> content = formatNodeList(xMLComment.content(), 0, 0, 0, 0);
         Token commentEnd = formatToken(xMLComment.commentEnd(), env.trailingWS, env.trailingNL);
 
         return xMLComment.modify()
@@ -1994,7 +1994,7 @@ public class FormattingTreeModifier extends TreeModifier {
             target = formatNode(xMLProcessingInstruction.target(), 1, 0);
         }
 
-        NodeList<Node> data = formatNodeList(xMLProcessingInstruction.data(), 1, 0, 0, 0);
+        NodeList<Node> data = formatNodeList(xMLProcessingInstruction.data(), 0, 0, 0, 0);
         Token piEnd = formatToken(xMLProcessingInstruction.piEnd(), env.trailingWS, env.trailingNL);
 
         return xMLProcessingInstruction.modify()
@@ -2461,7 +2461,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         if (annotationDeclarationNode.constKeyword().isPresent()) {
-            Token constKeyword = formatToken(annotationDeclarationNode.visibilityQualifier().get(), 1, 0);
+            Token constKeyword = formatToken(annotationDeclarationNode.constKeyword().get(), 1, 0);
             annotationDeclarationNode =
                     annotationDeclarationNode.modify().withConstKeyword(constKeyword).apply();
         }
@@ -2474,9 +2474,10 @@ public class FormattingTreeModifier extends TreeModifier {
                     annotationDeclarationNode.modify().withTypeDescriptor(typeDescriptor).apply();
         }
 
-        Token annotationTag = formatToken(annotationDeclarationNode.annotationTag(), 1, 0);
+        Token annotationTag;
 
         if (annotationDeclarationNode.onKeyword().isPresent()) {
+            annotationTag = formatToken(annotationDeclarationNode.annotationTag(), 1, 0);
             Token onKeyword = formatToken(annotationDeclarationNode.onKeyword().get(), 1, 0);
             int currentIndentation = env.currentIndentation;
             setIndentation(env.lineLength);
@@ -2487,6 +2488,8 @@ public class FormattingTreeModifier extends TreeModifier {
                     .withOnKeyword(onKeyword)
                     .withAttachPoints(attachPoints)
                     .apply();
+        } else {
+            annotationTag = formatToken(annotationDeclarationNode.annotationTag(), 0, 0);
         }
 
         Token semicolonToken = formatToken(annotationDeclarationNode.semicolonToken(),
@@ -3283,7 +3286,16 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         Token serviceKeyword = formatToken(serviceConstructorExpressionNode.serviceKeyword(), 1, 0);
+
+        int prevIndentation = env.currentIndentation;
+        // Set indentation for braces.
+        int fieldIndentation = env.lineLength - serviceKeyword.text().length() - 1;
+        setIndentation(fieldIndentation);
+
         Node serviceBody = formatNode(serviceConstructorExpressionNode.serviceBody(), env.trailingWS, env.trailingNL);
+
+        setIndentation(prevIndentation);
+
         return serviceConstructorExpressionNode.modify()
                 .withAnnotations(annotations)
                 .withServiceKeyword(serviceKeyword)
