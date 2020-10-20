@@ -372,6 +372,32 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
     }
 
     /**
+     * Can be used to fetch stack frames when a debug hit is occurred.
+     *
+     * @param args debug stopped event arguments.
+     * @return StackFrame array with stack frames information.
+     * @throws BallerinaTestException if an error occurs when fetching stack frames.
+     */
+    protected StackFrame[] fetchStackFrames(StoppedEventArguments args) throws BallerinaTestException {
+        if (!DebugHitListener.connector.isConnected()) {
+            return new StackFrame[0];
+        }
+        StackTraceArguments stackTraceArgs = new StackTraceArguments();
+        stackTraceArgs.setThreadId(args.getThreadId());
+        StackFrame[] stackFrames = null;
+        StackTraceResponse stackTraceResp = null;
+
+        try {
+            stackTraceResp = DebugHitListener.connector.getRequestManager().stackTrace(stackTraceArgs);
+            stackFrames = stackTraceResp.getStackFrames();
+        } catch (Exception e) {
+            LOGGER.warn("Error occurred when fetching stack frames", e);
+            throw new BallerinaTestException("Error occurred when fetching stack frames", e);
+        }
+        return stackFrames;
+    }
+
+    /**
      * Can be used to get child variables from parent variable.
      *
      * @param childVariable child variable.
@@ -433,6 +459,20 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         Variable result = evaluateExpression(context, expression);
         Assert.assertEquals(result.getValue(), errorMessage);
         Assert.assertEquals(result.getType(), "string");
+    }
+
+    /**
+     * Can be used to assert stack frame name, line and source.
+     *
+     * @param frames   debug hit stack frames.
+     * @param name     stack frame name.
+     * @param line     stack frame line.
+     * @param source   stack frame source.
+     */
+    protected void assertCallStack(StackFrame frames, String name, int line, String source) {
+        Assert.assertEquals(frames.getName(), name);
+        Assert.assertEquals(frames.getLine().intValue(), line);
+        Assert.assertEquals(frames.getSource().getName(), source);
     }
 
     /**
