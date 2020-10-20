@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.langserver.completions;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import javax.annotation.Nullable;
 
@@ -31,14 +31,14 @@ import javax.annotation.Nullable;
  * @since 1.2.0
  */
 public class SymbolCompletionItem extends AbstractLSCompletionItem {
-    private final BSymbol bSymbol;
+    private final Symbol bSymbol;
 
-    public SymbolCompletionItem(LSContext lsContext, @Nullable BSymbol bSymbol, CompletionItem completionItem) {
+    public SymbolCompletionItem(LSContext lsContext, @Nullable Symbol bSymbol, CompletionItem completionItem) {
         super(lsContext, completionItem);
         this.bSymbol = bSymbol;
     }
 
-    public BSymbol getSymbol() {
+    public Symbol getSymbol() {
         return bSymbol;
     }
 }

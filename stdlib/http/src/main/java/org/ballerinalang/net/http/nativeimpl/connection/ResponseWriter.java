@@ -18,11 +18,11 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
@@ -94,7 +94,7 @@ public class ResponseWriter {
      */
     private static void serializeMultiparts(String boundaryString, BObject entity,
                                             OutputStream messageOutputStream) {
-        ArrayValue bodyParts = EntityBodyHandler.getBodyPartArray(entity);
+        BArray bodyParts = EntityBodyHandler.getBodyPartArray(entity);
         try {
             if (bodyParts != null && bodyParts.size() > 0) {
                 MultipartDataSource multipartDataSource = new MultipartDataSource(entity, boundaryString);

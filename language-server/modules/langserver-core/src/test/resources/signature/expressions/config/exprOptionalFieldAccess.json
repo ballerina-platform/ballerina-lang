@@ -8,7 +8,7 @@
         "result": {
             "signatures": [
                 {
-                    "label": "Stub.bar2(float a, boolean b)",
+                    "label": "bar2(float a, boolean b)",
                     "documentation": {
                         "right": {
                             "kind": "markdown",
@@ -43,9 +43,6 @@
             ],
             "activeSignature": 0,
             "activeParameter": 1
-        },
-        "id": {
-            "left": "324"
         },
         "jsonrpc": "2.0"
     }

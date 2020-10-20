@@ -19,10 +19,10 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
 
 /**
  * This function adds tags to a span.
@@ -38,7 +38,7 @@ public class AddTagToSpan {
             return null;
         }
 
-        return BErrorCreator.createError(
-                BStringUtils.fromString(("Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}")));
+        return ErrorCreator.createError(
+                StringUtils.fromString(("Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}")));
     }
 }

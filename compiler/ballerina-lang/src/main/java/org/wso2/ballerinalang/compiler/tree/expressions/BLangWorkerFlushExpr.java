@@ -17,8 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.symbols.Symbol;
-import org.ballerinalang.model.tree.IdentifiableNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.WorkerFlushExpressionNode;
@@ -35,7 +33,7 @@ import java.util.List;
  *
  * @since 0.985.0
  */
-public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlushExpressionNode, IdentifiableNode {
+public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlushExpressionNode {
 
     public BLangIdentifier workerIdentifier;
     public BSymbol workerSymbol;
@@ -65,13 +63,4 @@ public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlush
         return workerIdentifier;
     }
 
-    @Override
-    public Symbol getSymbol() {
-        return this.workerSymbol;
-    }
-
-    @Override
-    public void setSymbol(Symbol symbol) {
-        this.workerSymbol = (BSymbol) symbol;
-    }
 }

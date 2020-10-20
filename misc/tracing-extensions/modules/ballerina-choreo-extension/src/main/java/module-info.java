@@ -1,7 +1,7 @@
-module io.ballerina.choreo.extension {
+module io.ballerina.observe.trace.extension.choreo {
     requires jaeger.core;
     requires opentracing.api;
-    requires io.ballerina.jvm;
+    requires io.ballerina.runtime;
     requires grpc.api;
     requires com.google.common;
     requires grpc.stub;

@@ -39,7 +39,7 @@ public class GroupingTest extends BaseTestCase {
         projectPath = singleFilesProjectPath.resolve("grouping").toString();
     }
 
-    @Test (enabled = false)
+    @Test
     public void testSingleGroupExecution() throws BallerinaTestException {
         String msg = "3 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -48,7 +48,7 @@ public class GroupingTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testMultipleGroupExecution() throws BallerinaTestException {
         String msg = "3 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -57,7 +57,7 @@ public class GroupingTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testSingleGroupExclusion() throws BallerinaTestException {
         String msg1 = "4 passing";
         String msg2 = "1 failing";
@@ -69,7 +69,7 @@ public class GroupingTest extends BaseTestCase {
         clientLeecher2.waitForText(50000);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testMultipleGroupExclusion() throws BallerinaTestException {
         String msg = "1 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -78,7 +78,7 @@ public class GroupingTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testNonExistingGroupInclusion() throws BallerinaTestException {
         String msg = "No tests found";
         LogLeecher clientLeecher = new LogLeecher(msg);
@@ -87,7 +87,7 @@ public class GroupingTest extends BaseTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testNonExistingGroupExclusion() throws BallerinaTestException {
         String msg1 = "4 passing";
         String msg2 = "2 failing";
@@ -99,7 +99,7 @@ public class GroupingTest extends BaseTestCase {
         clientLeecher2.waitForText(80000);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testListingOfTestGroups() throws BallerinaTestException {
         String msg = "[g1, g2, g3, g4, g5, g6]";
         LogLeecher clientLeecher = new LogLeecher(msg);

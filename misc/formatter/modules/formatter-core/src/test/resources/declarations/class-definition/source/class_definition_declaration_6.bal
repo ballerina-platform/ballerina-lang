@@ -3,7 +3,6 @@ class
     { readonly
         a
     ;
-
     readonly
 a
 
