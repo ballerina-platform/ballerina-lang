@@ -16,12 +16,12 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
-import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.RecordTypeDescriptor;
 import io.ballerina.compiler.api.types.util.TypeDescKind;
@@ -194,11 +194,11 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
             return Optional.empty();
         }
 
-        List<MethodDescriptor> visibleMethods = fieldTypeDesc.get().langLibMethods();
+        List<MethodSymbol> visibleMethods = fieldTypeDesc.get().langLibMethods();
         if (fieldTypeDesc.get().kind() == TypeDescKind.OBJECT) {
             visibleMethods.addAll(((ObjectTypeDescriptor) fieldTypeDesc.get()).methods());
         }
-        Optional<MethodDescriptor> filteredMethod = visibleMethods.stream()
+        Optional<MethodSymbol> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
                 .findFirst();
 
@@ -251,7 +251,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         boolean symbolInCurrentModule = currentModule.equals(objectOwnerModule);
 
         // Extract the method entries
-        List<MethodDescriptor> methods = objectTypeDesc.methods().stream()
+        List<Symbol> methods = objectTypeDesc.methods().stream()
                 .filter(symbol -> {
                     boolean isPrivate = symbol.qualifiers().contains(Qualifier.PRIVATE);
                     boolean isPublic = symbol.qualifiers().contains(Qualifier.PUBLIC);

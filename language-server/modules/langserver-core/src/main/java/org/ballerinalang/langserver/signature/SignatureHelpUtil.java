@@ -17,11 +17,11 @@ package org.ballerinalang.langserver.signature;
 
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
-import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.RecordTypeDescriptor;
 import io.ballerina.compiler.api.types.util.TypeDescKind;
@@ -318,7 +318,7 @@ public class SignatureHelpUtil {
         return leadingMinutiaeRange.endOffset() <= position;
     }
 
-    public static Optional<MethodDescriptor> getFunctionSymbol(LSContext context) throws WorkspaceDocumentException {
+    public static Optional<FunctionSymbol> getFunctionSymbol(LSContext context) throws WorkspaceDocumentException {
         Optional<NonTerminalNode> tokenAtCursor = getTokenInfoAtCursor(context);
         if (tokenAtCursor.isEmpty()) {
             return Optional.empty();
@@ -457,11 +457,11 @@ public class SignatureHelpUtil {
             return Optional.empty();
         }
 
-        List<MethodDescriptor> visibleMethods = fieldTypeDesc.get().langLibMethods();
+        List<MethodSymbol> visibleMethods = fieldTypeDesc.get().langLibMethods();
         if (CommonUtil.getRawType(fieldTypeDesc.get()).kind() == TypeDescKind.OBJECT) {
             visibleMethods.addAll(((ObjectTypeDescriptor) CommonUtil.getRawType(fieldTypeDesc.get())).methods());
         }
-        Optional<MethodDescriptor> filteredMethod = visibleMethods.stream()
+        Optional<MethodSymbol> filteredMethod = visibleMethods.stream()
                 .filter(methodSymbol -> methodSymbol.name().equals(methodName))
                 .findFirst();
 
@@ -472,8 +472,8 @@ public class SignatureHelpUtil {
         return filteredMethod.get().typeDescriptor().returnTypeDescriptor();
     }
 
-    private static List<MethodDescriptor> getFunctionSymbolsForTypeDesc(BallerinaTypeDescriptor typeDescriptor) {
-        List<MethodDescriptor> functionSymbols = new ArrayList<>();
+    private static List<FunctionSymbol> getFunctionSymbolsForTypeDesc(BallerinaTypeDescriptor typeDescriptor) {
+        List<FunctionSymbol> functionSymbols = new ArrayList<>();
         if (CommonUtil.getRawType(typeDescriptor).kind() == TypeDescKind.OBJECT) {
             ObjectTypeDescriptor objTypeDesc = (ObjectTypeDescriptor) CommonUtil.getRawType(typeDescriptor);
             functionSymbols.addAll(objTypeDesc.methods());

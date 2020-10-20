@@ -18,12 +18,12 @@ package org.ballerinalang.langserver.common.utils;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.RecordTypeDescriptor;
 import io.ballerina.compiler.api.types.util.TypeDescKind;
@@ -156,7 +156,7 @@ public class SymbolUtil {
         }
         List<String> attachedMethods = ((ObjectTypeDescriptor) CommonUtil.getRawType(symbolTypeDesc.get())).methods()
                 .stream()
-                .map(MethodDescriptor::name)
+                .map(MethodSymbol::name)
                 .collect(Collectors.toList());
         return attachedMethods.contains("__start") && attachedMethods.contains("__immediateStop")
                 && attachedMethods.contains("__immediateStop") && attachedMethods.contains("__attach");
