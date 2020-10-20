@@ -19,7 +19,6 @@
 package io.ballerina.compiler.api.types;
 
 import io.ballerina.compiler.api.symbols.Qualifier;
-import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 
 import java.util.Set;
 

@@ -19,9 +19,9 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.types.FieldDescriptor;
+import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.util.TypeDescKind;
-import io.ballerina.compiler.api.types.MethodDescriptor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.util.Flags;
 
