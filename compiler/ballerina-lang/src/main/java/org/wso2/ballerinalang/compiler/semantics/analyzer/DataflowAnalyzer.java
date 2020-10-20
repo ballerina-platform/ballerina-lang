@@ -1879,14 +1879,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
                 isFinalFieldInAllObjects(fieldAccess.pos, exprType, fieldAccess.field.value)) {
             dlog.error(fieldAccess.pos, DiagnosticCode.CANNOT_UPDATE_FINAL_OBJECT_FIELD, fieldAccess.field.value);
-            return;
         }
-
-        if (expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            return;
-        }
-
-        checkFinalObjectFieldUpdate((BLangFieldBasedAccess) expr);
     }
 
     private boolean isFinalFieldInAllObjects(DiagnosticPos pos, BType type, String fieldName) {

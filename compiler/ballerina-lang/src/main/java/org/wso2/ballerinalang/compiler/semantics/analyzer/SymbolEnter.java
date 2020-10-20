@@ -2243,11 +2243,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (nodeKind == NodeKind.RECORD_TYPE && !(((BRecordType) structureType).sealed)) {
+            if (nodeKind != NodeKind.RECORD_TYPE || !(((BRecordType) structureType).sealed)) {
                 continue;
             }
 
-            boolean allReadOnlyOrFinalFields = true;
+            boolean allImmutableFields = true;
 
             Collection<BField> fields = structureType.fields.values();
 
@@ -2255,16 +2255,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            int flagToCheck = nodeKind == NodeKind.RECORD_TYPE ? Flags.READONLY : Flags.FINAL;
-
             for (BField field : fields) {
-                if (!Symbols.isFlagOn(field.symbol.flags, flagToCheck)) {
-                    allReadOnlyOrFinalFields = false;
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                    allImmutableFields = false;
                     break;
                 }
             }
 
-            if (allReadOnlyOrFinalFields) {
+            if (allImmutableFields) {
                 structureType.tsymbol.flags |= Flags.READONLY;
                 structureType.flags |= Flags.READONLY;
             }
@@ -2305,7 +2303,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             for (BField field : fields) {
-                if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL)) {
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL) ||
+                        !Symbols.isFlagOn(field.type.flags, Flags.READONLY)) {
                     return;
                 }
             }
