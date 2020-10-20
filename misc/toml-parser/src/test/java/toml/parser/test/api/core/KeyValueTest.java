@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package toml.parser.test.core;
+package toml.parser.test.api.core;
 
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
@@ -33,7 +33,7 @@ import java.io.InputStream;
 /**
  * Basic Test for TOML Key Value Pairs.
  */
-public class KeyValueTest extends AbstractTest {
+public class KeyValueTest {
 
     @Test
     public void testKeys() throws IOException {
@@ -62,11 +62,6 @@ public class KeyValueTest extends AbstractTest {
         Assert.assertEquals(unicode, "value");
         Assert.assertEquals(general, "value");
         Assert.assertEquals(escape, "value");
-    }
-
-    @Test(enabled = false)
-    public void testKeyJson() {
-        super.testFile("keys.toml", "keys.json");
     }
 
     @Test

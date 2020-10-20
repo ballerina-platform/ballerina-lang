@@ -61,7 +61,7 @@ public class SyntaxTreeJSONGenerator {
         // generateJSON("a 7", ParserRuleContext.EXPRESSION);
 
         // Using a file source as input
-        String path = "syntax/core/keys.toml";
+        String path = "validations/syntax/key-value/missing-new-line.toml";
         String jsonString = generateJSON(Paths.get(path));
         STANDARD_OUT.println(jsonString);
     }

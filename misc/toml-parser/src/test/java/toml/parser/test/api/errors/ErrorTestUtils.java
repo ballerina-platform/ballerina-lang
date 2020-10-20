@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package toml.parser.test.errors;
+package toml.parser.test.api.errors;
 
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;

@@ -1,0 +1,662 @@
+{
+  "kind": "MODULE_PART",
+  "children": [
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "INITIAL_TRIVIA",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "NEW_LINE",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "# Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved."
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "#\n# WSO2 Inc. licenses this file to you under the Apache License,"
+                    }
+                  ]
+                },
+                {
+                  "kind": "NEW_LINE",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "# Version 2.0 (the \"License\"); you may not use this file except"
+                    }
+                  ]
+                },
+                {
+                  "kind": "NEW_LINE",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "# in compliance with the License."
+                    }
+                  ]
+                },
+                {
+                  "kind": "NEW_LINE",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "# You may obtain a copy of the License at"
+                    }
+                  ]
+                },
+                {
+                  "kind": "NEW_LINE",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "#\n#   http://www.apache.org/licenses/LICENSE-2.0"
+                    }
+                  ]
+                },
+                {
+                  "kind": "NEW_LINE",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "#\n# Unless required by applicable law or agreed to in writing,"
+                    }
+                  ]
+                },
+                {
+                  "kind": "NEW_LINE",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "# software distributed under the License is distributed on an"
+                    }
+                  ]
+                },
+                {
+                  "kind": "NEW_LINE",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY"
+                    }
+                  ]
+                },
+                {
+                  "kind": "NEW_LINE",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "# KIND, either express or implied.  See the License for the"
+                    }
+                  ]
+                },
+                {
+                  "kind": "NEW_LINE",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "# specific language governing permissions and limitations"
+                    }
+                  ]
+                },
+                {
+                  "kind": "NEW_LINE",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "COMMENT_MINUTIAE",
+                      "value": "# under the License."
+                    }
+                  ]
+                },
+                {
+                  "kind": "NEW_LINE"
+                },
+                {
+                  "kind": "NEW_LINE"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "KEY_VALUE",
+          "children": [
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "value": "rootKey",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "DEC_INT",
+              "children": [
+                {
+                  "kind": "DECIMAL_INT_TOKEN",
+                  "value": "22"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "NEW_LINE"
+                },
+                {
+                  "kind": "NEW_LINE"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "value": "first"
+                    }
+                  ]
+                },
+                {
+                  "kind": "DOT_TOKEN"
+                },
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "value": "sub"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "value": "hey",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "sister"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "NEW_LINE"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "value": "key",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "  "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "ewww"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "NEW_LINE"
+                        },
+                        {
+                          "kind": "NEW_LINE"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "NEW_LINE"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "value": "first"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "value": "key",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "  "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "sdsad"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "NEW_LINE"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "value": "key1",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "eeww"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "NEW_LINE"
+                        },
+                        {
+                          "kind": "NEW_LINE"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "NEW_LINE"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_LITERAL",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "value": "second"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "value": "key",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "yay"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "NEW_LINE"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "value": "key1",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "test"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "NEW_LINE"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "NEW_LINE"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
+}

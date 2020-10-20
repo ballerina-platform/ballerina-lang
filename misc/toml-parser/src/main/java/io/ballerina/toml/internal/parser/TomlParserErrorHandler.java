@@ -261,7 +261,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EOF;
             case ARRAY_TABLE_SECOND_END:
             case TABLE_END:
-//            case VALUE:
+            case ARRAY_VALUE_LIST_END:
                 endContext();
                 return ParserRuleContext.NEW_LINE;
             case ASSIGN_OP:
@@ -269,11 +269,6 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.VALUE;
             case NEW_LINE:
                 return ParserRuleContext.TOP_LEVEL_NODE;
-            case ARRAY_VALUE_LIST_END:
-                endContext();
-                return ParserRuleContext.NEW_LINE;
-//            case ASSIGN_OP:
-//                return ParserRuleContext.VALUE;
             case KEY_VALUE_PAIR:
             case TABLE_START:
             case ARRAY_TABLE_SECOND_START:
@@ -289,11 +284,8 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             case COMMA:
                 return ParserRuleContext.ARRAY_VALUE_START;
             case DOT:
-                return ParserRuleContext.KEY_START;
             case KEY_LIST:
                 return ParserRuleContext.KEY_START;
-//            case ARRAY_VALUE_START:
-//                return ParserRuleContext.ARRAY_VALUE_END; //TODO Idk
             case ARRAY_VALUE_LIST_START:
                 return ParserRuleContext.ARRAY_VALUE_LIST;
             case ARRAY_VALUE_LIST:
@@ -306,7 +298,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             case DECIMAL_FLOATING_POINT_LITERAL:
             case DECIMAL_INTEGER_LITERAL:
             case BOOLEAN_LITERAL:
-                ParserRuleContext parentCtx = getParentContext(); //TODO check keys as well.
+                ParserRuleContext parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.ARRAY_VALUE_LIST) {
                     return ParserRuleContext.ARRAY_VALUE_END;
                 } else if (parentCtx == ParserRuleContext.KEY_LIST) {

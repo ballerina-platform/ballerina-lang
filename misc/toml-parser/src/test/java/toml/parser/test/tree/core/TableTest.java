@@ -16,17 +16,21 @@
  * under the License.
  */
 
-package toml.parser.test.core;
+package toml.parser.test.tree.core;
 
-import toml.parser.test.ParserTestUtils;
+import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
-
-/**
- * Test util for testing toml.
+/***
+ * Syntax Tree tests for Tables and Array of tables.
  */
-public abstract class AbstractTest {
-    void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("syntax/core/", path), Paths.get("syntax/core/", filePath));
+public class TableTest extends AbstractCoreTest {
+    @Test
+    public void testTableJson() {
+        super.testFile("table.toml", "table.json");
+    }
+
+    @Test
+    public void testArrayOfTableJson() {
+        super.testFile("array-of-tables.toml", "array-of-tables.json");
     }
 }

@@ -27,7 +27,6 @@ import io.ballerina.toml.internal.parser.tree.STToken;
 import io.ballerina.toml.internal.syntax.NodeListUtils;
 import io.ballerina.toml.internal.syntax.SyntaxUtils;
 import io.ballerina.toml.syntax.tree.SyntaxKind;
-import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -22,7 +22,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import io.ballerina.toml.internal.parser.ParserFactory;
 import io.ballerina.toml.internal.parser.TomlParser;
 import io.ballerina.toml.internal.parser.tree.STIdentifierToken;
@@ -82,7 +81,7 @@ public class ParserTestUtils {
     /**
      * Test parsing a valid source.
      *
-     * @param source Input source that represent a ballerina code
+     * @param source         Input source that represent a ballerina code
      * @param assertFilePath File to assert the resulting tree after parsing
      */
     public static void test(String source, Path assertFilePath) {
@@ -393,6 +392,12 @@ public class ParserTestUtils {
 
     private static SyntaxKind getNodeKind(String kind) {
         switch (kind) {
+            case "INITIAL_TRIVIA":
+                return SyntaxKind.INITIAL_TRIVIA;
+            case "NEW_LINE":
+                return SyntaxKind.NEW_LINE;
+            case "CARRIAGE_RETURN":
+                return SyntaxKind.CARRIAGE_RETURN;
             case "MODULE_NAME":
                 return SyntaxKind.MODULE_NAME;
             case "TRUE_KEYWORD":
@@ -423,6 +428,8 @@ public class ParserTestUtils {
                 return SyntaxKind.PLUS_TOKEN;
             case "MINUS_TOKEN":
                 return SyntaxKind.MINUS_TOKEN;
+            case "STRING_LITERAL_TOKEN":
+                return SyntaxKind.STRING_LITERAL_TOKEN;
             case "IDENTIFIER_LITERAL":
                 return SyntaxKind.IDENTIFIER_LITERAL;
             case "STRING_LITERAL":

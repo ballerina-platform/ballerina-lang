@@ -378,29 +378,29 @@ public class TomlLexer extends AbstractLexer {
         return STNodeFactory.createMinutiae(SyntaxKind.WHITESPACE_MINUTIAE, getLexeme());
     }
 
-    /**
-     * Process end of line.
-     * <p>
-     * <code>end-of-line := 0xA | 0xD</code>
-     *
-     * @return End of line trivia
-     */
-    private STNode processEndOfLine() {
-        char c = reader.peek();
-        switch (c) {
-            case LexerTerminals.NEWLINE:
-                reader.advance();
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
-            case LexerTerminals.CARRIAGE_RETURN:
-                reader.advance();
-                if (reader.peek() == LexerTerminals.NEWLINE) {
-                    reader.advance();
-                }
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
-            default:
-                throw new IllegalStateException();
-        }
-    }
+//    /**
+//     * Process end of line.
+//     * <p>
+//     * <code>end-of-line := 0xA | 0xD</code>
+//     *
+//     * @return End of line trivia
+//     */
+//    private STNode processEndOfLine() {
+//        char c = reader.peek();
+//        switch (c) {
+//            case LexerTerminals.NEWLINE:
+//                reader.advance();
+//                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
+//            case LexerTerminals.CARRIAGE_RETURN:
+//                reader.advance();
+//                if (reader.peek() == LexerTerminals.NEWLINE) {
+//                    reader.advance();
+//                }
+//                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
+//            default:
+//                throw new IllegalStateException();
+//        }
+//    }
 
     /**
      * <p>

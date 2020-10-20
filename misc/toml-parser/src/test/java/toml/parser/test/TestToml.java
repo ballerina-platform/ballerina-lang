@@ -22,7 +22,6 @@ import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.internal.parser.ParserFactory;
 import io.ballerina.toml.internal.parser.TomlParser;
 import io.ballerina.toml.internal.parser.tree.STNode;
-import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
 import io.ballerina.toml.semantic.ast.TomlTransformer;

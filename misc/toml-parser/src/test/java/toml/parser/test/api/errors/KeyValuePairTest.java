@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package toml.parser.test.errors;
+package toml.parser.test.api.errors;
 
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
@@ -36,7 +36,7 @@ public class KeyValuePairTest {
     @Test
     public void testMissingEquals() throws IOException {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/missing-equal.toml");
+                .getResourceAsStream("validations/syntax/key-value/missing-equal.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 5, 5);
@@ -50,21 +50,22 @@ public class KeyValuePairTest {
     public void testMissingKey() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/missing-key.toml");
+                .getResourceAsStream("validations/syntax/key-value/missing-key.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 1, 1);
         TomlDiagnostic actualDiag = diagnostics.get(0);
 
-        ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing identifier", DiagnosticSeverity.ERROR);
+        ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing identifier",
+                DiagnosticSeverity.ERROR);
     }
 
     @Test(enabled = false) //due to getExpectedTokenKind issue
     public void testMissingValue() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/missing-value.toml");
+                .getResourceAsStream("validations/syntax/key-value/missing-value.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
@@ -79,7 +80,7 @@ public class KeyValuePairTest {
     public void testMultipleMissing() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/key-value-multi.toml");
+                .getResourceAsStream("validations/syntax/key-value/key-value-multi.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
@@ -106,7 +107,7 @@ public class KeyValuePairTest {
     public void testArrayMissingComma() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/array-missing-comma.toml");
+                .getResourceAsStream("validations/syntax/key-value/array/array-missing-comma.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
@@ -121,7 +122,7 @@ public class KeyValuePairTest {
     public void testArrayMissingValue() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/array-missing-value.toml");
+                .getResourceAsStream("validations/syntax/key-value/array/array-missing-value.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 

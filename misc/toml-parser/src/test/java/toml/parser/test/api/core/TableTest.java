@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package toml.parser.test.core;
+package toml.parser.test.api.core;
 
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;

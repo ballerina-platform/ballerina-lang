@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package toml.parser.test.errors;
+package toml.parser.test.api.errors;
 
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
@@ -37,21 +37,22 @@ public class TableTest {
     public void testMissingTableKey() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/empty-table-key.toml");
+                .getResourceAsStream("validations/syntax/table/empty-table-key.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
         LineRange expectedLineRange = ErrorTestUtils.toLineRange(17, 17, 2, 2);
         TomlDiagnostic actualDiag = diagnostics.get(0);
 
-        ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing identifier", DiagnosticSeverity.ERROR);
+        ErrorTestUtils.validateDiagnostic(actualDiag, expectedLineRange, "missing identifier",
+                DiagnosticSeverity.ERROR);
     }
 
     @Test
     public void testMissingTableClose() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/empty-table-close.toml");
+                .getResourceAsStream("validations/syntax/table/empty-table-close.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
@@ -66,7 +67,7 @@ public class TableTest {
     public void testWrongCloseBraceTableArray() throws IOException {
 
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("validations/syntax/wrong-closing-brace.toml");
+                .getResourceAsStream("validations/syntax/table/wrong-closing-brace.toml");
         Toml read = Toml.read(inputStream);
         List<TomlDiagnostic> diagnostics = read.getDiagnostics();
 
