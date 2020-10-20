@@ -544,7 +544,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         TypedBindingPatternNode typedBindingPattern = modVarDeclrNode.typedBindingPattern();
         CaptureBindingPatternNode bindingPattern = (CaptureBindingPatternNode) typedBindingPattern.bindingPattern();
         BLangSimpleVariable simpleVar = createSimpleVar(bindingPattern.variableName(),
-                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer(),
+                typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer().orElse(null),
                 modVarDeclrNode.finalKeyword().isPresent(), false, null,
                 getAnnotations(modVarDeclrNode.metadata()));
         simpleVar.pos = getPositionWithoutMetadata(modVarDeclrNode);
@@ -3342,7 +3342,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     public BLangNode transform(EnumDeclarationNode enumDeclarationNode) {
         Boolean publicQualifier = false;
-        if (enumDeclarationNode.qualifier() != null && enumDeclarationNode.qualifier().kind()
+        if (enumDeclarationNode.qualifier().isPresent() && enumDeclarationNode.qualifier().get().kind()
                 == SyntaxKind.PUBLIC_KEYWORD) {
             publicQualifier = true;
         }
