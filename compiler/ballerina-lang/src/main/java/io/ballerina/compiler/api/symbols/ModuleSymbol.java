@@ -52,8 +52,15 @@ public interface ModuleSymbol extends Symbol {
      *
      * @return {@link List} of listeners
      */
-    List<VariableSymbol> listeners();
+    List<TypeSymbol> listeners();
 
+    /**
+     * Get the module service definitions.
+     * 
+     * @return {@link List} of services defined at the module level
+     */
+    List<ServiceSymbol> services();
+    
     /**
      * Get all public the symbols within the module.
      *
@@ -61,5 +68,5 @@ public interface ModuleSymbol extends Symbol {
      */
     List<Symbol> allSymbols();
 
-    // TODO: add the remaining symbols. i.e: services, classes, xmlns-decl
+    // TODO: add the remaining symbols. i.e: services, xmlns-decl
 }

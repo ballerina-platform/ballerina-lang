@@ -19,7 +19,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
-import org.ballerinalang.jvm.util.BLangConstants;
+import io.ballerina.runtime.util.BLangConstants;
 import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;

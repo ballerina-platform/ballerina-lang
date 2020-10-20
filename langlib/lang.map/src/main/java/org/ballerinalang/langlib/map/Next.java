@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BIterator;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 
 /**
  * Native implementation of lang.map.MapIterator:next().
@@ -39,18 +39,18 @@ import org.ballerinalang.jvm.values.ObjectValue;
 //)
 public class Next {
     //TODO: refactor hard coded values
-    public static Object next(ObjectValue m) {
-        IteratorValue mapIterator = (IteratorValue) m.getNativeData("&iterator&");
-        MapValueImpl mapValue = (MapValueImpl) m.get(BStringUtils.fromString("m"));
+    public static Object next(BObject m) {
+        BIterator mapIterator = (BIterator) m.getNativeData("&iterator&");
+        BMap bMap = (BMap) m.get(StringUtils.fromString("m"));
         if (mapIterator == null) {
-            mapIterator = mapValue.getIterator();
+            mapIterator = bMap.getIterator();
             m.addNativeData("&iterator&", mapIterator);
         }
 
         if (mapIterator.hasNext()) {
-            ArrayValue keyValueTuple = (ArrayValue) mapIterator.next();
-            return BValueCreator.createRecordValue(new MapValueImpl<>(mapValue.getIteratorNextReturnType()),
-                                                   keyValueTuple.get(1));
+            BArray keyValueTuple = (BArray) mapIterator.next();
+            return ValueCreator.createRecordValue(ValueCreator.createMapValue(bMap.getIteratorNextReturnType()),
+                                                  keyValueTuple.get(1));
         }
 
         return null;

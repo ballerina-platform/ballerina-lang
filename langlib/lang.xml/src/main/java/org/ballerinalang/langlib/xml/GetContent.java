@@ -17,12 +17,11 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLValueUtil;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
 /**
  * Returns the content of a text or processing instruction or comment item.
@@ -32,13 +31,13 @@ import org.ballerinalang.jvm.values.XMLValue;
 public class GetContent {
 
     public static BString getContent(Object xmlVal) {
-        XMLValue value = (XMLValue) xmlVal;
+        BXML value = (BXML) xmlVal;
         if (IsText.isText(value)) {
-            return BStringUtils.fromString(value.getTextValue());
+            return StringUtils.fromString(value.getTextValue());
         } else if (IsProcessingInstruction.isProcessingInstruction(value)) {
-            return BStringUtils.fromString(XMLValueUtil.getPIContent(value));
+            return StringUtils.fromString(XMLValueUtil.getPIContent(value));
         } else if (IsComment.isComment(value)) {
-            return BStringUtils.fromString(XMLValueUtil.getCommentContent(value));
+            return StringUtils.fromString(XMLValueUtil.getCommentContent(value));
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getContent",
                                                        "text|processing instruction|comment");

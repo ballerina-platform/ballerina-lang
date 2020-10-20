@@ -1,11 +1,3 @@
-type Person record {|
-   readonly int id;
-   string name;
-|};
-type Employee record {
-   readonly int id;
-   string name;
-};
 type EmployeeTable   table
 <  Employee  >    key  ( id  )  ;type
 CustomerTable
@@ -21,7 +13,9 @@ public function foo() {
        return {id: employee.id, name:employee.name};
    });
 
-   CustomerTable customerTab =table[{id: 13 , fname: "Dan"}];
+   CustomerTable customerTab = table[{id: 13 , fname: "Dan"}];
+
+   CustomerTable fruitTab = table[{id: 1 , name: "Apples"}, {id: 2 , name: "Oranges"}, {id: 3 , name: "Grapes"}, {id: 4,name: "Mangoes"}];
 
    var studentTab =      table
    [{id: 44, fname: "Meena"}

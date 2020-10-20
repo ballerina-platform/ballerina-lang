@@ -18,12 +18,11 @@
 
 package org.ballerinalang.net.http.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.BalFuture;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.BalFuture;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder;
 import org.ballerinalang.mime.nativeimpl.MimeEntityBody;
 import org.ballerinalang.mime.util.EntityBodyChannel;
@@ -196,7 +195,7 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
     }
 
     private static void notifyError(BalFuture future, Exception exception, String type) {
-        BError error = (ErrorValue) createError(exception, type);
+        BError error = (BError) createError(exception, type);
         future.complete(error);
     }
 

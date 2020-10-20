@@ -34,20 +34,20 @@ public class STTableConstructorExpressionNode extends STExpressionNode {
     public final STNode tableKeyword;
     public final STNode keySpecifier;
     public final STNode openBracket;
-    public final STNode mappingConstructors;
+    public final STNode rows;
     public final STNode closeBracket;
 
     STTableConstructorExpressionNode(
             STNode tableKeyword,
             STNode keySpecifier,
             STNode openBracket,
-            STNode mappingConstructors,
+            STNode rows,
             STNode closeBracket) {
         this(
                 tableKeyword,
                 keySpecifier,
                 openBracket,
-                mappingConstructors,
+                rows,
                 closeBracket,
                 Collections.emptyList());
     }
@@ -56,21 +56,21 @@ public class STTableConstructorExpressionNode extends STExpressionNode {
             STNode tableKeyword,
             STNode keySpecifier,
             STNode openBracket,
-            STNode mappingConstructors,
+            STNode rows,
             STNode closeBracket,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.TABLE_CONSTRUCTOR, diagnostics);
         this.tableKeyword = tableKeyword;
         this.keySpecifier = keySpecifier;
         this.openBracket = openBracket;
-        this.mappingConstructors = mappingConstructors;
+        this.rows = rows;
         this.closeBracket = closeBracket;
 
         addChildren(
                 tableKeyword,
                 keySpecifier,
                 openBracket,
-                mappingConstructors,
+                rows,
                 closeBracket);
     }
 
@@ -79,7 +79,7 @@ public class STTableConstructorExpressionNode extends STExpressionNode {
                 this.tableKeyword,
                 this.keySpecifier,
                 this.openBracket,
-                this.mappingConstructors,
+                this.rows,
                 this.closeBracket,
                 diagnostics);
     }
@@ -88,13 +88,13 @@ public class STTableConstructorExpressionNode extends STExpressionNode {
             STNode tableKeyword,
             STNode keySpecifier,
             STNode openBracket,
-            STNode mappingConstructors,
+            STNode rows,
             STNode closeBracket) {
         if (checkForReferenceEquality(
                 tableKeyword,
                 keySpecifier,
                 openBracket,
-                mappingConstructors,
+                rows,
                 closeBracket)) {
             return this;
         }
@@ -103,7 +103,7 @@ public class STTableConstructorExpressionNode extends STExpressionNode {
                 tableKeyword,
                 keySpecifier,
                 openBracket,
-                mappingConstructors,
+                rows,
                 closeBracket,
                 diagnostics);
     }

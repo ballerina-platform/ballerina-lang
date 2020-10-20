@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.runtime.util.BLangConstants;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -279,7 +278,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
-import static org.ballerinalang.jvm.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
@@ -4016,15 +4015,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangInvocation iExpr) {
         if (iExpr.symbol != null && iExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
             result = rewriteErrorConstructor(iExpr);
-        } else if (iExpr.symbol.kind == SymbolKind.FUNCTIONAL_CONSTRUCTOR) {
-            String name = ((BConstructorSymbol) iExpr.symbol).name.value;
-
-            String internalMethodName = name.substring(0, 1).toLowerCase() + name.substring(1) + "Ctor";
-            BSymbol bSymbol = symResolver.lookupLangLibMethodInModule(
-                    symTable.langInternalModuleSymbol, names.fromString(internalMethodName));
-            iExpr.symbol = bSymbol;
         }
-
         rewriteInvocation(iExpr, false);
     }
 

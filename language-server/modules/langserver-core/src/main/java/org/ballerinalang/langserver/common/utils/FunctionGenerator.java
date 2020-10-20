@@ -15,15 +15,16 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
+import io.ballerina.compiler.api.types.Parameter;
 import org.ballerinalang.langserver.command.testgen.TestGenerator;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -79,9 +80,9 @@ public class FunctionGenerator {
      * @param args               Function arguments
      * @param returnType         return type
      * @param returnDefaultValue default return value
-     * @param modifiers         modifiers
-     * @param prependLineFeed   prepend line feed or not
-     * @param padding           padding for the function
+     * @param modifiers          modifiers
+     * @param prependLineFeed    prepend line feed or not
+     * @param padding            padding for the function
      * @return {@link String}       generated function signature
      */
     public static String createFunction(String name, String args, String returnType, String returnDefaultValue,
@@ -106,7 +107,7 @@ public class FunctionGenerator {
      * @param currentPkgId    current package id
      * @param bLangNode       BLangNode to evaluate
      * @param template        return statement to modify
-     * @param context  {@link LSContext}
+     * @param context         {@link LSContext}
      * @return {@link String}   Default return statement
      */
     public static String generateReturnValue(ImportsAcceptor importsAcceptor, PackageID currentPkgId,
@@ -161,61 +162,36 @@ public class FunctionGenerator {
      * Get the list of function arguments from the invokable symbol.
      *
      * @param symbol Invokable symbol to extract the arguments
-     * @param ctx Lang Server Operation context
+     * @param ctx    Lang Server Operation context
      * @return {@link List} List of arguments
      */
-    public static List<String> getFuncArguments(BInvokableSymbol symbol, LSContext ctx) {
-        List<String> list = new ArrayList<>();
+    public static List<String> getFuncArguments(FunctionSymbol symbol, LSContext ctx) {
+        List<String> args = new ArrayList<>();
         boolean skipFirstParam = CommonUtil.skipFirstParam(ctx, symbol);
-        BVarSymbol restParam = symbol.restParam;
-        if (symbol.kind == null && SymbolKind.RECORD == symbol.owner.kind || SymbolKind.FUNCTION == symbol.owner.kind) {
-            if (symbol.type instanceof BInvokableType) {
-                BInvokableType bInvokableType = (BInvokableType) symbol.type;
-                if (bInvokableType.paramTypes.isEmpty()) {
-                    return list;
-                }
-                int argCounter = 1;
-                Set<String> argNames = new HashSet<>(); // To avoid name duplications
-                List<BType> parameterTypes = bInvokableType.getParameterTypes();
-                for (int i = 0; i < parameterTypes.size(); i++) {
-                    if (i == 0 && skipFirstParam) {
-                        continue;
-                    }
-                    BType bType = parameterTypes.get(i);
-                    String argName = CommonUtil.generateName(argCounter++, argNames);
-                    String argType = generateTypeDefinition(null, symbol.pkgID, bType, ctx);
-                    list.add(argType + " " + argName);
-                    argNames.add(argName);
-                }
-                if (restParam != null && (restParam.type instanceof BArrayType)) {
-                    list.add(CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false) + "... "
-                            + restParam.getName().getValue());
-                }
+        FunctionTypeDescriptor functionTypeDesc = symbol.typeDescriptor();
+        Optional<Parameter> restParam = functionTypeDesc.restParam();
+        List<Parameter> parameterDefs = new ArrayList<>(functionTypeDesc.requiredParams());
+        for (int i = 0; i < parameterDefs.size(); i++) {
+            if (i == 0 && skipFirstParam) {
+                continue;
             }
-        } else {
-            List<BVarSymbol> parameterDefs = new ArrayList<>(symbol.getParameters());
-            for (int i = 0; i < parameterDefs.size(); i++) {
-                if (i == 0 && skipFirstParam) {
-                    continue;
-                }
-                BVarSymbol param = parameterDefs.get(i);
-                list.add(CommonUtil.getBTypeName(param.type, ctx, true) + " " + param.getName());
-            }
-            if (restParam != null && (restParam.type instanceof BArrayType)) {
-                list.add(CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx, false) + "... "
-                        + restParam.getName().getValue());
-            }
+            Parameter param = parameterDefs.get(i);
+            args.add(param.typeDescriptor().signature() + (param.name().isEmpty() ? "" : " " + param.name().get()));
         }
-        return (!list.isEmpty()) ? list : new ArrayList<>();
+        restParam.ifPresent(param ->
+                args.add(param.typeDescriptor().signature()
+                        + (param.name().isEmpty() ? "" : "... "
+                        + param.name().get())));
+        return (!args.isEmpty()) ? args : new ArrayList<>();
     }
 
     /**
      * Get the function arguments from the function.
      *
      * @param importsAcceptor imports accepter
-     * @param currentPkgId current package ID
-     * @param parent Parent node
-     * @param context  {@link LSContext}
+     * @param currentPkgId    current package ID
+     * @param parent          Parent node
+     * @param context         {@link LSContext}
      * @return {@link List} List of arguments
      */
     public static List<String> getFuncArguments(ImportsAcceptor importsAcceptor,
@@ -263,7 +239,7 @@ public class FunctionGenerator {
             for (BLangExpression bLangExpression : ((BLangTupleDestructure) bLangNode).varRef.expressions) {
                 if (bLangExpression.type != null) {
                     list.add(generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, bLangExpression.type,
-                                                    context));
+                            context));
                 }
             }
             return "[" + String.join(", ", list) + "]";
@@ -274,8 +250,8 @@ public class FunctionGenerator {
         } else if (bLangNode instanceof BLangFunctionTypeNode) {
             BLangFunctionTypeNode funcType = (BLangFunctionTypeNode) bLangNode;
             TestGenerator.TestFunctionGenerator generator = new TestGenerator.TestFunctionGenerator(importsAcceptor,
-                                                                                                    currentPkgId,
-                                                                                                    funcType, context);
+                    currentPkgId,
+                    funcType, context);
             String[] typeSpace = generator.getTypeSpace();
             String[] nameSpace = generator.getNamesSpace();
             StringJoiner params = new StringJoiner(", ");
@@ -296,7 +272,7 @@ public class FunctionGenerator {
         if ((bType.tsymbol == null || bType.tsymbol.name.value.isEmpty()) && bType instanceof BArrayType) {
             // Check for array assignment eg.  int[]
             return generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, ((BArrayType) bType).eType,
-                                          context) + "[]";
+                    context) + "[]";
         } else if (bType instanceof BMapType && ((BMapType) bType).constraint != null) {
             // Check for constrained map assignment eg. map<Student>
             BTypeSymbol tSymbol = ((BMapType) bType).constraint.tsymbol;
@@ -349,7 +325,7 @@ public class FunctionGenerator {
         } else if (bType instanceof BStreamType) {
             BStreamType streamType = (BStreamType) bType;
             String constraint = generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, streamType.constraint,
-                                                       context);
+                    context);
             String error = generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, streamType.error, context);
             return "stream<" + constraint + ", " + error + ">";
         } else if (bType instanceof BRecordType) {
@@ -373,7 +349,7 @@ public class FunctionGenerator {
             return generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, bType.tsymbol, context);
         }
         return (bType.tsymbol != null) ? generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId,
-                                                                bType.tsymbol, context) :
+                bType.tsymbol, context) :
                 "any";
     }
 
@@ -397,13 +373,13 @@ public class FunctionGenerator {
                 if (restParam != null && (restParam.type instanceof BArrayType)) {
                     BArrayType type = (BArrayType) restParam.type;
                     params.add(generateTypeDefinition(importsAcceptor, wsOffset, type.eType.tsymbol.pkgID, type.eType,
-                                                      context) +
-                                       "... "
-                                       + restParam.getName().getValue());
+                            context) +
+                            "... "
+                            + restParam.getName().getValue());
                 }
                 String returnType = (invokableTypeSymbol.returnType != null)
                         ? generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId,
-                                                 invokableTypeSymbol.returnType, context)
+                        invokableTypeSymbol.returnType, context)
                         : "";
                 return "function (" + params.toString() + ")" + (returnType.isEmpty() ? "" : " returns " + returnType);
             } else if (tSymbol instanceof BObjectTypeSymbol && tSymbol.name.value.startsWith("$")) {
@@ -462,7 +438,7 @@ public class FunctionGenerator {
         BType restParam = type.restType;
         if ((restParam instanceof BArrayType)) {
             String restType = generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId,
-                                                     ((BArrayType) restParam).eType, context);
+                    ((BArrayType) restParam).eType, context);
             String argName = CommonUtil.generateName(argCounter++, argNames);
             params.add(restType + "... " + argName);
         }
@@ -521,7 +497,7 @@ public class FunctionGenerator {
                                              String template, LSContext context) {
         if (bType instanceof BArrayType) {
             String arrDef = "[" + generateReturnValue(importsAcceptor, currentPkgId, ((BArrayType) bType).eType,
-                                                      "{%1}", context) + "]";
+                    "{%1}", context) + "]";
             return template.replace("{%1}", arrDef);
         } else if (bType instanceof BFiniteType) {
             // Check for finite set assignment
@@ -529,13 +505,13 @@ public class FunctionGenerator {
             Set<BLangExpression> valueSpace = bFiniteType.getValueSpace();
             if (!valueSpace.isEmpty()) {
                 return generateReturnValue(importsAcceptor, currentPkgId, valueSpace.stream().findFirst().get(),
-                                           template, context);
+                        template, context);
             }
         } else if (bType instanceof BMapType && ((BMapType) bType).constraint != null) {
             // Check for constrained map assignment eg. map<Student>
             BType constraintType = ((BMapType) bType).constraint;
             String mapDef = "{key: " + generateReturnValue(importsAcceptor, currentPkgId, constraintType, "{%1}",
-                                                           context) +
+                    context) +
                     "}";
             return template.replace("{%1}", mapDef);
         } else if (bType instanceof BUnionType) {

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.tool;
 
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.runtime.api.values.BError;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -70,8 +70,8 @@ public class LauncherUtils {
 
     public static BLauncherException createLauncherException(String errorPrefix, Throwable cause) {
         String message;
-        if (cause instanceof ErrorValue) {
-            message = ((ErrorValue) cause).getPrintableStackTrace();
+        if (cause instanceof BError) {
+            message = ((BError) cause).getPrintableStackTrace();
         } else {
             message = cause.toString();
         }

@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.values.BArray;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**
  * Native implementation of lang.array:unshift((any|error)[], (any|error)...).
@@ -29,7 +29,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOper
  */
 public class Unshift {
 
-    public static void unshift(ArrayValue arr, Object... vals) {
+    public static void unshift(BArray arr, Object... vals) {
         checkIsArrayOnlyOperation(arr.getType(), "unshift()");
         arr.unshift(vals);
     }

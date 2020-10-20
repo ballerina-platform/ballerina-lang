@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -31,7 +32,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,7 +64,7 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
         }
 
         NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-        
+
         if (this.onTypedBindingPatternContext(context, node)) {
             /*
             Covers the case where the cursor is within the typed binding pattern context.
@@ -79,7 +79,7 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
             List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
             completionItems.addAll(this.getTypeItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-            
+
             return completionItems;
         }
         if (node.inKeyword().isMissing()) {
@@ -96,7 +96,7 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Scope.ScopeEntry> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
             return this.getCompletionItemList(exprEntries, context);
         }
 
