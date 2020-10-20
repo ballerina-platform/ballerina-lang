@@ -53,7 +53,13 @@ public class TypeDescContextTest extends CompletionTestNew {
                 "object_typedesc9.json",
                 "object_typedesc10.json",
                 "object_typedesc11.json",
-                "object_typedesc12.json"
+                "object_typedesc12.json",
+                "function_typedesc16.json",
+                "function_typedesc17.json",
+                "function_typedesc18.json",
+                "function_typedesc19.json",
+                "table_typedesc4.json",
+                "table_typedesc7.json"
         );
     }
 }

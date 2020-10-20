@@ -18,28 +18,17 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.FLOAT_VERSION;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Native implementation of lang.float:toHexString(float).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", version = FLOAT_VERSION, functionName = "toHexString",
-        args = {@Argument(name = "x", type = TypeKind.FLOAT)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class ToHexString {
 
-    public static String toHexString(Strand strand, double n) {
-        return Double.toHexString(n);
+    public static BString toHexString(double n) {
+        return StringUtils.fromString(Double.toHexString(n));
     }
 }

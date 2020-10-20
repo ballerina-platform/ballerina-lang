@@ -18,15 +18,14 @@
 
 package org.ballerinalang.stdlib.services.dispatching;
 
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.values.api.BString;
+import io.ballerina.runtime.util.exceptions.BallerinaConnectorException;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.util.JsonParser;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
@@ -233,9 +232,9 @@ public class DataBindingTest {
         HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         Object bJson = JSONParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertNull(((MapValue<BString, Object>) bJson).get(BStringUtils.fromString("Key")),
+        Assert.assertNull(((BMap<BString, Object>) bJson).get(BStringUtils.fromString("Key")),
                           "Key variable not set properly.");
-        Assert.assertNull(((MapValue<BString, Object>) bJson).get(BStringUtils.fromString("Team")),
+        Assert.assertNull(((BMap<BString, Object>) bJson).get(BStringUtils.fromString("Team")),
                           "Team variable not set properly.");
     }
 

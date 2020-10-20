@@ -18,17 +18,11 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BXML;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
 import org.wso2.ballerinalang.util.Lists;
-
-import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Searches in children recursively for elements matching the name and returns a sequence containing them all.
@@ -36,22 +30,22 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
  * 
  * @since 0.92
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
-        functionName = "selectDescendants",
-        args = {@Argument(name = "qname", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.xml",
+//        functionName = "selectDescendants",
+//        args = {@Argument(name = "qname", type = TypeKind.ARRAY)},
+//        returnType = {@ReturnType(type = TypeKind.XML)},
+//        isPublic = true
+//)
 public class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
 
-    public static XMLValue selectDescendants(Strand strand, XMLValue xml, ArrayValue qnames) {
+    public static BXML selectDescendants(Strand strand, BXML xml, BArray qnames) {
         try {
             // todo: this need to support list of qnames.
             String qname = qnames.getString(0);
-            return (XMLValue) xml.descendants(Lists.of(qname));
+            return (BXML) xml.descendants(Lists.of(qname));
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

@@ -20,6 +20,8 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
 
+import static io.ballerina.runtime.IdentifierUtils.decodeIdentifier;
+
 /**
  * Base implementation for ballerina variable types with no child variables.
  */
@@ -33,7 +35,8 @@ public abstract class BSimpleVariable implements BVariable {
 
     public BSimpleVariable(SuspendedContext context, String varName, BVariableType bVariableType, Value jvmValue) {
         this.context = context;
-        this.name = varName;
+        // all the runtime variable names should be decoded in order to support quoted identifiers.
+        this.name = decodeIdentifier(varName);
         this.type = bVariableType;
         this.jvmValue = jvmValue;
         this.dapVariable = null;
@@ -53,7 +56,6 @@ public abstract class BSimpleVariable implements BVariable {
     public BVariableType getBType() {
         return type;
     }
-
 
     @Override
     public Value getJvmValue() {

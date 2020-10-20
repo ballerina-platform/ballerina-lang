@@ -15,14 +15,13 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import org.ballerinalang.jvm.util.Flags;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,19 +45,15 @@ public class QNameReferenceUtil {
      * @param qNameRef qualified name reference
      * @return {@link List} of completion items
      */
-    public static List<Scope.ScopeEntry> getExpressionContextEntries(LSContext ctx,
-                                                                     QualifiedNameReferenceNode qNameRef) {
+    public static List<Symbol> getExpressionContextEntries(LSContext ctx, QualifiedNameReferenceNode qNameRef) {
         String moduleAlias = QNameReferenceUtil.getAlias(qNameRef);
-        Optional<Scope.ScopeEntry> moduleSymbol = CommonUtil.packageSymbolFromAlias(ctx, moduleAlias);
-        return moduleSymbol.map(entry -> ((BPackageSymbol) entry.symbol).scope.entries.values()
-                .stream()
-                .filter(scopeEntry -> {
-                    BSymbol symbol = scopeEntry.symbol;
-                    return (symbol instanceof BVarSymbol || symbol instanceof BTypeSymbol)
-                            && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
-                })
-                .collect(Collectors.toList()))
-                .orElseGet(ArrayList::new);
+        Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(ctx, moduleAlias);
+
+        return moduleSymbol.map(value -> value.allSymbols().stream()
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
+                        || symbol.kind() == SymbolKind.TYPE
+                        || symbol instanceof VariableSymbol)
+                .collect(Collectors.toList())).orElseGet(ArrayList::new);
     }
 
     /**
@@ -80,16 +75,14 @@ public class QNameReferenceUtil {
      * @param predicate predicate to filer
      * @return {@link List} of filtered module entries
      */
-    public static List<Scope.ScopeEntry> getModuleContent(LSContext context,
-                                                          QualifiedNameReferenceNode qNameRef,
-                                                          Predicate<Scope.ScopeEntry> predicate) {
-        Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context,
-                QNameReferenceUtil.getAlias(qNameRef));
-        return module.map(scopeEntry -> scopeEntry.symbol.scope.entries.values().stream()
+    public static List<Symbol> getModuleContent(LSContext context,
+                                                QualifiedNameReferenceNode qNameRef,
+                                                Predicate<Symbol> predicate) {
+        Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
+        return module.map(moduleSymbol -> moduleSymbol.allSymbols().stream()
                 .filter(predicate)
                 .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
-
     }
 
     /**
@@ -99,11 +92,10 @@ public class QNameReferenceUtil {
      * @param qNameRef Qualified name reference
      * @return {@link List} of type entries extracted
      */
-    public static List<Scope.ScopeEntry> getTypesInModule(LSContext context, QualifiedNameReferenceNode qNameRef) {
-        Optional<Scope.ScopeEntry> module = CommonUtil.packageSymbolFromAlias(context,
-                QNameReferenceUtil.getAlias(qNameRef));
-        return module.map(scopeEntry -> scopeEntry.symbol.scope.entries.values().stream()
-                .filter(CommonUtil.isBType())
+    public static List<Symbol> getTypesInModule(LSContext context, QualifiedNameReferenceNode qNameRef) {
+        Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
+        return module.map(symbol -> symbol.allSymbols().stream()
+                .filter(moduleItem -> moduleItem instanceof TypeSymbol)
                 .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
     }

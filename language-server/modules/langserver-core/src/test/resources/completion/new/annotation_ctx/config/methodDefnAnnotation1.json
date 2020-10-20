@@ -1,0 +1,105 @@
+{
+  "position": {
+    "line": 4,
+    "character": 9
+  },
+  "source": "annotation_ctx/source/methodDefnAnnotation1.bal",
+  "items": [
+    {
+      "label": "module1:a2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:a2 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "module1:functionAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:functionAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "module1:functionAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:functionAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "module1:objectFunctionAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:objectFunctionAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "module1:objectFunctionAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:objectFunctionAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "icon",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "icon {\n\tpath: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "objectFunctionAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "objectFunctionAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "objectFunctionAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "objectFunctionAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "functionAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "functionAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "functionAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "functionAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

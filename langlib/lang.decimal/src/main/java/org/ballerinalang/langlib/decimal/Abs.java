@@ -18,29 +18,23 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.DECIMAL_VERSION;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BDecimal;
 
 /**
  * Native implementation of lang.decimal:abs(decimal).
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", version = DECIMAL_VERSION, functionName = "abs",
-        args = {@Argument(name = "n", type = TypeKind.DECIMAL)},
-        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.decimal", functionName = "abs",
+//        args = {@Argument(name = "n", type = TypeKind.DECIMAL)},
+//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
+//        isPublic = true
+//)
 public class Abs {
 
-    public static DecimalValue abs(Strand strand, DecimalValue n) {
-        return new DecimalValue(n.value().abs());
+    public static BDecimal abs(BDecimal n) {
+        return ValueCreator.createDecimalValue(n.value().abs());
     }
 }

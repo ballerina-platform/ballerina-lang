@@ -15,12 +15,9 @@
  */
 package org.ballerinalang.langserver.hover;
 
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -93,7 +90,8 @@ public class HoverUtil {
             if (symbol instanceof BInvokableSymbol) {
                 // Get type information
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
-                returnType = " `" + CommonUtil.getBTypeName(invokableSymbol.retType, ctx, false) + "`";
+                // Fixme in the next phase
+//                returnType = " `" + CommonUtil.getBTypeName(invokableSymbol.retType, ctx, false) + "`";
             }
             content.append(getFormattedHoverDocContent(ContextConstants.RETURN_TITLE, returnType,
                     getReturnValueDescription(
@@ -243,7 +241,8 @@ public class HoverUtil {
             String type = "";
             if (!paramSymbols.isEmpty() && paramSymbols.get(parameter.name) != null) {
                 isOptional = ((paramSymbols.get(parameter.name).flags & Flags.OPTIONAL) == Flags.OPTIONAL);
-                type = "`" + CommonUtil.getBTypeName(paramSymbols.get(parameter.name).type, ctx, false) + "` ";
+                // Fixme in the next phase
+//                type = "`" + CommonUtil.getBTypeName(paramSymbols.get(parameter.name).type, ctx, false) + "` ";
             }
             value.append("- ")
                     .append(type).append("**")
@@ -278,7 +277,9 @@ public class HoverUtil {
     }
 
     private static boolean skipFirstParam(LSContext context, BInvokableSymbol invokableSymbol) {
-        NonTerminalNode evalNode = context.get(CompletionKeys.TOKEN_AT_CURSOR_KEY).parent();
-        return CommonUtil.isLangLibSymbol(invokableSymbol) && evalNode.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
+        // Fixme in the next phase
+//        NonTerminalNode evalNode = context.get(CompletionKeys.TOKEN_AT_CURSOR_KEY).parent();
+//        return CommonUtil.isLangLibSymbol(invokableSymbol) && evalNode.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
+        return false;
     }
 }

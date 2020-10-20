@@ -206,7 +206,7 @@ public class VariableUtils {
     public static String removeRedundantQuotes(String str) {
         do {
             str = str.replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
-        } while (str.startsWith("\"\"") || str.endsWith("\"\""));
+        } while (str.startsWith("\"") || str.endsWith("\""));
         return str;
     }
 }

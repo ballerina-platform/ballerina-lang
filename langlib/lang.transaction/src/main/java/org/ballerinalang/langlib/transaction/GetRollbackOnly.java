@@ -18,30 +18,18 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 /**
  * Extern function transaction:getRollbackOnly.
  *
  * @since 2.0.0-preview1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "getRollbackOnly",
-        args = {},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
-)
 public class GetRollbackOnly {
 
-    public static boolean getRollbackOnly(Strand strand) {
-        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
+    public static boolean getRollbackOnly() {
+        TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
         return transactionLocalContext.getRollbackOnly() != null;
     }
 }

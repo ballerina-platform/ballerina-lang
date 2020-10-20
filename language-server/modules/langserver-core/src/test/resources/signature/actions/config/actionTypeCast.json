@@ -8,7 +8,7 @@
         "result": {
             "signatures": [
                 {
-                    "label": "Stub.ping(any a)",
+                    "label": "ping(any a)",
                     "documentation": {
                         "right": {
                             "kind": "markdown",

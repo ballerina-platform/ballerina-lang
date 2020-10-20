@@ -19,6 +19,7 @@
 dependencies {
     // lang lib dependencies
     implementation project(':ballerina-lang:annotations')
+    implementation project(':ballerina-lang:java')
     implementation project(':ballerina-lang:array')
     implementation project(':ballerina-lang:decimal')
     implementation project(':ballerina-lang:error')
@@ -38,6 +39,7 @@ dependencies {
     implementation project(':ballerina-lang:query')
     implementation project(':ballerina-lang:transaction')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:error', configuration: 'baloImplementation')

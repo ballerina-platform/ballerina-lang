@@ -1,0 +1,95 @@
+{
+  "position": {
+    "line": 13,
+    "character": 1
+  },
+  "source": "annotation_ctx/source/moduleClassDefAnnotation1.bal",
+  "items": [
+    {
+      "label": "module1:classAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:classAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "module1:classAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:classAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "module1:classAnnotation3",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "module1:classAnnotation3",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "icon",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "icon {\n\tpath: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "java:Binding",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "java:Binding {\n\tclass: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/java;\n"
+        }
+      ]
+    },
+    {
+      "label": "classAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "classAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "classAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "classAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "classAnnotation3",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "classAnnotation3",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    }
+  ]
+}

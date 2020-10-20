@@ -18,32 +18,19 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 /**
  * Extern function transaction:setData.
  *
  * @since 2.0.0-preview1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "setData",
-        args = {@Argument(name = "data", type = TypeKind.UNION)},
-        returnType = {@ReturnType(type = TypeKind.NIL)},
-        isPublic = true
-)
 public class SetData {
 
-    public static void setData(Strand strand, Object data) {
+    public static void setData(Object data) {
 
-        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
+        TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
         transactionLocalContext.setTransactionData(data);
     }
 }

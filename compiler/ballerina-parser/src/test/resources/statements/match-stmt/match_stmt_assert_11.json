@@ -1586,6 +1586,9 @@
                                   "kind": "REST_MATCH_PATTERN",
                                   "hasDiagnostics": true,
                                   "diagnostics": [
+                                    "ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN",
+                                    "ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN",
+                                    "ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN",
                                     "ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN"
                                   ],
                                   "children": [
@@ -1739,21 +1742,6 @@
                                                   }
                                                 ]
                                               }
-                                            },
-                                            {
-                                              "kind": "INVALID_NODE_MINUTIAE",
-                                              "invalidNode": {
-                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                "children": [
-                                                  {
-                                                    "kind": "CLOSE_BRACE_TOKEN"
-                                                  }
-                                                ]
-                                              }
-                                            },
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
                                             }
                                           ]
                                         }
@@ -1775,6 +1763,27 @@
                         },
                         {
                           "kind": "RIGHT_DOUBLE_ARROW_TOKEN",
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN"
+                          ],
+                          "leadingMinutiae": [
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "CLOSE_BRACE_TOKEN"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -2150,7 +2159,12 @@
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "VAR_KEYWORD"
+                                              "kind": "VAR_TYPE_DESC",
+                                              "children": [
+                                                {
+                                                  "kind": "VAR_KEYWORD"
+                                                }
+                                              ]
                                             },
                                             {
                                               "kind": "CAPTURE_BINDING_PATTERN",

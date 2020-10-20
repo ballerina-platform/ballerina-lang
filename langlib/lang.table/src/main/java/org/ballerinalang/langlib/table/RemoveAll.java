@@ -18,34 +18,23 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.TableValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BTable;
 
 /**
  * Native implementation of lang.table:removeAll(table&lt;Type&gt;).
  *
  * @since 1.3.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION, functionName = "removeAll",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-        isPublic = true
-)
 public class RemoveAll {
 
-    public static void removeAll(Strand strand, TableValueImpl tbl) {
+    public static void removeAll(BTable tbl) {
         try {
             tbl.clear();
-        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-            throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
-                                            BStringUtils
+        } catch (io.ballerina.runtime.util.exceptions.BLangFreezeException e) {
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
+                                           StringUtils
                                                     .fromString("Failed to remove all from table: " + e.getDetail()));
         }
     }

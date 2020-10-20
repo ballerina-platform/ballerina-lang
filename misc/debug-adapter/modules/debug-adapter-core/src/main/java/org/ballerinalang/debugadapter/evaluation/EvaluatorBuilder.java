@@ -16,27 +16,28 @@
 
 package org.ballerinalang.debugadapter.evaluation;
 
-import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NodeVisitor;
-import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerina.compiler.syntax.tree.NilLiteralNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RestArgumentNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.BasicLiteralEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.BinaryExpressionEvaluator;
@@ -48,6 +49,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.IndexedExpressionEvaluat
 import org.ballerinalang.debugadapter.evaluation.engine.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.OptionalFieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.TypeOfExpressionEvaluator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -72,6 +74,11 @@ import java.util.StringJoiner;
  * <li> Braced expression
  * <li> Member access expression
  * <li> Optional field access expression
+ * <li> Binary bitwise expression
+ * <li> Logical expression
+ * <li> Conditional expression
+ * <li> Typeof expression
+ * <li> Equality expression
  * </ul>
  * <br>
  * To be Implemented.
@@ -85,15 +92,10 @@ import java.util.StringJoiner;
  * <li> Anonymous function expression
  * <li> Let expression
  * <li> Type cast expression
- * <li> Typeof expression
  * <li> Unary expression
  * <li> Shift expression
  * <li> Range expression
  * <li> Type test expression
- * <li> Equality expression
- * <li> Binary bitwise expression
- * <li> Logical expression
- * <li> Conditional expression
  * <li> Checking expression
  * <li> Trap expression
  * <li> Query expression
@@ -125,6 +127,8 @@ public class EvaluatorBuilder extends NodeVisitor {
     public Evaluator build(String expression) throws EvaluationException {
         // Validates and converts the expression into a parsed syntax-tree node.
         ExpressionNode parsedExpr = DebugExpressionParser.validateAndParse(expression);
+        // Encodes all the identifiers in order to be aligned with identifier representation in the JVM runtime.
+        parsedExpr = (ExpressionNode) parsedExpr.apply(new ExpressionIdentifierModifier());
         // transforms the parsed ballerina expression into a java expression using a node transformer implementation.
         parsedExpr.accept(this);
         if (unsupportedSyntaxDetected()) {
@@ -236,6 +240,14 @@ public class EvaluatorBuilder extends NodeVisitor {
         Evaluator endExprEvaluator = result;
         result = new ConditionalExpressionEvaluator(context, conditionalExpressionNode, lhsExprEvaluator,
                 middleExprEvaluator, endExprEvaluator);
+    }
+
+    @Override
+    public void visit(TypeofExpressionNode typeofExpressionNode) {
+        visitSyntaxNode(typeofExpressionNode);
+        typeofExpressionNode.expression().accept(this);
+        Evaluator exprEvaluator = result;
+        result = new TypeOfExpressionEvaluator(context, typeofExpressionNode, exprEvaluator);
     }
 
     @Override
@@ -439,7 +451,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addTypeOfExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.TYPEOF_EXPRESSION);
     }
 
     private void addUnaryExpressionSyntax() {
@@ -480,7 +492,12 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addEqualityExpressionSyntax() {
-        // Todo
+        // value equality
+        supportedSyntax.add(SyntaxKind.DOUBLE_EQUAL_TOKEN);
+        supportedSyntax.add(SyntaxKind.NOT_EQUAL_TOKEN);
+        // reference equality
+        supportedSyntax.add(SyntaxKind.TRIPPLE_EQUAL_TOKEN);
+        supportedSyntax.add(SyntaxKind.NOT_DOUBLE_EQUAL_TOKEN);
     }
 
     private void addBinaryBitwiseExpressionSyntax() {

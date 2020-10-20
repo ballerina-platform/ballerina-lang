@@ -19,45 +19,29 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.observability.ObservabilityConstants;
+import io.ballerina.runtime.scheduling.Scheduler;
 
 /**
  * This function which implements the startSpan method for observe.
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "startSpan",
-        args = {
-                @Argument(name = "spanName", type = TypeKind.STRING),
-                @Argument(name = "tags", type = TypeKind.MAP),
-                @Argument(name = "parentSpanId", type = TypeKind.INT),
-        },
-        returnType = @ReturnType(type = TypeKind.INT),
-        isPublic = true
-)
-public class StartSpan {
-    private static final OpenTracerBallerinaWrapper otWrapperInstance = OpenTracerBallerinaWrapper.getInstance();
 
-    public static Object startSpan(Strand strand, BString spanName, Object tags, long parentSpanId) {
+public class StartSpan {
+    public static Object startSpan(BString spanName, Object tags, long parentSpanId) {
         if (parentSpanId < -1) {
-            return BErrorCreator.createError(
-                    BStringUtils.fromString(("The given parent span ID " + parentSpanId + " " + "is invalid.")));
+            return ErrorCreator.createError(
+                    StringUtils.fromString(("The given parent span ID " + parentSpanId + " " + "is invalid.")));
         } else {
-            long spanId = otWrapperInstance.startSpan(
-                    (String) strand.getProperty(ObservabilityConstants.SERVICE_NAME), spanName.getValue(),
-                    Utils.toStringMap((MapValue<BString, ?>) tags), parentSpanId, strand);
+            long spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(
+                    (String) Scheduler.getStrand().getProperty(ObservabilityConstants.SERVICE_NAME),
+                    spanName.getValue(),
+                    Utils.toStringMap((BMap<BString, ?>) tags), parentSpanId, Scheduler.getStrand());
             if (spanId == -1) {
-                return BErrorCreator.createError(BStringUtils.fromString((
+                return ErrorCreator.createError(StringUtils.fromString((
                         "No parent span for ID " + parentSpanId + " found. Please recheck the parent span Id")));
             }
 

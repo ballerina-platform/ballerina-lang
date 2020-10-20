@@ -119,7 +119,7 @@ public class RawTemplateLiteralTest {
         assertEquals(errors.getErrorCount(), 1);
     }
 
-    @Test(dataProvider = "FunctionNames")
+    @Test(dataProvider = "FunctionNames", enabled = false)
     public void testRawTemplateLiteral(String func) {
         BRunUtil.invoke(result, func);
     }

@@ -15,13 +15,18 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
-import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
@@ -31,13 +36,8 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.Collections;
 import java.util.List;
@@ -107,7 +107,7 @@ public class SortingUtil {
             return genSortText(1);
         }
         if (item instanceof SymbolCompletionItem
-                && ((SymbolCompletionItem) item).getSymbol() instanceof BPackageSymbol && !label.contains("/")) {
+                && ((SymbolCompletionItem) item).getSymbol().kind() == SymbolKind.MODULE && !label.contains("/")) {
             // Modules which have been imported already
             return genSortText(2);
         }
@@ -132,7 +132,8 @@ public class SortingUtil {
      * @return {@link String} generated sort text
      */
     public static String genSortTextForInitContextItem(LSContext context, LSCompletionItem item,
-                                                       BTypeSymbol assignableType) {
+                                                       TypeDescKind assignableType) {
+        // TODO: Revamp should carry out after fixing the type reference issue in semantic model is fixed 
         /*
         Sorting order is as follows,
         (1) new Keyword and the new(...) snippet
@@ -142,32 +143,32 @@ public class SortingUtil {
         (5) Other Function Invocations
         (6) Modules
          */
-        String label = item.getCompletionItem().getLabel();
-        if (label.equals("new") || label.startsWith("new(")) {
-            return genSortText(1);
-        }
-        if (item instanceof SymbolCompletionItem) {
-            BSymbol symbol = ((SymbolCompletionItem) item).getSymbol();
-            if (symbol instanceof BInvokableSymbol) {
-                BType retType = ((BInvokableSymbol) symbol).retType;
-                if (retType != null && retType.tsymbol == assignableType) {
-                    return genSortText(3);
-                }
-                return genSortText(5);
-            }
-            if (symbol instanceof BVarSymbol) {
-                if (symbol.type.tsymbol == assignableType) {
-                    return genSortText(2);
-                }
-                return genSortText(4);
-            }
-            // TODO: Check whether we come to this point
-            return genSortText(6);
-        }
-        if (isModuleCompletionItem(item)) {
-            return genSortText(7) + genSortTextForModule(context, item);
-        }
-
+//        String label = item.getCompletionItem().getLabel();
+//        if (label.equals("new") || label.startsWith("new(")) {
+//            return genSortText(1);
+//        }
+//        if (item instanceof SymbolCompletionItem) {
+//            Symbol symbol = ((SymbolCompletionItem) item).getSymbol();
+//            if (symbol instanceof BInvokableSymbol) {
+//                BType retType = ((BInvokableSymbol) symbol).retType;
+//                if (retType != null && retType.tsymbol == assignableType) {
+//                    return genSortText(3);
+//                }
+//                return genSortText(5);
+//            }
+//            if (symbol instanceof VariableSymbol) {
+//                if (symbol.type.tsymbol == assignableType) {
+//                    return genSortText(2);
+//                }
+//                return genSortText(4);
+//            }
+//            // TODO: Check whether we come to this point
+//            return genSortText(6);
+//        }
+//        if (isModuleCompletionItem(item)) {
+//            return genSortText(7) + genSortTextForModule(context, item);
+//        }
+//
         return genSortText(8);
     }
 
@@ -203,7 +204,7 @@ public class SortingUtil {
      * @param owner   Owner node to extract the assignable type
      * @return {@link Optional} assignable type
      */
-    public static Optional<Scope.ScopeEntry> getAssignableType(LSContext context, Node owner) {
+    public static Optional<TypeSymbol> getAssignableType(LSContext context, Node owner) {
         Optional<Node> typeDesc;
         switch (owner.kind()) {
             case LISTENER_DECLARATION:
@@ -221,30 +222,31 @@ public class SortingUtil {
                 return Optional.empty();
         }
 
-        if (!typeDesc.isPresent()) {
+        if (typeDesc.isEmpty()) {
             return Optional.empty();
         }
 
-        List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         if (typeDesc.get().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) typeDesc.get();
             String alias = QNameReferenceUtil.getAlias(qNameRef);
-            Optional<Scope.ScopeEntry> moduleSymbol = visibleSymbols.stream()
-                    .filter(entry -> entry.symbol instanceof BPackageSymbol
-                            && entry.symbol.getName().getValue().equals(alias))
-                    .findAny();
+            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
 
-            if (!moduleSymbol.isPresent()) {
-                return moduleSymbol;
+            if (moduleSymbol.isEmpty()) {
+                return Optional.empty();
             }
             String identifier = qNameRef.identifier().text();
             return CommonUtil.getTypeFromModule(context, alias, identifier);
         }
         if (typeDesc.get().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String nameRef = ((SimpleNameReferenceNode) typeDesc.get()).name().text();
-            return visibleSymbols.stream()
-                    .filter(CommonUtil.isBType().and(entry -> entry.symbol.getName().getValue().equals(nameRef)))
-                    .findAny();
+            for (Symbol symbol : visibleSymbols) {
+                if (symbol.kind() == SymbolKind.TYPE && symbol.name().equals(nameRef)) {
+                    TypeSymbol typeSymbol = (TypeSymbol) symbol;
+                    return Optional.of(typeSymbol);
+                }
+            }
+            return Optional.empty();
         }
 
         return Optional.empty();

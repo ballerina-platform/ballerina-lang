@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.text.TextRange;
-import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -41,7 +41,7 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, VariableDeclarationNode node)
             throws LSCompletionException {
-        if (!node.initializer().isPresent()) {
+        if (node.initializer().isEmpty()) {
             return new ArrayList<>();
         }
 
@@ -50,7 +50,7 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
 
     @Override
     public boolean onPreValidation(LSContext context, VariableDeclarationNode node) {
-        if (!node.equalsToken().isPresent()) {
+        if (node.equalsToken().isEmpty()) {
             return false;
         }
         Integer textPosition = context.get(CompletionKeys.TEXT_POSITION_IN_TREE);

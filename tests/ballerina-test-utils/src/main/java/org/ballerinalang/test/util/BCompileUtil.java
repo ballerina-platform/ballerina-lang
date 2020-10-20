@@ -16,16 +16,16 @@
  */
 package org.ballerinalang.test.util;
 
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.values.ErrorValue;
+import io.ballerina.runtime.values.FutureValue;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.writer.JarFileWriter;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -201,18 +201,18 @@ public class BCompileUtil {
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                    BTypes.typeAny, null, null);
+                                                       PredefinedTypes.TYPE_ANY, null, null);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                if (t instanceof io.ballerina.runtime.util.exceptions.BLangRuntimeException) {
+                    throw new BLangRuntimeException(t.getMessage());
                 }
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                if (t instanceof io.ballerina.runtime.util.exceptions.BallerinaConnectorException) {
+                    throw new BLangRuntimeException(t.getMessage());
                 }
                 if (t instanceof ErrorValue) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
+                    throw new BLangRuntimeException(
                             "error: " + ((ErrorValue) t).getPrintableStackTrace());
                 }
                 throw (RuntimeException) t;

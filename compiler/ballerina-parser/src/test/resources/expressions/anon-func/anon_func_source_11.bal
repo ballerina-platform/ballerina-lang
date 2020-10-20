@@ -1,3 +1,3 @@
 function foo() {
-   f = a => b => a + b;
+    f = a => b => a + b;
 }

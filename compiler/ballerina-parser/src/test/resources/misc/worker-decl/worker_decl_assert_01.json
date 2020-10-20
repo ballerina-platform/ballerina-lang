@@ -175,7 +175,13 @@
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "someAnnot"
+                                          "value": "someAnnot",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -183,7 +189,13 @@
                                       "kind": "MAPPING_CONSTRUCTOR",
                                       "children": [
                                         {
-                                          "kind": "OPEN_BRACE_TOKEN"
+                                          "kind": "OPEN_BRACE_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "LIST",

@@ -15,15 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test.serializer.json;
 
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.util.serializer.JsonSerializer;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.core.model.types.BArrayType;
+import org.ballerinalang.core.model.types.BTypes;
+import org.ballerinalang.core.model.util.serializer.JsonSerializer;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BMap;
+import org.ballerinalang.core.model.values.BString;
+import org.ballerinalang.core.model.values.BValueArray;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

@@ -18,37 +18,31 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLQName;
-import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
 
 /**
  * XML Element constructor function.
  *
  * @since 2.0.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "elementCtor",
-        args = {
-                @Argument(name = "name", type = TypeKind.STRING),
-                @Argument(name = "attributeMap", type = TypeKind.MAP),
-                @Argument(name = "children", type = TypeKind.XML)
-        },
-        returnType = {@ReturnType(type = TypeKind.XML)}
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "elementCtor",
+//        args = {
+//                @Argument(name = "name", type = TypeKind.STRING),
+//                @Argument(name = "attributeMap", type = TypeKind.MAP),
+//                @Argument(name = "children", type = TypeKind.XML)
+//        },
+//        returnType = {@ReturnType(type = TypeKind.XML)}
+//)
 public class ElementCtor {
 
-    public static XMLValue elementCtor(Strand strand, BString name, MapValue<BString, BString> attributeMap,
-                                       XMLValue children) {
-        XMLItem xmlElement = (XMLItem) XMLFactory.createXMLElement(new XMLQName(name), (BString) null);
+    public static BXML elementCtor(BString name, BMap<BString, BString> attributeMap,
+                                       BXML children) {
+        BXML xmlElement =  XMLFactory.createXMLElement(ValueCreator.createXMLQName(name), (BString) null);
         xmlElement.setChildren(children);
         xmlElement.setAttributes(attributeMap);
         return xmlElement;

@@ -18,31 +18,16 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Returns a simple, human-readable representation of the given value as a String.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
-        functionName = "toString",
-        args = {@Argument(name = "value", type = TypeKind.ANY)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class ToString {
-
-    public static BString toString(Strand strand, Object value) {
-        return BStringUtils.fromString(BStringUtils.getStringValue(value, null));
+    public static BString toString(Object value) {
+        return StringUtils.fromString(StringUtils.getStringValue(value, null));
     }
 }

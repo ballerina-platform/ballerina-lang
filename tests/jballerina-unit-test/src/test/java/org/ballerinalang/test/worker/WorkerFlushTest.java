@@ -17,8 +17,8 @@
 
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -81,7 +81,7 @@ public class WorkerFlushTest {
         }
         Assert.assertNotNull(expectedException);
         String result =
-                "error: error3 {\"message\":\"msg3\"}\n" + "\tat flush-workers:$lambda$12(flush-workers.bal:187)";
+                "error: error3 {\"message\":\"msg3\"}\n" + "\tat flush-workers:$lambda$_12(flush-workers.bal:187)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
