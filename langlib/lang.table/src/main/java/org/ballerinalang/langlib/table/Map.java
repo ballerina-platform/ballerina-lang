@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
@@ -48,19 +49,17 @@ public class Map {
     public static TableValueImpl map(TableValueImpl tbl, FPValue<Object, Object> func) {
         BType newConstraintType = ((BFunctionType) func.getType()).retType;
         BTableType tblType = (BTableType) tbl.getType();
-        BTableType newTableType = new BTableType(newConstraintType, tblType.getFieldNames(), tblType.isReadOnly());
+        BTableType newTableType = new BTableType(newConstraintType, BTypes.typeNever, tblType.isReadOnly());
 
         TableValueImpl newTable = new TableValueImpl(newTableType);
         int size = tbl.size();
+        Object[] tableValues = tbl.values().toArray();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                         () -> new Object[]{parentStrand,
-                                tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
-                        result -> newTable
-                                .put(tbl.getKeys()[index.get()], result),
-                                                       () -> newTable, Scheduler.getStrand().scheduler);
+                                tableValues[index.incrementAndGet()], true},
+                        newTable::add, () -> newTable, Scheduler.getStrand().scheduler);
         return newTable;
     }
 

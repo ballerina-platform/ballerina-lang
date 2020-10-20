@@ -90,7 +90,7 @@ public class BTableType extends BType {
 
         StringBuilder keyStringBuilder = new StringBuilder();
         String stringRep;
-        if (fieldNames != null) {
+        if (keyType != null && fieldNames != null) {
             for (String fieldName : fieldNames) {
                 if (!keyStringBuilder.toString().equals("")) {
                     keyStringBuilder.append(", ");
