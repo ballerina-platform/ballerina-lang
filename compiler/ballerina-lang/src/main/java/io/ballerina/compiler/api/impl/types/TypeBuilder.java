@@ -21,7 +21,8 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.impl.LangLibrary;
-import io.ballerina.compiler.api.impl.Qualifiers;
+import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.FieldDescriptor;
@@ -97,6 +98,7 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
     private ModuleID moduleID;
     private final Types types;
     private final LangLibrary langLibrary;
+    private final SymbolFactory symbolFactory;
     private final Map<BType, BallerinaTypeDescriptor> typeCache;
     private Set<BType> currentlyProcessingTypes;
 
@@ -106,6 +108,7 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
         this.types = Types.getInstance(context);
         this.typeCache = new HashMap<>();
         this.langLibrary = LangLibrary.getInstance(context);
+        this.symbolFactory = SymbolFactory.getInstance(context);
         this.currentlyProcessingTypes = new HashSet<>();
     }
 
@@ -220,12 +223,9 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
         List<FieldDescriptor> fields = createFields(internalType);
         BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) internalType.tsymbol;
 
-        List<MethodDescriptor> methods = new ArrayList<>();
+        List<MethodSymbol> methods = new ArrayList<>();
         for (BAttachedFunction func : typeSymbol.attachedFuncs) {
-            BallerinaFunctionTypeDescriptor methodType = (BallerinaFunctionTypeDescriptor) build(func.type);
-            Set<Qualifier> qualifiers = Qualifiers.getMethodQualifiers(func.symbol.flags);
-            BallerinaMethodDescriptor methodDecl = new BallerinaMethodDescriptor(func.funcName.value, qualifiers,
-                                                                                 methodType);
+            MethodSymbol methodDecl = symbolFactory.createMethodSymbol(func.symbol, func.funcName.value);
             methods.add(methodDecl);
         }
 

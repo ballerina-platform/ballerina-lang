@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -31,7 +32,6 @@ import io.ballerina.compiler.api.types.FieldDescriptor;
 import io.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import io.ballerina.compiler.api.types.FutureTypeDescriptor;
 import io.ballerina.compiler.api.types.MapTypeDescriptor;
-import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.Parameter;
 import io.ballerina.compiler.api.types.RecordTypeDescriptor;
@@ -173,10 +173,10 @@ public class TypedescriptorTest {
         assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().kind(), STRING);
 
-        List<MethodDescriptor> methods = type.methods();
+        List<MethodSymbol> methods = type.methods();
         assertEquals(fields.size(), 1);
 
-        MethodDescriptor method = methods.get(0);
+        MethodSymbol method = methods.get(0);
         assertEquals(method.name(), "getName");
     }
 
@@ -193,10 +193,10 @@ public class TypedescriptorTest {
         assertEquals(field.name(), "name");
         assertEquals(field.typeDescriptor().kind(), STRING);
 
-        List<MethodDescriptor> methods = type.methods();
+        List<MethodSymbol> methods = type.methods();
         assertEquals(fields.size(), 1);
 
-        MethodDescriptor method = methods.get(0);
+        MethodSymbol method = methods.get(0);
         assertEquals(method.name(), "getName");
 
         FunctionTypeDescriptor methodSig = method.typeDescriptor();

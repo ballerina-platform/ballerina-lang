@@ -18,8 +18,8 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.types.FieldDescriptor;
-import io.ballerina.compiler.api.types.MethodDescriptor;
 import io.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import io.ballerina.compiler.api.types.util.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -39,7 +39,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     private List<TypeQualifier> typeQualifiers;
     // private TypeDescriptor objectTypeReference;
     private List<FieldDescriptor> objectFields;
-    private List<MethodDescriptor> methods;
+    private List<MethodSymbol> methods;
 
     public BallerinaObjectTypeDescriptor(ModuleID moduleID, BObjectType objectType) {
         super(TypeDescKind.OBJECT, moduleID, objectType);
@@ -48,7 +48,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     }
 
     public BallerinaObjectTypeDescriptor(ModuleID moduleID, List<FieldDescriptor> fields,
-                                         List<MethodDescriptor> methods, BObjectType objectType) {
+                                         List<MethodSymbol> methods, BObjectType objectType) {
         super(TypeDescKind.OBJECT, moduleID, objectType);
         this.objectFields = fields;
         this.methods = methods;
@@ -84,7 +84,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
      *
      * @return {@link List} of object methods
      */
-    public List<MethodDescriptor> methods() {
+    public List<MethodSymbol> methods() {
         return this.methods;
     }
 
@@ -117,7 +117,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
         this.objectFields = fields;
     }
 
-    void setMethods(List<MethodDescriptor> methods) {
+    void setMethods(List<MethodSymbol> methods) {
         this.methods = methods;
     }
 }
