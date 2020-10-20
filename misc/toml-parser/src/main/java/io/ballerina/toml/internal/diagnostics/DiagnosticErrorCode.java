@@ -33,7 +33,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     // Tokens
     ERROR_MISSING_TOKEN("BCE0001", "error.missing.token"),
-    ERROR_MISSING_CLOSE_BRACE_TOKEN("BCE0007", "error.missing.close.brace.token"),
     ERROR_MISSING_OPEN_BRACKET_TOKEN("BCE0008", "error.missing.open.bracket.token"),
     ERROR_MISSING_CLOSE_BRACKET_TOKEN("BCE0009", "error.missing.close.bracket.token"),
     ERROR_MISSING_EQUAL_TOKEN("BCE0010", "error.missing.equal.token"),
