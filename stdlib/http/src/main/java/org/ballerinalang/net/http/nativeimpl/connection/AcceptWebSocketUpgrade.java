@@ -16,12 +16,12 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.BalFuture;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.BalFuture;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -41,7 +41,7 @@ public class AcceptWebSocketUpgrade {
     private static final Logger log = LoggerFactory.getLogger(AcceptWebSocketUpgrade.class);
 
     public static Object acceptWebSocketUpgrade(BalEnv env, BObject httpCaller,
-                                                MapValue<BString, BString> headers) {
+                                                BMap<BString, BString> headers) {
         BalFuture balFuture = env.markAsync();
         try {
             WebSocketHandshaker webSocketHandshaker =
@@ -69,7 +69,7 @@ public class AcceptWebSocketUpgrade {
         return null;
     }
 
-    private static DefaultHttpHeaders populateAndGetHttpHeaders(MapValue<BString, BString> headers) {
+    private static DefaultHttpHeaders populateAndGetHttpHeaders(BMap<BString, BString> headers) {
         DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
         BString[] keys = headers.getKeys();
         for (BString key : keys) {

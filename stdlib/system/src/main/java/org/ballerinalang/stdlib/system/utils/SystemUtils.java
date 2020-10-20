@@ -17,13 +17,14 @@
  */
 package org.ballerinalang.stdlib.system.utils;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,7 +71,7 @@ public class SystemUtils {
      * @return Ballerina error object.
      */
     public static BError getBallerinaError(String typeId, String message) {
-        return BErrorCreator.createDistinctError(typeId, SYSTEM_PACKAGE_ID, BStringUtils.fromString(message));
+        return ErrorCreator.createDistinctError(typeId, SYSTEM_PACKAGE_ID, StringUtils.fromString(message));
     }
 
     public static BObject getFileInfo(File inputFile) throws IOException {
@@ -78,15 +79,15 @@ public class SystemUtils {
         FileTime lastModified = Files.getLastModifiedTime(inputFile.toPath());
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
-                                                lastModified.toMillis(), BStringUtils
+                                                lastModified.toMillis(), StringUtils
                                                         .fromString(zonedDateTime.getZone().toString()));
-        return BValueCreator.createObjectValue(SYSTEM_PACKAGE_ID, FILE_INFO_TYPE,
-                                               BStringUtils.fromString(inputFile.getName()), inputFile.length(),
-                                               lastModifiedInstance, inputFile.isDirectory());
+        return ValueCreator.createObjectValue(SYSTEM_PACKAGE_ID, FILE_INFO_TYPE,
+                                              StringUtils.fromString(inputFile.getName()), inputFile.length(),
+                                              lastModifiedInstance, inputFile.isDirectory());
     }
 
     public static BObject getProcessObject(Process process) throws IOException {
-        BObject obj = BValueCreator.createObjectValue(SYSTEM_PACKAGE_ID, PROCESS_TYPE);
+        BObject obj = ValueCreator.createObjectValue(SYSTEM_PACKAGE_ID, PROCESS_TYPE);
         obj.addNativeData(PROCESS_FIELD, process);
         return obj;
     }
@@ -99,13 +100,13 @@ public class SystemUtils {
      * Returns the system property which corresponds to the given key.
      *
      * @param key system property key
-     * @return system property as a {@link String} or {@code BTypes.typeString.getZeroValue()} if the property does not
+     * @return system property as a {@link String} or {@code Types.typeString.getZeroValue()} if the property does not
      * exist.
      */
     public static String getSystemProperty(String key) {
         String value = System.getProperty(key);
         if (value == null) {
-            return org.ballerinalang.jvm.types.BTypes.typeString.getZeroValue();
+            return PredefinedTypes.TYPE_STRING.getZeroValue();
         }
         return value;
     }

@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 
 /**
  * Extern function lang.string:fromCodePointInts(string).
@@ -29,7 +29,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
  */
 public class FromCodePointInts {
 
-    public static Object fromCodePointInts(ArrayValue codePoints) {
+    public static Object fromCodePointInts(BArray codePoints) {
         int codePoint = 0;
         try {
             StringBuilder builder = new StringBuilder();
@@ -37,9 +37,9 @@ public class FromCodePointInts {
                 codePoint = (int) codePoints.getInt(i);
                 builder.appendCodePoint(codePoint);
             }
-            return BStringUtils.fromString(builder.toString());
+            return StringUtils.fromString(builder.toString());
         } catch (IllegalArgumentException e) {
-            return BErrorCreator.createError(BStringUtils.fromString("Invalid codepoint: " + codePoint));
+            return ErrorCreator.createError(StringUtils.fromString("Invalid codepoint: " + codePoint));
         }
     }
 }

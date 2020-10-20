@@ -18,14 +18,14 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.TypedescValue;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.util.Flags;
 
 import java.util.HashMap;
 
@@ -36,16 +36,17 @@ import java.util.HashMap;
  */
 public class SetNarrowType {
 
-    public static MapValue setNarrowType(TypedescValue td, MapValue value) {
-        BRecordType recordType = (BRecordType) value.getType();
-        BRecordType newRecordType = new BRecordType("narrowType", recordType.getPackage(), recordType.flags,
-                recordType.sealed, recordType.typeFlags);
-        newRecordType.setFields(new HashMap<>() {{
-            put("value", new BField(td.getDescribingType(), "value", Flags.PUBLIC + Flags.REQUIRED));
+    public static BMap setNarrowType(BTypedesc td, BMap value) {
+        RecordType recordType = (RecordType) value.getType();
+        RecordType newRecordType =
+                TypeCreator.createRecordType("narrowType", recordType.getPackage(), recordType.getTypeFlags(),
+                                             recordType.isSealed(), recordType.getTypeFlags());
+        newRecordType.setFields(new HashMap() {{
+            put("value", TypeCreator.createField(td.getDescribingType(), "value", Flags.PUBLIC + Flags.REQUIRED));
         }});
 
-        MapValueImpl<BString, Object> newRecord = new MapValueImpl<>(newRecordType);
-        newRecord.put(BStringUtils.fromString("value"), value.get(BStringUtils.fromString("value")));
+        BMap<BString, Object> newRecord = ValueCreator.createMapValue(newRecordType);
+        newRecord.put(StringUtils.fromString("value"), value.get(StringUtils.fromString("value")));
         return newRecord;
     }
 }

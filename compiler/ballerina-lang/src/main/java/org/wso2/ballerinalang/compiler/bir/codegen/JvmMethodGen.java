@@ -18,8 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.runtime.IdentifierUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.jvm.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -138,10 +138,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARGUMENT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
@@ -170,7 +171,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
@@ -183,6 +183,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
@@ -538,7 +539,7 @@ public class JvmMethodGen {
                 break;
             case TypeTags.OBJECT:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                                  String.format("L%s;", OBJECT_VALUE));
+                                  String.format("L%s;", B_OBJECT));
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.ERROR:
@@ -713,7 +714,7 @@ public class JvmMethodGen {
             case TypeTags.OBJECT:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                                  String.format("L%s;", OBJECT_VALUE));
+                                  String.format("L%s;", B_OBJECT));
                 break;
             case TypeTags.INVOKABLE:
                 mv.visitVarInsn(ALOAD, index);
@@ -835,7 +836,7 @@ public class JvmMethodGen {
                 jvmType = String.format("L%s;", ARRAY_VALUE);
                 break;
             case TypeTags.OBJECT:
-                jvmType = String.format("L%s;", OBJECT_VALUE);
+                jvmType = String.format("L%s;", B_OBJECT);
                 break;
             case TypeTags.ERROR:
                 jvmType = String.format("L%s;", ERROR_VALUE);
@@ -943,7 +944,7 @@ public class JvmMethodGen {
                 JvmTypeGen.loadType(mv, param.type);
             }
             mv.visitMethodInsn(INVOKESPECIAL, String.format("%s$ParamInfo", RUNTIME_UTILS), JVM_INIT_METHOD,
-                    String.format("(ZL%s;L%s;)V", STRING_VALUE, BTYPE), false);
+                               String.format("(ZL%s;L%s;)V", STRING_VALUE, TYPE), false);
             mv.visitInsn(AASTORE);
         }
 
@@ -1174,7 +1175,7 @@ public class JvmMethodGen {
 
     private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount) {
 
-        StringBuilder desc = new StringBuilder("(Lorg/ballerinalang/jvm/scheduling/Strand;");
+        StringBuilder desc = new StringBuilder("(Lio/ballerina/runtime/scheduling/Strand;");
         int j = 0;
         while (j < closureMapsCount) {
             j += 1;
@@ -1474,7 +1475,7 @@ public class JvmMethodGen {
 
         if (isVirtual) {
             String methodDesc = String.format("(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT);
-            mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
+            mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "call", methodDesc, true);
         } else {
             String jvmClass;
             String methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
@@ -1522,14 +1523,14 @@ public class JvmMethodGen {
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, BLOCKED_ON_EXTERN_FIELD, "Z");
 
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, PANIC_FIELD, String.format("L%s;", B_ERROR));
+        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, PANIC_FIELD, String.format("L%s;", BERROR));
         Label panicLabel = new Label();
         mv.visitJumpInsn(IFNULL, panicLabel);
         mv.visitInsn(DUP);
-        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, PANIC_FIELD, String.format("L%s;", B_ERROR));
+        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, PANIC_FIELD, String.format("L%s;", BERROR));
         mv.visitVarInsn(ASTORE, closureMapsCount + 1);
         mv.visitInsn(ACONST_NULL);
-        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, PANIC_FIELD, String.format("L%s;", B_ERROR));
+        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, PANIC_FIELD, String.format("L%s;", BERROR));
         mv.visitVarInsn(ALOAD, closureMapsCount + 1);
         mv.visitInsn(ATHROW);
         mv.visitLabel(panicLabel);
@@ -2047,7 +2048,7 @@ public class JvmMethodGen {
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
         loadLocalType(mv, typeDef);
         mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), "processAnnotations",
-                String.format("(L%s;L%s;)V", MAP_VALUE, BTYPE), false);
+                           String.format("(L%s;L%s;)V", MAP_VALUE, TYPE), false);
     }
 
     void generateFrameClasses(BIRPackage pkg, Map<String, byte[]> pkgEntries) {
@@ -2192,8 +2193,8 @@ public class JvmMethodGen {
         mv.visitLdcInsn(workerName);
         mv.visitFieldInsn(GETSTATIC, moduleClassName, metaDataVarName, String.format("L%s;", STRAND_METADATA));
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-                           String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND_CLASS,
-                                         BTYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
+                           String.format("([L%s;L%s;L%s;L%s;L%s;L%s;)L%s;", OBJECT, B_FUNCTION_POINTER, STRAND_CLASS,
+                                         TYPE, STRING_VALUE, STRAND_METADATA, FUTURE_VALUE), false);
     }
 
     public void resetIds() {

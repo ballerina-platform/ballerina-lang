@@ -18,12 +18,11 @@
 
 package org.ballerinalang.langlib.internal;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.jvm.values.XMLQName;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
 
 /**
  * XML Element constructor function.
@@ -41,9 +40,9 @@ import org.ballerinalang.jvm.values.XMLValue;
 //)
 public class ElementCtor {
 
-    public static XMLValue elementCtor(BString name, MapValue<BString, BString> attributeMap,
-                                       XMLValue children) {
-        XMLItem xmlElement = (XMLItem) XMLFactory.createXMLElement(new XMLQName(name), (BString) null);
+    public static BXML elementCtor(BString name, BMap<BString, BString> attributeMap,
+                                       BXML children) {
+        BXML xmlElement =  XMLFactory.createXMLElement(ValueCreator.createXMLQName(name), (BString) null);
         xmlElement.setChildren(children);
         xmlElement.setAttributes(attributeMap);
         return xmlElement;

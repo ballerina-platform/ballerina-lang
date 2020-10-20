@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.TypedescValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.scheduling.Strand;
 
 /**
  * Extern function lang.typedesc:typeIds.
@@ -40,7 +40,7 @@ import org.ballerinalang.jvm.values.TypedescValue;
 //)
 public class TypeIds {
 
-    public static ArrayValue typeIds(Strand strand, TypedescValue t, boolean primaryOnly) {
+    public static BArray typeIds(Strand strand, BTypedesc t, boolean primaryOnly) {
         return null;
     }
 }

@@ -20,12 +20,12 @@ package org.ballerinalang.test.observability.metrics;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import io.ballerina.runtime.observability.metrics.PercentileValue;
+import io.ballerina.runtime.observability.metrics.Snapshot;
+import io.ballerina.runtime.observability.metrics.Tag;
 import org.ballerina.testobserve.metrics.extension.model.Metrics;
 import org.ballerina.testobserve.metrics.extension.model.MockGauge;
 import org.ballerina.testobserve.metrics.extension.model.MockMetric;
-import org.ballerinalang.jvm.observability.metrics.PercentileValue;
-import org.ballerinalang.jvm.observability.metrics.Snapshot;
-import org.ballerinalang.jvm.observability.metrics.Tag;
 import org.ballerinalang.test.observability.ObservabilityBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;

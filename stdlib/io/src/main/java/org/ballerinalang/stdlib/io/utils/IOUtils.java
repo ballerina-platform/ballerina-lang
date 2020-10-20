@@ -18,10 +18,9 @@
 
 package org.ballerinalang.stdlib.io.utils;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
@@ -63,8 +62,8 @@ public class IOUtils {
      * @return an error which will be propagated to ballerina user
      */
     public static BError createError(String errorMsg) {
-        return BErrorCreator.createDistinctError(GenericError.errorCode(), IO_PACKAGE_ID,
-                                                 BStringUtils.fromString(errorMsg));
+        return ErrorCreator.createDistinctError(GenericError.errorCode(), IO_PACKAGE_ID,
+                                                StringUtils.fromString(errorMsg));
     }
 
     /**
@@ -85,7 +84,7 @@ public class IOUtils {
      * @return an error which will be propagated to ballerina user
      */
     public static BError createError(IOConstants.ErrorCode code, String errorMsg) {
-        return BErrorCreator.createDistinctError(code.errorCode(), IO_PACKAGE_ID, BStringUtils.fromString(errorMsg));
+        return ErrorCreator.createDistinctError(code.errorCode(), IO_PACKAGE_ID, StringUtils.fromString(errorMsg));
     }
 
     /**
@@ -171,9 +170,9 @@ public class IOUtils {
      * @param channel the channel the content should be read into.
      * @return the number of bytes read.
      * @throws IOException   errors which occurs while execution.
-     * @throws ErrorValue instance of {ballerina/io}EoF when channel reach the EoF.
+     * @throws BError instance of {ballerina/io}EoF when channel reach the EoF.
      */
-    public static int readFull(Channel channel, byte[] content) throws IOException, ErrorValue {
+    public static int readFull(Channel channel, byte[] content) throws IOException, BError {
         int numberOfBytesToRead = content.length;
         int nBytesRead = 0;
         do {
@@ -194,9 +193,9 @@ public class IOUtils {
      * @param content byte [] which will hold the content which is read.
      * @return the number of bytes read.
      * @throws IOException   errors which occur during execution.
-     * @throws ErrorValue instance of {ballerina/io}EoF when channel reach the EoF.
+     * @throws BError instance of {ballerina/io}EoF when channel reach the EoF.
      */
-    private static int read(Channel channel, byte[] content) throws IOException, ErrorValue {
+    private static int read(Channel channel, byte[] content) throws IOException, BError {
         if (channel.hasReachedEnd()) {
             throw createEoFError();
         } else {
