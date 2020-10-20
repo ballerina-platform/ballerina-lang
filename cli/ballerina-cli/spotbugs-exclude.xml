@@ -25,4 +25,8 @@
         <Class name="io.ballerina.cli.cmd.BuildCommand"/>
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.RunCommand"/>
+        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
+    </Match>
 </FindBugsFilter>
