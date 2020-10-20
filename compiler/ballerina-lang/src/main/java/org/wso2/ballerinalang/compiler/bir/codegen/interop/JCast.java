@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**

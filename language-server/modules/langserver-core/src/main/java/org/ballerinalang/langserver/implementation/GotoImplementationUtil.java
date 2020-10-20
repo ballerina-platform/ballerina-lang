@@ -86,7 +86,7 @@ public class GotoImplementationUtil {
     private static Location getLocation(String sourceRoot, String pkgName, BLangFunction bLangFunction) {
         String cUnitName = bLangFunction.getPosition().lineRange().filePath();
         Location location = new Location();
-        io.ballerina.tools.diagnostics.Location implPosition = CommonUtil.toZeroBasedPosition(bLangFunction.getPosition());
+        io.ballerina.tools.diagnostics.Location implPosition = CommonUtil.toZeroBasedPosition(bLangFunction.pos);
         Range range = new Range(new Position(
                 implPosition.lineRange().startLine().line(), implPosition.lineRange().startLine().offset()),
                 new Position(implPosition.lineRange().endLine().line(), implPosition.lineRange().endLine().offset()));
