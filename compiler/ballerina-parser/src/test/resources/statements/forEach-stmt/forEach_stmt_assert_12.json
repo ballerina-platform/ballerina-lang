@@ -107,13 +107,7 @@
                       "kind": "LIST_BINDING_PATTERN",
                       "children": [
                         {
-                          "kind": "OPEN_BRACKET_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
                           "kind": "LIST",
@@ -123,13 +117,7 @@
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "fruits",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "fruits"
                                 }
                               ]
                             },
@@ -147,13 +135,7 @@
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "vegetables",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "vegetables"
                                 }
                               ]
                             },
