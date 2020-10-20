@@ -1712,7 +1712,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean isReferenceOrIsolatedExpression(BLangExpression expression, List<BLangSimpleVarRef> refList,
                                                     boolean logErrors) {
         BType type = expression.type;
-        if (Symbols.isFlagOn(type.flags, Flags.READONLY) || isIsolatedObjectTypes(type)) {
+        if (type != null && (Symbols.isFlagOn(type.flags, Flags.READONLY) || isIsolatedObjectTypes(type))) {
             return true;
         }
 
@@ -1913,7 +1913,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     return true;
                 }
 
-                if (isIsolated(invocation.symbol.type.flags)) {
+                BSymbol invocationSymbol = invocation.symbol;
+                if (invocationSymbol == null) {
+                    // This is `new` used with a stream.
+                    List<BLangExpression> argExprs = invocation.argExprs;
+                    if (argExprs.isEmpty()) {
+                        return true;
+                    }
+
+                    return isReferenceOrIsolatedExpression(argExprs.get(0), refList, logErrors);
+                } else if (isIsolated(invocationSymbol.type.flags)) {
                     List<BLangExpression> requiredArgs = invocation.requiredArgs;
 
                     BLangExpression calledOnExpr = invocation.expr;
