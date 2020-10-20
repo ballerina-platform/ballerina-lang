@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.scheduling.Strand;
 
 /**
  * Native implementation of lang.table:put(table&lt;Type&gt;, (any|error)...).
@@ -33,11 +33,11 @@ import org.ballerinalang.jvm.values.TableValueImpl;
 //)
 public class Put {
 
-    public static void put(TableValueImpl tbl, Object val) {
+    public static void put(BTable tbl, Object val) {
         tbl.put(val);
     }
 
-    public static void put_bstring(Strand strand, TableValueImpl tbl, Object val) {
+    public static void put_bstring(Strand strand, BTable tbl, Object val) {
         put(tbl, val);
     }
 }

@@ -46,29 +46,28 @@ public class BallerinaFieldDescriptor implements FieldDescriptor {
     }
 
     /**
-     * Get the field name.
-     *
-     * @return {@link String} name of the field
+     * {@inheritDoc}
      */
     @Override
     public String name() {
         return this.bField.getName().getValue();
     }
-
+    
     /**
-     * Whether optional field or not.
-     *
-     * @return {@link Boolean} optional status
+     * {@inheritDoc}
      */
     @Override
     public boolean isOptional() {
         return (this.bField.type.flags & Flags.OPTIONAL) == Flags.OPTIONAL;
     }
 
+    @Override
+    public boolean hasDefaultValue() {
+        return !isOptional() && (this.bField.symbol.flags & Flags.REQUIRED) != Flags.REQUIRED;
+    }
+
     /**
-     * Get the type descriptor of the field.
-     *
-     * @return {@link BallerinaTypeDescriptor} of the field
+     * {@inheritDoc}
      */
     @Override
     public BallerinaTypeDescriptor typeDescriptor() {
@@ -76,9 +75,7 @@ public class BallerinaFieldDescriptor implements FieldDescriptor {
     }
 
     /**
-     * Get the documentation attachment.
-     *
-     * @return {@link Optional} doc attachment of the field
+     * {@inheritDoc}
      */
     @Override
     public Optional<Documentation> documentation() {
@@ -86,9 +83,7 @@ public class BallerinaFieldDescriptor implements FieldDescriptor {
     }
 
     /**
-     * Get the accessibility modifier if available.
-     *
-     * @return {@link Optional} accessibility modifier
+     * {@inheritDoc}
      */
     @Override
     public Optional<Qualifier> qualifier() {
@@ -102,9 +97,7 @@ public class BallerinaFieldDescriptor implements FieldDescriptor {
     }
 
     /**
-     * Get the signature of the field.
-     *
-     * @return {@link String} signature
+     * {@inheritDoc}
      */
     @Override
     public String signature() {

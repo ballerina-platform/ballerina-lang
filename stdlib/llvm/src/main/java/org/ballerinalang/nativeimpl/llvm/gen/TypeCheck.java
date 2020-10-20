@@ -18,8 +18,8 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,8 +41,8 @@ import static org.bytedeco.llvm.global.LLVM.LLVMGetStructName;
         }
 )
 public class TypeCheck {
-    public static boolean llvmCheckIfTypesMatch(Strand strand, MapValue<String, Object> castType,
-            MapValue<String, Object> lhsType) {
+    public static boolean llvmCheckIfTypesMatch(Strand strand, BMap<String, Object> castType,
+            BMap<String, Object> lhsType) {
         LLVMTypeRef castTypeRef = (LLVMTypeRef) FFIUtil.getRecodeArgumentNative(castType);
         LLVMTypeRef lhsTypeRef = (LLVMTypeRef) FFIUtil.getRecodeArgumentNative(lhsType);
         String castTypeName = LLVMGetStructName(castTypeRef).getString();

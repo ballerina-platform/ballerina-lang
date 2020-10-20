@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.XMLNodeType;
+import io.ballerina.runtime.api.values.BXML;
 
 /**
  * Test xml to be single xml text element.
@@ -34,7 +34,7 @@ import org.ballerinalang.jvm.values.XMLValue;
 //)
 public class IsText {
 
-    public static boolean isText(XMLValue xmlValue) {
+    public static boolean isText(BXML xmlValue) {
         return xmlValue.getNodeType() == XMLNodeType.TEXT;
     }
 }
