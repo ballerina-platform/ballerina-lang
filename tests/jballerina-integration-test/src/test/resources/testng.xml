@@ -216,7 +216,6 @@
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
 <!--            <class name="org.ballerinalang.test.observability.tracing.HttpTracingBaseTest"/>-->
 <!--            <class name="org.ballerinalang.test.observability.tracing.HttpTracingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.observability.metrics.PrometheusMetricsTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>-->
         </classes>
     </test>

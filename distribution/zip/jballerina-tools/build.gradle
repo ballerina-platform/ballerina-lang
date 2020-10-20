@@ -150,8 +150,6 @@ dependencies {
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
-//    birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
-
     // ballerinax module cache
     balxBir project(path: ':ballerina-lang:java', configuration: 'bir')
 
