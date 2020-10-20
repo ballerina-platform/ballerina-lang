@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
  * Represents a TypeReference type descriptor.
@@ -60,7 +61,9 @@ public class BallerinaTypeReferenceTypeDescriptor extends AbstractTypeDescriptor
                 this.moduleID().orgName().equals("ballerina"))) {
             return this.definitionName;
         }
-        return !this.isAnonOrg(this.moduleID()) ? this.moduleID().modulePrefix() + ":" + this.definitionName
+        return !this.isAnonOrg(this.moduleID()) ? this.moduleID().orgName() + Names.ORG_NAME_SEPARATOR +
+                this.moduleID().moduleName() + Names.VERSION_SEPARATOR + this.moduleID().version() + ":" +
+                this.definitionName
                 : this.definitionName;
     }
 
