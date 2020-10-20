@@ -1320,7 +1320,7 @@ public class TypeChecker {
     private static boolean checkIsTupleType(BArrayType sourceType, BTupleType targetType,
                                             List<TypePair> unresolvedTypes) {
         Type sourceElementType = sourceType.getElementType();
-        List<Type> targetTypes = new ArrayList<>(targetType.getTupleTypes());
+        List<Type> targetTypes = targetType.getTupleTypes();
         Type targetRestType = targetType.getRestType();
 
         switch (sourceType.getState()) {
