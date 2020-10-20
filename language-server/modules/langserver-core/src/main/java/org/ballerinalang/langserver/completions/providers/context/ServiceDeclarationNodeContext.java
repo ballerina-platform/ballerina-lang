@@ -15,14 +15,13 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -62,7 +61,8 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
              */
             List<Symbol> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
             List<Symbol> listeners = visibleSymbols.stream()
-                    .filter(symbol -> symbol.kind() == SymbolKind.TYPE && SymbolUtil.isListener((TypeSymbol) symbol))
+                    .filter(symbol -> symbol instanceof VariableSymbol
+                            && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.LISTENER))
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(listeners, context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));

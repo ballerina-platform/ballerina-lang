@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -95,7 +94,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.FunctionalConstructorBuilder;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -1621,44 +1619,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 && env.enclInvokable.symbol.receiverSymbol != null
                 && env.enclInvokable.symbol.receiverSymbol.type.tsymbol == symbol.owner
                 || isMemberAllowed(env.enclEnv, symbol));
-    }
-
-    public void loadFunctionalConstructors() {
-        BPackageSymbol xmlModuleSymbol = symTable.langXmlModuleSymbol;
-        if (xmlModuleSymbol == null) {
-            return;
-        }
-
-        BConstructorSymbol elementCtor =
-                FunctionalConstructorBuilder
-                    .newConstructor("Element", xmlModuleSymbol, symTable.xmlElementType, symTable.builtinPos)
-                    .addParam("name", symTable.stringType)
-                    .addDefaultableParam("attributes", symTable.mapStringType)
-                    .addDefaultableParam("children", symTable.xmlType)
-                    .build();
-        xmlModuleSymbol.scope.define(elementCtor.name, elementCtor);
-
-        BConstructorSymbol piCtor =
-                FunctionalConstructorBuilder.newConstructor("ProcessingInstruction", xmlModuleSymbol,
-                                                            symTable.xmlPIType, symTable.builtinPos)
-                    .addParam("target", symTable.stringType)
-                    .addDefaultableParam("content", symTable.stringType)
-                    .build();
-        xmlModuleSymbol.scope.define(piCtor.name, piCtor);
-
-        BConstructorSymbol commentCtor =
-                FunctionalConstructorBuilder
-                    .newConstructor("Comment", xmlModuleSymbol, symTable.xmlCommentType, symTable.builtinPos)
-                    .addDefaultableParam("comment", symTable.stringType)
-                    .build();
-        xmlModuleSymbol.scope.define(commentCtor.name, commentCtor);
-
-        BConstructorSymbol textCtor =
-                FunctionalConstructorBuilder
-                    .newConstructor("Text", xmlModuleSymbol, symTable.xmlTextType, symTable.builtinPos)
-                    .addDefaultableParam("characters", symTable.stringType)
-                    .build();
-        xmlModuleSymbol.scope.define(textCtor.name, textCtor);
     }
 
     private BType computeIntersectionType(BLangIntersectionTypeNode intersectionTypeNode) {
