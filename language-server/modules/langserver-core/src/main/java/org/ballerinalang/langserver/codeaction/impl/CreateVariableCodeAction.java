@@ -15,19 +15,11 @@
  */
 package org.ballerinalang.langserver.codeaction.impl;
 
-import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.tools.text.LinePosition;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
@@ -36,12 +28,10 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static org.ballerinalang.langserver.codeaction.impl.DiagBasedCodeAction.getPossibleTypesAndNames;
+import static org.ballerinalang.langserver.codeaction.impl.DiagBasedCodeAction.getPossibleTypes;
 import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
 
 /**
@@ -50,105 +40,34 @@ import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActi
  * @since 2.0.0
  */
 public class CreateVariableCodeAction implements DiagBasedCodeAction {
-    private SemanticModel semanticModel;
+    private final Symbol scopedSymbol;
+    private final BallerinaTypeDescriptor typeDescriptor;
 
-    public CreateVariableCodeAction(SemanticModel semanticModel) {
-        this.semanticModel = semanticModel;
+    public CreateVariableCodeAction(BallerinaTypeDescriptor typeDescriptor, Symbol scopedSymbol) {
+        this.typeDescriptor = typeDescriptor;
+        this.scopedSymbol = scopedSymbol;
     }
 
     @Override
     public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        Optional<Path> path = CommonUtil.getPathFromURI(uri);
-        if (path.isEmpty()) {
-            return new ArrayList<>();
-        }
-        try {
-            Position position = diagnostic.getRange().getStart();
-            NonTerminalNode node = CommonUtil.findNode(context, position, path.get());
-            Optional<NonTerminalNode> scopedNode = getBroadScopedNode(node);
-            if (scopedNode.isEmpty()) {
-                return new ArrayList<>();
-            }
+        Position pos = diagnostic.getRange().getStart();
 
-            LinePosition scopedNodePos = LinePosition.from(scopedNode.get().lineRange().startLine().line() + 1,
-                                                           scopedNode.get().lineRange().startLine().offset() + 2);
-            String filePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-            Optional<Symbol> scopedSymbol = semanticModel.symbol(filePath, scopedNodePos);
-            if (scopedSymbol.isEmpty()) {
-                return new ArrayList<>();
-            }
-            Optional<BallerinaTypeDescriptor> type = getTypeDescriptor(scopedSymbol.get());
-            if (type.isEmpty()) {
-                return new ArrayList<>();
-            }
-            boolean hasDefaultInitFunction = false;
-            boolean hasCustomInitFunction = false;
-            boolean isAsync = false;
-            //TODO: Fix this
-//        if (semanticModel.getbLangNode() instanceof BLangInvocation) {
-//            hasDefaultInitFunction = symbolAtCursor instanceof BObjectTypeSymbol;
-//            hasCustomInitFunction = symbolAtCursor instanceof BInvokableSymbol &&
-//                    symbolAtCursor.name.value.endsWith("init");
-//            isAsync = ((BLangInvocation) semanticModel.getbLangNode()).isAsync();
-//        }
-//
-//        // Find enclosing function node
-//        BLangNode bLangNode = semanticModel.getbLangNode();
-//        BLangFunction enclosedFunc = null;
-//        while (!(bLangNode instanceof BLangPackage)) {
-//            if (bLangNode instanceof BLangFunction) {
-//                enclosedFunc = (BLangFunction) bLangNode;
-//                break;
-//            }
-//            bLangNode = bLangNode.parent;
-//        }
-//
-            return getCreateVariableCodeActions(context, uri, position, scopedSymbol.get(),
-                                                hasDefaultInitFunction, hasCustomInitFunction, isAsync);
-        } catch (WorkspaceDocumentException e) {
-            //ignore
-            return new ArrayList<>();
-        }
-    }
-
-    private Optional<BallerinaTypeDescriptor> getTypeDescriptor(Symbol scopedSymbol) {
-        if (scopedSymbol.kind() == SymbolKind.FUNCTION) {
-            FunctionSymbol functionSymbol = (FunctionSymbol) scopedSymbol;
-            return functionSymbol.typeDescriptor();
-//            if (typeDescriptor.isPresent()) {
-//                FunctionTypeDescriptor funTypeDesc = (FunctionTypeDescriptor) typeDescriptor.get();
-//                Optional<BallerinaTypeDescriptor> returnType = funTypeDesc.getReturnType();
-//                if (returnType.isPresent()) {
-//                    BallerinaTypeDescriptor typeDescriptor1 = returnType.get();
-//                }
-//            }
-        }
-        return Optional.empty();
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        String name = (this.scopedSymbol != null) ? this.scopedSymbol.name() : this.typeDescriptor.signature();
+        String varName = CommonUtil.generateVariableName(name, CommonUtil.getAllNameEntries(compilerContext));
+        return getCreateVariableCodeActions(context, uri, pos, varName, this.typeDescriptor);
     }
 
     private static List<CodeAction> getCreateVariableCodeActions(LSContext context, String uri, Position position,
-                                                                 Symbol symbol,
-                                                                 boolean hasDefaultInitFunction,
-                                                                 boolean hasCustomInitFunction, boolean isAsync) {
+                                                                 String name,
+                                                                 BallerinaTypeDescriptor typeDescriptor) {
         List<CodeAction> actions = new ArrayList<>();
-
-
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-
-
         List<TextEdit> importEdits = new ArrayList<>();
-        Pair<List<String>, List<String>> typesAndNames = getPossibleTypesAndNames(context, symbol,
-                                                                                  hasDefaultInitFunction,
-                                                                                  hasCustomInitFunction, isAsync,
-                                                                                  importEdits, compilerContext);
+        List<String> types = getPossibleTypes(context, typeDescriptor, importEdits, compilerContext);
 
-        List<String> types = typesAndNames.getLeft();
-        List<String> names = typesAndNames.getRight();
-
-        for (int i = 0; i < types.size(); i++) {
-            String type = types.get(i);
-            String name = names.get(i);
+        for (String type : types) {
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
             if (types.size() > 1) {
                 boolean isTuple = type.startsWith("[") && type.endsWith("]") && !type.endsWith("[]");
@@ -163,17 +82,5 @@ public class CreateVariableCodeAction implements DiagBasedCodeAction {
             actions.add(createQuickFixCodeAction(commandTitle, edits, uri));
         }
         return actions;
-    }
-
-    private static Optional<NonTerminalNode> getBroadScopedNode(NonTerminalNode node) {
-        while (node != null && (node.kind() != SyntaxKind.MODULE_PART &&
-                node.kind() != SyntaxKind.FUNCTION_CALL &&
-                node.kind() != SyntaxKind.METHOD_CALL &&
-                node.kind() != SyntaxKind.REMOTE_METHOD_CALL_ACTION &&
-                node.kind() != SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
-                node.kind() != SyntaxKind.EXPLICIT_NEW_EXPRESSION)) {
-            node = node.parent();
-        }
-        return Optional.ofNullable(node);
     }
 }

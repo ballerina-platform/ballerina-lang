@@ -15,23 +15,17 @@
  */
 package org.ballerinalang.langserver.codeaction.impl;
 
-import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.UnionTypeDescriptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,55 +39,30 @@ import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActi
  * @since 2.0.0
  */
 public class IgnoreReturnCodeAction implements DiagBasedCodeAction {
-    private SymbolReferencesModel.Reference refAtCursor;
+    private final BallerinaTypeDescriptor typeDescriptor;
 
-    public IgnoreReturnCodeAction(SemanticModel refAtCursor) {
-        this.refAtCursor = null;
+    public IgnoreReturnCodeAction(BallerinaTypeDescriptor typeDescriptor) {
+        this.typeDescriptor = typeDescriptor;
     }
 
     @Override
     public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        Position position = diagnostic.getRange().getStart();
-
-        BSymbol symbolAtCursor = refAtCursor.getSymbol();
-
-        boolean isInvocation = symbolAtCursor instanceof BInvokableSymbol;
-
-        boolean hasDefaultInitFunction = false;
-        boolean hasCustomInitFunction = false;
-        if (refAtCursor.getbLangNode() instanceof BLangInvocation) {
-            hasDefaultInitFunction = symbolAtCursor instanceof BObjectTypeSymbol;
-            hasCustomInitFunction = symbolAtCursor instanceof BInvokableSymbol &&
-                    symbolAtCursor.name.value.endsWith("init");
+        Position pos = diagnostic.getRange().getStart();
+        boolean hasError = false;
+        if (typeDescriptor.kind() == TypeDescKind.ERROR) {
+            hasError = true;
+        } else if (typeDescriptor.kind() == TypeDescKind.UNION) {
+            UnionTypeDescriptor unionType = (UnionTypeDescriptor) typeDescriptor;
+            hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.kind() == TypeDescKind.ERROR);
         }
-        boolean isInitInvocation = hasDefaultInitFunction || hasCustomInitFunction;
-        String commandTitle;
-
-        if (isInvocation || isInitInvocation) {
-            BType returnType;
-            if (hasDefaultInitFunction) {
-                returnType = symbolAtCursor.type;
-            } else if (hasCustomInitFunction) {
-                returnType = symbolAtCursor.owner.type;
-            } else {
-                returnType = ((BInvokableSymbol) symbolAtCursor).retType;
-            }
-            boolean hasError = false;
-            if (returnType instanceof BErrorType) {
-                hasError = true;
-            } else if (returnType instanceof BUnionType) {
-                BUnionType unionType = (BUnionType) returnType;
-                hasError = unionType.getMemberTypes().stream().anyMatch(s -> s instanceof BErrorType);
-            }
-            // Add ignore return value code action
-            if (!hasError) {
-                commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
-                return Collections.singletonList(
-                        createQuickFixCodeAction(commandTitle, getIgnoreCodeActionEdits(position), uri));
-            }
+        // Add ignore return value code action
+        if (!hasError) {
+            String commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
+            return Collections.singletonList(
+                    createQuickFixCodeAction(commandTitle, getIgnoreCodeActionEdits(pos), uri));
         }
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     private static List<TextEdit> getIgnoreCodeActionEdits(Position position) {

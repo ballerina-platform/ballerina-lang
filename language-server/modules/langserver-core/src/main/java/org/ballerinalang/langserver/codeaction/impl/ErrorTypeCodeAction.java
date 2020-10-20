@@ -15,11 +15,12 @@
  */
 package org.ballerinalang.langserver.codeaction.impl;
 
-import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.tools.text.LinePosition;
-import org.apache.commons.lang3.tuple.Pair;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.UnionTypeDescriptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
@@ -27,19 +28,13 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
-import static org.ballerinalang.langserver.codeaction.impl.DiagBasedCodeAction.getPossibleTypesAndNames;
+import static org.ballerinalang.langserver.codeaction.impl.DiagBasedCodeAction.getPossibleTypes;
 import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
 
 /**
@@ -48,58 +43,35 @@ import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActi
  * @since 2.0.0
  */
 public class ErrorTypeCodeAction implements DiagBasedCodeAction {
-    private SemanticModel semanticModel;
+    private final Symbol scopedSymbol;
+    private final BallerinaTypeDescriptor typeDescriptor;
 
-    public ErrorTypeCodeAction(SemanticModel semanticModel) {
-        this.semanticModel = null;
+    public ErrorTypeCodeAction(BallerinaTypeDescriptor typeDescriptor, Symbol scopedSymbol) {
+        this.typeDescriptor = typeDescriptor;
+        this.scopedSymbol = scopedSymbol;
     }
 
     @Override
     public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        String filePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        Position position = diagnostic.getRange().getStart();
-
-        LinePosition linePosition = LinePosition.from(position.getLine() + 1, position.getCharacter() + 2);
-        Optional<Symbol> symbolAtCursor = semanticModel.symbol(filePath, linePosition);
-        if (symbolAtCursor.isEmpty()) {
-            return new ArrayList<>();
-        }
-        Symbol symbol = symbolAtCursor.get();
-
-        boolean hasDefaultInitFunction = false;
-        boolean hasCustomInitFunction = false;
-        boolean isAsync = false;
-        if (symbol instanceof BLangInvocation) {
-            hasDefaultInitFunction = symbol instanceof BObjectTypeSymbol;
-            hasCustomInitFunction = symbol instanceof BInvokableSymbol &&
-                    symbol.name().endsWith("init");
-            //TODO Fix this, always false
-            isAsync = false;
-        }
-
+        Position pos = diagnostic.getRange().getStart();
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         List<TextEdit> importEdits = new ArrayList<>();
-        Pair<List<String>, List<String>> typesAndNames = getPossibleTypesAndNames(context, symbol,
-                                                                                  hasDefaultInitFunction,
-                                                                                  hasCustomInitFunction, isAsync,
-                                                                                  importEdits, compilerContext);
+        List<String> types = getPossibleTypes(context, typeDescriptor, importEdits, compilerContext);
 
-        List<String> types = typesAndNames.getLeft();
-        List<String> names = typesAndNames.getRight();
-
-        for (int i = 0; i < types.size(); i++) {
-            String type = types.get(i);
-            String name = names.get(i);
+        for (String type : types) {
             if (type.endsWith("|error")) {
-                return addErrorTypeBasedCodeActions(uri, symbol, position, importEdits, type, name);
+                String name = (this.scopedSymbol != null) ? this.scopedSymbol.name() : this.typeDescriptor.signature();
+                String varName = CommonUtil.generateVariableName(name, CommonUtil.getAllNameEntries(compilerContext));
+                return addErrorTypeBasedCodeActions(uri, scopedSymbol, typeDescriptor, pos, importEdits, type, varName);
             }
         }
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
 
     private static List<CodeAction> addErrorTypeBasedCodeActions(String uri, Symbol symbol,
+                                                                 BallerinaTypeDescriptor typeDescriptor,
                                                                  Position position, List<TextEdit> importEdits,
                                                                  String type,
                                                                  String name) {
@@ -107,13 +79,11 @@ public class ErrorTypeCodeAction implements DiagBasedCodeAction {
         // add code action for `check`
         if (symbol != null) {
             boolean hasError = false;
-            //TODO: Fix this
-            BType returnType = null;
-            if (returnType instanceof BErrorType) {
+            if (typeDescriptor.kind() == TypeDescKind.ERROR) {
                 hasError = true;
-            } else if (returnType instanceof BUnionType) {
-                BUnionType unionType = (BUnionType) returnType;
-                hasError = unionType.getMemberTypes().stream().anyMatch(s -> s instanceof BErrorType);
+            } else if (typeDescriptor.kind() == TypeDescKind.UNION) {
+                UnionTypeDescriptor unionType = (UnionTypeDescriptor) typeDescriptor;
+                hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.kind() == TypeDescKind.ERROR);
             }
             if (hasError) {
                 String panicCmd = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", "Check");
