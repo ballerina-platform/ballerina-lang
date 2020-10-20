@@ -396,7 +396,7 @@ public class Desugar extends BLangNodeVisitor {
         // Initialize the annotation map
         annotationDesugar.initializeAnnotationMap(pkgNode);
         SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-        this.globalVariablesDependsOn = pkgNode.globalVariableDependsOn;
+        this.globalVariablesDependsOn = env.enclPkg.globalVariableDependencies;
         return rewrite(pkgNode, env);
     }
 
@@ -3667,7 +3667,7 @@ public class Desugar extends BLangNodeVisitor {
                 BVarSymbol symbol = (BVarSymbol) varRefExpr.symbol;
                 BLangLockStmt lockStmt = enclLocks.peek();
                 lockStmt.addLockVariable(symbol);
-                lockStmt.addAllLockVariable(this.globalVariablesDependsOn.getOrDefault(symbol, new HashSet<>()));
+                lockStmt.addLockVariable(this.globalVariablesDependsOn.getOrDefault(symbol, new HashSet<>()));
             }
         }
 

@@ -286,16 +286,16 @@ public class LocksInMainTest {
 
     @Test(description = "Test for locks on global references")
     public void testLocksWhenGlobalVariablesReferToSameValue() {
-        BValue[] returns = BRunUtil.invoke(parallelCompileResult, "testLocksWhenGlobalVariablesReferToSameValue");
+        BRunUtil.invoke(parallelCompileResult, "testLocksWhenGlobalVariablesReferToSameValue");
     }
 
     @Test(description = "Test for global reference update inside a worker")
     public void testForGlobalRefUpdateInsideWorker() {
-        BValue[] returns = BRunUtil.invoke(parallelCompileResult, "testForGlobalRefUpdateInsideWorker");
+        BRunUtil.invoke(parallelCompileResult, "testForGlobalRefUpdateInsideWorker");
     }
 
     @Test(description = "Test for global reference updated inside conditional statment")
     public void testForGlobalRefUpdateInsideConditional() {
-        BValue[] returns = BRunUtil.invoke(parallelCompileResult, "testForGlobalRefUpdateInsideConditional");
+        BRunUtil.invoke(parallelCompileResult, "testForGlobalRefUpdateInsideConditional");
     }
 }

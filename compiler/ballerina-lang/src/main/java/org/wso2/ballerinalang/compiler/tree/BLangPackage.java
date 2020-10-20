@@ -74,8 +74,8 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
     public List<BLangClassDefinition> classDefinitions;
 
-    // Hold global variable dependencies identified from DataflowAnalyzer
-    public Map<BSymbol, Set<BVarSymbol>> globalVariableDependsOn;
+    // Hold global variable dependencies identified in DataflowAnalyzer.
+    public Map<BSymbol, Set<BVarSymbol>> globalVariableDependencies;
 
     public PackageID packageID;
     public BPackageSymbol symbol;

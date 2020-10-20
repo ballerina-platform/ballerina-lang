@@ -203,7 +203,7 @@ function testLocksWhenGlobalVariablesReferToSameValue() {
     worker w1 {
         foreach var i in 1 ... 1000 {
             lock {
-		        values[values.length()] = 1;
+                values[values.length()] = 1;
             }
         }
     }
@@ -212,7 +212,7 @@ function testLocksWhenGlobalVariablesReferToSameValue() {
     worker w2 {
         foreach var i in 1 ... 1000 {
             lock {
-		        values[values.length()] = 1;
+                values[values.length()] = 1;
             }
         }
     }
@@ -221,7 +221,7 @@ function testLocksWhenGlobalVariablesReferToSameValue() {
     worker w3 {
         foreach var i in 1 ... 1000 {
             lock {
-		        values[values.length()] = 1;
+                values[values.length()] = 1;
             }
         }
     }
@@ -230,7 +230,7 @@ function testLocksWhenGlobalVariablesReferToSameValue() {
     worker w4 {
         foreach var i in 1 ... 1000 {
             lock {
-		        numbers[numbers.length()] = 1;
+                numbers[numbers.length()] = 1;
             }
         }
     }
@@ -326,6 +326,6 @@ function testForGlobalRefUpdateInsideConditional() {
 
     runtime:sleep(250);
     if (toBeUpdateRefConditional.length() == 100 && refConditional.length() == 200) {
-        panic error("Invalid value 1000 recieved in \"testForGlobalRefUpdateInsideConditional\"");
+        panic error("Invalid value 100 recieved in \"testForGlobalRefUpdateInsideConditional\"");
     }
 }

@@ -109,7 +109,7 @@ public class BLangLock extends BLangStatement implements LockNode {
             return lockVariables.add(variable);
         }
 
-        public boolean addAllLockVariable(Set<BVarSymbol> variables) {
+        public boolean addLockVariable(Set<BVarSymbol> variables) {
             return lockVariables.addAll(variables);
         }
     }
