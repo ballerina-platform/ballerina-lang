@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.runtime.api.values.BTable;
 
 /**
  * Native implementation of lang.table:remove(table&lt;Type&gt;, KeyType).
@@ -33,7 +33,7 @@ import org.ballerinalang.jvm.values.TableValueImpl;
 //)
 public class Remove {
 
-    public static Object remove(TableValueImpl tbl, Object key) {
+    public static Object remove(BTable tbl, Object key) {
         return tbl.removeOrThrow(key);
     }
 }

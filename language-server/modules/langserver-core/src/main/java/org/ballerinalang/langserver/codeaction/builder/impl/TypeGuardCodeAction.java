@@ -160,7 +160,8 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
                     edits.add(new TextEdit(newTextRange, newText));
                 } else {
                     // if (foo() is int) {...} else {...}
-                    String type = CommonUtil.getBTypeName(bType, context, true);
+                    // Fixme with the code action revamp
+                    String type = "";
                     String newText = String.format("if (%s is %s) {%s} else {%s}", finalContent, type, padding,
                                                    padding);
                     edits.add(new TextEdit(newTextRange, newText));
@@ -170,7 +171,8 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             Set<String> nameEntries = CommonUtil.getAllNameEntries(compilerContext);
             String varName = CommonUtil.generateVariableName(bLangNode, nameEntries);
-            String typeDef = CommonUtil.getBTypeName(unionType, context, true);
+            // Fixme with the code action revamp
+            String typeDef = "";
             boolean addErrorTypeAtEnd;
 
             List<BType> tMembers = new ArrayList<>((unionType).getMemberTypes());
@@ -184,7 +186,8 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             IntStream.range(0, tMembers.size())
                     .forEachOrdered(value -> {
                         BType bType = tMembers.get(value);
-                        String bTypeName = CommonUtil.getBTypeName(bType, context, true);
+                        // Fixme with the code action revamp
+                        String bTypeName = "";
                         boolean isErrorType = bType instanceof BErrorType;
                         if (isErrorType && !addErrorTypeAtEnd) {
                             memberTypes.add(bTypeName);

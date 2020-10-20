@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FutureValue;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -113,13 +113,13 @@ public class TesterinaFunction {
                     throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(params, func, null, null, null, BTypes.typeAny,
-                                                       null, null);
+            final BFuture out = scheduler.schedule(params, func, null, null, null, PredefinedTypes.TYPE_ANY,
+                                                   null, null);
             scheduler.start();
-            final Throwable t = out.panic;
-            final Object result = out.result;
-            if (result instanceof ErrorValue) {
-                throw new BallerinaException((ErrorValue) result);
+            final Throwable t = out.getPanic();
+            final Object result = out.getResult();
+            if (result instanceof BError) {
+                throw new BallerinaException((BError) result);
             }
             if (result instanceof Exception) {
                 throw new BallerinaException((Exception) result);
@@ -127,7 +127,7 @@ public class TesterinaFunction {
             if (t != null) {
                 throw new BallerinaException("Error while invoking function '" + funcName + "'", t.getMessage());
             }
-            return out.result;
+            return out.getResult();
         } catch (NoSuchMethodException e) {
             throw new BallerinaException("Error while invoking function '" + funcName + "'\n" +
                     "If you are using data providers please check if types return from data provider " +

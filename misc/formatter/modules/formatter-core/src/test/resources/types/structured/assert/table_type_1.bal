@@ -4,7 +4,7 @@ type CustomerTable table<map<any>>;
 
 public function foo() {
     EmployeeTable employeeTab = table [{ id: 1, name: "John" }];
-    table<Person> personTab = employeeTab.'map(function (Employee employee) returns Person {
+    table<Person> personTab = employeeTab.'map(function(Employee employee) returns Person {
         return {
             id: employee.id,
             name: employee.name

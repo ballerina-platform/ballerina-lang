@@ -18,6 +18,10 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
+    implementation ('org.apache.ws.commons.axiom:axiom-api') {
+        exclude group: 'org.apache.geronimo.specs', module: 'geronimo-stax-api_1.0_spec'
+        exclude group: 'jaxen', module: 'jaxen'
+    }
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:internal')

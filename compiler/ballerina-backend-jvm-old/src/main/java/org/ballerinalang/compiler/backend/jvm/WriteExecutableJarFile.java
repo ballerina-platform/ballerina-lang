@@ -19,9 +19,9 @@
 package org.ballerinalang.compiler.backend.jvm;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.scheduling.Strand;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.MapValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 

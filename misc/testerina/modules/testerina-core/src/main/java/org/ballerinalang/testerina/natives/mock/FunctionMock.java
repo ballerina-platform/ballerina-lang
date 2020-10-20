@@ -1,17 +1,16 @@
 package org.ballerinalang.testerina.natives.mock;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BArray;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.values.AbstractObjectValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.StringValue;
-import org.ballerinalang.testerina.natives.BExecutor;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.scheduling.Scheduler;
+import io.ballerina.runtime.scheduling.Strand;
+import org.ballerinalang.testerina.natives.Executor;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -33,10 +32,10 @@ import static org.ballerinalang.testerina.natives.mock.MockConstants.MOCK_STRAND
  */
 public class FunctionMock {
 
-    public static ErrorValue thenReturn(BObject caseObj) {
-        BObject mockFunctionObj = caseObj.getObjectValue(BStringUtils.fromString("mockFuncObj"));
-        BArray args = caseObj.getArrayValue(BStringUtils.fromString("args"));
-        Object returnVal = caseObj.get(BStringUtils.fromString("returnValue"));
+    public static BError thenReturn(BObject caseObj) {
+        BObject mockFunctionObj = caseObj.getObjectValue(StringUtils.fromString("mockFuncObj"));
+        BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
+        Object returnVal = caseObj.get(StringUtils.fromString("returnValue"));
         MockRegistry.getInstance().registerCase(mockFunctionObj, null, args, returnVal);
         return null;
     }
@@ -44,15 +43,15 @@ public class FunctionMock {
     public static Object mockHandler(BObject mockFuncObj, Object... args) {
         List<String> caseIds = getCaseIds(mockFuncObj, args);
         String originalFunction =
-                mockFuncObj.getStringValue(BStringUtils.fromString("functionToMock")).toString();
+                mockFuncObj.getStringValue(StringUtils.fromString("functionToMock")).toString();
         String originalFunctionPackage =
-                mockFuncObj.getStringValue(BStringUtils.fromString("functionToMockPackage")).toString();
+                mockFuncObj.getStringValue(StringUtils.fromString("functionToMockPackage")).toString();
         originalFunctionPackage = formatFunctionPackage(originalFunctionPackage);
         Object returnVal = null;
         for (String caseId : caseIds) {
             if (MockRegistry.getInstance().hasCase(caseId)) {
                 returnVal = MockRegistry.getInstance().getReturnValue(caseId);
-                if (returnVal instanceof StringValue) {
+                if (returnVal instanceof BString) {
                     if (returnVal.toString().contains(MockConstants.FUNCTION_CALL_PLACEHOLDER)) {
                         return callFunction(originalFunction, originalFunctionPackage, returnVal.toString(), args);
                     } else if (returnVal.toString().equals(MockConstants.FUNCTION_CALLORIGINAL_PLACEHOLDER)) {
@@ -64,8 +63,8 @@ public class FunctionMock {
         }
         if (returnVal == null) {
             String detail = "no return value or action registered for function";
-            return BErrorCreator.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
-                                                     BStringUtils.fromString(detail));
+            return ErrorCreator.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
+                                                    StringUtils.fromString(detail));
         }
         return returnVal;
     }
@@ -83,8 +82,8 @@ public class FunctionMock {
 
         List<Object> argsList = Arrays.asList(args);
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, originalFunction);
-        return BExecutor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, orgName,
-                                         packageName, version, className, originalFunction, argsList.toArray());
+        return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, orgName,
+                                        packageName, version, className, originalFunction, argsList.toArray());
     }
 
     private static Object callFunction(String originalFunction, String originalFunctionPackage, String returnVal,
@@ -107,15 +106,15 @@ public class FunctionMock {
             className = "tests." + getClassName(methodName, orgName, packageName, version, originalFunction,
                     originalFunctionPackage);
         } catch (IOException | ClassNotFoundException e) {
-            return BErrorCreator.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
-                                                     BStringUtils.fromString(e.getMessage()));
+            return ErrorCreator.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
+                                                    StringUtils.fromString(e.getMessage()));
         }
 
         List<Object> argsList = Arrays.asList(args);
         ClassLoader classLoader = FunctionMock.class.getClassLoader();
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, methodName);
-        return BExecutor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, orgName,
-                                         packageName, version, className, methodName, argsList.toArray());
+        return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, orgName,
+                                        packageName, version, className, methodName, argsList.toArray());
     }
 
     private static String getClassName(String mockMethodName, String orgName, String packageName, String version,
@@ -168,9 +167,9 @@ public class FunctionMock {
 
             // Validate Return types
             if (mockMethodType != originalMethodType) {
-                throw BErrorCreator.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                                                        MockConstants.TEST_PACKAGE_ID,
-                                                        BStringUtils.fromString("Return Type of function " +
+                throw ErrorCreator.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                                                       MockConstants.TEST_PACKAGE_ID,
+                                                       StringUtils.fromString("Return Type of function " +
                                                                                        mockMethod.getName() +
                                                                                        " does not match function" +
                                                                                        originalMethod.getName()));
@@ -178,8 +177,8 @@ public class FunctionMock {
 
             // Validate if param number is the same
             if (mockMethodParameters.length != originalMethodParameters.length) {
-                throw BErrorCreator.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                                                        MockConstants.TEST_PACKAGE_ID, BStringUtils.fromString(
+                throw ErrorCreator.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                                                       MockConstants.TEST_PACKAGE_ID, StringUtils.fromString(
                                 "Parameter types of function " + mockMethod.getName() +
                                         "does not match function" + originalMethod.getName()));
             }
@@ -187,17 +186,17 @@ public class FunctionMock {
             // Validate each param
             for (int i = 0; i < mockMethodParameters.length; i++) {
                 if (mockMethodParameters [i] != originalMethodParameters[i]) {
-                    throw BErrorCreator.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                                                            MockConstants.TEST_PACKAGE_ID, BStringUtils.fromString(
+                    throw ErrorCreator.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                                                           MockConstants.TEST_PACKAGE_ID, StringUtils.fromString(
                                     "Parameter types of function " + mockMethod.getName() +
                                             "does not match function" + originalMethod.getName()));
                 }
             }
 
         } else {
-            throw BErrorCreator.createDistinctError(MockConstants.FUNCTION_NOT_FOUND_ERROR,
-                                                    MockConstants.TEST_PACKAGE_ID,
-                                                    BStringUtils.fromString(
+            throw ErrorCreator.createDistinctError(MockConstants.FUNCTION_NOT_FOUND_ERROR,
+                                                   MockConstants.TEST_PACKAGE_ID,
+                                                   StringUtils.fromString(
                                                             "Mock function \'" + mockMethodName + "\' " +
                                                                     "cannot be found"));
         }
@@ -227,7 +226,7 @@ public class FunctionMock {
         // add case for function with ANY specified for objects and records
         for (Object arg: args) {
             caseId.append("-");
-            if (arg instanceof AbstractObjectValue || arg instanceof  BRecordType) {
+            if (arg instanceof BObject || arg instanceof RecordType) {
                 caseId.append(MockRegistry.ANY);
             } else {
                 caseId.append(arg);

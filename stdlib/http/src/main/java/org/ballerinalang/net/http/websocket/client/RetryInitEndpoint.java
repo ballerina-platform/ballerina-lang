@@ -18,11 +18,11 @@
 
 package org.ballerinalang.net.http.websocket.client;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BalEnv;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -46,10 +46,10 @@ public class RetryInitEndpoint {
 
     public static void initEndpoint(BalEnv env, BObject retryClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        MapValue<BString, Object> clientEndpointConfig = (MapValue<BString, Object>) retryClient.getMapValue(
+        BMap<BString, Object> clientEndpointConfig = (BMap<BString, Object>) retryClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        MapValue<BString, Object> retryConfig = (MapValue<BString, Object>) clientEndpointConfig.getMapValue(
+        BMap<BString, Object> retryConfig = (BMap<BString, Object>) clientEndpointConfig.getMapValue(
                 WebSocketConstants.RETRY_CONTEXT);
         RetryContext retryConnectorConfig = new RetryContext();
         populateRetryConnectorConfig(retryConfig, retryConnectorConfig);
@@ -65,7 +65,7 @@ public class RetryInitEndpoint {
      * @param retryConfig - the retry config
      * @param retryConnectorConfig - the retry connector config
      */
-    private static void populateRetryConnectorConfig(MapValue<BString, Object> retryConfig,
+    private static void populateRetryConnectorConfig(BMap<BString, Object> retryConfig,
                                                      RetryContext retryConnectorConfig) {
         retryConnectorConfig.setInterval(WebSocketUtil.getIntValue(retryConfig, INTERVAL_IN_MILLIS, 1000));
         retryConnectorConfig.setBackOfFactor(getDoubleValue(retryConfig));
@@ -73,7 +73,7 @@ public class RetryInitEndpoint {
         retryConnectorConfig.setMaxAttempts(WebSocketUtil.getIntValue(retryConfig, MAX_COUNT, 0));
     }
 
-    private static Double getDoubleValue(MapValue<BString, Object> configs) {
+    private static Double getDoubleValue(BMap<BString, Object> configs) {
         double value = Math.toRadians(configs.getFloatValue(BACK_OF_FACTOR));
         if (value < 1) {
             logger.warn("The value set for `backOffFactor` needs to be great than than 1. The `backOffFactor`" +
