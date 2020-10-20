@@ -169,23 +169,23 @@ public class BallerinaSemanticModel implements SemanticModel {
             return true;
         }
 
-        if (bLangPackage.packageID.equals(symbol.pkgID)) {
-
-            LinePosition cursorPosStartLine = cursorPos.lineRange().startLine();
-            LinePosition symbolStartLine = symbol.pos.lineRange().startLine();
-
-            if (cursorPosStartLine.line() < symbolStartLine.line()) {
-                return false;
-            }
-
-            if (cursorPosStartLine.line() > symbolStartLine.line()) {
-                return true;
-            }
-
-            return cursorPosStartLine.offset() > symbolStartLine.offset();
+        if (!bLangPackage.packageID.equals(symbol.pkgID)) {
+            return false;
         }
 
-        return false;
+        // These checks whether the cursor position has passed the symbol position or not
+        LinePosition cursorPosStartLine = cursorPos.lineRange().startLine();
+        LinePosition symbolStartLine = symbol.pos.lineRange().startLine();
+
+        if (cursorPosStartLine.line() < symbolStartLine.line()) {
+            return false;
+        }
+
+        if (cursorPosStartLine.line() > symbolStartLine.line()) {
+            return true;
+        }
+
+        return cursorPosStartLine.offset() > symbolStartLine.offset();
     }
 
     private boolean isImportedSymbol(BSymbol symbol) {
