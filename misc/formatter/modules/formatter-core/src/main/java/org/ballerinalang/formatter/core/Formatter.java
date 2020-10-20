@@ -23,8 +23,6 @@ import io.ballerina.tools.text.TextDocuments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.formatter.core.FormatterUtils.handleNewLineEndings;
-
 /**
  * Class that exposes the formatting APIs.
  */
@@ -105,9 +103,7 @@ public class Formatter {
         FormattingTreeModifier treeModifier = new FormattingTreeModifier(options, range);
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         try {
-            SyntaxTree newSyntaxTree = syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
-            return handleNewLineEndings(newSyntaxTree.modifyWith(treeModifier
-                    .transform((ModulePartNode) newSyntaxTree.rootNode())));
+            return syntaxTree.modifyWith(treeModifier.transform(modulePartNode));
         } catch (Exception e) {
             LOGGER.error(String.format("Error while formatting the source: %s", e.getMessage()));
             return syntaxTree;

@@ -54,6 +54,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "java",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "lang.future",
       "kind": "Module",
       "detail": "Module",

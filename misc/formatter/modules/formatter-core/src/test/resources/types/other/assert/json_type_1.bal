@@ -4,26 +4,21 @@ public function foo() {
     json j3 = true;
     json j5 = null;
     json j6 = {
-        name : "apple", 
-        color : "red", 
-        price : j2
+        name: "apple",
+        color: "red",
+        price: j2
     };
 
     json j8 = checkpanic j5.mergeJson(j7);
     json j9 = {
-        name : "Anne", 
-        age : null, 
-        marks : {
-            math : 90, 
-            language : 95
-        }
+        name: "Anne",
+        age: null,
+        marks: { math: 90, language: 95 }
     };
     json j10 = {
-        name : (), 
-        age : 20, 
-        marks : {
-            physics : 85
-        }
+        name: (),
+        age: 20,
+        marks: { physics: 85 }
     };
     json j11 = checkpanic j9.mergeJson(j10);
     json|error j12 = j2.mergeJson(j3);

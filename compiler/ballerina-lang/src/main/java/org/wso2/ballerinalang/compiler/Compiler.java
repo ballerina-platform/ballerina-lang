@@ -200,7 +200,8 @@ public class Compiler {
             }
 
             LinePosition line = lineRange.startLine();
-            strPos = strPos + line.line() + ":" + line.offset() + ":";
+            // Add +1 since it's 0-based
+            strPos = strPos + (line.line() + 1) + ":" + (line.offset() + 1) + ":";
 
             DiagnosticSeverity kind = diagnostic.diagnosticInfo().severity();
             switch (kind) {

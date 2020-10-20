@@ -7,4 +7,5 @@
 # function `m:x()`
 # function `T.y()`
 # function `m:T.y()`
-function foo() {}
+function foo() {
+}

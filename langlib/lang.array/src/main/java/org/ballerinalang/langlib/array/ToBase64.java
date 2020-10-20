@@ -18,19 +18,19 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.Base64;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.util.BLangConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.array:toBase64(byte[]).
@@ -39,17 +39,17 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  */
 public class ToBase64 {
 
-    private static final BString NOT_SUPPORT_DETAIL_ERROR = BStringUtils
+    private static final BString NOT_SUPPORT_DETAIL_ERROR = StringUtils
             .fromString("toBase64() is only supported on 'byte[]'");
 
-    public static BString toBase64(ArrayValue arr) {
-        BType arrType = arr.getType();
+    public static BString toBase64(BArray arr) {
+        Type arrType = arr.getType();
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
-                ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
-            throw BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
-                                                                    OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                                            NOT_SUPPORT_DETAIL_ERROR);
+                ((ArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
+            throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
+                                                                   OPERATION_NOT_SUPPORTED_IDENTIFIER),
+                                           NOT_SUPPORT_DETAIL_ERROR);
         }
-        return BStringUtils.fromString(Base64.getEncoder().encodeToString(arr.getBytes()));
+        return StringUtils.fromString(Base64.getEncoder().encodeToString(arr.getBytes()));
     }
 }

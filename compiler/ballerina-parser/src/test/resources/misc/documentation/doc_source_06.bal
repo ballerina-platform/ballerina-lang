@@ -6,4 +6,5 @@
 #   #   Deprecated
 ##Deprecated
 # # Deprecated this will also parse as a syntactically valid deprecation documentation line
-function foo() { }
+function foo() {
+}

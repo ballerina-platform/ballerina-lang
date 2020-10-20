@@ -42,11 +42,11 @@ rem -------------------------- set BALLERINA_HOME -----------------------------
 rem TODO: Validate BALLERINA_HOME
 rem %~sdp0 is expanded pathname of the current script under NT with spaces in the path removed
 set BALLERINA_HOME=%~sdp0..\..\..\..
-if exist "%BALLERINA_HOME%\..\..\dependencies\jdk8u202-b08-jre" goto setJava
+if exist "%BALLERINA_HOME%\..\..\dependencies\jdk-11.0.8+10-jre" goto setJava
 goto checkJava
 
 :setJava
-set JAVA_HOME="%BALLERINA_HOME%\..\..\dependencies\jdk8u202-b08-jre"
+set JAVA_HOME="%BALLERINA_HOME%\..\..\dependencies\jdk-11.0.8+10-jre"
 goto checkJava
 
 :checkJava
@@ -87,7 +87,7 @@ rem ----- commandDebug ---------------------------------------------------------
 :commandDebug
 if "%DEBUG_PORT%"=="" goto noDebugPort
 if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --java.debug option. 1>&2
-set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%DEBUG_PORT%,quiet=y
+set JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:%DEBUG_PORT%
 goto runServer
 
 :noDebugPort
@@ -102,14 +102,14 @@ set CMD=RUN %*
 :checkJdk8AndHigher
 set JVER=
 for /f tokens^=2-5^ delims^=.-_^" %%j in ('"%JAVA_HOME%\bin\java" -fullversion 2^>^&1') do set "JVER=%%j%%k"
-if %JVER% EQU 18 goto jdk8
+if %JVER% EQU 11 goto jdk11
 goto unknownJdk
 
 :unknownJdk
-echo Ballerina is supported only on JDK 1.8 1>&2
+echo Ballerina is supported only on JDK 11 1>&2
 goto end
 
-:jdk8
+:jdk11
 goto runServer
 
 rem ----------------- Execute The Requested Command ----------------------------
