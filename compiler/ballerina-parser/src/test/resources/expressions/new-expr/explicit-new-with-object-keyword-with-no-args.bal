@@ -3,5 +3,5 @@ function foo() {
                   int x;
 
                   function init();
-              } ();
+              }();
 }

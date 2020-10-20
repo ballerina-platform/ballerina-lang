@@ -5,5 +5,5 @@ function foo() {
                   string z;
 
                   function init(int x, int y, string z);
-              } (10, a, "z");
+              }(10, a, "z");
 }

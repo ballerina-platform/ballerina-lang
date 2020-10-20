@@ -9,7 +9,7 @@ function foo() {
             return "This is a direction";
         }
         "west" if getX() | getY() => {
-             return "This is a direction with condition";
+            return "This is a direction with condition";
         }
     }
 }
