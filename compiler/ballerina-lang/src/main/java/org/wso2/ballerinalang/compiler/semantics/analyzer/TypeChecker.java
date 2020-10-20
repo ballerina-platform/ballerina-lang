@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import org.ballerinalang.jvm.IdentifierUtils;
+import io.ballerina.runtime.IdentifierUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -2586,22 +2586,29 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
         // First analyze the variable reference expression.
-        ((BLangVariableReference) indexBasedAccessExpr.expr).lhsVar = indexBasedAccessExpr.lhsVar;
-        ((BLangVariableReference) indexBasedAccessExpr.expr).compoundAssignmentLhsVar =
+        BLangExpression containerExpression = indexBasedAccessExpr.expr;
+        if (containerExpression.getKind() ==  NodeKind.TYPEDESC_EXPRESSION) {
+            dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+                    ((BLangTypedescExpr) containerExpression).typeNode);
+            resultType = symTable.semanticError;
+            return;
+        }
+        ((BLangVariableReference) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
+        ((BLangVariableReference) containerExpression).compoundAssignmentLhsVar =
                 indexBasedAccessExpr.compoundAssignmentLhsVar;
-        checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
+        checkExpr(containerExpression, this.env, symTable.noType);
 
         if (indexBasedAccessExpr.indexExpr.getKind() == NodeKind.TABLE_MULTI_KEY &&
-                indexBasedAccessExpr.expr.type.tag != TypeTags.TABLE) {
+                containerExpression.type.tag != TypeTags.TABLE) {
             dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED,
-                    indexBasedAccessExpr.expr.type);
+                    containerExpression.type);
             resultType = symTable.semanticError;
             return;
         }
 
         BType actualType = checkIndexAccessExpr(indexBasedAccessExpr);
 
-        BType exprType = indexBasedAccessExpr.expr.type;
+        BType exprType = containerExpression.type;
         BLangExpression indexExpr = indexBasedAccessExpr.indexExpr;
 
         if (actualType != symTable.semanticError &&
@@ -2902,7 +2909,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.OBJECT:
                 if ((actualType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
                     dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT,
-                               actualType.tsymbol);
+                            actualType.tsymbol);
                     cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
                     resultType = symTable.semanticError;
                     return;
@@ -2921,8 +2928,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.STREAM:
-                if (cIExpr.initInvocation.argExprs.size() != 1) {
-                    dlog.error(cIExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR, cIExpr.initInvocation.name);
+                if (cIExpr.initInvocation.argExprs.size() > 1) {
+                    dlog.error(cIExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR, cIExpr.initInvocation);
                     resultType = symTable.semanticError;
                     return;
                 }
@@ -2937,24 +2944,26 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
 
-                BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
-                BType constructType = checkExpr(iteratorExpr, env, symTable.noType);
-                BUnionType nextReturnType = types.getVarTypeFromIteratorFuncReturnType(constructType);
-                BUnionType expectedReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
-                if (nextReturnType == null) {
-                    dlog.error(iteratorExpr.pos, DiagnosticCode.MISSING_REQUIRED_METHOD_NEXT,
-                            constructType, expectedReturnType);
-                    resultType = symTable.semanticError;
-                    return;
+                if (!cIExpr.initInvocation.argExprs.isEmpty()) {
+                    BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
+                    BType constructType = checkExpr(iteratorExpr, env, symTable.noType);
+                    BUnionType nextReturnType = types.getVarTypeFromIteratorFuncReturnType(constructType);
+                    BUnionType expectedReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
+                    if (nextReturnType == null) {
+                        dlog.error(iteratorExpr.pos, DiagnosticCode.MISSING_REQUIRED_METHOD_NEXT,
+                                constructType, expectedReturnType);
+                        resultType = symTable.semanticError;
+                        return;
+                    }
+                    if (types.getErrorType(nextReturnType) == null
+                            && (types.getErrorType(expectedReturnType) != null)) {
+                        dlog.error(iteratorExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR_EXP_TYPE, iteratorExpr);
+                        resultType = symTable.semanticError;
+                        return;
+                    }
+                    types.checkType(iteratorExpr.pos, nextReturnType, expectedReturnType,
+                            DiagnosticCode.INCOMPATIBLE_TYPES);
                 }
-                if (types.getErrorType(nextReturnType) == null && (types.getErrorType(expectedReturnType) != null)) {
-                    dlog.error(iteratorExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR_EXP_TYPE, iteratorExpr);
-                    resultType = symTable.semanticError;
-                    return;
-                }
-
-                types.checkType(iteratorExpr.pos, nextReturnType, expectedReturnType,
-                        DiagnosticCode.INCOMPATIBLE_TYPES);
                 resultType = actualType;
                 return;
             case TypeTags.UNION:

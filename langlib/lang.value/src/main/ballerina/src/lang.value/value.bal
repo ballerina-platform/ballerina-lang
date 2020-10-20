@@ -117,6 +117,17 @@ public isolated function toBalString(any|error v) returns string = @java:Method 
   name: "toBalString"
 } external;
 
+# Parses and evaluates a subset of Ballerina expression syntax.
+# + s - the string to be parsed and evaluated
+# + return - the result of evaluating the parsed expression, or
+# an error if the string cannot be parsed
+# The subset of Ballerina expression syntax supported is that produced
+# by toBalString when applied to an anydata value.
+public isolated function fromBalString(string s) returns anydata|error = @java:Method {
+    'class: "org.ballerinalang.langlib.value.FromBalString",
+    name: "fromBalString"
+} external;
+
 // JSON conversion
 
 # Converts a value of type `anydata` to `json`.

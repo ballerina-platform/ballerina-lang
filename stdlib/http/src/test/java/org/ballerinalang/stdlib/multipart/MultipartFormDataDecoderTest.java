@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.multipart;
 
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BXML;
 import org.ballerinalang.core.model.util.JsonParser;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.ResponseReader;
 import org.ballerinalang.stdlib.utils.Services;
@@ -130,7 +130,7 @@ public class MultipartFormDataDecoderTest {
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);
         Assert.assertNotNull(response, "Response message not found");
-        XMLValue value = XMLFactory.parse(ResponseReader.getReturnValue(response));
+        BXML value = XMLFactory.parse(ResponseReader.getReturnValue(response));
         Assert.assertEquals(value.getTextValue(), "Ballerina");
     }
 
@@ -143,7 +143,7 @@ public class MultipartFormDataDecoderTest {
         HTTPTestRequest cMsg = getCarbonMessageWithBodyParts(messageMap, getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invoke(TEST_PORT, cMsg);
         Assert.assertNotNull(response, "Response message not found");
-        XMLValue omNode = XMLFactory.parse(ResponseReader.getReturnValue(response));
+        BXML omNode = XMLFactory.parse(ResponseReader.getReturnValue(response));
         Assert.assertEquals(omNode.getTextValue(), "Ballerina xml file part");
     }
 

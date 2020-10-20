@@ -18,25 +18,24 @@
 
 package org.ballerinalang.net.http.websocket;
 
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.api.BRuntime;
+import io.ballerina.runtime.api.BStringUtils;
+import io.ballerina.runtime.api.BValueCreator;
+import io.ballerina.runtime.api.BalFuture;
+import io.ballerina.runtime.api.runtime.Module;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.services.ErrorHandlerUtils;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CodecException;
 import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.codec.http.websocketx.CorruptedWebSocketFrameException;
 import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.BalFuture;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.services.ErrorHandlerUtils;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
@@ -199,7 +198,7 @@ public class WebSocketUtil {
     }
 
     public static String[] findNegotiableSubProtocols(BMap<BString, Object> configs) {
-        return configs.getArrayValue(WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS).getStringArray();
+        return configs.getBArray(WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS).getStringArray();
     }
 
     static String getErrorMessage(Throwable err) {
@@ -260,7 +259,7 @@ public class WebSocketUtil {
         return getWebSocketException(message, null, errorCode, cause);
     }
 
-    private static BError createErrorCause(String message, String errorIdName, BPackage packageName) {
+    private static BError createErrorCause(String message, String errorIdName, Module packageName) {
         return BErrorCreator.createDistinctError(errorIdName, packageName, BStringUtils.fromString(message));
     }
 
@@ -401,7 +400,7 @@ public class WebSocketUtil {
     private static void waitForHandshake(BObject webSocketClient, CountDownLatch countDownLatch,
                                          WebSocketService wsService) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        long timeout = WebSocketUtil.findTimeoutInSeconds((MapValue<BString, Object>) webSocketClient.getMapValue(
+        long timeout = WebSocketUtil.findTimeoutInSeconds((BMap<BString, Object>) webSocketClient.getMapValue(
                 CLIENT_ENDPOINT_CONFIG), HANDSHAKE_TIME_OUT, 300);
         try {
             if (!countDownLatch.await(timeout, TimeUnit.SECONDS)) {
@@ -460,7 +459,7 @@ public class WebSocketUtil {
         return interval;
     }
 
-    public static int getIntValue(MapValue<BString, Object> configs, BString key, int defaultValue) {
+    public static int getIntValue(BMap<BString, Object> configs, BString key, int defaultValue) {
         int value = Math.toIntExact(configs.getIntValue(key));
         if (value < 0) {
             logger.warn("The value set for `{}` needs to be great than than -1. The `{}` value is set to {}", key, key,
@@ -476,7 +475,7 @@ public class WebSocketUtil {
         clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina
         clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        MapValue<BString, Object> headerValues = (MapValue<BString, Object>) clientEndpointConfig.getMapValue(
+        BMap<BString, Object> headerValues = (BMap<BString, Object>) clientEndpointConfig.getMapValue(
                 WebSocketConstants.CLIENT_CUSTOM_HEADERS_CONFIG);
         if (headerValues != null) {
             clientConnectorConfig.addHeaders(getCustomHeaders(headerValues));
@@ -490,8 +489,8 @@ public class WebSocketUtil {
 
         clientConnectorConfig.setMaxFrameSize(findMaxFrameSize(clientEndpointConfig));
 
-        MapValue<BString, Object> secureSocket =
-                (MapValue<BString, Object>) clientEndpointConfig.getMapValue(
+        BMap<BString, Object> secureSocket =
+                (BMap<BString, Object>) clientEndpointConfig.getMapValue(
                         HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(clientConnectorConfig, secureSocket);
@@ -502,7 +501,7 @@ public class WebSocketUtil {
                 clientEndpointConfig.getBooleanValue(WebSocketConstants.COMPRESSION_ENABLED_CONFIG));
     }
 
-    private static Map<String, String> getCustomHeaders(MapValue<BString, Object> headers) {
+    private static Map<String, String> getCustomHeaders(BMap<BString, Object> headers) {
         Map<String, String> customHeaders = new HashMap<>();
         headers.entrySet().forEach(
                 entry -> customHeaders.put(entry.getKey().getValue(), headers.get(entry.getKey()).toString())
@@ -544,22 +543,22 @@ public class WebSocketUtil {
      * Validate and create the webSocket service.
      *
      * @param clientEndpointConfig - a client endpoint config
-     * @param strand - a strand
+     * @param runtime - ballerina runtime
      * @return webSocketService
      */
-    public static WebSocketService validateAndCreateWebSocketService(Strand strand,
+    public static WebSocketService validateAndCreateWebSocketService(BRuntime runtime,
                                                                      BMap<BString, Object> clientEndpointConfig) {
         Object clientService = clientEndpointConfig.get(WebSocketConstants.CLIENT_SERVICE_CONFIG);
         if (clientService != null) {
-            BType param = ((BObject) clientService).getType().getAttachedFunctions()[0].getParameterType()[0];
+            Type param = ((BObject) clientService).getType().getAttachedFunctions()[0].getParameterType()[0];
             if (param == null || !(WebSocketConstants.WEBSOCKET_CLIENT_NAME.equals(param.toString()) ||
                     WEBSOCKET_FAILOVER_CLIENT_NAME.equals(param.toString()))) {
                 throw WebSocketUtil.getWebSocketException("The callback service should be a WebSocket Client Service",
                         null, WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
             }
-            return new WebSocketService((BObject) clientService, strand.scheduler);
+            return new WebSocketService((BObject) clientService, runtime);
         } else {
-            return new WebSocketService(strand.scheduler);
+            return new WebSocketService(runtime);
         }
     }
 

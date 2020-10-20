@@ -31,9 +31,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.jvm.util.BLangConstants.INT_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.util.BLangConstants.INT_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static org.testng.Assert.assertEquals;
 
 /**

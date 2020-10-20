@@ -1495,4 +1495,13 @@ public class SnippetGenerator {
         return new SnippetBlock(ItemResolverConstants.ERROR, "error", ItemResolverConstants.KEYWORD_TYPE,
                 Kind.KEYWORD);
     }
+
+    /**
+     * Get map type Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getMapTypeSnippet() {
+        return new SnippetBlock("map", "map", ItemResolverConstants.TYPE, Kind.TYPE);
+    }
 }
