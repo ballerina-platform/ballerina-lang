@@ -16,8 +16,8 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,8 +41,8 @@ import static org.bytedeco.llvm.global.LLVM.LLVMPositionBuilderAtEnd;
         })
 public class LLVMPositionBuilderAtEnd {
 
-    public static void llvmPositionBuilderAtEnd(Strand strand, MapValue<String, Object> builder,
-                                                MapValue<String, Object> block) {
+    public static void llvmPositionBuilderAtEnd(Strand strand, BMap<String, Object> builder,
+                                                BMap<String, Object> block) {
 
         LLVMBuilderRef builderRef = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(builder);
         LLVMBasicBlockRef blockRef = (LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(block);

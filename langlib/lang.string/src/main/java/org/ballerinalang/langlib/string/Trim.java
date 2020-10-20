@@ -18,9 +18,11 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.internal.ErrorUtils;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+
+import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
+
 /**
  * Extern function ballerina.model.strings:trim.
  *
@@ -37,8 +39,8 @@ public class Trim {
 
     public static BString trim(BString str) {
         if (str == null) {
-            throw ErrorUtils.createNullReferenceError();
+            throw createNullReferenceError();
         }
-        return BStringUtils.fromString(str.getValue().trim());
+        return StringUtils.fromString(str.getValue().trim());
     }
 }

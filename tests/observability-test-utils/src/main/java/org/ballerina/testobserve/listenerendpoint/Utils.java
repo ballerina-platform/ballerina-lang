@@ -18,10 +18,10 @@
 
 package org.ballerina.testobserve.listenerendpoint;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BObject;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
 
 import java.io.PrintStream;
 
@@ -41,8 +41,8 @@ public class Utils {
      * @return The corresponding ballerina error object
      */
     public static BError createError(Throwable t) {
-        return BErrorCreator.createDistinctError(MOCK_LISTENER_ERROR_TYPE, TEST_OBSERVE_PACKAGE,
-                BStringUtils.fromString(t.getMessage()));
+        return ErrorCreator.createDistinctError(MOCK_LISTENER_ERROR_TYPE, TEST_OBSERVE_PACKAGE,
+                                                StringUtils.fromString(t.getMessage()));
     }
 
     /**

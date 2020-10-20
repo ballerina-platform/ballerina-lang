@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BPackage;
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * Constants used in Ballerina Observe package.
@@ -34,7 +34,7 @@ public final class ObserveNativeImplConstants {
     }
 
     public static final String OBSERVE_PACKAGE_PATH = "ballerina/observe";
-    public static final BPackage OBSERVE_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "0.8.0");
+    public static final Module OBSERVE_PACKAGE_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "0.8.0");
     public static final String GAUGE = "Gauge";
     public static final String COUNTER = "Counter";
     public static final String SNAPSHOT = "Snapshot";
@@ -43,11 +43,11 @@ public final class ObserveNativeImplConstants {
     public static final String PERCENTILE_VALUE = "PercentileValue";
     public static final String METRIC_NATIVE_INSTANCE_KEY = "__metric_native_instance__";
 
-    public static final BString NAME_FIELD = BStringUtils.fromString("name");
-    public static final BString DESCRIPTION_FIELD = BStringUtils.fromString("description");
-    public static final BString TAGS_FIELD = BStringUtils.fromString("metricTags");
-    public static final BString STATISTICS_CONFIG_FIELD = BStringUtils.fromString("statisticConfigs");
-    public static final BString EXPIRY_FIELD = BStringUtils.fromString("timeWindow");
-    public static final BString BUCKETS_FIELD = BStringUtils.fromString("buckets");
-    public static final BString PERCENTILES_FIELD = BStringUtils.fromString("percentiles");
+    public static final BString NAME_FIELD = StringUtils.fromString("name");
+    public static final BString DESCRIPTION_FIELD = StringUtils.fromString("description");
+    public static final BString TAGS_FIELD = StringUtils.fromString("metricTags");
+    public static final BString STATISTICS_CONFIG_FIELD = StringUtils.fromString("statisticConfigs");
+    public static final BString EXPIRY_FIELD = StringUtils.fromString("timeWindow");
+    public static final BString BUCKETS_FIELD = StringUtils.fromString("buckets");
+    public static final BString PERCENTILES_FIELD = StringUtils.fromString("percentiles");
 }

@@ -18,12 +18,12 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTableType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.types.TableType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BTable;
 
 import java.util.Collection;
 
@@ -41,11 +41,11 @@ import java.util.Collection;
 //)
 public class ToArray {
 
-    public static ArrayValue toArray(TableValueImpl tbl) {
-        BType constrainedType = ((BTableType) tbl.getType()).getConstrainedType();
+    public static BArray toArray(BTable tbl) {
+        Type constrainedType = ((TableType) tbl.getType()).getConstrainedType();
 
         Collection values = tbl.values();
         //Basic constrain types not applicable for table type
-        return new ArrayValueImpl(values.toArray(), new BArrayType(constrainedType));
+        return ValueCreator.createArrayValue(values.toArray(), TypeCreator.createArrayType(constrainedType));
     }
 }

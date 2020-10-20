@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.TypedescValue;
+import io.ballerina.runtime.JSONParser;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.util.exceptions.BallerinaException;
 
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 
 /**
  * Extern function lang.values:fromJsonWithType.
@@ -34,7 +34,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_
  */
 public class FromJsonStringWithType {
 
-    public static Object fromJsonStringWithType(BString value, TypedescValue t) {
+    public static Object fromJsonStringWithType(BString value, BTypedesc t) {
 
         String str = value.getValue();
         try {
@@ -45,8 +45,8 @@ public class FromJsonStringWithType {
                 return FromJsonWithType.fromJsonWithType(jsonFromString, t);
             }
         } catch (BallerinaException e) {
-            return BErrorCreator.createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                                             BStringUtils.fromString(e.getMessage()));
+            return ErrorCreator.createError(VALUE_LANG_LIB_CONVERSION_ERROR,
+                                            StringUtils.fromString(e.getMessage()));
         }
     }
 }

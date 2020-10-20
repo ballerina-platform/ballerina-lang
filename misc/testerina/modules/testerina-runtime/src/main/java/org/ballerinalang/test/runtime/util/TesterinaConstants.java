@@ -63,4 +63,7 @@ public class TesterinaConstants {
     public static final String ASM_TREE_JAR = "asm-tree-7.2.jar";
     public static final String ASM_COMMONS_JAR = "asm-commons-7.2.jar";
 
+    public static final String BLANG_SRC_FILE_EXT = "bal";
+    public static final String BLANG_SRC_FILE_SUFFIX = "." + BLANG_SRC_FILE_EXT;
+
 }

@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.XMLValue;
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXML;
 
 /**
  * Create XML comment value from string.
@@ -35,7 +35,7 @@ import org.ballerinalang.jvm.values.XMLValue;
 //)
 public class CreateComment {
 
-    public static XMLValue createComment(BString string) {
+    public static BXML createComment(BString string) {
         return XMLFactory.createXMLComment(string);
     }
 }
