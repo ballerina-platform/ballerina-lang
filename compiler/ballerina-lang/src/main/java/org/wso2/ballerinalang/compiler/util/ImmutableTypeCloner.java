@@ -394,6 +394,9 @@ public class ImmutableTypeCloner {
                                                                            owner);
                     immutableType = BUnionType.create(immutableUnionTSymbol, readOnlyMemTypes);
                     immutableType.flags |= (origUnionType.flags | Flags.READONLY);
+                    if (Symbols.isFlagOn(immutableType.flags, Flags.CYCLIC)) {
+                        immutableType.flags ^= Flags.CYCLIC;
+                    }
                     if (immutableUnionTSymbol != null) {
                         immutableUnionTSymbol.type = immutableType;
                     }
