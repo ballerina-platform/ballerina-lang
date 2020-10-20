@@ -37,6 +37,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -136,8 +137,8 @@ public class LangLibFunctionTest {
                                             "join", "indexOf", "lastIndexOf", "startsWith", "endsWith", "toLowerAscii",
                                             "toUpperAscii", "equalsIgnoreCaseAscii", "trim", "toBytes",
                                             "toCodePointInts", "clone", "cloneReadOnly", "cloneWithType", "isReadOnly",
-                                            "toString", "toBalString", "toJson", "toJsonString", "fromJsonWithType",
-                                            "mergeJson", "fromJsonString", "fromJsonFloatString",
+                                            "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
+                                            "fromJsonWithType", "mergeJson", "fromJsonString", "fromJsonFloatString",
                                             "fromJsonDecimalString", "fromJsonStringWithType");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
@@ -340,6 +341,13 @@ public class LangLibFunctionTest {
             assertTrue(langLibSet.contains(expFunction), "Expected function '" + expFunction + "' not found");
         }
 
-        assertEquals(langLibSet.size(), expFunctions.size());
+        assertEquals(langLibSet.size(), expFunctions.size(),
+                     "Found additional functions: " + getAdditionalFunctions(langLibSet, expFunctions).toString());
+    }
+
+    private Set<String> getAdditionalFunctions(Set<String> langLibSet, List<String> expFunctions) {
+        Set<String> copy = new HashSet<>(langLibSet);
+        copy.removeAll(expFunctions);
+        return copy;
     }
 }
