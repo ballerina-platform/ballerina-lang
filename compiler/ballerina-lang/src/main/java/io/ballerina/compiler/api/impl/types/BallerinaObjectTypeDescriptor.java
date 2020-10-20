@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
@@ -40,6 +41,7 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     // private TypeDescriptor objectTypeReference;
     private List<FieldDescriptor> objectFields;
     private List<MethodSymbol> methods;
+    private MethodSymbol initMethod;
 
     public BallerinaObjectTypeDescriptor(ModuleID moduleID, BObjectType objectType) {
         super(TypeDescKind.OBJECT, moduleID, objectType);
@@ -89,6 +91,11 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
     }
 
     @Override
+    public Optional<MethodSymbol> initMethod() {
+        return Optional.ofNullable(this.initMethod);
+    }
+
+    @Override
     public String signature() {
         StringBuilder signature = new StringBuilder();
         StringJoiner qualifierJoiner = new StringJoiner(" ");
@@ -119,5 +126,9 @@ public class BallerinaObjectTypeDescriptor extends AbstractTypeDescriptor implem
 
     void setMethods(List<MethodSymbol> methods) {
         this.methods = methods;
+    }
+
+    void setInitMethod(MethodSymbol initMethod) {
+        this.initMethod = initMethod;
     }
 }

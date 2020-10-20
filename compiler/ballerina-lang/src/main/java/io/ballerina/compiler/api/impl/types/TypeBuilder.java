@@ -229,6 +229,12 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
             methods.add(methodDecl);
         }
 
+        if (typeSymbol.initializerFunc != null) {
+            MethodSymbol initFn = symbolFactory.createMethodSymbol(typeSymbol.initializerFunc.symbol,
+                                                                   typeSymbol.initializerFunc.funcName.value);
+            publicType.setInitMethod(initFn);
+        }
+
         publicType.setFieldDescriptors(unmodifiableList(fields));
         publicType.setMethods(unmodifiableList(methods));
         return publicType;
