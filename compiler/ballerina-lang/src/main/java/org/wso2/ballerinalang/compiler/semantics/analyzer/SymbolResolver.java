@@ -1224,9 +1224,11 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        List<BType> memberTypes = tupleTypeNode.memberTypeNodes.stream()
-                .map(memTypeNode -> resolveTypeNode(memTypeNode, env))
-                .collect(Collectors.toList());
+        List<BType> memberTypes = new ArrayList<>();
+        for (BLangType memTypeNode : tupleTypeNode.memberTypeNodes) {
+            BType type = resolveTypeNode(memTypeNode, env);
+            memberTypes.add(type);
+        }
 
         // If at least one member is undefined, return noType as the type.
         if (memberTypes.contains(symTable.noType)) {
