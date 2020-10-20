@@ -115,7 +115,7 @@ service InitiatorService on coordinatorListener {
                         log:printError("Sending response for register request for transaction " + txnId +
                                 " failed", resResult);
                     } else {
-                        log:printInfo("Registered remote participant: " + participantId + " for transaction: " + txnId);
+                        log:printDebug("Registered remote participant: " + participantId + " for transaction: " + txnId);
                     }
                 } else {
                     error resPayloadError = <error>resPayload;

@@ -41,7 +41,7 @@ service Participant2pcService on coordinatorListener {
         http:Response res = new;
         string transactionId = prepareReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-        log:printInfo("Prepare received for transaction: " + participatedTxnId);
+        log:printDebug("Prepare received for transaction: " + participatedTxnId);
         PrepareResponse prepareRes = {};
 
         var participatedTxn = participatedTransactions[participatedTxnId];
@@ -60,13 +60,13 @@ service Participant2pcService on coordinatorListener {
                     res.statusCode = http:STATUS_OK;
                     participatedTxn.state = TXN_STATE_PREPARED;
                     prepareRes.message = PREPARE_RESULT_PREPARED_STR;
-                    log:printInfo("Prepared transaction: " + transactionId);
+                    log:printDebug("Prepared transaction: " + transactionId);
                 } else {
                     res.statusCode = http:STATUS_OK;
                     prepareRes.message = PREPARE_RESULT_ABORTED_STR;
                     participatedTxn.state = TXN_STATE_ABORTED;
                     removeParticipatedTransaction(participatedTxnId);
-                    log:printInfo("Aborted transaction: " + transactionId);
+                    log:printDebug("Aborted transaction: " + transactionId);
                 }
             }
         }
@@ -103,7 +103,7 @@ service Participant2pcService on coordinatorListener {
         http:Response res = new;
         string transactionId = notifyReq.transactionId;
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-        log:printInfo("Notify(" + notifyReq.message + ") received for transaction: " + participatedTxnId);
+        log:printDebug("Notify(" + notifyReq.message + ") received for transaction: " + participatedTxnId);
         NotifyResponse notifyRes = {};
         var txn = participatedTransactions[participatedTxnId];
         if (txn is ()) {
