@@ -1218,6 +1218,56 @@ public class TypeChecker {
         return Flags.isFlagOn(targetField.flags, Flags.READONLY) && !Flags.isFlagOn(sourceField.flags, Flags.READONLY);
     }
 
+    private static boolean checkIsArrayType(BArrayType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
+        BType sourceElementType = sourceType.getElementType();
+        BType targetElementType = targetType.getElementType();
+
+        switch (sourceType.getState()) {
+            case OPEN:
+                if (targetType.getState() != ArrayState.OPEN) {
+                    return false;
+                }
+                break;
+            case CLOSED:
+                if (targetType.getState() == ArrayState.CLOSED &&
+                        sourceType.getSize() != targetType.getSize()) {
+                    return false;
+                }
+                break;
+        }
+        return checkIsType(sourceElementType, targetElementType, unresolvedTypes);
+    }
+
+    private static boolean checkIsArrayType(BTupleType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
+        Set<BType> tupleTypes = new HashSet<>(sourceType.getTupleTypes());
+        BType sourceRestType = sourceType.getRestType();
+        BType targetElementType = targetType.getElementType();
+
+        if (targetType.getState() == ArrayState.OPEN) {
+            for (BType sourceElementType : tupleTypes) {
+                if (!checkIsType(sourceElementType, targetElementType, unresolvedTypes)) {
+                    return false;
+                }
+            }
+            if (sourceRestType != null){
+                return checkIsType(sourceRestType, targetElementType, unresolvedTypes);
+            }
+            return true;
+        }
+        if (sourceRestType != null) {
+            return false;
+        }
+        if (tupleTypes.size() != targetType.getSize()) {
+            return false;
+        }
+        for (BType sourceElementType : tupleTypes) {
+            if (!checkIsType(sourceElementType, targetElementType, unresolvedTypes)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static boolean checkIsArrayType(BType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
         int sourceTypeTag = sourceType.getTag();
 
@@ -1234,135 +1284,59 @@ public class TypeChecker {
             return false;
         }
 
-        BType targetElementType = targetType.getElementType();
-        int targetElementTypeTag = targetElementType.getTag();
-
-        BArrayType sourceArrayType;
         if (sourceTypeTag == TypeTags.ARRAY_TAG) {
-            sourceArrayType = (BArrayType) sourceType;
-        } else {
-            BTupleType sourceTupleType = (BTupleType) sourceType;
-            Set<BType> tupleTypes = new HashSet<>(sourceTupleType.getTupleTypes());
-            BType sourceRestType = sourceTupleType.getRestType();
-
-            if (sourceRestType != null) {
-                tupleTypes.add(sourceRestType);
-            }
-
-            if (tupleTypes.isEmpty()) {
-                return targetType.getState() == ArrayState.OPEN || targetType.getSize() == 0;
-            }
-
-            if (targetType.getState() == ArrayState.CLOSED) {
-                if (sourceRestType != null) {
-                    return false;
-                }
-                if (tupleTypes.size() != targetType.getSize()) {
-                    return false;
-                }
-                for (BType sourceElementType : tupleTypes) {
-                    if (!checkIsType(sourceElementType, targetElementType, unresolvedTypes)) {
-                        return false;
-                    }
-                }
-            } else {
-                for (BType sourceElementType : tupleTypes) {
-                    if (!checkIsType(sourceElementType, targetElementType, unresolvedTypes)) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            return checkIsArrayType((BArrayType) sourceType, targetType, unresolvedTypes);
         }
-
-        BType sourceElementType = sourceArrayType.getElementType();
-
-        switch (sourceArrayType.getState()) {
-            case OPEN:
-                if (targetType.getState() != ArrayState.OPEN) {
-                    return false;
-                }
-                break;
-            case CLOSED:
-                if (targetType.getState() == ArrayState.CLOSED &&
-                        sourceArrayType.getSize() != targetType.getSize()) {
-                    return false;
-                }
-                break;
-        }
-
-        if (targetElementTypeTag <= TypeTags.BOOLEAN_TAG) {
-            if (targetElementTypeTag == TypeTags.INT_TAG && sourceElementType.getTag() == TypeTags.BYTE_TAG) {
-                return true;
-            }
-
-            return sourceElementType.getTag() == targetElementTypeTag;
-        }
-
-        return checkIsType(sourceElementType, targetElementType, unresolvedTypes);
+        return checkIsArrayType((BTupleType) sourceType, targetType, unresolvedTypes);
     }
 
-    private static boolean checkIsTupleType(BType sourceType, BTupleType targetType, List<TypePair> unresolvedTypes) {
-        int sourceTypeTag = sourceType.getTag();
-
-        if (sourceTypeTag == TypeTags.UNION_TAG) {
-            for (BType memberType : ((BUnionType) sourceType).getMemberTypes()) {
-                if (!checkIsTupleType(memberType, targetType, unresolvedTypes)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        if (sourceTypeTag != TypeTags.ARRAY_TAG && sourceTypeTag != TypeTags.TUPLE_TAG) {
-            return false;
-        }
-
+    private static boolean checkIsTupleType(BArrayType sourceType, BTupleType targetType, List<TypePair> unresolvedTypes) {
+        BType sourceElementType = sourceType.getElementType();
         List<BType> targetTypes = new ArrayList<>(targetType.getTupleTypes());
         BType targetRestType = targetType.getRestType();
 
-        if (sourceTypeTag == TypeTags.ARRAY_TAG) {
-            BArrayType sourceArrayType = (BArrayType) sourceType;
-            BType sourceElementType = sourceArrayType.getElementType();
-
-            switch (sourceArrayType.getState()) {
-                case OPEN:
-                    if (targetRestType == null) {
-                        return false;
-                    }
-                    if (targetTypes.isEmpty()) {
-                        return checkIsType(sourceElementType, targetRestType, unresolvedTypes);
-                    }
+        switch (sourceType.getState()) {
+            case OPEN:
+                if (targetRestType == null) {
                     return false;
-                case CLOSED:
-                    if (sourceArrayType.getSize() < targetTypes.size()) {
-                        return false;
-                    }
-                    if (targetTypes.isEmpty()) {
-                        if (targetRestType != null) {
-                            return checkIsType(sourceElementType, targetRestType, unresolvedTypes);
-                        }
-                        return sourceArrayType.getSize() == 0;
-                    }
-
-                    for (BType targetElementType : targetTypes) {
-                        if (!(checkIsType(sourceElementType, targetElementType, unresolvedTypes))) {
-                            return false;
-                        }
-                    }
-                    if (sourceArrayType.getSize() == targetTypes.size()) {
-                        return true;
-                    }
+                }
+                if (targetTypes.isEmpty()) {
+                    return checkIsType(sourceElementType, targetRestType, unresolvedTypes);
+                }
+                return false;
+            case CLOSED:
+                if (sourceType.getSize() < targetTypes.size()) {
+                    return false;
+                }
+                if (targetTypes.isEmpty()) {
                     if (targetRestType != null) {
                         return checkIsType(sourceElementType, targetRestType, unresolvedTypes);
                     }
-                    return false;
-            }
-        }
+                    return sourceType.getSize() == 0;
+                }
 
-        BTupleType sourceTupleType = (BTupleType) sourceType;
-        List<BType> sourceTypes = new ArrayList<>(sourceTupleType.getTupleTypes());
-        BType sourceRestType = sourceTupleType.getRestType();
+                for (BType targetElementType : targetTypes) {
+                    if (!(checkIsType(sourceElementType, targetElementType, unresolvedTypes))) {
+                        return false;
+                    }
+                }
+                if (sourceType.getSize() == targetTypes.size()) {
+                    return true;
+                }
+                if (targetRestType != null) {
+                    return checkIsType(sourceElementType, targetRestType, unresolvedTypes);
+                }
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    private static boolean checkIsTupleType(BTupleType sourceType, BTupleType targetType, List<TypePair> unresolvedTypes) {
+        List<BType> sourceTypes = new ArrayList<>(sourceType.getTupleTypes());
+        BType sourceRestType = sourceType.getRestType();
+        List<BType> targetTypes = new ArrayList<>(targetType.getTupleTypes());
+        BType targetRestType = targetType.getRestType();
 
         if (sourceRestType != null && targetRestType == null) {
             return false;
@@ -1399,6 +1373,28 @@ public class TypeChecker {
             return checkIsType(sourceRestType, targetRestType, unresolvedTypes);
         }
         return true;
+    }
+
+    private static boolean checkIsTupleType(BType sourceType, BTupleType targetType, List<TypePair> unresolvedTypes) {
+        int sourceTypeTag = sourceType.getTag();
+
+        if (sourceTypeTag == TypeTags.UNION_TAG) {
+            for (BType memberType : ((BUnionType) sourceType).getMemberTypes()) {
+                if (!checkIsTupleType(memberType, targetType, unresolvedTypes)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        if (sourceTypeTag != TypeTags.ARRAY_TAG && sourceTypeTag != TypeTags.TUPLE_TAG) {
+            return false;
+        }
+
+        if (sourceTypeTag == TypeTags.ARRAY_TAG) {
+            return checkIsTupleType((BArrayType) sourceType, targetType, unresolvedTypes);
+        }
+        return checkIsTupleType((BTupleType) sourceType, targetType, unresolvedTypes);
     }
 
     private static boolean checkIsAnyType(BType sourceType) {

@@ -219,31 +219,6 @@ public class TypesTest {
     }
 
     @Test
-    public void testRestType() {
-        BRunUtil.invoke(compileResult, "testRestType");
-    }
-
-    @Test
-    public void testUnionType() {
-        BRunUtil.invoke(compileResult, "testUnionType");
-    }
-
-    @Test
-    public void testInferredArrayType() {
-        BRunUtil.invoke(compileResult, "testInferredArrayType");
-    }
-
-    @Test
-    public void testClosedArrayType() {
-        BRunUtil.invoke(compileResult, "testClosedArrayType");
-    }
-
-    @Test
-    public void testEmptyArrayType() {
-        BRunUtil.invoke(compileResult, "testEmptyArrayType");
-    }
-
-    @Test
     public void testRecords() {
         BValue[] result = BRunUtil.invoke(compileResult, "recordsTest");
         Assert.assertEquals((result[0]).stringValue(), "JBallerina");
