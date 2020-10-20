@@ -38,6 +38,7 @@ import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
@@ -230,6 +231,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private static final String FUNCTION_NAME_POP = "pop";
     private static final String FUNCTION_NAME_SHIFT = "shift";
     private static final String FUNCTION_NAME_UNSHIFT = "unshift";
+    private static final String FUNCTION_NAME_ENSURE_TYPE = "ensureType";
 
     private Names names;
     private SymbolTable symTable;
@@ -3628,6 +3630,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypedescExpr accessExpr) {
+        if (accessExpr.typeNode == null) {
+            return;
+        }
+
         accessExpr.resolvedType = symResolver.resolveTypeNode(accessExpr.typeNode, env);
         int resolveTypeTag = accessExpr.resolvedType.tag;
         final BType actualType;
@@ -4501,15 +4507,36 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr) {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
-        boolean firstVisit = checkedExpr.expr.type == null;
-        BType exprExpType;
+        BLangExpression exprWithCheckingKeyword = checkedExpr.expr;
+        boolean firstVisit = exprWithCheckingKeyword.type == null;
+        BType typeOfExprWithCheckingKeyword;
         if (expType == symTable.noType) {
-            exprExpType = symTable.noType;
+            typeOfExprWithCheckingKeyword = symTable.noType;
         } else {
-            exprExpType = BUnionType.create(null, expType, symTable.errorType);
+            typeOfExprWithCheckingKeyword = BUnionType.create(null, expType, symTable.errorType);
         }
 
-        BType exprType = checkExpr(checkedExpr.expr, env, exprExpType);
+        if (exprWithCheckingKeyword.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                operatorType.equals("check") && types.isUnionOfSimpleBasicTypes(expType)) {
+            ArrayList<BLangExpression> argExprs = new ArrayList<>();
+            BType typedescType = new BTypedescType(expType, null);
+            BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+            typedescExpr.resolvedType = expType;
+            typedescExpr.type = typedescType;
+            argExprs.add(exprWithCheckingKeyword);
+            argExprs.add(typedescExpr);
+            BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_ENSURE_TYPE,
+                    argExprs, exprWithCheckingKeyword, checkedExpr.pos);
+            BInvokableSymbol invokableSymbol = (BInvokableSymbol) symResolver.
+                    lookupLangLibMethod(typeOfExprWithCheckingKeyword, names.fromString(invocation.name.value));
+            BInvokableType bInvokableType = (BInvokableType) invokableSymbol.type;
+            bInvokableType.retType = typeOfExprWithCheckingKeyword;
+            invocation.symbol = invokableSymbol;
+            invocation.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            checkedExpr.expr = invocation;
+        }
+
+        BType exprType = checkExpr(checkedExpr.expr, env, typeOfExprWithCheckingKeyword);
         if (checkedExpr.expr.getKind() == NodeKind.WORKER_RECEIVE) {
             if (firstVisit) {
                 isTypeChecked = false;
