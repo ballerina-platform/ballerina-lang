@@ -28,8 +28,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-
-import java.util.HashMap;
+import org.ballerinalang.jvm.values.MappingInitialValueEntry;
 
 /**
  * Class @{@link BErrorCreator} provides apis to create ballerina error instances.
@@ -58,16 +57,12 @@ public class BErrorCreator {
      * @return new error.
      */
     public static BError createError(BString message, BString details) {
-        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+        MappingInitialValueEntry[] initialValues = new MappingInitialValueEntry[1];
         if (details != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, details);
+            initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD, details);
         }
-        return new ErrorValue(message, readonlyCloneDetailMap(detailMap));
-    }
-
-    @SuppressWarnings("unchecked")
-    private static MapValueImpl<BString, Object> readonlyCloneDetailMap(MapValueImpl<BString, Object> detailMap) {
-        return (MapValueImpl<BString, Object>) detailMap.frozenCopy(new HashMap<>());
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl(BTypes.typeErrorDetail, initialValues);
+        return new ErrorValue(message, detailMap);
     }
 
     /**
