@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -105,13 +106,13 @@ public class ParserTestFormatter extends FormatterTest {
         return Paths.get("parser-tests").toString();
     }
 
-    private String getFilePath(String fileName, String directoryPath) {
+    private Optional<String> getFilePath(String fileName, String directoryPath) {
         try {
-            return Files.walk(Paths.get(directoryPath))
+            return Optional.ofNullable(Files.walk(Paths.get(directoryPath))
                     .filter(f -> f.getFileName().toString().equals(fileName))
-                    .collect(Collectors.toList()).get(0).toString();
+                    .collect(Collectors.toList()).get(0).toString());
         } catch (IOException e) {
-            return null;
+            return Optional.empty();
         }
     }
 }
