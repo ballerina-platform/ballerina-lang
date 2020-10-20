@@ -69,6 +69,9 @@ public class CreateExecutableTask implements Task {
                     if (!FileUtils.hasExtension(Paths.get(output))) {
                         outputPath = Paths.get(output).resolve(executableName + BLANG_COMPILED_JAR_EXT);
                     } else {
+                        if (!this.output.endsWith(BLANG_COMPILED_JAR_EXT)) {
+                            output = output + BLANG_COMPILED_JAR_EXT;
+                        }
                         outputPath = Paths.get(output);
                     }
                 } else {
