@@ -100,7 +100,7 @@ dependencies {
     balSource project(path: ':ballerina-lang:query', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:transaction', configuration: 'balSource')
 
-    birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
+//    birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 
     staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
 }

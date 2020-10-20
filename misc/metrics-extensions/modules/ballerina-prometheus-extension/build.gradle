@@ -23,7 +23,7 @@ createBalo {
 }
 
 configurations {
-    prometheusJar
+//    prometheusJar
     balx
     generatedBalx
 }
@@ -85,9 +85,9 @@ dependencies {
     implementation project(':ballerina-runtime')
 }
 
-artifacts {
-    prometheusJar file: file("$buildDir/generated-bir-jar/" + moduleName + ".jar"), builtBy: createBirJar
-}
+//artifacts {
+//    prometheusJar file: file("$buildDir/generated-bir-jar/" + moduleName + ".jar"), builtBy: createBirJar
+//}
 
 configurations.all {
     resolutionStrategy.preferProjectModules()
