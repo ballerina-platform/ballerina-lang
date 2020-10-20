@@ -18,7 +18,7 @@
 
 package org.ballerina.testobserve.metrics.extension;
 
-import org.ballerinalang.jvm.observability.metrics.spi.MetricReporter;
+import io.ballerina.runtime.observability.metrics.spi.MetricReporter;
 
 import java.io.PrintStream;
 

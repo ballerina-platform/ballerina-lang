@@ -18,15 +18,15 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.MapUtils;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 
-import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.MapUtils.checkIsMapOnlyOperation;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
 import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 
 /**
@@ -35,22 +35,22 @@ import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
  */
 public class Remove {
 
-    public static Object remove(MapValue<?, ?> m, BString k) {
-        BType type = m.getType();
+    public static Object remove(BMap<?, ?> m, BString k) {
+        Type type = m.getType();
 
         checkIsMapOnlyOperation(type, REMOVE);
-        MapUtils.validateRequiredFieldForRecord(m, k.getValue());
+        validateRequiredFieldForRecord(m, k.getValue());
         if (m.containsKey(k)) {
             try {
                 return m.remove(k);
-            } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-                throw BErrorCreator.createError(BStringUtils.fromString(e.getMessage()),
-                                                BStringUtils.fromString(
+            } catch (io.ballerina.runtime.util.exceptions.BLangFreezeException e) {
+                throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
+                                               StringUtils.fromString(
                                                         "Failed to remove element from map: " + e.getDetail()));
             }
         }
 
-        throw BErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BStringUtils
+        throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
                 .fromString("cannot find key '" + k + "'"));
     }
 }

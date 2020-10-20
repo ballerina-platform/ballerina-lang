@@ -33,7 +33,7 @@ public class BallerinaTypeReferenceTypeDescriptor extends AbstractTypeDescriptor
         implements TypeReferenceTypeDescriptor {
 
     private static final String ANON_ORG = "$anon";
-    private String definitionName;
+    private final String definitionName;
     private BallerinaTypeDescriptor typeDescriptorImpl;
 
     public BallerinaTypeReferenceTypeDescriptor(ModuleID moduleID, BType bType, String definitionName) {
@@ -46,7 +46,12 @@ public class BallerinaTypeReferenceTypeDescriptor extends AbstractTypeDescriptor
         if (this.typeDescriptorImpl == null) {
             this.typeDescriptorImpl = TypesFactory.getTypeDescriptor(this.getBType(), true);
         }
-        return typeDescriptorImpl;
+        return this.typeDescriptorImpl;
+    }
+
+    @Override
+    public String name() {
+        return this.definitionName;
     }
 
     @Override

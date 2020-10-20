@@ -18,7 +18,7 @@
 
 package org.ballerina.testobserve.metrics.extension.model;
 
-import org.ballerinalang.jvm.observability.metrics.Snapshot;
+import io.ballerina.runtime.observability.metrics.Snapshot;
 
 import java.util.Arrays;
 

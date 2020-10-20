@@ -32,19 +32,19 @@ public interface Documentation {
      *
      * @return {@link Optional} description
      */
-    public Optional<String> description();
+    Optional<String> description();
 
     /**
      * Get the parameter list in the documentation as a map where parameter name being the key.
      *
      * @return {@link Map} of parameter names and descriptions
      */
-    public Map<String, String> parameterMap();
+    Map<String, String> parameterMap();
 
     /**
      * Get the return value description.
      *
      * @return {@link Optional} return description
      */
-    public Optional<String> returnDescription();
+    Optional<String> returnDescription();
 }

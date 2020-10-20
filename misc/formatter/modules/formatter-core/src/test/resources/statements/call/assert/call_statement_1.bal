@@ -1,5 +1,4 @@
 function bar() {
-
 }
 
 public function foo() {

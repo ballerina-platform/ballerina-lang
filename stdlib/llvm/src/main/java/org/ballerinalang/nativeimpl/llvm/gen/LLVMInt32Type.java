@@ -16,8 +16,8 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -40,10 +40,10 @@ import static org.bytedeco.llvm.global.LLVM.LLVMInt32Type;
 )
 public class LLVMInt32Type {
 
-    public static MapValue<String, Object> llvmInt32Type(Strand strand) {
+    public static BMap<String, Object> llvmInt32Type(Strand strand) {
 
         LLVMTypeRef returnValue = LLVMInt32Type();
-        MapValue<String, Object> rerunWrapperRecode = FFIUtil.newRecord();
+        BMap<String, Object> rerunWrapperRecode = FFIUtil.newRecord();
         FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
         return rerunWrapperRecode;
     }

@@ -59,7 +59,7 @@ public class TestReportTest extends BaseTestCase {
         validateCoverage();
     }
 
-    @Test (enabled = false)
+    @Test ()
     public void testWithoutCoverage() throws BallerinaTestException, IOException {
         runCommand(false);
         validateStatuses();
@@ -71,7 +71,7 @@ public class TestReportTest extends BaseTestCase {
         if (coverage) {
             args = new String[]{"--code-coverage", "--all"};
         } else {
-            args = new String[]{ "--all"};
+            args = new String[]{"--test-report", "--all"};
         }
 
         balClient.runMain("test", args, null, new String[]{},
