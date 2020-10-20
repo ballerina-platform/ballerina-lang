@@ -303,6 +303,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         this.globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
         this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency);
+        pkgNode.globalVariableDependencies = globalVariableRefAnalyzer.getGlobalVariablesDependsOn();
         checkUnusedImports(pkgNode.imports);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
@@ -1202,7 +1203,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void addFunctionToGlobalVarDependency(BSymbol dependent, BSymbol provider) {
-        if (dependent.kind != SymbolKind.FUNCTION) {
+        if (dependent.kind != SymbolKind.FUNCTION && !isGlobalVarSymbol(dependent)) {
             return;
         }
         if (isVariableOrConstant(provider) && !isGlobalVarSymbol(provider)) {

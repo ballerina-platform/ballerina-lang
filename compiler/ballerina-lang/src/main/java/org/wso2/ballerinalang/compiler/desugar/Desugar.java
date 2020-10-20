@@ -266,6 +266,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -362,6 +363,8 @@ public class Desugar extends BLangNodeVisitor {
     private BLangAssignment safeNavigationAssignment;
     static boolean isJvmTarget = false;
 
+    private Map<BSymbol, Set<BVarSymbol>> globalVariablesDependsOn;
+
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
         if (desugar == null) {
@@ -399,6 +402,7 @@ public class Desugar extends BLangNodeVisitor {
         // Initialize the annotation map
         annotationDesugar.initializeAnnotationMap(pkgNode);
         SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        this.globalVariablesDependsOn = env.enclPkg.globalVariableDependencies;
         return rewrite(pkgNode, env);
     }
 
@@ -3738,7 +3742,10 @@ public class Desugar extends BLangNodeVisitor {
             genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
 
             if (!enclLocks.isEmpty()) {
-                enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
+                BVarSymbol symbol = (BVarSymbol) varRefExpr.symbol;
+                BLangLockStmt lockStmt = enclLocks.peek();
+                lockStmt.addLockVariable(symbol);
+                lockStmt.addLockVariable(this.globalVariablesDependsOn.getOrDefault(symbol, new HashSet<>()));
             }
         }
 
