@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.log;
 
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.FPValue;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.observability.ObserveUtils;
+import io.ballerina.runtime.scheduling.Strand;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.slf4j.Logger;
@@ -71,7 +71,8 @@ public abstract class AbstractLogFunction {
                 if (msg == null) {
                     Object arg = message;
                     // If it is a lambda; invoke it to get the log message
-                    arg = (arg instanceof FPValue) ? ((FPValue) arg).getFunction().apply(new Object[]{strand}) : arg;
+                    arg = (arg instanceof BFunctionPointer) ?
+                            ((BFunctionPointer) arg).getFunction().apply(new Object[]{strand}) : arg;
                     msg = arg.toString();
                 }
                 return msg;

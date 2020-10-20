@@ -3,4 +3,4 @@ org-name= "wso2"
 version= "0.1.0"
 
 [dependencies]
-"wso2/utils" = { path = "../TestProject1/target/balo/utils-2020r2-java8-0.1.0.balo"}
+"wso2/utils" = { path = "../TestProject1/target/balo/utils-2020r2-java11-0.1.0.balo"}

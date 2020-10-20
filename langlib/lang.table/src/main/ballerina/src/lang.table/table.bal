@@ -99,7 +99,6 @@ public isolated function add(table<Type> t, Type val) = @java:Method {
 // Functional iteration
 
 # Applies a function each member of a table and returns a table of the result.
-# The resulting table will have the same keys as the argument table.
 #
 # + t - the table
 # + func - a function to apply to each member

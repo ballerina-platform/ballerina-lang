@@ -18,26 +18,27 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.FPValue;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeCreator;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.scheduling.Scheduler;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.PrimitiveIterator;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_TYPE_TO_SORT;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
+import static io.ballerina.runtime.util.BLangConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INVALID_TYPE_TO_SORT;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**
  * Native implementation of lang.array:sort((any|error)[], direction, function).
@@ -46,10 +47,10 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOper
  */
 public class Sort {
 
-    public static ArrayValue sort(ArrayValue arr, Object direction, Object func) {
+    public static BArray sort(BArray arr, Object direction, Object func) {
         checkIsArrayOnlyOperation(arr.getType(), "sort()");
-        FPValue<Object, Object> function = (FPValue<Object, Object>) func;
-        BType elemType = ((BArrayType) arr.getType()).getElementType();
+        BFunctionPointer<Object, Object> function = (BFunctionPointer<Object, Object>) func;
+        Type elemType = ((ArrayType) arr.getType()).getElementType();
         boolean isAscending = true;
         if (direction.toString().equals("descending")) {
             isAscending = false;
@@ -59,13 +60,13 @@ public class Sort {
         Object[][] sortArrClone = new Object[arr.size()][2];
         if (function != null) {
             boolean elementTypeIdentified = false;
-            elemType = ((BFunctionType) function.getType()).retType;
+            elemType = ((FunctionType) function.getType()).getReturnType();
             for (int i = 0; i < arr.size(); i++) {
                 sortArr[i][0] = function.call(new Object[]{Scheduler.getStrand(), arr.get(i), true});
                 // Get the type of the sortArr elements when there is an arrow expression as the key function
                 if (!elementTypeIdentified && elemType.getTag() == TypeTags.UNION_TAG &&
-                        ((BUnionType) elemType).getMemberTypes().size() > 2) {
-                    BType sortArrElemType = TypeChecker.getType(sortArr[i][0]);
+                        ((UnionType) elemType).getMemberTypes().size() > 2) {
+                    Type sortArrElemType = TypeChecker.getType(sortArr[i][0]);
                     if (sortArrElemType.getTag() != TypeTags.NULL_TAG) {
                         elemType = sortArrElemType;
                         elementTypeIdentified = true;
@@ -80,13 +81,13 @@ public class Sort {
         }
 
         if (elemType.getTag() == TypeTags.UNION_TAG) {
-            elemType = getMemberType((BUnionType) elemType);
+            elemType = getMemberType((UnionType) elemType);
         }
         if (elemType.getTag() == TypeTags.ARRAY_TAG) {
-            BType type = ((BArrayType) elemType).getElementType();
+            Type type = ((ArrayType) elemType).getElementType();
             if (type.getTag() == TypeTags.UNION_TAG) {
-                BType memberType = getMemberType((BUnionType) type);
-                elemType = new BArrayType(memberType);
+                Type memberType = getMemberType((UnionType) type);
+                elemType = TypeCreator.createArrayType(memberType);
             }
         }
 
@@ -99,9 +100,9 @@ public class Sort {
         return arr;
     }
 
-    private static BType getMemberType(BUnionType unionType) {
-        List<BType> memberTypes = unionType.getMemberTypes();
-        for (BType type : memberTypes) {
+    private static Type getMemberType(UnionType unionType) {
+        List<Type> memberTypes = unionType.getMemberTypes();
+        for (Type type : memberTypes) {
             if (type.getTag() != TypeTags.NULL_TAG) {
                 return type;
             }
@@ -110,7 +111,7 @@ public class Sort {
     }
 
     // Adapted from https://algs4.cs.princeton.edu/22mergesort/Merge.java.html
-    private static void mergesort(Object[][] input, Object[][] aux, int lo, int hi, boolean isAscending, BType type) {
+    private static void mergesort(Object[][] input, Object[][] aux, int lo, int hi, boolean isAscending, Type type) {
         if (hi <= lo) {
             return;
         }
@@ -124,7 +125,7 @@ public class Sort {
     }
 
     private static void merge(Object[][] input, Object[][] aux, int lo, int mid, int hi, boolean isAscending,
-                              BType type) {
+                              Type type) {
         if (hi + 1 - lo >= 0) {
             System.arraycopy(input, lo, aux, lo, hi + 1 - lo);
         }
@@ -146,7 +147,7 @@ public class Sort {
         }
     }
 
-    private static int sortFunc(Object value1, Object value2, BType type, boolean isAscending) {
+    private static int sortFunc(Object value1, Object value2, Type type, boolean isAscending) {
         // () should come last irrespective of the sort direction.
         if (value1 == null) {
             if (value2 == null) {
@@ -196,8 +197,8 @@ public class Sort {
         } else if (type.getTag() == TypeTags.BYTE_TAG) {
             return Integer.compare((int) value1, (int) value2);
         } else if (type.getTag() == TypeTags.ARRAY_TAG) {
-            int lengthVal1 = ((ArrayValue) value1).size();
-            int lengthVal2 = ((ArrayValue) value2).size();
+            int lengthVal1 = ((BArray) value1).size();
+            int lengthVal2 = ((BArray) value2).size();
             if (lengthVal1 == 0) {
                 if (lengthVal2 == 0) {
                     return 0;
@@ -210,8 +211,8 @@ public class Sort {
             int len = Math.min(lengthVal1, lengthVal2);
             int c = 0;
             for (int i = 0; i < len; i++) {
-                c = sortFunc(((ArrayValue) value1).get(i), ((ArrayValue) value2).get(i),
-                        ((BArrayType) type).getElementType(), isAscending);
+                c = sortFunc(((BArray) value1).get(i), ((BArray) value2).get(i),
+                        ((ArrayType) type).getElementType(), isAscending);
                 if (c != 0) {
                     break;
                 } else {
@@ -222,8 +223,8 @@ public class Sort {
             }
             return c;
         }
-        throw BErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
-                                        BStringUtils.fromString("expected an ordered type, but found '" +
+        throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_TYPE_TO_SORT),
+                                       StringUtils.fromString("expected an ordered type, but found '" +
                                                                        type.toString() + "'"));
     }
 

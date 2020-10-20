@@ -17,8 +17,8 @@
 
 package org.ballerinalang.stdlib.io.channels;
 
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BObject;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BObject;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 
@@ -45,9 +45,9 @@ public abstract class AbstractNativeChannel {
     protected static BObject createChannel(Channel channel) {
         BObject channelObj;
         if (channel.isReadable()) {
-            channelObj = BValueCreator.createObjectValue(IO_PACKAGE_ID, READ_BYTE_CHANNEL_STRUCT);
+            channelObj = ValueCreator.createObjectValue(IO_PACKAGE_ID, READ_BYTE_CHANNEL_STRUCT);
         } else {
-            channelObj = BValueCreator.createObjectValue(IO_PACKAGE_ID, WRITE_BYTE_CHANNEL_STRUCT);
+            channelObj = ValueCreator.createObjectValue(IO_PACKAGE_ID, WRITE_BYTE_CHANNEL_STRUCT);
         }
         channelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, channel);
         return channelObj;

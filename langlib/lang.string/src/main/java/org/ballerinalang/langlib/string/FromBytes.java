@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 
 import java.nio.charset.StandardCharsets;
 
@@ -37,12 +37,12 @@ import java.nio.charset.StandardCharsets;
 //)
 public class FromBytes {
 
-    public static Object fromBytes(ArrayValue bytes) {
+    public static Object fromBytes(BArray bytes) {
         try {
-            return BStringUtils.fromString(new String(bytes.getBytes(), StandardCharsets.UTF_8));
+            return StringUtils.fromString(new String(bytes.getBytes(), StandardCharsets.UTF_8));
         } catch (Exception e) {
-            return BErrorCreator.createError(BStringUtils.fromString("FailedToDecodeBytes"),
-                                             BStringUtils.fromString(e.getMessage()));
+            return ErrorCreator.createError(StringUtils.fromString("FailedToDecodeBytes"),
+                                            StringUtils.fromString(e.getMessage()));
         }
     }
 }
