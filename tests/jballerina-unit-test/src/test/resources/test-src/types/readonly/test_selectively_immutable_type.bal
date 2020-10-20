@@ -373,7 +373,7 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(a3 is [Details[], Employee...] & readonly);
     assertFalse(a3 is [[Details, Details], Employee] & readonly);
 
-    [Details[], Employee] vals = <[Details[], Employee]> a3;
+    [Details[], Employee...] vals = <[Details[], Employee...]> a3;
     assertFalse(vals[0].isReadOnly());
 
     Details d1 = vals[0][0];

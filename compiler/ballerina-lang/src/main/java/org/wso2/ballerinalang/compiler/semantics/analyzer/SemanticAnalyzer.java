@@ -1997,7 +1997,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BArrayType arraySource = (BArrayType) source;
 
         // For unsealed
-        if (arraySource.size < target.expressions.size() && arraySource.state != BArrayState.UNSEALED) {
+        if (arraySource.size < target.expressions.size() && arraySource.state != BArrayState.OPEN) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, arraySource);
         }
 

@@ -911,11 +911,11 @@ public class SymbolResolver extends BLangNodeVisitor {
                     Integer sizeIndicator = (Integer) (((BLangLiteral) size).getValue());
                     BArrayState arrayState;
                     if (sizeIndicator == OPEN_ARRAY_INDICATOR) {
-                        arrayState = BArrayState.UNSEALED;
+                        arrayState = BArrayState.OPEN;
                     } else if (sizeIndicator == INFERRED_ARRAY_INDICATOR) {
-                        arrayState = BArrayState.OPEN_SEALED;
+                        arrayState = BArrayState.INFERRED;
                     } else {
-                        arrayState = BArrayState.CLOSED_SEALED;
+                        arrayState = BArrayState.CLOSED;
                     }
                     arrType =  new BArrayType(resultType, arrayTypeSymbol,  sizeIndicator, arrayState);
                 } else {
@@ -955,7 +955,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     }
 
                     int length = Integer.parseInt(sizeConstSymbol.type.toString());
-                    arrType = new BArrayType(resultType, arrayTypeSymbol, length, BArrayState.CLOSED_SEALED);
+                    arrType = new BArrayType(resultType, arrayTypeSymbol, length, BArrayState.CLOSED);
                 }
             }
             arrayTypeSymbol.type = arrType;

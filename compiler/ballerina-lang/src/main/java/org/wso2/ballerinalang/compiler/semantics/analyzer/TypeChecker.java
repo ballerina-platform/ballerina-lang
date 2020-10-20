@@ -1427,10 +1427,10 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkArrayType(BLangListConstructorExpr listConstructor, BArrayType arrayType) {
         BType eType = arrayType.eType;
 
-        if (arrayType.state == BArrayState.OPEN_SEALED) {
+        if (arrayType.state == BArrayState.INFERRED) {
             arrayType.size = listConstructor.exprs.size();
-            arrayType.state = BArrayState.CLOSED_SEALED;
-        } else if ((arrayType.state != BArrayState.UNSEALED) && (arrayType.size != listConstructor.exprs.size())) {
+            arrayType.state = BArrayState.CLOSED;
+        } else if ((arrayType.state != BArrayState.OPEN) && (arrayType.size != listConstructor.exprs.size())) {
             if (arrayType.size < listConstructor.exprs.size()) {
                 dlog.error(listConstructor.pos,
                            DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size,
@@ -2401,7 +2401,7 @@ public class TypeChecker extends BLangNodeVisitor {
      * @return true if at least one dimension is open sealed
      */
     public boolean isArrayOpenSealedType(BArrayType arrayType) {
-        if (arrayType.state == BArrayState.OPEN_SEALED) {
+        if (arrayType.state == BArrayState.INFERRED) {
             return true;
         }
         if (arrayType.eType.tag == TypeTags.ARRAY) {
@@ -2779,7 +2779,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean isFixedLengthList(BType type) {
         switch(type.tag) {
             case TypeTags.ARRAY:
-                return (((BArrayType) type).state != BArrayState.UNSEALED);
+                return (((BArrayType) type).state != BArrayState.OPEN);
             case TypeTags.TUPLE:
                 return (((BTupleType) type).restType == null);
             case TypeTags.UNION:
@@ -4056,7 +4056,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (listType.tag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) listType;
 
-            if (arrayType.state == BArrayState.CLOSED_SEALED && (exprs.size() != arrayType.size)) {
+            if (arrayType.state == BArrayState.CLOSED && (exprs.size() != arrayType.size)) {
                 dlog.error(pos, code, arrayType.size, exprs.size());
                 return false;
             }
@@ -6525,7 +6525,7 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (indexExprType.tag) {
             case TypeTags.INT:
                 BLangExpression indexExpr = indexBasedAccess.indexExpr;
-                if (!isConst(indexExpr) || arrayType.state == BArrayState.UNSEALED) {
+                if (!isConst(indexExpr) || arrayType.state == BArrayState.OPEN) {
                     actualType = arrayType.eType;
                     break;
                 }
@@ -6537,7 +6537,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 for (BLangExpression finiteMember : finiteIndexExpr.getValueSpace()) {
                     int indexValue = ((Long) ((BLangLiteral) finiteMember).value).intValue();
                     if (indexValue >= 0 &&
-                            (arrayType.state == BArrayState.UNSEALED || indexValue < arrayType.size)) {
+                            (arrayType.state == BArrayState.OPEN || indexValue < arrayType.size)) {
                         validIndexExists = true;
                         break;
                     }

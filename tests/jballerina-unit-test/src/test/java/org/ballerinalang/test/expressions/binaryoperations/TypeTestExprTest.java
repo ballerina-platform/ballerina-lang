@@ -364,6 +364,31 @@ public class TypeTestExprTest {
     }
 
     @Test
+    public void testRestType() {
+        BRunUtil.invoke(result, "testRestType");
+    }
+
+    @Test
+    public void testUnionType() {
+        BRunUtil.invoke(result, "testUnionType");
+    }
+
+    @Test
+    public void testInferredArrayType() {
+        BRunUtil.invoke(result, "testInferredArrayType");
+    }
+
+    @Test
+    public void testClosedArrayType() {
+        BRunUtil.invoke(result, "testClosedArrayType");
+    }
+
+    @Test
+    public void testEmptyArrayType() {
+        BRunUtil.invoke(result, "testEmptyArrayType");
+    }
+
+    @Test
     public void testRecordArrays() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordArrays");
         Assert.assertEquals(returns.length, 4);
