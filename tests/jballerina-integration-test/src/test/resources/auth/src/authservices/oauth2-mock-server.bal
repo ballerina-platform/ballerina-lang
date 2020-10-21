@@ -333,11 +333,15 @@ function getResponseForIntrospectRequest(http:Request req, string authorizationH
             string[] params = stringutils:split(payload, "&");
             string token = "";
             string tokenTypeHint = "";
+            string optionalParameter = "";
             foreach string param in params {
                 if (stringutils:contains(param, "token")) {
                     token = stringutils:split(param, "=")[1];
                 } else if (stringutils:contains(param, "token_type_hint")) {
                     tokenTypeHint = stringutils:split(param, "=")[1];
+                } else {
+                    // For demo purpose, keep only the last optional parameter.
+                    optionalParameter = stringutils:split(param, "=")[1];
                 }
             }
 
@@ -357,7 +361,7 @@ function getResponseForIntrospectRequest(http:Request req, string authorizationH
                                          "iss": "https://server.example.com/",
                                          "exp": 1419356238,
                                          "iat": 1419350238,
-                                         "extension_field": "twenty-seven"
+                                         "extension_field": optionalParameter
                                        };
                 res.setPayload(responsePayload);
             } else {

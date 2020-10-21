@@ -28,6 +28,10 @@ http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
 oauth2:IntrospectionServerConfig introspectionServerConfig = {
     url: "https://localhost:20102/oauth2/token/introspect",
+    tokenTypeHint: "access_token",
+    optionalParameters: {
+        "custom": "custom-value"
+    },
     clientConfig: {
         auth: {
             authHandler: basicAuthHandler
