@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
  */
 public class ListenerLifeCycleTest {
 
-    @Test
+    @Test(enabled = false)
     public void testListnerGracefulStop() {
         CompileResult result = BCompileUtil.compile("test-src/object/listner-lifecycle-functions.bal");
         String consoleOutput = BCompileUtil.runMain(result, new String[] {});
