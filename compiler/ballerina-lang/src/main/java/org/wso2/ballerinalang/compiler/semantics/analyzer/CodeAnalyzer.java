@@ -725,14 +725,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (this.statementReturns) {
             this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
             this.resetStatementReturns();
+        } else if (errorThrown) {
+            this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
+            this.resetErrorThrown();
         }
         if (lastStatement) {
             this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
             this.resetLastStatement();
-        }
-        if (errorThrown) {
-            this.dlog.error(stmt.pos, DiagnosticCode.UNREACHABLE_CODE);
-            this.resetErrorThrown();
         }
     }
 
