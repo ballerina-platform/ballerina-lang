@@ -127,7 +127,15 @@ public class TypeBuilder implements BTypeVisitor<BType, BallerinaTypeDescriptor>
         }
 
         if (typeCache.containsKey(internalType)) {
-            return typeCache.get(internalType);
+            BallerinaTypeDescriptor typeDescriptor = typeCache.get(internalType);
+
+            if (internalType.tag != TypeTags.INVOKABLE) {
+                return typeDescriptor;
+            }
+
+            if (internalType == ((BallerinaFunctionTypeDescriptor) typeDescriptor).getBType()) {
+                return typeDescriptor;
+            }
         }
 
         // To prevent infinitely recursing when building the function types for lang lib functions.
