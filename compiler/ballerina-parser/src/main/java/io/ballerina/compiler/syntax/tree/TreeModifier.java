@@ -157,7 +157,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token serviceKeyword =
                 modifyToken(serviceDeclarationNode.serviceKeyword());
         IdentifierToken serviceName =
-                modifyNode(serviceDeclarationNode.serviceName());
+                modifyNode(serviceDeclarationNode.serviceName().orElse(null));
         Token onKeyword =
                 modifyToken(serviceDeclarationNode.onKeyword());
         SeparatedNodeList<ExpressionNode> expressions =

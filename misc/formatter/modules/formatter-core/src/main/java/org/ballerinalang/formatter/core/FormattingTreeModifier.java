@@ -659,9 +659,13 @@ public class FormattingTreeModifier extends TreeModifier {
             MetadataNode metadata = formatNode(serviceDeclarationNode.metadata().get(), 1, 0);
             serviceDeclarationNode = serviceDeclarationNode.modify().withMetadata(metadata).apply();
         }
-
         Token serviceKeyword = formatToken(serviceDeclarationNode.serviceKeyword(), 1, 0);
-        IdentifierToken serviceName = formatToken(serviceDeclarationNode.serviceName(), 1, 0);
+
+        if (serviceDeclarationNode.serviceName().isPresent()) {
+            IdentifierToken serviceName = formatToken(serviceDeclarationNode.serviceName().get(), 1, 0);
+            serviceDeclarationNode = serviceDeclarationNode.modify().withServiceName(serviceName).apply();
+        }
+
         Token onKeyword = formatToken(serviceDeclarationNode.onKeyword(), 1, 0);
         SeparatedNodeList<ExpressionNode> expressions =
                 formatSeparatedNodeList(serviceDeclarationNode.expressions(), 0, 0, 1, 0);
@@ -669,7 +673,6 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return serviceDeclarationNode.modify()
                 .withServiceKeyword(serviceKeyword)
-                .withServiceName(serviceName)
                 .withOnKeyword(onKeyword)
                 .withExpressions(expressions)
                 .withServiceBody(serviceBody)
