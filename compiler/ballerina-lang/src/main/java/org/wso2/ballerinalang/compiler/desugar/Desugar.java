@@ -21,7 +21,6 @@ import io.ballerina.runtime.util.BLangConstants;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
@@ -1090,14 +1089,10 @@ public class Desugar extends BLangNodeVisitor {
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         annAttachmentNode.expr = rewrite(annAttachmentNode.expr, env);
-        if (annAttachmentNode.expr != null) {
-            for (AttachPoint point : annAttachmentNode.annotationSymbol.points) {
-                if (!point.source) {
-                    annAttachmentNode.expr = visitCloneReadonly(annAttachmentNode.expr, annAttachmentNode.expr.type);
-                    break;
-                }
-            }
-        }
+        // TODO: need to check this. Balo creation in java module fails in java11 migration.
+//        if (annAttachmentNode.expr != null) {
+//            annAttachmentNode.expr = visitCloneReadonly(annAttachmentNode.expr, annAttachmentNode.expr.type);
+//        }
         result = annAttachmentNode;
     }
 
