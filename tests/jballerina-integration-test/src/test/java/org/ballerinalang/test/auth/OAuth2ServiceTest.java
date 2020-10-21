@@ -51,7 +51,8 @@ public class OAuth2ServiceTest extends AuthBaseTest {
         assertUnauthorized(response);
     }
 
-    @Test(description = "Test inbound OAuth2 success with valid token and custom parameter in the introspection request and response")
+    @Test(description = "Test inbound OAuth2 success with valid token and custom parameter in the introspection " +
+            "request and response")
     public void testOAuth2SuccessWithCustomParameterTest() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer 2YotnFZFEjr1zCsicMWpAA");
