@@ -1,0 +1,92 @@
+# Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#
+# WSO2 Inc. licenses this file to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file except
+# in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+#!/usr/bin/env bash
+set -e
+
+warmupIterations=$1
+benchmarkIterations=$2
+BAL_HOME=$3
+chmod +x ${BAL_HOME}/bin/ballerina
+export PATH=${BAL_HOME}/bin:$PATH
+sourceDir=$4
+resultsDir=$5
+resultsFile=${resultsDir}/$6.csv
+gcLogsDir=$7
+gcViewerJar=$8
+rootDir=`pwd`
+NA=NA
+
+echo "Running Performance benchmarks ..."
+
+if [[ ! -d "$resultsDir" ]]; then
+    mkdir -p ${resultsDir}
+fi
+
+if [[ ! -d "$gcLogsDir" ]]; then
+    mkdir -p ${gcLogsDir}
+fi
+
+echo "Function Name,Total Time (ms),Throughput (operations/second),GC Throughput (%),Freed Memory By GC (M),Freed Memory By FullGC (M),Freed Memory (M), Max Pause (s)" > ${resultsFile}
+
+cd ${sourceDir}
+ballerina build benchmark
+for functionName in $(<${rootDir}/benchmarkFunctions.txt)
+    do
+        export _JAVA_OPTIONS="-Xlog:gc*:file=${gcLogsDir}/gc_${functionName}.log"
+        ballerina run target/bin/benchmark.jar ${warmupIterations} ${benchmarkIterations} ${functionName} | tr -d "\n" >> ${resultsFile}
+        unset _JAVA_OPTIONS
+
+        ## check whether there are any GC events.
+        if  (( "$(wc -l < ${gcLogsDir}/gc_${functionName}.log)" > 10)); then
+
+            ###### Analyze GC Logs ######
+            gcSummaryFile=${gcLogsDir}/gc_summarry_${functionName}.csv
+            java -jar ${gcViewerJar} ${gcLogsDir}/gc_${functionName}.log ${gcSummaryFile}
+
+            # GC throughput
+            GC_throughput=$(awk -F';' '{print $2}' ${gcSummaryFile} | awk NR==50)
+            val=${GC_throughput}
+            val=$(awk -v val="$val" 'BEGIN{gsub(/,| ,/,"",val);sub(/$/,"",val);print val}')
+            echo ",${val/n.a./$NA}" | tr -d "\n"  >> ${resultsFile}
+
+            # freedMemoryByGC
+            freedMemoryByGC=$(awk -F';' '{print $2}' ${gcSummaryFile} | awk NR==25 )
+            val=${freedMemoryByGC}
+            val=$(awk -v val="$val" 'BEGIN{gsub(/,| ,/,"",val);sub(/$/,"",val);print val}')
+            echo ",${val/n.a./$NA}" | tr -d "\n"  >> ${resultsFile}
+
+            # freedMemoryByFullGC
+            freedMemoryByFullGC=$(awk -F';' '{print $2}' ${gcSummaryFile} | awk NR==16 )
+            val=${freedMemoryByFullGC}
+            val=$(awk -v val="$val" 'BEGIN{gsub(/,| ,/,"",val);sub(/$/,"",val);print val}')
+            echo ",${val/n.a./$NA}" | tr -d "\n"  >> ${resultsFile}
+
+            # freedMemory
+            freedMemory=$(awk -F';' '{print $2}' ${gcSummaryFile} | awk NR==49 )
+            val=${freedMemory}
+            val=$(awk -v val="$val" 'BEGIN{gsub(/,| ,/,"",val);sub(/$/,"",val);print val}')
+            echo ",${val/n.a./$NA}" | tr -d "\n"  >> ${resultsFile}
+
+            #  GC maxPause
+            GC_maxPause=$(awk -F';' '{print $2}' ${gcSummaryFile} | awk NR==37 )
+            val=${GC_maxPause}
+            val=$(awk -v val="$val" 'BEGIN{gsub(/,| ,/,"",val);sub(/$/,"",val);print val}')
+            echo ",${val/n.a./$NA}" >> ${resultsFile}
+        else
+            echo ",$NA,$NA,$NA,$NA,$NA" >> ${resultsFile}
+        fi
+    done
