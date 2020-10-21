@@ -90,7 +90,7 @@ public type InboundOAuth2Provider object {
         map<json>? optionalParameters = self.optionalParameters;
         if (optionalParameters is map<json>) {
             foreach var [key, value] in optionalParameters.entries() {
-                textPayload += "&" + key + "=" + value;
+                textPayload += "&" + key + "=" + value.toJsonString();
             }
         }
         req.setTextPayload(textPayload, mime:APPLICATION_FORM_URLENCODED);
