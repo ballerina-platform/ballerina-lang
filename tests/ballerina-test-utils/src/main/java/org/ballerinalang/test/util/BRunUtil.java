@@ -801,7 +801,7 @@ public class BRunUtil {
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 Type elementType = getJVMType(arrayType.getElementType());
-                if (arrayType.getState() == BArrayState.UNSEALED) {
+                if (arrayType.getState() == BArrayState.OPEN) {
                     return TypeCreator.createArrayType(elementType);
                 }
                 return TypeCreator.createArrayType(elementType, arrayType.getSize());
@@ -886,7 +886,7 @@ public class BRunUtil {
                 BValueArray bvmArray;
                 if (arrayType.getElementType().getTag() == io.ballerina.runtime.api.TypeTags.ARRAY_TAG) {
                     bvmArray = new BValueArray(getBVMType(arrayType, new Stack<>()));
-                } else if (arrayType.getState() == ArrayType.ArrayState.UNSEALED) {
+                } else if (arrayType.getState() == ArrayType.ArrayState.OPEN) {
                     bvmArray = new BValueArray(getBVMType(arrayType.getElementType(), new Stack<>()), -1);
                 } else {
                     bvmArray = new BValueArray(getBVMType(arrayType.getElementType(), new Stack<>()), array.size());

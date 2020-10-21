@@ -295,6 +295,9 @@ public enum DiagnosticCode {
     DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
     DUPLICATE_KEY_IN_TABLE_LITERAL("duplicate.key.in.table.literal"),
     DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP("duplicate.key.in.record.literal.spread.op"),
+    POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP("possible.duplicate.of.field.specified.via.spread.op"),
+    SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS("spread.field.may.duplicate.already.specified.keys"),
+    MULTIPLE_INCLUSIVE_TYPES("multiple.inclusive.types"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
     INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE("invalid.list.constructor.type"),
@@ -536,6 +539,9 @@ public enum DiagnosticCode {
     // LangLib related error codes.
     TYPE_PARAM_OUTSIDE_LANG_MODULE("type.param.outside.lang.module"),
     BUILTIN_SUBTYPE_OUTSIDE_LANG_MODULE("builtin.subtype.outside.lang.module"),
+    ISOLATED_PARAM_OUTSIDE_LANG_MODULE("isolated.param.outside.lang.module"),
+    ISOLATED_PARAM_USED_WITH_INVALID_TYPE("isolated.param.used.with.invalid.type"),
+    ISOLATED_PARAM_USED_IN_A_NON_ISOLATED_FUNCTION("isolated.param.used.in.a.non.isolated.function"),
 
     INVALID_INVOCATION_LVALUE_ASSIGNMENT("invalid.lvalue.lhs.of.assignment"),
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
@@ -583,6 +589,8 @@ public enum DiagnosticCode {
     WARNING_INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT("warning.invalid.mutable.access.as.record.default"),
     INVALID_MUTABLE_ACCESS_AS_OBJECT_DEFAULT("invalid.mutable.access.as.object.default"),
 
+    INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT("invalid.non.isolated.function.as.argument"),
+
     INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION("invalid.non.isolated.invocation.in.isolated.function"),
     INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT("invalid.non.isolated.invocation.as.record.default"),
     WARNING_INVALID_NON_ISOLATED_INVOCATION_AS_RECORD_DEFAULT(
@@ -598,6 +606,7 @@ public enum DiagnosticCode {
 
     INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION("invalid.async.invocation.in.isolated.function"),
     INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION("invalid.worker.declaration.in.isolated.function"),
+    INVALID_FORK_STATEMENT_IN_ISOLATED_FUNCTION("invalid.fork.statement.in.isolated.function"),
     FUNCTION_CAN_BE_MARKED_ISOLATED("function.can.be.marked.isolated"),
 
     COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
