@@ -577,7 +577,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 Range updateRange = new Range(new Position(0, 0), new Position(eofPos.line(), eofPos.offset()));
                 textEdit = new TextEdit(updateRange, formattedTree.toSourceCode());
                 return Collections.singletonList(textEdit);
-            } catch (UserErrorException e) {
+            } catch (UserErrorException | FormatterException e) {
                 notifyUser("Formatting", e);
                 return Collections.singletonList(textEdit);
             } catch (Throwable e) {
