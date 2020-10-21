@@ -70,6 +70,7 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     dependsOn moduleTopackage
     dependsOn createDistributionCache
     outputs.files("$buildDir/new-project/" + project.projectDir.name + "/target/balo/")
+    outputs.files("$buildDir/new-project/" + project.projectDir.name + "/target/jar_cache/")
 
     classpath += files(jar.archivePath)
 }
