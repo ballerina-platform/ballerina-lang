@@ -23,4 +23,11 @@ package io.ballerina.compiler.api.symbols;
  * @since 2.0.0
  */
 public interface XMLNamespaceSymbol extends Symbol {
+
+    /**
+     * Get the namespace URI.
+     * 
+     * @return {@link String} namespace URI
+     */
+    String namespaceUri();
 }

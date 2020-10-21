@@ -6,5 +6,4 @@ public function foo() {
             return i;
         }
     }
-
 }

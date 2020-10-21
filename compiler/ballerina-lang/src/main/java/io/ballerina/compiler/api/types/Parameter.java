@@ -34,28 +34,28 @@ public interface Parameter {
      *
      * @return {@link Optional} name of the field
      */
-    public Optional<String> name();
+    Optional<String> name();
 
     /**
      * Get the type descriptor of the field.
      *
      * @return {@link BallerinaTypeDescriptor} of the field
      */
-    public BallerinaTypeDescriptor typeDescriptor();
+    BallerinaTypeDescriptor typeDescriptor();
 
     /**
      * Get the access modifiers.
      *
      * @return {@link List} of access modifiers
      */
-    public List<Qualifier> qualifiers();
+    List<Qualifier> qualifiers();
 
     /**
      * Get a string representation of the signature of the parameter.
      *
      * @return {@link String} signature
      */
-    public String signature();
+    String signature();
 
     /**
      * Get the kind of the parameter.

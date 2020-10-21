@@ -18,6 +18,16 @@
 
 package org.ballerina.testobserve.listenerendpoint;
 
+import io.ballerina.runtime.api.Runtime;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.AttachedFunctionType;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.observability.ObservabilityConstants;
+import io.ballerina.runtime.observability.ObserverContext;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -42,18 +52,6 @@ import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.ballerinalang.jvm.api.BExecutor;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
-import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.StrandMetadata;
-import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.ValueCreator;
 
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
@@ -64,13 +62,13 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import static io.ballerina.runtime.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
 import static org.ballerina.testobserve.listenerendpoint.Constants.CALLER_TYPE_NAME;
 import static org.ballerina.testobserve.listenerendpoint.Constants.NETTY_CONTEXT_NATIVE_DATA_KEY;
 import static org.ballerina.testobserve.listenerendpoint.Constants.TEST_OBSERVE_PACKAGE;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
 
 /**
  * Web Server used in the mock listener.
@@ -81,15 +79,13 @@ public class WebServer {
     private final Map<String, Service> serviceMap = new ConcurrentHashMap<>();
     private final int port;
     private final EventLoopGroup loopGroup;
-    private final Scheduler scheduler;
-    private final ValueCreator valueCreator;
+    private final Runtime runtime;
     private boolean isRunning;
 
-    public WebServer(int port, Scheduler scheduler) {
+    public WebServer(int port, Runtime runtime) {
         this.port = port;
         this.loopGroup = new NioEventLoopGroup();
-        this.valueCreator = ValueCreator.getValueCreator(TEST_OBSERVE_PACKAGE.toString());
-        this.scheduler = scheduler;
+        this.runtime = runtime;
     }
 
     /**
@@ -137,8 +133,7 @@ public class WebServer {
                             pipeline.addLast("decoder", new HttpRequestDecoder(4096, 8192, 8192, false));
                             pipeline.addLast("aggregator", new HttpObjectAggregator(100 * 1024 * 1024));
                             pipeline.addLast("encoder", new HttpResponseEncoder());
-                            pipeline.addLast("handler", new WebServerInboundHandler(scheduler, valueCreator,
-                                    serviceMap));
+                            pipeline.addLast("handler", new WebServerInboundHandler(runtime, serviceMap));
                         }
                     })
                     .bind(this.port)
@@ -176,14 +171,11 @@ public class WebServer {
      * Inbound message handler of the Web Server.
      */
     public static class WebServerInboundHandler extends SimpleChannelInboundHandler<Object> {
-        private Scheduler scheduler;
-        private ValueCreator valueCreator;
+        private Runtime runtime;
         private Map<String, Service> serviceMap;
 
-        public WebServerInboundHandler(Scheduler scheduler, ValueCreator valueCreator,
-                                       Map<String, Service> serviceMap) {
-            this.scheduler = scheduler;
-            this.valueCreator = valueCreator;
+        public WebServerInboundHandler(Runtime runtime, Map<String, Service> serviceMap) {
+            this.runtime = runtime;
             this.serviceMap = serviceMap;
         }
 
@@ -202,16 +194,15 @@ public class WebServer {
             String serviceName = requestUriSplit[1];
             String resourceName = requestUriSplit[2];
 
-            ObjectValue callerObject = valueCreator.createObjectValue(CALLER_TYPE_NAME, scheduler, null,
-                    null, new Object[0]);
+            BObject callerObject = ValueCreator.createObjectValue(TEST_OBSERVE_PACKAGE, CALLER_TYPE_NAME);
             callerObject.addNativeData(NETTY_CONTEXT_NATIVE_DATA_KEY, ctx);
 
             // Preparing the arguments for dispatching the resource function
             BObject serviceObject = serviceMap.get(serviceName).getServiceObject();
             int paramCount = 0;
-            for (AttachedFunction attachedFunction : serviceObject.getType().getAttachedFunctions()) {
+            for (AttachedFunctionType attachedFunction : serviceObject.getType().getAttachedFunctions()) {
                 if (Objects.equals(attachedFunction.getName(), resourceName)) {
-                    paramCount = attachedFunction.getParameterType().length;
+                    paramCount = attachedFunction.getParameterTypes().length;
                     break;
                 }
             }
@@ -222,7 +213,7 @@ public class WebServer {
             }
             if (paramCount >= 2 && request.method() == HttpMethod.POST) {
                 String bodyContent = request.content().toString(StandardCharsets.UTF_8);
-                args[2] = BStringUtils.fromString(bodyContent);
+                args[2] = StringUtils.fromString(bodyContent);
                 args[3] = true;
             }
 
@@ -241,7 +232,7 @@ public class WebServer {
             StrandMetadata strandMetadata = new StrandMetadata(TEST_OBSERVE_PACKAGE.getOrg(),
                     TEST_OBSERVE_PACKAGE.getName(), TEST_OBSERVE_PACKAGE.getVersion(), resourceName);
             Utils.logInfo("Dispatching resource function " + serviceName + "." + resourceName);
-            BExecutor.submit(scheduler, serviceObject, resourceName, null, strandMetadata,
+            runtime.invokeMethodAsync(serviceObject, resourceName, null, strandMetadata,
                     new WebServerCallableUnitCallback(ctx, serviceName, resourceName), properties, args);
         }
 
@@ -255,7 +246,7 @@ public class WebServer {
         /**
          * Callable unit used in executing ballerina resource function.
          */
-        public static class WebServerCallableUnitCallback implements CallableUnitCallback {
+        public static class WebServerCallableUnitCallback implements Callback {
             private final ChannelHandlerContext ctx;
             private final String resourceName;
 

@@ -18,13 +18,13 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.util.BLangConstants.STRING_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Extern function lang.string:getCodePoint(string, int).
@@ -37,9 +37,9 @@ public class GetCodePoint {
         try {
             return str.getCodePoint((int) i);
         } catch (IndexOutOfBoundsException e) {
-            throw BErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
-                                                                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                                            BStringUtils.fromString("String codepoint index out of range: " + i));
+            throw ErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
+                                                                   INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                                           StringUtils.fromString("String codepoint index out of range: " + i));
         }
     }
 }

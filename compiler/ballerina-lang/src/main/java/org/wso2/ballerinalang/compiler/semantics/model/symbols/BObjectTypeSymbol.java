@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -39,9 +38,6 @@ public class BObjectTypeSymbol extends BStructureTypeSymbol {
     // This is a cache of the functions referred through the type references
     public List<BAttachedFunction> referencedFunctions;
     public BAttachedFunction generatedInitializerFunc;
-
-    // The scope in which the object methods are defined
-    public Scope methodScope;
 
     public BObjectTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type,
                              BSymbol owner, DiagnosticPos pos, SymbolOrigin origin) {

@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.MapValue;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Extern function to get key arrays from the map.
@@ -36,7 +36,7 @@ import org.ballerinalang.jvm.values.MapValue;
 //)
 public class GetKeys {
 
-    public static ArrayValue keys(MapValue<?, ?> m) {
-        return new ArrayValueImpl((BString[]) m.getKeys());
+    public static BArray keys(BMap<?, ?> m) {
+        return ValueCreator.createArrayValue((BString[]) m.getKeys());
     }
 }

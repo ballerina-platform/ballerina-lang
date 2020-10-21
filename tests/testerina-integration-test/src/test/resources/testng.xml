@@ -43,6 +43,7 @@ under the License.
             <class name="org.ballerinalang.testerina.test.AnnotationAccessTest" />
             <class name="org.ballerinalang.testerina.test.PathVerificationTest" />
             <class name="org.ballerinalang.testerina.test.RerunFailedTest"/>
+            <class name="org.ballerinalang.testerina.test.ImportTest" />
         </classes>
     </test>
 </suite>

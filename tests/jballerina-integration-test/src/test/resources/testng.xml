@@ -17,7 +17,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="jBallerina-Test-Suite">
+<suite name="jBallerina-Test-Suite" time-out="120000">
     <listeners>
         <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>
         <listener class-name="org.ballerinalang.test.listener.TestNGListener"/>
@@ -206,16 +206,16 @@
             </run>
         </groups>
         <classes>
-            <class name="org.ballerinalang.test.observability.tracing.BaseTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.TracingBaseTestCase"/>
             <class name="org.ballerinalang.test.observability.tracing.MainFunctionTestCase"/>
             <class name="org.ballerinalang.test.observability.tracing.ResourceFunctionTestCase"/>
             <class name="org.ballerinalang.test.observability.tracing.RemoteCallTestCase"/>
             <class name="org.ballerinalang.test.observability.tracing.ObservableAnnotationTestCase"/>
             <class name="org.ballerinalang.test.observability.tracing.ConcurrencyTestCase"/>
             <class name="org.ballerinalang.test.observability.tracing.CustomTracingTestCase"/>
+            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
 <!--            <class name="org.ballerinalang.test.observability.tracing.HttpTracingBaseTest"/>-->
 <!--            <class name="org.ballerinalang.test.observability.tracing.HttpTracingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.observability.metrics.PrometheusMetricsTestCase"/>-->
 <!--            <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>-->
         </classes>
     </test>
@@ -243,14 +243,14 @@
         </classes>
     </test>
 
-    <test name="ballerina-run-tests" preserve-order="true" parallel="false">
+    <test name="ballerina-run-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
             <package name="org.ballerinalang.test.run.*"/>
         </packages>
     </test>
 
-    <test name="ballerina-logging-tests" preserve-order="true" parallel="false">
+    <test name="ballerina-logging-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.logging.LogAPITestCase" />
@@ -261,6 +261,13 @@
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.listener.LaunchListenerTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-service-listener-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.service.ServiceTest"/>
         </classes>
     </test>
 
