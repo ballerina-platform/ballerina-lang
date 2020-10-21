@@ -2008,16 +2008,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (node.getKind() == NodeKind.CLASS_DEFN) {
                 defineMembersOfClassDef(pkgEnv, (BLangClassDefinition) node);
             } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
-                defineMemberOfObjectOrRecordDef(pkgEnv, (BLangTypeDefinition) node);
+                defineMemberOfObjectTypeDef(pkgEnv, (BLangTypeDefinition) node);
             }
         }
     }
 
-    private void defineMemberOfObjectOrRecordDef(SymbolEnv pkgEnv, BLangTypeDefinition node) {
+    private void defineMemberOfObjectTypeDef(SymbolEnv pkgEnv, BLangTypeDefinition node) {
         BLangTypeDefinition typeDef = node;
-        if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-            return;
-        }
         if (typeDef.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
             BObjectType objectType = (BObjectType) typeDef.symbol.type;
 
