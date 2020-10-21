@@ -1,7 +1,7 @@
 function foo() {
     error() = "myErrorValue";
     error(errormessage1) = "sample_error1";
-    error typeref (errormessage2) = "sample_error2";
+    error typeref(errormessage2) = "sample_error2";
     error(_) = "sample_error3";
     error(_, errorcause1) = "sample_error4";
     error(_, error(errormessage3, errorcause2)) = "sample_error5";

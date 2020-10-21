@@ -29,23 +29,24 @@ public function main() {
     stream<Student> studentStream = studentList.toStream();
 
     //The `filter` and `map` functions return streams and work lazily.
-    stream<Subscription> subscriptionStream = studentStream.filter(function (Student student) returns boolean {
-        return student.score > 1;
-    }).'map(function (Student student) returns Subscription {
-        Subscription subscription = {
-            firstName: student.firstName,
-            lastName: student.lastName,
-            score: student.score,
-            degree: "Bachelor of Medicine"
-        };
-        return subscription;
-    });
+    stream<Subscription> subscriptionStream = studentStream.filter(function(Student student) returns boolean {
+                                                                       return student.score > 1;
+                                                                   }).'map(function(Student student) returns 
+                                                                           Subscription {
+                                                                               Subscription subscription = {
+                                                                                   firstName: student.firstName,
+                                                                                   lastName: student.lastName,
+                                                                                   score: student.score,
+                                                                                   degree: "Bachelor of Medicine"
+                                                                               };
+                                                                               return subscription;
+                                                                           });
 
     io:println("Calculate the average score of the subscribed students: ");
     //The `reduce` function reduces the stream to a single value.
-    float? avg = subscriptionStream.reduce(function (float accum, Student student) returns float {
-        return accum + <float>student.score / studentList.length();
-    }, 0.0);
+    float? avg = subscriptionStream.reduce(function(float accum, Student student) returns float {
+                                               return accum + <float>student.score / studentList.length();
+                                           }, 0.0);
 
     if (avg is float) {
         io:println("Average: ", avg);
@@ -65,9 +66,9 @@ public function main() {
 
     //If there is any error during the iteration of the
     // studentList2 stream, the result stream will terminate and return the error.
-    error? e = studentStream2.forEach(function (Student student) {
-        io:println("Student ", student.firstName, " has a score of ", student.score);
-    });
+    error? e = studentStream2.forEach(function(Student student) {
+                                          io:println("Student ", student.firstName, " has a score of ", student.score);
+                                      });
 
     //Check and handle the error during the iteration of the stream.
     if (e is error) {

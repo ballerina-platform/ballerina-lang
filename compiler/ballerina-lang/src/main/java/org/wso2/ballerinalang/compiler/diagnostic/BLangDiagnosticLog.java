@@ -20,15 +20,14 @@ package org.wso2.ballerinalang.compiler.diagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
 import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -49,6 +48,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
 
     private int errorCount = 0;
     private PackageCache packageCache;
+    private PackageID currentPackageId;
     private boolean isMute = false;
 
     private BLangDiagnosticLog(CompilerContext context) {
@@ -56,6 +56,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         this.packageCache = PackageCache.getInstance(context);
     }
 
+    @Deprecated
     public static BLangDiagnosticLog getInstance(CompilerContext context) {
         BLangDiagnosticLog dLogger = context.get(DIAGNOSTIC_LOG_KEY);
         if (dLogger == null) {
@@ -65,40 +66,58 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         return dLogger;
     }
 
+    public static BLangDiagnosticLog getInstance(CompilerContext context, PackageID packageID) {
+        BLangDiagnosticLog dLogger = context.get(DIAGNOSTIC_LOG_KEY);
+        if (dLogger == null) {
+            dLogger = new BLangDiagnosticLog(context);
+        }
+
+        if (packageID != null) {
+            dLogger.setCurrentPackageId(packageID);
+        }
+
+        return dLogger;
+    }
+
+    @Override
+    public void setCurrentPackageId(PackageID packageID) {
+        this.currentPackageId = packageID;
+    }
+
     /**
      * Log an error.
-     * 
-     * @param pos Position of the error in the source code.
+     *
+     * @param location Location of the error in the source code.
      * @param code Error code
      * @param args Parameters associated with the error
      */
-    public void error(DiagnosticPos pos, DiagnosticCode code, Object... args) {
+    public void error(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(ERROR_PREFIX, code, args);
-        reportDiagnostic(code, pos, msg, DiagnosticSeverity.ERROR);
+        reportDiagnostic(code, location, msg, DiagnosticSeverity.ERROR);
     }
 
     /**
      * Log a warning.
-     * 
-     * @param pos Position of the warning in the source code.
+     *
+     * @param location Location of the warning in the source code.
      * @param code Error code
      * @param args Parameters associated with the error
      */
-    public void warning(DiagnosticPos pos, DiagnosticCode code, Object... args) {
+    public void warning(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(WARNING_PREFIX, code, args);
-        reportDiagnostic(code, pos, msg, DiagnosticSeverity.WARNING);
+        reportDiagnostic(code, location, msg, DiagnosticSeverity.WARNING);
     }
 
     /**
      * Log an info.
-     * 
-     * @param pos Position of the info in the source code.
+     *
+     * @param location Location of the info in the source code.
      * @param code Error code
      * @param args Parameters associated with the info
      */
-    public void note(DiagnosticPos pos, DiagnosticCode code, Object... args) {
+    public void note(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(NOTE_PREFIX, code, args);
-        reportDiagnostic(code, pos, msg, DiagnosticSeverity.INFO);
+        reportDiagnostic(code, location, msg, DiagnosticSeverity.INFO);
     }
 
     /**
@@ -142,7 +161,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     }
 
     @Override
-    public void logDiagnostic(Kind kind, DiagnosticPosition pos, CharSequence message) {
+    public void logDiagnostic(Kind kind, Location location, CharSequence message) {
         DiagnosticSeverity severity;
         switch (kind) {
             case ERROR:
@@ -157,7 +176,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
                 break;
         }
 
-        reportDiagnostic(null, (DiagnosticPos) pos, message.toString(), severity);
+        reportDiagnostic(null, location, message.toString(), severity);
     }
 
     /**
@@ -171,7 +190,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
             this.errorCount++;
         }
 
-        storeDiagnosticInPackage(pkgId, diagnostic);
+        storeDiagnosticInModule(pkgId, diagnostic);
     }
 
     // private helper methods
@@ -181,7 +200,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         return MessageFormat.format(msgKey, args);
     }
 
-    private void reportDiagnostic(DiagnosticCode diagnosticCode, DiagnosticPos pos, String msg,
+    private void reportDiagnostic(DiagnosticCode diagnosticCode, Location location, String msg,
                                   DiagnosticSeverity severity) {
         if (severity == DiagnosticSeverity.ERROR) {
             this.errorCount++;
@@ -194,14 +213,11 @@ public class BLangDiagnosticLog implements DiagnosticLog {
         // TODO: Add 'code' and 'messageTemplate' to the DiagnosticInfo
         DiagnosticInfo diagInfo = new DiagnosticInfo(null, msg, severity);
 
-        BLangDiagnosticLocation diagnosticLocation =
-                new BLangDiagnosticLocation(pos.getSource().cUnitName, pos.sLine, pos.eLine, pos.sCol, pos.eCol);
-        BLangDiagnostic diagnostic = new BLangDiagnostic(diagnosticLocation, msg, diagInfo, diagnosticCode);
-        storeDiagnosticInPackage(pos.src.pkgID, diagnostic);
-
+        BLangDiagnostic diagnostic = new BLangDiagnostic(location, msg, diagInfo, diagnosticCode);
+        storeDiagnosticInModule(currentPackageId, diagnostic);
     }
 
-    private void storeDiagnosticInPackage(PackageID pkgId, Diagnostic diagnostic) {
+    private void storeDiagnosticInModule(PackageID pkgId, Diagnostic diagnostic) {
         BLangPackage pkgNode = this.packageCache.get(pkgId);
         pkgNode.addDiagnostic(diagnostic);
     }

@@ -91,7 +91,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
                         String unitName = compUnit.getName();
                         String sourceRoot = LSCompilerUtil.getProjectRoot(path);
-                        String basePath = sourceRoot + File.separator + compUnit.getPosition().src.getPackageName();
+                        String basePath = sourceRoot + File.separator + compUnit.getPackageID().getName().value;
                         String hash = generateHash(compUnit, basePath);
                         compUnits.put(hash, new Object[]{
                                 new File(basePath + File.separator + unitName).toURI(), compUnit});
@@ -120,7 +120,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     }
 
     private String generateHash(BLangCompilationUnit compUnit, String basePath) {
-        return compUnit.getPosition().getSource().pkgID.toString() + "$" + basePath + "$" + compUnit.getName();
+        return compUnit.getPackageID().toString() + "$" + basePath + "$" + compUnit.getName();
     }
 
     @Override

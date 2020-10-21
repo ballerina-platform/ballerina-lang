@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -129,7 +130,6 @@ import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -233,6 +233,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
+        dlog.setCurrentPackageId(pkgNode.packageID);
         populatePackageNode(pkgNode);
         defineNode(pkgNode, this.symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol));
         return pkgNode;
@@ -245,9 +246,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
-    public BLangPackage defineTestablePackage(BLangTestablePackage pkgNode, SymbolEnv env,
-                                              List<BLangImportPackage> enclPkgImports) {
-        populatePackageNode(pkgNode, enclPkgImports);
+    public BLangPackage defineTestablePackage(BLangTestablePackage pkgNode, SymbolEnv env) {
+        populatePackageNode(pkgNode);
         defineNode(pkgNode, env);
         return pkgNode;
     }
@@ -281,8 +281,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         importedPackages.add(pkgNode.packageID);
 
         defineConstructs(pkgNode, pkgEnv);
-        pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv,
-                                                                                   pkgNode.imports));
+        pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv));
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
 
         // After we have visited a package node, we need to remove it from the imports list.
@@ -328,14 +327,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 unresolvedPkg.symbol = pkgSymbol;
                 // and define it in the current package scope
-                BPackageSymbol symbol = duplicatePackagSymbol(pkgSymbol);
-                symbol.compUnit = names.fromIdNode(unresolvedPkg.compUnit);
+                BPackageSymbol symbol = dupPackageSymbolAndSetCompUnit(pkgSymbol,
+                        names.fromIdNode(unresolvedPkg.compUnit));
                 symbol.scope = pkgSymbol.scope;
                 unresolvedPkg.symbol = symbol;
                 pkgEnv.scope.define(unresolvedPkgAlias, symbol);
             }
         }
-        initPredeclaredModules(symTable.predeclaredModules, pkgEnv);
+        initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
         // Define type definitions.
         this.typePrecedence = 0;
 
@@ -478,6 +477,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define the functions defined within the object
         defineClassInitFunction(classDefinition, objMethodsEnv);
         classDefinition.functions.forEach(f -> {
+            f.flagSet.add(Flag.FINAL); // Method can't be changed
             f.setReceiver(ASTBuilderUtil.createReceiver(classDefinition.pos, objectType));
             defineNode(f, objMethodsEnv);
         });
@@ -594,7 +594,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangClassDefinition classDefinition) {
         EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
-        boolean isReadOnly = flags.contains(Flag.READONLY);
         boolean isPublicType = flags.contains(Flag.PUBLIC);
         Name className = names.fromIdNode(classDefinition.name);
 
@@ -609,7 +608,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (flags.contains(Flag.SERVICE)) {
             objectType = new BServiceType(tSymbol);
         } else {
-            objectType = isReadOnly ? new BObjectType(tSymbol, Flags.READONLY) : new BObjectType(tSymbol);
+            int typeFlags = 0;
+
+            if (flags.contains(Flag.READONLY)) {
+                typeFlags |= Flags.READONLY;
+            }
+
+            if (flags.contains(Flag.ISOLATED)) {
+                typeFlags |= Flags.ISOLATED;
+            }
+
+            objectType = new BObjectType(tSymbol, typeFlags);
         }
 
         if (flags.contains(Flag.DISTINCT)) {
@@ -803,25 +812,41 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // get a copy of the package symbol, add compilation unit info to it,
         // and define it in the current package scope
-        BPackageSymbol symbol = duplicatePackagSymbol(pkgSymbol);
-        symbol.compUnit = names.fromIdNode(importPkgNode.compUnit);
+        BPackageSymbol symbol = dupPackageSymbolAndSetCompUnit(pkgSymbol, names.fromIdNode(importPkgNode.compUnit));
         symbol.scope = pkgSymbol.scope;
         importPkgNode.symbol = symbol;
         this.env.scope.define(pkgAlias, symbol);
     }
 
-    public void initPredeclaredModules(Map<Name, BPackageSymbol> predeclaredModules, SymbolEnv env) {
+    public void initPredeclaredModules(Map<Name, BPackageSymbol> predeclaredModules,
+                                       List<BLangCompilationUnit> compUnits, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
         this.env = env;
         for (Name alias : predeclaredModules.keySet()) {
+            int index = 0;
             ScopeEntry entry = this.env.scope.lookup(alias);
-            if (entry == NOT_FOUND_ENTRY) {
-                this.env.scope.define(alias, predeclaredModules.get(alias));
-            } else {
+            if (entry == NOT_FOUND_ENTRY && !compUnits.isEmpty()) {
+                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                        new Name(compUnits.get(index++).name)));
+                entry = this.env.scope.lookup(alias);
+            }
+            for (int i = index; i < compUnits.size(); i++) {
+                boolean isUndefinedModule = true;
+                String compUnitName = compUnits.get(i).name;
+                if (((BPackageSymbol) entry.symbol).compUnit.value.equals(compUnitName)) {
+                    isUndefinedModule = false;
+                }
                 while (entry.next != NOT_FOUND_ENTRY) {
+                    if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnitName)) {
+                        isUndefinedModule = false;
+                        break;
+                    }
                     entry = entry.next;
                 }
-                entry.next = new ScopeEntry(predeclaredModules.get(alias), NOT_FOUND_ENTRY);
+                if (isUndefinedModule) {
+                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                            new Name(compUnitName)), NOT_FOUND_ENTRY);
+                }
             }
         }
         this.env = prevEnv;
@@ -1006,7 +1031,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // `memberTypeNodeName` to the end of the list to complete the cyclic dependency when
             // printing the error.
             visitedNodes.push(currentTypeNodeName);
-            dlog.error((DiagnosticPos) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
+            dlog.error((Location) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
                     visitedNodes);
             // We need to remove the last occurrence since we use this list in a recursive call.
             // Otherwise, unwanted types will get printed in the cyclic dependency error.
@@ -1025,7 +1050,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             // Add the `currentTypeNodeName` to complete the cycle.
             dependencyList.add(currentTypeNodeName);
-            dlog.error((DiagnosticPos) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
+            dlog.error((Location) unresolvedType.getPosition(), DiagnosticCode.CYCLIC_TYPE_REFERENCE,
                     dependencyList);
         } else {
             // Check whether the current type node is in the unresolved list. If it is in the list, we need to
@@ -1036,8 +1061,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (typeDefinitions.isEmpty()) {
                 // If a type is declared, it should either get defined successfully or added to the unresolved
                 // types list. If a type is not in either one of them, that means it is an undefined type.
-                LocationData locationData = new LocationData(currentTypeNodeName, currentTypeOrClassNode.pos.sLine,
-                        currentTypeOrClassNode.pos.sCol);
+                LocationData locationData = new LocationData(
+                        currentTypeNodeName, currentTypeOrClassNode.pos.lineRange().startLine().line(),
+                        currentTypeOrClassNode.pos.lineRange().startLine().offset());
                 if (unknownTypeRefs.add(locationData)) {
                     dlog.error(currentTypeOrClassNode.pos, DiagnosticCode.UNKNOWN_TYPE, currentTypeNodeName);
                 }
@@ -1073,7 +1099,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public boolean isUnknownTypeRef(BLangUserDefinedType bLangUserDefinedType) {
         LocationData locationData = new LocationData(bLangUserDefinedType.typeName.value,
-                                                     bLangUserDefinedType.pos.sLine, bLangUserDefinedType.pos.sCol);
+                bLangUserDefinedType.pos.lineRange().startLine().line(),
+                bLangUserDefinedType.pos.lineRange().startLine().offset());
         return unknownTypeRefs.contains(locationData);
     }
 
@@ -1207,7 +1234,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return definedObjType;
     }
 
-    private void validateUnionForDistinctType(BUnionType definedType, DiagnosticPos pos) {
+    private void validateUnionForDistinctType(BUnionType definedType, Location pos) {
         Set<BType> memberTypes = definedType.getMemberTypes();
         TypeKind firstTypeKind = null;
         for (BType type : memberTypes) {
@@ -1293,7 +1320,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineErrorConstructorSymbol(DiagnosticPos pos, BTypeSymbol typeDefSymbol) {
+    private void defineErrorConstructorSymbol(Location pos, BTypeSymbol typeDefSymbol) {
         BErrorType errorType = (BErrorType) typeDefSymbol.type;
         BConstructorSymbol symbol = new BConstructorSymbol(typeDefSymbol.flags, typeDefSymbol.name,
                                                            typeDefSymbol.pkgID, errorType, typeDefSymbol.owner, pos,
@@ -1355,13 +1382,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             funcNode.flagSet.add(Flag.LANG_LIB);
         }
 
-        DiagnosticPos symbolPos = funcNode.flagSet.contains(Flag.LAMBDA) ? symTable.builtinPos : funcNode.name.pos;
+        Location symbolPos = funcNode.flagSet.contains(Flag.LAMBDA) ?
+                                                        symTable.builtinPos : funcNode.name.pos;
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                                                                    getFuncSymbolName(funcNode),
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                    funcNode.hasBody(), symbolPos,
                                                                    getOrigin(funcNode.name.value));
-        funcSymbol.source = funcNode.pos.src.cUnitName;
+        funcSymbol.source = funcNode.pos.lineRange().filePath();
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
@@ -1823,17 +1851,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     /**
-     * Visit each compilation unit (.bal file) and add each top-level node in the compilation unit to the
-     * testable package node.
-     *
-     * @param pkgNode current package node
-     * @param enclPkgImports imports of the enclosed package
-     */
-    private void populatePackageNode(BLangTestablePackage pkgNode, List<BLangImportPackage> enclPkgImports) {
-        populatePackageNode(pkgNode);
-    }
-
-    /**
      * Visit each top-level node and add it to the package node.
      *
      * @param pkgNode  current package node
@@ -2031,6 +2048,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Define the functions defined within the object
             defineObjectInitFunction(objTypeNode, objMethodsEnv);
             objTypeNode.functions.forEach(f -> {
+                f.flagSet.add(Flag.FINAL); // Method's can't change once defined.
                 f.setReceiver(ASTBuilderUtil.createReceiver(typeDef.pos, objectType));
                 defineNode(f, objMethodsEnv);
             });
@@ -2204,7 +2222,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     continue;
                 }
 
-                DiagnosticPos pos = typeDef.pos;
+                Location pos = typeDef.pos;
                 // We reach here for `readonly object`s.
                 // We now validate if it is a valid `readonly object` - i.e., all the fields are compatible readonly
                 // types.
@@ -2238,11 +2256,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (nodeKind == NodeKind.RECORD_TYPE && !(((BRecordType) structureType).sealed)) {
+            if (nodeKind != NodeKind.RECORD_TYPE || !(((BRecordType) structureType).sealed)) {
                 continue;
             }
 
-            boolean allReadOnlyOrFinalFields = true;
+            boolean allImmutableFields = true;
 
             Collection<BField> fields = structureType.fields.values();
 
@@ -2250,16 +2268,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            int flagToCheck = nodeKind == NodeKind.RECORD_TYPE ? Flags.READONLY : Flags.FINAL;
-
             for (BField field : fields) {
-                if (!Symbols.isFlagOn(field.symbol.flags, flagToCheck)) {
-                    allReadOnlyOrFinalFields = false;
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                    allImmutableFields = false;
                     break;
                 }
             }
 
-            if (allReadOnlyOrFinalFields) {
+            if (allImmutableFields) {
                 structureType.tsymbol.flags |= Flags.READONLY;
                 structureType.flags |= Flags.READONLY;
             }
@@ -2268,7 +2284,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void setReadOnlynessOfClassDef(BLangClassDefinition classDef, SymbolEnv pkgEnv) {
         BObjectType objectType = (BObjectType) classDef.type;
-        DiagnosticPos pos = classDef.pos;
+        Location pos = classDef.pos;
 
         if (objectType instanceof BServiceType) {
             return;
@@ -2300,7 +2316,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             for (BField field : fields) {
-                if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL)) {
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL) ||
+                        !Symbols.isFlagOn(field.type.flags, Flags.READONLY)) {
                     return;
                 }
             }
@@ -2374,14 +2391,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         invokableSymbol.type.tsymbol = functionTypeSymbol;
     }
 
-    private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
+    private void defineSymbol(Location pos, BSymbol symbol) {
         symbol.scope = new Scope(symbol);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
     }
 
-    public void defineSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
+    public void defineSymbol(Location pos, BSymbol symbol, SymbolEnv env) {
         symbol.scope = new Scope(symbol);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
@@ -2395,15 +2412,15 @@ public class SymbolEnter extends BLangNodeVisitor {
      * @param symbol Symbol to be defines
      * @param env Environment to define the symbol
      */
-    public void defineShadowedSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
+    public void defineShadowedSymbol(Location pos, BSymbol symbol, SymbolEnv env) {
         symbol.scope = new Scope(symbol);
         if (symResolver.checkForUniqueSymbolInCurrentScope(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);
         }
     }
 
-    public void defineTypeNarrowedSymbol(DiagnosticPos pos, SymbolEnv targetEnv, BVarSymbol symbol, BType type,
-                                         boolean isInternal) {
+    public void defineTypeNarrowedSymbol(Location location, SymbolEnv targetEnv, BVarSymbol symbol,
+                                         BType type, boolean isInternal) {
         if (symbol.owner.tag == SymTag.PACKAGE) {
             // Avoid defining shadowed symbol for global vars, since the type is not narrowed.
             return;
@@ -2420,17 +2437,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         varSymbol.owner = symbol.owner;
         varSymbol.originalSymbol = symbol;
-        defineShadowedSymbol(pos, varSymbol, targetEnv);
+        defineShadowedSymbol(location, varSymbol, targetEnv);
     }
 
-    private void defineSymbolWithCurrentEnvOwner(DiagnosticPos pos, BSymbol symbol) {
+    private void defineSymbolWithCurrentEnvOwner(Location pos, BSymbol symbol) {
         symbol.scope = new Scope(env.scope.owner);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
     }
 
-    public BVarSymbol defineVarSymbol(DiagnosticPos pos, Set<Flag> flagSet, BType varType, Name varName,
+    public BVarSymbol defineVarSymbol(Location pos, Set<Flag> flagSet, BType varType, Name varName,
                                       SymbolEnv env, boolean isInternal) {
         // Create variable symbol
         Scope enclScope = env.scope;
@@ -2452,23 +2469,23 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env,
-                                      DiagnosticPos pos, boolean isInternal) {
+                                      Location pos, boolean isInternal) {
         return createVarSymbol(Flags.asMask(flagSet), varType, varName, env, pos, isInternal);
     }
 
-    public BVarSymbol createVarSymbol(int flags, BType varType, Name varName, SymbolEnv env, DiagnosticPos pos,
-                                      boolean isInternal) {
+    public BVarSymbol createVarSymbol(int flags, BType varType, Name varName, SymbolEnv env,
+                                      Location location, boolean isInternal) {
         BType safeType = types.getSafeType(varType, true, false);
         BVarSymbol varSymbol;
         if (safeType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, varType,
-                                             env.scope.owner, pos, isInternal ? VIRTUAL : getOrigin(varName));
+                                             env.scope.owner, location, isInternal ? VIRTUAL : getOrigin(varName));
             if (Symbols.isFlagOn(safeType.flags, Flags.ISOLATED)) {
                 varSymbol.flags |= Flags.ISOLATED;
             }
             varSymbol.kind = SymbolKind.FUNCTION;
         } else {
-            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, pos,
+            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, location,
                                        isInternal ? VIRTUAL : getOrigin(varName));
             if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
                 varSymbol.tag = SymTag.ENDPOINT;
@@ -2737,10 +2754,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         structureTypeNode.typeRefs.removeAll(invalidTypeRefs);
     }
 
-    private void defineReferencedFunction(DiagnosticPos pos, Set<Flag> flagSet, SymbolEnv objEnv, BLangType typeRef,
-                                          BAttachedFunction referencedFunc, Set<String> includedFunctionNames,
-                                          BTypeSymbol typeDefSymbol, List<BLangFunction> declaredFunctions,
-                                          boolean isInternal) {
+    private void defineReferencedFunction(Location location, Set<Flag> flagSet, SymbolEnv objEnv,
+                                          BLangType typeRef, BAttachedFunction referencedFunc,
+                                          Set<String> includedFunctionNames, BTypeSymbol typeDefSymbol,
+                                          List<BLangFunction> declaredFunctions, boolean isInternal) {
         String referencedFuncName = referencedFunc.funcName.value;
         Name funcName = names.fromString(
                 Symbols.getAttachedFuncSymbolName(typeDefSymbol.name.value, referencedFuncName));
@@ -2755,14 +2772,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (Symbols.isFunctionDeclaration(matchingObjFuncSym) && Symbols.isFunctionDeclaration(
                     referencedFunc.symbol)) {
                 BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
-                DiagnosticPos methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
+                Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
                 dlog.error(methodPos, DiagnosticCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE,
                            referencedFunc.funcName, typeRef);
             }
 
             if (!hasSameFunctionSignature((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
                 BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
-                DiagnosticPos methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
+                Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
                 dlog.error(methodPos, DiagnosticCode.REFERRED_FUNCTION_SIGNATURE_MISMATCH,
                            getCompleteFunctionSignature(referencedFunc.symbol),
                            getCompleteFunctionSignature((BInvokableSymbol) matchingObjFuncSym));
@@ -2789,7 +2806,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             defineSymbol(typeRef.pos, funcSymbol.restParam, funcEnv);
         }
         funcSymbol.receiverSymbol =
-                defineVarSymbol(pos, flagSet, typeDefSymbol.type, Names.SELF, funcEnv, isInternal);
+                defineVarSymbol(location, flagSet, typeDefSymbol.type, Names.SELF, funcEnv, isInternal);
 
         // Cache the function symbol.
         BAttachedFunction attachedFunc =
@@ -2870,7 +2887,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return signatureBuilder.toString();
     }
 
-    private BPackageSymbol duplicatePackagSymbol(BPackageSymbol originalSymbol) {
+    private BPackageSymbol dupPackageSymbolAndSetCompUnit(BPackageSymbol originalSymbol, Name compUnit) {
         BPackageSymbol copy = new BPackageSymbol(originalSymbol.pkgID, originalSymbol.owner, originalSymbol.flags,
                                                  originalSymbol.pos, originalSymbol.origin);
         copy.initFunctionSymbol = originalSymbol.initFunctionSymbol;
@@ -2884,6 +2901,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         copy.entryPointExists = originalSymbol.entryPointExists;
         copy.scope = originalSymbol.scope;
         copy.owner = originalSymbol.owner;
+        copy.compUnit = compUnit;
         return copy;
     }
 

@@ -214,13 +214,7 @@
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "typeref",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "value": "typeref"
                         }
                       ]
                     },

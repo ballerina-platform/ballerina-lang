@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import io.ballerina.compiler.api.types.UnionTypeDescriptor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -58,6 +59,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -78,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -153,22 +154,23 @@ public class CommonUtil {
     /**
      * Convert the diagnostic position to a zero based positioning diagnostic position.
      *
-     * @param diagnosticPos - diagnostic position to be cloned
-     * @return {@link DiagnosticPos} converted diagnostic position
+     * @param diagnosticLocation - diagnostic position to be cloned
+     * @return {@link Location} converted diagnostic position
      */
-    public static DiagnosticPos toZeroBasedPosition(DiagnosticPos diagnosticPos) {
-        int startLine = diagnosticPos.getStartLine() - 1;
-        int endLine = diagnosticPos.getEndLine() - 1;
-        int startColumn = diagnosticPos.getStartColumn() - 1;
-        int endColumn = diagnosticPos.getEndColumn() - 1;
-        return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
+    public static Location toZeroBasedPosition(Location diagnosticLocation) {
+        int startLine = diagnosticLocation.lineRange().startLine().line() - 1;
+        int endLine = diagnosticLocation.lineRange().endLine().line() - 1;
+        int startColumn = diagnosticLocation.lineRange().startLine().offset() - 1;
+        int endColumn = diagnosticLocation.lineRange().endLine().offset() - 1;
+        return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
+                                           startLine, endLine, startColumn, endColumn);
     }
 
     /**
      * Convert the diagnostic position to a zero based positioning diagnostic position.
      *
      * @param linePosition - diagnostic position to be cloned
-     * @return {@link DiagnosticPos} converted diagnostic position
+     * @return {@link Range} converted diagnostic position
      */
     public static Range toRange(LineRange linePosition) {
         int startLine = linePosition.startLine().line();
@@ -181,15 +183,15 @@ public class CommonUtil {
     /**
      * Clone the diagnostic position given.
      *
-     * @param diagnosticPos - diagnostic position to be cloned
-     * @return {@link DiagnosticPos} cloned diagnostic position
+     * @param diagnosticLocation - diagnostic position to be cloned
+     * @return {@link Location} cloned diagnostic position
      */
-    public static DiagnosticPos clonePosition(DiagnosticPos diagnosticPos) {
-        int startLine = diagnosticPos.getStartLine();
-        int endLine = diagnosticPos.getEndLine();
-        int startColumn = diagnosticPos.getStartColumn();
-        int endColumn = diagnosticPos.getEndColumn();
-        return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
+    public static Location clonePosition(Location diagnosticLocation) {
+        return new BLangDiagnosticLocation(diagnosticLocation.lineRange().filePath(),
+                                           diagnosticLocation.lineRange().startLine().line(),
+                                           diagnosticLocation.lineRange().endLine().line(),
+                                           diagnosticLocation.lineRange().startLine().offset(),
+                                           diagnosticLocation.lineRange().endLine().offset());
     }
 
     /**
@@ -206,7 +208,7 @@ public class CommonUtil {
         Position start = new Position(0, 0);
         if (currentFileImports != null && !currentFileImports.isEmpty()) {
             BLangImportPackage last = CommonUtil.getLastItem(currentFileImports);
-            int endLine = last.getPosition().getEndLine();
+            int endLine = last.getPosition().lineRange().endLine().line();
             start = new Position(endLine, 0);
         }
         String pkgNameComponent;
@@ -487,7 +489,7 @@ public class CommonUtil {
         String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit ->
-                        cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR)
+                        cUnit.getPosition().lineRange().filePath().replace("/", FILE_SEPARATOR)
                                 .equals(relativeFilePath))
                 .findAny().orElse(null);
         List<TopLevelNode> topLevelNodes = filteredCUnit == null
@@ -643,7 +645,7 @@ public class CommonUtil {
      */
     public static Predicate<BLangImportPackage> importInCurrentFilePredicate(LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile);
+        return importPkg -> importPkg.pos.lineRange().filePath().replace("/", FILE_SEPARATOR).equals(currentFile);
     }
 
     /**
@@ -653,7 +655,7 @@ public class CommonUtil {
      */
     public static Predicate<BLangImportPackage> stdLibImportsNotCachedPredicate(LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
+        return importPkg -> importPkg.pos.lineRange().filePath().replace("/", FILE_SEPARATOR).equals(currentFile)
                 && importPkg.getWS() != null && (importPkg.orgName.value.equals(BALLERINA_ORG_NAME)
                 || importPkg.orgName.value.equals(BALLERINAX_ORG_NAME));
     }
@@ -855,10 +857,12 @@ public class CommonUtil {
         @Override
         public int compare(BLangNode node1, BLangNode node2) {
             // TODO: Fix?
-            if (node1.getPosition() == null || node2.getPosition() == null) {
+            Location node1Loc = node1.getPosition();
+            Location node2Loc = node2.getPosition();
+            if (node1Loc == null || node2Loc == null) {
                 return -1;
             }
-            return node1.getPosition().getStartLine() - node2.getPosition().getStartLine();
+            return node1Loc.lineRange().startLine().line() - node2Loc.lineRange().startLine().line();
         }
     }
 
@@ -956,9 +960,9 @@ public class CommonUtil {
     }
 
     /**
-     * Get the raw type of the type descriptor. If the type descriptor is a type reference then return the associated 
+     * Get the raw type of the type descriptor. If the type descriptor is a type reference then return the associated
      * type descriptor.
-     * 
+     *
      * @param typeDescriptor type descriptor to evaluate
      * @return {@link BallerinaTypeDescriptor} extracted type descriptor
      */

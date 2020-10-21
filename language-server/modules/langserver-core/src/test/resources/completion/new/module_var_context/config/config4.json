@@ -578,6 +578,19 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "getIntValue()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "insertText": "getIntValue()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "is",
       "kind": "Keyword",
       "detail": "Keyword",

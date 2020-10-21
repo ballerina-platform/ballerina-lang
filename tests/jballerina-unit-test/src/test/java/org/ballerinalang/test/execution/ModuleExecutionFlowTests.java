@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  */
 public class ModuleExecutionFlowTests {
 
-    @Test
+    @Test(enabled = false)
     public void testModuleExecutionOrder() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj1", "c", false);
         ExitDetails output = run(compileResult, new String[]{});
@@ -113,7 +113,7 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testModuleImmediateStopPanic() {
         CompileResult compileResult = BCompileUtil.compile("test-src/execution/proj6", "c", false);
         ExitDetails output = run(compileResult, new String[]{});
@@ -184,7 +184,7 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testModuleStopPanic() {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/execution/ModuleStopFailingProject", "current", false);
@@ -208,7 +208,7 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
     }
 
-    @Test(description = "Test 'init' is called only once for each module at runtime")
+    @Test(enabled = false, description = "Test 'init' is called only once for each module at runtime")
     public void testModuleDependencyChainForInit() {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/execution/ModuleInitInvocationProject", "current", false);
@@ -231,7 +231,7 @@ public class ModuleExecutionFlowTests {
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
     }
 
-    @Test(description = "Test 'start' is called only once for each module at runtime")
+    @Test(enabled = false, description = "Test 'start' is called only once for each module at runtime")
     public void testModuleDependencyChainForStart() {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/execution/ModuleStartInvocationProject", "current", false);

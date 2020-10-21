@@ -104,7 +104,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewrit
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCreateTypesMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateUserDefinedTypeFields;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateValueCreatorMethods;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.isServiceDefAvailable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
@@ -153,8 +152,6 @@ public class JvmPackageGen {
     }
 
     private static void addBuiltinImports(BIRPackage currentModule, Set<PackageID> dependentModuleArray) {
-        Name ballerinaOrgName = new Name("ballerina");
-        Name builtInVersion = new Name("");
 
         // Add the builtin and utils modules to the imported list of modules
         if (isSameModule(currentModule, PackageID.ANNOTATIONS)) {
@@ -375,6 +372,15 @@ public class JvmPackageGen {
         throw new IllegalStateException("cannot find function: '" + funcName + "'");
     }
 
+    private boolean listenerDeclarationFound(List<BIRGlobalVariableDcl> variableDcls) {
+        for (BIRGlobalVariableDcl globalVariableDcl : variableDcls) {
+            if (Symbols.isFlagOn(globalVariableDcl.flags, Flags.LISTENER)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private BIRFunction getMainFunc(List<BIRFunction> funcs) {
         BIRFunction userMainFunc = null;
         for (BIRFunction func : funcs) {
@@ -478,10 +484,10 @@ public class JvmPackageGen {
                 String mainClass = "";
                 if (mainFunc != null) {
                     mainClass = JvmCodeGenUtil.getModuleLevelClassName(module, JvmCodeGenUtil
-                            .cleanupPathSeparators(mainFunc.pos.getSource().cUnitName));
+                            .cleanupPathSeparators(mainFunc.pos.lineRange().filePath()));
                 }
 
-                serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
+                serviceEPAvailable = listenerDeclarationFound(module.globalVars);
 
                 jvmMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable,
                                                 asyncDataCollector);
@@ -659,7 +665,7 @@ public class JvmPackageGen {
         // function.
         BIRFunction initFunc = functions.get(0);
         String functionName = initFunc.name.value;
-        JavaClass klass = new JavaClass(initFunc.pos.src.cUnitName);
+        JavaClass klass = new JavaClass(initFunc.pos.lineRange().filePath());
         klass.functions.add(0, initFunc);
         jvmMethodGen.addInitAndTypeInitInstructions(module, initFunc);
         jvmClassMap.put(initClass, klass);
@@ -695,7 +701,7 @@ public class JvmPackageGen {
             if (birFunc.pos == null) {
                 balFileName = MODULE_INIT_CLASS_NAME;
             } else {
-                balFileName = birFunc.pos.src.cUnitName;
+                balFileName = birFunc.pos.lineRange().filePath();
             }
             String birModuleClassName = JvmCodeGenUtil.getModuleLevelClassName(
                     orgName, moduleName, version, JvmCodeGenUtil.cleanupPathSeparators(balFileName));

@@ -73,7 +73,7 @@ public isolated function enumerate(Type[] arr) returns [int, Type][] = @java:Met
 # + arr - the array
 # + func - a function to apply to each member
 # + return - new array containing result of applying `func` to each member of `arr` in order
-public function 'map(Type[] arr, function(Type val) returns Type1 func) returns Type1[] = @java:Method {
+public isolated function 'map(Type[] arr, @isolatedParam function(Type val) returns Type1 func) returns Type1[] = @java:Method {
     'class: "org.ballerinalang.langlib.array.Map",
     name: "map"
 } external;
@@ -83,7 +83,7 @@ public function 'map(Type[] arr, function(Type val) returns Type1 func) returns 
 #
 # + arr - the array
 # + func - a function to apply to each member
-public function forEach(Type[] arr, function(Type val) returns () func) returns () = @java:Method {
+public isolated function forEach(Type[] arr, @isolatedParam function(Type val) returns () func) returns () = @java:Method {
     'class: "org.ballerinalang.langlib.array.ForEach",
     name: "forEach"
 } external;
@@ -93,7 +93,7 @@ public function forEach(Type[] arr, function(Type val) returns () func) returns 
 # + arr - the array
 # + func - a predicate to apply to each member to test whether it should be selected
 # + return - new array only containing members of `arr` for which `func` evaluates to true
-public function filter(Type[] arr, function(Type val) returns boolean func) returns Type[] = @java:Method {
+public isolated function filter(Type[] arr, @isolatedParam function(Type val) returns boolean func) returns Type[] = @java:Method {
     'class: "org.ballerinalang.langlib.array.Filter",
     name: "filter"
 } external;
@@ -112,7 +112,7 @@ public function filter(Type[] arr, function(Type val) returns boolean func) retu
 # reduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)
 # ```
 # is the same as `sum(1, 2, 3)`.
-public function reduce(Type[] arr, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = @java:Method {
+public isolated function reduce(Type[] arr, @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = @java:Method {
     'class: "org.ballerinalang.langlib.array.Reduce",
     name: "reduce"
 } external;

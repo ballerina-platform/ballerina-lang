@@ -4,5 +4,4 @@ public function foo() {
         int k = 2;
         k += 5;
     }
-
 }

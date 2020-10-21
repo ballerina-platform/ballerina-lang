@@ -34,6 +34,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -138,11 +139,11 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         }
 
         List<FieldDescriptor> fieldDescriptors = new ArrayList<>();
-
-        if (typeDescriptor.get().kind() == TypeDescKind.OBJECT) {
-            fieldDescriptors.addAll(((ObjectTypeDescriptor) typeDescriptor.get()).fieldDescriptors());
-        } else if (typeDescriptor.get().kind() == TypeDescKind.RECORD) {
-            fieldDescriptors.addAll(((RecordTypeDescriptor) typeDescriptor.get()).fieldDescriptors());
+        BallerinaTypeDescriptor rawType = CommonUtil.getRawType(typeDescriptor.get());
+        if (rawType.kind() == TypeDescKind.OBJECT) {
+            fieldDescriptors.addAll(((ObjectTypeDescriptor) rawType).fieldDescriptors());
+        } else if (rawType.kind() == TypeDescKind.RECORD) {
+            fieldDescriptors.addAll(((RecordTypeDescriptor) rawType).fieldDescriptors());
         }
 
         return fieldDescriptors.stream()
@@ -211,9 +212,10 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
     private List<LSCompletionItem> getCompletionsForTypeDesc(LSContext context,
                                                              BallerinaTypeDescriptor typeDescriptor) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        switch (typeDescriptor.kind()) {
+        BallerinaTypeDescriptor rawType = CommonUtil.getRawType(typeDescriptor);
+        switch (rawType.kind()) {
             case RECORD:
-                ((RecordTypeDescriptor) typeDescriptor).fieldDescriptors().forEach(fieldDescriptor -> {
+                ((RecordTypeDescriptor) rawType).fieldDescriptors().forEach(fieldDescriptor -> {
                     CompletionItem completionItem = new CompletionItem();
                     completionItem.setLabel(fieldDescriptor.name());
                     completionItem.setInsertText(fieldDescriptor.name());
@@ -222,7 +224,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                 });
                 break;
             case OBJECT:
-                ObjectTypeDescriptor objTypeDesc = (ObjectTypeDescriptor) typeDescriptor;
+                ObjectTypeDescriptor objTypeDesc = (ObjectTypeDescriptor) rawType;
                 objTypeDesc.fieldDescriptors().forEach(fieldDescriptor -> {
                     CompletionItem completionItem = new CompletionItem();
                     completionItem.setLabel(fieldDescriptor.name());

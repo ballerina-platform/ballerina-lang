@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
@@ -29,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariab
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -199,7 +201,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.AbstractMap.SimpleEntry;
@@ -276,6 +277,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.uninitializedVars = new LinkedHashMap<>();
         this.globalNodeDependsOn = new LinkedHashMap<>();
         this.functionToDependency = new HashMap<>();
+        this.dlog.setCurrentPackageId(pkgNode.packageID);
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
         return pkgNode;
@@ -303,6 +305,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         this.globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
         this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency);
+        pkgNode.globalVariableDependencies = globalVariableRefAnalyzer.getGlobalVariablesDependsOn();
         checkUnusedImports(pkgNode.imports);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
@@ -719,7 +722,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // marks the injected import as used
         Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
-        Name compUnitName = names.fromString(transactionNode.pos.getSource().getCompilationUnitName());
+        Name compUnitName = names.fromString(transactionNode.pos.lineRange().filePath());
         this.symResolver.resolvePrefixSymbol(env, transactionPkgName, compUnitName);
     }
 
@@ -1102,14 +1105,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean isFieldsInitializedForSelfInvocation(List<BLangExpression> argExpressions, DiagnosticPos pos) {
+    private boolean isFieldsInitializedForSelfInvocation(List<BLangExpression> argExpressions,
+                                                         Location location) {
 
         for (BLangExpression expr : argExpressions) {
             if (isSelfKeyWordExpr(expr)) {
                 StringBuilder uninitializedFields =
                         getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef) expr).symbol.type);
                 if (uninitializedFields.length() != 0) {
-                    this.dlog.error(pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
+                    this.dlog.error(location, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
                             uninitializedFields.toString());
                     return false;
                 }
@@ -1118,7 +1122,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean isGlobalVarsInitialized(DiagnosticPos pos) {
+    private boolean isGlobalVarsInitialized(Location pos) {
         if (env.isModuleInit) {
             boolean isFirstUninitializedField = true;
             StringBuilder uninitializedFields = new StringBuilder();
@@ -1202,7 +1206,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void addFunctionToGlobalVarDependency(BSymbol dependent, BSymbol provider) {
-        if (dependent.kind != SymbolKind.FUNCTION) {
+        if (dependent.kind != SymbolKind.FUNCTION && !isGlobalVarSymbol(dependent)) {
             return;
         }
         if (isVariableOrConstant(provider) && !isGlobalVarSymbol(provider)) {
@@ -1437,7 +1441,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.closureVarSymbols.forEach(closureVarSymbol -> {
             if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
-                this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.USAGE_OF_UNINITIALIZED_VARIABLE,
+                this.dlog.error(closureVarSymbol.diagnosticLocation, DiagnosticCode.USAGE_OF_UNINITIALIZED_VARIABLE,
                         closureVarSymbol.bSymbol);
             }
         });
@@ -1749,7 +1753,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                         }));
     }
 
-    private void checkVarRef(BSymbol symbol, DiagnosticPos pos) {
+    private void checkVarRef(BSymbol symbol, Location pos) {
         recordGlobalVariableReferenceRelationship(symbol);
 
         InitStatus initStatus = this.uninitializedVars.get(symbol);
@@ -1875,32 +1879,36 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BType exprType = expr.type;
 
         if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
-                isFinalFieldInAllObjects(exprType, fieldAccess.field.value)) {
+                isFinalFieldInAllObjects(fieldAccess.pos, exprType, fieldAccess.field.value)) {
             dlog.error(fieldAccess.pos, DiagnosticCode.CANNOT_UPDATE_FINAL_OBJECT_FIELD, fieldAccess.field.value);
-            return;
         }
-
-        if (expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
-            return;
-        }
-
-        checkFinalObjectFieldUpdate((BLangFieldBasedAccess) expr);
     }
 
-    private boolean isFinalFieldInAllObjects(BType type, String fieldName) {
+    private boolean isFinalFieldInAllObjects(Location pos, BType type, String fieldName) {
         if (type.tag == TypeTags.OBJECT) {
-            return Symbols.isFlagOn(((BObjectType) type).fields.get(fieldName).symbol.flags, Flags.FINAL);
+
+            BField field = ((BObjectType) type).fields.get(fieldName);
+            if (field != null) {
+                return Symbols.isFlagOn(field.symbol.flags, Flags.FINAL);
+            }
+
+            BObjectTypeSymbol objTypeSymbol = (BObjectTypeSymbol) type.tsymbol;
+            Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(objTypeSymbol.name.value, fieldName));
+            BSymbol funcSymbol = symResolver.resolveObjectMethod(pos, env, funcName, objTypeSymbol);
+
+            // Object member functions are inherently final
+            return funcSymbol != null;
         }
 
         for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-            if (!isFinalFieldInAllObjects(memberType, fieldName)) {
+            if (!isFinalFieldInAllObjects(pos, memberType, fieldName)) {
                 return false;
             }
         }
         return true;
     }
 
-    private void checkFinalEntityUpdate(DiagnosticPos pos, Object field, BSymbol symbol) {
+    private void checkFinalEntityUpdate(Location pos, Object field, BSymbol symbol) {
         if (symbol == null || !Symbols.isFlagOn(symbol.flags, Flags.FINAL)) {
             return;
         }

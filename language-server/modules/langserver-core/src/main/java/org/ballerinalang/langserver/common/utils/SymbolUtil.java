@@ -147,11 +147,13 @@ public class SymbolUtil {
      * @param symbol to be evaluated
      * @return {@link Boolean} status of the evaluation
      */
-    public static boolean isListener(TypeSymbol symbol) {
-        if (CommonUtil.getRawType(symbol.typeDescriptor()).kind() != TypeDescKind.OBJECT) {
+    public static boolean isListener(Symbol symbol) {
+        Optional<? extends BallerinaTypeDescriptor> symbolTypeDesc = getTypeDescriptor(symbol);
+        
+        if (symbolTypeDesc.isEmpty() || CommonUtil.getRawType(symbolTypeDesc.get()).kind() != TypeDescKind.OBJECT) {
             return false;
         }
-        List<String> attachedMethods = ((ObjectTypeDescriptor) CommonUtil.getRawType(symbol.typeDescriptor())).methods()
+        List<String> attachedMethods = ((ObjectTypeDescriptor) CommonUtil.getRawType(symbolTypeDesc.get())).methods()
                 .stream()
                 .map(Symbol::name)
                 .collect(Collectors.toList());

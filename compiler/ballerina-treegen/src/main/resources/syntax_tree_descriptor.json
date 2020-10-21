@@ -1488,11 +1488,13 @@
                 },
                 {
                     "name": "equalsToken",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "initializer",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "isOptional": true
                 },
                 {
                     "name": "semicolonToken",
@@ -3518,7 +3520,8 @@
                 },
                 {
                     "name": "qualifier",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "enumKeywordToken",

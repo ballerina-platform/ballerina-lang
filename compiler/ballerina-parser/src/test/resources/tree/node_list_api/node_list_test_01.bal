@@ -10,6 +10,8 @@ public function add(int x, int y) returns int {
     return c;
 }
 
-public type Person record {};
+public type Person record {
+};
 
-public type Employee object {};
+public type Employee object {
+};

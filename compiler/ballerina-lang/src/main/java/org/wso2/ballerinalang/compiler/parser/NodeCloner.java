@@ -387,6 +387,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangCompilationUnit clone = new BLangCompilationUnit();
         source.cloneRef = clone;
         clone.name = source.name;
+        clone.setPackageID(source.getPackageID());
         for (TopLevelNode node : source.topLevelNodes) {
             clone.topLevelNodes.add(clone(node));
         }
@@ -694,8 +695,8 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangMatchClause clone = new BLangMatchClause();
         source.cloneRef = clone;
         clone.matchPatterns = cloneList(source.matchPatterns);
-        clone.setMatchGuard(source.getMatchGuard());
-        clone.setBlockStatement(source.getBLockStatement());
+        clone.setMatchGuard(clone(source.getMatchGuard()));
+        clone.setBlockStatement(clone(source.getBLockStatement()));
         clone.expr = source.expr;
     }
 
