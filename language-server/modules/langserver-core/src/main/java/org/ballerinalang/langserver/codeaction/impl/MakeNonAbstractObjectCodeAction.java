@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.builder.impl;
+package org.ballerinalang.langserver.codeaction.impl;
 
-import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
@@ -40,11 +38,11 @@ import java.util.regex.Matcher;
 import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
 
 /**
- * Code Action for making object abstract type.
+ * Code Action for making object non abstract type.
  *
  * @since 1.2.0
  */
-public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
+public class MakeNonAbstractObjectCodeAction implements DiagBasedCodeAction {
     @Override
     public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
             throws LSCodeActionProviderException {
@@ -54,7 +52,7 @@ public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
 
         Optional<BLangTypeDefinition> objType = getObjectTypeDefinition(context, position.getLine(),
                                                                         position.getCharacter());
-        if (!objType.isPresent()) {
+        if (objType.isEmpty()) {
             return null;
         }
 
@@ -68,7 +66,7 @@ public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
         Iterator<Whitespace> iterator = whitespaces.iterator();
 
         String commandTitle = String.format(CommandConstants.MAKE_OBJ_ABSTRACT_TITLE, simpleObjName);
-        int colBeforeObjKeyword = objType.get().pos.lineRange().startLine().offset();
+        int colBeforeObjKeyword = objType.get().pos.sCol;
         boolean isFirst = true;
         StringBuilder str = new StringBuilder();
         while (iterator.hasNext()) {
@@ -86,7 +84,7 @@ public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
         colBeforeObjKeyword += str.toString().length();
 
         String editText = " abstract";
-        Position pos = new Position(objType.get().pos.lineRange().startLine().line() - 1, colBeforeObjKeyword - 1);
+        Position pos = new Position(objType.get().pos.sLine - 1, colBeforeObjKeyword - 1);
 
         List<TextEdit> edits = Collections.singletonList(new TextEdit(new Range(pos, pos), editText));
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
@@ -113,14 +111,11 @@ public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
         return bLangPackage.topLevelNodes.stream()
                 .filter(topLevelNode -> {
                     if (topLevelNode instanceof BLangTypeDefinition) {
-                        Location pos =
+                        org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition pos =
                                 topLevelNode.getPosition();
-                        return ((pos.lineRange().startLine().line() == line ||
-                                pos.lineRange().endLine().line() == line ||
-                                (pos.lineRange().startLine().line() < line
-                                        && pos.lineRange().endLine().line() > line)) &&
-                                (pos.lineRange().startLine().offset() <= column
-                                        && pos.lineRange().endLine().offset() <= column));
+                        return ((pos.getStartLine() == line || pos.getEndLine() == line ||
+                                (pos.getStartLine() < line && pos.getEndLine() > line)) &&
+                                (pos.getStartColumn() <= column && pos.getEndColumn() <= column));
                     }
                     return false;
                 }).findAny().map(t -> (BLangTypeDefinition) t);

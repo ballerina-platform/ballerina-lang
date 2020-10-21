@@ -15,7 +15,15 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ServiceBodyNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
@@ -23,41 +31,21 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.exception.UserErrorException;
-import org.ballerinalang.langserver.util.TokensUtil;
-import org.ballerinalang.langserver.util.references.ReferencesUtil;
-import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
-import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
-import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Code Action related Utils.
@@ -65,7 +53,6 @@ import java.util.Optional;
  * @since 1.0.1
  */
 public class CodeActionUtil {
-    private static final Logger logger = LoggerFactory.getLogger(CodeActionUtil.class);
 
     private CodeActionUtil() {
     }
@@ -79,104 +66,83 @@ public class CodeActionUtil {
      * @return {@link String}   Top level node type
      */
     public static CodeActionNodeType topLevelNodeInLine(LSContext context, TextDocumentIdentifier identifier,
-                                                        int cursorLine, WorkspaceDocumentManager docManager) {
+                                                        int cursorLine, WorkspaceDocumentManager docManager)
+            throws CompilationFailedException {
         Optional<Path> filePath = CommonUtil.getPathFromURI(identifier.getUri());
-        if (!filePath.isPresent()) {
+        if (filePath.isEmpty()) {
             return null;
         }
 
+        BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, false, false);
+        List<Diagnostic> diagnostics = bLangPackage.getDiagnostics();
+        context.put(CodeActionKeys.DIAGNOSTICS_KEY, CodeActionUtil.toDiagnostics(diagnostics));
+
+        ModulePartNode modulePartNode;
         try {
-            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, false, false);
-            String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-            BLangPackage evalPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
-            List<Diagnostic> diagnostics = bLangPackage.getDiagnostics();
-            context.put(CodeActionKeys.DIAGNOSTICS_KEY, CodeActionUtil.toDiagnostics(diagnostics));
+            modulePartNode = docManager.getTree(filePath.get()).rootNode();
+        } catch (WorkspaceDocumentException e) {
+            return null;
+        }
 
-            Optional<BLangCompilationUnit> filteredCUnit = evalPkg.compUnits.stream()
-                    .filter(cUnit -> cUnit.getPosition().lineRange()
-                            .filePath().replace("/", CommonUtil.FILE_SEPARATOR)
-                            .equals(relativeSourcePath))
-                    .findAny();
-
-            if (!filteredCUnit.isPresent()) {
-                return null;
-            }
-
-            for (TopLevelNode topLevelNode : filteredCUnit.get().getTopLevelNodes()) {
-                Location diagnosticLocation =
-                        CommonUtil.toZeroBasedPosition(((BLangNode) topLevelNode).pos);
-                if (topLevelNode instanceof BLangService) {
-                    if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
-                        return CodeActionNodeType.SERVICE;
-                    }
-                    if (cursorLine > diagnosticLocation.lineRange().startLine().line()
-                            && cursorLine < diagnosticLocation.lineRange().endLine().line()) {
-                        // Cursor within the service
-                        for (BLangFunction resourceFunction : ((BLangService) topLevelNode).resourceFunctions) {
-                            diagnosticLocation = CommonUtil.toZeroBasedPosition(resourceFunction.getName().pos);
-                            if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
-                                return CodeActionNodeType.RESOURCE;
-                            }
+        List<ModuleMemberDeclarationNode> members = modulePartNode.members().stream().collect(Collectors.toList());
+        for (ModuleMemberDeclarationNode member : members) {
+            boolean isSameLine = member.lineRange().startLine().line() == cursorLine;
+            boolean isWithinLines = cursorLine > member.lineRange().startLine().line() &&
+                    cursorLine < member.lineRange().endLine().line();
+            if (member.kind() == SyntaxKind.SERVICE_DECLARATION) {
+                if (isSameLine) {
+                    // Cursor on the service
+                    return CodeActionNodeType.SERVICE;
+                } else if (isWithinLines) {
+                    // Cursor within the service
+                    ServiceDeclarationNode serviceDeclrNode = (ServiceDeclarationNode) member;
+                    for (Node resourceNode : ((ServiceBodyNode) serviceDeclrNode.serviceBody()).resources()) {
+                        boolean isSameResLine = resourceNode.lineRange().startLine().line() == cursorLine;
+                        if (isSameResLine && resourceNode.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+                            // Cursor on the resource function
+                            return CodeActionNodeType.RESOURCE;
                         }
                     }
                 }
-
-                if (topLevelNode instanceof BLangImportPackage &&
-                        cursorLine == diagnosticLocation.lineRange().startLine().line()) {
-                    return CodeActionNodeType.IMPORTS;
-                }
-
-                if (topLevelNode instanceof BLangFunction
-                        && !((BLangFunction) topLevelNode).flagSet.contains(Flag.ANONYMOUS)
-                        && cursorLine == diagnosticLocation.lineRange().startLine().line()) {
-                    return CodeActionNodeType.FUNCTION;
-                }
-
-                if (topLevelNode instanceof BLangTypeDefinition
-                        && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangRecordTypeNode
-                        && cursorLine == diagnosticLocation.lineRange().startLine().line()) {
-                    return CodeActionNodeType.RECORD;
-                }
-
-                if (topLevelNode instanceof BLangClassDefinition) {
-                    if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
-                        return CodeActionNodeType.CLASS;
-                    }
-                    if (cursorLine > diagnosticLocation.lineRange().startLine().line()
-                            && cursorLine < diagnosticLocation.lineRange().endLine().line()) {
-                        // Cursor within the class
-                        for (BLangFunction function : ((BLangClassDefinition) topLevelNode).functions) {
-                            diagnosticLocation = CommonUtil.toZeroBasedPosition(function.getName().pos);
-                            if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
-                                return CodeActionNodeType.CLASS_FUNCTION;
-                            }
-                        }
-                    }
-                }
-
-                if (topLevelNode instanceof BLangTypeDefinition
-                        && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangObjectTypeNode) {
-                    if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
+            } else if (isSameLine && member.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+                return CodeActionNodeType.FUNCTION;
+            } else if (member.kind() == SyntaxKind.TYPE_DEFINITION) {
+                TypeDefinitionNode definitionNode = (TypeDefinitionNode) member;
+                Node typeDesc = definitionNode.typeDescriptor();
+                if (isSameLine) {
+                    if (typeDesc.kind() == SyntaxKind.RECORD_TYPE_DESC) {
+                        return CodeActionNodeType.RECORD;
+                    } else if (typeDesc.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
                         return CodeActionNodeType.OBJECT;
                     }
-                    if (cursorLine > diagnosticLocation.lineRange().startLine().line()
-                            && cursorLine < diagnosticLocation.lineRange().endLine().line()) {
-                        // Cursor within the object
-                        for (BLangFunction resourceFunction
-                                : ((BLangObjectTypeNode) ((BLangTypeDefinition) topLevelNode).typeNode).functions) {
-                            diagnosticLocation = CommonUtil.toZeroBasedPosition(resourceFunction.getName().pos);
-                            if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
-                                return CodeActionNodeType.OBJECT_FUNCTION;
-                            }
+                } else if (isWithinLines && typeDesc.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
+                    ObjectTypeDescriptorNode objectTypeDescNode = (ObjectTypeDescriptorNode) typeDesc;
+                    for (Node memberNode : objectTypeDescNode.members()) {
+                        boolean isSameResLine = memberNode.lineRange().startLine().line() == cursorLine;
+                        if (isSameResLine && memberNode.kind() == SyntaxKind.METHOD_DECLARATION) {
+                            // Cursor on the object function
+                            return CodeActionNodeType.OBJECT_FUNCTION;
+                        }
+                    }
+                }
+            } else if (member.kind() == SyntaxKind.CLASS_DEFINITION) {
+                if (isSameLine) {
+                    // Cursor on the class
+                    return CodeActionNodeType.CLASS;
+                } else if (isWithinLines) {
+                    // Cursor within the class
+                    ClassDefinitionNode classDefNode = (ClassDefinitionNode) member;
+                    for (Node memberNode : classDefNode.members()) {
+                        boolean isSameResLine = memberNode.lineRange().startLine().line() == cursorLine;
+                        if (isSameResLine && memberNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+                            // Cursor on the class function
+                            return CodeActionNodeType.CLASS_FUNCTION;
                         }
                     }
                 }
             }
-            return null;
-        } catch (CompilationFailedException e) {
-            logger.error("Error while compiling the source");
-            return null;
         }
+        return null;
     }
 
     /**
@@ -195,10 +161,10 @@ public class CodeActionUtil {
 
             Location location = diagnostic.location();
             LineRange lineRange = location.lineRange();
-            int startLine = lineRange.startLine().line() - 1; // LSP diagnostics range is 0 based
-            int startChar = lineRange.startLine().offset() - 1;
-            int endLine = lineRange.endLine().line() - 1;
-            int endChar = lineRange.endLine().offset() - 1;
+            int startLine = lineRange.startLine().line(); // LSP diagnostics range is 0 based
+            int startChar = lineRange.startLine().offset();
+            int endLine = lineRange.endLine().line();
+            int endChar = lineRange.endLine().offset();
 
             if (endLine <= 0) {
                 endLine = startLine;
@@ -216,66 +182,5 @@ public class CodeActionUtil {
         });
 
         return lsDiagnostics;
-    }
-
-    /**
-     * Get the Symbol at the Cursor.
-     *
-     * @param context  LS Operation Context
-     * @param document LS Document
-     * @param position Cursor Position
-     * @return Symbol reference at cursor
-     * @throws WorkspaceDocumentException when couldn't find file for uri
-     * @throws CompilationFailedException when compilation failed
-     */
-    public static SymbolReferencesModel.Reference getSymbolAtCursor(LSContext context, LSDocumentIdentifier document,
-                                                                    Position position)
-            throws WorkspaceDocumentException, CompilationFailedException,
-            TokenOrSymbolNotFoundException {
-        TextDocumentIdentifier textDocIdentifier = new TextDocumentIdentifier(document.getURIString());
-        TextDocumentPositionParams pos = new TextDocumentPositionParams(textDocIdentifier, position);
-        context.put(DocumentServiceKeys.POSITION_KEY, pos);
-        context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
-        context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
-
-        List<BLangPackage> modules = ReferencesUtil.compileModules(context);
-        context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, modules);
-        return findSymbolAtCursor(modules, context);
-    }
-
-    private static SymbolReferencesModel.Reference findSymbolAtCursor(List<BLangPackage> modules, LSContext context)
-            throws WorkspaceDocumentException, TokenOrSymbolNotFoundException {
-        String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
-        /*
-        In windows platform, relative file path key components are separated with "\" while antlr always uses "/"
-         */
-        String relativePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        String currentCUnitName = relativePath.replace("\\", "/");
-        Optional<BLangPackage> currentPkg = modules.stream()
-                .filter(pkg -> pkg.symbol.getName().getValue().equals(currentPkgName))
-                .findAny();
-
-        if (!currentPkg.isPresent()) {
-            throw new UserErrorException("Not supported due to compilation failures!");
-        }
-
-        BLangPackage sourceOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, currentPkg.get());
-
-        Optional<BLangCompilationUnit> currentCUnit = sourceOwnerPkg.getCompilationUnits().stream()
-                .filter(cUnit -> cUnit.name.equals(currentCUnitName))
-                .findAny();
-
-        if (!currentCUnit.isPresent()) {
-            throw new UserErrorException("Not supported due to compilation failures!");
-        }
-
-        // With the syntax-tree, find the cursor token
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
-
-        CursorSymbolFindingVisitor refVisitor = new CursorSymbolFindingVisitor(tokenAtCursor, context,
-                currentPkgName, true);
-        SymbolReferencesModel symbolReferencesModel = refVisitor.accept(currentCUnit.get());
-        return symbolReferencesModel.getReferenceAtCursor();
     }
 }

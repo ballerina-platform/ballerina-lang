@@ -83,7 +83,8 @@ public class IsolationAnalysisTest {
                 "testIsolatedClosuresAsRecordDefaultValues",
                 "testIsolatedObjectFieldInitializers",
                 "testIsolationAnalysisWithRemoteMethods",
-                "testIsolatedFunctionWithDefaultableParams"
+                "testIsolatedFunctionWithDefaultableParams",
+                "testAccessingFinalIsolatedObjectInIsolatedFunction"
         };
     }
 
@@ -175,6 +176,8 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 225, 94);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 229, 45);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 229, 73);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 255, 27);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 256, 17);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

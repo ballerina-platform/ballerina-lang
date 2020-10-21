@@ -16,7 +16,6 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -93,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -172,7 +172,7 @@ public class ASTBuilderUtil {
         return castExpr;
     }
 
-    static BLangFunction createFunction(Location pos, String name) {
+    static BLangFunction createFunction(DiagnosticPos pos, String name) {
         final BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         final IdentifierNode funcName = createIdentifier(pos, name);
         bLangFunction.setName(funcName);
@@ -198,7 +198,7 @@ public class ASTBuilderUtil {
         return bLangType;
     }
 
-    static BLangUserDefinedType createUserDefineTypeNode(String typeName, BType type, Location pos) {
+    static BLangUserDefinedType createUserDefineTypeNode(String typeName, BType type, DiagnosticPos pos) {
         BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         userDefinedType.typeName = (BLangIdentifier) createIdentifier(typeName);
         userDefinedType.type = type;
@@ -207,14 +207,14 @@ public class ASTBuilderUtil {
         return userDefinedType;
     }
 
-    static BLangIf createIfStmt(Location pos, BlockNode target) {
+    static BLangIf createIfStmt(DiagnosticPos pos, BlockNode target) {
         final BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = pos;
         target.addStatement(ifNode);
         return ifNode;
     }
 
-    static BLangIf createIfElseStmt(Location pos,
+    static BLangIf createIfElseStmt(DiagnosticPos pos,
                                     BLangExpression conditionExpr,
                                     BLangBlockStmt thenBody,
                                     BLangStatement elseStmt) {
@@ -226,7 +226,7 @@ public class ASTBuilderUtil {
         return ifNode;
     }
 
-    static BLangTypeTestExpr createTypeTestExpr(Location pos, BLangExpression expr, BLangType type) {
+    static BLangTypeTestExpr createTypeTestExpr(DiagnosticPos pos, BLangExpression expr, BLangType type) {
         final BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
         typeTestExpr.pos = pos;
         typeTestExpr.expr = expr;
@@ -234,7 +234,7 @@ public class ASTBuilderUtil {
         return typeTestExpr;
     }
 
-    static BLangForeach createForeach(Location pos,
+    static BLangForeach createForeach(DiagnosticPos pos,
                                       BLangBlockStmt target,
                                       BLangSimpleVarRef collectionVarRef) {
         final BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
@@ -245,32 +245,31 @@ public class ASTBuilderUtil {
         return foreach;
     }
 
-    static BLangSimpleVariableDef createVariableDefStmt(Location pos, BlockNode target) {
+    static BLangSimpleVariableDef createVariableDefStmt(DiagnosticPos pos, BlockNode target) {
         final BLangSimpleVariableDef variableDef = createVariableDef(pos);
         target.addStatement(variableDef);
         return variableDef;
     }
 
-    static BLangSimpleVariableDef createVariableDef(Location pos) {
+    static BLangSimpleVariableDef createVariableDef(DiagnosticPos pos) {
         final BLangSimpleVariableDef variableDef =
                 (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         variableDef.pos = pos;
         return variableDef;
     }
 
-    static BLangAssignment createAssignmentStmt(Location pos, BlockNode target) {
+    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BlockNode target) {
         final BLangAssignment assignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignment.pos = pos;
         target.addStatement(assignment);
         return assignment;
     }
 
-    static BLangAssignment createAssignmentStmt(Location location, BLangExpression varRef,
-                                                BLangExpression rhsExpr) {
-        return createAssignmentStmt(location, varRef, rhsExpr, false);
+    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BLangExpression varRef, BLangExpression rhsExpr) {
+        return createAssignmentStmt(pos, varRef, rhsExpr, false);
     }
 
-    static BLangAssignment createAssignmentStmt(Location pos, BLangExpression varRef,
+    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BLangExpression varRef,
                                                 BLangExpression rhsExpr, boolean declaredWithVar) {
         final BLangAssignment assignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignment.pos = pos;
@@ -280,74 +279,74 @@ public class ASTBuilderUtil {
         return assignment;
     }
 
-    static BLangExpressionStmt createExpressionStmt(Location pos, BlockNode target) {
+    static BLangExpressionStmt createExpressionStmt(DiagnosticPos pos, BlockNode target) {
         final BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
         exprStmt.pos = pos;
         target.addStatement(exprStmt);
         return exprStmt;
     }
 
-    static BLangReturn createReturnStmt(Location pos, BlockNode target) {
+    static BLangReturn createReturnStmt(DiagnosticPos pos, BlockNode target) {
         final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = pos;
         target.addStatement(returnStmt);
         return returnStmt;
     }
 
-    public static BLangReturn createNilReturnStmt(Location pos, BType nilType) {
+    public static BLangReturn createNilReturnStmt(DiagnosticPos pos, BType nilType) {
         final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = pos;
         returnStmt.expr = createLiteral(pos, nilType, Names.NIL_VALUE);
         return returnStmt;
     }
 
-    public static BLangReturn createReturnStmt(Location pos, BType returnType, Object value) {
+    public static BLangReturn createReturnStmt(DiagnosticPos pos, BType returnType, Object value) {
         final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = pos;
         returnStmt.expr = createLiteral(pos, returnType, value);
         return returnStmt;
     }
 
-    public static BLangReturn createReturnStmt(Location pos, BLangExpression expr) {
+    public static BLangReturn createReturnStmt(DiagnosticPos pos, BLangExpression expr) {
         final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = pos;
         returnStmt.expr = expr;
         return returnStmt;
     }
 
-    static void createContinueStmt(Location pos, BLangBlockStmt target) {
+    static void createContinueStmt(DiagnosticPos pos, BLangBlockStmt target) {
         final BLangContinue nextStmt = (BLangContinue) TreeBuilder.createContinueNode();
         nextStmt.pos = pos;
         target.addStatement(nextStmt);
     }
 
-    static BLangBlockFunctionBody createBlockFunctionBody(Location pos) {
+    static BLangBlockFunctionBody createBlockFunctionBody(DiagnosticPos pos) {
         final BLangBlockFunctionBody blockNode = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         blockNode.pos = pos;
         return blockNode;
     }
 
-    static BLangBlockFunctionBody createBlockFunctionBody(Location pos, List<BLangStatement> stmts) {
+    static BLangBlockFunctionBody createBlockFunctionBody(DiagnosticPos pos, List<BLangStatement> stmts) {
         final BLangBlockFunctionBody blockNode = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         blockNode.pos = pos;
         blockNode.stmts = stmts;
         return blockNode;
     }
 
-    static BLangBlockStmt createBlockStmt(Location pos) {
+    static BLangBlockStmt createBlockStmt(DiagnosticPos pos) {
         final BLangBlockStmt blockNode = (BLangBlockStmt) TreeBuilder.createBlockNode();
         blockNode.pos = pos;
         return blockNode;
     }
 
-    static BLangBlockStmt createBlockStmt(Location pos, List<BLangStatement> stmts) {
+    static BLangBlockStmt createBlockStmt(DiagnosticPos pos, List<BLangStatement> stmts) {
         final BLangBlockStmt blockNode = (BLangBlockStmt) TreeBuilder.createBlockNode();
         blockNode.pos = pos;
         blockNode.stmts = stmts;
         return blockNode;
     }
 
-    static BLangMatch.BLangMatchTypedBindingPatternClause createMatchStatementPattern(Location pos,
+    static BLangMatch.BLangMatchTypedBindingPatternClause createMatchStatementPattern(DiagnosticPos pos,
                                                                                       BLangSimpleVariable variable,
                                                                                       BLangBlockStmt body) {
         BLangMatch.BLangMatchTypedBindingPatternClause patternClause =
@@ -360,7 +359,7 @@ public class ASTBuilderUtil {
 
     }
 
-    static BLangMatch createMatchStatement(Location pos,
+    static BLangMatch createMatchStatement(DiagnosticPos pos,
                                            BLangExpression expr,
                                            List<BLangMatch.BLangMatchTypedBindingPatternClause> patternClauses) {
         BLangMatch matchStmt = (BLangMatch) TreeBuilder.createMatchStatement();
@@ -370,11 +369,11 @@ public class ASTBuilderUtil {
         return matchStmt;
     }
 
-    static BLangUnaryExpr createUnaryExpr(Location pos) {
+    static BLangUnaryExpr createUnaryExpr(DiagnosticPos pos) {
         return createUnaryExpr(pos, null, null, null, null);
     }
 
-    static BLangUnaryExpr createUnaryExpr(Location pos,
+    static BLangUnaryExpr createUnaryExpr(DiagnosticPos pos,
                                           BLangExpression expr,
                                           BType type,
                                           OperatorKind kind,
@@ -388,7 +387,7 @@ public class ASTBuilderUtil {
         return unaryExpr;
     }
 
-    static BLangTypedescExpr createTypeofExpr(Location pos, BType type, BType resolvedType) {
+    static BLangTypedescExpr createTypeofExpr(DiagnosticPos pos, BType type, BType resolvedType) {
         final BLangTypedescExpr typeofExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
         typeofExpr.pos = pos;
         typeofExpr.type = type;
@@ -396,12 +395,11 @@ public class ASTBuilderUtil {
         return typeofExpr;
     }
 
-    static BLangIndexBasedAccess createIndexBasesAccessExpr(Location location, BType type,
-                                                            BVarSymbol varSymbol,
+    static BLangIndexBasedAccess createIndexBasesAccessExpr(DiagnosticPos pos, BType type, BVarSymbol varSymbol,
                                                             BLangExpression indexExpr) {
         final BLangIndexBasedAccess arrayAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
-        arrayAccess.pos = location;
-        arrayAccess.expr = createVariableRef(location, varSymbol);
+        arrayAccess.pos = pos;
+        arrayAccess.expr = createVariableRef(pos, varSymbol);
         arrayAccess.indexExpr = indexExpr;
         arrayAccess.type = type;
         return arrayAccess;
@@ -420,7 +418,7 @@ public class ASTBuilderUtil {
         return conversion;
     }
 
-    static List<BLangExpression> generateArgExprs(Location pos, List<BLangSimpleVariable> args,
+    static List<BLangExpression> generateArgExprs(DiagnosticPos pos, List<BLangSimpleVariable> args,
                                                   List<BVarSymbol> formalParams, SymbolResolver symResolver) {
         List<BLangExpression> argsExpr = new ArrayList<>();
         final List<BLangSimpleVarRef> variableRefList = createVariableRefList(pos, args);
@@ -437,14 +435,12 @@ public class ASTBuilderUtil {
         return argsExpr;
     }
 
-    public static BLangInvocation createInvocationExpr(Location location,
-                                                       BInvokableSymbol invokableSymbol,
-                                                       List<BLangSimpleVariable> requiredArgs,
-                                                       SymbolResolver symResolver) {
-        return createInvocationExpr(location, invokableSymbol, requiredArgs, new ArrayList<>(), symResolver);
+    public static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
+                                                List<BLangSimpleVariable> requiredArgs, SymbolResolver symResolver) {
+        return createInvocationExpr(pos, invokableSymbol, requiredArgs, new ArrayList<>(), symResolver);
     }
 
-    static BLangInvocation createInvocationExpr(Location pos, BInvokableSymbol invokableSymbol,
+    static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                 List<BLangSimpleVariable> requiredArgs,
                                                 List<BLangSimpleVariable> restArgs, SymbolResolver symResolver) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
@@ -459,23 +455,23 @@ public class ASTBuilderUtil {
     }
 
     public static BLangInvocation createLangLibInvocationNode(String name, ArrayList<BLangExpression> argExprs,
-                                                              BLangExpression onExpr, Location location) {
+                                                              BLangExpression onExpr, DiagnosticPos pos) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
-        invocationNode.name = createIdentifier(location, name);
+        invocationNode.name = createIdentifier(pos, name);
         invocationNode.expr = onExpr;
-        invocationNode.pos = location;
+        invocationNode.pos = pos;
         invocationNode.argExprs = argExprs;
         invocationNode.langLibInvocation = true;
 
         return invocationNode;
     }
 
-    static BLangInvocation createInvocationExprForMethod(Location pos, BInvokableSymbol invokableSymbol,
+    static BLangInvocation createInvocationExprForMethod(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                 List<BLangExpression> requiredArgs, SymbolResolver symResolver) {
         return createInvocationExprMethod(pos, invokableSymbol, requiredArgs, new ArrayList<>(), symResolver);
     }
 
-    static BLangInvocation createInvocationExprMethod(Location pos, BInvokableSymbol invokableSymbol,
+    static BLangInvocation createInvocationExprMethod(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                       List<BLangExpression> requiredArgs,
                                                       List<BLangSimpleVariable> restArgs, SymbolResolver symResolver) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
@@ -490,13 +486,13 @@ public class ASTBuilderUtil {
         return invokeLambda;
     }
 
-    static List<BLangSimpleVarRef> createVariableRefList(Location pos, List<BLangSimpleVariable> args) {
+    static List<BLangSimpleVarRef> createVariableRefList(DiagnosticPos pos, List<BLangSimpleVariable> args) {
         final List<BLangSimpleVarRef> varRefs = new ArrayList<>();
         args.forEach(variable -> varRefs.add(createVariableRef(pos, variable.symbol)));
         return varRefs;
     }
 
-    static BLangSimpleVarRef createVariableRef(Location pos, BSymbol varSymbol) {
+    static BLangSimpleVarRef createVariableRef(DiagnosticPos pos, BSymbol varSymbol) {
         final BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         varRef.pos = pos;
         varRef.variableName = createIdentifier(pos, varSymbol.name.value);
@@ -505,7 +501,7 @@ public class ASTBuilderUtil {
         return varRef;
     }
 
-    public static BLangSimpleVariable createVariable(Location pos,
+    public static BLangSimpleVariable createVariable(DiagnosticPos pos,
                                                      String name,
                                                      BType type,
                                                      BLangExpression expr,
@@ -519,11 +515,11 @@ public class ASTBuilderUtil {
         return varNode;
     }
 
-    public static BLangSimpleVariable createVariable(Location pos, String name, BType type) {
+    public static BLangSimpleVariable createVariable(DiagnosticPos pos, String name, BType type) {
         return createVariable(pos, name, type, null, null);
     }
 
-    public static BLangSimpleVariableDef createVariableDef(Location pos, BLangSimpleVariable variable) {
+    public static BLangSimpleVariableDef createVariableDef(DiagnosticPos pos, BLangSimpleVariable variable) {
         final BLangSimpleVariableDef variableDef =
                 (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
         variableDef.pos = pos;
@@ -531,7 +527,7 @@ public class ASTBuilderUtil {
         return variableDef;
     }
 
-    static BLangTupleVariableDef createTupleVariableDef(Location pos, BLangTupleVariable variable) {
+    static BLangTupleVariableDef createTupleVariableDef(DiagnosticPos pos, BLangTupleVariable variable) {
         final BLangTupleVariableDef variableDef =
                 (BLangTupleVariableDef) TreeBuilder.createTupleVariableDefinitionNode();
         variableDef.pos = pos;
@@ -539,7 +535,7 @@ public class ASTBuilderUtil {
         return variableDef;
     }
 
-    static BLangRecordVariableDef createRecordVariableDef(Location pos, BLangRecordVariable variable) {
+    static BLangRecordVariableDef createRecordVariableDef(DiagnosticPos pos, BLangRecordVariable variable) {
         final BLangRecordVariableDef variableDef =
                 (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
         variableDef.pos = pos;
@@ -547,7 +543,7 @@ public class ASTBuilderUtil {
         return variableDef;
     }
 
-    static BLangErrorVariableDef createErrorVariableDef(Location pos, BLangErrorVariable variable) {
+    static BLangErrorVariableDef createErrorVariableDef(DiagnosticPos pos, BLangErrorVariable variable) {
         final BLangErrorVariableDef variableDef =
                 (BLangErrorVariableDef) TreeBuilder.createErrorVariableDefinitionNode();
         variableDef.pos = pos;
@@ -555,7 +551,7 @@ public class ASTBuilderUtil {
         return variableDef;
     }
 
-    static BLangCheckedExpr createCheckExpr(Location pos, BLangExpression expr, BType returnType) {
+    static BLangCheckedExpr createCheckExpr(DiagnosticPos pos, BLangExpression expr, BType returnType) {
         final BLangCheckedExpr checkExpr = (BLangCheckedExpr) TreeBuilder.createCheckExpressionNode();
         checkExpr.pos = pos;
         checkExpr.expr = expr;
@@ -564,17 +560,16 @@ public class ASTBuilderUtil {
         return checkExpr;
     }
 
-    static BLangCheckPanickedExpr createCheckPanickedExpr(Location location, BLangExpression expr,
-                                                          BType returnType) {
+    static BLangCheckPanickedExpr createCheckPanickedExpr(DiagnosticPos pos, BLangExpression expr, BType returnType) {
         final BLangCheckPanickedExpr checkExpr = (BLangCheckPanickedExpr) TreeBuilder.createCheckPanicExpressionNode();
-        checkExpr.pos = location;
+        checkExpr.pos = pos;
         checkExpr.expr = expr;
         checkExpr.type = returnType;
         checkExpr.equivalentErrorTypeList = new ArrayList<>();
         return checkExpr;
     }
 
-    static BLangBinaryExpr createBinaryExpr(Location pos,
+    static BLangBinaryExpr createBinaryExpr(DiagnosticPos pos,
                                             BLangExpression lhsExpr,
                                             BLangExpression rhsExpr,
                                             BType type,
@@ -590,12 +585,12 @@ public class ASTBuilderUtil {
         return binaryExpr;
     }
 
-    static BLangIsAssignableExpr createIsAssignableExpr(Location pos,
+    static BLangIsAssignableExpr createIsAssignableExpr(DiagnosticPos pos,
                                                         BLangExpression lhsExpr,
                                                         BType targetType,
                                                         BType type,
                                                         Names names,
-                                                        Location opSymPos) {
+                                                        DiagnosticPos opSymPos) {
         final BLangIsAssignableExpr assignableExpr = new BLangIsAssignableExpr();
         assignableExpr.pos = pos;
         assignableExpr.lhsExpr = lhsExpr;
@@ -606,7 +601,7 @@ public class ASTBuilderUtil {
         return assignableExpr;
     }
 
-    static BLangIsLikeExpr createIsLikeExpr(Location pos, BLangExpression expr, BLangType typeNode,
+    static BLangIsLikeExpr createIsLikeExpr(DiagnosticPos pos, BLangExpression expr, BLangType typeNode,
                                             BType retType) {
         BLangIsLikeExpr isLikeExpr = (BLangIsLikeExpr) TreeBuilder.createIsLikeExpressionNode();
         isLikeExpr.pos = pos;
@@ -616,7 +611,7 @@ public class ASTBuilderUtil {
         return isLikeExpr;
     }
 
-    static BLangLiteral createLiteral(Location pos, BType type, Object value) {
+    static BLangLiteral createLiteral(DiagnosticPos pos, BType type, Object value) {
         final BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.pos = pos;
         literal.value = value;
@@ -624,7 +619,7 @@ public class ASTBuilderUtil {
         return literal;
     }
 
-    static BLangConstRef createBLangConstRef(Location pos, BType type, Object value) {
+    static BLangConstRef createBLangConstRef(DiagnosticPos pos, BType type, Object value) {
         final BLangConstRef constRef = (BLangConstRef) TreeBuilder.createConstLiteralNode();
         constRef.pos = pos;
         constRef.value = value;
@@ -632,7 +627,7 @@ public class ASTBuilderUtil {
         return constRef;
     }
 
-    static BLangRecordLiteral createEmptyRecordLiteral(Location pos, BType type) {
+    static BLangRecordLiteral createEmptyRecordLiteral(DiagnosticPos pos, BType type) {
         final BLangRecordLiteral recordLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         recordLiteralNode.pos = pos;
         recordLiteralNode.type = type;
@@ -648,17 +643,16 @@ public class ASTBuilderUtil {
         return recordKeyValue;
     }
 
-    static BLangListConstructorExpr.BLangArrayLiteral createEmptyArrayLiteral(Location location,
-                                                                              BArrayType type) {
+    static BLangListConstructorExpr.BLangArrayLiteral createEmptyArrayLiteral(DiagnosticPos pos, BArrayType type) {
         final BLangListConstructorExpr.BLangArrayLiteral arrayLiteralNode =
                 (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
-        arrayLiteralNode.pos = location;
+        arrayLiteralNode.pos = pos;
         arrayLiteralNode.type = type;
         arrayLiteralNode.exprs = new ArrayList<>();
         return arrayLiteralNode;
     }
 
-    static BLangListConstructorExpr createListConstructorExpr(Location pos, BType type) {
+    static BLangListConstructorExpr createListConstructorExpr(DiagnosticPos pos, BType type) {
         if (type.tag == TypeTags.INTERSECTION) {
             type = ((BIntersectionType) type).effectiveType;
         }
@@ -675,7 +669,7 @@ public class ASTBuilderUtil {
         return listConstructorExpr;
     }
 
-    static BLangTypeInit createEmptyTypeInit(Location pos, BType type) {
+    static BLangTypeInit createEmptyTypeInit(DiagnosticPos pos, BType type) {
         BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createInitNode();
         objectInitNode.pos = pos;
         objectInitNode.type = type;
@@ -696,7 +690,7 @@ public class ASTBuilderUtil {
         return objectInitNode;
     }
 
-    public static BLangIdentifier createIdentifier(Location pos, String value) {
+    public static BLangIdentifier createIdentifier(DiagnosticPos pos, String value) {
         final BLangIdentifier node = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         node.pos = pos;
         if (value != null) {
@@ -739,15 +733,15 @@ public class ASTBuilderUtil {
         return fieldAccessExpr;
     }
 
-    public static BLangFunction createInitFunctionWithNilReturn(Location pos, String name, Name suffix) {
+    public static BLangFunction createInitFunctionWithNilReturn(DiagnosticPos pos, String name, Name suffix) {
         BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         typeNode.pos = pos;
         typeNode.typeKind = TypeKind.NIL;
         return createInitFunction(pos, name, suffix, typeNode);
     }
 
-    static BLangFunction createInitFunctionWithErrorOrNilReturn(Location pos, String name, Name suffix,
-                                                                SymbolTable symTable) {
+    static BLangFunction createInitFunctionWithErrorOrNilReturn(DiagnosticPos pos, String name, Name suffix,
+                                                                       SymbolTable symTable) {
         if (symTable.errorOrNilType == null) {
             // The error type may not have been loaded when compiling modules such as annotations.
             // Such modules are builtin and can never return error, so we set a nil returning init function.
@@ -761,7 +755,7 @@ public class ASTBuilderUtil {
         return createInitFunction(pos, name, suffix, typeNode);
     }
 
-    private static BLangFunction createInitFunction(Location pos, String name, Name suffix,
+    private static BLangFunction createInitFunction(DiagnosticPos pos, String name, Name suffix,
                                                     BLangValueType returnTypeNode) {
         BLangFunction initFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         initFunction.setName(createIdentifier(name + suffix.getValue()));
@@ -786,7 +780,7 @@ public class ASTBuilderUtil {
         return constExpr;
     }
 
-    public static BLangSimpleVariable createReceiver(Location pos, BType type) {
+    public static BLangSimpleVariable createReceiver(DiagnosticPos pos, BType type) {
         BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         receiver.pos = pos;
         IdentifierNode identifier = createIdentifier(pos, Names.SELF.getValue());
@@ -845,15 +839,12 @@ public class ASTBuilderUtil {
         return dupFuncSymbol;
     }
 
-    public static BInvokableSymbol duplicateFunctionDeclarationSymbol(BInvokableSymbol invokableSymbol,
-                                                                      BSymbol owner,
-                                                                      Name newName,
-                                                                      PackageID newPkgID,
-                                                                      Location location,
-                                                                      SymbolOrigin origin) {
+    public static BInvokableSymbol duplicateFunctionDeclarationSymbol(BInvokableSymbol invokableSymbol, BSymbol owner,
+                                                                      Name newName, PackageID newPkgID,
+                                                                      DiagnosticPos pos, SymbolOrigin origin) {
         BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newPkgID,
-                                                                      null, owner, invokableSymbol.bodyExist,
-                                                                      location, origin);
+                                                                      null, owner, invokableSymbol.bodyExist, pos,
+                                                                      origin);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.receiverSymbol = null;
@@ -887,12 +878,11 @@ public class ASTBuilderUtil {
         return newParamSymbol;
     }
 
-    private static List<BLangExpression> generateArgExprsForLambdas(Location location,
-                                                                    List<BLangSimpleVariable> args,
+    private static List<BLangExpression> generateArgExprsForLambdas(DiagnosticPos pos, List<BLangSimpleVariable> args,
                                                                     List<BVarSymbol> formalParams,
                                                                     SymbolResolver symResolver) {
         List<BLangExpression> argsExpr = new ArrayList<>();
-        final List<BLangSimpleVarRef> variableRefList = createVariableRefList(location, args);
+        final List<BLangSimpleVarRef> variableRefList = createVariableRefList(pos, args);
         int mapSymbolsParams = formalParams.size() - args.size();
         for (int i = 0; i < variableRefList.size(); i++) {
             BLangSimpleVarRef varRef = variableRefList.get(i);
@@ -908,7 +898,7 @@ public class ASTBuilderUtil {
     }
 
     static BLangXMLTextLiteral createXMLTextLiteralNode(BLangBinaryExpr parent, BLangExpression concatExpr,
-                                                        Location pos, BType type) {
+                                                        DiagnosticPos pos, BType type) {
         BLangXMLTextLiteral xmlTextLiteral = new BLangXMLTextLiteral();
         xmlTextLiteral.concatExpr = concatExpr;
         xmlTextLiteral.pos = pos;

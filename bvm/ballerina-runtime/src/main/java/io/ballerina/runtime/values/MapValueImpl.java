@@ -210,7 +210,30 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public Object merge(BMap v2, boolean checkMergeability) {
-        return merge(v2, checkMergeability);
+        if (checkMergeability) {
+            BError errorIfUnmergeable = JSONUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
+            if (errorIfUnmergeable != null) {
+                return errorIfUnmergeable;
+            }
+        }
+
+        MapValue<BString, Object> m1 = (MapValue<BString, Object>) this;
+        MapValue<BString, Object> m2 = (MapValue<BString, Object>) v2;
+
+        for (Map.Entry<BString, Object> entry : m2.entrySet()) {
+            BString key = entry.getKey();
+
+            if (!m1.containsKey(key)) {
+                m1.put(key, entry.getValue());
+                continue;
+            }
+
+            // Set checkMergeability to false to avoid rechecking mergeability.
+            // Since write locks are acquired, the initial check should suffice, and merging will always succeed.
+            m1.put(key, mergeJson(m1.get(key), entry.getValue(), false));
+        }
+
+        return this;
     }
 
     /**
@@ -606,32 +629,5 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     protected V putValue(K key, V value) {
         return super.put(key, value);
-    }
-
-    private Object merge(MapValueImpl v2, boolean checkMergeability) {
-        if (checkMergeability) {
-            BError errorIfUnmergeable = JSONUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
-            if (errorIfUnmergeable != null) {
-                return errorIfUnmergeable;
-            }
-        }
-
-        MapValue<BString, Object> m1 = (MapValue<BString, Object>) this;
-        MapValue<BString, Object> m2 = (MapValue<BString, Object>) v2;
-
-        for (Map.Entry<BString, Object> entry : m2.entrySet()) {
-            BString key = entry.getKey();
-
-            if (!m1.containsKey(key)) {
-                m1.put(key, entry.getValue());
-                continue;
-            }
-
-            // Set checkMergeability to false to avoid rechecking mergeability.
-            // Since write locks are acquired, the initial check should suffice, and merging will always succeed.
-            m1.put(key, mergeJson(m1.get(key), entry.getValue(), false));
-        }
-
-        return this;
     }
 }

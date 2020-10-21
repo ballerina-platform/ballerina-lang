@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -43,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -110,7 +110,7 @@ public class JvmDesugarPhase {
         BIRBasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, jvmMethodGen);
 
         int paramCounter = 0;
-        Location pos = currentFunc.pos;
+        DiagnosticPos pos = currentFunc.pos;
         while (paramCounter < functionParams.size()) {
             BIRFunctionParameter funcParam = functionParams.get(paramCounter);
             if (funcParam != null && funcParam.hasDefaultExpr) {

@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.builder.impl;
+package org.ballerinalang.langserver.codeaction.impl;
 
-import io.ballerina.tools.text.LineRange;
+import io.ballerina.compiler.api.symbols.Qualifiable;
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
+import io.ballerina.compiler.api.types.TypeDescKind;
+import io.ballerina.compiler.api.types.UnionTypeDescriptor;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -26,30 +31,18 @@ import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderExcep
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
-import org.ballerinalang.langserver.util.references.SymbolReferencesModel.Reference;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -62,75 +55,59 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
  * @since 2.0.0
  */
 public class TypeGuardCodeAction implements DiagBasedCodeAction {
-    private SymbolReferencesModel.Reference refAtCursor;
+    private final NonTerminalNode scopedNode;
+    private final Symbol scopedSymbol;
+    private final BallerinaTypeDescriptor typeDescriptor;
 
-    public TypeGuardCodeAction(SymbolReferencesModel.Reference refAtCursor) {
-        this.refAtCursor = refAtCursor;
+    public TypeGuardCodeAction(BallerinaTypeDescriptor typeDescriptor, NonTerminalNode scopedNode,
+                               Symbol scopedSymbol) {
+        this.typeDescriptor = typeDescriptor;
+        this.scopedNode = scopedNode;
+        this.scopedSymbol = scopedSymbol;
     }
 
     @Override
     public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
             throws LSCodeActionProviderException {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        BSymbol symbolAtCursor = refAtCursor.getSymbol();
-        boolean isInvocation = symbolAtCursor instanceof BInvokableSymbol;
-        boolean isRemoteInvocation =
-                symbolAtCursor != null && (symbolAtCursor.flags & Flags.REMOTE) == Flags.REMOTE;
-
-        boolean hasDefaultInitFunction = false;
-        boolean hasCustomInitFunction = false;
-        if (refAtCursor.getbLangNode() instanceof BLangInvocation) {
-            hasDefaultInitFunction = symbolAtCursor instanceof BObjectTypeSymbol;
-            hasCustomInitFunction = symbolAtCursor instanceof BInvokableSymbol &&
-                    symbolAtCursor.name.value.endsWith("init");
-        }
-        boolean isInitInvocation = hasDefaultInitFunction || hasCustomInitFunction;
-
-        String commandTitle;
         try {
-            if (isInvocation || isInitInvocation) {
-                BType returnType;
-                if (hasDefaultInitFunction) {
-                    returnType = symbolAtCursor.type;
-                } else if (hasCustomInitFunction) {
-                    returnType = symbolAtCursor.owner.type;
-                } else {
-                    returnType = ((BInvokableSymbol) symbolAtCursor).retType;
-                }
-                if (returnType instanceof BUnionType) {
-                    BUnionType unionType = (BUnionType) returnType;
-                    if (!isRemoteInvocation) {
-                        // Add type guard code action
-                        commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, symbolAtCursor.name);
-                        List<TextEdit> tEdits = getTypeGuardCodeActionEdits(context, uri, refAtCursor, unionType);
-                        if (!tEdits.isEmpty()) {
-                            return Collections.singletonList(createQuickFixCodeAction(commandTitle, tEdits, uri));
-                        }
+            if (typeDescriptor.kind() == TypeDescKind.UNION) {
+                UnionTypeDescriptor unionType = (UnionTypeDescriptor) typeDescriptor;
+                boolean isRemoteInvocation = scopedSymbol instanceof Qualifiable &&
+                        ((Qualifiable) scopedSymbol).qualifiers().contains(Qualifier.REMOTE);
+                if (!isRemoteInvocation) {
+                    // Add type guard code action
+                    String commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, scopedSymbol.name());
+                    List<TextEdit> tEdits = getTypeGuardCodeActionEdits(context, uri, scopedNode,
+                                                                        scopedSymbol, unionType);
+                    if (!tEdits.isEmpty()) {
+                        return Collections.singletonList(createQuickFixCodeAction(commandTitle, tEdits, uri));
                     }
                 }
             }
-        } catch (IOException | WorkspaceDocumentException e) {
-            throw new LSCodeActionProviderException("", e);
+        } catch (WorkspaceDocumentException | IOException e) {
+            //ignore
         }
-
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     private static List<TextEdit> getTypeGuardCodeActionEdits(LSContext context, String uri,
-                                                              Reference referenceAtCursor,
-                                                              BUnionType unionType)
+                                                              NonTerminalNode scopedNode,
+                                                              Symbol scopedSymbol,
+                                                              UnionTypeDescriptor unionType)
             throws WorkspaceDocumentException, IOException {
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        BLangNode bLangNode = referenceAtCursor.getbLangNode();
-        LineRange lineRange = bLangNode.pos.lineRange();
-        Position startPos = new Position(lineRange.startLine().line() - 1,
-                lineRange.startLine().offset() - 1);
-        Position endPosWithSemiColon = new Position(lineRange.endLine().line() - 1, lineRange.endLine().offset());
-        Position endPos = new Position(lineRange.endLine().line() - 1, lineRange.endLine().offset() - 1);
+        int sLine = scopedNode.lineRange().startLine().line();
+        int sCol = scopedNode.lineRange().startLine().offset();
+        int eLine = scopedNode.lineRange().endLine().line();
+        int eCol = scopedNode.lineRange().endLine().offset();
+        Position startPos = new Position(sLine, sCol);
+        Position endPosWithSemiColon = new Position(eLine, eCol + 1);
+        Position endPos = new Position(eLine, eCol);
         Range newTextRange = new Range(startPos, endPosWithSemiColon);
 
         List<TextEdit> edits = new ArrayList<>();
-        String spaces = StringUtils.repeat('\t', bLangNode.pos.lineRange().startLine().offset() - 1);
+        String spaces = StringUtils.repeat(' ', sCol);
         String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
         String content = CommandUtil.getContentOfRange(docManager, uri, new Range(startPos, endPos));
         // Remove last line feed
@@ -138,30 +115,30 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             content = content.substring(0, content.length() - 1);
         }
 
-        boolean hasError = unionType.getMemberTypes().stream().anyMatch(s -> s instanceof BErrorType);
+        boolean hasError = unionType.memberTypeDescriptors().stream().anyMatch(s -> s.kind() == TypeDescKind.ERROR);
 
-        List<BType> members = new ArrayList<>((unionType).getMemberTypes());
-        long errorTypesCount = unionType.getMemberTypes().stream().filter(t -> t instanceof BErrorType).count();
+        List<BallerinaTypeDescriptor> members = new ArrayList<>((unionType).memberTypeDescriptors());
+        long errorTypesCount = unionType.memberTypeDescriptors().stream().filter(t -> t.kind() == TypeDescKind.ERROR)
+                .count();
         if (members.size() == 1) {
             // Skip type guard
             return edits;
         }
-        boolean transitiveBinaryUnion = unionType.getMemberTypes().size() - errorTypesCount == 1;
+        boolean transitiveBinaryUnion = unionType.memberTypeDescriptors().size() - errorTypesCount == 1;
         if (transitiveBinaryUnion) {
-            members.removeIf(s -> s instanceof BErrorType);
+            members.removeIf(s -> s.kind() == TypeDescKind.ERROR);
         }
         // Check is binary union type with error type
-        if ((unionType.getMemberTypes().size() == 2 || transitiveBinaryUnion) && hasError) {
+        if ((unionType.memberTypeDescriptors().size() == 2 || transitiveBinaryUnion) && hasError) {
             String finalContent = content;
             members.forEach(bType -> {
-                if (bType instanceof BNilType) {
+                if (bType.kind() == TypeDescKind.NIL) {
                     // if (foo() is error) {...}
                     String newText = String.format("if (%s is error) {%s}", finalContent, padding);
                     edits.add(new TextEdit(newTextRange, newText));
                 } else {
                     // if (foo() is int) {...} else {...}
-                    // Fixme with the code action revamp
-                    String type = "";
+                    String type = bType.signature();
                     String newText = String.format("if (%s is %s) {%s} else {%s}", finalContent, type, padding,
                                                    padding);
                     edits.add(new TextEdit(newTextRange, newText));
@@ -169,15 +146,14 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             });
         } else {
             CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-            Set<String> nameEntries = CommonUtil.getAllNameEntries(compilerContext);
-            String varName = CommonUtil.generateVariableName(bLangNode, nameEntries);
-            // Fixme with the code action revamp
-            String typeDef = "";
+            String name = scopedSymbol != null ? scopedSymbol.name() : unionType.signature();
+            String varName = CommonUtil.generateVariableName(name, CommonUtil.getAllNameEntries(compilerContext));
+            String typeDef = unionType.signature();
             boolean addErrorTypeAtEnd;
 
-            List<BType> tMembers = new ArrayList<>((unionType).getMemberTypes());
+            List<BallerinaTypeDescriptor> tMembers = new ArrayList<>((unionType).memberTypeDescriptors());
             if (errorTypesCount > 1) {
-                tMembers.removeIf(s -> s instanceof BErrorType);
+                tMembers.removeIf(s -> s.kind() == TypeDescKind.ERROR);
                 addErrorTypeAtEnd = true;
             } else {
                 addErrorTypeAtEnd = false;
@@ -185,9 +161,8 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             List<String> memberTypes = new ArrayList<>();
             IntStream.range(0, tMembers.size())
                     .forEachOrdered(value -> {
-                        BType bType = tMembers.get(value);
-                        // Fixme with the code action revamp
-                        String bTypeName = "";
+                        BallerinaTypeDescriptor bType = tMembers.get(value);
+                        String bTypeName = bType.signature();
                         boolean isErrorType = bType instanceof BErrorType;
                         if (isErrorType && !addErrorTypeAtEnd) {
                             memberTypes.add(bTypeName);

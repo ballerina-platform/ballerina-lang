@@ -15,10 +15,9 @@
  */
 package org.ballerinalang.langserver.command.testgen.template;
 
-import io.ballerina.tools.diagnostics.Location;
-import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Contains placeholders for the templates.
@@ -29,8 +28,8 @@ public enum PlaceHolder {
 
     DECLARATIONS("declarations") {
         @Override
-        public Location getPosition(BLangPackage bLangPackage) {
-            final Location[] pos = {new BLangDiagnosticLocation(null, 0, 0, 0, 0)};
+        public DiagnosticPos getPosition(BLangPackage bLangPackage) {
+            final DiagnosticPos[] pos = {new DiagnosticPos(null, 0, 0, 0, 0)};
             //after imports
             bLangPackage.getImports().forEach(imp -> pos[0] = getMaximumPosition(imp.getPosition(), pos[0]));
             bLangPackage.getGlobalVariables().forEach(var -> pos[0] = getMaximumPosition(var.getPosition(), pos[0]));
@@ -40,23 +39,23 @@ public enum PlaceHolder {
 
     CONTENT("content") {
         @Override
-        public Location getPosition(BLangPackage bLangPackage) {
-            final Location[] pos = {new BLangDiagnosticLocation(null, 0, 0, 0, 0)};
+        public DiagnosticPos getPosition(BLangPackage bLangPackage) {
+            final DiagnosticPos[] pos = {new DiagnosticPos(null, 0, 0, 0, 0)};
             bLangPackage.topLevelNodes.forEach(topLevelNode -> {
                 if (topLevelNode instanceof BLangNode) {
                     pos[0] = getMaximumPosition(((BLangNode) topLevelNode).getPosition(), pos[0]);
                 }
             });
-            pos[0] = new BLangDiagnosticLocation(null, pos[0].lineRange().endLine().line(),
-                    pos[0].lineRange().endLine().line() + 1, 0, 0);
+            pos[0].eLine = pos[0].eLine + 1;
+            pos[0].sLine = pos[0].eLine;
             return zeroColumnPosition(pos[0]);
         }
     },
 
     IMPORTS("imports") {
         @Override
-        public Location getPosition(BLangPackage bLangPackage) {
-            final Location[] pos = {new BLangDiagnosticLocation(null, 0, 0, 0, 0)};
+        public DiagnosticPos getPosition(BLangPackage bLangPackage) {
+            final DiagnosticPos[] pos = {new DiagnosticPos(null, 0, 0, 0, 0)};
             bLangPackage.getImports().forEach(pkg -> pos[0] = getMaximumPosition(pkg.getPosition(), pos[0]));
             return zeroColumnPosition(pos[0]);
         }
@@ -64,7 +63,7 @@ public enum PlaceHolder {
 
     OTHER("_other_") {
         @Override
-        public Location getPosition(BLangPackage bLangPackage) {
+        public DiagnosticPos getPosition(BLangPackage bLangPackage) {
             throw new UnsupportedOperationException("Not supported!");
         }
 
@@ -81,39 +80,38 @@ public enum PlaceHolder {
         this.name = name;
     }
 
-    private static Location zeroColumnPosition(Location pos) {
-        return new BLangDiagnosticLocation(pos.lineRange().filePath(),
-                                           pos.lineRange().startLine().line(),
-                                           pos.lineRange().endLine().line(), 0, 0);
+    private static DiagnosticPos zeroColumnPosition(DiagnosticPos pos) {
+        pos.sCol = 0;
+        pos.eCol = 0;
+        return pos;
     }
 
-    private static Location getMaximumPosition(Location location1,
-                                                              Location location2) {
+    private static DiagnosticPos getMaximumPosition(DiagnosticPos pos1, DiagnosticPos pos2) {
         // handle null
-        if (location1 == null) {
-            return location2;
-        } else if (location2 == null) {
-            return location1;
+        if (pos1 == null) {
+            return pos2;
+        } else if (pos2 == null) {
+            return pos1;
         }
-        if (location1.lineRange().endLine().line() > location2.lineRange().endLine().line()) {
-            // location1.Line > location2.Line
-            return location1;
-        } else if (location1.lineRange().endLine().line() < location2.lineRange().endLine().line()) {
-            // location1.Line < location2.Line
-            return location2;
+        if (pos1.getEndLine() > pos2.getEndLine()) {
+            // pos1.Line > pos2.Line
+            return pos1;
+        } else if (pos1.getEndLine() < pos2.getEndLine()) {
+            // pos1.Line < pos2.Line
+            return pos2;
         } else {
-            // location1.Line == location2.Line
-            if (location1.lineRange().endLine().offset() > location2.lineRange().endLine().offset()) {
-                // location1.Col > location2.Col
-                return location1;
+            // pos1.Line == pos2.Line
+            if (pos1.getEndColumn() > pos2.getEndColumn()) {
+                // pos1.Col > pos2.Col
+                return pos1;
             } else {
-                // location1.Col < location2.Col
-                return location2;
+                // pos1.Col < pos2.Col
+                return pos2;
             }
         }
     }
 
-    public abstract Location getPosition(BLangPackage bLangPackage);
+    public abstract DiagnosticPos getPosition(BLangPackage bLangPackage);
 
     public String getName() {
         return this.name;

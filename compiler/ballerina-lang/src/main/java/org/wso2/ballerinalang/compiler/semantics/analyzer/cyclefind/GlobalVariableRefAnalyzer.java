@@ -218,7 +218,6 @@ public class GlobalVariableRefAnalyzer {
      * @param globalNodeDependsOn symbol dependency relationship.
      */
     public void analyzeAndReOrder(BLangPackage pkgNode, Map<BSymbol, Set<BSymbol>> globalNodeDependsOn) {
-        this.dlog.setCurrentPackageId(pkgNode.packageID);
         this.pkgNode = pkgNode;
         this.globalNodeDependsOn = globalNodeDependsOn;
         resetAnalyzer();

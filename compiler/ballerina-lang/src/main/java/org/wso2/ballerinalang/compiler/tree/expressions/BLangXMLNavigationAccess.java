@@ -17,11 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 import java.util.Set;
@@ -40,7 +40,7 @@ public class BLangXMLNavigationAccess extends BLangAccessExpression implements X
     // could be checked multiple times when used with langlib functions producing multiple error messages.
     public boolean methodInvocationAnalyzed;
 
-    public BLangXMLNavigationAccess(Location pos, Set<Whitespace> ws, BLangExpression expr,
+    public BLangXMLNavigationAccess(DiagnosticPos pos, Set<Whitespace> ws, BLangExpression expr,
                                     List<BLangXMLElementFilter> filters,
                                     NavAccessType navAccessType,
                                     BLangExpression childIndex) {

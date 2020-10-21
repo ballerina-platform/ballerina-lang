@@ -183,7 +183,7 @@ public class ModuleCoverage {
             try (Stream<String> stream = Files.lines(sourceFile, StandardCharsets.UTF_8)) {
                 stream.forEach(s -> contentBuilder.append(s).append("\n"));
             } catch (IOException e) {
-                errStream.println("error while analyzing code coverage" + e);
+                errStream.println("error while analyzing code coverage source files : " + e);
                 Runtime.getRuntime().exit(1);
             }
             this.sourceCode = contentBuilder.toString();
