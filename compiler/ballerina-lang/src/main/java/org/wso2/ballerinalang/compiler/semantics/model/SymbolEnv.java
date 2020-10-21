@@ -152,10 +152,7 @@ public class SymbolEnv {
 
     public static SymbolEnv createObjectMethodsEnv(BLangObjectTypeNode node, BObjectTypeSymbol objSymbol,
                                                    SymbolEnv env) {
-        if (objSymbol.methodScope == null) {
-            objSymbol.methodScope = new Scope(objSymbol);
-        }
-        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.methodScope, env);
+        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.scope, env);
         symbolEnv.envCount = env.envCount + 1;
         env.copyTo(symbolEnv);
         return symbolEnv;
@@ -163,10 +160,7 @@ public class SymbolEnv {
 
     public static SymbolEnv createClassMethodsEnv(BLangClassDefinition node, BObjectTypeSymbol objSymbol,
                                                    SymbolEnv env) {
-        if (objSymbol.methodScope == null) {
-            objSymbol.methodScope = new Scope(objSymbol);
-        }
-        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.methodScope, env);
+        SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.scope, env);
         symbolEnv.envCount = env.envCount + 1;
         env.copyTo(symbolEnv);
         return symbolEnv;

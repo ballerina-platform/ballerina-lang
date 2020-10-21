@@ -554,6 +554,85 @@ function testRecordArrays() returns [boolean, boolean, boolean, boolean] {
     return [c is X[], d is X[][], c is Y[], d is Y[][]];
 }
 
+public function testUnionType() {
+    [int, ()] x = [1, ()];
+    any y = x;
+    assertEquality(y is (string|int?)[2], true);
+    assertEquality(y is (string|int?)[], true);
+    assertEquality(y is (int|string?)[], true);
+    assertEquality(y is (int|string?)[3], false);
+    assertEquality(y is (int|string)[], false);
+    assertEquality(y is int?[], true);
+    assertEquality(y is int?[2], true);
+
+    [int, string?] a = [1, "union"];
+    any b = a;
+    assertEquality(b is (int|string?)[], true);
+    assertEquality(b is (int|string?)[2], true);
+    assertEquality(b is (int?|string)[2], true);
+    assertEquality(b is (int|string?)[1], false);
+    assertEquality(b is int?[2], false);
+
+    (int|string)[] c = [1, 2];
+    any d = c;
+    assertEquality(d is (int|string?)[], true);
+    assertEquality(d is (int|string)[2], false);
+    assertEquality(d is [int, string], false);
+    assertEquality(d is [int, int], false);
+    assertEquality(d is [string, string], false);
+    assertEquality(d is [int, ()], false);
+    assertEquality(d is [int...], false);
+    assertEquality(d is [string...], false);
+    assertEquality(d is [string, int...], false);
+}
+
+public function testClosedArrayType(){
+      int[2] b = [1, 2];
+      any y = b;
+      assertEquality(y is [int, int], true);
+      assertEquality(y is [int...], true);
+      assertEquality(y is [int, int, int...], true);
+      assertEquality(y is [string, string, int...], false);
+      assertEquality(y is [int, int, int], false);
+      assertEquality(y is [int, int, int, int...], false);
+      assertEquality(y is [int, int, string...], true);
+}
+
+public function testInferredArrayType() {
+    int[*] b = [1, 2];
+    any y = b;
+    assertEquality(y is [int, int], true);
+    assertEquality(y is [int...], true);
+    assertEquality(y is [int, int, int...], true);
+    assertEquality(y is [string, string, int...], false);
+    assertEquality(y is [int, int, int], false);
+    assertEquality(y is [int, int, int, int...], false);
+    assertEquality(y is [int, int, string...], true);
+}
+
+public function testEmptyArrayType() {
+    var x = [];
+    any a = x;
+    assertEquality(a is int[2], false);
+    assertEquality(a is int[], true);
+    assertEquality(a is [int...], true);
+
+    string[] sa = [];
+    any arr = sa;
+    assertEquality(arr is string[], true);
+    assertEquality(arr is int[], false);
+
+    int[0] ia = [];
+    any iarr = ia;
+    assertEquality(iarr is int[0], true);
+    assertEquality(iarr is int[], true);
+
+    int[] b = [1, 2];
+    any c = b;
+    assertEquality(c is [int...], true);
+    assertEquality(c is int[], true);
+}
+
 // ========================== Tuples ==========================
 
 function testSimpleTuples() returns [boolean, boolean, boolean, boolean, boolean] {
@@ -584,6 +663,23 @@ function testTupleWithAssignableTypes_2() returns boolean {
     [X, Y] q = p;
     boolean b1 = q is [Y, Y];
     return q is [Y, Y];
+}
+
+public function testRestType() {
+    [int...] x = [1, 2];
+    any y = x;
+    assertEquality(y is string[], false);
+    assertEquality(y is [int...], true);
+    assertEquality(y is int[0], false);
+    assertEquality(y is int[], true);
+    assertEquality(y is [int], false);
+    assertEquality(y is int[2], false);
+
+    [int, int, int...] a = [1, 2];
+    any b = a;
+    assertEquality(b is int[2], false);
+    assertEquality(b is [int, int...], true);
+    assertEquality(b is [int...], true);
 }
 
 // ========================== Map ==========================
