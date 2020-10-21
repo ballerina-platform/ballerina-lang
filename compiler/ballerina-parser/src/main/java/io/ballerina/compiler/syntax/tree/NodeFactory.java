@@ -153,7 +153,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             SeparatedNodeList<ExpressionNode> expressions,
             Node serviceBody) {
         Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
-        Objects.requireNonNull(serviceName, "serviceName must not be null");
         Objects.requireNonNull(onKeyword, "onKeyword must not be null");
         Objects.requireNonNull(expressions, "expressions must not be null");
         Objects.requireNonNull(serviceBody, "serviceBody must not be null");
@@ -161,7 +160,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stServiceDeclarationNode = STNodeFactory.createServiceDeclarationNode(
                 getOptionalSTNode(metadata),
                 serviceKeyword.internalNode(),
-                serviceName.internalNode(),
+                getOptionalSTNode(serviceName),
                 onKeyword.internalNode(),
                 expressions.underlyingListNode().internalNode(),
                 serviceBody.internalNode());
@@ -2178,11 +2177,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token flushKeyword,
             NameReferenceNode peerWorker) {
         Objects.requireNonNull(flushKeyword, "flushKeyword must not be null");
-        Objects.requireNonNull(peerWorker, "peerWorker must not be null");
 
         STNode stFlushActionNode = STNodeFactory.createFlushActionNode(
                 flushKeyword.internalNode(),
-                peerWorker.internalNode());
+                getOptionalSTNode(peerWorker));
         return stFlushActionNode.createUnlinkedFacade();
     }
 

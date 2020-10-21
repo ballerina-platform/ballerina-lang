@@ -548,8 +548,8 @@ class JvmValueGen {
                                              BIRNode.BIRTypeDefinition typeDef) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        if (typeDef.pos != null) {
-            cw.visitSource(typeDef.pos.lineRange().filePath(), null);
+        if (typeDef.pos != null && typeDef.pos.src != null) {
+            cw.visitSource(typeDef.pos.getSource().cUnitName, null);
         } else {
             cw.visitSource(className, null);
         }
@@ -661,8 +661,8 @@ class JvmValueGen {
                                           BIRNode.BIRTypeDefinition typeDef) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        if (typeDef.pos != null) {
-            cw.visitSource(typeDef.pos.lineRange().filePath(), null);
+        if (typeDef.pos != null && typeDef.pos.src != null) {
+            cw.visitSource(typeDef.pos.getSource().cUnitName, null);
         } else {
             cw.visitSource(className, null);
         }
@@ -1366,7 +1366,7 @@ class JvmValueGen {
     private byte[] createObjectValueClass(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visitSource(typeDef.pos.lineRange().filePath(), null);
+        cw.visitSource(typeDef.pos.getSource().cUnitName, null);
 
         AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});

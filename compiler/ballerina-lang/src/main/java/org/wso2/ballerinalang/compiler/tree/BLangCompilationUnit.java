@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -37,7 +36,6 @@ public class BLangCompilationUnit extends BLangNode implements CompilationUnitNo
     public int length;
 
     public List<TopLevelNode> topLevelNodes;
-    private PackageID packageID;
 
     public BLangCompilationUnit() {
         this.topLevelNodes = new ArrayList<>();
@@ -61,14 +59,6 @@ public class BLangCompilationUnit extends BLangNode implements CompilationUnitNo
     @Override
     public void setName(String name) {
         this.name = name;
-    }
-
-    public PackageID getPackageID() {
-        return packageID;
-    }
-
-    public void setPackageID(PackageID packageID) {
-        this.packageID = packageID;
     }
 
     @Override

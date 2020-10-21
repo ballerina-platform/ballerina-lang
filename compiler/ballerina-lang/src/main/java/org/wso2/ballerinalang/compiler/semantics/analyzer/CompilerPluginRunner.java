@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.runtime.util.RuntimeUtils;
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
@@ -55,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,7 +88,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private final Types types;
     private BLangDiagnosticLog dlog;
 
-    private Location defaultPos;
+    private DiagnosticPos defaultPos;
     private CompilerContext context;
     private List<CompilerPlugin> pluginList;
     private Map<DefinitionID, Set<CompilerPlugin>> processorMap;
@@ -128,7 +128,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     }
 
     public BLangPackage runPlugins(BLangPackage pkgNode) {
-        this.dlog.setCurrentPackageId(pkgNode.packageID);
         this.defaultPos = pkgNode.pos;
         loadPlugins();
         pkgNode.accept(this);
@@ -326,7 +325,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             try {
                 notifier.accept(processor, Collections.unmodifiableList(list));
             } catch (Throwable e) {
-                dlog.warning(list.get(0).getPosition(), DiagnosticCode.COMPILER_PLUGIN_ERROR);
+                dlog.warning((DiagnosticPos) list.get(0).getPosition(), DiagnosticCode.COMPILER_PLUGIN_ERROR);
                 printErrorLog(e);
                 failedPlugins.add(processor);
             }

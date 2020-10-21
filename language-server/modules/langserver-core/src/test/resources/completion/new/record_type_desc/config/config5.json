@@ -584,7 +584,7 @@
     {
       "label": "c",
       "kind": "Variable",
-      "detail": "module1:Client",
+      "detail": "ballerina/module1:0.1.0:Client",
       "insertText": "c",
       "insertTextFormat": "Snippet"
     },

@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.builder.impl;
+package org.ballerinalang.langserver.codeaction.impl;
 
-import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
@@ -66,12 +64,11 @@ public class ImplementFunctionsCodeAction implements DiagBasedCodeAction {
         Optional<BLangTypeDefinition> objType = bLangPackage.topLevelNodes.stream()
                 .filter(topLevelNode -> {
                     if (topLevelNode instanceof BLangTypeDefinition) {
-                        Location pos = topLevelNode.getPosition();
-                        return ((pos.lineRange().startLine().line() == line || pos.lineRange().endLine().line() == line
-                                || (pos.lineRange().startLine().line() < line
-                                && pos.lineRange().endLine().line() > line))
-                                && (pos.lineRange().startLine().offset() <= column
-                                && pos.lineRange().endLine().offset() <= column));
+                        org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition pos =
+                                topLevelNode.getPosition();
+                        return ((pos.getStartLine() == line || pos.getEndLine() == line ||
+                                (pos.getStartLine() < line && pos.getEndLine() > line)) &&
+                                (pos.getStartColumn() <= column && pos.getEndColumn() <= column));
                     }
                     return false;
                 }).findAny().map(t -> (BLangTypeDefinition) t);
@@ -109,10 +106,15 @@ public class ImplementFunctionsCodeAction implements DiagBasedCodeAction {
         PackageID currentPkgId = packageNode.packageID;
         List<TextEdit> edits = new ArrayList<>();
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        String returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                     function.type.retType, context);
-        String returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, function.type.retType,
-                                                                   "        return {%1};", context);
+        //TODO: Fix this
+        String returnType = "";
+        String returnValue = "";
+
+//        String returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
+//                                                                     function.type.retType, context);
+//        String returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, function.type
+//        .retType,
+//                                                                   "        return {%1};", context);
         List<String> arguments = getFuncArguments(importsAcceptor, currentPkgId, function.symbol, context);
         if (arguments != null) {
             funcArgs = String.join(", ", arguments);
@@ -126,7 +128,7 @@ public class ImplementFunctionsCodeAction implements DiagBasedCodeAction {
         String modifiers = (isPublic) ? "public " : "";
         String editText = FunctionGenerator.createFunction(function.funcName.value, funcArgs, returnType, returnValue,
                                                            modifiers, false, StringUtils.repeat(' ', 4));
-        Position editPos = new Position(object.pos.lineRange().endLine().line() - 1, 0);
+        Position editPos = new Position(object.pos.eLine - 1, 0);
         edits.addAll(importsAcceptor.getNewImportTextEdits());
         edits.add(new TextEdit(new Range(editPos, editPos), editText));
         return edits;
@@ -149,15 +151,19 @@ public class ImplementFunctionsCodeAction implements DiagBasedCodeAction {
             return null;
         }
         for (BVarSymbol bVarSymbol : bLangInvocation.params) {
-            String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bVarSymbol.type,
-                                                                      context);
+            //TODO: Fix this
+//            String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bVarSymbol.type,
+//                                                                      context);
+            String argType = "";
             String argName = bVarSymbol.name.value;
             list.add(argType + " " + argName);
         }
         BVarSymbol restParam = bLangInvocation.restParam;
         if (restParam != null && (restParam.type instanceof BArrayType)) {
-            String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                      ((BArrayType) restParam.type).eType, context);
+            //TODO: Fix this
+//            String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
+//                                                                      ((BArrayType) restParam.type).eType, context);
+            String argType = "";
             list.add(argType + "... " + restParam.getName().getValue());
         }
         return (!list.isEmpty()) ? list : null;

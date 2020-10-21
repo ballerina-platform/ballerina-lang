@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.command.testgen.template;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.command.testgen.TestGenerator;
-import org.ballerinalang.langserver.command.testgen.TestGenerator.TestFunctionGenerator;
 import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
 import org.ballerinalang.langserver.command.testgen.renderer.RendererOutput;
 import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRendererOutput;
@@ -77,7 +76,7 @@ public class RootTemplate extends AbstractTestTemplate {
             });
         });
         builtTestFile.getFunctions().stream()
-                .filter(func -> fileName.equals(func.pos.lineRange().filePath()))
+                .filter(func -> fileName.equals(func.pos.src.cUnitName))
                 .forEach(functions::add);
     }
 
@@ -154,9 +153,10 @@ public class RootTemplate extends AbstractTestTemplate {
 
         // Render test functions
         for (BLangFunction func : functions) {
-            TestFunctionGenerator generator = new TestFunctionGenerator(importsAcceptor, builtTestFile.packageID, func,
-                                                                        context);
-            new FunctionTemplate(builtTestFile, func, focusLineAcceptor, generator, context).render(rendererOutput);
+            //TODO: Fix this
+//            TestFunctionGenerator generator = new TestFunctionGenerator(importsAcceptor, builtTestFile.packageID,
+//                                                                          func, context);
+            new FunctionTemplate(builtTestFile, func, focusLineAcceptor, null, context).render(rendererOutput);
         }
 
         // Render httpService tests

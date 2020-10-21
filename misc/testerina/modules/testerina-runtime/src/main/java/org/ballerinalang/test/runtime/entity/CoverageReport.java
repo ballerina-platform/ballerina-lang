@@ -153,15 +153,14 @@ public class CoverageReport {
                         }
 
                         // Only add the source files that belong to the same module
-                        if (sourceFileModule.equals(moduleName)) {
-                            ModuleCoverage.getInstance().addSourceFileCoverage(sourceFileModule,
+                        if (sourceFileModule.equals(moduleName.replace(".", "_"))) {
+                            ModuleCoverage.getInstance().addSourceFileCoverage(moduleName,
                                     sourceFileCoverage.getName(), coveredLines, missedLines);
                         } else {
-                            // <org>/<modulename>/<version>
-                            String jsonCachePath = this.jsonCache.toString() +
-                                    resolveSourcePackage(sourceFileCoverage.getPackageName());
-                            ModuleCoverage.getInstance().updateSourceFileCoverage(jsonCachePath, sourceFileModule,
-                                    sourceFileCoverage.getName(), coveredLines, missedLines);
+                            // Disabling temporarily till support for modules with '.' is implemented
+//                            // <org>/<modulename>/<version>
+//                            ModuleCoverage.getInstance().updateSourceFileCoverage(jsonCachePath, sourceFileModule,
+//                                    sourceFileCoverage.getName(), coveredLines, missedLines);
                         }
                     }
                 }

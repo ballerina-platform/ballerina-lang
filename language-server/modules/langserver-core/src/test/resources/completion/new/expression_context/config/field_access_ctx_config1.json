@@ -7,7 +7,7 @@
   "items": [
     {
       "label": "testField",
-      "detail": "module1:TestRecord1",
+      "detail": "ballerina/module1:0.1.0:TestRecord1",
       "insertText": "testField",
       "insertTextFormat": "Snippet"
     },

@@ -19,10 +19,10 @@
 
 package org.wso2.ballerinalang.compiler.bir.writer;
 
-import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Common functions used in BIR writers.
@@ -31,19 +31,19 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
  */
 public class BIRWriterUtils {
 
-    public static void writePosition(Location pos, ByteBuf buf, ConstantPool cp) {
+    public static void writePosition(DiagnosticPos pos, ByteBuf buf, ConstantPool cp) {
         int sLine = Integer.MIN_VALUE;
         int eLine = Integer.MIN_VALUE;
         int sCol = Integer.MIN_VALUE;
         int eCol = Integer.MIN_VALUE;
         String sourceFileName = "";
         if (pos != null) {
-            sLine = pos.lineRange().startLine().line();
-            eLine = pos.lineRange().endLine().line();
-            sCol = pos.lineRange().startLine().offset();
-            eCol = pos.lineRange().endLine().offset();
-            if (pos.lineRange().filePath() != null) {
-                sourceFileName = pos.lineRange().filePath();
+            sLine = pos.sLine;
+            eLine = pos.eLine;
+            sCol = pos.sCol;
+            eCol = pos.eCol;
+            if (pos.src != null) {
+                sourceFileName = pos.src.cUnitName;
             }
         }
         buf.writeInt(addStringCPEntry(sourceFileName, cp));

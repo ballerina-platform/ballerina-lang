@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.builder.impl;
+package org.ballerinalang.langserver.codeaction.impl;
 
-import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -101,11 +99,11 @@ public class ImportModuleCodeAction implements DiagBasedCodeAction {
         List<TopLevelNode> nodes = CommonUtil.getCurrentFileTopLevelNodes(bLangPackage, context);
         int lowestLine = 1;
         if (!nodes.isEmpty()) {
-            lowestLine = nodes.get(0).getPosition().lineRange().startLine().line();
+            lowestLine = nodes.get(0).getPosition().getStartLine();
             for (TopLevelNode node : nodes) {
-                Location position = node.getPosition();
-                if (lowestLine > position.lineRange().startLine().line()) {
-                    lowestLine = position.lineRange().startLine().line();
+                org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition position = node.getPosition();
+                if (lowestLine > position.getStartLine()) {
+                    lowestLine = position.getStartLine();
                 }
             }
         }
@@ -117,7 +115,7 @@ public class ImportModuleCodeAction implements DiagBasedCodeAction {
         Position insertPos = new Position(lowestLine - 1, 0);
         if (!imports.isEmpty()) {
             BLangImportPackage last = CommonUtil.getLastItem(imports);
-            insertPos = new Position(last.getPosition().lineRange().endLine().line(), 0);
+            insertPos = new Position(last.getPosition().getEndLine(), 0);
         }
         return insertPos;
     }

@@ -17,11 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Java specific instruction definitions.
@@ -32,7 +32,7 @@ public class JInstruction extends BIRNonTerminator {
 
     public JInsKind jKind;
 
-    JInstruction(Location pos) {
+    JInstruction(DiagnosticPos pos) {
 
         super(pos, InstructionKind.PLATFORM);
     }

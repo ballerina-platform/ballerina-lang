@@ -91,7 +91,6 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     @Override
     public void writeCollectedSymbols(BLangPackage module, Path destination)
             throws IOException, NoSuchAlgorithmException {
-        this.diagnosticLog.setCurrentPackageId(module.packageID);
         Path targetDirPath = destination.resolve(AST);
         if (Files.notExists(targetDirPath)) {
             Files.createDirectory(targetDirPath);
@@ -172,7 +171,8 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
         SourceDirectory sourceDirectory = compilerContext.get(SourceDirectory.class);
         Path sourceRoot = sourceDirectory.getPath();
         String uri = sourceRoot.resolve(
-                Paths.get(SRC, cUnit.getName(), cUnit.getName())).toUri().toString();
+                Paths.get(SRC, cUnit.getPosition().getSource().cUnitName,
+                        cUnit.getPosition().getSource().cUnitName)).toUri().toString();
         cUnitASTHolder.setUri(uri);
         try {
             JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(cUnit, new HashMap<>(), visibleEPsByNode);
