@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.util.ProjectConstants;
+
 import java.util.Objects;
 
 /**
@@ -62,5 +64,9 @@ public class PackageOrg {
     @Override
     public String toString() {
         return packageOrgStr;
+    }
+
+    public boolean anonymous() {
+        return ProjectConstants.ANON_ORG.equals(packageOrgStr);
     }
 }
