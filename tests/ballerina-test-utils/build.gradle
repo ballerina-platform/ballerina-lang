@@ -25,6 +25,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-packerina')
+    implementation project(':ballerina-projects')
 
     implementation 'org.javassist:javassist'
     implementation 'io.netty:netty-codec-http'
