@@ -1004,9 +1004,15 @@ public class SymbolResolver extends BLangNodeVisitor {
             flags.add(Flag.PUBLIC);
         }
 
-        boolean isReadOnly = objectTypeNode.flagSet.contains(Flag.READONLY);
-        if (isReadOnly) {
+        int typeFlags = 0;
+        if (objectTypeNode.flagSet.contains(Flag.READONLY)) {
             flags.add(Flag.READONLY);
+            typeFlags |= Flags.READONLY;
+        }
+
+        if (objectTypeNode.flagSet.contains(Flag.ISOLATED)) {
+            flags.add(Flag.ISOLATED);
+            typeFlags |= Flags.ISOLATED;
         }
 
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
@@ -1015,7 +1021,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (flags.contains(Flag.SERVICE)) {
             objectType = new BServiceType(objectSymbol);
         } else {
-            objectType = isReadOnly ? new BObjectType(objectSymbol, Flags.READONLY) : new BObjectType(objectSymbol);
+            objectType = new BObjectType(objectSymbol, typeFlags);
         }
         objectSymbol.type = objectType;
         objectTypeNode.symbol = objectSymbol;
