@@ -17,9 +17,9 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.IdentifierNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.Set;
 
@@ -31,13 +31,14 @@ import java.util.Set;
 public class BLangNameReference {
     public IdentifierNode pkgAlias;
     public IdentifierNode name;
-    public DiagnosticPos pos;
+    public Location pos;
     public Set<Whitespace> ws;
 
-    public BLangNameReference(DiagnosticPos poc, Set<Whitespace> ws, IdentifierNode pkgAlias, IdentifierNode name) {
+    public BLangNameReference(Location loc, Set<Whitespace> ws, IdentifierNode pkgAlias,
+                              IdentifierNode name) {
         this.pkgAlias = pkgAlias;
         this.name = name;
-        this.pos = poc;
+        this.pos = loc;
         this.ws = ws;
     }
 }

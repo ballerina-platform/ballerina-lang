@@ -17,8 +17,10 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockNode;
@@ -168,7 +170,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -275,7 +276,7 @@ public class BIRGen extends BLangNodeVisitor {
                 testPkg.symbol.bir = testBirPkg;
                 Map<String, String> mockFunctionMap = astPkg.getTestablePkg().getMockFunctionNamesMap();
                 if (!mockFunctionMap.isEmpty()) {
-                    replaceMockedFunctions(testBirPkg, mockFunctionMap);
+                    replaceMockedFunctions(testBirPkg, mockFunctionMap, astPkg.packageID);
                 }
             });
         }
@@ -321,21 +322,23 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    private void replaceMockedFunctions(BIRPackage birPkg, Map<String, String> mockFunctionMap) {
+    private void replaceMockedFunctions(BIRPackage birPkg, Map<String, String> mockFunctionMap, PackageID packageID) {
         // Replace Mocked function calls in every function
-        replaceFunctions(birPkg.functions, mockFunctionMap);
+        replaceFunctions(birPkg.functions, mockFunctionMap, packageID);
 
         // Replace Mocked Function calls in every service
         if (birPkg.typeDefs.size() != 0) {
             for (BIRTypeDefinition typeDef : birPkg.typeDefs) {
                 if (typeDef.type instanceof BObjectType) {
-                    replaceFunctions(typeDef.attachedFuncs, mockFunctionMap);
+                    replaceFunctions(typeDef.attachedFuncs, mockFunctionMap, packageID);
                 }
             }
         }
     }
 
-    private void replaceFunctions(List<BIRFunction> functionList, Map<String, String> mockFunctionMap) {
+    private void replaceFunctions(List<BIRFunction> functionList,
+                                  Map<String, String> mockFunctionMap,
+                                  PackageID packageID) {
         // Loop through all defined BIRFunctions in functionList
         for (BIRFunction function : functionList) {
             List<BIRBasicBlock> basicBlocks = function.basicBlocks;
@@ -356,12 +359,12 @@ public class BIRGen extends BLangNodeVisitor {
                         // Replace the function call with the equivalent $MOCK_ substitiute
                         String desugarFunction = "$MOCK_" + callTerminator.name.getValue();
                         callTerminator.name = new Name(desugarFunction);
-                        callTerminator.calleePkg = function.pos.src.pkgID;
+                        callTerminator.calleePkg = packageID;
                     } else if (mockFunctionMap.get(legacyKey) != null) {
                         // Just "get" the reference. If this doesnt work then it doesnt exist
                         String mockfunctionName = mockFunctionMap.get(legacyKey);
                         callTerminator.name = new Name(mockfunctionName);
-                        callTerminator.calleePkg = function.pos.src.pkgID;
+                        callTerminator.calleePkg = packageID;
                     }
                 }
             }
@@ -706,7 +709,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.currentBlock = prevBlock;
     }
 
-    private BIRBasicBlock beginBreakableBlock(DiagnosticPos pos) {
+    private BIRBasicBlock beginBreakableBlock(Location pos) {
         BIRBasicBlock blockBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(blockBB);
         this.env.enclBasicBlocks.add(blockBB);
@@ -992,12 +995,12 @@ public class BIRGen extends BLangNodeVisitor {
         addParam(birFunc, functionParam.symbol, functionParam.expr, functionParam.pos);
     }
 
-    private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, DiagnosticPos pos) {
+    private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
         addParam(birFunc, paramSymbol, null, pos);
     }
 
     private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, BLangExpression defaultValExpr,
-                          DiagnosticPos pos) {
+                          Location pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG,
                 paramSymbol.name.value, defaultValExpr != null);
@@ -1028,7 +1031,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.symbolVarMap.put(paramSymbol, birVarDcl);
     }
 
-    private void addRestParam(BIRFunction birFunc, BVarSymbol paramSymbol, DiagnosticPos pos) {
+    private void addRestParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
         birFunc.parameters.put(birVarDcl, new ArrayList<>());
@@ -1041,7 +1044,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.symbolVarMap.put(paramSymbol, birVarDcl);
     }
 
-    private void addRequiredParam(BIRFunction birFunc, BVarSymbol paramSymbol, DiagnosticPos pos) {
+    private void addRequiredParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
         birFunc.parameters.put(birVarDcl, new ArrayList<>());
@@ -2265,7 +2268,7 @@ public class BIRGen extends BLangNodeVisitor {
         visitTypedesc(typeLoad.pos, typeLoad.symbol.type, Collections.emptyList());
     }
 
-    private void visitTypedesc(DiagnosticPos pos, BType type, List<BIROperand> varDcls) {
+    private void visitTypedesc(Location pos, BType type, List<BIROperand> varDcls) {
         BIRVariableDcl tempVarDcl =
                 new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind
                         .TEMP);
@@ -2622,7 +2625,7 @@ public class BIRGen extends BLangNodeVisitor {
         setScopeAndEmit(new Move(xmlnsNode.pos, this.env.targetOperand, varRef));
     }
 
-    private BIROperand generateNamespaceRef(BXMLNSSymbol nsSymbol, DiagnosticPos pos) {
+    private BIROperand generateNamespaceRef(BXMLNSSymbol nsSymbol, Location pos) {
         if (nsSymbol == null) {
             return generateStringLiteral(null);
         }

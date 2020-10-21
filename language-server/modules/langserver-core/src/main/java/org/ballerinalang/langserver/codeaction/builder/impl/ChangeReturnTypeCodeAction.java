@@ -20,6 +20,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.runtime.util.BLangConstants;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -111,15 +112,17 @@ public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
                                 && !hasReturnKeyword(func.returnTypeNode,
                                                      documentManager.getTree(filePath.get()))) {
                             // eg. function test() {...}
-                            start = new Position(func.returnTypeNode.pos.sLine - 1,
-                                                 func.returnTypeNode.pos.eCol - 1);
-                            end = new Position(func.returnTypeNode.pos.eLine - 1, func.returnTypeNode.pos.eCol - 1);
+                            start = new Position(func.returnTypeNode.pos.lineRange().startLine().line() - 1,
+                                                 func.returnTypeNode.pos.lineRange().endLine().offset() - 1);
+                            end = new Position(func.returnTypeNode.pos.lineRange().endLine().line() - 1,
+                                    func.returnTypeNode.pos.lineRange().endLine().offset() - 1);
                             editText = " returns (" + editText + ")";
                         } else {
                             // eg. function test() returns () {...}
-                            start = new Position(func.returnTypeNode.pos.sLine - 1,
-                                                 func.returnTypeNode.pos.sCol - 1);
-                            end = new Position(func.returnTypeNode.pos.eLine - 1, func.returnTypeNode.pos.eCol - 1);
+                            start = new Position(func.returnTypeNode.pos.lineRange().startLine().line() - 1,
+                                                 func.returnTypeNode.pos.lineRange().startLine().offset() - 1);
+                            end = new Position(func.returnTypeNode.pos.lineRange().endLine().line() - 1,
+                                    func.returnTypeNode.pos.lineRange().endLine().offset() - 1);
                         }
                         edits.add(new TextEdit(new Range(start, end), editText));
 
@@ -137,7 +140,8 @@ public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
 
     private static boolean hasReturnKeyword(BLangType returnTypeNode, SyntaxTree tree) {
         if (tree.rootNode().kind() == SyntaxKind.MODULE_PART) {
-            Token token = ((ModulePartNode) tree.rootNode()).findToken(returnTypeNode.pos.sCol);
+            Token token = ((ModulePartNode) tree.rootNode()).findToken(
+                    returnTypeNode.pos.lineRange().startLine().offset());
             return token.kind() == SyntaxKind.RETURN_KEYWORD;
         }
         return false;
@@ -175,12 +179,12 @@ public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
         Iterator<TopLevelNode> nodeIterator = compilationUnit.getTopLevelNodes().iterator();
         BLangFunction result = null;
         TopLevelNode next = (nodeIterator.hasNext()) ? nodeIterator.next() : null;
-        Function<org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition, Boolean> isWithinPosition =
+        Function<Location, Boolean> isWithinPosition =
                 diagnosticPosition -> {
-                    int sLine = diagnosticPosition.getStartLine();
-                    int eLine = diagnosticPosition.getEndLine();
-                    int sCol = diagnosticPosition.getStartColumn();
-                    int eCol = diagnosticPosition.getEndColumn();
+                    int sLine = diagnosticPosition.lineRange().startLine().line();
+                    int eLine = diagnosticPosition.lineRange().endLine().line();
+                    int sCol = diagnosticPosition.lineRange().startLine().offset();
+                    int eCol = diagnosticPosition.lineRange().endLine().offset();
                     return ((line > sLine || (line == sLine && column >= sCol)) &&
                             (line < eLine || (line == eLine && column <= eCol)));
                 };
@@ -275,10 +279,10 @@ public class ChangeReturnTypeCodeAction implements DiagBasedCodeAction {
 
 
     private static boolean checkNodeWithin(BLangNode node, int line, int column) {
-        int sLine = node.getPosition().getStartLine();
-        int eLine = node.getPosition().getEndLine();
-        int sCol = node.getPosition().getStartColumn();
-        int eCol = node.getPosition().getEndColumn();
+        int sLine = node.getPosition().lineRange().startLine().line();
+        int eLine = node.getPosition().lineRange().endLine().line();
+        int sCol = node.getPosition().lineRange().startLine().offset();
+        int eCol = node.getPosition().lineRange().endLine().offset();
         return (line > sLine || (line == sLine && column >= sCol)) &&
                 (line < eLine || (line == eLine && column <= eCol));
     }

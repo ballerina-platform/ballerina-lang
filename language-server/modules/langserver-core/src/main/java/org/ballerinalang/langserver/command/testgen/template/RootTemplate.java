@@ -77,7 +77,7 @@ public class RootTemplate extends AbstractTestTemplate {
             });
         });
         builtTestFile.getFunctions().stream()
-                .filter(func -> fileName.equals(func.pos.src.cUnitName))
+                .filter(func -> fileName.equals(func.pos.lineRange().filePath()))
                 .forEach(functions::add);
     }
 
