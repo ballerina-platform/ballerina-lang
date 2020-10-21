@@ -3029,7 +3029,8 @@
                 },
                 {
                     "name": "peerWorker",
-                    "type": "NameReferenceNode"
+                    "type": "NameReferenceNode",
+                    "isOptional": true
                 }
             ]
         },

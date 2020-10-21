@@ -2171,12 +2171,22 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public FlushActionNode transform(FlushActionNode flushActionNode) {
-        Token flushKeyword = formatToken(flushActionNode.flushKeyword(), 1, 0);
-        NameReferenceNode peerWorker = formatNode(flushActionNode.peerWorker(), env.trailingWS, env.trailingNL);
+        Token flushKeyword;
+
+        if (flushActionNode.peerWorker().isPresent()) {
+            flushKeyword = formatToken(flushActionNode.flushKeyword(), 1, 0);
+            NameReferenceNode peerWorker = formatNode(flushActionNode.peerWorker().get(),
+                    env.trailingWS, env.trailingNL);
+
+            return flushActionNode.modify()
+                    .withFlushKeyword(flushKeyword)
+                    .withPeerWorker(peerWorker)
+                    .apply();
+        }
+        flushKeyword = formatToken(flushActionNode.flushKeyword(), env.trailingWS, env.trailingNL);
 
         return flushActionNode.modify()
                 .withFlushKeyword(flushKeyword)
-                .withPeerWorker(peerWorker)
                 .apply();
     }
 

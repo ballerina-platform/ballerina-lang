@@ -2178,11 +2178,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token flushKeyword,
             NameReferenceNode peerWorker) {
         Objects.requireNonNull(flushKeyword, "flushKeyword must not be null");
-        Objects.requireNonNull(peerWorker, "peerWorker must not be null");
 
         STNode stFlushActionNode = STNodeFactory.createFlushActionNode(
                 flushKeyword.internalNode(),
-                peerWorker.internalNode());
+                getOptionalSTNode(peerWorker));
         return stFlushActionNode.createUnlinkedFacade();
     }
 
