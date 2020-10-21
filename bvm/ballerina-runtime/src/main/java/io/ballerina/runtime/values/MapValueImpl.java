@@ -210,7 +210,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public Object merge(BMap v2, boolean checkMergeability) {
-        return merge(v2, checkMergeability);
+        return merge((MapValueImpl) v2, checkMergeability);
     }
 
     /**
