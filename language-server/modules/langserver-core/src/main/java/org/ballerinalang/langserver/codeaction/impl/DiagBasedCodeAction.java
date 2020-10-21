@@ -138,6 +138,7 @@ public interface DiagBasedCodeAction {
                 for (BType type : tupleType.tupleTypes) {
                     String newType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor,
                                                                               context);
+                    // TODO: Fix this
 //                    if (prevType != null && !prevType.equals(newType)) {
 //                        isArrayCandidate = false;
 //                    }

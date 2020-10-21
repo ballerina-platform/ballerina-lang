@@ -54,7 +54,6 @@ import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.util.definition.LSStandardLibCache;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.eclipse.lsp4j.CompletionItem;
@@ -808,27 +807,20 @@ public class CommonUtil {
         return null;
     }
 
-    public static String getPackagePrefix(ImportsAcceptor importsAcceptor, PackageID currentPkgId,
-                                          PackageID typePkgId, LSContext context) {
-        String pkgPrefix = "";
-        if (!typePkgId.equals(currentPkgId) && !BUILT_IN_PACKAGE_PREFIX.equals(typePkgId.name.value)) {
-            String moduleName = escapeModuleName(context, typePkgId.orgName.value + "/" + typePkgId.name.value);
-            String[] moduleParts = moduleName.split("/");
-            String orgName = moduleParts[0];
-            String alias = moduleParts[1];
-            pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
-            if (importsAcceptor != null) {
-                importsAcceptor.getAcceptor().accept(orgName, alias);
-            }
-        }
-        return pkgPrefix;
-    }
-
+    /**
+     * Returns module prefix and process imports required.
+     *
+     * @param importsAcceptor   import acceptor
+     * @param currentModuleId   current module id
+     * @param moduleID      module id
+     * @param context   {@link LSContext}
+     * @return  module prefix
+     */
     public static String getModulePrefix(ImportsAcceptor importsAcceptor, ModuleID currentModuleId,
-                                         ModuleID typeModuleId, LSContext context) {
+                                         ModuleID moduleID, LSContext context) {
         String pkgPrefix = "";
-        if (!typeModuleId.equals(currentModuleId) && !BUILT_IN_PACKAGE_PREFIX.equals(typeModuleId.moduleName())) {
-            String moduleName = escapeModuleName(context, typeModuleId.orgName() + "/" + typeModuleId.moduleName());
+        if (!moduleID.equals(currentModuleId) && !BUILT_IN_PACKAGE_PREFIX.equals(moduleID.moduleName())) {
+            String moduleName = escapeModuleName(context, moduleID.orgName() + "/" + moduleID.moduleName());
             String[] moduleParts = moduleName.split("/");
             String orgName = moduleParts[0];
             String alias = moduleParts[1];
