@@ -19,6 +19,8 @@ package org.ballerinalang.formatter.core;
 
 /**
  * Indicate the errors thrown by the formatter core.
+ *
+ * @since 2.0.0
  */
 public class FormatterException extends Exception {
 
