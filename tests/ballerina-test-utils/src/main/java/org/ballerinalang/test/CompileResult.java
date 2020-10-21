@@ -37,7 +37,7 @@ import java.util.List;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
- * Test compilation result based on ProjectAPI.
+ * Projects based test compilation result.
  *
  * @since 2.0.0
  */

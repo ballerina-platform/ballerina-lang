@@ -226,10 +226,6 @@ public class PackageCompilation {
         return this.packageContext.defaultModuleContext().bLangPackage();
     }
 
-    public PackageDescriptor packageDescriptor() {
-        return this.packageContext.packageDescriptor();
-    }
-
     /**
      * Enum to represent output types.
      */

@@ -94,8 +94,7 @@ public class BCompileUtil {
         if (executableName == null) {
             throw new RuntimeException("cannot identify executable name for : " + defaultModule.moduleName());
         }
-        testTarget.setOutputPath(jarCachePath.resolve(executableName + BLANG_COMPILED_JAR_EXT));
-        return testTarget.getExecutablePath(currentPackage).toAbsolutePath().normalize();
+        return jarCachePath.resolve(executableName + BLANG_COMPILED_JAR_EXT).toAbsolutePath().normalize();
     }
 
 }
