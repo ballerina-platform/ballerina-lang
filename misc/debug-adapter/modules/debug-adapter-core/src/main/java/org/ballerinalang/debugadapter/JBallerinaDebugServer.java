@@ -539,39 +539,51 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             dapStackFrame.setSource(source);
             dapStackFrame.setLine((long) stackFrame.location().lineNumber());
             dapStackFrame.setColumn(0L);
+            dapStackFrame.setName(getStackFrameName(stackFrame));
+            return dapStackFrame;
+        } catch (AbsentInformationException | JdiProxyException e) {
+            return null;
+        }
+    }
 
+    /**
+     * Can be used to get the stack frame name.
+     *
+     * @param stackFrame stackFrame.
+     * @return Stack frame name.
+     */
+    private String getStackFrameName(StackFrameProxyImpl stackFrame) {
+        ObjectReference strand;
+        String stackFrameName;
+        try {
             if (stackFrame.location().method().name().matches(WORKER_LAMBDA_REGEX)
                     && stackFrame.visibleVariableByName(STRAND_VAR_NAME) == null) {
-                Value strand = ((ArrayReference) stackFrame.getStackFrame().getArgumentValues().get(0))
+                strand = (ObjectReference) ((ArrayReference) stackFrame.getStackFrame().getArgumentValues().get(0))
                         .getValue(0);
-                String stackFrameName = String.valueOf(((ObjectReference) strand)
-                        .getValue(((ObjectReference) strand).referenceType().fieldByName(NAME)));
+                stackFrameName = String.valueOf(strand.getValue(strand.referenceType().fieldByName(NAME)));
                 stackFrameName = removeRedundantQuotes(stackFrameName);
-                dapStackFrame.setName(WORKER + FRAME_SEPARATOR + stackFrameName);
+                return WORKER + FRAME_SEPARATOR + stackFrameName;
             } else if (stackFrame.location().method().name().contains(LAMBDA)
                     && stackFrame.visibleVariableByName(STRAND_VAR_NAME) == null) {
-                Value strand = ((ArrayReference) stackFrame.getStackFrame().getArgumentValues().get(0))
+                strand = (ObjectReference) ((ArrayReference) stackFrame.getStackFrame().getArgumentValues().get(0))
                         .getValue(0);
-                String stackFrameName = String.valueOf(((ObjectReference) strand)
-                        .getValue(((ObjectReference) strand).referenceType().fieldByName(NAME)));
+                stackFrameName = String.valueOf(strand.getValue(strand.referenceType().fieldByName(NAME)));
                 stackFrameName = removeRedundantQuotes(stackFrameName);
                 if (stackFrameName.equals(NULL)) {
                     stackFrameName = ANONYMOUS;
                 }
-                dapStackFrame.setName(START + FRAME_SEPARATOR + stackFrameName);
+                return START + FRAME_SEPARATOR + stackFrameName;
             } else if (stackFrame.location().method().name().contains(LAMBDA)
                     && stackFrame.visibleVariableByName(STRAND_VAR_NAME) != null) {
-                Value strand = stackFrame.getValue(stackFrame.visibleVariableByName(STRAND_VAR_NAME));
-                String stackFrameName = String.valueOf(((ObjectReference) strand)
-                        .getValue(((ObjectReference) strand).referenceType().fieldByName(NAME)));
+                strand = (ObjectReference) stackFrame.getValue(stackFrame.visibleVariableByName(STRAND_VAR_NAME));
+                stackFrameName = String.valueOf(strand.getValue(strand.referenceType().fieldByName(NAME)));
                 stackFrameName = removeRedundantQuotes(stackFrameName);
-                dapStackFrame.setName(stackFrameName);
+                return stackFrameName;
             } else {
-                dapStackFrame.setName(stackFrame.location().method().name());
+                return stackFrame.location().method().name();
             }
-            return dapStackFrame;
-        } catch (AbsentInformationException | JdiProxyException e) {
-            return null;
+        } catch (JdiProxyException e) {
+            return START + FRAME_SEPARATOR + ANONYMOUS;
         }
     }
 

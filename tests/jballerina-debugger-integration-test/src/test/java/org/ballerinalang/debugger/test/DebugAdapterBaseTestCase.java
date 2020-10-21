@@ -384,7 +384,7 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
      */
     protected StackFrame[] fetchStackFrames(StoppedEventArguments args) throws BallerinaTestException {
         if (!DebugHitListener.connector.isConnected()) {
-            return new StackFrame[0];
+            throw new BallerinaTestException("DAP Client connector is not connected");
         }
         StackTraceArguments stackTraceArgs = new StackTraceArguments();
         stackTraceArgs.setThreadId(args.getThreadId());
@@ -471,15 +471,15 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
     /**
      * Can be used to assert stack frame name, line and source.
      *
-     * @param frames   debug hit stack frames.
+     * @param frame   debug hit stack frame.
      * @param name     stack frame name.
      * @param line     stack frame line.
      * @param source   stack frame source.
      */
-    protected void assertCallStack(StackFrame frames, String name, int line, String source) {
-        Assert.assertEquals(frames.getName(), name);
-        Assert.assertEquals(frames.getLine().intValue(), line);
-        Assert.assertEquals(frames.getSource().getName(), source);
+    protected void assertCallStack(StackFrame frame, String name, int line, String source) {
+        Assert.assertEquals(frame.getName(), name);
+        Assert.assertEquals(frame.getLine().intValue(), line);
+        Assert.assertEquals(frame.getSource().getName(), source);
     }
 
     /**
