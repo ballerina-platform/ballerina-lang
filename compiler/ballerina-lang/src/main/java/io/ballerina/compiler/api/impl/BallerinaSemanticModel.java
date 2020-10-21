@@ -87,7 +87,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
                 BSymbol symbol = scopeEntry.symbol;
 
-                if (isSymbolInUserProject(symbol, cursorPos) || isImportedSymbol(symbol)) {
+                if (hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol)) {
                     compiledSymbols.add(SymbolFactory.getBCompiledSymbol(symbol, name.getValue()));
                 }
             }
@@ -160,7 +160,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     // Private helper methods for the public APIs above.
 
-    private boolean isSymbolInUserProject(BSymbol symbol, Location cursorPos) {
+    private boolean hasCursorPosPassedSymbolPos(BSymbol symbol, Location cursorPos) {
         if (symbol.origin != SOURCE) {
             return false;
         }
