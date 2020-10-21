@@ -221,6 +221,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -2267,6 +2268,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         Set<Object> names = new HashSet<>();
+        Set<Object> neverTypedKeys = new HashSet<>();
         BType type = recordLiteral.type;
         boolean isRecord = type.tag == TypeTags.RECORD;
         boolean isOpenRecord = isRecord && !((BRecordType) type).sealed;
@@ -2276,6 +2278,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean isInferredRecordForMapCET = isRecord && recordLiteral.expectedType != null &&
                 recordLiteral.expectedType.tag == TypeTags.MAP;
 
+        BLangRecordLiteral.BLangRecordSpreadOperatorField inclusiveTypeSpreadField = null;
         for (RecordLiteralNode.RecordField field : fields) {
 
             BLangExpression keyExpr;
@@ -2286,18 +2289,71 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangExpression spreadOpExpr = spreadOpField.expr;
 
                 analyzeExpr(spreadOpExpr);
-                if (spreadOpExpr.type.tag != TypeTags.RECORD) {
+
+                BType spreadOpExprType = spreadOpExpr.type;
+                int spreadFieldTypeTag = spreadOpExprType.tag;
+                if (spreadFieldTypeTag == TypeTags.MAP) {
+                    if (inclusiveTypeSpreadField != null) {
+                        this.dlog.error(spreadOpExpr.pos, DiagnosticCode.MULTIPLE_INCLUSIVE_TYPES);
+                        continue;
+                    }
+                    inclusiveTypeSpreadField = spreadOpField;
+
+                    if (fields.size() > 1) {
+                        if (names.size() > 0) {
+                            this.dlog.error(spreadOpExpr.pos,
+                                            DiagnosticCode.SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS,
+                                            spreadOpExpr);
+                        }
+                        // Skipping to avoid multiple error messages
+                        continue;
+                    }
+                }
+
+                if (spreadFieldTypeTag != TypeTags.RECORD) {
                     continue;
                 }
 
-                for (BField bField : ((BRecordType) spreadOpExpr.type).fields.values()) {
-                    if (Symbols.isOptional(bField.symbol)) {
+                BRecordType spreadExprRecordType = (BRecordType) spreadOpExprType;
+                boolean isSpreadExprRecordTypeSealed = spreadExprRecordType.sealed;
+                if (!isSpreadExprRecordTypeSealed) {
+                    // More than one spread-field with inclusive-type-descriptors are not allowed.
+                    if (inclusiveTypeSpreadField != null) {
+                        this.dlog.error(spreadOpExpr.pos, DiagnosticCode.MULTIPLE_INCLUSIVE_TYPES);
+                    } else {
+                        inclusiveTypeSpreadField = spreadOpField;
+                    }
+                }
+
+                LinkedHashMap<String, BField> fieldsInRecordType = spreadExprRecordType.fields;
+                for (Object fieldName : names) {
+                    if (!fieldsInRecordType.containsKey(fieldName) && !isSpreadExprRecordTypeSealed) {
+                        this.dlog.error(spreadOpExpr.pos,
+                                DiagnosticCode.SPREAD_FIELD_MAY_DULPICATE_ALREADY_SPECIFIED_KEYS,
+                                spreadOpExpr);
+                        break;
+                    }
+                }
+
+                for (BField bField : fieldsInRecordType.values()) {
+                    String name = bField.name.value;
+                    if (names.contains(name)) {
+                        if (bField.type.tag != TypeTags.NEVER) {
+                            this.dlog.error(spreadOpExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
+                                    recordLiteral.type.getKind().typeName(), name, spreadOpField);
+                        }
                         continue;
                     }
 
-                    String name = bField.name.value;
-                    if (names.contains(name)) {
-                        this.dlog.error(spreadOpExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
+                    if (bField.type.tag == TypeTags.NEVER) {
+                        neverTypedKeys.add(name);
+                        continue;
+                    }
+
+                    if (!neverTypedKeys.remove(name) &&
+                            inclusiveTypeSpreadField != null && isSpreadExprRecordTypeSealed) {
+                        this.dlog.error(spreadOpExpr.pos,
+                                        DiagnosticCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
                                         recordLiteral.expectedType.getKind().typeName(), name, spreadOpField);
                     }
                     names.add(name);
@@ -2321,6 +2377,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     if (names.contains(name)) {
                         this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
                                         recordLiteral.expectedType.getKind().typeName(), name);
+                    } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(name)) {
+                        this.dlog.error(keyExpr.pos, DiagnosticCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
+                                        name, inclusiveTypeSpreadField);
                     }
 
                     if (!isInferredRecordForMapCET && isOpenRecord && !((BRecordType) type).fields.containsKey(name)) {
@@ -2332,8 +2391,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     Object name = ((BLangLiteral) keyExpr).value;
                     if (names.contains(name)) {
                         this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
-                                        recordLiteral.parent.type.getKind().typeName(),
-                                        name);
+                                        recordLiteral.parent.type.getKind().typeName(), name);
+                    } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(name)) {
+                        this.dlog.error(keyExpr.pos, DiagnosticCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,
+                                        name, inclusiveTypeSpreadField);
                     }
                     names.add(name);
                 }
