@@ -38,6 +38,13 @@
       "additionalTextEdits": []
     },
     {
+      "label": "isolatedParam",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "isolatedParam",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "deprecated",
       "kind": "Property",
       "detail": "Annotation",

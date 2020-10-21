@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeCreator;
 import io.ballerina.runtime.api.ValueCreator;
 import io.ballerina.runtime.api.async.StrandMetadata;
@@ -50,19 +51,17 @@ public class Map {
         Type newConstraintType = ((FunctionType) func.getType()).getReturnType();
         TableType tblType = (TableType) tbl.getType();
         TableType newTableType =
-                TypeCreator.createTableType(newConstraintType, tblType.getFieldNames(), tblType.isReadOnly());
+                TypeCreator.createTableType(newConstraintType, PredefinedTypes.TYPE_NEVER, tblType.isReadOnly());
 
         BTable newTable = ValueCreator.createTableValue(newTableType);
         int size = tbl.size();
+        Object[] tableValues = tbl.values().toArray();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{parentStrand,
-                                tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
-                        result -> newTable
-                                .put(tbl.getKeys()[index.get()], result),
-                                                       () -> newTable, Scheduler.getStrand().scheduler);
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                () -> new Object[]{parentStrand,
+                        tableValues[index.incrementAndGet()], true},
+                newTable::add, () -> newTable, Scheduler.getStrand().scheduler);
         return newTable;
     }
 

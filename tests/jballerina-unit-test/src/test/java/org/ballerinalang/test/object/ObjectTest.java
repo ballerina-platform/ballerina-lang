@@ -746,31 +746,18 @@ public class ObjectTest {
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
-    @Test(description = "Test field name and method name in different namespaces")
+    @Test(description = "Negative test for field name and method name being same")
     public void testFieldWithSameNameAsMethod() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "test-src/object/object_field_with_same_name_as_method.bal");
-        BValue[] result = BRunUtil.invoke(compileResult, "testFieldWithSameNameAsMethod");
-        Assert.assertEquals(((BInteger) result[0]).intValue(), 13);
-        Assert.assertEquals(((BInteger) result[1]).intValue(), 23);
-        Assert.assertEquals(((BInteger) result[2]).intValue(), 23);
-        Assert.assertEquals(((BFloat) result[3]).floatValue(), 1.1);
-        Assert.assertEquals(((BFloat) result[4]).floatValue(), 2.2);
-        Assert.assertEquals(((BFloat) result[5]).floatValue(), 1.1);
-        Assert.assertEquals(((BFloat) result[6]).floatValue(), 2.2);
-    }
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/object/object_field_with_same_name_as_method_neg.bal");
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'ObjectA.someInt'", 21, 14);
+        BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'ObjectA.someFloat'", 26, 14);
+        BAssertUtil.validateError(resultNegative, i++, "undefined method 'someFloat' in object 'ObjectA'", 36, 25);
+        BAssertUtil.validateError(resultNegative, i++, "undefined method 'someInt' in object 'ObjectA'", 44, 17);
+        BAssertUtil.validateError(resultNegative, i++, "undefined method 'someFloat' in object 'ObjectA'", 49, 19);
 
-    @Test(description = "Test field name and method name in different namespaces from balo")
-    public void testFieldWithSameNameAsMethodFromBalo() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "pkg2");
-        BValue[] result = BRunUtil.invoke(compileResult, "testBaloWithFieldWithSameNameAsMethod");
-        Assert.assertEquals(((BInteger) result[0]).intValue(), 13);
-        Assert.assertEquals(((BInteger) result[1]).intValue(), 23);
-        Assert.assertEquals(((BInteger) result[2]).intValue(), 23);
-        Assert.assertEquals(((BFloat) result[3]).floatValue(), 1.1);
-        Assert.assertEquals(((BFloat) result[4]).floatValue(), 2.2);
-        Assert.assertEquals(((BFloat) result[5]).floatValue(), 1.1);
-        Assert.assertEquals(((BFloat) result[6]).floatValue(), 2.2);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @Test(description = "Test object attach func returning tuple with non blocking call")

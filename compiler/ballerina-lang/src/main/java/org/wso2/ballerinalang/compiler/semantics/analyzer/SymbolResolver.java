@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -94,7 +93,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.FunctionalConstructorBuilder;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -183,6 +181,14 @@ public class SymbolResolver extends BLangNodeVisitor {
             // different semantics depending on whether it's looking up a referenced symbol or looking up to see if
             // the symbol is unique within the scope.
             foundSym = lookupSymbolForDecl(env, symbol.name, SymTag.MAIN);
+        }
+
+        if (foundSym == symTable.notFoundSymbol && symbol.tag == SymTag.FUNCTION) {
+            int dotPosition = symbol.name.value.indexOf('.');
+            if (dotPosition > 0 && dotPosition != symbol.name.value.length()) {
+                String funcName = symbol.name.value.substring(dotPosition + 1);
+                foundSym = lookupSymbolForDecl(env, names.fromString(funcName), SymTag.MAIN);
+            }
         }
 
         //if symbol is not found then it is unique for the current scope
@@ -431,7 +437,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol resolveObjectMethod(DiagnosticPos pos, SymbolEnv env, Name fieldName,
                                        BObjectTypeSymbol objectSymbol) {
-        return lookupMemberSymbol(pos, objectSymbol.methodScope, env, fieldName, SymTag.VARIABLE);
+        return lookupMemberSymbol(pos, objectSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
@@ -913,11 +919,11 @@ public class SymbolResolver extends BLangNodeVisitor {
                     Integer sizeIndicator = (Integer) (((BLangLiteral) size).getValue());
                     BArrayState arrayState;
                     if (sizeIndicator == OPEN_ARRAY_INDICATOR) {
-                        arrayState = BArrayState.UNSEALED;
+                        arrayState = BArrayState.OPEN;
                     } else if (sizeIndicator == INFERRED_ARRAY_INDICATOR) {
-                        arrayState = BArrayState.OPEN_SEALED;
+                        arrayState = BArrayState.INFERRED;
                     } else {
-                        arrayState = BArrayState.CLOSED_SEALED;
+                        arrayState = BArrayState.CLOSED;
                     }
                     arrType =  new BArrayType(resultType, arrayTypeSymbol,  sizeIndicator, arrayState);
                 } else {
@@ -957,7 +963,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     }
 
                     int length = Integer.parseInt(sizeConstSymbol.type.toString());
-                    arrType = new BArrayType(resultType, arrayTypeSymbol, length, BArrayState.CLOSED_SEALED);
+                    arrType = new BArrayType(resultType, arrayTypeSymbol, length, BArrayState.CLOSED);
                 }
             }
             arrayTypeSymbol.type = arrType;
@@ -1006,9 +1012,15 @@ public class SymbolResolver extends BLangNodeVisitor {
             flags.add(Flag.PUBLIC);
         }
 
-        boolean isReadOnly = objectTypeNode.flagSet.contains(Flag.READONLY);
-        if (isReadOnly) {
+        int typeFlags = 0;
+        if (objectTypeNode.flagSet.contains(Flag.READONLY)) {
             flags.add(Flag.READONLY);
+            typeFlags |= Flags.READONLY;
+        }
+
+        if (objectTypeNode.flagSet.contains(Flag.ISOLATED)) {
+            flags.add(Flag.ISOLATED);
+            typeFlags |= Flags.ISOLATED;
         }
 
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
@@ -1017,7 +1029,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (flags.contains(Flag.SERVICE)) {
             objectType = new BServiceType(objectSymbol);
         } else {
-            objectType = isReadOnly ? new BObjectType(objectSymbol, Flags.READONLY) : new BObjectType(objectSymbol);
+            objectType = new BObjectType(objectSymbol, typeFlags);
         }
         objectSymbol.type = objectType;
         objectTypeNode.symbol = objectSymbol;
@@ -1615,44 +1627,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 && env.enclInvokable.symbol.receiverSymbol != null
                 && env.enclInvokable.symbol.receiverSymbol.type.tsymbol == symbol.owner
                 || isMemberAllowed(env.enclEnv, symbol));
-    }
-
-    public void loadFunctionalConstructors() {
-        BPackageSymbol xmlModuleSymbol = symTable.langXmlModuleSymbol;
-        if (xmlModuleSymbol == null) {
-            return;
-        }
-
-        BConstructorSymbol elementCtor =
-                FunctionalConstructorBuilder
-                    .newConstructor("Element", xmlModuleSymbol, symTable.xmlElementType, symTable.builtinPos)
-                    .addParam("name", symTable.stringType)
-                    .addDefaultableParam("attributes", symTable.mapStringType)
-                    .addDefaultableParam("children", symTable.xmlType)
-                    .build();
-        xmlModuleSymbol.scope.define(elementCtor.name, elementCtor);
-
-        BConstructorSymbol piCtor =
-                FunctionalConstructorBuilder.newConstructor("ProcessingInstruction", xmlModuleSymbol,
-                                                            symTable.xmlPIType, symTable.builtinPos)
-                    .addParam("target", symTable.stringType)
-                    .addDefaultableParam("content", symTable.stringType)
-                    .build();
-        xmlModuleSymbol.scope.define(piCtor.name, piCtor);
-
-        BConstructorSymbol commentCtor =
-                FunctionalConstructorBuilder
-                    .newConstructor("Comment", xmlModuleSymbol, symTable.xmlCommentType, symTable.builtinPos)
-                    .addDefaultableParam("comment", symTable.stringType)
-                    .build();
-        xmlModuleSymbol.scope.define(commentCtor.name, commentCtor);
-
-        BConstructorSymbol textCtor =
-                FunctionalConstructorBuilder
-                    .newConstructor("Text", xmlModuleSymbol, symTable.xmlTextType, symTable.builtinPos)
-                    .addDefaultableParam("characters", symTable.stringType)
-                    .build();
-        xmlModuleSymbol.scope.define(textCtor.name, textCtor);
     }
 
     private BType computeIntersectionType(BLangIntersectionTypeNode intersectionTypeNode) {

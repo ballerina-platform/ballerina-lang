@@ -144,7 +144,7 @@ public class ArrayTest {
     public void testElementTypesWithoutImplicitInitVal() {
         BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testElementTypesWithoutImplicitInitVal");
         BValueArray arr = (BValueArray) retVals[0];
-        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED_SEALED);
+        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED);
         Assert.assertEquals(arr.stringValue(), "[1, 2]");
     }
 
@@ -153,7 +153,7 @@ public class ArrayTest {
         BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArrayFieldInRecord");
         BMap barRec = (BMap) retVals[0];
         BValueArray arr = (BValueArray) barRec.get("fArr");
-        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED_SEALED);
+        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED);
         Assert.assertEquals(arr.stringValue(), "[1, 2]");
     }
 
@@ -162,7 +162,7 @@ public class ArrayTest {
         BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArrayFieldInObject");
         BMap barRec = (BMap) retVals[0];
         BValueArray arr = (BValueArray) barRec.get("fArr");
-        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED_SEALED);
+        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED);
         Assert.assertEquals(arr.stringValue(), "[1, 2]");
     }
 
@@ -170,7 +170,7 @@ public class ArrayTest {
     public void testArraysAsFuncParams() {
         BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArraysAsFuncParams");
         BValueArray arr = (BValueArray) retVals[0];
-        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED_SEALED);
+        Assert.assertEquals(((BArrayType) arr.getArrayType()).getState(), BArrayState.CLOSED);
         Assert.assertEquals(arr.stringValue(), "[1, 3]");
     }
 

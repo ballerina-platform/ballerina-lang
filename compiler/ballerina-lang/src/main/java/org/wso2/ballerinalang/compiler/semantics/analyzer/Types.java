@@ -920,7 +920,7 @@ public class Types {
 
     private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
                                                      Set<TypePair> unresolvedTypes) {
-        if (target.state != BArrayState.UNSEALED
+        if (target.state != BArrayState.OPEN
                 && (source.restType != null || source.tupleTypes.size() != target.size)) {
             return false;
         }
@@ -936,7 +936,7 @@ public class Types {
     private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
                                                      Set<TypePair> unresolvedTypes) {
         if (!target.tupleTypes.isEmpty()) {
-            if (source.state == BArrayState.UNSEALED) {
+            if (source.state == BArrayState.OPEN) {
                 // [int, int, int...] = int[] || [int, int] = int[]
                 return false;
             }
@@ -966,7 +966,7 @@ public class Types {
         if (target.tag == TypeTags.ARRAY) {
             BArrayType targetArrayType = (BArrayType) target;
             BType targetElementType = targetArrayType.getElementType();
-            if (targetArrayType.state == BArrayState.UNSEALED) {
+            if (targetArrayType.state == BArrayState.OPEN) {
                 return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
             }
 
@@ -1234,8 +1234,8 @@ public class Types {
         BArrayType lhsArrayType = (BArrayType) target;
         BArrayType rhsArrayType = (BArrayType) source;
         boolean hasSameTypeElements = isSameType(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
-        if (lhsArrayType.state == BArrayState.UNSEALED) {
-            return (rhsArrayType.state == BArrayState.UNSEALED) && hasSameTypeElements;
+        if (lhsArrayType.state == BArrayState.OPEN) {
+            return (rhsArrayType.state == BArrayState.OPEN) && hasSameTypeElements;
         }
 
         return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType) && hasSameTypeElements;
@@ -1270,6 +1270,10 @@ public class Types {
     }
 
     public boolean checkObjectEquivalency(BObjectType rhsType, BObjectType lhsType, Set<TypePair> unresolvedTypes) {
+        if (Symbols.isFlagOn(lhsType.flags, Flags.ISOLATED) && !Symbols.isFlagOn(rhsType.flags, Flags.ISOLATED)) {
+            return false;
+        }
+
         BObjectTypeSymbol lhsStructSymbol = (BObjectTypeSymbol) lhsType.tsymbol;
         BObjectTypeSymbol rhsStructSymbol = (BObjectTypeSymbol) rhsType.tsymbol;
         List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
@@ -3588,5 +3592,18 @@ public class Types {
             default:
                 return isSimpleBasicType(type.tag);
         }
+    }
+
+    public boolean isUnionOfSimpleBasicTypes(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+            for (BType memType : memberTypes) {
+                if (!isSimpleBasicType(memType.tag)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return isSimpleBasicType(type.tag);
     }
 }

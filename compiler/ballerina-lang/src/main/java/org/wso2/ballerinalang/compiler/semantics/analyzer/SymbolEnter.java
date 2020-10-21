@@ -476,6 +476,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define the functions defined within the object
         defineClassInitFunction(classDefinition, objMethodsEnv);
         classDefinition.functions.forEach(f -> {
+            f.flagSet.add(Flag.FINAL); // Method can't be changed
             f.setReceiver(ASTBuilderUtil.createReceiver(classDefinition.pos, objectType));
             defineNode(f, objMethodsEnv);
         });
@@ -592,7 +593,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangClassDefinition classDefinition) {
         EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
-        boolean isReadOnly = flags.contains(Flag.READONLY);
         boolean isPublicType = flags.contains(Flag.PUBLIC);
         Name className = names.fromIdNode(classDefinition.name);
 
@@ -607,7 +607,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (flags.contains(Flag.SERVICE)) {
             objectType = new BServiceType(tSymbol);
         } else {
-            objectType = isReadOnly ? new BObjectType(tSymbol, Flags.READONLY) : new BObjectType(tSymbol);
+            int typeFlags = 0;
+
+            if (flags.contains(Flag.READONLY)) {
+                typeFlags |= Flags.READONLY;
+            }
+
+            if (flags.contains(Flag.ISOLATED)) {
+                typeFlags |= Flags.ISOLATED;
+            }
+
+            objectType = new BObjectType(tSymbol, typeFlags);
         }
 
         if (flags.contains(Flag.DISTINCT)) {
@@ -2007,16 +2017,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (node.getKind() == NodeKind.CLASS_DEFN) {
                 defineMembersOfClassDef(pkgEnv, (BLangClassDefinition) node);
             } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
-                defineMemberOfObjectOrRecordDef(pkgEnv, (BLangTypeDefinition) node);
+                defineMemberOfObjectTypeDef(pkgEnv, (BLangTypeDefinition) node);
             }
         }
     }
 
-    private void defineMemberOfObjectOrRecordDef(SymbolEnv pkgEnv, BLangTypeDefinition node) {
+    private void defineMemberOfObjectTypeDef(SymbolEnv pkgEnv, BLangTypeDefinition node) {
         BLangTypeDefinition typeDef = node;
-        if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-            return;
-        }
         if (typeDef.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
             BObjectType objectType = (BObjectType) typeDef.symbol.type;
 
@@ -2034,6 +2041,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Define the functions defined within the object
             defineObjectInitFunction(objTypeNode, objMethodsEnv);
             objTypeNode.functions.forEach(f -> {
+                f.flagSet.add(Flag.FINAL); // Method's can't change once defined.
                 f.setReceiver(ASTBuilderUtil.createReceiver(typeDef.pos, objectType));
                 defineNode(f, objMethodsEnv);
             });
@@ -2241,11 +2249,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (nodeKind == NodeKind.RECORD_TYPE && !(((BRecordType) structureType).sealed)) {
+            if (nodeKind != NodeKind.RECORD_TYPE || !(((BRecordType) structureType).sealed)) {
                 continue;
             }
 
-            boolean allReadOnlyOrFinalFields = true;
+            boolean allImmutableFields = true;
 
             Collection<BField> fields = structureType.fields.values();
 
@@ -2253,16 +2261,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            int flagToCheck = nodeKind == NodeKind.RECORD_TYPE ? Flags.READONLY : Flags.FINAL;
-
             for (BField field : fields) {
-                if (!Symbols.isFlagOn(field.symbol.flags, flagToCheck)) {
-                    allReadOnlyOrFinalFields = false;
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                    allImmutableFields = false;
                     break;
                 }
             }
 
-            if (allReadOnlyOrFinalFields) {
+            if (allImmutableFields) {
                 structureType.tsymbol.flags |= Flags.READONLY;
                 structureType.flags |= Flags.READONLY;
             }
@@ -2303,7 +2309,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             for (BField field : fields) {
-                if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL)) {
+                if (!Symbols.isFlagOn(field.symbol.flags, Flags.FINAL) ||
+                        !Symbols.isFlagOn(field.type.flags, Flags.READONLY)) {
                     return;
                 }
             }
