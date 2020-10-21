@@ -1082,10 +1082,12 @@ public class Desugar extends BLangNodeVisitor {
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         annAttachmentNode.expr = rewrite(annAttachmentNode.expr, env);
-        for (AttachPoint point : annAttachmentNode.annotationSymbol.points) {
-            if (annAttachmentNode.expr != null && !point.source) {
-                annAttachmentNode.expr = visitCloneReadonly(annAttachmentNode.expr, annAttachmentNode.expr.type);
-                break;
+        if (annAttachmentNode.expr != null) {
+            for (AttachPoint point : annAttachmentNode.annotationSymbol.points) {
+                if (!point.source) {
+                    annAttachmentNode.expr = visitCloneReadonly(annAttachmentNode.expr, annAttachmentNode.expr.type);
+                    break;
+                }
             }
         }
         result = annAttachmentNode;
