@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.syntax.types;
 
-import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
+import io.ballerina.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 
 import java.nio.file.Paths;

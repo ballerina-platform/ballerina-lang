@@ -248,11 +248,11 @@ type TerminatorGenerator object {
 
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitInsn(ICONST_0);
-        self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
+        self.mv.visitFieldInsn(PUTFIELD, "io/ballerina/runtime/scheduling/Strand", "blockedOnExtern", "Z");
 
         if (callIns.lhsOp?.variableDcl is bir:VariableDcl) {
             self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
+            self.mv.visitFieldInsn(GETFIELD, "io/ballerina/runtime/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
             addUnboxInsn(self.mv, callIns.lhsOp?.typeValue); // store return
             bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
 
@@ -310,11 +310,11 @@ type TerminatorGenerator object {
 
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitInsn(ICONST_0);
-        self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
+        self.mv.visitFieldInsn(PUTFIELD, "io/ballerina/runtime/scheduling/Strand", "blockedOnExtern", "Z");
 
         if (callIns.lhsOp?.variableDcl is bir:VariableDcl) {
             self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
+            self.mv.visitFieldInsn(GETFIELD, "io/ballerina/runtime/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
             addJUnboxInsn(self.mv, callIns.lhsOp?.typeValue);
             // store return
             bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
@@ -393,11 +393,11 @@ type TerminatorGenerator object {
 
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitInsn(ICONST_0);
-        self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
+        self.mv.visitFieldInsn(PUTFIELD, "io/ballerina/runtime/scheduling/Strand", "blockedOnExtern", "Z");
 
         if (callIns.lhsOp?.variableDcl is bir:VariableDcl) {
             self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
+            self.mv.visitFieldInsn(GETFIELD, "io/ballerina/runtime/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
             addUnboxInsn(self.mv, callIns.lhsOp?.typeValue);
             // store return
             bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;

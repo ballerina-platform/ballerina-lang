@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.compiler.backend.jvm;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
+import io.ballerina.runtime.StringUtils;
+import io.ballerina.runtime.api.BErrorCreator;
+import io.ballerina.runtime.values.ArrayValue;
+import io.ballerina.runtime.values.ErrorValue;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

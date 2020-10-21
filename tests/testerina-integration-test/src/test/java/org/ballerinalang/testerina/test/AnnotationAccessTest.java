@@ -39,7 +39,7 @@ public class AnnotationAccessTest extends BaseTestCase {
         projectPath = basicTestsProjectPath.toString();
     }
 
-    @Test (enabled = false)
+    @Test
     public void testAssertTrue() throws BallerinaTestException {
         LogLeecher passingLeecher = new LogLeecher("3 passing");
         LogLeecher failingLeecher = new LogLeecher("0 failing");

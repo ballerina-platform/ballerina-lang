@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langserver.commons.completion.spi;
 
-import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.Node;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;

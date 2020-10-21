@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.TableValueImpl;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.scheduling.Strand;
 
 /**
  * Native implementation of lang.table:length(map).
@@ -34,10 +34,10 @@ import org.ballerinalang.jvm.values.TableValueImpl;
 //)
 public class Length {
 
-    public static long length(TableValueImpl tbl) {
+    public static long length(BTable tbl) {
         return tbl.size();
     }
-    public static long length_bstring(Strand strand, TableValueImpl tbl) {
+    public static long length_bstring(Strand strand, BTable tbl) {
         return length(tbl);
     }
 }

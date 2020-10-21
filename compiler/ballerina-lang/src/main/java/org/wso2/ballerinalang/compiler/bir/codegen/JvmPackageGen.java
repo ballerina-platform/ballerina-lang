@@ -104,7 +104,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewrit
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCreateTypesMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateUserDefinedTypeFields;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateValueCreatorMethods;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.isServiceDefAvailable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
@@ -153,8 +152,6 @@ public class JvmPackageGen {
     }
 
     private static void addBuiltinImports(BIRPackage currentModule, Set<PackageID> dependentModuleArray) {
-        Name ballerinaOrgName = new Name("ballerina");
-        Name builtInVersion = new Name("");
 
         // Add the builtin and utils modules to the imported list of modules
         if (isSameModule(currentModule, PackageID.ANNOTATIONS)) {
@@ -375,6 +372,15 @@ public class JvmPackageGen {
         throw new IllegalStateException("cannot find function: '" + funcName + "'");
     }
 
+    private boolean listenerDeclarationFound(List<BIRGlobalVariableDcl> variableDcls) {
+        for (BIRGlobalVariableDcl globalVariableDcl : variableDcls) {
+            if (Symbols.isFlagOn(globalVariableDcl.flags, Flags.LISTENER)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private BIRFunction getMainFunc(List<BIRFunction> funcs) {
         BIRFunction userMainFunc = null;
         for (BIRFunction func : funcs) {
@@ -481,7 +487,7 @@ public class JvmPackageGen {
                             .cleanupPathSeparators(mainFunc.pos.getSource().cUnitName));
                 }
 
-                serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
+                serviceEPAvailable = listenerDeclarationFound(module.globalVars);
 
                 jvmMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable,
                                                 asyncDataCollector);
@@ -585,7 +591,7 @@ public class JvmPackageGen {
             }
         }
 
-        globalVarClassMap.put(pkgName + "LOCK_STORE", initClass);
+        globalVarClassMap.put(pkgName + LOCK_STORE_VAR_NAME, initClass);
     }
 
     private void linkTypeDefinitions(BIRPackage module, String pkgName,

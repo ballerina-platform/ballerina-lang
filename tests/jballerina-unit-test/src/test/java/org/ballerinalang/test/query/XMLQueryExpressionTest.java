@@ -154,8 +154,8 @@ public class XMLQueryExpressionTest {
         BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryExprWithVarForXML");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues[0].stringValue(), "<name>Sherlock Holmes</name>");
-        Assert.assertEquals(returnValues[1].stringValue(), "<name>The Da Vinci Code</name>");
+        Assert.assertEquals(returnValues[0].stringValue(), "<name>Sherlock Holmes</name><name>The Da Vinci " +
+                "Code</name>");
     }
 
     @Test(description = "Test simple query expression with list for XML")
@@ -190,5 +190,12 @@ public class XMLQueryExpressionTest {
         BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryExprWithXMLElementLiteral");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues[0].stringValue(), "<entry>Value</entry>");
+    }
+
+    @Test(description = "Test simple query expression with nested XML Elements")
+    public void testSimpleQueryExprWithNestedXMLElements() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryExprWithNestedXMLElements");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues[0].stringValue(), "<doc> <entry>Value</entry> </doc>");
     }
 }
