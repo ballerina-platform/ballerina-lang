@@ -405,6 +405,23 @@ function testConstPattern12() {
     assertEquals("OTHER", constPattern12(3));
 }
 
+client class Client {
+    remote function post(string x, string y) returns anydata {
+    }
+}
+
+Client clientEndpoint = new ();
+public function testConstPattern13() returns string {
+    string animal = "Mouse";
+    match animal {
+        "Mouse" => {
+            var res = clientEndpoint->post("/post", "POST: Hello World");
+            return "match";
+        }
+    }
+    return "No match";
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

@@ -695,7 +695,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.matchPatterns = cloneList(source.matchPatterns);
         clone.setMatchGuard(source.getMatchGuard());
-        clone.setBlockStatement(source.getBLockStatement());
+        clone.setBlockStatement(clone(source.getBLockStatement()));
         clone.expr = source.expr;
     }
 
