@@ -2209,7 +2209,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(FlushActionNode flushActionNode) {
         BLangWorkerFlushExpr workerFlushExpr = TreeBuilder.createWorkerFlushExpressionNode();
-        Node optionalPeerWorker = flushActionNode.peerWorker();
+        Node optionalPeerWorker = flushActionNode.peerWorker().orElse(null);
         if (optionalPeerWorker != null) {
             SimpleNameReferenceNode peerWorker = (SimpleNameReferenceNode) optionalPeerWorker;
             workerFlushExpr.workerIdentifier = createIdentifier(peerWorker.name());

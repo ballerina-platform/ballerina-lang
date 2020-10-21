@@ -2242,7 +2242,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token flushKeyword =
                 modifyToken(flushActionNode.flushKeyword());
         NameReferenceNode peerWorker =
-                modifyNode(flushActionNode.peerWorker());
+                modifyNode(flushActionNode.peerWorker().orElse(null));
         return flushActionNode.modify(
                 flushKeyword,
                 peerWorker);
