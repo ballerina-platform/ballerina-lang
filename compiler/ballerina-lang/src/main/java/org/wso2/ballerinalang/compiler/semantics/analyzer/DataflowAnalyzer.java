@@ -1884,7 +1884,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isFinalFieldInAllObjects(DiagnosticPos pos, BType type, String fieldName) {
+    private boolean isFinalFieldInAllObjects(Location pos, BType type, String fieldName) {
         if (type.tag == TypeTags.OBJECT) {
 
             BField field = ((BObjectType) type).fields.get(fieldName);

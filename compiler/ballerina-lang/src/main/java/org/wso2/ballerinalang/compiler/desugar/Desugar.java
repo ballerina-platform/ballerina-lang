@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.runtime.util.BLangConstants;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;

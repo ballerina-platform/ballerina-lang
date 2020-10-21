@@ -470,7 +470,7 @@ public class ASTBuilderUtil {
         return invocationNode;
     }
 
-    static BLangInvocation createInvocationExprForMethod(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
+    static BLangInvocation createInvocationExprForMethod(Location pos, BInvokableSymbol invokableSymbol,
                                                 List<BLangExpression> requiredArgs, SymbolResolver symResolver) {
         return createInvocationExprMethod(pos, invokableSymbol, requiredArgs, new ArrayList<>(), symResolver);
     }
