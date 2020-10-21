@@ -21,6 +21,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.utils.ProjectConstants;
 
 import java.nio.file.Path;
@@ -40,6 +41,7 @@ public class ProjectLoader {
      * @return project of applicable type
      */
     public static Project loadProject(Path path) {
+        resetEnvironmentContext();
         Path absProjectPath = Optional.of(path.toAbsolutePath()).get();
         Path projectRoot;
         if (absProjectPath.toFile().isDirectory()) {
@@ -119,5 +121,9 @@ public class ProjectLoader {
 
     private static boolean hasBallerinaToml(Path filePath) {
         return filePath.resolve(ProjectConstants.BALLERINA_TOML).toFile().exists();
+    }
+
+    private static void resetEnvironmentContext() {
+        BuildEnvContext.getInstance().reset();
     }
 }
