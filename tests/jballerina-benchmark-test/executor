@@ -14,7 +14,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-#!/usr/bin/env bash
+#!/bin/bash
 set -e
 
 warmupIterations=$1
@@ -32,11 +32,11 @@ NA=NA
 
 echo "Running Performance benchmarks ..."
 
-if [[ ! -d "$resultsDir" ]]; then
+if [ ! -d "$resultsDir" ]; then
     mkdir -p ${resultsDir}
 fi
 
-if [[ ! -d "$gcLogsDir" ]]; then
+if [ ! -d "$gcLogsDir" ]; then
     mkdir -p ${gcLogsDir}
 fi
 
