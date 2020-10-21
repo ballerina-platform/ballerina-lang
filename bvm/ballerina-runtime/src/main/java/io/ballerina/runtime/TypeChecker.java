@@ -2750,7 +2750,8 @@ public class TypeChecker {
         }
     }
 
-    private static boolean checkFillerValue(BType type, List<BType> unAnalyzedTypes) {
+    private static boolean checkFillerValue(BType type, List<Type> unAnalyzedTypes) {
+
         if (unAnalyzedTypes.contains(type)) {
             return true;
         }
@@ -2758,16 +2759,16 @@ public class TypeChecker {
         switch (type.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recordType = (BRecordType) type;
-                for (BField field : recordType.getFields().values()) {
-                    if (Flags.isFlagOn(field.flags, Flags.OPTIONAL)) {
+                for (Field field : recordType.getFields().values()) {
+                    if (Flags.isFlagOn(field.getFlags(), Flags.OPTIONAL)) {
                         continue;
                     }
-                    if (!Flags.isFlagOn(field.flags, Flags.REQUIRED)) {
+                    if (!Flags.isFlagOn(field.getFlags(), Flags.REQUIRED)) {
                         continue;
                     }
                     return false;
                 }
-                break;
+                return true;
             case TypeTags.UNION_TAG:
                 BUnionType unionType = (BUnionType) type;
                 // NIL is a member.
@@ -2775,7 +2776,7 @@ public class TypeChecker {
                     return true;
                 }
                 // All members are of same type.
-                Iterator<Type> iterator = type.getMemberTypes().iterator();
+                Iterator<Type> iterator = unionType.getMemberTypes().iterator();
                 Type firstMember;
                 for (firstMember = iterator.next(); iterator.hasNext(); ) {
                     if (!isSameType(firstMember, iterator.next())) {
@@ -2785,22 +2786,7 @@ public class TypeChecker {
                 // Control reaching this point means there is only one type in the union.
                 return isValueType(firstMember) && hasFillerValue(firstMember);
         }
-
-    private static boolean checkFillerValue(BRecordType type, List<Type> unAnalyzedTypes) {
-        if (unAnalyzedTypes.contains(type)) {
-            return true;
-        }
-        unAnalyzedTypes.add(type);
-        for (Field field : type.getFields().values()) {
-            if (Flags.isFlagOn(field.getFlags(), Flags.OPTIONAL)) {
-                continue;
-            }
-            if (!Flags.isFlagOn(field.getFlags(), Flags.REQUIRED)) {
-                continue;
-            }
-            return false;
-        }
-        return true;
+        return false;
     }
 
     private static boolean checkFillerValue(BArrayType type) {

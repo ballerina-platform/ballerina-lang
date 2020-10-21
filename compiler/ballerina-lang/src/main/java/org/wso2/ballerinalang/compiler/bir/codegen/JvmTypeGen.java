@@ -367,7 +367,7 @@ class JvmTypeGen {
                 case TypeTags.UNION:
                     // populate member fields
                     BUnionType unionType = (BUnionType) bType;
-                    mv.visitTypeInsn(CHECKCAST, UNION_TYPE);
+                    mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
                     mv.visitInsn(DUP);
                     mv.visitInsn(DUP);
                     addUnionMembers(mv, unionType.getMemberTypes());
@@ -860,7 +860,7 @@ class JvmTypeGen {
      * @param unionType union type
      */
     private static void createUnionType(MethodVisitor mv, BUnionType unionType) {
-        mv.visitTypeInsn(NEW, UNION_TYPE);
+        mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
         // Load type flags
@@ -869,7 +869,7 @@ class JvmTypeGen {
         loadReadonlyFlag(mv, unionType);
 
         // initialize the union type using the members array
-        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", "(IZ)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, "<init>", "(IZ)V", false);
     }
 
     /**
@@ -882,7 +882,7 @@ class JvmTypeGen {
         // Create the members array
         mv.visitLdcInsn((long) members.size());
         mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, BTYPE);
+        mv.visitTypeInsn(ANEWARRAY, TYPE);
         int i = 0;
         for (BType memberType : members) {
             mv.visitInsn(DUP);
@@ -897,7 +897,7 @@ class JvmTypeGen {
             i += 1;
         }
 
-        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE, "setMemberTypes", String.format("([L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, "setMemberTypes", String.format("([L%s;)V", TYPE), false);
     }
 
     static void duplicateServiceTypeWithAnnots(MethodVisitor mv, BObjectType objectType, String pkgClassName,
