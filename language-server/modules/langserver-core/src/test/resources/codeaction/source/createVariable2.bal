@@ -1,7 +1,7 @@
-import ballerina/crypto;
+
 
 # A Lorry
-public type Lorry object {
+public class Lorry {
     # Get colour
     # + a - input
     # + return - a string
@@ -11,7 +11,7 @@ public type Lorry object {
 };
 
 # A Car
-public type Color object {
+public class Color {
     # Print colour
     # + b - input
     # + return - a string
@@ -22,10 +22,10 @@ public type Color object {
 
 public function foo(string... args) {
     Lorry lorry = new Lorry();
-    lorry.get_color(2).print("").toString().length();
+    lorry.get_color(2).print("").toString().length()        ;
     lorry.get_color(2).print(".invoc(\"");
 }
 
 function getCacheId(string str) {
-    crypto:hashMd5(str.toBytes());
+    str.toBytes();
 }

@@ -8,7 +8,7 @@
     {
       "label": "test",
       "kind": "Variable",
-      "detail": "module1:Listener",
+      "detail": "ballerina/module1:0.1.0:Listener",
       "sortText": "H",
       "insertText": "test",
       "insertTextFormat": "Snippet"

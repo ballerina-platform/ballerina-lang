@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.builder.impl;
+package org.ballerinalang.langserver.codeaction.impl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
@@ -107,10 +106,15 @@ public class ImplementFunctionsCodeAction implements DiagBasedCodeAction {
         PackageID currentPkgId = packageNode.packageID;
         List<TextEdit> edits = new ArrayList<>();
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        String returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                     function.type.retType, context);
-        String returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, function.type.retType,
-                                                                   "        return {%1};", context);
+        //TODO: Fix this
+        String returnType = "";
+        String returnValue = "";
+
+//        String returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
+//                                                                     function.type.retType, context);
+//        String returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, function.type
+//        .retType,
+//                                                                   "        return {%1};", context);
         List<String> arguments = getFuncArguments(importsAcceptor, currentPkgId, function.symbol, context);
         if (arguments != null) {
             funcArgs = String.join(", ", arguments);
@@ -147,15 +151,19 @@ public class ImplementFunctionsCodeAction implements DiagBasedCodeAction {
             return null;
         }
         for (BVarSymbol bVarSymbol : bLangInvocation.params) {
-            String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bVarSymbol.type,
-                                                                      context);
+            //TODO: Fix this
+//            String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bVarSymbol.type,
+//                                                                      context);
+            String argType = "";
             String argName = bVarSymbol.name.value;
             list.add(argType + " " + argName);
         }
         BVarSymbol restParam = bLangInvocation.restParam;
         if (restParam != null && (restParam.type instanceof BArrayType)) {
-            String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                      ((BArrayType) restParam.type).eType, context);
+            //TODO: Fix this
+//            String argType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
+//                                                                      ((BArrayType) restParam.type).eType, context);
+            String argType = "";
             list.add(argType + "... " + restParam.getName().getValue());
         }
         return (!list.isEmpty()) ? list : null;

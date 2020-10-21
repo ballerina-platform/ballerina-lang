@@ -183,6 +183,14 @@ public class SymbolResolver extends BLangNodeVisitor {
             foundSym = lookupSymbolForDecl(env, symbol.name, SymTag.MAIN);
         }
 
+        if (foundSym == symTable.notFoundSymbol && symbol.tag == SymTag.FUNCTION) {
+            int dotPosition = symbol.name.value.indexOf('.');
+            if (dotPosition > 0 && dotPosition != symbol.name.value.length()) {
+                String funcName = symbol.name.value.substring(dotPosition + 1);
+                foundSym = lookupSymbolForDecl(env, names.fromString(funcName), SymTag.MAIN);
+            }
+        }
+
         //if symbol is not found then it is unique for the current scope
         if (foundSym == symTable.notFoundSymbol) {
             return true;

@@ -349,6 +349,29 @@ var isolatedAnonFunctionWithDefaultableParams =
         return y;
     };
 
+isolated class IsolatedClass {
+    final string a = "hello";
+    private int[] b = [1, 2];
+
+    isolated function getArray() returns int[] {
+        lock {
+            int[] x = self.b.clone();
+            x.push(self.a.length());
+            return x.clone();
+        }
+    }
+}
+
+final IsolatedClass isolatedObject = new;
+
+isolated function testAccessingFinalIsolatedObjectInIsolatedFunction() {
+    IsolatedClass cl = isolatedObject;
+    int[] arr = isolatedObject.getArray();
+
+    assertEquality(<int[]> [1, 2], arr);
+    assertEquality(<int[]> [1, 2], cl.getArray());
+}
+
 isolated function getIntArray() returns int[] => arr;
 
 isolated function getMutableIntArray() returns int[] => [2, 3, 4];

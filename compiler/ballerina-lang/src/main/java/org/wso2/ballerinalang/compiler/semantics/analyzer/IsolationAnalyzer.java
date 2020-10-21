@@ -972,7 +972,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (Symbols.isFlagOn(symbol.flags, Flags.FINAL) &&
-                (types.isInherentlyImmutableType(accessType) || Symbols.isFlagOn(accessType.flags, Flags.READONLY))) {
+                (types.isInherentlyImmutableType(accessType) ||
+                         Symbols.isFlagOn(accessType.flags, Flags.READONLY) ||
+                         isIsolatedObjectTypes(accessType))) {
             return;
         }
 

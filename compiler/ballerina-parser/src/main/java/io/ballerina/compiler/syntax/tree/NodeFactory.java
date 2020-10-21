@@ -1080,16 +1080,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             ExpressionNode initializer,
             Token semicolonToken) {
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
-        Objects.requireNonNull(equalsToken, "equalsToken must not be null");
-        Objects.requireNonNull(initializer, "initializer must not be null");
         Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
 
         STNode stModuleVariableDeclarationNode = STNodeFactory.createModuleVariableDeclarationNode(
                 getOptionalSTNode(metadata),
                 getOptionalSTNode(finalKeyword),
                 typedBindingPattern.internalNode(),
-                equalsToken.internalNode(),
-                initializer.internalNode(),
+                getOptionalSTNode(equalsToken),
+                getOptionalSTNode(initializer),
                 semicolonToken.internalNode());
         return stModuleVariableDeclarationNode.createUnlinkedFacade();
     }
@@ -2552,7 +2550,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token openBraceToken,
             SeparatedNodeList<Node> enumMemberList,
             Token closeBraceToken) {
-        Objects.requireNonNull(qualifier, "qualifier must not be null");
         Objects.requireNonNull(enumKeywordToken, "enumKeywordToken must not be null");
         Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
@@ -2561,7 +2558,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stEnumDeclarationNode = STNodeFactory.createEnumDeclarationNode(
                 getOptionalSTNode(metadata),
-                qualifier.internalNode(),
+                getOptionalSTNode(qualifier),
                 enumKeywordToken.internalNode(),
                 identifier.internalNode(),
                 openBraceToken.internalNode(),

@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.types.BallerinaTypeDescriptor;
 import io.ballerina.compiler.api.types.ErrorTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
  * Represents an error type descriptor.
@@ -55,6 +56,8 @@ public class BallerinaErrorTypeDescriptor extends AbstractTypeDescriptor impleme
         if (this.moduleID().moduleName().equals("lang.annotations") && this.moduleID().orgName().equals("ballerina")) {
             return ((BErrorType) this.getBType()).name.getValue();
         }
-        return this.moduleID().modulePrefix() + ":" + ((BErrorType) this.getBType()).name.getValue();
+        return this.moduleID().orgName() + Names.ORG_NAME_SEPARATOR +
+                this.moduleID().moduleName() + Names.VERSION_SEPARATOR + this.moduleID().version() + ":" +
+                ((BErrorType) this.getBType()).name.getValue();
     }
 }
