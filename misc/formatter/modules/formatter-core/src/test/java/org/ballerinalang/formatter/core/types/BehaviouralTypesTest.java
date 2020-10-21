@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.formatter.core.types;
 
-import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.FormatterTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -31,7 +30,7 @@ import java.nio.file.Paths;
 public class BehaviouralTypesTest extends FormatterTest {
 
     @Test(dataProvider = "test-file-provider")
-    public void test(String source, String sourcePath) throws IOException, FormatterException {
+    public void test(String source, String sourcePath) throws IOException {
         super.test(source, sourcePath);
     }
 
