@@ -40,6 +40,7 @@ public type InboundOAuth2Provider object {
 
     public http:Client introspectionClient;
     public string? tokenTypeHint;
+    map<json>? optionalParameters;
     cache:Cache? inboundOAuth2Cache;
     int defaultTokenExpTimeInSeconds;
 
@@ -48,6 +49,7 @@ public type InboundOAuth2Provider object {
     # + config - OAuth2 introspection server configurations
     public function __init(IntrospectionServerConfig config) {
         self.tokenTypeHint = config?.tokenTypeHint;
+        self.optionalParameters = config?.optionalParameters;
         self.introspectionClient = new(config.url, config.clientConfig);
         self.inboundOAuth2Cache = config?.oauth2Cache;
         self.defaultTokenExpTimeInSeconds = config.defaultTokenExpTimeInSeconds;
@@ -84,6 +86,12 @@ public type InboundOAuth2Provider object {
         string? tokenTypeHint = self.tokenTypeHint;
         if (tokenTypeHint is string) {
             textPayload += "&token_type_hint=" + tokenTypeHint;
+        }
+        map<json>? optionalParameters = self.optionalParameters;
+        if (optionalParameters is map<json>) {
+            foreach var [key, value] in optionalParameters.entries() {
+                textPayload += "&" + key + "=" + value;
+            }
         }
         req.setTextPayload(textPayload, mime:APPLICATION_FORM_URLENCODED);
         http:Response|http:ClientError response = self.introspectionClient->post("", req);
@@ -190,12 +198,14 @@ public function getScopes(string scopes) returns string[] {
 #
 # + url - URL of the introspection server
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
+# + optionalParameters - Optional parameters submitted for introspection
 # + oauth2Cache - Cache used to store the OAuth2 token and other related information
 # + defaultTokenExpTimeInSeconds - Expiration time of the tokens if introspection response does not contain an `exp` field
 # + clientConfig - HTTP client configurations which calls the introspection server
 public type IntrospectionServerConfig record {|
     string url;
     string tokenTypeHint?;
+    map<json> optionalParameters?;
     cache:Cache oauth2Cache?;
     int defaultTokenExpTimeInSeconds = 3600;
     http:ClientConfiguration clientConfig = {};
