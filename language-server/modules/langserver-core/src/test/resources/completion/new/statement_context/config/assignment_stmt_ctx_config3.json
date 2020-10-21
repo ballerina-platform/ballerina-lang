@@ -558,14 +558,14 @@
     {
       "label": "l1",
       "kind": "Variable",
-      "detail": "module1:Listener",
+      "detail": "ballerina/module1:0.1.0:Listener",
       "insertText": "l1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "testValue",
       "kind": "Variable",
-      "detail": "module1:TestObject1",
+      "detail": "ballerina/module1:0.1.0:TestObject1",
       "insertText": "testValue",
       "insertTextFormat": "Snippet"
     },
