@@ -215,8 +215,8 @@ class FormatUtil {
     private static void formatAndWrite(BLangCompilationUnit compilationUnit, Path sourceRootPath,
                                        List<String> formattedFiles, boolean dryRun) throws IOException {
         String fileName = Paths.get(sourceRootPath.toString()).resolve("src")
-                .resolve(compilationUnit.getPackageID().getName().value)
-                .resolve(compilationUnit.getName()).toString();
+                .resolve(compilationUnit.getPosition().getSource().getPackageName())
+                .resolve(compilationUnit.getPosition().getSource().getCompilationUnitName()).toString();
 
         String originalSource = new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
         // Format and get the formatted source.

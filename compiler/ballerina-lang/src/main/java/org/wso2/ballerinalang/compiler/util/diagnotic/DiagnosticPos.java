@@ -17,10 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.util.diagnotic;
 
-import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
 
@@ -32,53 +28,49 @@ import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
  *
  * @since 0.94
  */
-@Deprecated
-public class DiagnosticPos implements DiagnosticPosition, Location {
+public class DiagnosticPos implements DiagnosticPosition {
 
-    private LineRange lineRange;
-    private TextRange textRange;
-    private PackageID packageID;
+    public BDiagnosticSource src;
+    public int sLine;
+    public int eLine;
+    public int sCol;
+    public int eCol;
 
-    public DiagnosticPos(String filePath, PackageID pkgId, int startLine, int endLine,
-                         int startColumn, int endColumn) {
-        this.packageID = pkgId;
-        this.lineRange = LineRange.from(filePath, LinePosition.from(startLine, startColumn),
-                LinePosition.from(endLine, endColumn));
-        this.textRange = TextRange.from(0, 0);
+    public DiagnosticPos(BDiagnosticSource source,
+                         int startLine,
+                         int endLine,
+                         int startCol,
+                         int endCol) {
+        this.src = source;
+        this.sLine = startLine;
+        this.eLine = endLine;
+        this.sCol = startCol;
+        this.eCol = endCol;
     }
 
     @Override
-    public LineRange lineRange() {
-        return lineRange;
-    }
-
-    @Override
-    public TextRange textRange() {
-        return textRange;
-    }
-
-    public PackageID getPackageID() {
-        return packageID;
+    public BDiagnosticSource getSource() {
+        return src;
     }
 
     @Override
     public int getStartLine() {
-        return lineRange.startLine().line();
+        return sLine;
     }
 
     @Override
     public int getEndLine() {
-        return lineRange.endLine().line();
+        return eLine;
     }
 
     @Override
     public int getStartColumn() {
-        return lineRange.startLine().offset();
+        return sCol;
     }
 
     @Override
     public int getEndColumn() {
-        return lineRange.endLine().offset();
+        return eCol;
     }
 
     @Override
@@ -90,43 +82,34 @@ public class DiagnosticPos implements DiagnosticPosition, Location {
             return false;
         }
         DiagnosticPos diagnosticPos = (DiagnosticPos) obj;
-        return packageID.equals(diagnosticPos.getPackageID()) &&
-                lineRange().filePath().equals(diagnosticPos.lineRange().filePath()) &&
-                (getStartLine() == diagnosticPos.getStartLine() && getEndLine() == diagnosticPos.getEndLine() &&
-                getStartColumn() == diagnosticPos.getStartColumn() && getEndColumn() == diagnosticPos.getEndColumn());
+        return src.equals(diagnosticPos.src) && (sLine == diagnosticPos.sLine && eLine == diagnosticPos.eLine &&
+                sCol == diagnosticPos.sCol && eCol == diagnosticPos.eCol);
     }
 
     @Override
     public int hashCode() {
-        return  packageID.hashCode() + lineRange().filePath().hashCode() +
-                getStartLine() + getEndLine() + getStartColumn() + getEndColumn();
+        return src.hashCode() + sLine + eLine + sCol + eCol;
     }
 
     @Override
     public int compareTo(DiagnosticPosition diagnosticPosition) {
-
         // Compare the source first.
-        String thisDiagnosticString = packageID.name.value + packageID.version.value + lineRange().filePath();
-        String otherDiagnosticString = diagnosticPosition.getPackageID().name.value +
-                diagnosticPosition.getPackageID().version.value +
-                ((DiagnosticPos) diagnosticPosition).lineRange().filePath();
-        int value = thisDiagnosticString.compareTo(otherDiagnosticString);
-
+        int value = this.getSource().compareTo(diagnosticPosition.getSource());
         if (value != 0) {
             return value;
         }
 
         // If the sources are same, then compare the start line.
-        if (getStartLine() < diagnosticPosition.getStartLine()) {
+        if (sLine < diagnosticPosition.getStartLine()) {
             return -1;
-        } else if (getStartLine() > diagnosticPosition.getStartLine()) {
+        } else if (sLine > diagnosticPosition.getStartLine()) {
             return 1;
         }
 
         // If the start line is the same, then compare the start column.
-        if (getStartColumn() < diagnosticPosition.getStartColumn()) {
+        if (sCol < diagnosticPosition.getStartColumn()) {
             return -1;
-        } else if (getStartColumn() > diagnosticPosition.getStartColumn()) {
+        } else if (sCol > diagnosticPosition.getStartColumn()) {
             return 1;
         }
 
@@ -135,6 +118,17 @@ public class DiagnosticPos implements DiagnosticPosition, Location {
 
     @Override
     public String toString() {
-        return lineRange.toString() + textRange.toString();
+        boolean cUnitNameAvailable = src.cUnitName != null && !src.cUnitName.isEmpty();
+        String strPos = "";
+
+        if (src.pkgID != PackageID.DEFAULT && cUnitNameAvailable) {
+            strPos = strPos + src.pkgID + "::" + src.cUnitName + ":";
+        } else if (src.pkgID != PackageID.DEFAULT) {
+            strPos = strPos + src.pkgID + ":";
+        } else {
+            strPos = strPos + src.cUnitName + ":";
+        }
+
+        return strPos + sLine + ":" + sCol + ":";
     }
 }

@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.writer;
 
-import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
@@ -48,6 +47,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.HashSet;
 import java.util.List;
@@ -509,7 +509,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     // Positions
-    void writePosition(Location pos) {
+    void writePosition(DiagnosticPos pos) {
         BIRWriterUtils.writePosition(pos, this.buf, this.cp);
     }
 

@@ -75,7 +75,7 @@ public interface DiagBasedCodeAction {
                                                                      List<TextEdit> edits,
                                                                      CompilerContext compilerContext) {
         Set<String> nameEntries = CommonUtil.getAllNameEntries(compilerContext);
-        PackageID currentPkgId = referenceAtCursor.getSymbol().pkgID;
+        PackageID currentPkgId = bLangNode.pos.src.pkgID;
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
 
         List<String> types = new ArrayList<>();

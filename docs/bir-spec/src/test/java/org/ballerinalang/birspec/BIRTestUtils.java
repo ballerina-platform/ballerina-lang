@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.birspec;
 
-import io.ballerina.tools.diagnostics.Location;
 import io.kaitai.struct.ByteBufferKaitaiStream;
 import io.kaitai.struct.KaitaiStruct;
 import org.ballerinalang.build.kaitai.Bir;
@@ -41,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 
 import java.io.IOException;
@@ -461,11 +461,11 @@ class BIRTestUtils {
         }
     }
 
-    private static void assertPosition(Bir.Position actualPosition, Location expectedPosition) {
-        Assert.assertEquals(actualPosition.sLine(), expectedPosition.lineRange().startLine().line());
-        Assert.assertEquals(actualPosition.eLine(), expectedPosition.lineRange().endLine().line());
-        Assert.assertEquals(actualPosition.sCol(), expectedPosition.lineRange().startLine().offset());
-        Assert.assertEquals(actualPosition.eCol(), expectedPosition.lineRange().endLine().offset());
+    private static void assertPosition(Bir.Position actualPosition, DiagnosticPos expectedPosition) {
+        Assert.assertEquals(actualPosition.sLine(), expectedPosition.sLine);
+        Assert.assertEquals(actualPosition.eLine(), expectedPosition.eLine);
+        Assert.assertEquals(actualPosition.sCol(), expectedPosition.sCol);
+        Assert.assertEquals(actualPosition.eCol(), expectedPosition.eCol);
     }
 
     private static void assertAnnotations(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,

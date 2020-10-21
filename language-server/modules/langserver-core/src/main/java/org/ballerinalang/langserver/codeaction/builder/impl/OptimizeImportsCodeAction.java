@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.builder.impl;
 
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.codeaction.builder.NodeBasedCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -30,6 +29,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -94,26 +94,24 @@ public class OptimizeImportsCodeAction implements NodeBasedCodeAction {
         List<TextEdit> edits = new ArrayList<>();
 
         // Find the imports range
-        int importSLine = fileImports.get(0).pos.lineRange().startLine().line() - 1;
+        int importSLine = fileImports.get(0).pos.sLine - 1;
         List<Range> importLines = new ArrayList<>();
         for (int i = 0; i < fileImports.size(); i++) {
             BLangImportPackage importPkg = fileImports.get(i);
-            Location pos = importPkg.getPosition();
+            DiagnosticPos pos = importPkg.getPosition();
             String orgName = importPkg.orgName.value;
             String pkgName = importPkg.pkgNameComps.stream().map(s -> s.value).collect(Collectors.joining("."));
             String alias = (pkgName.equals(importPkg.alias.value)) ? "" : importPkg.alias.value;
             String version = importPkg.version.value;
 
             // Get imports starting line
-            if (importSLine > pos.lineRange().startLine().line()) {
-                importSLine = pos.lineRange().startLine().line() - 1;
+            if (importSLine > pos.sLine) {
+                importSLine = pos.sLine - 1;
             }
 
             // Mark locations of the imports
-            Range range = new Range(new Position(pos.lineRange().startLine().line() - 1,
-                    pos.lineRange().startLine().offset() - 1),
-                    new Position(pos.lineRange().endLine().line() - 1,
-                            pos.lineRange().endLine().offset() - 1));
+            Range range = new Range(new Position(pos.sLine - 1, pos.sCol - 1),
+                                    new Position(pos.eLine - 1, pos.eCol - 1));
             importLines.add(range);
 
             // Remove any matching imports on-the-go
