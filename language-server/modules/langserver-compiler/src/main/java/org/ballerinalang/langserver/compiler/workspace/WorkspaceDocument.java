@@ -41,7 +41,7 @@ public class WorkspaceDocument {
     public WorkspaceDocument(Path path, String content, boolean isTempFile) {
         this.path = path;
         this.content = content;
-        setTree(SyntaxTree.from(TextDocuments.from(this.content)));
+        setTree(SyntaxTree.from(TextDocuments.from(this.content), path.getFileName().toString()));
         this.codeLenses = new ArrayList<>();
         lsDocument = isTempFile ? null : new LSDocumentIdentifierImpl(path.toUri().toString());
     }
@@ -73,13 +73,13 @@ public class WorkspaceDocument {
     public void setContent(String content) {
         this.content = content;
         // TODO: Fix this, each time creates a new tree
-        setTree(SyntaxTree.from(TextDocuments.from(this.content)));
+        setTree(SyntaxTree.from(TextDocuments.from(this.content), path.getFileName().toString()));
     }
 
     public void setIncrementContent(String content) {
         this.content = content;
         // TODO: Fix this, each time creates a new tree
-        setTree(SyntaxTree.from(TextDocuments.from(this.content)));
+        setTree(SyntaxTree.from(TextDocuments.from(this.content), path.getFileName().toString()));
     }
 
     public SyntaxTree getTree() {
