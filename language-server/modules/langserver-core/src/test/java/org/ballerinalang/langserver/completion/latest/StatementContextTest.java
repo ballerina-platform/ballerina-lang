@@ -39,8 +39,8 @@ public class StatementContextTest extends CompletionTestNew {
         return new Object[][] {
                 {"assignment_stmt_ctx_config1.json", this.getTestResourceDir()},
                 {"assignment_stmt_ctx_config2.json", this.getTestResourceDir()},
-//                {"assignment_stmt_ctx_config3.json", this.getTestResourceDir()} // Blocked by #26309
-//                {"async_send_action_ctx_config1.json", this.getTestResourceDir()}, // Blocked by #26309
+                {"assignment_stmt_ctx_config3.json", this.getTestResourceDir()},
+                {"async_send_action_ctx_config1.json", this.getTestResourceDir()},
                 {"async_send_action_ctx_config2.json", this.getTestResourceDir()},
                 {"checking_call_stmt_ctx_config1.json", this.getTestResourceDir()},
                 {"checking_call_stmt_ctx_config2.json", this.getTestResourceDir()},
@@ -63,8 +63,8 @@ public class StatementContextTest extends CompletionTestNew {
                 {"foreach_stmt_ctx_config4.json", this.getTestResourceDir()},
                 {"foreach_stmt_ctx_config5.json", this.getTestResourceDir()},
                 {"foreach_stmt_ctx_config6.json", this.getTestResourceDir()},
-//                {"foreach_stmt_ctx_config7.json", this.getTestResourceDir()}, // Blocked by #26309 
-//                {"foreach_stmt_ctx_config8.json", this.getTestResourceDir()}, // Blocked by #26309
+                {"foreach_stmt_ctx_config7.json", this.getTestResourceDir()},
+                {"foreach_stmt_ctx_config8.json", this.getTestResourceDir()},
                 {"fork_stmt_ctx_config1.json", this.getTestResourceDir()},
                 {"fork_stmt_ctx_config2.json", this.getTestResourceDir()},
                 {"function_call_stmt_ctx_config1.json", this.getTestResourceDir()},
@@ -79,18 +79,18 @@ public class StatementContextTest extends CompletionTestNew {
                 {"match_stmt_ctx_config1.json", this.getTestResourceDir()},
                 {"receive_action_ctx_config1.json", this.getTestResourceDir()},
                 {"receive_action_ctx_config2.json", this.getTestResourceDir()},
-//                {"remote_action_config1.json", this.getTestResourceDir()},  // Blocked by #26309
+                {"remote_action_config1.json", this.getTestResourceDir()},
                 {"sync_send_action_ctx_config1.json", this.getTestResourceDir()},
                 {"sync_send_action_ctx_config2.json", this.getTestResourceDir()},
-//                {"wait_action_ctx_config1.json", this.getTestResourceDir()},   // Blocked by #26309
+                {"wait_action_ctx_config1.json", this.getTestResourceDir()},
                 {"wait_action_ctx_config2.json", this.getTestResourceDir()},
-//                {"wait_action_ctx_config3.json", this.getTestResourceDir()},   // Blocked by #26309
-//                {"wait_action_ctx_config4.json", this.getTestResourceDir()},   // Blocked by #26309
-//                {"wait_action_ctx_config5.json", this.getTestResourceDir()},   // Blocked by #26309
-//                {"wait_action_ctx_config6.json", this.getTestResourceDir()},   // Blocked by #26309
-//                {"wait_action_ctx_config7.json", this.getTestResourceDir()},   // Blocked by #26309
-//                {"wait_action_ctx_config8.json", this.getTestResourceDir()},   // Blocked by #26309
-//                {"wait_action_ctx_config9.json", this.getTestResourceDir()},   // Blocked by #26309
+                {"wait_action_ctx_config3.json", this.getTestResourceDir()},
+                {"wait_action_ctx_config4.json", this.getTestResourceDir()},
+                {"wait_action_ctx_config5.json", this.getTestResourceDir()},
+                {"wait_action_ctx_config6.json", this.getTestResourceDir()},
+                {"wait_action_ctx_config7.json", this.getTestResourceDir()},
+                {"wait_action_ctx_config8.json", this.getTestResourceDir()},
+                {"wait_action_ctx_config9.json", this.getTestResourceDir()},
                 {"while_stmt_ctx_config1.json", this.getTestResourceDir()},
                 {"while_stmt_ctx_config2.json", this.getTestResourceDir()},
                 {"while_stmt_ctx_config3.json", this.getTestResourceDir()},
