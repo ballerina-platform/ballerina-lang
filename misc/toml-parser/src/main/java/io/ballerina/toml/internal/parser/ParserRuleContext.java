@@ -41,7 +41,6 @@ public enum ParserRuleContext {
     KEY_LIST("key-list"),
     KEY_START("key-start"), // parsing an a value of the array
     KEY_END("key-end"), // parsing the end of the array comma or close
-//    KEY_START_OR_KEY_LIST_END("key-start-or-key-list-end"), //multi
     KEY_LIST_END("key-list-end"),
 
     TABLE_START("["),
@@ -57,10 +56,7 @@ public enum ParserRuleContext {
     COLON(":"),
     COMMA(","),
     DOT("."),
-//    OPEN_BRACKET("["),
-//    CLOSE_BRACKET("]"),
-    PLUS_TOKEN("+"),
-    MINUS_TOKEN("-"),
+    SIGN_TOKEN("sign-token"),
 
     IDENTIFIER_LITERAL("identifier"),
 
@@ -71,6 +67,7 @@ public enum ParserRuleContext {
     NIL_LITERAL("nil-literal"),
     DECIMAL_FLOATING_POINT_LITERAL("decimal-floating-point-literal"),
     BOOLEAN_LITERAL("boolean-literal"),
+    NUMERICAL_LITERAL("numerical-literal"),
 
     //TOML
 //    KEY("key-toml"),

@@ -24,6 +24,7 @@ import io.ballerina.toml.internal.parser.TomlParser;
 import io.ballerina.toml.internal.parser.tree.STNode;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
+import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTransformer;
 import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.syntax.tree.DocumentNode;
@@ -76,7 +77,7 @@ public class TestToml {
             OUT.println(diagnostic.message());
         }
 
-        TomlLongValueNode key1 = read.get("key");
+        TomlStringValueNode key1 = read.get("11");
         OUT.println(key1.getValue());
 //        TomlArrayValueNode key1 = read.get("key");
 //        OUT.println(key1.get(0));

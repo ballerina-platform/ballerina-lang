@@ -131,8 +131,6 @@ public class SyntaxErrors {
 
     private static DiagnosticCode getErrorCode(ParserRuleContext currentCtx) {
         switch (currentCtx) {
-//            case KEY:
-//                return DiagnosticErrorCode.ERROR_MISSING_KEY;
             case VALUE:
                 return DiagnosticErrorCode.ERROR_MISSING_VALUE;
             case BASIC_LITERAL: // return var-ref for any kind of terminal expression
@@ -148,8 +146,6 @@ public class SyntaxErrors {
         switch (ctx) {
             case ASSIGN_OP:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
-            case PLUS_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_PLUS_TOKEN;
             case ARRAY_VALUE_LIST_END:
             case TABLE_END:
             case ARRAY_TABLE_FIRST_END:
@@ -157,7 +153,6 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
             case COMMA:
                 return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
-//            case OPEN_BRACKET:
             case ARRAY_VALUE_LIST_START:
             case TABLE_START:
             case ARRAY_TABLE_FIRST_START:

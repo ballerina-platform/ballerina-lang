@@ -265,9 +265,8 @@ public class TomlParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case DECIMAL_INT_TOKEN:
-                return parseIntToken();
-            case DECIMAL_FLOAT_TOKEN: //TODO signed numeric
-                return parseFloatToken();
+            case DECIMAL_FLOAT_TOKEN:
+                return parseNumericalNode();
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
                 return parseBoolean();
@@ -372,9 +371,10 @@ public class TomlParser extends AbstractParser {
             case TRIPLE_DOUBLE_QUOTE_TOKEN:
                 return parseStringValue();
             case DECIMAL_INT_TOKEN:
-                return parseIntToken();
             case DECIMAL_FLOAT_TOKEN:
-                return parseFloatToken();
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+                return parseNumericalNode();
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
                 return parseBoolean();
@@ -386,23 +386,55 @@ public class TomlParser extends AbstractParser {
         }
     }
 
+    private STNode parseNumericalNode () {
+        STNode sign = parseSign();
+        STNode token = parseNumericalToken();
+        SyntaxKind kind;
+        if (token.kind == SyntaxKind.DECIMAL_INT_TOKEN) {
+            kind = DEC_INT;
+        } else {
+            kind = FLOAT;
+        }
+        return STNodeFactory.createNumericLiteralNode(kind, sign, token);
+    }
+
+    private STNode parseNumericalToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DECIMAL_INT_TOKEN) {
+            return parseIntToken();
+        } else if (token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN) {
+            return parseFloatToken();
+        } else {
+            recover(token, ParserRuleContext.NUMERICAL_LITERAL);
+            return parseNumericalToken();
+        }
+    }
+
     private STNode parseIntToken () {
         STToken token = peek();
         if (token.kind == SyntaxKind.DECIMAL_INT_TOKEN) {
-            return STNodeFactory.createNumericLiteralNode(DEC_INT, consume());
+            return consume();
         } else {
             recover(token, ParserRuleContext.DECIMAL_INTEGER_LITERAL);
-            return parseBoolean();
+            return parseIntToken();
         }
+    }
+
+    private STNode parseSign() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.MINUS_TOKEN || token.kind == SyntaxKind.PLUS_TOKEN) {
+            return consume();
+        }
+        return STNodeFactory.createEmptyNode();
     }
 
     private STNode parseFloatToken () {
         STToken token = peek();
         if (token.kind == SyntaxKind.DECIMAL_FLOAT_TOKEN) {
-            return STNodeFactory.createNumericLiteralNode(FLOAT, consume());
+            return consume();
         } else {
             recover(token, ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL);
-            return parseBoolean();
+            return parseFloatToken();
         }
     }
 

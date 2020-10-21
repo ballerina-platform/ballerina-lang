@@ -110,6 +110,12 @@ public class TomlLexer extends AbstractLexer {
             case LexerTerminals.DOT:
                 token = getSyntaxToken(SyntaxKind.DOT_TOKEN);
                 break;
+            case LexerTerminals.PLUS:
+                token = getSyntaxToken(SyntaxKind.PLUS_TOKEN);
+                break;
+            case LexerTerminals.MINUS:
+                token = getSyntaxToken(SyntaxKind.MINUS_TOKEN);
+                break;
             case LexerTerminals.DOUBLE_QUOTE:
                 if (this.reader.peek(1) == LexerTerminals.DOUBLE_QUOTE) {
                     this.reader.advance(2);
@@ -131,9 +137,6 @@ public class TomlLexer extends AbstractLexer {
             case '7':
             case '8':
             case '9':
-
-            case '+':
-            case '-':
                 token = processNumericLiteral(c);
                 break;
 

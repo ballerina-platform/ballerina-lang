@@ -64,8 +64,11 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] ARRAY_VALUE_START_OR_VALUE_LIST_END =
             { ParserRuleContext.ARRAY_VALUE_LIST_END, ParserRuleContext.ARRAY_VALUE_START };
 
+    private static final ParserRuleContext[] NUMERICAL_LITERAL = {ParserRuleContext.DECIMAL_INTEGER_LITERAL,
+            ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL};
+
     private static final ParserRuleContext[] VALUE = {ParserRuleContext.STRING_START,
-            ParserRuleContext.DECIMAL_INTEGER_LITERAL, ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL,
+            ParserRuleContext.SIGN_TOKEN, ParserRuleContext.NUMERICAL_LITERAL,
             ParserRuleContext.BOOLEAN_LITERAL,
 //            ParserRuleContext.ARRAY_VALUE_LIST
     };
@@ -73,8 +76,7 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] ARRAY_VALUE_START = VALUE;
 
     private static final ParserRuleContext[] KEY_START = {ParserRuleContext.IDENTIFIER_LITERAL,
-            ParserRuleContext.DECIMAL_INTEGER_LITERAL, ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL,
-            ParserRuleContext.BOOLEAN_LITERAL, ParserRuleContext.STRING_START};
+            ParserRuleContext.NUMERICAL_LITERAL, ParserRuleContext.BOOLEAN_LITERAL, ParserRuleContext.STRING_START};
 
     private static final ParserRuleContext[] KEY_END = {ParserRuleContext.DOT, ParserRuleContext.KEY_LIST_END};
 
@@ -165,6 +167,13 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 case NEW_LINE:
                     hasMatch = isNewLine(nextToken.kind);
                     break;
+                case SIGN_TOKEN:
+                    hasMatch = nextToken.kind == SyntaxKind.PLUS_TOKEN || nextToken.kind == SyntaxKind.MINUS_TOKEN;
+                    break;
+                case NUMERICAL_LITERAL:
+                    alternativeRules = NUMERICAL_LITERAL;
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
+                            isEntryPoint);
                 case VALUE:
                     alternativeRules = VALUE;
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
@@ -283,6 +292,8 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ARRAY_TABLE_FIRST_START;
             case COMMA:
                 return ParserRuleContext.ARRAY_VALUE_START;
+            case SIGN_TOKEN:
+                return ParserRuleContext.NUMERICAL_LITERAL;
             case DOT:
             case KEY_LIST:
                 return ParserRuleContext.KEY_START;
@@ -368,6 +379,8 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
             case ARRAY_TABLE_FIRST_START:
             case ARRAY_TABLE_SECOND_START:
                 return SyntaxKind.OPEN_BRACKET_TOKEN;
+            case SIGN_TOKEN:
+                return SyntaxKind.PLUS_TOKEN;
             default:
                 return SyntaxKind.NONE;
         }
