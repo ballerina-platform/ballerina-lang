@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.values.ArrayValue;
+import io.ballerina.runtime.api.values.BArray;
 
 /**
  * Native implementation of lang.array:length((any|error)[]).
@@ -33,7 +33,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 //)
 public class Length {
 
-    public static long length(ArrayValue arr) {
+    public static long length(BArray arr) {
         return arr.size();
     }
 }

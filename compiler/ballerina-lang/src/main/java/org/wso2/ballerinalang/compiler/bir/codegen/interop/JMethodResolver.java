@@ -17,20 +17,20 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.ballerinalang.jvm.api.BalEnv;
-import org.ballerinalang.jvm.api.values.BArray;
-import org.ballerinalang.jvm.api.values.BDecimal;
-import org.ballerinalang.jvm.api.values.BError;
-import org.ballerinalang.jvm.api.values.BFunctionPointer;
-import org.ballerinalang.jvm.api.values.BFuture;
-import org.ballerinalang.jvm.api.values.BHandle;
-import org.ballerinalang.jvm.api.values.BMap;
-import org.ballerinalang.jvm.api.values.BObject;
-import org.ballerinalang.jvm.api.values.BStream;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.api.values.BTypedesc;
-import org.ballerinalang.jvm.api.values.BXML;
-import org.ballerinalang.jvm.values.TableValue;
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BHandle;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BStream;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.BXML;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -427,7 +427,7 @@ class JMethodResolver {
                 case TypeTags.STREAM:
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
-                    return this.classLoader.loadClass(TableValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -568,7 +568,7 @@ class JMethodResolver {
                 case TypeTags.STREAM:
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
-                    return this.classLoader.loadClass(TableValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -605,7 +605,7 @@ class JMethodResolver {
                 isAssignableFrom(BXML.class, jType) ||
                 this.isValidListType(jType, true, jMethodRequest.restParamExist) ||
                 isAssignableFrom(BMap.class, jType) ||
-                isAssignableFrom(TableValue.class, jType);
+                isAssignableFrom(BTable.class, jType);
     }
 
     private boolean isAssignableFrom(Class<?> targetType, Class<?> jType) throws ClassNotFoundException {
@@ -636,7 +636,7 @@ class JMethodResolver {
     private Executable tryResolveExactWithBalEnv(Class<?>[] paramTypes, Class<?> clazz, String name) {
         Class<?>[] paramTypesWithBalEnv = new Class<?>[paramTypes.length + 1];
         System.arraycopy(paramTypes, 0, paramTypesWithBalEnv, 1, paramTypes.length);
-        paramTypesWithBalEnv[0] = BalEnv.class;
+        paramTypesWithBalEnv[0] = Environment.class;
         return resolveMethod(clazz, name, paramTypesWithBalEnv);
     }
 

@@ -16,14 +16,12 @@
 package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
@@ -38,7 +36,6 @@ import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -79,7 +76,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
      */
     @Override
     public Object execute(LSContext context) throws LSCommandExecutorException {
-        String documentUri = null;
+        String uri = null;
         String returnType;
         String returnValue;
         String funcArgs = "";
@@ -93,9 +90,9 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
             switch (argKey) {
                 case CommandConstants.ARG_KEY_DOC_URI:
-                    documentUri = argVal;
-                    textDocumentIdentifier.setUri(documentUri);
-                    context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+                    uri = argVal;
+                    textDocumentIdentifier.setUri(uri);
+                    context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
                     break;
                 case CommandConstants.ARG_KEY_NODE_LINE:
                     line = Integer.parseInt(argVal);
@@ -107,7 +104,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             }
         }
 
-        if (line == -1 || column == -1 || documentUri == null) {
+        if (line == -1 || column == -1 || uri == null) {
             throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
         }
 
@@ -115,7 +112,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         BLangInvocation functionNode = null;
         try {
-            LSDocumentIdentifier lsDocument = docManager.getLSDocument(CommonUtil.getPathFromURI(documentUri).get());
+            LSDocumentIdentifier lsDocument = docManager.getLSDocument(CommonUtil.getPathFromURI(uri).get());
             Position pos = new Position(line, column + 1);
             context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
             context.put(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS, true);
@@ -130,7 +127,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         if (functionNode == null) {
             throw new LSCommandExecutorException("Couldn't find the function node!");
         }
-        String functionName = functionNode.name.getValue();
+//        String functionName = functionNode.name.getValue();
 
         BLangNode parent = functionNode.parent;
         BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
@@ -147,45 +144,47 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         List<TextEdit> edits = new ArrayList<>();
         if (parent != null && packageNode != null) {
-            PackageID currentPkgId = packageNode.packageID;
+//            PackageID currentPkgId = packageNode.packageID;
             ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-
-            returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent, context);
-            returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, parent,
-                                                                "    return {%1};", context);
-            List<String> arguments = FunctionGenerator.getFuncArguments(importsAcceptor, currentPkgId, functionNode,
-                                                                        context);
-            if (arguments != null) {
-                funcArgs = String.join(", ", arguments);
-            }
+            //TODO: Fix this when #26382 is avaialble
+//            returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent, context);
+//            returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, parent,
+//                                                                "    return {%1};", context);
+//            List<String> arguments = FunctionGenerator.getFuncArguments(importsAcceptor, currentPkgId, functionNode,
+//                                                                        context);
+//            if (arguments != null) {
+//                funcArgs = String.join(", ", arguments);
+//            }
             edits.addAll(importsAcceptor.getNewImportTextEdits());
         } else {
             throw new LSCommandExecutorException("Error occurred when retrieving function node!");
         }
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
-        String modifiers = "";
-        boolean prependLineFeed = true;
-        String padding = "";
+//        String modifiers = "";
+//        boolean prependLineFeed = true;
+//        String padding = "";
         if (functionNode.expr != null) {
-            padding = StringUtils.repeat(' ', 4);
+//            padding = StringUtils.repeat(' ', 4);
             BTypeSymbol tSymbol = functionNode.expr.type.tsymbol;
             Pair<DiagnosticPos, Boolean> nodeLocation = getNodeLocationAndHasFunctions(tSymbol.name.value, context);
-            if (!nodeLocation.getRight()) {
-                prependLineFeed = false;
-            }
+//            if (!nodeLocation.getRight()) {
+//                prependLineFeed = false;
+//            }
             eLine = nodeLocation.getLeft().eLine - 1;
             String cUnitName = nodeLocation.getLeft().src.cUnitName;
             String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
             String pkgName = nodeLocation.getLeft().src.pkgID.name.toString();
-            String uri = new File(sourceRoot).toPath().resolve("src").resolve(pkgName)
+            String docUri = new File(sourceRoot).toPath().resolve("src").resolve(pkgName)
                     .resolve(cUnitName).toUri().toString();
-            textDocumentIdentifier.setUri(uri);
-            if (!nodeLocation.getLeft().src.pkgID.equals(functionNode.pos.src.pkgID)) {
-                modifiers += "public ";
-            }
+            textDocumentIdentifier.setUri(docUri);
+//            if (!nodeLocation.getLeft().src.pkgID.equals(functionNode.pos.src.pkgID)) {
+//                modifiers += "public ";
+//            }
         }
-        String editText = FunctionGenerator.createFunction(functionName, funcArgs, returnType, returnValue, modifiers,
-                                                           prependLineFeed, padding);
+        //TODO: Fix this
+//        String editText = FunctionGenerator.createFunction(functionName, funcArgs, returnType, returnValue, modifiers,
+//                                                           prependLineFeed, padding);
+        String editText = "";
         Range range = new Range(new Position(eLine, eCol), new Position(eLine, eCol));
         edits.add(new TextEdit(range, editText));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);

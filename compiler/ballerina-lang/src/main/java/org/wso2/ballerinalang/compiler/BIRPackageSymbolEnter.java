@@ -374,11 +374,7 @@ public class BIRPackageSymbolEnter {
             invokableSymbol.name =
                     names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
-                if (attachedType.tag == TypeTags.OBJECT) {
-                    scopeToDefine = ((BObjectTypeSymbol) attachedType.tsymbol).methodScope;
-                } else {
-                    scopeToDefine = attachedType.tsymbol.scope;
-                }
+                scopeToDefine = attachedType.tsymbol.scope;
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
                                               symTable.builtinPos);
@@ -1285,7 +1281,6 @@ public class BIRPackageSymbolEnter {
                                                                                 env.pkgSymbol, symTable.builtinPos,
                                                                                 COMPILED_SOURCE);
                     objectSymbol.scope = new Scope(objectSymbol);
-                    objectSymbol.methodScope = new Scope(objectSymbol);
                     BObjectType objectType;
                     // Below is a temporary fix, need to fix this properly by using the type tag
                     if (service) {

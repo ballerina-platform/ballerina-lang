@@ -157,7 +157,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
-import static org.ballerinalang.jvm.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
@@ -209,6 +209,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangPackage pkgNode) {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
+        // Process nodes that are not lambdas
         pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
                 && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA))).forEach(
                 topLevelNode -> rewrite((BLangNode) topLevelNode, pkgEnv));
@@ -1375,7 +1376,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
-        bLangStatementExpression.expr = rewriteExpr(bLangStatementExpression.expr);
         if (bLangStatementExpression.stmt.getKind() == NodeKind.BLOCK) {
             BLangBlockStmt bLangBlockStmt = (BLangBlockStmt) bLangStatementExpression.stmt;
             for (int i = 0; i < bLangBlockStmt.stmts.size(); i++) {
@@ -1385,6 +1385,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         } else {
             bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
         }
+        bLangStatementExpression.expr = rewriteExpr(bLangStatementExpression.expr);
         result = bLangStatementExpression;
     }
 

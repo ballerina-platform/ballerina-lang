@@ -56,7 +56,8 @@ public class Flags {
     public static final int DISTINCT = PARAMETERIZED << 1;
     public static final int CLASS = DISTINCT << 1;
     public static final int ISOLATED = CLASS << 1;
-    public static final int CYCLIC = ISOLATED << 1;
+    public static final int ISOLATED_PARAM = ISOLATED << 1;
+    public static final int CYCLIC = ISOLATED_PARAM << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;

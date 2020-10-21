@@ -18,10 +18,10 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.types.TypeTags;
+import io.ballerina.runtime.TypeChecker;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.TypeTags;
 
 /**
  * Native implementation of assertNotError(anydata|error value).
@@ -31,8 +31,8 @@ import org.ballerinalang.jvm.types.TypeTags;
 public class AssertNotError {
     public static void assertNotError(Object value) {
         if (TypeChecker.getType(value).getTag() == TypeTags.ERROR_TAG) {
-            throw BErrorCreator.createError(BStringUtils.fromString("{ballerina/lang.test}AssertionError"),
-                                            BStringUtils.fromString("expected a non-error type"));
+            throw ErrorCreator.createError(StringUtils.fromString("{ballerina/lang.test}AssertionError"),
+                                           StringUtils.fromString("expected a non-error type"));
         }
     }
 }

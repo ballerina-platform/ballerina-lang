@@ -20,8 +20,8 @@
 package org.ballerina.testobserve.tracing.extension;
 
 import com.google.gson.Gson;
+import io.ballerina.runtime.JSONParser;
 import io.opentracing.mock.MockTracer;
-import org.ballerinalang.jvm.JSONParser;
 
 import java.util.Collections;
 import java.util.List;

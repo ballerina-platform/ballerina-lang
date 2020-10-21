@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 /**
  * Native implementation of lang.float:toHexString(float).
@@ -29,6 +29,6 @@ import org.ballerinalang.jvm.api.values.BString;
 public class ToHexString {
 
     public static BString toHexString(double n) {
-        return BStringUtils.fromString(Double.toHexString(n));
+        return StringUtils.fromString(Double.toHexString(n));
     }
 }

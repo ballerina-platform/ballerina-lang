@@ -54,6 +54,7 @@ public class TesterinaConstants {
     public static final String REPORT_ZIP_NAME = REPORT_DIR_NAME + ".zip";
     public static final String REPORT_DATA_PLACEHOLDER = "__data__";
     public static final String FILE_PROTOCOL = "file://";
+    public static final int FILE_DEPTH = 5;
 
     //Coverage dependencies
     public static final String JACOCO_CORE_JAR = "org.jacoco.core-0.8.5.jar";
@@ -61,5 +62,8 @@ public class TesterinaConstants {
     public static final String ASM_JAR = "asm-7.1.jar";
     public static final String ASM_TREE_JAR = "asm-tree-7.2.jar";
     public static final String ASM_COMMONS_JAR = "asm-commons-7.2.jar";
+
+    public static final String BLANG_SRC_FILE_EXT = "bal";
+    public static final String BLANG_SRC_FILE_SUFFIX = "." + BLANG_SRC_FILE_EXT;
 
 }

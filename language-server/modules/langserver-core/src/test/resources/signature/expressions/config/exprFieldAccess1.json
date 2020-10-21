@@ -8,7 +8,7 @@
         "result": {
             "signatures": [
                 {
-                    "label": "Stub.foo(float a, boolean b)",
+                    "label": "foo(float a, boolean b)",
                     "documentation": {
                         "right": {
                             "kind": "markdown",

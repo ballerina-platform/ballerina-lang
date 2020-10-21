@@ -41,9 +41,10 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedund
  */
 public class EvaluationUtils {
 
+
     // Helper classes
-    public static final String B_TYPE_CHECKER_CLASS = "org.ballerinalang.jvm.TypeChecker";
-    private static final String B_STRING_UTILS_CLASS = "org.ballerinalang.jvm.api.BStringUtils";
+    public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.TypeChecker";
+    private static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.StringUtils";
     public static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
     public static final String JAVA_LONG_CLASS = "java.lang.Long";
     public static final String JAVA_DOUBLE_CLASS = "java.lang.Double";
@@ -207,11 +208,11 @@ public class EvaluationUtils {
     }
 
     /**
-     * Converts the user given string literal into an {@link org.ballerinalang.jvm.api.values.BString} instance.
+     * Converts the user given string literal into an {@link io.ballerina.runtime.api.values.BString} instance.
      *
      * @param context suspended debug context
      * @param val     string value
-     * @return {@link org.ballerinalang.jvm.api.values.BString} instance
+     * @return {@link io.ballerina.runtime.api.values.BString} instance
      */
     private static Value getAsBString(SuspendedContext context, String val) throws EvaluationException {
         List<ReferenceType> cls = context.getAttachedVm().classesByName(B_STRING_UTILS_CLASS);

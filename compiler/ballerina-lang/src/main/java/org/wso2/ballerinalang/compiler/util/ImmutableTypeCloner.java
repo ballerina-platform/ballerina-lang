@@ -619,7 +619,6 @@ public class ImmutableTypeCloner {
                         pkgID, null, env.scope.owner, pos, SOURCE);
 
         objectSymbol.scope = new Scope(objectSymbol);
-        objectSymbol.methodScope = new Scope(objectSymbol);
 
         defineObjectFunctions(objectSymbol, origObjectTSymbol, names, symTable);
 
@@ -670,7 +669,7 @@ public class ImmutableTypeCloner {
                                                                       symTable.builtinPos, VIRTUAL);
             immutableFuncs.add(new BAttachedFunction(origFunc.funcName, immutableFuncSymbol,
                                                      (BInvokableType) immutableFuncSymbol.type, symTable.builtinPos));
-            immutableObjectSymbol.methodScope.define(funcName, immutableFuncSymbol);
+            immutableObjectSymbol.scope.define(funcName, immutableFuncSymbol);
         }
         immutableObjectSymbol.attachedFuncs = immutableFuncs;
     }

@@ -1080,14 +1080,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode tableKeyword,
             STNode keySpecifier,
             STNode openBracket,
-            STNode mappingConstructors,
+            STNode rows,
             STNode closeBracket) {
 
         return new STTableConstructorExpressionNode(
                 tableKeyword,
                 keySpecifier,
                 openBracket,
-                mappingConstructors,
+                rows,
                 closeBracket);
     }
 

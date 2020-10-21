@@ -1,1 +1,1 @@
-int a = [a  , b ,  c];
+int a = [a, b, c];

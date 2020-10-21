@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langlib.java;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.HandleValue;
+import io.ballerina.runtime.api.values.BHandle;
+import io.ballerina.runtime.scheduling.Strand;
 
 /**
  * This class contains the implementation of the "setArrayElement" ballerina function in ballerina/java module.
@@ -27,8 +27,8 @@ import org.ballerinalang.jvm.values.HandleValue;
  */
 public class SetArrayElement {
 
-    public static void setArrayElement(Strand strand, HandleValue arrayValue, long index, HandleValue value) {
-        Object[] arr = (Object[]) arrayValue.getValue();
+    public static void setArrayElement(Strand strand, BHandle bHandle, long index, BHandle value) {
+        Object[] arr = (Object[]) bHandle.getValue();
         if (arr == null) {
             throw JValues.getJavaNullReferenceError();
         }

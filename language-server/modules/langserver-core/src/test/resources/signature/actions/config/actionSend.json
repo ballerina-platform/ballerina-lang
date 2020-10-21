@@ -8,7 +8,7 @@
         "result": {
             "signatures": [
                 {
-                    "label": "Stub.send(string msg)",
+                    "label": "send(string msg)",
                     "documentation": {
                         "right": {
                             "kind": "markdown",
