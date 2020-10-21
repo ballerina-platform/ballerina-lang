@@ -235,3 +235,23 @@ var testInvalidNonIsolatedAnonFunctionWithNonIsolatedDefaults =
     };
 
 function getIntArray() returns int[] => d;
+
+class NonIsolatedClass {
+    final string a = "hello";
+    private int[] b = [1, 2];
+
+    isolated function getArray() returns int[] {
+        lock {
+            int[] x = self.b.clone();
+            x.push(self.a.length());
+            return x.clone();
+        }
+    }
+}
+
+final NonIsolatedClass nonIsolatedObject = new;
+
+isolated function testInvalidAccessOfFinalNonIsolatedObjectInIsolatedFunction() {
+    NonIsolatedClass cl = nonIsolatedObject;
+    int[] arr = nonIsolatedObject.getArray();
+}
