@@ -133,7 +133,8 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                         syntaxNode.functionName().toSourceCode());
                 List<Method> methods = refType.methodsByName(syntaxNode.functionName().toSourceCode());
                 if (!methods.isEmpty()) {
-                    return Optional.of(new GeneratedStaticMethod(context, refType, methods.get(0), argEvaluators, null));
+                    return Optional.of(new GeneratedStaticMethod(context, refType, methods.get(0), argEvaluators,
+                            null));
                 }
             }
             return Optional.empty();

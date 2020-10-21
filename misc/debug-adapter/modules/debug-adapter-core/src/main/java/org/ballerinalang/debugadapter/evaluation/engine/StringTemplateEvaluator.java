@@ -53,7 +53,8 @@ public class StringTemplateEvaluator extends Evaluator {
         // operation with the direct style.
         try {
             List<Value> templateMemberValues = new ArrayList<>();
-            for (Evaluator evaluator : templateMemberEvaluators) {
+            for (int i = 0; i < templateMemberEvaluators.size(); i++) {
+                Evaluator evaluator = templateMemberEvaluators.get(i);
                 BExpressionValue result = evaluator.evaluate();
                 switch (result.getType()) {
                     case INT:
@@ -67,7 +68,7 @@ public class StringTemplateEvaluator extends Evaluator {
                         // Interpolation expression results can only be (int|float|decimal|string|boolean).
                         throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
                                 "(int|float|decimal|string|boolean)", result.getType().getString(),
-                                result.getStringValue()));
+                                syntaxNode.content().get(i).toSourceCode()));
                 }
             }
             Value result = EvaluationUtils.concatBStrings(context, templateMemberValues.toArray(new Value[0]));

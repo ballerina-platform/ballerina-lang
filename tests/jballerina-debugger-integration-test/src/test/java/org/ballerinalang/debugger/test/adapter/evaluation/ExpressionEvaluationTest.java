@@ -66,7 +66,11 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void stringTemplateEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // without interpolations
+        assertExpression(context, "string `name: John, age: 20`", "name: John, age: 20", "string");
+        // with interpolations
+        assertExpression(context, "string `name: ${" + STRING_VAR + "}, age: ${" + INT_VAR + "}`",
+                "name: foo, age: 20", "string");
     }
 
     @Override
