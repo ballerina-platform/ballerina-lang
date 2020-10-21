@@ -22,8 +22,8 @@ import com.github.difflib.DiffUtils;
 import com.github.difflib.UnifiedDiffUtils;
 import com.github.difflib.algorithm.DiffException;
 import com.github.difflib.patch.Patch;
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.values.BString;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,7 +90,7 @@ public class AssertionDiffEvaluator {
     }
 
     public static BString getStringDiff(BString actual, BString expected) {
-        return BStringUtils.fromString(getStringValueDiff(actual.toString(), expected.toString()));
+        return StringUtils.fromString(getStringValueDiff(actual.toString(), expected.toString()));
     }
 
 }

@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -94,8 +93,8 @@ public class CodeActionUtil {
             context.put(CodeActionKeys.DIAGNOSTICS_KEY, CodeActionUtil.toDiagnostics(diagnostics));
 
             Optional<BLangCompilationUnit> filteredCUnit = evalPkg.compUnits.stream()
-                    .filter(cUnit -> cUnit.getPosition().getSource()
-                            .cUnitName.replace("/", CommonUtil.FILE_SEPARATOR)
+                    .filter(cUnit -> cUnit.getPosition().lineRange()
+                            .filePath().replace("/", CommonUtil.FILE_SEPARATOR)
                             .equals(relativeSourcePath))
                     .findAny();
 
@@ -104,47 +103,51 @@ public class CodeActionUtil {
             }
 
             for (TopLevelNode topLevelNode : filteredCUnit.get().getTopLevelNodes()) {
-                DiagnosticPos diagnosticPos = CommonUtil.toZeroBasedPosition(((BLangNode) topLevelNode).pos);
+                Location diagnosticLocation =
+                        CommonUtil.toZeroBasedPosition(((BLangNode) topLevelNode).pos);
                 if (topLevelNode instanceof BLangService) {
-                    if (diagnosticPos.sLine == cursorLine) {
+                    if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
                         return CodeActionNodeType.SERVICE;
                     }
-                    if (cursorLine > diagnosticPos.sLine && cursorLine < diagnosticPos.eLine) {
+                    if (cursorLine > diagnosticLocation.lineRange().startLine().line()
+                            && cursorLine < diagnosticLocation.lineRange().endLine().line()) {
                         // Cursor within the service
                         for (BLangFunction resourceFunction : ((BLangService) topLevelNode).resourceFunctions) {
-                            diagnosticPos = CommonUtil.toZeroBasedPosition(resourceFunction.getName().pos);
-                            if (diagnosticPos.sLine == cursorLine) {
+                            diagnosticLocation = CommonUtil.toZeroBasedPosition(resourceFunction.getName().pos);
+                            if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
                                 return CodeActionNodeType.RESOURCE;
                             }
                         }
                     }
                 }
 
-                if (topLevelNode instanceof BLangImportPackage && cursorLine == diagnosticPos.sLine) {
+                if (topLevelNode instanceof BLangImportPackage &&
+                        cursorLine == diagnosticLocation.lineRange().startLine().line()) {
                     return CodeActionNodeType.IMPORTS;
                 }
 
                 if (topLevelNode instanceof BLangFunction
                         && !((BLangFunction) topLevelNode).flagSet.contains(Flag.ANONYMOUS)
-                        && cursorLine == diagnosticPos.sLine) {
+                        && cursorLine == diagnosticLocation.lineRange().startLine().line()) {
                     return CodeActionNodeType.FUNCTION;
                 }
 
                 if (topLevelNode instanceof BLangTypeDefinition
                         && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangRecordTypeNode
-                        && cursorLine == diagnosticPos.sLine) {
+                        && cursorLine == diagnosticLocation.lineRange().startLine().line()) {
                     return CodeActionNodeType.RECORD;
                 }
 
                 if (topLevelNode instanceof BLangClassDefinition) {
-                    if (diagnosticPos.sLine == cursorLine) {
+                    if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
                         return CodeActionNodeType.CLASS;
                     }
-                    if (cursorLine > diagnosticPos.sLine && cursorLine < diagnosticPos.eLine) {
+                    if (cursorLine > diagnosticLocation.lineRange().startLine().line()
+                            && cursorLine < diagnosticLocation.lineRange().endLine().line()) {
                         // Cursor within the class
                         for (BLangFunction function : ((BLangClassDefinition) topLevelNode).functions) {
-                            diagnosticPos = CommonUtil.toZeroBasedPosition(function.getName().pos);
-                            if (diagnosticPos.sLine == cursorLine) {
+                            diagnosticLocation = CommonUtil.toZeroBasedPosition(function.getName().pos);
+                            if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
                                 return CodeActionNodeType.CLASS_FUNCTION;
                             }
                         }
@@ -153,15 +156,16 @@ public class CodeActionUtil {
 
                 if (topLevelNode instanceof BLangTypeDefinition
                         && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangObjectTypeNode) {
-                    if (diagnosticPos.sLine == cursorLine) {
+                    if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
                         return CodeActionNodeType.OBJECT;
                     }
-                    if (cursorLine > diagnosticPos.sLine && cursorLine < diagnosticPos.eLine) {
+                    if (cursorLine > diagnosticLocation.lineRange().startLine().line()
+                            && cursorLine < diagnosticLocation.lineRange().endLine().line()) {
                         // Cursor within the object
                         for (BLangFunction resourceFunction
                                 : ((BLangObjectTypeNode) ((BLangTypeDefinition) topLevelNode).typeNode).functions) {
-                            diagnosticPos = CommonUtil.toZeroBasedPosition(resourceFunction.getName().pos);
-                            if (diagnosticPos.sLine == cursorLine) {
+                            diagnosticLocation = CommonUtil.toZeroBasedPosition(resourceFunction.getName().pos);
+                            if (diagnosticLocation.lineRange().startLine().line() == cursorLine) {
                                 return CodeActionNodeType.OBJECT_FUNCTION;
                             }
                         }

@@ -19,7 +19,7 @@
 
 package org.ballerinalang.observe.trace.extension.jaeger;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
+import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TABLE_TRACING;
 
 /**
  * This is the constants class that defines all the constants

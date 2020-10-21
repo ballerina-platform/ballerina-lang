@@ -16,6 +16,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -80,7 +81,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -91,7 +91,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.jvm.util.BLangConstants.UNDERSCORE;
+import static io.ballerina.runtime.util.BLangConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
@@ -212,9 +212,12 @@ public class AnnotationDesugar {
         return null;
     }
 
-    void defineStatementAnnotations(List<BLangAnnotationAttachment> attachments, DiagnosticPos pos, PackageID pkgID,
-                                    BSymbol owner, SymbolEnv env) {
-        BLangFunction function = defineFunction(pos, pkgID, owner);
+    void defineStatementAnnotations(List<BLangAnnotationAttachment> attachments,
+                                    Location location,
+                                    PackageID pkgID,
+                                    BSymbol owner,
+                                    SymbolEnv env) {
+        BLangFunction function = defineFunction(location, pkgID, owner);
         BLangRecordLiteral mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
         addAnnotsToLiteral(attachments, mapLiteral, function, env);
     }
@@ -341,9 +344,9 @@ public class AnnotationDesugar {
         }
     }
 
-    private BLangLambdaFunction defineAnnotations(AnnotatableNode node, DiagnosticPos pos, BLangPackage pkgNode,
-                                                  SymbolEnv env, PackageID pkgID, BSymbol owner) {
-        return defineAnnotations(getAnnotationList(node), pos, pkgNode, env, pkgID, owner);
+    private BLangLambdaFunction defineAnnotations(AnnotatableNode node, Location location,
+                                                  BLangPackage pkgNode, SymbolEnv env, PackageID pkgID, BSymbol owner) {
+        return defineAnnotations(getAnnotationList(node), location, pkgNode, env, pkgID, owner);
     }
 
     private List<BLangAnnotationAttachment> getAnnotationList(AnnotatableNode node) {
@@ -352,13 +355,17 @@ public class AnnotationDesugar {
                 .collect(Collectors.toList());
     }
 
-    private BLangLambdaFunction defineAnnotations(List<BLangAnnotationAttachment> annAttachments, DiagnosticPos pos,
-                                                  BLangPackage pkgNode, SymbolEnv env, PackageID pkgID, BSymbol owner) {
+    private BLangLambdaFunction defineAnnotations(List<BLangAnnotationAttachment> annAttachments,
+                                                  Location location,
+                                                  BLangPackage pkgNode,
+                                                  SymbolEnv env,
+                                                  PackageID pkgID,
+                                                  BSymbol owner) {
         if (annAttachments.isEmpty()) {
             return null;
         }
 
-        BLangFunction function = defineFunction(pos, pkgID, owner);
+        BLangFunction function = defineFunction(location, pkgID, owner);
         BLangRecordLiteral mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
         addAnnotsToLiteral(annAttachments, mapLiteral, function, env);
 
@@ -470,7 +477,7 @@ public class AnnotationDesugar {
         if (mainFunc.symbol.getParameters().isEmpty() && mainFunc.symbol.restParam == null) {
             return;
         }
-        DiagnosticPos pos = mainFunc.pos;
+        Location pos = mainFunc.pos;
         // Create Annotation Attachment.
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         mainFunc.addAnnotationAttachment(annoAttachment);
@@ -537,7 +544,7 @@ public class AnnotationDesugar {
         }
     }
 
-    private BLangFunction defineFunction(DiagnosticPos pos, PackageID pkgID, BSymbol owner) {
+    private BLangFunction defineFunction(Location pos, PackageID pkgID, BSymbol owner) {
         String funcName = ANNOT_FUNC + UNDERSCORE + annotFuncCount++;
         BLangFunction function = ASTBuilderUtil.createFunction(pos, funcName);
         function.type = new BInvokableType(Collections.emptyList(), symTable.mapType, null);
@@ -717,7 +724,7 @@ public class AnnotationDesugar {
     }
 
 
-    private void addAnnotArray(DiagnosticPos pos, String name, BType annotType,
+    private void addAnnotArray(Location pos, String name, BType annotType,
                                List<BLangAnnotationAttachment> attachments, BLangRecordLiteral recordLiteral) {
         // Handle scenarios where type is a subtype of `map<any|error>[]` or `record{any|error...;}[]`.
         // Create an empty array literal of the expected type.
@@ -755,14 +762,14 @@ public class AnnotationDesugar {
     }
 
     private void addInvocationToLiteral(BLangRecordLiteral recordLiteral, String identifier,
-                                        DiagnosticPos pos, BLangLambdaFunction lambdaFunction) {
+                                        Location pos, BLangLambdaFunction lambdaFunction) {
         BLangInvocation annotFuncInvocation = getInvocation(lambdaFunction);
         recordLiteral.fields.add(ASTBuilderUtil.createBLangRecordKeyValue(
                 ASTBuilderUtil.createLiteral(pos, symTable.stringType, identifier), annotFuncInvocation));
     }
 
     private void addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier,
-                                              BlockNode target, DiagnosticPos targetPos,
+                                              BlockNode target, Location targetPos,
                                               BLangExpression expression) {
         BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(targetPos, target);
         assignmentStmt.expr = expression;
@@ -787,7 +794,7 @@ public class AnnotationDesugar {
     }
 
     private void addAnnotValueToLiteral(BLangRecordLiteral recordLiteral, String identifier,
-                                        BLangExpression expression, DiagnosticPos pos) {
+                                        BLangExpression expression, Location pos) {
         recordLiteral.fields.add(ASTBuilderUtil.createBLangRecordKeyValue(
                 ASTBuilderUtil.createLiteral(pos, symTable.stringType, identifier), expression));
     }

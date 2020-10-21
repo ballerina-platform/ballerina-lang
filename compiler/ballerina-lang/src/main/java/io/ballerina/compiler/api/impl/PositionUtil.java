@@ -18,8 +18,8 @@
 
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 
 /**
  * A class for holding the common utilities related to positions.
@@ -28,11 +28,11 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
  */
 class PositionUtil {
 
-    static boolean withinBlock(LinePosition cursorPos, Diagnostic.DiagnosticPosition symbolPosition) {
-        int startLine = symbolPosition.getStartLine();
-        int endLine = symbolPosition.getEndLine();
-        int startColumn = symbolPosition.getStartColumn();
-        int endColumn = symbolPosition.getEndColumn();
+    static boolean withinBlock(LinePosition cursorPos, Location symbolPosition) {
+        int startLine = symbolPosition.lineRange().startLine().line();
+        int endLine = symbolPosition.lineRange().endLine().line();
+        int startColumn = symbolPosition.lineRange().startLine().offset();
+        int endColumn = symbolPosition.lineRange().endLine().offset();
         int cursorLine = cursorPos.line();
         int cursorColumn = cursorPos.offset();
 

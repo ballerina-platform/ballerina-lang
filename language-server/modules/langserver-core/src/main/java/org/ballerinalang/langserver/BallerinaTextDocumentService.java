@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -51,7 +53,6 @@ import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.Hig
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
-import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.util.TokensUtil;
@@ -92,8 +93,6 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
@@ -115,8 +114,6 @@ import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 import static org.ballerinalang.langserver.implementation.GotoImplementationUtil.getImplementationLocation;
-import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFuncScopeEntry;
-import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getInvocationSymbolPath;
 
 /**
  * Text document service implementation for ballerina.
@@ -159,7 +156,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Path> completionPath = CommonUtil.getPathFromURI(fileUri);
 
             // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (!completionPath.isPresent() || CommonUtil.isCachedExternalSource(fileUri)) {
+            if (completionPath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
                 return Either.forLeft(completions);
             }
 
@@ -232,7 +229,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Path> sigFilePath = CommonUtil.getPathFromURI(uri);
 
             // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (!sigFilePath.isPresent() || CommonUtil.isCachedExternalSource(uri)) {
+            if (sigFilePath.isEmpty() || CommonUtil.isCachedExternalSource(uri)) {
                 return new SignatureHelp();
             }
 
@@ -282,30 +279,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     }
                 }
 
-                // Find visible symbols for the block statement
-                LinePosition start = sNode.lineRange().startLine();
-                Position pos = new Position(start.line(), start.offset());
-                SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context, pos);
-                bLangPackage.accept(signatureTreeVisitor);
-                List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
-                if (visibleSymbols == null) {
-                    throw new Exception("Couldn't find the symbol, visible symbols are NULL!");
-                }
+                SemanticModel semanticModel = new BallerinaSemanticModel(bLangPackage,
+                        context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
+                Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+                String filePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+                context.put(CommonKeys.VISIBLE_SYMBOLS_KEY, semanticModel
+                        .visibleSymbols(filePath, LinePosition.from(cursor.getLine(), cursor.getCharacter())));
 
                 // Search function invocation symbol
                 List<SignatureInformation> signatures = new ArrayList<>();
-                List<Scope.ScopeEntry> symbols = new ArrayList<>(visibleSymbols);
-                Optional<String> symbolPath = getInvocationSymbolPath(sNode, context);
-                boolean isMethodCall = sNode.kind() == SyntaxKind.METHOD_CALL;
-                symbolPath.ifPresent(pathStr -> {
-                    Optional<Scope.ScopeEntry> searchSymbol = getFuncScopeEntry(context, pathStr, symbols);
-                    searchSymbol.ifPresent(entry -> {
-                        if (entry.symbol instanceof BInvokableSymbol) {
-                            BInvokableSymbol symbol = (BInvokableSymbol) entry.symbol;
-                            signatures.add(SignatureHelpUtil.getSignatureInformation(symbol, isMethodCall, context));
-                        }
-                    });
-                });
+                Optional<SignatureInformation> signatureInfo = SignatureHelpUtil.getSignatureInformation(context);
+                signatureInfo.ifPresent(signatures::add);
                 SignatureHelp signatureHelp = new SignatureHelp();
                 signatureHelp.setActiveParameter(activeParamIndex);
                 signatureHelp.setActiveSignature(0);

@@ -7,7 +7,7 @@ module io.ballerina.language.server.core {
     requires org.apache.commons.lang3;
     requires org.eclipse.lsp4j.jsonrpc;
     requires io.ballerina.lang;
-    requires io.ballerina.jvm;
+    requires io.ballerina.runtime;
     requires org.apache.commons.io;
 //    requires io.ballerina.openapi.convertor;
     requires handlebars;
@@ -23,9 +23,12 @@ module io.ballerina.language.server.core {
     requires io.swagger.v3.core;
     requires io.swagger.v3.oas.models;
     requires swagger.parser.v2.converter;
+    requires org.slf4j;
     exports org.ballerinalang.langserver;
     exports org.ballerinalang.langserver.util.references;
     exports org.ballerinalang.langserver.common.utils;
     exports org.ballerinalang.langserver.common.constants;
     exports org.ballerinalang.langserver.codeaction.providers;
+    exports org.ballerinalang.langserver.exception;
+    exports org.ballerinalang.langserver.extensions;
 }

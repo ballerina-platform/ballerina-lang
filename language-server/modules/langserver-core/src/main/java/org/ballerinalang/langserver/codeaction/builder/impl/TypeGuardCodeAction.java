@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.builder.impl;
 
+import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.command.CommandUtil;
@@ -121,13 +122,15 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             throws WorkspaceDocumentException, IOException {
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         BLangNode bLangNode = referenceAtCursor.getbLangNode();
-        Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
-        Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);
-        Position endPos = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol - 1);
+        LineRange lineRange = bLangNode.pos.lineRange();
+        Position startPos = new Position(lineRange.startLine().line() - 1,
+                lineRange.startLine().offset() - 1);
+        Position endPosWithSemiColon = new Position(lineRange.endLine().line() - 1, lineRange.endLine().offset());
+        Position endPos = new Position(lineRange.endLine().line() - 1, lineRange.endLine().offset() - 1);
         Range newTextRange = new Range(startPos, endPosWithSemiColon);
 
         List<TextEdit> edits = new ArrayList<>();
-        String spaces = StringUtils.repeat('\t', bLangNode.pos.sCol - 1);
+        String spaces = StringUtils.repeat('\t', bLangNode.pos.lineRange().startLine().offset() - 1);
         String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
         String content = CommandUtil.getContentOfRange(docManager, uri, new Range(startPos, endPos));
         // Remove last line feed
@@ -157,7 +160,8 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
                     edits.add(new TextEdit(newTextRange, newText));
                 } else {
                     // if (foo() is int) {...} else {...}
-                    String type = CommonUtil.getBTypeName(bType, context, true);
+                    // Fixme with the code action revamp
+                    String type = "";
                     String newText = String.format("if (%s is %s) {%s} else {%s}", finalContent, type, padding,
                                                    padding);
                     edits.add(new TextEdit(newTextRange, newText));
@@ -167,7 +171,8 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             Set<String> nameEntries = CommonUtil.getAllNameEntries(compilerContext);
             String varName = CommonUtil.generateVariableName(bLangNode, nameEntries);
-            String typeDef = CommonUtil.getBTypeName(unionType, context, true);
+            // Fixme with the code action revamp
+            String typeDef = "";
             boolean addErrorTypeAtEnd;
 
             List<BType> tMembers = new ArrayList<>((unionType).getMemberTypes());
@@ -181,7 +186,8 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             IntStream.range(0, tMembers.size())
                     .forEachOrdered(value -> {
                         BType bType = tMembers.get(value);
-                        String bTypeName = CommonUtil.getBTypeName(bType, context, true);
+                        // Fixme with the code action revamp
+                        String bTypeName = "";
                         boolean isErrorType = bType instanceof BErrorType;
                         if (isErrorType && !addErrorTypeAtEnd) {
                             memberTypes.add(bTypeName);

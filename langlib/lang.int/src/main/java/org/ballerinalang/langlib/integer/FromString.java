@@ -18,15 +18,15 @@
 
 package org.ballerinalang.langlib.integer;
 
-import org.ballerinalang.jvm.api.BErrorCreator;
-import org.ballerinalang.jvm.api.values.BString;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.api.ErrorCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.util.exceptions.RuntimeErrors;
 
-import static org.ballerinalang.jvm.util.BLangConstants.INT_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.util.BLangConstants.INT_LANG_LIB;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.int:fromString(string).
@@ -45,10 +45,10 @@ public class FromString {
         try {
             return Long.parseLong(s.getValue());
         } catch (NumberFormatException e) {
-            return BErrorCreator.createError(getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
-                                             BLangExceptionHelper.getErrorMessage(
-                                                     RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                                     BTypes.typeString, s, BTypes.typeInt));
+            return ErrorCreator.createError(getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
+                                            BLangExceptionHelper.getErrorMessage(
+                                                    RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                                                    PredefinedTypes.TYPE_STRING, s, PredefinedTypes.TYPE_INT));
         }
     }
 }

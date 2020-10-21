@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.test.types.xml;
 
+import io.ballerina.runtime.XMLFactory;
+import io.ballerina.runtime.values.XMLValue;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.model.values.BXML;
 import org.ballerinalang.core.model.values.BXMLItem;
 import org.ballerinalang.core.model.values.BXMLSequence;
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -201,7 +201,7 @@ public class XMLLiteralWithNamespacesTest {
 
     @Test
     public void testXMLToString() {
-        XMLValue xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+        io.ballerina.runtime.api.values.BXML xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }

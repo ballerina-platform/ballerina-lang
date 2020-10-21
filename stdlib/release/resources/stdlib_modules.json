@@ -37,7 +37,6 @@
             "level": 1,
             "release": false,
             "dependents": [
-                "module-ballerina-encoding",
                 "module-ballerina-system",
                 "module-ballerina-xslt"
             ]
@@ -49,7 +48,6 @@
             "release": false,
             "dependents": [
                 "module-ballerina-config",
-                "module-ballerina-encoding",
                 "module-ballerina-time",
                 "module-ballerina-xslt"
             ]
@@ -64,6 +62,16 @@
                 "module-ballerina-task",
                 "module-ballerinax-nats",
                 "module-ballerinax-rabbitmq"
+            ]
+        },
+        {
+            "name": "module-ballerina-encoding",
+            "version": "1.0.3-SNAPSHOT",
+            "level": 1,
+            "release": false,
+            "dependents": [
+                "module-ballerina-jwt",
+                "module-ballerina-websub"
             ]
         },
 
@@ -105,16 +113,6 @@
             ]
         },
 
-        {
-            "name": "module-ballerina-encoding",
-            "version": "1.0.3-SNAPSHOT",
-            "level": 3,
-            "release": false,
-            "dependents": [
-                "module-ballerina-jwt",
-                "module-ballerina-websub"
-            ]
-        },
         {
             "name": "module-ballerina-config",
             "version": "1.0.1-SNAPSHOT",

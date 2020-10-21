@@ -18,9 +18,9 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.jvm.api.BStringUtils;
-import org.ballerinalang.jvm.api.BValueCreator;
-import org.ballerinalang.jvm.api.values.BObject;
+import io.ballerina.runtime.api.StringUtils;
+import io.ballerina.runtime.api.ValueCreator;
+import io.ballerina.runtime.api.values.BObject;
 import org.jvnet.mimepull.MIMEConfig;
 import org.jvnet.mimepull.MIMEMessage;
 import org.jvnet.mimepull.MIMEPart;
@@ -115,8 +115,8 @@ public class MultipartDecoder {
                                                List<MIMEPart> mimeParts) {
         ArrayList<BObject> bodyParts = new ArrayList<>();
         for (final MIMEPart mimePart : mimeParts) {
-            BObject partStruct = BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
-            BObject mediaType = BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
+            BObject partStruct = ValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
+            BObject mediaType = ValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
             populateBodyPart(mimePart, partStruct, mediaType);
             bodyParts.add(partStruct);
         }
@@ -138,8 +138,8 @@ public class MultipartDecoder {
         populateContentType(mimePart, partStruct, mediaType);
         List<String> contentDispositionHeaders = mimePart.getHeader(MimeConstants.CONTENT_DISPOSITION);
         if (HeaderUtil.isHeaderExist(contentDispositionHeaders)) {
-            BObject contentDisposition = BValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID,
-                                                                                 CONTENT_DISPOSITION_STRUCT);
+            BObject contentDisposition = ValueCreator.createObjectValue(PROTOCOL_MIME_PKG_ID,
+                                                                        CONTENT_DISPOSITION_STRUCT);
             populateContentDisposition(partStruct, contentDispositionHeaders, contentDisposition);
         }
         EntityBodyHandler.populateBodyContent(partStruct, mimePart);
@@ -157,7 +157,7 @@ public class MultipartDecoder {
     }
 
     private static void populateContentId(MIMEPart mimePart, BObject partStruct) {
-        partStruct.set(CONTENT_ID_FIELD, BStringUtils.fromString(mimePart.getContentId()));
+        partStruct.set(CONTENT_ID_FIELD, StringUtils.fromString(mimePart.getContentId()));
     }
 
     private static void populateContentLength(MIMEPart mimePart, BObject partStruct) {
