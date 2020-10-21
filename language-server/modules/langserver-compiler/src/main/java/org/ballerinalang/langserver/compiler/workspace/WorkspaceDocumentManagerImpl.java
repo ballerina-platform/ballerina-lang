@@ -267,8 +267,13 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
         try {
             if (Files.exists(filePath)) {
                 byte[] encoded = Files.readAllBytes(filePath);
-                return SyntaxTree.from(TextDocuments.from(new String(encoded, Charset.defaultCharset())),
-                        filePath.getFileName().toString());
+
+                Path namePath = filePath.getFileName();
+                if (namePath != null) {
+                    return SyntaxTree.from(TextDocuments.from(new String(encoded, Charset.defaultCharset())),
+                            namePath.toString());
+                }
+                return SyntaxTree.from(TextDocuments.from(new String(encoded, Charset.defaultCharset())));
             }
             throw new WorkspaceDocumentException("Error in reading non-existent file '" + filePath);
         } catch (IOException e) {
