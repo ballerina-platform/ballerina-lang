@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -142,18 +143,17 @@ public class DefinitionUtil {
 
         if (extractedDef != null) {
             Pair<String, BSymbol> nameSymbolPair = getTopLevelNodeNameSymbolPair(extractedDef);
-            io.ballerina.tools.diagnostics.Location diagnosticLocation = getTopLevelNodePosition(extractedDef);
-            return prepareLocations(diagnosticLocation, nameSymbolPair.getRight(), (BLangNode) extractedDef);
+            DiagnosticPos diagnosticPos = getTopLevelNodePosition(extractedDef);
+            return prepareLocations(diagnosticPos, nameSymbolPair.getRight(), (BLangNode) extractedDef);
         }
 
         return new ArrayList<>();
     }
 
-    private static List<Location> prepareLocations(io.ballerina.tools.diagnostics.Location diagPos, BSymbol symbol,
-                                                   BLangNode node)
+    private static List<Location> prepareLocations(DiagnosticPos diagPos, BSymbol symbol, BLangNode node)
             throws LSStdlibCacheException {
         String sourceRoot = LSStandardLibCache.getInstance()
-                .getCachedStdlibRoot(symbol.pkgID.name.value).toString();
+                .getCachedStdlibRoot(diagPos.src.pkgID.name.value).toString();
         SymbolReferencesModel.Reference reference = new SymbolReferencesModel.Reference(diagPos, symbol, node);
         return ReferencesUtil.getLocations(Collections.singletonList(reference), sourceRoot);
     }
@@ -169,7 +169,7 @@ public class DefinitionUtil {
         if ("init".equals(symbolName)) {
             // Definition is invoked over the new keyword
             BLangFunction initFunction = objectTypeNode.initFunction;
-            io.ballerina.tools.diagnostics.Location pos;
+            DiagnosticPos pos;
             if (initFunction.symbol == null) {
                 pos = CommonUtil.toZeroBasedPosition(objectNode.get().getName().pos);
                 return prepareLocations(pos, objectNode.get().symbol, objectTypeNode);
@@ -179,7 +179,7 @@ public class DefinitionUtil {
         }
         for (BLangFunction function : objectTypeNode.functions) {
             if (symbolName.equals(function.getName().getValue())) {
-                io.ballerina.tools.diagnostics.Location pos = CommonUtil.toZeroBasedPosition(function.name.pos);
+                DiagnosticPos pos = CommonUtil.toZeroBasedPosition(function.name.pos);
                 return prepareLocations(pos, symbol, function);
             }
         }
@@ -197,7 +197,7 @@ public class DefinitionUtil {
 
         for (BLangSimpleVariable field : objectTypeNode.fields) {
             if (symbolName.equals(field.getName().getValue())) {
-                io.ballerina.tools.diagnostics.Location pos = CommonUtil.toZeroBasedPosition(field.name.pos);
+                DiagnosticPos pos = CommonUtil.toZeroBasedPosition(field.name.pos);
                 return prepareLocations(pos, symbol, field);
             }
         }
@@ -256,7 +256,7 @@ public class DefinitionUtil {
         }
     }
 
-    private static io.ballerina.tools.diagnostics.Location getTopLevelNodePosition(TopLevelNode topLevelNode)
+    private static DiagnosticPos getTopLevelNodePosition(TopLevelNode topLevelNode)
             throws LSStdlibCacheException {
         switch (topLevelNode.getKind()) {
             case FUNCTION:

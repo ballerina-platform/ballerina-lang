@@ -4,5 +4,4 @@ module io.ballerina.file {
     requires org.wso2.transport.local.file.system;
     requires io.ballerina.lang;
     requires io.ballerina.time;
-    requires io.ballerina.tools.api;
 }

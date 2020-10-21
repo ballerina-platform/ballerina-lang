@@ -18,8 +18,8 @@ package org.ballerinalang.langserver.compiler.common.modal;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Meta information of a symbol.
@@ -37,11 +37,11 @@ public final class SymbolMetaInfo {
     private BSymbol bSymbol;
     private String typeName;
     private boolean isLocal;
-    private Location position;
+    private DiagnosticPos position;
 
 
-    private SymbolMetaInfo(String name, String pkgOrgName, String pkgName, String pkgAlias, boolean caller, String kind,
-                           BSymbol bSymbol, String typeName, boolean isLocal, Location position) {
+    private SymbolMetaInfo(String name, String pkgOrgName, String pkgName, String pkgAlias, boolean caller,
+                           String kind, BSymbol bSymbol, String typeName, boolean isLocal, DiagnosticPos position) {
         this.name = name;
         this.pkgOrgName = pkgOrgName;
         this.pkgName = pkgName;
@@ -91,10 +91,10 @@ public final class SymbolMetaInfo {
         JsonElement element = gson.toJsonTree(this);
         if (this.position != null) {
             JsonObject positionJson = new JsonObject();
-            positionJson.addProperty("startColumn", position.lineRange().startLine().offset());
-            positionJson.addProperty("startLine", position.lineRange().startLine().line());
-            positionJson.addProperty("endColumn", position.lineRange().endLine().offset());
-            positionJson.addProperty("endLine", position.lineRange().endLine().line());
+            positionJson.addProperty("startColumn", position.getStartColumn());
+            positionJson.addProperty("startLine", position.getStartLine());
+            positionJson.addProperty("endColumn", position.getEndColumn());
+            positionJson.addProperty("endLine", position.getEndLine());
             element.getAsJsonObject().add("position", positionJson);
         }
         return element;
@@ -104,7 +104,7 @@ public final class SymbolMetaInfo {
         return isLocal;
     }
 
-    public Location getPosition() {
+    public DiagnosticPos getPosition() {
         return position;
     }
 
@@ -123,7 +123,7 @@ public final class SymbolMetaInfo {
         private BSymbol bSymbol;
         private String typeName;
         private boolean isLocal;
-        private Location pos;
+        private DiagnosticPos pos;
 
         public SymbolMetaInfoBuilder setName(String name) {
             this.name = name;
@@ -170,7 +170,7 @@ public final class SymbolMetaInfo {
             return this;
         }
 
-        public SymbolMetaInfoBuilder setPos(Location pos) {
+        public SymbolMetaInfoBuilder setPos(DiagnosticPos pos) {
             this.pos = pos;
             return this;
         }

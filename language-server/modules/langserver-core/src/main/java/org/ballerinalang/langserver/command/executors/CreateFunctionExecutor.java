@@ -16,10 +16,9 @@
 package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
-import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -55,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -140,8 +140,8 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         BLangCompilationUnit cUnit = getCurrentCUnit(context, packageNode);
         for (TopLevelNode topLevelNode : cUnit.topLevelNodes) {
-            if (topLevelNode.getPosition().lineRange().endLine().line() > eLine) {
-                eLine = topLevelNode.getPosition().lineRange().endLine().line();
+            if (topLevelNode.getPosition().getEndLine() > eLine) {
+                eLine = topLevelNode.getPosition().getEndLine();
             }
         }
 
@@ -169,19 +169,18 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         if (functionNode.expr != null) {
             padding = StringUtils.repeat(' ', 4);
             BTypeSymbol tSymbol = functionNode.expr.type.tsymbol;
-            Triple<Location, PackageID, Boolean> nodeLocation =
-                    getNodeLocationAndHasFunctions(tSymbol.name.value, context);
+            Pair<DiagnosticPos, Boolean> nodeLocation = getNodeLocationAndHasFunctions(tSymbol.name.value, context);
             if (!nodeLocation.getRight()) {
                 prependLineFeed = false;
             }
-            eLine = nodeLocation.getLeft().lineRange().endLine().line() - 1;
-            String cUnitName = nodeLocation.getLeft().lineRange().filePath();
+            eLine = nodeLocation.getLeft().eLine - 1;
+            String cUnitName = nodeLocation.getLeft().src.cUnitName;
             String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
-            String pkgName = tSymbol.pkgID.name.value;
+            String pkgName = nodeLocation.getLeft().src.pkgID.name.toString();
             String uri = new File(sourceRoot).toPath().resolve("src").resolve(pkgName)
                     .resolve(cUnitName).toUri().toString();
             textDocumentIdentifier.setUri(uri);
-            if (!nodeLocation.getMiddle().equals(packageNode.packageID)) {
+            if (!nodeLocation.getLeft().src.pkgID.equals(functionNode.pos.src.pkgID)) {
                 modifiers += "public ";
             }
         }
@@ -211,11 +210,9 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         return currentCUnit.get();
     }
 
-    private Triple<Location, PackageID, Boolean> getNodeLocationAndHasFunctions(String name,
-                                                                                               LSContext context) {
+    private Pair<DiagnosticPos, Boolean> getNodeLocationAndHasFunctions(String name, LSContext context) {
         List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
-        Location pos;
-        PackageID pkgId;
+        DiagnosticPos pos;
         boolean hasFunctions = false;
         for (BLangPackage bLangPackage : bLangPackages) {
             for (BLangCompilationUnit cUnit : bLangPackage.getCompilationUnits()) {
@@ -224,18 +221,17 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) node;
                         if (typeDefinition.name.value.equals(name)) {
                             pos = typeDefinition.getPosition();
-                            pkgId = bLangPackage.packageID;
                             if (typeDefinition.symbol instanceof BObjectTypeSymbol) {
                                 BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) typeDefinition.symbol;
                                 hasFunctions = typeSymbol.attachedFuncs.size() > 0;
                             }
-                            return new ImmutableTriple<>(pos, pkgId, hasFunctions);
+                            return new ImmutablePair<>(pos, hasFunctions);
                         }
                     }
                 }
             }
         }
-        return new ImmutableTriple<>(null, null, hasFunctions);
+        return new ImmutablePair<>(null, hasFunctions);
     }
 
     /**

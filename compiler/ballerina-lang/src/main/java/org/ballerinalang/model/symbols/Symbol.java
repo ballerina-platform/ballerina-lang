@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.model.symbols;
 
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.types.Type;
+import org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition;
 
 import java.util.List;
 import java.util.Set;
@@ -45,7 +45,7 @@ public interface Symbol {
 
     List<? extends Symbol> getEnclosedSymbols();
 
-    Location getPosition();
+    DiagnosticPosition getPosition();
 
     SymbolOrigin getOrigin();
 }

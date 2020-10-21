@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.builder.impl;
 
-import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.command.CommandUtil;
@@ -122,15 +121,13 @@ public class TypeGuardCodeAction implements DiagBasedCodeAction {
             throws WorkspaceDocumentException, IOException {
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         BLangNode bLangNode = referenceAtCursor.getbLangNode();
-        LineRange lineRange = bLangNode.pos.lineRange();
-        Position startPos = new Position(lineRange.startLine().line() - 1,
-                lineRange.startLine().offset() - 1);
-        Position endPosWithSemiColon = new Position(lineRange.endLine().line() - 1, lineRange.endLine().offset());
-        Position endPos = new Position(lineRange.endLine().line() - 1, lineRange.endLine().offset() - 1);
+        Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
+        Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);
+        Position endPos = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol - 1);
         Range newTextRange = new Range(startPos, endPosWithSemiColon);
 
         List<TextEdit> edits = new ArrayList<>();
-        String spaces = StringUtils.repeat('\t', bLangNode.pos.lineRange().startLine().offset() - 1);
+        String spaces = StringUtils.repeat('\t', bLangNode.pos.sCol - 1);
         String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
         String content = CommandUtil.getContentOfRange(docManager, uri, new Range(startPos, endPos));
         // Remove last line feed
