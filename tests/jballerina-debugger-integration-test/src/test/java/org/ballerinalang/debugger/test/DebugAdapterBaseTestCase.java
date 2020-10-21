@@ -471,10 +471,10 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
     /**
      * Can be used to assert stack frame name, line and source.
      *
-     * @param frame   debug hit stack frame.
-     * @param name     stack frame name.
-     * @param line     stack frame line.
-     * @param source   stack frame source.
+     * @param frame  debug hit stack frame.
+     * @param name   stack frame name.
+     * @param line   stack frame line.
+     * @param source stack frame source.
      */
     protected void assertCallStack(StackFrame frame, String name, int line, String source) {
         Assert.assertEquals(frame.getName(), name);
