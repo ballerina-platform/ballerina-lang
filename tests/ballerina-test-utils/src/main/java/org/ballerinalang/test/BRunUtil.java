@@ -1150,7 +1150,7 @@ public class BRunUtil {
     private static BIRNode.BIRFunction getInvokedFunction(CompileResult compileResult, String functionName) {
 
         if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException("There are compilation errors");
+            throw new IllegalStateException("There were compilation errors");
         }
 
         BIRNode.BIRPackage birPackage = compileResult.defaultModuleBIR();
