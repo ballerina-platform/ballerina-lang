@@ -431,10 +431,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void populateDistinctTypeIdsFromIncludedTypeReferences(BLangClassDefinition typeDef) {
         BLangClassDefinition classDefinition = typeDef;
-        if (!classDefinition.flagSet.contains(Flag.DISTINCT) && !classDefinition.induceTypeIds) {
-            return;
-        }
-
         BTypeIdSet typeIdSet = ((BObjectType) classDefinition.type).typeIdSet;
 
         for (BLangType typeRef : classDefinition.typeRefs) {
@@ -443,8 +439,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             BObjectType refType = (BObjectType) typeRef.type;
 
-            typeIdSet.primary.addAll(refType.typeIdSet.primary);
-            typeIdSet.secondary.addAll(refType.typeIdSet.secondary);
+            if (!refType.typeIdSet.primary.isEmpty()) {
+                typeIdSet.primary.addAll(refType.typeIdSet.primary);
+            }
+            if (!refType.typeIdSet.secondary.isEmpty()) {
+                typeIdSet.secondary.addAll(refType.typeIdSet.secondary);
+            }
         }
     }
 
@@ -601,7 +601,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                         getOrigin(className));
         tSymbol.scope = new Scope(tSymbol);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
-
 
         BObjectType objectType;
         if (flags.contains(Flag.SERVICE)) {

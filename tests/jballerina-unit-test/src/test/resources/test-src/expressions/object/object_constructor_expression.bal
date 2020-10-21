@@ -170,6 +170,17 @@ function testObjectConstructorWithDistintTypeReferenceVar() {
     assertValueEquality(25, newDistinctRef.i);
 }
 
+function testObjectConstructorWithDefiniteTypeAndWithoutReference() {
+    DistinctFooA|DistinctFooA distinctObject = object {
+                                        int i;
+                                        function init() {
+                                            self.i = 20;
+                                        }
+                                    };
+    DistinctFooA newDistinctRef = distinctObject;
+    assertValueEquality(20, newDistinctRef.i);
+}
+
 // assertion helpers
 
 const ASSERTION_ERROR_REASON = "AssertionError";

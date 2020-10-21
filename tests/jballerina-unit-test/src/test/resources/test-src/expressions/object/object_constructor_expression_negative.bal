@@ -40,3 +40,20 @@ var testObjectWithTypeReference = object {
 };
 
 any o = object {  };
+
+distinct class DistinctFoo {
+    int i = 0;
+}
+
+distinct class DistinctFooA {
+    int i = 0;
+}
+
+function testObjectConstructorWithoutDefiniteTypeAndReferenceVar() {
+    DistinctFooA|DistinctFoo distinctObject = object {
+                                        int i;
+                                        function init() {
+                                            self.i = 20;
+                                        }
+                                    };
+}
