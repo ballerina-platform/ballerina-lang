@@ -228,6 +228,9 @@ public class Types {
     }
 
     private boolean isSameType(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        if (source == null || target == null) {
+            return false;
+        }
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(source, target);

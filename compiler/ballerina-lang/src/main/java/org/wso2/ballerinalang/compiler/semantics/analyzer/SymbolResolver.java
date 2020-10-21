@@ -28,6 +28,8 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
@@ -1671,6 +1673,12 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
 
+        boolean hasErrorType = typeOne.tag == TypeTags.ERROR || typeTwo.tag == TypeTags.ERROR;
+
+        if (hasErrorType) {
+            return symTable.errorIntersectionType;
+        }
+
         BType potentialIntersectionType = getPotentialReadOnlyIntersection(typeOne, typeTwo);
 
         if (potentialIntersectionType == symTable.semanticError) {
@@ -1679,6 +1687,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             for (int i = 2; i < constituentTypeNodes.size(); i++) {
                 BLangType bLangType = constituentTypeNodes.get(i);
                 BType type = resolveTypeNode(bLangType, env);
+                if (type.tag == TypeTags.ERROR) { // Error intersection is calculated later in defineConstructs.
+                    return symTable.errorIntersectionType;
+                }
                 typeBLangTypeMap.put(type, bLangType);
 
                 if (!hasReadOnlyType) {

@@ -135,6 +135,8 @@ public class SymbolTable {
     public final BType anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
     public final BType intStringFloatOrBoolean = BUnionType.create(null, intType, stringType, floatType, booleanType);
 
+    public final BType errorIntersectionType = new BErrorType(null, null);
+
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
     public final BUnionType anydataOrReadOnlyType = BUnionType.create(null, anydataType, readonlyType);

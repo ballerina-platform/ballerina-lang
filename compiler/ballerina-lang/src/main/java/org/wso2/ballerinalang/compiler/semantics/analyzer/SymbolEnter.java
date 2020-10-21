@@ -209,6 +209,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
     private PackageCache packageCache;
+    private List<BLangNode> errorIntersectionTypes;
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
@@ -240,6 +241,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
+        this.errorIntersectionTypes = new ArrayList<>();
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         projectAPIInitiatedCompilation = Boolean.parseBoolean(
@@ -376,11 +378,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.typeDefinitions.sort(getTypePrecedenceComparator());
         typeAndClassDefs.sort(getTypePrecedenceComparator());
 
-        // Define error details
-        defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
-
         // Define type def fields (if any)
         defineFields(typeAndClassDefs, pkgEnv);
+
+        // Calculate error intersections types
+        defineErrorIntersection(pkgEnv);
+
+        // Define error details
+        defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def members (if any)
         defineMembers(typeAndClassDefs, pkgEnv);
@@ -409,6 +414,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.globalVars.stream().filter(var -> var.symbol.type.tsymbol != null && Symbols
                 .isFlagOn(var.symbol.type.tsymbol.flags, Flags.CLIENT)).map(varNode -> varNode.symbol)
                 .forEach(varSymbol -> varSymbol.tag = SymTag.ENDPOINT);
+    }
+
+    private void defineErrorIntersection(SymbolEnv pkgEnv) {
+
     }
 
     private void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
@@ -1147,6 +1156,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (!this.unresolvedTypes.contains(typeDefinition)) {
                 this.unresolvedTypes.add(typeDefinition);
             }
+            return;
+        }
+
+        if (definedType == symTable.errorIntersectionType) {
+            this.errorIntersectionTypes.add(typeDefinition);
             return;
         }
 
