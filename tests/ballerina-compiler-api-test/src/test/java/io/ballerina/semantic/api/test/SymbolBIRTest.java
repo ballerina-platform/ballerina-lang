@@ -70,7 +70,8 @@ public class SymbolBIRTest {
         BallerinaSemanticModel model = new BallerinaSemanticModel(pkg, context);
 
         List<String> annotationModuleSymbols = asList("deprecated", "untainted", "tainted", "icon", "strand",
-                                                      "StrandData", "typeParam", "Thread", "builtinSubtype");
+                                                      "StrandData", "typeParam", "Thread", "builtinSubtype",
+                                                      "isolatedParam");
         List<String> moduleLevelSymbols = asList("aString", "anInt", "HELLO", "testAnonTypes");
         List<String> moduleSymbols = asList("xml", "foo", "object", "error", "boolean", "decimal", "typedesc", "float",
                                             "future", "int", "map", "stream", "string", "table");

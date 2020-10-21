@@ -85,7 +85,7 @@ public class DocumentationTest {
 
         BObjectTypeSymbol personObjSymbol = (BObjectTypeSymbol) personSymbol;
 
-        BSymbol getNameFuncSymbol = personObjSymbol.methodScope.lookup(new Name("Person.getName")).symbol;
+        BSymbol getNameFuncSymbol = personObjSymbol.scope.lookup(new Name("Person.getName")).symbol;
         Assert.assertNotNull(getNameFuncSymbol.markdownDocumentation);
         Assert.assertEquals(getNameFuncSymbol.markdownDocumentation.description.replaceAll
                 (CARRIAGE_RETURN_CHAR, EMPTY_STRING), "get the users name.");
@@ -93,7 +93,7 @@ public class DocumentationTest {
         Assert.assertEquals(getNameFuncSymbol.markdownDocumentation.parameters.get(0).description
                 .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "integer value");
 
-        BSymbol isMaleFuncSymbol = personObjSymbol.methodScope.lookup(new Name("Person.isMale")).symbol;
+        BSymbol isMaleFuncSymbol = personObjSymbol.scope.lookup(new Name("Person.isMale")).symbol;
         Assert.assertNotNull(isMaleFuncSymbol.markdownDocumentation);
         Assert.assertEquals(isMaleFuncSymbol.markdownDocumentation.description.replaceAll(CARRIAGE_RETURN_CHAR,
                 EMPTY_STRING), "Indicate whether this is a male or female.");

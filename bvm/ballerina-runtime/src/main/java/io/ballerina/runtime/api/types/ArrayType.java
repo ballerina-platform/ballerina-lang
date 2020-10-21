@@ -44,9 +44,9 @@ public interface ArrayType extends Type {
      * @since 2.0.0
      */
     enum ArrayState {
-        CLOSED_SEALED((byte) 1),
-        OPEN_SEALED((byte) 2),
-        UNSEALED((byte) 3);
+        CLOSED((byte) 1),
+        INFERRED((byte) 2),
+        OPEN((byte) 3);
 
         byte value;
 

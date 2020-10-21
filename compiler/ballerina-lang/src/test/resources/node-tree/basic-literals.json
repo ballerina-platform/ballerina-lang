@@ -341,7 +341,7 @@
                             "type": {
                                 "eType": "<Duplicated>",
                                 "size": -1,
-                                "state": "UNSEALED",
+                                "state": "OPEN",
                                 "tag": 19,
                                 "tsymbol": {
                                     "isLabel": false,

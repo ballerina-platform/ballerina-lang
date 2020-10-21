@@ -217,7 +217,10 @@ class _NestedFromFunction {
         if (cf is _Frame && itr is _Iterator) {
             record {|(any|error) value;|}|error? v = itr.next();
             if (v is record {|(any|error) value;|}) {
-                _Frame _frame = {...cf, ...v};
+                _Frame _frame = {...cf};
+                foreach var [k, val] in v.entries() {
+                    _frame[k] = val;
+                }
                 return _frame;
             } else if (v is error) {
                 return v;
@@ -344,7 +347,10 @@ class _InnerJoinFunction {
             if (rhsCandidates is _Frame[] && rhsCandidates.length() > 0) {
                 _Frame rhsFrame = rhsCandidates.shift();
                 self.rhsCandidates = rhsCandidates;
-                _Frame joinedFrame = {...lhsFrame, ...rhsFrame};
+                _Frame joinedFrame = {...lhsFrame};
+                foreach var [k, val] in rhsFrame.entries() {
+                    joinedFrame[k] = val;
+                }
                 return joinedFrame;
             } else {
                 // Move to next lhs frame
@@ -427,11 +433,17 @@ class _OuterJoinFunction {
                     self.rhsCandidates = ();
                     self.lhsFrame = ();
                 }
-                _Frame joinedFrame = {...lhsFrame, ...rhsFrame};
+                _Frame joinedFrame = {...lhsFrame};
+                foreach var [k, val] in rhsFrame.entries() {
+                    joinedFrame[k] = val;
+                }
                 return joinedFrame;
             } else {
                 // rhsCandidates is nil, move to next lhs frame in next iteration.
-                _Frame joinedFrame = {...lhsFrame, ...nilFrame};
+                _Frame joinedFrame = {...lhsFrame};
+                foreach var [k, val] in nilFrame.entries() {
+                    joinedFrame[k] = val;
+                }
                 self.lhsFrame = ();
                 return joinedFrame;
             }
