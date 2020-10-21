@@ -70,3 +70,29 @@ function testListOfMatchPatternsNegative() returns string {
 
     return "No match";
 }
+
+const X = 2;
+const Y = 4;
+function testSameMatchPatternsNegative() {
+    [int, int] v = [1, 2];
+    match v {
+        [var a, 2] | [var a, 2] => { // unreachable pattern
+        }
+        [var a, 3] => {
+        }
+        [var a, 3] => { // unreachable pattern
+        }
+        [2, 3] | [2, 3] => { // unreachable pattern
+        }
+        [2, X] | [2, X] => { // unreachable pattern
+        }
+        [2, Y] => {
+        }
+        [2, Y] => { // unreachable pattern
+        }
+        [var a, 21] if a is int => {
+        }
+        [var a, 21] if a is int => { // unreachable pattern
+        }
+    }
+}
