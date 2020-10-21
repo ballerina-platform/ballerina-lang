@@ -424,7 +424,7 @@ public class TypeChecker {
      * @return True if left hand value is less than right hand side value, else false.
      */
     public static boolean checkDecimalLessThan(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return checkDecimalGreaterThanOrEqual(rhsValue, lhsValue);
+        return !checkDecimalEqual(lhsValue, rhsValue) && checkDecimalGreaterThanOrEqual(rhsValue, lhsValue);
     }
 
     /**
@@ -435,7 +435,7 @@ public class TypeChecker {
      * @return True if left hand value is less than or equal right hand side value, else false.
      */
     public static boolean checkDecimalLessThanOrEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return checkDecimalGreaterThan(rhsValue, lhsValue);
+        return checkDecimalEqual(lhsValue, rhsValue) || checkDecimalGreaterThan(rhsValue, lhsValue);
     }
 
     /**
