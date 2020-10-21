@@ -196,11 +196,6 @@ class ModuleContext {
             bootstrap.loadLangLibSymbols(compilerContext);
         }
 
-        // if this is already loaded from BALO, then skip rest of the compilation
-        if (packageCache.get(pkgId) != null) {
-            return;
-        }
-
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         packageCache.put(pkgId, pkgNode);
 
