@@ -16,8 +16,8 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
-import org.ballerinalang.langserver.codeaction.builder.impl.PullModuleCodeAction;
+import org.ballerinalang.langserver.codeaction.impl.DiagBasedCodeAction;
+import org.ballerinalang.langserver.codeaction.impl.PullModuleCodeAction;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;

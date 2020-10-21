@@ -27,9 +27,14 @@ import io.ballerina.compiler.api.types.RecordTypeDescriptor;
 import io.ballerina.compiler.api.types.TypeDescKind;
 import io.ballerina.compiler.api.types.TypeReferenceTypeDescriptor;
 import io.ballerina.compiler.api.types.UnionTypeDescriptor;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -39,6 +44,8 @@ import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.FieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -56,8 +63,6 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -67,7 +72,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -109,8 +113,6 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
  * Common utils to be reuse in language server implementation.
  */
 public class CommonUtil {
-    private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
-
     private static final Path TEMP_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
 
     public static final String MD_LINE_SEPARATOR = "  " + System.lineSeparator();
@@ -165,16 +167,16 @@ public class CommonUtil {
     }
 
     /**
-     * Convert the diagnostic position to a zero based positioning diagnostic position.
+     * Convert the diagnostic range to a zero based positioning diagnostic range.
      *
-     * @param linePosition - diagnostic position to be cloned
+     * @param lineRange - diagnostic position to be cloned
      * @return {@link DiagnosticPos} converted diagnostic position
      */
-    public static Range toRange(LineRange linePosition) {
-        int startLine = linePosition.startLine().line();
-        int endLine = linePosition.endLine().line();
-        int startColumn = linePosition.startLine().offset();
-        int endColumn = linePosition.endLine().offset();
+    public static Range toRange(LineRange lineRange) {
+        int startLine = lineRange.startLine().line();
+        int endLine = lineRange.endLine().line();
+        int startColumn = lineRange.startLine().offset();
+        int endColumn = lineRange.endLine().offset();
         return new Range(new Position(startLine, startColumn), new Position(endLine, endColumn));
     }
 
@@ -711,15 +713,21 @@ public class CommonUtil {
     /**
      * Generates a variable name.
      *
-     * @param bType {@link BType}
+     * @param name {@link BLangNode}
      * @return random argument name
      */
-    public static String generateVariableName(BType bType, Set<String> names) {
-        String value = bType.name.getValue();
-        if (value.isEmpty() && bType.tsymbol != null) {
-            value = bType.tsymbol.name.value;
-        }
-        return generateVariableName(1, value, names);
+    public static String generateVariableName(String name, Set<String> names) {
+        return generateVariableName(1, name, names);
+    }
+
+    /**
+     * Generates a variable name.
+     *
+     * @param symbol {@link Symbol}
+     * @return random argument name
+     */
+    public static String generateVariableName(Symbol symbol, Set<String> names) {
+        return generateVariableName(1, symbol.kind().name(), names);
     }
 
     /**
@@ -733,9 +741,10 @@ public class CommonUtil {
                 && moduleID.moduleName().startsWith("lang.");
     }
 
-    private static String generateVariableName(int value, String name, Set<String> names) {
-        String newName = generateName(value, names);
-        if (value == 1 && !name.isEmpty()) {
+    private static String generateVariableName(int suffix, String name, Set<String> names) {
+        name = name.replaceAll(".+[\\:\\.]", "");
+        String newName = generateName(suffix, names);
+        if (suffix == 1 && !name.isEmpty()) {
             newName = name;
             BiFunction<String, String, String> replacer = (search, text) ->
                     (text.startsWith(search)) ? text.replaceFirst(search, "") : text;
@@ -747,6 +756,7 @@ public class CommonUtil {
             newName = replacer.apply("set", newName);
             newName = replacer.apply("add", newName);
             newName = replacer.apply("create", newName);
+            newName = replacer.apply("to", newName);
             // Remove '_' underscores
             while (newName.contains("_")) {
                 String[] parts = newName.split("_");
@@ -784,7 +794,7 @@ public class CommonUtil {
             }
             // if still already available, try a random letter
             while (names.contains(newName)) {
-                newName = generateVariableName(++value, name, names);
+                newName = generateVariableName(++suffix, name, names);
             }
         }
         return newName;
@@ -812,6 +822,47 @@ public class CommonUtil {
             }
         }
         return pkgPrefix;
+    }
+
+    public static String getModulePrefix(ImportsAcceptor importsAcceptor, ModuleID currentModuleId,
+                                         ModuleID typeModuleId, LSContext context) {
+        String pkgPrefix = "";
+        if (!typeModuleId.equals(currentModuleId) && !BUILT_IN_PACKAGE_PREFIX.equals(typeModuleId.moduleName())) {
+            String moduleName = escapeModuleName(context, typeModuleId.orgName() + "/" + typeModuleId.moduleName());
+            String[] moduleParts = moduleName.split("/");
+            String orgName = moduleParts[0];
+            String alias = moduleParts[1];
+            pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
+            if (importsAcceptor != null) {
+                importsAcceptor.getAcceptor().accept(orgName, alias);
+            }
+        }
+        return pkgPrefix;
+    }
+
+    public static ModuleID createModuleID(String orgName, String moduleName, String version) {
+        return new ModuleID() {
+            @Override
+            public String orgName() {
+                return orgName;
+            }
+
+            @Override
+            public String moduleName() {
+                return moduleName;
+            }
+
+            @Override
+            public String version() {
+                return version;
+            }
+
+            @Override
+            public String modulePrefix() {
+                List<String> names = Arrays.stream(moduleName.split("\\.")).collect(Collectors.toList());
+                return names.get(names.size() - 1);
+            }
+        };
     }
 
     public static String escapeModuleName(LSContext context, String fullPackageNameAlias) {
@@ -955,10 +1006,32 @@ public class CommonUtil {
         }
     }
 
+    public static NonTerminalNode findNode(LSContext context, Position position, Path path)
+            throws WorkspaceDocumentException {
+        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        SyntaxTree syntaxTree = documentManager.getTree(path);
+        TextDocument textDocument = syntaxTree.textDocument();
+        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
+    }
+
+    public static boolean isWithinLineRange(Position pos, LineRange lineRange) {
+        int sLine = lineRange.startLine().line();
+        int sCol = lineRange.startLine().offset();
+        int eLine = lineRange.endLine().line();
+        int eCol = lineRange.endLine().offset();
+        return ((sLine == eLine && pos.getLine() == sLine) &&
+                (pos.getCharacter() >= sCol && pos.getCharacter() <= eCol)
+        ) || ((sLine != eLine) && (pos.getLine() > sLine && pos.getLine() < eLine ||
+                pos.getLine() == eLine && pos.getCharacter() <= eCol ||
+                pos.getLine() == sLine && pos.getCharacter() >= sCol
+        ));
+    }
+
     /**
-     * Get the raw type of the type descriptor. If the type descriptor is a type reference then return the associated 
+     * Get the raw type of the type descriptor. If the type descriptor is a type reference then return the associated
      * type descriptor.
-     * 
+     *
      * @param typeDescriptor type descriptor to evaluate
      * @return {@link BallerinaTypeDescriptor} extracted type descriptor
      */

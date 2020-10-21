@@ -52,7 +52,7 @@ public class MakeNonAbstractObjectCodeAction implements DiagBasedCodeAction {
 
         Optional<BLangTypeDefinition> objType = getObjectTypeDefinition(context, position.getLine(),
                                                                         position.getCharacter());
-        if (!objType.isPresent()) {
+        if (objType.isEmpty()) {
             return null;
         }
 

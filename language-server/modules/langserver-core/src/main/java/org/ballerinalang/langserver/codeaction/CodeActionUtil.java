@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
@@ -23,26 +22,16 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.exception.UserErrorException;
-import org.ballerinalang.langserver.util.TokensUtil;
-import org.ballerinalang.langserver.util.references.ReferencesUtil;
-import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
-import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -66,7 +55,6 @@ import java.util.Optional;
  * @since 1.0.1
  */
 public class CodeActionUtil {
-    private static final Logger logger = LoggerFactory.getLogger(CodeActionUtil.class);
 
     private CodeActionUtil() {
     }
@@ -80,38 +68,38 @@ public class CodeActionUtil {
      * @return {@link String}   Top level node type
      */
     public static CodeActionNodeType topLevelNodeInLine(LSContext context, TextDocumentIdentifier identifier,
-                                                        int cursorLine, WorkspaceDocumentManager docManager) {
+                                                        int cursorLine, WorkspaceDocumentManager docManager)
+            throws CompilationFailedException {
         Optional<Path> filePath = CommonUtil.getPathFromURI(identifier.getUri());
-        if (!filePath.isPresent()) {
+        if (filePath.isEmpty()) {
             return null;
         }
 
-        try {
-            BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, false, false);
-            String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-            BLangPackage evalPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
-            List<Diagnostic> diagnostics = bLangPackage.getDiagnostics();
-            context.put(CodeActionKeys.DIAGNOSTICS_KEY, CodeActionUtil.toDiagnostics(diagnostics));
+        BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, false, false);
+        String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangPackage evalPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
+        List<Diagnostic> diagnostics = bLangPackage.getDiagnostics();
+        context.put(CodeActionKeys.DIAGNOSTICS_KEY, CodeActionUtil.toDiagnostics(diagnostics));
 
-            Optional<BLangCompilationUnit> filteredCUnit = evalPkg.compUnits.stream()
-                    .filter(cUnit -> cUnit.getPosition().getSource()
-                            .cUnitName.replace("/", CommonUtil.FILE_SEPARATOR)
-                            .equals(relativeSourcePath))
-                    .findAny();
+        Optional<BLangCompilationUnit> filteredCUnit = evalPkg.compUnits.stream()
+                .filter(cUnit -> cUnit.getPosition().getSource()
+                        .cUnitName.replace("/", CommonUtil.FILE_SEPARATOR)
+                        .equals(relativeSourcePath))
+                .findAny();
 
-            if (!filteredCUnit.isPresent()) {
-                return null;
-            }
+        if (filteredCUnit.isEmpty()) {
+            return null;
+        }
 
-            for (TopLevelNode topLevelNode : filteredCUnit.get().getTopLevelNodes()) {
-                DiagnosticPos diagnosticPos = CommonUtil.toZeroBasedPosition(((BLangNode) topLevelNode).pos);
-                if (topLevelNode instanceof BLangService) {
-                    if (diagnosticPos.sLine == cursorLine) {
-                        return CodeActionNodeType.SERVICE;
-                    }
-                    if (cursorLine > diagnosticPos.sLine && cursorLine < diagnosticPos.eLine) {
-                        // Cursor within the service
-                        for (BLangFunction resourceFunction : ((BLangService) topLevelNode).resourceFunctions) {
+        for (TopLevelNode topLevelNode : filteredCUnit.get().getTopLevelNodes()) {
+            DiagnosticPos diagnosticPos = CommonUtil.toZeroBasedPosition(((BLangNode) topLevelNode).pos);
+            if (topLevelNode instanceof BLangService) {
+                if (diagnosticPos.sLine == cursorLine) {
+                    return CodeActionNodeType.SERVICE;
+                }
+                if (cursorLine > diagnosticPos.sLine && cursorLine < diagnosticPos.eLine) {
+                    // Cursor within the service
+                    for (BLangFunction resourceFunction : ((BLangService) topLevelNode).resourceFunctions) {
                             diagnosticPos = CommonUtil.toZeroBasedPosition(resourceFunction.getName().pos);
                             if (diagnosticPos.sLine == cursorLine) {
                                 return CodeActionNodeType.RESOURCE;
@@ -168,11 +156,7 @@ public class CodeActionUtil {
                     }
                 }
             }
-            return null;
-        } catch (CompilationFailedException e) {
-            logger.error("Error while compiling the source");
-            return null;
-        }
+        return null;
     }
 
     /**
@@ -212,66 +196,5 @@ public class CodeActionUtil {
         });
 
         return lsDiagnostics;
-    }
-
-    /**
-     * Get the Symbol at the Cursor.
-     *
-     * @param context  LS Operation Context
-     * @param document LS Document
-     * @param position Cursor Position
-     * @return Symbol reference at cursor
-     * @throws WorkspaceDocumentException when couldn't find file for uri
-     * @throws CompilationFailedException when compilation failed
-     */
-    public static SymbolReferencesModel.Reference getSymbolAtCursor(LSContext context, LSDocumentIdentifier document,
-                                                                    Position position)
-            throws WorkspaceDocumentException, CompilationFailedException,
-            TokenOrSymbolNotFoundException {
-        TextDocumentIdentifier textDocIdentifier = new TextDocumentIdentifier(document.getURIString());
-        TextDocumentPositionParams pos = new TextDocumentPositionParams(textDocIdentifier, position);
-        context.put(DocumentServiceKeys.POSITION_KEY, pos);
-        context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
-        context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
-
-        List<BLangPackage> modules = ReferencesUtil.compileModules(context);
-        context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, modules);
-        return findSymbolAtCursor(modules, context);
-    }
-
-    private static SymbolReferencesModel.Reference findSymbolAtCursor(List<BLangPackage> modules, LSContext context)
-            throws WorkspaceDocumentException, TokenOrSymbolNotFoundException {
-        String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
-        /*
-        In windows platform, relative file path key components are separated with "\" while antlr always uses "/"
-         */
-        String relativePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        String currentCUnitName = relativePath.replace("\\", "/");
-        Optional<BLangPackage> currentPkg = modules.stream()
-                .filter(pkg -> pkg.symbol.getName().getValue().equals(currentPkgName))
-                .findAny();
-
-        if (!currentPkg.isPresent()) {
-            throw new UserErrorException("Not supported due to compilation failures!");
-        }
-
-        BLangPackage sourceOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, currentPkg.get());
-
-        Optional<BLangCompilationUnit> currentCUnit = sourceOwnerPkg.getCompilationUnits().stream()
-                .filter(cUnit -> cUnit.name.equals(currentCUnitName))
-                .findAny();
-
-        if (!currentCUnit.isPresent()) {
-            throw new UserErrorException("Not supported due to compilation failures!");
-        }
-
-        // With the syntax-tree, find the cursor token
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
-
-        CursorSymbolFindingVisitor refVisitor = new CursorSymbolFindingVisitor(tokenAtCursor, context,
-                currentPkgName, true);
-        SymbolReferencesModel symbolReferencesModel = refVisitor.accept(currentCUnit.get());
-        return symbolReferencesModel.getReferenceAtCursor();
     }
 }

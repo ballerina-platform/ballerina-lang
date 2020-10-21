@@ -106,7 +106,6 @@ dependencies {
     dist 'com.atomikos:transactions:5.0.8'
 
     dist project(':ballerina-tools-api')
-    dist project(':ballerina-compiler-api')
     dist project(':ballerina-parser')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')

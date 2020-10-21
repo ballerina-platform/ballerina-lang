@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -37,7 +36,6 @@ import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -129,7 +127,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         if (functionNode == null) {
             throw new LSCommandExecutorException("Couldn't find the function node!");
         }
-        String functionName = functionNode.name.getValue();
+//        String functionName = functionNode.name.getValue();
 
         BLangNode parent = functionNode.parent;
         BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
@@ -146,7 +144,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         List<TextEdit> edits = new ArrayList<>();
         if (parent != null && packageNode != null) {
-            PackageID currentPkgId = packageNode.packageID;
+//            PackageID currentPkgId = packageNode.packageID;
             ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
             //TODO: Fix this when #26382 is avaialble
 //            returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent, context);
@@ -162,16 +160,16 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Error occurred when retrieving function node!");
         }
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
-        String modifiers = "";
-        boolean prependLineFeed = true;
-        String padding = "";
+//        String modifiers = "";
+//        boolean prependLineFeed = true;
+//        String padding = "";
         if (functionNode.expr != null) {
-            padding = StringUtils.repeat(' ', 4);
+//            padding = StringUtils.repeat(' ', 4);
             BTypeSymbol tSymbol = functionNode.expr.type.tsymbol;
             Pair<DiagnosticPos, Boolean> nodeLocation = getNodeLocationAndHasFunctions(tSymbol.name.value, context);
-            if (!nodeLocation.getRight()) {
-                prependLineFeed = false;
-            }
+//            if (!nodeLocation.getRight()) {
+//                prependLineFeed = false;
+//            }
             eLine = nodeLocation.getLeft().eLine - 1;
             String cUnitName = nodeLocation.getLeft().src.cUnitName;
             String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
@@ -179,9 +177,9 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             String docUri = new File(sourceRoot).toPath().resolve("src").resolve(pkgName)
                     .resolve(cUnitName).toUri().toString();
             textDocumentIdentifier.setUri(docUri);
-            if (!nodeLocation.getLeft().src.pkgID.equals(functionNode.pos.src.pkgID)) {
-                modifiers += "public ";
-            }
+//            if (!nodeLocation.getLeft().src.pkgID.equals(functionNode.pos.src.pkgID)) {
+//                modifiers += "public ";
+//            }
         }
         //TODO: Fix this
 //        String editText = FunctionGenerator.createFunction(functionName, funcArgs, returnType, returnValue, modifiers,

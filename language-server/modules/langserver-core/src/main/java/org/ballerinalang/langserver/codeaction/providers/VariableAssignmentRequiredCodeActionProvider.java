@@ -198,8 +198,6 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
                 typeDescKind = TypeDescKind.NIL;
                 break;
             case BINARY_EXPRESSION:
-                typeDescKind = TypeDescKind.BYTE;
-                break;
             case BYTE_ARRAY_LITERAL:
                 typeDescKind = TypeDescKind.BYTE;
                 break;
@@ -207,7 +205,9 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
             case XML_TEMPLATE_EXPRESSION:
                 typeDescKind = TypeDescKind.TYPE_REFERENCE;
                 definitionName = "Element";
-                moduleID = createModuleID("ballerina", "lang", "xml");
+                moduleID = new TempModuleID("ballerina", "lang", "xml");
+                break;
+            default:
                 break;
         }
         if (typeDescKind == null) {
@@ -215,66 +215,7 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
         }
 
         definitionName = (definitionName.isEmpty()) ? typeDescKind.getName() : definitionName;
-        return Optional.of(
-
-                createTypeDesc(typeDescKind, definitionName, moduleID));
-    }
-
-    private BallerinaTypeDescriptor createTypeDesc(TypeDescKind typeDescKind, String definitionName,
-                                                   ModuleID moduleID) {
-        return new BallerinaTypeDescriptor() {
-            private static final String ANON_ORG = "$anon";
-
-            @Override
-            public TypeDescKind kind() {
-                return typeDescKind;
-            }
-
-            @Override
-            public ModuleID moduleID() {
-                return moduleID;
-            }
-
-            @Override
-            public String signature() {
-                if (moduleID == null || (moduleID.moduleName().equals("lang.annotations") &&
-                        moduleID.orgName().equals("ballerina"))) {
-                    return definitionName;
-                }
-                return !ANON_ORG.equals(moduleID.orgName()) ? moduleID.orgName() + Names.ORG_NAME_SEPARATOR +
-                        moduleID.moduleName() + Names.VERSION_SEPARATOR + moduleID.version() + ":" +
-                        definitionName : definitionName;
-            }
-
-            @Override
-            public List<MethodSymbol> builtinMethods() {
-                return Collections.emptyList();
-            }
-        };
-    }
-
-    private ModuleID createModuleID(String orgName, String... nameComps) {
-        return new ModuleID() {
-            @Override
-            public String orgName() {
-                return orgName;
-            }
-
-            @Override
-            public String moduleName() {
-                return String.join(".", nameComps);
-            }
-
-            @Override
-            public String version() {
-                return "0.0.0";
-            }
-
-            @Override
-            public String modulePrefix() {
-                return nameComps[nameComps.length - 1];
-            }
-        };
+        return Optional.of(new TempTypeDescriptor(definitionName, typeDescKind, moduleID));
     }
 
     private Optional<BallerinaTypeDescriptor> getTypeDescriptor(Symbol scopedSymbol) {
@@ -298,4 +239,77 @@ public class VariableAssignmentRequiredCodeActionProvider extends AbstractCodeAc
         }
         return Optional.empty();
     }
+
+    private static class TempTypeDescriptor implements BallerinaTypeDescriptor {
+        private static final String ANON_ORG = "$anon";
+        private final TypeDescKind typeDescKind;
+        private final ModuleID moduleID;
+        private final String definitionName;
+
+        TempTypeDescriptor(String definitionName, TypeDescKind typeDescKind, ModuleID moduleID) {
+            this.typeDescKind = typeDescKind;
+            this.moduleID = moduleID;
+            this.definitionName = definitionName;
+        }
+
+        @Override
+        public TypeDescKind kind() {
+            return typeDescKind;
+        }
+
+        @Override
+        public ModuleID moduleID() {
+            return moduleID;
+        }
+
+        @Override
+        public String signature() {
+            if (moduleID == null || (moduleID.moduleName().equals("lang.annotations") &&
+                    moduleID.orgName().equals("ballerina"))) {
+                return definitionName;
+            }
+            return !ANON_ORG.equals(moduleID.orgName()) ? moduleID.orgName() + Names.ORG_NAME_SEPARATOR +
+                    moduleID.moduleName() + Names.VERSION_SEPARATOR + moduleID.version() + ":" +
+                    definitionName : definitionName;
+        }
+
+        @Override
+        public List<MethodSymbol> builtinMethods() {
+            return Collections.emptyList();
+        }
+    }
+
+    private static class TempModuleID implements ModuleID {
+        private final String orgName;
+        private final String[] nameComps;
+        private final String version;
+
+        TempModuleID(String orgName, String... nameComps) {
+            this.orgName = orgName;
+            this.nameComps = nameComps;
+            this.version = "0.0.0";
+        }
+
+        @Override
+        public String orgName() {
+            return orgName;
+        }
+
+        @Override
+        public String moduleName() {
+            return String.join(".", nameComps);
+        }
+
+        @Override
+        public String version() {
+            return version;
+        }
+
+        @Override
+        public String modulePrefix() {
+            return nameComps[nameComps.length - 1];
+        }
+    }
+
+    ;
 }
