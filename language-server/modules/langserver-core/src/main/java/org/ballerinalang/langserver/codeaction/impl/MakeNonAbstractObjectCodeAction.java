@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction.builder.impl;
+package org.ballerinalang.langserver.codeaction.impl;
 
-import org.ballerinalang.langserver.codeaction.builder.DiagBasedCodeAction;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
@@ -39,11 +38,11 @@ import java.util.regex.Matcher;
 import static org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider.createQuickFixCodeAction;
 
 /**
- * Code Action for making object abstract type.
+ * Code Action for making object non abstract type.
  *
  * @since 1.2.0
  */
-public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
+public class MakeNonAbstractObjectCodeAction implements DiagBasedCodeAction {
     @Override
     public List<CodeAction> get(Diagnostic diagnostic, List<Diagnostic> allDiagnostics, LSContext context)
             throws LSCodeActionProviderException {
@@ -53,7 +52,7 @@ public class MakeAbstractObjectCodeAction implements DiagBasedCodeAction {
 
         Optional<BLangTypeDefinition> objType = getObjectTypeDefinition(context, position.getLine(),
                                                                         position.getCharacter());
-        if (!objType.isPresent()) {
+        if (objType.isEmpty()) {
             return null;
         }
 
