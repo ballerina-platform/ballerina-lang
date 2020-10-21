@@ -67,8 +67,7 @@ class FormatUtil {
      * @param dryRun         run the whole formatting
      * @param sourceRootPath execution path
      */
-    static void execute(List<String> argList, boolean helpFlag, boolean dryRun, Path sourceRootPath)
-            throws FormatterException {
+    static void execute(List<String> argList, boolean helpFlag, boolean dryRun, Path sourceRootPath) {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CMD_NAME);
             outStream.println(commandUsageInfo);
@@ -152,7 +151,7 @@ class FormatUtil {
 
                 generateChangeReport(formattedFiles, dryRun);
             }
-        } catch (IOException | NullPointerException e) {
+        } catch (IOException | NullPointerException | FormatterException e) {
             throw LauncherUtils.createLauncherException(Messages.getException() + e);
         }
     }
