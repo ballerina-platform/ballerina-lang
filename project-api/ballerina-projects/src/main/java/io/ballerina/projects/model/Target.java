@@ -133,7 +133,6 @@ public class Target {
      * @throws IOException if directory creation fails
      */
     public void setOutputPath(Path outputPath) throws IOException {
-        outputPath = outputPath.toAbsolutePath();
         if (Files.exists(outputPath)) {
             Files.delete(outputPath);
         }

@@ -71,6 +71,7 @@ public class RunExecutableTask implements Task {
     @Override
     public void execute(Project project) {
 
+        out.println();
         out.println("Running executable");
         out.println();
 
@@ -86,7 +87,7 @@ public class RunExecutableTask implements Task {
                 throw new RuntimeException("error creating the target directory", e);
             }
         } else {
-            throw new RuntimeException("no entry point found in package: " + project.currentPackage().packageName());
+            throw new RuntimeException("no entrypoint found in package: " + project.currentPackage().packageName());
         }
 
         // if the executable does not exist.

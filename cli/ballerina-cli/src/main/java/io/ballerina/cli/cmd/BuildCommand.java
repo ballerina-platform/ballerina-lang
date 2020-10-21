@@ -75,23 +75,23 @@ public class BuildCommand implements BLauncherCmd {
         this.skipCopyLibsFromDist = false;
     }
 
-    public BuildCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                         boolean skipCopyLibsFromDist) {
-        this.projectPath = userDir;
+        this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
     }
 
-    public BuildCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist, Path executableOutputDir) {
-        this.projectPath = userDir;
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean skipCopyLibsFromDist, String output) {
+        this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
-        this.output = executableOutputDir.toString();
+        this.output = output;
     }
 
     @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
@@ -175,7 +175,13 @@ public class BuildCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
-            project = SingleFileProject.loadProject(this.projectPath);
+            try {
+                project = SingleFileProject.loadProject(this.projectPath);
+            } catch (RuntimeException e) {
+                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
             isSingleFileBuild = true;
         } else {
             // Check if the output flag is set when building all the modules.
@@ -188,7 +194,13 @@ public class BuildCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
-            project = BuildProject.loadProject(this.projectPath);
+            try {
+                project = BuildProject.loadProject(this.projectPath);
+            } catch (RuntimeException e) {
+                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
         }
 
         BuildEnvContext buildEnvContext = BuildEnvContext.getInstance();
@@ -207,7 +219,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory
 //                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
-                .addTask(new CreateBirTask())   // create the bir
+                .addTask(new CreateBirTask(), isSingleFileBuild)   // create the bir
 //                .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
                                                             // the given skipLock flag does not exist(projects only)
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO ( build projects only)

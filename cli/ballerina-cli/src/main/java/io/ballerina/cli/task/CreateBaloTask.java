@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+
 /**
  * Task for creating balo file. Balo file writer is meant for modules only and not for single files.
  *
@@ -51,7 +53,7 @@ public class CreateBaloTask implements Task {
             target = new Target(project.sourceRoot());
             baloPath = target.getBaloPath();
         } catch (IOException e) {
-            throw new RuntimeException("error occurred while writing the BALO:" + e.getMessage());
+            throw createLauncherException("error occurred while writing the BALO: " + e.getMessage());
         }
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         String baloName = ProjectUtils.getBaloName(

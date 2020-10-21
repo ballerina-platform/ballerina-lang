@@ -24,6 +24,8 @@ import io.ballerina.projects.model.Target;
 
 import java.io.IOException;
 
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+
 /**
  * Task for creating bir.
  *
@@ -38,7 +40,7 @@ public class CreateBirTask implements Task {
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             packageCompilation.emit(PackageCompilation.OutputType.BIR, target.getBirCachePath());
         } catch (IOException e) {
-            throw new RuntimeException("error occurred while writing the module BIRs: " + e.getMessage());
+            throw createLauncherException("error occurred while writing the module BIRs: " + e.getMessage());
         }
     }
 }

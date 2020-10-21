@@ -28,11 +28,13 @@ import io.ballerina.projects.model.Target;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.utils.ProjectConstants.USER_DIR;
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for creating the executable jar file.
@@ -41,17 +43,19 @@ import static io.ballerina.projects.utils.ProjectConstants.USER_DIR;
  */
 public class CreateExecutableTask implements Task {
     private final transient PrintStream out;
-    private String output;
+    private Path output;
 
     public CreateExecutableTask(PrintStream out, String output) {
         this.out = out;
-        this.output = output;
+        if (output != null) {
+            this.output = Paths.get(output);
+        }
     }
 
     @Override
     public void execute(Project project) {
         this.out.println();
-        this.out.println("Generating executables");
+        this.out.println("Generating executable");
 
         Target target;
         Path currentDir = Paths.get(System.getProperty(USER_DIR));
@@ -63,16 +67,20 @@ public class CreateExecutableTask implements Task {
                 String documentName = project.currentPackage().getDefaultModule().document(documentId).name();
                 String executableName = FileUtils.geFileNameWithoutExtension(Paths.get(documentName));
                 if (executableName == null) {
-                    throw new RuntimeException("unable to determine executable name");
+                    throw createLauncherException("unable to determine executable name");
                 }
                 if (output != null) {
-                    if (!FileUtils.hasExtension(Paths.get(output))) {
-                        outputPath = Paths.get(output).resolve(executableName + BLANG_COMPILED_JAR_EXT);
+                    if (Files.isDirectory(output)) {
+                        outputPath = output.resolve(executableName + BLANG_COMPILED_JAR_EXT);
                     } else {
-                        if (!this.output.endsWith(BLANG_COMPILED_JAR_EXT)) {
-                            output = output + BLANG_COMPILED_JAR_EXT;
+                        if (!FileUtils.hasExtension(output)) {
+                            outputPath = Paths.get(output.toString() + BLANG_COMPILED_JAR_EXT);
+                        } else {
+                            outputPath = output;
                         }
-                        outputPath = Paths.get(output);
+                    }
+                    if (!outputPath.isAbsolute()) {
+                        outputPath = currentDir.resolve(outputPath);
                     }
                 } else {
                     outputPath = currentDir.resolve(executableName + BLANG_COMPILED_JAR_EXT);
@@ -80,7 +88,7 @@ public class CreateExecutableTask implements Task {
                 target.setOutputPath(outputPath);
             }
         } catch (IOException e) {
-            throw new RuntimeException("unable to set executable path: " + e.getMessage());
+            throw createLauncherException("unable to set executable path: " + e.getMessage());
         }
 
         Path executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();

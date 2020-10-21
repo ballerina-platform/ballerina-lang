@@ -23,7 +23,9 @@ import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.BLauncherException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,7 +41,7 @@ import static io.ballerina.cli.utils.FileUtils.deleteDirectory;
  *
  * @since 2.0.0
  */
-public abstract class CommandTest {
+public abstract class BaseCommandTest {
     protected Path tmpDir;
     private ByteArrayOutputStream console;
     protected PrintStream printStream;
@@ -48,6 +50,10 @@ public abstract class CommandTest {
     public void setup() throws IOException {
         System.setProperty("java.command", "java");
         this.tmpDir = Files.createTempDirectory("b7a-cmd-test-" + System.nanoTime());
+    }
+
+    @BeforeMethod
+    public void beforeMethod() {
         this.console = new ByteArrayOutputStream();
         this.printStream = new PrintStream(this.console);
     }
@@ -93,10 +99,14 @@ public abstract class CommandTest {
         return null;
     }
 
-    @AfterClass
-    public void cleanup() throws IOException {
-        deleteDirectory(this.tmpDir);
+    @AfterMethod (alwaysRun = true)
+    public void afterMethod() throws IOException {
         console.close();
         printStream.close();
+    }
+
+    @AfterClass (alwaysRun = true)
+    public void cleanup() throws IOException {
+        deleteDirectory(this.tmpDir);
     }
 }

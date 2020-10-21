@@ -24,6 +24,8 @@ configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    distributionBalo
+    balRuntime
 }
 
 dependencies {
@@ -37,6 +39,58 @@ dependencies {
     implementation 'org.apache.commons:commons-compress:1.18'
 
     testCompile 'org.testng:testng'
+
+    testRuntime project(":ballerina-lang:java")
+    testRuntime project(":ballerina-lang:internal")
+    testRuntime project(":ballerina-lang:array")
+    testRuntime project(":ballerina-lang:decimal")
+    testRuntime project(":ballerina-lang:bool")
+    testRuntime project(":ballerina-lang:future")
+    testRuntime project(":ballerina-lang:table")
+    testRuntime project(":ballerina-lang:xml")
+    testRuntime project(":ballerina-lang:integer")
+    testRuntime project(":ballerina-lang:floatingpoint")
+    testRuntime project(":ballerina-lang:transaction")
+    testRuntime project(":ballerina-lang:string")
+    testRuntime project(":ballerina-lang:value")
+    testRuntime project(":ballerina-lang:map")
+    testRuntime project(":ballerina-lang:error")
+    testRuntime project(":ballerina-lang:query")
+
+    distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:future', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:integer', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:map', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:object', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:query', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:stream', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:string', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:table', configuration: 'distributionBalo')
+//    distributionBalo project(path: ':ballerina-langlib:test', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:transaction', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:typedesc', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
+    distributionBalo project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
+
+    balRuntime project(':ballerina-rt')
+}
+
+task createDistributionCache(type: Copy) {
+    dependsOn configurations.distributionBalo
+    from configurations.distributionBalo
+    into "$buildDir/distribution-cache"
+}
+
+task createBre(type: Copy) {
+    from configurations.balRuntime
+    into "$buildDir/bre/lib"
 }
 
 task createBirCache {
@@ -56,16 +110,15 @@ task createBirCache {
     outputs.cacheIf { false }
 }
 
-checkstyleMain {
-    exclude 'org/ballerinalang/packerina/model/BaloToml.java'
-}
-
 test {
+    dependsOn createDistributionCache
+    dependsOn createBre
     dependsOn createBirCache
     dependsOn configurations.birJar
     dependsOn configurations.birJarCompile
 
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+    systemProperty "ballerina.home", "$buildDir"
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

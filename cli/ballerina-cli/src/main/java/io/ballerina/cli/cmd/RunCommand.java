@@ -62,6 +62,7 @@ public class RunCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final PrintStream errStream;
     private Path projectPath;
+    private boolean exitWhenFinish;
 
     @CommandLine.Parameters(description = "Program arguments")
     private List<String> argList;
@@ -92,9 +93,11 @@ public class RunCommand implements BLauncherCmd {
         this.errStream = System.err;
     }
 
-    public RunCommand(PrintStream outStream, PrintStream errStream) {
+    public RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish) {
+        this.projectPath = projectPath;
+        this.exitWhenFinish = exitWhenFinish;
         this.outStream = outStream;
-        this.errStream = errStream;
+        this.errStream = outStream;
     }
 
     public void execute() {
@@ -139,10 +142,22 @@ public class RunCommand implements BLauncherCmd {
         Project project;
         boolean isSingleFileBuild = false;
         if (FileUtils.hasExtension(this.projectPath)) {
-            project = SingleFileProject.loadProject(this.projectPath);
+            try {
+                project = SingleFileProject.loadProject(this.projectPath);
+            } catch (RuntimeException e) {
+                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
             isSingleFileBuild = true;
         } else {
-            project = BuildProject.loadProject(this.projectPath);
+            try {
+                project = BuildProject.loadProject(this.projectPath);
+            } catch (RuntimeException e) {
+                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
         }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
@@ -150,7 +165,7 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 //.addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
-                .addTask(new CreateBirTask())   // create the bir
+                .addTask(new CreateBirTask(), isSingleFileBuild)   // create the bir
                 .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO (build projects only)
                 .addTask(new CreateJarTask())   // create the jar
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)

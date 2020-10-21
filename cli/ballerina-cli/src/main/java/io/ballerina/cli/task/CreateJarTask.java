@@ -24,6 +24,8 @@ import io.ballerina.projects.model.Target;
 
 import java.io.IOException;
 
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+
 /**
  * Task for creating jar file.
  *
@@ -39,8 +41,8 @@ public class CreateJarTask implements Task {
             project.currentPackage().getCompilation().emit(PackageCompilation.OutputType.JAR,
                     target.getJarCachePath());
         } catch (IOException e) {
-            throw new RuntimeException(
-                    "error occurred while creating the target directory at " + project.sourceRoot(), e);
+            throw createLauncherException(
+                    "error occurred while creating the JAR files for package " + e.getMessage());
         }
     }
 }

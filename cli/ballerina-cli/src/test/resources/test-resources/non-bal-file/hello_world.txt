@@ -1,0 +1,4 @@
+// The `main` function, which acts as the entry point.
+public function main() {
+
+}
