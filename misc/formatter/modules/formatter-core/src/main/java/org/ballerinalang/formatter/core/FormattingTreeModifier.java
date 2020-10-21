@@ -1014,11 +1014,11 @@ public class FormattingTreeModifier extends TreeModifier {
                 moduleVariableDeclarationNode.hasDiagnostics()) {
             return moduleVariableDeclarationNode;
         }
-        Token equalsToken = getToken(moduleVariableDeclarationNode.equalsToken());
+        Token equalsToken = getToken(moduleVariableDeclarationNode.equalsToken().orElse(null));
         Token semicolonToken = getToken(moduleVariableDeclarationNode.semicolonToken());
         Token finalKeyword = getToken(moduleVariableDeclarationNode.finalKeyword().orElse(null));
         MetadataNode metadata = this.modifyNode(moduleVariableDeclarationNode.metadata().orElse(null));
-        ExpressionNode initializer = this.modifyNode(moduleVariableDeclarationNode.initializer());
+        ExpressionNode initializer = this.modifyNode(moduleVariableDeclarationNode.initializer().orElse(null));
         if (metadata != null) {
             moduleVariableDeclarationNode = moduleVariableDeclarationNode.modify()
                     .withMetadata(metadata).apply();
