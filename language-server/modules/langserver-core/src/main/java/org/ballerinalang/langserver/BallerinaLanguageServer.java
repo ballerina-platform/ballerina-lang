@@ -204,44 +204,38 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 //        return this.ballerinaDocumentService;
 //    }
 
-//    @Override
-//    public BallerinaConnectorService getBallerinaConnectorService() {
-//        return this.ballerinaConnectorService;
-//    }
-//
-//    @Override
-//    public BallerinaExampleService getBallerinaExampleService() {
-//        return this.ballerinaExampleService;
-//    }
-//
-//    @Override
-//    public BallerinaProjectService getBallerinaProjectService() {
-//        return this.ballerinaProjectService;
-//    }
-//
-//    @Override
-//    public BallerinaTraceService getBallerinaTraceService() {
-//        return this.ballerinaTraceService;
-//    }
+    public BallerinaConnectorService getBallerinaConnectorService() {
+        return this.ballerinaConnectorService;
+    }
 
-    @Override
+    public BallerinaExampleService getBallerinaExampleService() {
+        return this.ballerinaExampleService;
+    }
+
+    public BallerinaProjectService getBallerinaProjectService() {
+        return this.ballerinaProjectService;
+    }
+
+    public BallerinaTraceService getBallerinaTraceService() {
+        return this.ballerinaTraceService;
+    }
+
     public void connect(ExtendedLanguageClient languageClient) {
         this.client = languageClient;
         LSClientLogger.initialize(this.client);
     }
 
-//    public BallerinaSymbolService getBallerinaSymbolService() {
-//        return ballerinaSymbolService;
-//    }
+    public BallerinaSymbolService getBallerinaSymbolService() {
+        return ballerinaSymbolService;
+    }
 
     public WorkspaceDocumentManager getDocumentManager() {
         return documentManager;
     }
 
-//    @Override
-//    public BallerinaFragmentService getBallerinaFragmentService() {
-//        return ballerinaFragmentService;
-//    }
+    public BallerinaFragmentService getBallerinaFragmentService() {
+        return ballerinaFragmentService;
+    }
     // Private Methods
 
     private String[][] getScopes() {
