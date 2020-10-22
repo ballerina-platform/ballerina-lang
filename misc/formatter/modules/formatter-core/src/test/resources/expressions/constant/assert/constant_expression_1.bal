@@ -7,5 +7,5 @@ const map<string> data = {
 };
 const map<map<string>> complexData = {
     "data": data,
-    "data2": { "user": "WSO2" }
+    "data2": {"user": "WSO2"}
 };

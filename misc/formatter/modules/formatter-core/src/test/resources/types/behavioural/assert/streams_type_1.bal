@@ -7,7 +7,7 @@ class OddNumberGenerator {
 
     public isolated function next() returns record {| int value; |}|error? {
         self.i += 2;
-        return { value: self.i };
+        return {value: self.i};
     }
 }
 
