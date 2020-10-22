@@ -21,13 +21,10 @@ description = 'Lang Library Unit Test Module'
 
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/birTestableProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
     balRuntime
-
-    distributionBalo {
-        transitive false
-    }
 }
 
 dependencies {
@@ -85,40 +82,11 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:java', configuration: 'baloImplementation')
-
-
-    distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:future', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:integer', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:map', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:object', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:stream', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:table', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:string', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:typedesc', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang-test', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:query', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:transaction', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
 }
 
 task createBre(type: org.gradle.api.tasks.Copy) {
     from configurations.balRuntime
     into "$buildDir/bre/lib"
-}
-
-task createDistributionCache(type: Copy) {
-    dependsOn configurations.distributionBalo
-    from configurations.distributionBalo
-    into "$buildDir/distribution-cache"
 }
 
 
@@ -136,7 +104,7 @@ test {
         result.exception?.printStackTrace()
     }
 
-    dependsOn createBre, createDistributionCache
+    dependsOn createBre, createDistCache
 }
 
 configurations {
