@@ -66,6 +66,12 @@ public class BuildEnvContext extends EnvironmentContext {
         return compilerContext;
     }
 
+    public void reset() {
+        populateCompilerContext();
+        initGlobalPackageCache();
+        initDistPackageCache();
+    }
+
     private void populateCompilerContext() {
         compilerContext = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);

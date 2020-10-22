@@ -157,13 +157,26 @@ public class PackageCompilation {
     }
 
     private void emitJar(Path filePath) {
+        if (packageContext.packageDescriptor().org().anonymous()) { // this is a single file build project scenario
+            CompiledJarFile compiledJarFile = packageContext.defaultModuleContext().compiledJarEntries();
+            try {
+                JarWriter.write(compiledJarFile, filePath);
+            } catch (IOException e) {
+                throw new RuntimeException("error while creating the jar file for package: " +
+                        this.packageContext.packageName(), e);
+            }
+            return;
+        }
+
         for (ModuleId moduleId : packageContext.moduleIds()) {
-            CompiledJarFile compiledJarFile = this.packageContext.moduleContext(moduleId).compiledJarEntries();
+            ModuleContext moduleContext = packageContext.moduleContext(moduleId);
+            CompiledJarFile compiledJarFile = moduleContext.compiledJarEntries();
+            ModuleName moduleName = moduleContext.moduleName();
             String jarName;
-            if (packageContext.moduleContext(moduleId).moduleName().isDefaultModuleName()) {
-                jarName = packageContext.moduleContext(moduleId).moduleName().packageName().toString();
+            if (moduleName.isDefaultModuleName()) {
+                jarName = moduleName.packageName().toString();
             } else {
-                jarName = packageContext.moduleContext(moduleId).moduleName().moduleNamePart();
+                jarName = moduleName.moduleNamePart();
             }
             try {
                 JarWriter.write(compiledJarFile, filePath.resolve(jarName + ProjectConstants.BLANG_COMPILED_JAR_EXT));
@@ -207,6 +220,10 @@ public class PackageCompilation {
                 () -> new RuntimeException("main class not found in:" + this.packageContext.packageName()));
         mainAttributes.put(Attributes.Name.MAIN_CLASS, mainClass);
         return manifest;
+    }
+
+    public BLangPackage defaultModuleBLangPackage() {
+        return this.packageContext.defaultModuleContext().bLangPackage();
     }
 
     /**

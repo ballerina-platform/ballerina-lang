@@ -23,8 +23,8 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.model.Target;
-import io.ballerina.projects.utils.ProjectUtils;
 import io.ballerina.projects.utils.ProjectConstants;
+import io.ballerina.projects.utils.ProjectUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -59,6 +59,7 @@ public class BuildLangLib {
         }
         String baloName = ProjectUtils.getBaloName(pkg);
         packageCompilation.emit(PackageCompilation.OutputType.BALO, target.getBaloPath().resolve(baloName));
+        packageCompilation.emit(PackageCompilation.OutputType.JAR, target.getJarCachePath());
     }
 
 }
