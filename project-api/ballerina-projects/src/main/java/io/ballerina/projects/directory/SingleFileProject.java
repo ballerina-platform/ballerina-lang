@@ -77,9 +77,9 @@ public class SingleFileProject extends Project {
      * @param projectPath project path
      */
     private void addPackage(Path projectPath) {
-        PackageName packageName = PackageName.from(".");
-        PackageOrg packageOrg = PackageOrg.from(System.getProperty("user.name"));
-        PackageVersion packageVersion = PackageVersion.from("0.0.0");
+        PackageName packageName = PackageName.from(ProjectConstants.DOT);
+        PackageOrg packageOrg = PackageOrg.from(ProjectConstants.ANON_ORG);
+        PackageVersion packageVersion = PackageVersion.from(ProjectConstants.DEFAULT_VERSION);
         PackageDescriptor packageDescriptor = new PackageDescriptor(packageName,
                 packageOrg, packageVersion, Collections.emptyList());
         PackageConfig packageConfig = PackageLoader.loadPackage(projectPath, true, packageDescriptor);
