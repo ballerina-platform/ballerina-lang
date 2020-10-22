@@ -497,10 +497,12 @@ public class FormattingTreeModifier extends TreeModifier {
     public RecordTypeDescriptorNode transform(RecordTypeDescriptorNode recordTypeDesc) {
         final int recordKeywordTrailingWS = 1;
         Token recordKeyword = formatNode(recordTypeDesc.recordKeyword(), recordKeywordTrailingWS, 0);
-
+        int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
         if (shouldExpand(recordTypeDesc)) {
             fieldTrailingNL++;
+        } else {
+            fieldTrailingWS++;
         }
 
         int prevIndentation = env.currentIndentation;
@@ -513,13 +515,14 @@ public class FormattingTreeModifier extends TreeModifier {
             setIndentation(fieldIndentation);
         }
 
-        Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), 0, fieldTrailingNL);
+        Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), fieldTrailingWS, fieldTrailingNL);
         indent(); // Set indentation for record fields
-        NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), 0, fieldTrailingNL, 0, fieldTrailingNL, true);
+        NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), fieldTrailingWS, fieldTrailingNL,
+                fieldTrailingWS, fieldTrailingNL, true);
 
         if (recordTypeDesc.recordRestDescriptor().isPresent()) {
             RecordRestDescriptorNode recordRestDescriptor =
-                    formatNode(recordTypeDesc.recordRestDescriptor().get(), 0, fieldTrailingNL);
+                    formatNode(recordTypeDesc.recordRestDescriptor().get(), fieldTrailingWS, fieldTrailingNL);
             recordTypeDesc = recordTypeDesc.modify().withRecordRestDescriptor(recordRestDescriptor).apply();
         }
 
@@ -1189,15 +1192,18 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public MappingConstructorExpressionNode transform(
             MappingConstructorExpressionNode mappingConstructorExpressionNode) {
+        int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
         if (shouldExpand(mappingConstructorExpressionNode.fields())) {
             fieldTrailingNL++;
+        } else {
+            fieldTrailingWS++;
         }
 
         Token openBrace = formatToken(mappingConstructorExpressionNode.openBrace(), 0, fieldTrailingNL);
         indent();
         SeparatedNodeList<MappingFieldNode> fields = formatSeparatedNodeList(
-                mappingConstructorExpressionNode.fields(), 0, 0, 0, fieldTrailingNL, 0, fieldTrailingNL);
+                mappingConstructorExpressionNode.fields(), 0, 0, fieldTrailingWS, fieldTrailingNL, 0, fieldTrailingNL);
         unindent();
         Token closeBrace = formatToken(mappingConstructorExpressionNode.closeBrace(), env.trailingWS, env.trailingNL);
 
@@ -2369,14 +2375,17 @@ public class FormattingTreeModifier extends TreeModifier {
                 1, 0, 1, 0);
         Token objectKeyword = formatToken(objectTypeDescriptorNode.objectKeyword(), 1, 0);
 
+        int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
         if (shouldExpand(objectTypeDescriptorNode)) {
             fieldTrailingNL++;
+        } else {
+            fieldTrailingWS++;
         }
 
         Token openBrace = formatToken(objectTypeDescriptorNode.openBrace(), 0, fieldTrailingNL);
         indent();
-        NodeList<Node> members = formatNodeList(objectTypeDescriptorNode.members(), 0, fieldTrailingNL,
+        NodeList<Node> members = formatNodeList(objectTypeDescriptorNode.members(), fieldTrailingWS, fieldTrailingNL,
                 0, fieldTrailingNL, true);
         unindent();
         Token closeBrace = formatToken(objectTypeDescriptorNode.closeBrace(), env.trailingWS, env.trailingNL);
@@ -2399,9 +2408,12 @@ public class FormattingTreeModifier extends TreeModifier {
                 1, 0, 1, 0);
         Token objectKeyword = formatToken(objectConstructorExpressionNode.objectKeyword(), 1, 0);
 
+        int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
         if (shouldExpandObjectMembers(objectConstructorExpressionNode.members())) {
             fieldTrailingNL++;
+        } else {
+            fieldTrailingWS++;
         }
 
         int prevIndentation = env.currentIndentation;
@@ -2420,7 +2432,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBraceToken = formatToken(objectConstructorExpressionNode.openBraceToken(), 0, fieldTrailingNL);
         indent();
         NodeList<Node> members = formatNodeList(objectConstructorExpressionNode.members(),
-                0, fieldTrailingNL, 0, fieldTrailingNL, true);
+                fieldTrailingWS, fieldTrailingNL, 0, fieldTrailingNL, true);
         unindent();
         Token closeBraceToken = formatToken(objectConstructorExpressionNode.closeBraceToken(),
                 env.trailingWS, env.trailingNL);
