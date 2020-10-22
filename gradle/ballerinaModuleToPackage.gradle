@@ -15,6 +15,16 @@
  *
  */
 
+configurations {
+    baloCreat {
+        transitive false
+    }
+}
+
+dependencies {
+    baloCreat project(':lib-creator')
+}
+
 class ModuleToPackageTask extends JavaExec {
     def currentProject = project.projectDir.toString() + "/src/main/ballerina/"
     def targetProject = project.buildDir.toString() + "/new-project/"

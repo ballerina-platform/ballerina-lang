@@ -15,6 +15,9 @@
  *
  */
 
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+
 dependencies {
     implementation project(':ballerina-projects')
 }
@@ -22,6 +25,19 @@ dependencies {
 configurations {
     distributionBalo {
         transitive false
+    }
+
+    distributionBirJar {
+        transitive false
+    }
+}
+
+compileJava {
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath
+        ]
+        classpath = files()
     }
 }
 
@@ -76,9 +92,10 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
 }
 
 artifacts {
-    distributionBalo file("$buildDir/new-project/" + project.projectDir.name + "/target/balo/"), {
-        builtBy(ballerinaLangLibBuild)
-    }
+    distributionBalo file("$buildDir/new-project/" + project.projectDir.name + "/target/balo/"),
+            { builtBy(ballerinaLangLibBuild) }
+    distributionBirJar file("$buildDir/new-project/" + project.projectDir.name + "/target/caches/jar_cache/" +
+            project.projectDir.name + ".jar"), { builtBy(ballerinaLangLibBuild) }
 }
 
 build.dependsOn ballerinaLangLibBuild

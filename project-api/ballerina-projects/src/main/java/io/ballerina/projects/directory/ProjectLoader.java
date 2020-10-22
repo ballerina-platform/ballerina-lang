@@ -124,6 +124,7 @@ public class ProjectLoader {
     }
 
     private static void resetEnvironmentContext() {
+        //TODO this is a temporary fix the clean compiler context instance
         BuildEnvContext.getInstance().reset();
     }
 }

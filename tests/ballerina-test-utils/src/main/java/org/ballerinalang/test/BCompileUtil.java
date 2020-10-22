@@ -40,7 +40,7 @@ import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT
  */
 public class BCompileUtil {
 
-    private static Path testSourcesDirectory = Paths.get("src/test/resources").toAbsolutePath();
+    private static Path testSourcesDirectory = Paths.get("src/test/resources").toAbsolutePath().normalize();
     private static Path testBuildDirectory = Paths.get("build").toAbsolutePath().normalize();
 
     public static CompileResult compile(String sourceFilePath) {
@@ -49,7 +49,7 @@ public class BCompileUtil {
         return compileResult;
     }
 
-    @Deprecated
+    @Deprecated(since = "2.0.0")
     public static CompileResult compile(String sourceFilePath, String moduleName, boolean runModuleInit) {
         CompileResult compileResult = compileInternal(sourceFilePath);
 

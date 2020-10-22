@@ -387,9 +387,9 @@ def apiDocsSpec = {
 }
 
 task extractBalxBirs(type: Copy) {
-    def path = "$buildDir/bir-cache"
-    from configurations.balxBir.files
-    into path
+//    def path = "$buildDir/bir-cache"
+//    from configurations.balxBir.files
+//    into path
 }
 
 // Fix for windows class path too long issue
@@ -405,12 +405,12 @@ task pathingJar(type: Jar) {
 }
 
 task copyApiDocs(type: Copy) {
-    dependsOn configurations.balDoc
-    from configurations.balDoc.files
-    into "$buildDir/api-docs"
-    exclude "index.html"
-    exclude "html-template-resources"
-    exclude "syntax-highlighter"
+//    dependsOn configurations.balDoc
+//    from configurations.balDoc.files
+//    into "$buildDir/api-docs"
+//    exclude "index.html"
+//    exclude "html-template-resources"
+//    exclude "syntax-highlighter"
 }
 
 task copyHighlighter(type: Copy) {
