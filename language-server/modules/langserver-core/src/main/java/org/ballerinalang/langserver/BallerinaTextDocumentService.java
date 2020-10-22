@@ -528,7 +528,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String formattedSource = Formatter.format(syntaxTree).toSourceCode();
 
                 LinePosition eofPos = syntaxTree.rootNode().lineRange().endLine();
-                Range range = new Range(new Position(0, 0), new Position(eofPos.line(), eofPos.offset()));
+                Range range = new Range(new Position(0, 0), new Position(eofPos.line() + 1, eofPos.offset()));
                 textEdit = new TextEdit(range, formattedSource);
                 return Collections.singletonList(textEdit);
             } catch (UserErrorException e) {
@@ -573,7 +573,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 SyntaxTree formattedTree = Formatter.format(syntaxTree, lineRange);
 
                 LinePosition eofPos = syntaxTree.rootNode().lineRange().endLine();
-                Range updateRange = new Range(new Position(0, 0), new Position(eofPos.line(), eofPos.offset()));
+                Range updateRange = new Range(new Position(0, 0), new Position(eofPos.line() + 1, eofPos.offset()));
                 textEdit = new TextEdit(updateRange, formattedTree.toSourceCode());
                 return Collections.singletonList(textEdit);
             } catch (UserErrorException e) {
