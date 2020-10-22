@@ -103,7 +103,7 @@ public class Names {
     public static final Name NEVER = new Name("never");
     public static final Name RAW_TEMPLATE = new Name("RawTemplate");
     public static final Name CLONEABLE = new Name("Cloneable");
-    public static final Name __CLONEABLE = new Name("__Cloneable");
+    public static final Name CLONEABLE_INTERNAL = new Name("__Cloneable");
 
     // Subtypes
     public static final Name SIGNED32 = new Name(STRING_SIGNED32);

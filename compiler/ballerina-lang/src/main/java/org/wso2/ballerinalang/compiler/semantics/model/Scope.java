@@ -68,7 +68,9 @@ public class Scope implements org.ballerinalang.model.Scope {
 
     public void renameTypeSymbol(Name name, Name newSymbolName) {
         ScopeEntry entry = entries.get(name);
-        if (entry == null) return;
+        if (entry == null) {
+            return;
+        }
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
                 entry = entry.next;

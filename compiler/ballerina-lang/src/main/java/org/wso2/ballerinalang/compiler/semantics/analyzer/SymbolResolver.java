@@ -928,7 +928,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
             // Replace internal `__Cloneable` type defined in annotation package
             if (foundCloneableType) {
-                entry = symTable.rootPkgSymbol.scope.lookup(Names.__CLONEABLE);
+                entry = symTable.rootPkgSymbol.scope.lookup(Names.CLONEABLE_INTERNAL);
                 while (entry != NOT_FOUND_ENTRY) {
                     if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
                         entry = entry.next;
@@ -941,7 +941,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
         }
 
-        ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.__CLONEABLE);
+        ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.CLONEABLE_INTERNAL);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
                 entry = entry.next;
