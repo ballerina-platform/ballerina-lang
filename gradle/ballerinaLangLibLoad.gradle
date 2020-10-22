@@ -75,3 +75,22 @@ task createDistCache(type: Copy) {
     from configurations.distributionBalo
     into "$buildDir/distribution-cache"
 }
+
+test {
+    dependsOn createDistCache
+    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
+    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+    systemProperty "enableJBallerinaTests", "true"
+    systemProperty "ballerina.home", "$buildDir"
+
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+
+    afterSuite { suite, result ->
+        result.exception?.printStackTrace()
+    }
+
+    minHeapSize = "512m"
+    maxHeapSize = "2048m"
+}

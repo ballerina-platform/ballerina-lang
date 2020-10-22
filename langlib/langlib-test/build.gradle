@@ -59,8 +59,6 @@ dependencies {
 test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
-    systemProperty "enableJBallerinaTests", "true"
-    systemProperty "ballerina.home", "$buildDir"
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'
@@ -69,8 +67,6 @@ test {
     afterSuite { suite, result ->
         result.exception?.printStackTrace()
     }
-
-    dependsOn createDistCache
 }
 
 configurations {
