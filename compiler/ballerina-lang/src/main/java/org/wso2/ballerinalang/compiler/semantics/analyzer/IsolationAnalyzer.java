@@ -2288,6 +2288,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 }
 
                 return isReferenceOrIsolatedExpression(typeInitInvocation, refList, logErrors);
+            case OBJECT_CTOR_EXPRESSION:
+                var objectConstructorExpression = (BLangObjectConstructorExpression) expression;
+                typeInitExpr = objectConstructorExpression.typeInit;
+                typeInitInvocation = typeInitExpr.initInvocation;
+
+                if (typeInitExpr == null) {
+                    return true;
+                }
+                return isReferenceOrIsolatedExpression(typeInitInvocation, refList, logErrors);
             case INVOCATION:
                 BLangInvocation invocation = (BLangInvocation) expression;
 
