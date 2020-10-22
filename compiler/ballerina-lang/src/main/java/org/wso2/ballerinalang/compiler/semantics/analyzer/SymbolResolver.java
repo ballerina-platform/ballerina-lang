@@ -863,6 +863,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             BUnionType type = (BUnionType) entry.symbol.type;
             symTable.anydataType = new BAnydataType(type);
             symTable.anydataType.flags |= Flags.CYCLIC;
+            if (Symbols.isFlagOn(symTable.anydataType.flags, Flags.TYPE_PARAM)) {
+                symTable.anydataType.flags ^= Flags.TYPE_PARAM;
+            }
             symTable.anydataOrReadonly = BUnionType.create(null, symTable.anydataType, symTable.readonlyType);
             entry.symbol.type = symTable.anydataType;
             entry.symbol.origin = BUILTIN;
@@ -884,6 +887,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             BUnionType type = (BUnionType) entry.symbol.type;
             symTable.jsonType = new BJSONType(type);
             symTable.jsonType.flags |= Flags.CYCLIC;
+            if (Symbols.isFlagOn(symTable.jsonType.flags, Flags.TYPE_PARAM)) {
+                symTable.jsonType.flags ^= Flags.TYPE_PARAM;
+            }
             symTable.jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, PackageID.ANNOTATIONS,
                     symTable.jsonType, symTable.langAnnotationModuleSymbol, symTable.builtinPos, BUILTIN);
             entry.symbol.type = symTable.jsonType;
@@ -894,43 +900,60 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void boostrapCloneableType() {
-        if (symTable.langValueModuleSymbol == null) {
-            return;
-        }
-        ScopeEntry entry = symTable.langValueModuleSymbol.scope.lookup(Names.CLONEABLE);
         boolean foundCloneableType = false;
-        while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
-                entry = entry.next;
-                continue;
-            }
-            foundCloneableType = true;
-
-            symTable.cloneableType = (BUnionType) entry.symbol.type;
-            symTable.cloneableType.flags |= Flags.CYCLIC;
-            symTable.cloneableType.tsymbol =
-                    new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
-                            symTable.cloneableType, symTable.langValueModuleSymbol, symTable.builtinPos, BUILTIN);
-
-            symTable.detailType = new BMapType(TypeTags.MAP, symTable.cloneableType, null);
-            break;
-        }
-
-        if (!foundCloneableType) {
-            throw new IllegalStateException("built-in 'lang.value:Cloneable' type not found");
-        }
-
-        // Replace internal `__Cloneable` type defined in annotation package
-        if (foundCloneableType) {
-            entry = symTable.rootPkgSymbol.scope.lookup(Names.__CLONEABLE);
+        if (symTable.langValueModuleSymbol != null) {
+            ScopeEntry entry = symTable.langValueModuleSymbol.scope.lookup(Names.CLONEABLE);
             while (entry != NOT_FOUND_ENTRY) {
                 if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
                     entry = entry.next;
                     continue;
                 }
-                entry.symbol.type = symTable.cloneableType;
+                foundCloneableType = true;
+
+                symTable.cloneableType = (BUnionType) entry.symbol.type;
+                symTable.cloneableType.flags |= Flags.CYCLIC;
+                if (Symbols.isFlagOn(symTable.cloneableType.flags, Flags.TYPE_PARAM)) {
+                    symTable.cloneableType.flags ^= Flags.TYPE_PARAM;
+                }
+                symTable.cloneableType.tsymbol =
+                        new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
+                                symTable.cloneableType, symTable.langValueModuleSymbol, symTable.builtinPos, BUILTIN);
+                symTable.detailType.constraint = symTable.cloneableType;
                 break;
             }
+
+            if (!foundCloneableType) {
+                throw new IllegalStateException("built-in 'lang.value:Cloneable' type not found");
+            }
+
+            // Replace internal `__Cloneable` type defined in annotation package
+            if (foundCloneableType) {
+                entry = symTable.rootPkgSymbol.scope.lookup(Names.__CLONEABLE);
+                while (entry != NOT_FOUND_ENTRY) {
+                    if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                        entry = entry.next;
+                        continue;
+                    }
+                    entry.symbol.type = symTable.cloneableType;
+//                symTable.rootPkgSymbol.scope.renameTypeSymbol(Names.__CLONEABLE, Names.CLONEABLE);
+                    break;
+                }
+            }
+        }
+
+        ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.__CLONEABLE);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            entry.symbol.type = symTable.cloneableType;
+            if (Symbols.isFlagOn(symTable.cloneableType.flags, Flags.TYPE_PARAM)) {
+                symTable.cloneableType.flags ^= Flags.TYPE_PARAM;
+            }
+            symTable.detailType.constraint = symTable.cloneableType;
+//            symTable.rootPkgSymbol.scope.renameTypeSymbol(Names.__CLONEABLE, Names.CLONEABLE);
+            break;
         }
 
         entry = symTable.rootPkgSymbol.scope.lookup(Names.ERROR);
@@ -1826,5 +1849,54 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         return types.getTypeIntersection(lhsType, rhsType);
+    }
+
+    public void resolveCyclicUnionType(BUnionType unionType) {
+        var unionsymbolName = unionType.tsymbol.name.getValue();
+
+        for (BType member : unionType.getMemberTypes()) {
+            if (member.tag == TypeTags.ARRAY) {
+                var arrayType = (BArrayType) member;
+                if (arrayType.eType == unionType) {
+                    continue;
+                }
+                if (arrayType.eType.tsymbol.name.getValue().equals(unionsymbolName)) {
+                    arrayType.eType = unionType;
+                    continue;
+                }
+            }
+
+            if (member.tag == TypeTags.MAP) {
+                var mapType = (BMapType) member;
+                if (mapType.constraint == unionType) {
+                    continue;
+                }
+                if (mapType.constraint.tsymbol.name.getValue().equals(unionsymbolName)) {
+                    mapType.constraint = unionType;
+                    continue;
+                }
+            }
+
+            if (member.tag == TypeTags.TABLE) {
+                var tableType = (BTableType) member;
+                if (tableType.constraint == unionType) {
+                    continue;
+                }
+                if (tableType.constraint.tsymbol.name.getValue().equals(unionsymbolName)) {
+                    tableType.constraint = unionType;
+                    continue;
+                }
+                if (tableType.constraint.tag == TypeTags.MAP) {
+                    var mapType = (BMapType) tableType.constraint;
+                    if (mapType.constraint == unionType) {
+                        continue;
+                    }
+                    if (mapType.constraint.tsymbol.name.getValue().equals(unionsymbolName)) {
+                        mapType.constraint = unionType;
+                        continue;
+                    }
+                }
+            }
+        }
     }
 }

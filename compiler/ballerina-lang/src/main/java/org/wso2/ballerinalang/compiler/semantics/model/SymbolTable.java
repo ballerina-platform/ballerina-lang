@@ -733,20 +733,17 @@ public class SymbolTable {
     }
 
     private void defineCloneableCyclicTypeAndDependentTypes() {
-        BUnionType tmpCloneableType = BUnionType.create(null, readonlyType, xmlType);
-        tmpCloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
-                cloneableType, langValueModuleSymbol, builtinPos, BUILTIN);
-        BArrayType arrayCloneableType = new BArrayType(tmpCloneableType);
-
-        BMapType mapCloneableType = new BMapType(TypeTags.MAP, tmpCloneableType, null);
+        cloneableType = BUnionType.create(null, readonlyType, xmlType);
+        BArrayType arrayCloneableType = new BArrayType(cloneableType);
+        BMapType mapCloneableType = new BMapType(TypeTags.MAP, cloneableType, null);
         BType tableMapCloneableType = new BTableType(TypeTags.TABLE, mapCloneableType, null);
 
-        tmpCloneableType.add(arrayCloneableType);
-        tmpCloneableType.add(mapCloneableType);
-        tmpCloneableType.add(tableMapCloneableType);
+        cloneableType.add(arrayCloneableType);
+        cloneableType.add(mapCloneableType);
+        cloneableType.add(tableMapCloneableType);
 
-        cloneableType =  tmpCloneableType;
         cloneableType.flags |= Flags.CYCLIC;
+
         cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, PackageID.VALUE,
                 cloneableType, langValueModuleSymbol, builtinPos, BUILTIN);
 
@@ -768,7 +765,6 @@ public class SymbolTable {
         pureType = BUnionType.create(null, anydataType, errorType);
         streamType = new BStreamType(TypeTags.STREAM, pureType, null, null);
         tableType = new BTableType(TypeTags.TABLE, pureType, null);
-
 
         initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
         initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);

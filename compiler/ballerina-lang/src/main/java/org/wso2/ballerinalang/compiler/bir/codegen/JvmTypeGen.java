@@ -271,7 +271,7 @@ class JvmTypeGen {
                 }
             } else if (bType.tag == TypeTags.ERROR) {
                 createErrorType(mv, (BErrorType) bType, bType.tsymbol.name.value);
-            } else if (bType.tag == TypeTags.UNION) {
+            } else if ((bType.tag == TypeTags.UNION) && Symbols.isFlagOn(bType.flags, Flags.CYCLIC)) {
                 createUnionType(mv, (BUnionType) bType);
             } else {
                 // do not generate anything for other types (e.g.: finite type, unions, etc.)
@@ -293,8 +293,11 @@ class JvmTypeGen {
         String fieldName;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
-            if (!(bType.tag == TypeTags.RECORD || bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.ERROR ||
-                    bType.tag == TypeTags.UNION)) {
+            if (!(bType.tag == TypeTags.RECORD || bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.ERROR)) {
+                continue;
+            }
+
+            if (!((bType.tag == TypeTags.UNION) && Symbols.isFlagOn(bType.flags, Flags.CYCLIC))) {
                 continue;
             }
 
@@ -369,7 +372,7 @@ class JvmTypeGen {
                     BUnionType unionType = (BUnionType) bType;
                     mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
                     mv.visitInsn(DUP);
-                    mv.visitInsn(DUP);
+
                     addUnionMembers(mv, unionType.getMemberTypes());
                     addImmutableType(mv, unionType);
                     break;

@@ -167,14 +167,13 @@ public class TypeParamAnalyzer {
     // Private methods.
 
     private static boolean containsTypeParam(BType type, HashSet<BType> resolvedTypes) {
-
-        if (isTypeParam(type)) {
-            return true;
-        }
         if (resolvedTypes.contains(type)) {
             return false;
         }
         resolvedTypes.add(type);
+        if (isTypeParam(type)) {
+            return true;
+        }
         switch (type.tag) {
             case TypeTags.ARRAY:
                 return containsTypeParam(((BArrayType) type).eType, resolvedTypes);

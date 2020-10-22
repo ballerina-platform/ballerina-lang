@@ -1151,24 +1151,13 @@ public class BIRPackageSymbolEnter {
                     bArrayType.eType = readTypeFromCp();
                     return bArrayType;
                 case TypeTags.UNION:
-                    Name unionNameValue;
-                    if (Symbols.isFlagOn(flags, Flags.CYCLIC)) {
-                        unionNameValue = names.fromString(getStringCPEntryValue(inputStream));
-                    } else {
-                        unionNameValue = Names.EMPTY;
-                    }
-
-                    BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE,
-                            Flags.asMask(EnumSet.of(Flag.PUBLIC)), unionNameValue, env.pkgSymbol.pkgID,
-                            null, env.pkgSymbol.owner, symTable.builtinPos, COMPILED_SOURCE);
-                    BUnionType unionType = BUnionType.create(unionTypeSymbol,
-                                                             new LinkedHashSet<>()); //TODO improve(useless second
-                    // param)
+                    BUnionType unionType = createUnionType(flags, cpI);
                     int unionMemberCount = inputStream.readInt();
-                    unionType.flags = flags;
-                    addShapeCP(unionType, cpI);
                     for (int i = 0; i < unionMemberCount; i++) {
                         unionType.add(readTypeFromCp());
+                    }
+                    if (Symbols.isFlagOn(flags, Flags.CYCLIC)) {
+                        symbolResolver.resolveCyclicUnionType(unionType);
                     }
                     return unionType;
                 case TypeTags.INTERSECTION:
@@ -1405,7 +1394,30 @@ public class BIRPackageSymbolEnter {
             inputStream.readInt();
             readTypeFromCp();
         }
+
+        private BUnionType createUnionType(int flags, int cpI) throws IOException {
+            Name unionNameValue;
+            if (Symbols.isFlagOn(flags, Flags.CYCLIC)) {
+                unionNameValue = names.fromString(getStringCPEntryValue(inputStream));
+            } else {
+                unionNameValue = Names.EMPTY;
+            }
+            BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE,
+                    Flags.asMask(EnumSet.of(Flag.PUBLIC)), unionNameValue, env.pkgSymbol.pkgID,
+                    null, env.pkgSymbol.owner, symTable.builtinPos, COMPILED_SOURCE);
+
+            BUnionType unionType = BUnionType.create(unionTypeSymbol, new LinkedHashSet<>());
+
+            if (Symbols.isFlagOn(flags, Flags.CYCLIC)) {
+                addShapeCP(unionType, cpI);
+            }
+
+            unionType.flags = flags;
+            return unionType;
+        }
     }
+
+
 
     private byte[] readDocBytes(DataInputStream inputStream) throws IOException {
         int docLength = inputStream.readInt();

@@ -1209,6 +1209,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             typeDefSymbol.origin = VIRTUAL;
         }
 
+        definedType.flags |= typeDefSymbol.flags;
+
         if (typeDefinition.annAttachments.stream()
                 .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
             // TODO : Clean this. Not a nice way to handle this.
@@ -1224,7 +1226,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(typeDefinition.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }
         }
-        definedType.flags |= typeDefSymbol.flags;
 
         typeDefinition.symbol = typeDefSymbol;
 
@@ -1261,8 +1262,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private BType getCyclicDefinedType(BLangTypeDefinition typeDef) {
         BUnionType unionType = BUnionType.create(null, new LinkedHashSet<>());
+
+        var typeDefName = names.fromIdNode(typeDef.name);
+        var typeDefNameValue = typeDefName.value;
+
         BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
-                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, unionType, env.scope.owner,
+                typeDefName, env.enclPkg.symbol.pkgID, unionType, env.scope.owner,
                 typeDef.pos, SOURCE);
         typeDef.symbol = typeDefSymbol;
         if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
@@ -1276,12 +1281,66 @@ public class SymbolEnter extends BLangNodeVisitor {
             BUnionType definedUnionType = (BUnionType) definedType;
             unionType.tsymbol = definedUnionType.tsymbol;
             unionType.tsymbol.name = names.fromIdNode(typeDef.name);
-            unionType.flags |= Flags.asMask(EnumSet.of(Flag.CYCLIC));
             unionType.flags |= typeDefSymbol.flags;
-            unionType.addAll(definedUnionType.getMemberTypes());
+            unionType.flags |= Flags.asMask(EnumSet.of(Flag.CYCLIC));
+            unionType.tsymbol.flags |= Flags.asMask(EnumSet.of(Flag.CYCLIC));
+            for (BType member : definedUnionType.getMemberTypes()) {
+                if (member.tag == TypeTags.ARRAY) {
+                    var arrayType = (BArrayType) member;
+                    if (arrayType.eType == unionType) {
+                        unionType.add(member);
+                        continue;
+                    }
+                    if (arrayType.eType.tsymbol.name.getValue().equals(typeDefNameValue)) {
+                        arrayType.eType = unionType;
+                        unionType.add(member);
+                        continue;
+                    }
+                }
+
+                if (member.tag == TypeTags.MAP) {
+                    var mapType = (BMapType) member;
+                    if (mapType.constraint == unionType) {
+                        unionType.add(member);
+                        continue;
+                    }
+                    if (mapType.constraint.tsymbol.name.getValue().equals(typeDefNameValue)) {
+                        mapType.constraint = unionType;
+                        unionType.add(member);
+                        continue;
+                    }
+                }
+
+                if (member.tag == TypeTags.TABLE) {
+                    var tableType = (BTableType) member;
+                    if (tableType.constraint == unionType) {
+                        unionType.add(member);
+                        continue;
+                    }
+                    if (tableType.constraint.tsymbol.name.getValue().equals(typeDefNameValue)) {
+                        tableType.constraint = unionType;
+                        unionType.add(member);
+                        continue;
+                    }
+                    if (tableType.constraint.tag == TypeTags.MAP) {
+                        var mapType = (BMapType) tableType.constraint;
+                        if (mapType.constraint == unionType) {
+                            unionType.add(member);
+                            continue;
+                        }
+                        if (mapType.constraint.tsymbol.name.getValue().equals(typeDefNameValue)) {
+                            mapType.constraint = unionType;
+                            unionType.add(member);
+                            continue;
+                        }
+                    }
+                }
+
+                unionType.add(member);
+            }
         }
 
-        return definedType;
+        return unionType;
     }
 
     private void validateUnionForDistinctType(BUnionType definedType, DiagnosticPos pos) {
