@@ -1048,20 +1048,26 @@ public class TypeChecker {
     }
 
     private static boolean checkIsRecordType(Type sourceType, BRecordType targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            return false;
+        switch (sourceType.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+                return checkIsRecordType((BRecordType) sourceType, targetType, unresolvedTypes);
+            case TypeTags.MAP_TAG:
+                return checkIsRecordType((BMapType) sourceType, targetType, unresolvedTypes);
         }
+        return false;
+    }
 
+    private static boolean checkIsRecordType(BRecordType sourceRecordType, BRecordType targetType,
+                                             List<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
-        TypePair pair = new TypePair(sourceType, targetType);
+        TypePair pair = new TypePair(sourceRecordType, targetType);
         if (unresolvedTypes.contains(pair)) {
             return true;
         }
         unresolvedTypes.add(pair);
 
         // Unsealed records are not equivalent to sealed records. But vice-versa is allowed.
-        BRecordType sourceRecordType = (BRecordType) sourceType;
         if (targetType.sealed && !sourceRecordType.sealed) {
             return false;
         }
@@ -1116,6 +1122,40 @@ public class TypeChecker {
         return true;
     }
 
+    private static boolean checkIsRecordType(BMapType sourceType, BRecordType targetType,
+                                             List<TypePair> unresolvedTypes) {
+        // If we encounter two types that we are still resolving, then skip it.
+        // This is done to avoid recursive checking of the same type.
+        TypePair pair = new TypePair(sourceType, targetType);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+
+        if (targetType.sealed) {
+            return false;
+        }
+
+        Type constraintType = sourceType.getConstrainedType();
+
+        for (Field field : targetType.getFields().values()) {
+            int flags = field.getFlags();
+            if (!Flags.isFlagOn(flags, Flags.OPTIONAL)) {
+                return false;
+            }
+
+            if (Flags.isFlagOn(flags, Flags.READONLY) && !sourceType.isReadOnly()) {
+                return false;
+            }
+
+            if (!checkIsType(constraintType, field.getFieldType(), unresolvedTypes)) {
+                return false;
+            }
+        }
+
+        return checkIsType(constraintType, targetType.restFieldType, unresolvedTypes);
+    }
+
     private static boolean checkRecordBelongsToAnydataType(MapValue sourceVal, BRecordType recordType,
                                                            List<TypePair> unresolvedTypes) {
         Type targetType = TYPE_ANYDATA;
@@ -1156,17 +1196,24 @@ public class TypeChecker {
 
     private static boolean checkIsRecordType(Object sourceVal, Type sourceType, BRecordType targetType,
                                              List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            return false;
+        switch (sourceType.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+                return checkIsRecordType((MapValue) sourceVal, (BRecordType) sourceType, targetType, unresolvedTypes);
+            case TypeTags.MAP_TAG:
+                return checkIsRecordType((BMapType) sourceType, targetType, unresolvedTypes);
         }
 
-        TypePair pair = new TypePair(sourceType, targetType);
+        return false;
+    }
+
+    private static boolean checkIsRecordType(MapValue sourceRecordValue, BRecordType sourceRecordType,
+                                             BRecordType targetType, List<TypePair> unresolvedTypes) {
+        TypePair pair = new TypePair(sourceRecordType, targetType);
         if (unresolvedTypes.contains(pair)) {
             return true;
         }
         unresolvedTypes.add(pair);
 
-        BRecordType sourceRecordType = (BRecordType) sourceType;
         if (targetType.sealed && !sourceRecordType.sealed) {
             return false;
         }
@@ -1175,8 +1222,6 @@ public class TypeChecker {
                 !checkIsType(sourceRecordType.restFieldType, targetType.restFieldType, unresolvedTypes)) {
             return false;
         }
-
-        MapValue sourceRecordValue = (MapValue) sourceVal;
 
         Map<String, Field> sourceFields = sourceRecordType.getFields();
         Set<String> targetFieldNames = targetType.getFields().keySet();
