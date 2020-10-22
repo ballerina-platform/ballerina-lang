@@ -90,17 +90,23 @@ import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.util.BFileUtil;
-import org.ballerinalang.test.util.TestConstant;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -110,11 +116,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.jvm.util.BLangConstants.ANON_ORG;
 import static org.ballerinalang.jvm.util.BLangConstants.DOT;
+import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
 
 /**
@@ -1222,6 +1230,53 @@ public class BRunUtil {
         return invoke(compileResult, function, functionName, new BValue[0], new Class<?>[0]);
     }
 
+    public static ExitDetails run(CompileResult compileResult, String[] args) {
+
+        BLangPackage compiledPkg = ((BLangPackage) compileResult.getAST());
+        String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.packageID.orgName.value,
+                compiledPkg.packageID.name.value,
+                compiledPkg.packageID.version.value,
+                MODULE_INIT_CLASS_NAME);
+        URLClassLoader classLoader = compileResult.getClassLoader();
+
+        try {
+            final List<String> actualArgs = new ArrayList<>();
+            actualArgs.add(0, "java");
+            actualArgs.add(1, "-cp");
+            String classPath = System.getProperty("java.class.path") + ":" + getClassPath(classLoader);
+            actualArgs.add(2, classPath);
+            actualArgs.add(3, initClassName);
+            actualArgs.addAll(Arrays.asList(args));
+
+            final Runtime runtime = Runtime.getRuntime();
+            final Process process = runtime.exec(actualArgs.toArray(new String[0]));
+            String consoleError = getConsoleOutput(process.getErrorStream());
+            String consoleInput = getConsoleOutput(process.getInputStream());
+            process.waitFor();
+            int exitValue = process.exitValue();
+            return new ExitDetails(exitValue, consoleInput, consoleError);
+        } catch (InterruptedException | IOException e) {
+            throw new RuntimeException("Main method invocation failed", e);
+        }
+    }
+
+    private static String getClassPath(URLClassLoader cl) {
+        URL[] urls = cl.getURLs();
+        StringJoiner joiner = new StringJoiner(":");
+        for (URL url : urls) {
+            joiner.add(url.getPath());
+        }
+        return joiner.toString();
+    }
+
+    private static String getConsoleOutput(InputStream inputStream) {
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+        reader.lines().iterator().forEachRemaining(sj::add);
+        return sj.toString();
+    }
+
+
     public static void runInit(CompileResult compileResult)
             throws ClassNotFoundException {
 
@@ -1230,7 +1285,7 @@ public class BRunUtil {
         String initClassName = BFileUtil.getQualifiedClassName(packageDescriptor.org().toString(),
                 packageDescriptor.name().toString(),
                 packageDescriptor.version().toString(),
-                TestConstant.MODULE_INIT_CLASS_NAME);
+                MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
@@ -1279,6 +1334,23 @@ public class BRunUtil {
             }
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
+        }
+    }
+
+    /**
+     * Class to hold program execution outputs.
+     */
+    public static class ExitDetails {
+
+        public int exitCode;
+        public String consoleOutput;
+        public String errorOutput;
+
+        public ExitDetails(int exitCode, String consoleOutput, String errorOutput) {
+
+            this.exitCode = exitCode;
+            this.consoleOutput = consoleOutput;
+            this.errorOutput = errorOutput;
         }
     }
 }

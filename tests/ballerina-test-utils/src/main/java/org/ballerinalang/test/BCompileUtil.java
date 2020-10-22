@@ -44,13 +44,30 @@ public class BCompileUtil {
     private static Path testBuildDirectory = Paths.get("build").toAbsolutePath().normalize();
 
     public static CompileResult compile(String sourceFilePath) {
+        CompileResult compileResult = compileInternal(sourceFilePath);
+        invokeModuleInit(compileResult);
+        return compileResult;
+    }
 
+    @Deprecated
+    public static CompileResult compile(String sourceFilePath, String moduleName, boolean runModuleInit) {
+        CompileResult compileResult = compileInternal(sourceFilePath);
+
+        if (runModuleInit) {
+            invokeModuleInit(compileResult);
+        }
+
+        return compileResult;
+    }
+
+    private static CompileResult compileInternal(String sourceFilePath) {
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
         Project project = ProjectLoader.loadProject(projectPath);
+
         Package currentPackage = project.currentPackage();
         PackageCompilation packageCompilation = currentPackage.getCompilation();
 
@@ -58,43 +75,44 @@ public class BCompileUtil {
             return new CompileResult(currentPackage);
         }
 
-        Path jarFilePath;
-        try {
-            jarFilePath = jarFilePath(project);
-        } catch (IOException e) {
-            throw new RuntimeException("error while creating the jar target directory at " + testBuildDirectory, e);
-        }
-
-        CompileResult compileResult = new CompileResult(currentPackage, jarFilePath);
-
+        Path jarFilePath = jarFilePath(project);
         packageCompilation.emit(PackageCompilation.OutputType.JAR, jarFilePath);
+        return new CompileResult(currentPackage, jarFilePath);
+    }
+
+    private static void invokeModuleInit(CompileResult compileResult) {
+        if (compileResult.getDiagnostics().length > 0) {
+            return;
+        }
 
         try {
             BRunUtil.runInit(compileResult);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("error while invoking init method of " + project.sourceRoot(), e);
+            throw new RuntimeException("error while invoking init method of " + compileResult.projectSourceRoot(), e);
         }
-
-        return compileResult;
     }
 
-    private static Path jarFilePath(Project project) throws IOException {
-        Target testTarget = new Target(testBuildDirectory);
+    private static Path jarFilePath(Project project) {
+        try {
+            Target testTarget = new Target(testBuildDirectory);
 
-        Path jarCachePath = testTarget.getJarCachePath();
-        if (!(project instanceof SingleFileProject)) {
-            return jarCachePath;
-        }
+            Path jarCachePath = testTarget.getJarCachePath();
+            if (!(project instanceof SingleFileProject)) {
+                return jarCachePath;
+            }
 
-        Package currentPackage = project.currentPackage();
-        Module defaultModule = currentPackage.getDefaultModule();
-        DocumentId documentId = defaultModule.documentIds().iterator().next();
-        String documentName = defaultModule.document(documentId).name();
-        String executableName = FileUtils.geFileNameWithoutExtension(Paths.get(documentName));
-        if (executableName == null) {
-            throw new RuntimeException("cannot identify executable name for : " + defaultModule.moduleName());
+            Package currentPackage = project.currentPackage();
+            Module defaultModule = currentPackage.getDefaultModule();
+            DocumentId documentId = defaultModule.documentIds().iterator().next();
+            String documentName = defaultModule.document(documentId).name();
+            String executableName = FileUtils.geFileNameWithoutExtension(Paths.get(documentName));
+            if (executableName == null) {
+                throw new RuntimeException("cannot identify executable name for : " + defaultModule.moduleName());
+            }
+            return jarCachePath.resolve(executableName + BLANG_COMPILED_JAR_EXT).toAbsolutePath().normalize();
+        } catch (IOException e) {
+            throw new RuntimeException("error while creating the jar target directory at " + testBuildDirectory, e);
         }
-        return jarCachePath.resolve(executableName + BLANG_COMPILED_JAR_EXT).toAbsolutePath().normalize();
     }
 
 }

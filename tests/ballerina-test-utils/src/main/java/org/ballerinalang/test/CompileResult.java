@@ -68,11 +68,15 @@ public class CompileResult {
         populateDiagnosticsCount();
     }
 
+    Path projectSourceRoot() {
+        return pkg.project().sourceRoot();
+    }
+
     public PackageNode getAST() {
         return packageCompilation.defaultModuleBLangPackage();
     }
 
-    public ClassLoader getClassLoader() {
+    public URLClassLoader getClassLoader() {
         if (classLoader == null) {
             try {
                 this.classLoader = jarCacheClassLoader();
