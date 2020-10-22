@@ -247,4 +247,8 @@ public class PackageCompilation {
         ModuleContext moduleContext = this.packageContext.moduleContext(moduleId);
         return new BallerinaSemanticModel(moduleContext.bLangPackage(), this.compilerContext);
     }
+
+    public Package getPackage() {
+        return packageContext.project().currentPackage();
+    }
 }

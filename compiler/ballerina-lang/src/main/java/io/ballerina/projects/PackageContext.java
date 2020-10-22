@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.environment.Repository;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
+import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
 import java.util.*;
 
@@ -51,7 +52,8 @@ class PackageContext {
     PackageContext(Project project,
                    PackageId packageId,
                    PackageDescriptor packageDescriptor,
-                   Map<ModuleId, ModuleContext> moduleContextMap) {
+                   Map<ModuleId, ModuleContext> moduleContextMap,
+                   Optional<Repository> repository) {
         this.project = project;
         this.packageId = packageId;
         this.packageDescriptor = packageDescriptor;
@@ -61,6 +63,7 @@ class PackageContext {
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
         this.moduleDependencyGraph = DependencyGraph.emptyGraph();
+        this.repository = repository;
     }
 
     static PackageContext from(Project project, PackageConfig packageConfig) {
@@ -71,7 +74,7 @@ class PackageContext {
 
         // Create module dependency graph
         return new PackageContext(project, packageConfig.packageId(),
-                packageConfig.packageDescriptor(), moduleContextMap);
+                packageConfig.packageDescriptor(), moduleContextMap, packageConfig.repository());
     }
 
     PackageId packageId() {
@@ -226,5 +229,9 @@ class PackageContext {
             moduleDependencyIds = new HashSet<>(moduleDependencies);
         }
         moduleDependencyIdMap.put(moduleId, moduleDependencyIds);
+    }
+
+    public Optional<Repository> repository() {
+        return this.repository;
     }
 }

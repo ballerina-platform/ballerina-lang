@@ -1,12 +1,8 @@
 package io.ballerina.projects;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Spliterator;
+import io.ballerina.projects.environment.Repository;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -66,6 +62,10 @@ public class Package {
 
     public PackageDescriptor packageDescriptor() {
         return packageContext.packageDescriptor();
+    }
+
+    public Optional<Repository> repository() {
+        return packageContext.repository();
     }
 
     public Collection<ModuleId> moduleIds() {
@@ -166,12 +166,14 @@ public class Package {
         private PackageDescriptor packageDescriptor;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
+        private Optional<Repository> repository;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
             this.packageDescriptor = oldPackage.packageDescriptor();
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
+            this.repository = oldPackage.repository();
         }
 
         Modifier updateModule(ModuleContext newModuleContext) {
@@ -222,7 +224,7 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId,
-                    this.packageDescriptor, this.moduleContextMap);
+                    this.packageDescriptor, this.moduleContextMap, this.repository);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
         }

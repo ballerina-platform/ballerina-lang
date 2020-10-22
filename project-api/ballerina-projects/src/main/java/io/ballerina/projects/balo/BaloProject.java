@@ -22,6 +22,8 @@ import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.env.BuildEnvContext;
 import io.ballerina.projects.environment.EnvironmentContext;
+import io.ballerina.projects.environment.Repository;
+import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -39,19 +41,19 @@ public class BaloProject extends Project {
      * @param baloPath Balo path
      * @return balo project
      */
-    public static BaloProject loadProject(Path baloPath) {
+    public static BaloProject loadProject(Path baloPath, Repository repo) {
         Path absBaloPath = Optional.of(baloPath.toAbsolutePath()).get();
         if (!absBaloPath.toFile().exists()) {
             throw new RuntimeException("balo path does not exist:" + baloPath);
         }
 
-        return new BaloProject(BuildEnvContext.getInstance(), absBaloPath);
+        return new BaloProject(BuildEnvContext.getInstance(), absBaloPath, repo);
     }
 
-    private BaloProject(EnvironmentContext environmentContext, Path baloPath) {
+    private BaloProject(EnvironmentContext environmentContext, Path baloPath, Repository repo) {
         super(environmentContext);
         this.sourceRoot = baloPath;
-        addPackage(baloPath.toString());
+        addPackage(baloPath.toString(), repo);
     }
 
     /**
@@ -59,8 +61,9 @@ public class BaloProject extends Project {
      *
      * @param baloPath balo path
      */
-    private void addPackage(String baloPath) {
-        final PackageConfig packageConfig = BaloPackageLoader.loadPackage(baloPath);
+    private void addPackage(String baloPath, Repository repo) {
+        PackageConfig packageConfig = BaloPackageLoader.loadPackage(baloPath);
+        packageConfig.setRepository(Optional.of(repo));
         this.addPackage(packageConfig);
     }
 }

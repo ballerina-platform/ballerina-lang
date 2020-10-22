@@ -18,6 +18,7 @@
 package io.ballerina.projects.repos;
 
 import io.ballerina.projects.*;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.balo.BaloProject;
 import io.ballerina.projects.environment.ModuleLoadRequest;
@@ -40,20 +41,20 @@ import java.util.stream.Collectors;
 /**
  * Package Repository stored in file system.
  * The structure of the repository is as bellow
- *   - balo
- *       - org
- *           - package-name
- *               - version
- *                   - org-package-name-version-any.balo
- *   - cache
- *       - org
- *           - package-name
- *               - version
- *                   - bir
- *                       - mod1.bir
- *                       - mod2.bir
- *                   - jar
- *                       - org-package-name-version.jar
+ * - balo
+ * - org
+ * - package-name
+ * - version
+ * - org-package-name-version-any.balo
+ * - cache
+ * - org
+ * - package-name
+ * - version
+ * - bir
+ * - mod1.bir
+ * - mod2.bir
+ * - jar
+ * - org-package-name-version.jar
  *
  * @since 2.0.0
  */
@@ -69,7 +70,6 @@ public class FileSystemRepository implements Repository {
         this.cache = this.root.resolve(ProjectConstants.REPO_CACHE_DIR_NAME);
         // todo check if the directories are readable
     }
-
 
 
     public Optional<Path> getPackageBalo(ModuleLoadRequest pkg) {
@@ -109,16 +109,16 @@ public class FileSystemRepository implements Repository {
         // if version and org name is empty we add empty string so we return empty package anyway
         String packageName = packageLoadRequest.packageName().value();
         String orgName = packageLoadRequest.orgName().orElse("");
-        String version = packageLoadRequest.version().orElse( SemanticVersion.from("0.0.0")).toString();
-        String baloName = ProjectUtils.getBaloName(orgName,packageName,version,null);
+        String version = packageLoadRequest.version().orElse(SemanticVersion.from("0.0.0")).toString();
+        String baloName = ProjectUtils.getBaloName(orgName, packageName, version, null);
 
         Path baloPath = this.balo.resolve(orgName).resolve(packageName).resolve(version).resolve(baloName);
 
-        if (!Files.exists(baloPath)){
+        if (!Files.exists(baloPath)) {
             return Optional.empty();
         }
 
-        Project project = BaloProject.loadProject(baloPath);
+        Project project = BaloProject.loadProject(baloPath, this);
         return Optional.of(project.currentPackage());
     }
 
@@ -147,23 +147,61 @@ public class FileSystemRepository implements Repository {
     private List<SemanticVersion> pathToVersions(List<Path> versions) {
         return versions.stream()
                 .map(path -> {
-                    return SemanticVersion.from(path.getParent().getFileName().toString());})
+                    return SemanticVersion.from(path.getParent().getFileName().toString());
+                })
                 .collect(Collectors.toList());
     }
 
     @Override
     public void cacheCompilation(PackageCompilation packageCompilation) {
+        Package aPackage = packageCompilation.getPackage();
+        Path birPath = this.getBirPath(aPackage);
+        Path jarPath = this.getJarPath(aPackage);
+        try {
+            Files.createDirectories(jarPath);
+            Files.createDirectories(birPath);
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to update cache in repo :" + e.getMessage());
+        }
+        // todo only update if cache is empty
+        packageCompilation.emit(PackageCompilation.OutputType.BIR, birPath);
+        packageCompilation.emit(PackageCompilation.OutputType.JAR, jarPath);
+    }
 
+    public Path getJarPath(Package aPackage) {
+        String packageName = aPackage.packageName().value();
+        String orgName = aPackage.packageOrg().toString();
+        String version = aPackage.packageVersion().version().toString();
+        return this.cache.resolve(orgName).resolve(packageName).resolve(version)
+                .resolve(ProjectConstants.REPO_JAR_CACHE_NAME);
+    }
+
+    public Path getBirPath(Package aPackage) {
+        String packageName = aPackage.packageName().value();
+        String orgName = aPackage.packageOrg().toString();
+        String version = aPackage.packageVersion().version().toString();
+        return this.cache.resolve(orgName).resolve(packageName).resolve(version)
+                .resolve(ProjectConstants.REPO_BIR_CACHE_NAME);
     }
 
     @Override
     public Map<ModuleId, Path> getCachedBirs(Package aPackage) {
-        return null;
+        Map<ModuleId, Path> birs = new HashMap<>();
+        for (Module module : aPackage.modules()) {
+            birs.put(module.moduleId(), getBirPath(aPackage)
+                    .resolve(module.moduleName().toString() + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT));
+        }
+        return birs;
     }
 
     @Override
     public Map<ModuleId, Path> getCachedJar(Package aPackage) {
-        return null;
+        Map<ModuleId, Path> birs = new HashMap<>();
+        for (Module module : aPackage.modules()) {
+            birs.put(module.moduleId(), getBirPath(aPackage)
+                    .resolve(module.moduleName().toString() + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT));
+        }
+        return birs;
     }
 
     @Override

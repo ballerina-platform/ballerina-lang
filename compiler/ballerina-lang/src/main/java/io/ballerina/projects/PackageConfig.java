@@ -17,8 +17,11 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.Repository;
+
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * {@code PackageConfig} contains necessary configuration elements required to
@@ -33,6 +36,7 @@ public class PackageConfig {
     private final PackageId packageId;
     private final PackageDescriptor packageDescriptor;
     private final Path packagePath;
+    private Optional<Repository> repository = Optional.empty();
     // Ballerina toml file config
     private final Collection<ModuleConfig> otherModules;
 
@@ -85,5 +89,13 @@ public class PackageConfig {
 
     public Collection<ModuleConfig> otherModules() {
         return otherModules;
+    }
+
+    public Optional<Repository> repository() {
+        return repository;
+    }
+
+    public void setRepository(Optional<Repository> repository) {
+        this.repository = repository;
     }
 }
