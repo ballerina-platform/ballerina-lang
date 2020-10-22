@@ -63,6 +63,7 @@ import static io.ballerina.compiler.api.types.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.types.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.types.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.types.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.types.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.types.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.types.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.types.TypeDescKind.TYPEDESC;
@@ -256,13 +257,26 @@ public class TypedescriptorTest {
         assertEquals(members.get(2).kind(), DECIMAL);
     }
 
-    // TODO: issue #26276
-    @Test(enabled = false)
-    public void testFiniteType() {
-        Symbol symbol = getSymbol(60, 10);
-        TypeReferenceTypeDescriptor typeRef =
-                (TypeReferenceTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
-        assertEquals(typeRef.kind(), TYPE_REFERENCE);
+    @Test(dataProvider = "FiniteTypeDataProvider")
+    public void testFiniteType(int line, int column, List<String> expSignatures) {
+        Symbol symbol = getSymbol(line, column);
+        UnionTypeDescriptor union = (UnionTypeDescriptor) ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(union.kind(), UNION);
+
+        List<BallerinaTypeDescriptor> members = union.memberTypeDescriptors();
+        for (int i = 0; i < members.size(); i++) {
+            BallerinaTypeDescriptor member = members.get(i);
+            assertEquals(member.kind(), SINGLETON);
+            assertEquals(member.signature(), expSignatures.get(i));
+        }
+    }
+
+    @DataProvider(name = "FiniteTypeDataProvider")
+    public Object[][] getFiniteTypePos() {
+        return new Object[][]{
+                {60, 10, List.of("0", "1", "2", "3")},
+                {62, 11, List.of("default", "csv", "tdf")}
+        };
     }
 
     private Symbol getSymbol(int line, int column) {
