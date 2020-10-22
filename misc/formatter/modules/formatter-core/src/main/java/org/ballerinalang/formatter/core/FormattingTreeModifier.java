@@ -1611,13 +1611,12 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public MetadataNode transform(MetadataNode metadataNode) {
-        NodeList<AnnotationNode> annotations = formatNodeList(metadataNode.annotations(), 0, 1, 0, 1);
-
         if (metadataNode.documentationString().isPresent()) {
-            Node documentationString = formatNode(metadataNode.documentationString().get(),
-                    env.trailingWS, env.trailingNL);
+            Node documentationString = formatNode(metadataNode.documentationString().get(), 0, 1);
             metadataNode = metadataNode.modify().withDocumentationString(documentationString).apply();
         }
+
+        NodeList<AnnotationNode> annotations = formatNodeList(metadataNode.annotations(), 0, 1, env.trailingWS, env.trailingNL);
 
         return metadataNode.modify()
                 .withAnnotations(annotations)
