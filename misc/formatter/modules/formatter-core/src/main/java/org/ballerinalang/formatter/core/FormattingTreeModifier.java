@@ -333,7 +333,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public RequiredParameterNode transform(RequiredParameterNode requiredParameterNode) {
-        NodeList<AnnotationNode> annotations = formatNodeList(requiredParameterNode.annotations(), 0, 1, 0, 0);
+        NodeList<AnnotationNode> annotations = formatNodeList(requiredParameterNode.annotations(), 1, 0, 1, 0);
         Node typeName;
         if (requiredParameterNode.paramName().isPresent()) {
             typeName = formatNode(requiredParameterNode.typeName(), 1, 0);
