@@ -36,7 +36,7 @@ public class QueryPipelineNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public NodeList<IntermediateClauseNode> intermediateClauses() {
+    public NodeList<ClauseNode> intermediateClauses() {
         return new NodeList<>(childInBucket(1));
     }
 
@@ -59,7 +59,7 @@ public class QueryPipelineNode extends NonTerminalNode {
 
     public QueryPipelineNode modify(
             FromClauseNode fromClause,
-            NodeList<IntermediateClauseNode> intermediateClauses) {
+            NodeList<ClauseNode> intermediateClauses) {
         if (checkForReferenceEquality(
                 fromClause,
                 intermediateClauses.underlyingListNode())) {
@@ -83,7 +83,7 @@ public class QueryPipelineNode extends NonTerminalNode {
     public static class QueryPipelineNodeModifier {
         private final QueryPipelineNode oldNode;
         private FromClauseNode fromClause;
-        private NodeList<IntermediateClauseNode> intermediateClauses;
+        private NodeList<ClauseNode> intermediateClauses;
 
         public QueryPipelineNodeModifier(QueryPipelineNode oldNode) {
             this.oldNode = oldNode;
@@ -99,7 +99,7 @@ public class QueryPipelineNode extends NonTerminalNode {
         }
 
         public QueryPipelineNodeModifier withIntermediateClauses(
-                NodeList<IntermediateClauseNode> intermediateClauses) {
+                NodeList<ClauseNode> intermediateClauses) {
             Objects.requireNonNull(intermediateClauses, "intermediateClauses must not be null");
             this.intermediateClauses = intermediateClauses;
             return this;

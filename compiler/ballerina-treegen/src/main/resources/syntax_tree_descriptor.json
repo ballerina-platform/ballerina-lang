@@ -1922,7 +1922,8 @@
                 },
                 {
                     "name": "type",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 }
             ]
         },
@@ -2173,7 +2174,7 @@
                 },
                 {
                     "name": "content",
-                    "type": "TemplateMemberNode",
+                    "type": "Node",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -2877,7 +2878,7 @@
                 },
                 {
                     "name": "intermediateClauses",
-                    "type": "IntermediateClauseNode",
+                    "type": "ClauseNode",
                     "occurrences": "MULTIPLE"
                 }
             ]
