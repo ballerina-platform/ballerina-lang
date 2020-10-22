@@ -43,7 +43,7 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> rawTemplateTypeCount;
 
     private static final String ANON_TYPE = "$anonType$";
-    public static final String LAMBDA = "$lambda$";
+    private static final String LAMBDA = "$lambda$";
     private static final String SERVICE = "$$service$";
     private static final String ANON_SERVICE = "$anonService$";
     private static final String BUILTIN_ANON_TYPE = "$anonType$builtin$";

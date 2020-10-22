@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
-import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationArrayValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -1386,10 +1385,6 @@ public class JvmMethodGen {
                             String.format("(%s[L%s;)L%s;", closureMapsDesc, OBJECT, OBJECT), null, null);
 
         mv.visitCode();
-
-        // generate diagnostic position when generating lambda method
-        JvmCodeGenUtil.generateDiagnosticPos(((BIRAbstractInstruction) ins).pos, mv);
-
         // load strand as first arg
         // strand and other args are in a object[] param. This param comes after closure maps.
         // hence the closureMapsCount is equal to the array's param index.
