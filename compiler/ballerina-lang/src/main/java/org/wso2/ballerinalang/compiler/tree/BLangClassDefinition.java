@@ -54,7 +54,6 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangSimpleVariable> referencedFields;
     public int precedence;
-    public boolean induceTypeIds;
 
     public BLangClassDefinition() {
         this.functions = new ArrayList<>();
@@ -64,7 +63,6 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
         this.flagSet.add(Flag.CLASS);
         this.annAttachments = new ArrayList<>();
         this.referencedFields = new ArrayList<>();
-        this.induceTypeIds = false;
     }
 
     @Override
