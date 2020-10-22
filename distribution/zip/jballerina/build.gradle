@@ -164,9 +164,9 @@ task createZip(type: Zip) {
 
 artifacts {
     jar configurations.dist.files
-    balo configurations.distBal.files
-    source configurations.balSource.files
-    sourceBalx configurations.balxSource.files
+//    balo configurations.distBal.files
+//    source configurations.balSource.files
+//    sourceBalx configurations.balxSource.files
     doc configurations.balDoc.files
     bin file('bin')
     staticFiles configurations.staticArtifacts.files
