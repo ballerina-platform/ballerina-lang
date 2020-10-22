@@ -278,8 +278,7 @@
     },
     {
       "label": "Thread",
-      "kind": "Unit",
-      "detail": "type",
+      "detail": "Union",
       "sortText": "B",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"

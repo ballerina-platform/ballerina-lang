@@ -420,8 +420,7 @@
     },
     {
       "label": "Thread",
-      "kind": "Unit",
-      "detail": "type",
+      "detail": "Union",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
