@@ -81,7 +81,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
             List<TextEdit> textEdits = new ArrayList<>();
             ((ModulePartNode) syntaxTree.rootNode()).members().forEach(member -> {
-                getDocumentationEditForNode(member).ifPresent(docs -> textEdits.add(getTextEdit(docs)));
+                getDocumentationEditForNode(member, true).ifPresent(docs -> textEdits.add(getTextEdit(docs)));
             });
             TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
             LanguageClient languageClient = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);

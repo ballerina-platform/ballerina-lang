@@ -90,7 +90,8 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
             TextDocument textDocument = syntaxTree.textDocument();
             int txtPos = textDocument.textPositionFrom(LinePosition.from(line, 1));
             NonTerminalNode node = ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(txtPos, 0));
-            Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(getDocumentableNode(node));
+            Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(getDocumentableNode(node),
+                                                                                        false);
             if (docAttachmentInfo.isPresent()) {
                 DocAttachmentInfo docs = docAttachmentInfo.get();
                 Range range = new Range(docs.getDocStartPos(), docs.getDocStartPos());
