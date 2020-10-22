@@ -57,12 +57,12 @@ import static org.ballerinalang.model.elements.PackageID.XML;
  *
  * @since 2.0.0
  */
-class Bootstrap {
+public class Bootstrap {
 
     private final PackageResolver packageResolver;
     private boolean langLibLoaded = false;
 
-    Bootstrap(PackageResolver packageResolver) {
+    public Bootstrap(PackageResolver packageResolver) {
         this.packageResolver = packageResolver;
     }
 
@@ -122,7 +122,7 @@ class Bootstrap {
         symResolver.reloadIntRangeType();
     }
 
-    void loadLangLibSymbols(CompilerContext compilerContext) {
+    public void loadLangLibSymbols(CompilerContext compilerContext) {
         SymbolResolver symResolver = SymbolResolver.getInstance(compilerContext);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
 
@@ -186,6 +186,6 @@ class Bootstrap {
         if (bLangPackage != null) {
             return bLangPackage.symbol;
         }
-        return null;
+        return pkgCache.getSymbol(packageID);
     }
 }

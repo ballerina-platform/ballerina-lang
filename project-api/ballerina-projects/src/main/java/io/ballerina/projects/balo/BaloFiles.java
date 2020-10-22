@@ -68,12 +68,11 @@ public class BaloFiles {
 
             // Load default module
             Path defaultModulePathInBalo = zipFileSystem.getPath(MODULES_ROOT, ballerinaToml.getPackage().getName());
-            ModuleData defaultModule = loadModule(defaultModulePathInBalo);
+            ModuleData defaultModule = loadModule(defaultModulePathInBalo, zipFileSystem, ballerinaToml.getPackage().getName());
 
             // load other modules
             Path modulesPathInBalo = zipFileSystem.getPath(MODULES_ROOT);
-            List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo, defaultModulePathInBalo);
-
+            List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo, defaultModulePathInBalo, zipFileSystem, ballerinaToml.getPackage().getName());
             return PackageData.from(absBaloPath, defaultModule, otherModules);
         } catch (IOException e) {
             // TODO add 'unable to load balo: balonamme' as root error message, after exception model
@@ -140,7 +139,7 @@ public class BaloFiles {
         }
     }
 
-    private static ModuleData loadModule(Path modulePath) {
+    private static ModuleData loadModule(Path modulePath, FileSystem zipFileSystem, String pkgName) {
         // check module path exists
         if (!Files.exists(modulePath)) {
             throw new RuntimeException("module does not exists:" + modulePath);
@@ -158,14 +157,24 @@ public class BaloFiles {
                     "Module name can only contain alphanumerics, underscores and periods " +
                     "and the maximum length is 256 characters");
         }
+
+        Path birPath = zipFileSystem.getPath(pkgName + ".bir");
+        byte[] birBytes;
+        try {
+            birBytes = Files.readAllBytes(birPath);
+        } catch (IOException e) {
+            // TODO handle error
+            throw new RuntimeException(e);
+        }
+
         List<DocumentData> srcDocs = loadDocuments(modulePath);
         List<DocumentData> testSrcDocs = Collections.emptyList();
 
         // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
-        return ModuleData.from(modulePath, srcDocs, testSrcDocs);
+        return ModuleData.from(modulePath, srcDocs, testSrcDocs, birBytes);
     }
 
-    private static List<ModuleData> loadOtherModules(Path modulesDirPath, Path defaultModulePath) {
+    private static List<ModuleData> loadOtherModules(Path modulesDirPath, Path defaultModulePath, FileSystem zipFileSystem,  String pkgName) {
         if (!Files.isDirectory(modulesDirPath)) {
             throw new RuntimeException("'modules' directory does not exists:" + modulesDirPath);
         }
@@ -178,7 +187,7 @@ public class BaloFiles {
                     .filter(path -> path.getFileName() != null
                             && !path.getFileName().equals(defaultModulePath.getFileName()))
                     .filter(Files::isDirectory)
-                    .map(BaloFiles::loadModule)
+                    .map(path -> loadModule(path, zipFileSystem, pkgName))
                     .collect(Collectors.toList());
         } catch (IOException e) {
             throw new RuntimeException("unable to load modules from directory:" + e.getMessage());

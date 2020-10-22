@@ -25,16 +25,20 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.BIRPackageSymbolEnter;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,17 +66,20 @@ class ModuleContext {
 
     private Set<ModuleDependency> moduleDependencies;
     private BLangPackage bLangPackage;
+    private BPackageSymbol bPackageSymbol;
     private List<Diagnostic> diagnostics;
 
     private final Bootstrap bootstrap;
+
+    private byte[] birBytes;
 
     // TODO How about introducing a ModuleState concept. ModuleState.DEPENDENCIES_RESOLVED
     private boolean dependenciesResolved;
 
     ModuleContext(Project project, ModuleId moduleId, ModuleName moduleName, boolean isDefaultModule,
-                          Map<DocumentId, DocumentContext> srcDocContextMap,
-                          Map<DocumentId, DocumentContext> testDocContextMap,
-                          Set<ModuleDependency> moduleDependencies) {
+                  Map<DocumentId, DocumentContext> srcDocContextMap,
+                  Map<DocumentId, DocumentContext> testDocContextMap,
+                  Set<ModuleDependency> moduleDependencies) {
         this.project = project;
         this.moduleId = moduleId;
         this.moduleName = moduleName;
@@ -103,10 +110,12 @@ class ModuleContext {
             testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
         }
 
-        return new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleName(),
+        final ModuleContext moduleContext = new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleName(),
                 moduleConfig.isDefaultModule(),
                 srcDocContextMap,
                 testDocContextMap);
+        moduleContext.birBytes = moduleConfig.birBytes;
+        return moduleContext;
     }
 
     ModuleId moduleId() {
@@ -183,18 +192,30 @@ class ModuleContext {
             return;
         }
 
+        PackageID pkgId;
+        if (packageDescriptor.name().value().equals(".") && packageDescriptor.org().anonymous()) {
+            pkgId = PackageID.DEFAULT;
+        } else {
+            pkgId = new PackageID(new Name(packageDescriptor.org().toString()),
+                    new Name(this.moduleName.toString()), new Name(packageDescriptor.version().toString()));
+        }
+
+        String bootstrapLangLibName = System.getProperty("BOOTSTRAP_LANG_LIB");
+        if (bootstrapLangLibName != null) {
+            bootstrap.loadLangLib(compilerContext, pkgId);
+        }
+
         PackageCache packageCache = PackageCache.getInstance(compilerContext);
+        if (birBytes.length > 0) {
+            BIRPackageSymbolEnter birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(compilerContext);
+            bPackageSymbol = birPackageSymbolEnter.definePackage(pkgId, null, birBytes);
+            packageCache.putSymbol(pkgId, bPackageSymbol);
+            diagnostics = new ArrayList<>();
+            return;
+        }
+
         SymbolEnter symbolEnter = SymbolEnter.getInstance(compilerContext);
         CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
-
-        PackageID pkgId = new PackageID(new Name(packageDescriptor.org().toString()),
-                new Name(this.moduleName.toString()), new Name(packageDescriptor.version().toString()));
-
-        if (PackageID.isLangLibPackageID(pkgId)) {
-            bootstrap.loadLangLib(compilerContext, pkgId);
-        } else {
-            bootstrap.loadLangLibSymbols(compilerContext);
-        }
 
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         packageCache.put(pkgId, pkgNode);
@@ -228,8 +249,27 @@ class ModuleContext {
     }
 
     CompiledJarFile compiledJarEntries() {
-        BLangPackage bLangPackage = getBLangPackageOrThrow();
-        return bLangPackage.symbol.compiledJarFile;
+        BPackageSymbol packageSymbol;
+        if (bLangPackage != null) {
+            packageSymbol = bLangPackage.symbol;
+        } else if (bPackageSymbol != null) {
+            packageSymbol = bPackageSymbol;
+        } else {
+            throw new IllegalStateException("Compile the module first!");
+        }
+        return packageSymbol.compiledJarFile;
+    }
+
+    CompiledBinaryFile.BIRPackageFile bir() {
+        BPackageSymbol packageSymbol;
+        if (bLangPackage != null) {
+            packageSymbol = bLangPackage.symbol;
+        } else if (bPackageSymbol != null) {
+            packageSymbol = bPackageSymbol;
+        } else {
+            throw new IllegalStateException("Compile the module first!");
+        }
+        return packageSymbol.birPackageFile;
     }
 
     private BLangPackage getBLangPackageOrThrow() {

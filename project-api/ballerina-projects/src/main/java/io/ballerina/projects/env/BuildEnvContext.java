@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.env;
 
+import io.ballerina.projects.Bootstrap;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.environment.EnvironmentContext;
 import io.ballerina.projects.environment.GlobalPackageCache;
@@ -38,19 +39,19 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_API_INITIATE
  * @since 2.0.0
  */
 public class BuildEnvContext extends EnvironmentContext {
-    private static final BuildEnvContext instance = new BuildEnvContext();
+    private static BuildEnvContext instance;
     private Map<Class<?>, Object> services = new HashMap<>();
 
     CompilerContext compilerContext;
 
     public static BuildEnvContext getInstance() {
+        if (instance == null) {
+            instance = new BuildEnvContext();
+            instance.initGlobalPackageCache();
+            instance.initDistPackageCache();
+            instance.populateCompilerContext();
+        }
         return instance;
-    }
-
-    private BuildEnvContext() {
-        populateCompilerContext();
-        initGlobalPackageCache();
-        initDistPackageCache();
     }
 
     private void initDistPackageCache() {
@@ -67,9 +68,9 @@ public class BuildEnvContext extends EnvironmentContext {
     }
 
     public void reset() {
-        populateCompilerContext();
         initGlobalPackageCache();
         initDistPackageCache();
+        populateCompilerContext();
     }
 
     private void populateCompilerContext() {
@@ -79,6 +80,13 @@ public class BuildEnvContext extends EnvironmentContext {
 
         // TODO Remove the following line, once we fully migrate the old project structures
         options.put(PROJECT_API_INITIATED_COMPILATION, Boolean.toString(true));
+
+        String bootstrapLangLibName = System.getProperty("BOOTSTRAP_LANG_LIB");
+        if (bootstrapLangLibName == null) {
+            Bootstrap bootstrap = new Bootstrap(new LangLibResolver(getService(DistributionPackageCache.class),
+                    getService(GlobalPackageCache.class)));
+            bootstrap.loadLangLibSymbols(compilerContext);
+        }
     }
 
     private void initGlobalPackageCache() {

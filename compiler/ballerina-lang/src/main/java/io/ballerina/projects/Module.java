@@ -17,6 +17,9 @@
  */
 package io.ballerina.projects;
 
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -108,7 +111,7 @@ public class Module {
 
     /** Returns an instance of the Module.Modifier.
      *
-     * @return  module modifier
+     * @return module modifier
      */
     public Modifier modify() {
         return new Modifier(this);
@@ -116,6 +119,10 @@ public class Module {
 
     ModuleContext moduleContext() {
         return moduleContext;
+    }
+
+    CompiledBinaryFile.BIRPackageFile bir() {
+        return moduleContext.bir();
     }
 
     private static class DocumentIterable implements Iterable {
