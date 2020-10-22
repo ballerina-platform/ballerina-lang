@@ -4139,6 +4139,13 @@ public class FormattingTreeModifier extends TreeModifier {
         // Currently wrapping a line is supported at following levels:
         SyntaxKind kind = node.kind();
         switch (kind) {
+            case SIMPLE_NAME_REFERENCE:
+            case QUALIFIED_NAME_REFERENCE:
+                if (node.parent().kind() == SyntaxKind.ANNOTATION) {
+                    break;
+                }
+                return true;
+
             // Parameters
             case DEFAULTABLE_PARAM:
             case REQUIRED_PARAM:
