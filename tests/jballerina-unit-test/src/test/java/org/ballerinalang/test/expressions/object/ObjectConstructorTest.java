@@ -97,7 +97,7 @@ public class ObjectConstructorTest {
         BAssertUtil.validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with " +
                         "type 'any'", 42, 9);
         BAssertUtil.validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with " +
-                "type '(DistinctFooA|DistinctFoo)'", 42, 9);
+                "type '(DistinctFooA|DistinctFoo)'", 53, 47);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }
