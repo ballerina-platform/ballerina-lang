@@ -16,6 +16,9 @@
 
 import ballerina/test;
 
+string[] outputs = [];
+int counter = 0;
+
 @test:Config {}
 function testCallingIsolatedFunction() {
     test:assertEquals(bar(), 34);
@@ -24,4 +27,19 @@ function testCallingIsolatedFunction() {
 @test:Config {}
 isolated function testIsolatedTestFunction() {
     test:assertTrue(true);
+}
+
+@test:Mock {
+    functionName: "print"
+}
+public function mockPrint(string s) {
+    outputs[counter] = s;
+    counter += 1;
+}
+
+@test:Config {}
+function testFunc() {
+    main();
+    test:assertEquals(outputs[0], "hello-isolated");
+    test:assertEquals(outputs[1], "hello-non-isolated");
 }
