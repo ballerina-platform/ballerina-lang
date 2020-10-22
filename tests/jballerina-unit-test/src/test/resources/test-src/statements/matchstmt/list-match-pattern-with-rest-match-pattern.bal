@@ -69,6 +69,36 @@ function testListMatchPatternWithRest4() {
     assertEquals("str", listMatchPattern4([1, 2, "str"]));
 }
 
+function listMatchPattern5(any v) returns int|string {
+    match v {
+        [1, "str", ...var a] => {
+            if (a[0] is string) {
+                return <string> a[0];
+            } else if (a[0] is int) {
+                return <int> a[0];
+            }
+        }
+        [1, ...var a] => {
+            if (a[0] is string) {
+                return <string> a[0];
+            } else if (a[0] is int) {
+                return <int> a[0];
+            }
+        }
+        _ => {
+            return "No match";
+        }
+    }
+    return "No match";
+}
+
+function testListMatchPatternWithRest5() {
+    assertEquals(2, listMatchPattern5([1, "str", 2, 3]));
+    assertEquals("s", listMatchPattern5([1, "str", "s", 3]));
+    assertEquals(2, listMatchPattern5([1, 2, "s", 3]));
+    assertEquals("No match", listMatchPattern5([1, true, "s", 3]));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

@@ -132,6 +132,11 @@ public class MatchStmtListMatchPatternTest {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest4");
     }
 
+    @Test
+    public void testRestMatchPattern5() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest5");
+    }
+
     @Test(description = "invalid match patterns")
     public void testListMatchPatternNegative() {
         Assert.assertEquals(resultNegative.getErrorCount(), 18);

@@ -3153,15 +3153,11 @@ public class Desugar extends BLangNodeVisitor {
         tempBlockStmt.addStatement(successResult);
         if (listMatchPattern.restMatchPattern != null) {
             BLangRestMatchPattern restMatchPattern = listMatchPattern.restMatchPattern;
-            BLangListConstructorExpr listConstructorExpr = ASTBuilderUtil.createListConstructorExpr(pos,
-                    restMatchPattern.type);
-            for (int i = matchPatterns.size(); i < memberTupleTypes.size(); i++) {
-                listConstructorExpr.exprs.add(createIndexBasedAccessExpr(memberTupleTypes.get(i), pos,
-                        new BLangLiteral((long) i, symTable.intType), tempCastVarDef.var.symbol, null));
-            }
             BLangSimpleVarRef restMatchPatternVarRef = declaredVarDef.get(restMatchPattern.getIdentifier().getValue());
             matchStmtsForPattern.add(ASTBuilderUtil.createAssignmentStmt(pos, restMatchPatternVarRef,
-                    listConstructorExpr));
+                    createLangLibInvocationNode("slice", tempCastVarRef,
+                            new ArrayList<>(Arrays.asList(new BLangLiteral((long) matchPatterns.size(),
+                                    symTable.intType))), null, pos)));
         }
 
         BLangIf ifStmtForMatchPatterns = ASTBuilderUtil.createIfElseStmt(pos, condition, tempBlockStmt, null);
