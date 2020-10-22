@@ -71,6 +71,7 @@ class ModuleContext {
 
     private final Bootstrap bootstrap;
 
+    // TODO temporary fix
     private byte[] birBytes;
 
     // TODO How about introducing a ModuleState concept. ModuleState.DEPENDENCIES_RESOLVED
@@ -110,10 +111,9 @@ class ModuleContext {
             testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
         }
 
-        final ModuleContext moduleContext = new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleName(),
-                moduleConfig.isDefaultModule(),
-                srcDocContextMap,
-                testDocContextMap);
+        final ModuleContext moduleContext = new ModuleContext(project, moduleConfig.moduleId(),
+                moduleConfig.moduleName(), moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap);
+        // TODO This is a temporary change
         moduleContext.birBytes = moduleConfig.birBytes;
         return moduleContext;
     }

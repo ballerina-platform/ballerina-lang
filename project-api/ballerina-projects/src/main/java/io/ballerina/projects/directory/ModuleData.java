@@ -18,6 +18,7 @@
 package io.ballerina.projects.directory;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -57,7 +58,7 @@ public class ModuleData {
     }
 
     public byte[] birBytes() {
-        return birBytes;
+        return Arrays.copyOf(birBytes, birBytes.length);
     }
 
     public Path moduleDirectoryPath() {

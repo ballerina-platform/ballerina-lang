@@ -49,11 +49,9 @@ public class BuildLangLib {
         out.println("Building langlib ...");
         out.println("Project Dir: " + projectDir);
 
-
+        // TODO Temporary fix
         String pkgName = projectDir.getFileName().toString();
         System.setProperty("BOOTSTRAP_LANG_LIB", pkgName);
-        System.out.println("Setting BOOTSTRAP_LANG_LIB to:" + pkgName);
-        // TODO set a system property
         Project project = BuildProject.loadProject(projectDir);
         Target target = new Target(projectDir);
         Package pkg = project.currentPackage();

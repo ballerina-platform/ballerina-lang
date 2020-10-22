@@ -1157,12 +1157,12 @@ public class BRunUtil {
     }
 
     private static BIRNode.BIRFunction getInvokedFunction(CompileResult compileResult, String functionName) {
-
         if (compileResult.getErrorCount() > 0) {
+            StringJoiner stringJoiner = new StringJoiner("\n", "\n", "");
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
-                System.out.println(diagnostic);
+                stringJoiner.add(diagnostic.toString());
             }
-            throw new IllegalStateException("There were compilation errors");
+            throw new IllegalStateException("There were compilation errors: " + stringJoiner.toString());
         }
 
         BIRNode.BIRPackage birPackage = compileResult.defaultModuleBIR();

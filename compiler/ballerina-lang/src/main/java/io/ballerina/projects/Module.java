@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.util.Collection;

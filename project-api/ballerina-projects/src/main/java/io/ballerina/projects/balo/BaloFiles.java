@@ -67,12 +67,14 @@ public class BaloFiles {
             BallerinaToml ballerinaToml = loadBallerinaToml(packageJsonPathInBalo);
 
             // Load default module
-            Path defaultModulePathInBalo = zipFileSystem.getPath(MODULES_ROOT, ballerinaToml.getPackage().getName());
-            ModuleData defaultModule = loadModule(defaultModulePathInBalo, zipFileSystem, ballerinaToml.getPackage().getName());
+            String pkgName = ballerinaToml.getPackage().getName();
+            Path defaultModulePathInBalo = zipFileSystem.getPath(MODULES_ROOT, pkgName);
+            ModuleData defaultModule = loadModule(defaultModulePathInBalo, zipFileSystem, pkgName);
 
             // load other modules
             Path modulesPathInBalo = zipFileSystem.getPath(MODULES_ROOT);
-            List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo, defaultModulePathInBalo, zipFileSystem, ballerinaToml.getPackage().getName());
+            List<ModuleData> otherModules = loadOtherModules(modulesPathInBalo,
+                    defaultModulePathInBalo, zipFileSystem, pkgName);
             return PackageData.from(absBaloPath, defaultModule, otherModules);
         } catch (IOException e) {
             // TODO add 'unable to load balo: balonamme' as root error message, after exception model
@@ -174,7 +176,10 @@ public class BaloFiles {
         return ModuleData.from(modulePath, srcDocs, testSrcDocs, birBytes);
     }
 
-    private static List<ModuleData> loadOtherModules(Path modulesDirPath, Path defaultModulePath, FileSystem zipFileSystem,  String pkgName) {
+    private static List<ModuleData> loadOtherModules(Path modulesDirPath,
+                                                     Path defaultModulePath,
+                                                     FileSystem zipFileSystem,
+                                                     String pkgName) {
         if (!Files.isDirectory(modulesDirPath)) {
             throw new RuntimeException("'modules' directory does not exists:" + modulesDirPath);
         }

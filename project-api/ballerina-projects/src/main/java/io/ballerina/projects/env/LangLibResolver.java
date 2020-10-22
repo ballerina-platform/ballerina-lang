@@ -33,6 +33,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Resolves lang lib packages.
+ *
+ * @since 2.0.0
+ */
 public class LangLibResolver extends PackageResolver {
     private final PackageRepo distCache;
     private final GlobalPackageCache globalPackageCache;

@@ -44,7 +44,7 @@ public class BuildEnvContext extends EnvironmentContext {
 
     CompilerContext compilerContext;
 
-    public static BuildEnvContext getInstance() {
+    public static synchronized BuildEnvContext getInstance() {
         if (instance == null) {
             instance = new BuildEnvContext();
             instance.initGlobalPackageCache();
