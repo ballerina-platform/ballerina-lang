@@ -149,7 +149,8 @@ class TypeEmitter {
                 keyStringBuilder.append(fieldName);
             }
             stringRep =
-                    bType.toString() + "<" + emitType(bType.constraint, tabs) + "> key(" + keyStringBuilder.toString() + ")";
+                    bType.toString() + "<" + emitType(bType.constraint, tabs) + "> key(" +
+                            keyStringBuilder.toString() + ")";
         } else {
             stringRep = (bType.toString() + "<" + emitType(bType.constraint, tabs) + "> " +
                     ((bType.keyTypeConstraint != null) ? ("key<" + emitType(bType.keyTypeConstraint, tabs) + ">") :
