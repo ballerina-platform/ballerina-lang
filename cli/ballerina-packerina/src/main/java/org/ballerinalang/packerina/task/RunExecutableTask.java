@@ -121,7 +121,7 @@ public class RunExecutableTask implements Task {
                                                                MODULE_INIT_CLASS_NAME);
         try {
             List<String> commands = new ArrayList<>();
-            commands.add("java");
+            commands.add(System.getProperty("java.command"));
             // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("-cp");
             commands.add(getAllClassPaths(executableModule, buildContext));
